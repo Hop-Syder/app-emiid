@@ -3,7 +3,19 @@
 import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Briefcase, ChevronDown, Globe, Home, Grid, MessageSquare, Search, Settings, Wallet, X } from "lucide-react"
+import {
+  Briefcase,
+  ChevronDown,
+  Globe,
+  Home,
+  Grid,
+  MessageSquare,
+  Search,
+  Settings,
+  Wallet,
+  X,
+  FileText,
+} from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -37,7 +49,15 @@ const sidebarItems = [
     ],
   },
   {
-    title: "MarketProjets",
+    title: "Mes annonces",
+    icon: <FileText />,
+    items: [
+      { title: "Carte d'Annuaire", href: "/creer-profil" },
+      { title: "Carte Market", href: "/creer-annonce" },
+    ],
+  },
+  {
+    title: "Market",
     icon: <Briefcase />,
     badge: "3",
     items: [
@@ -71,7 +91,8 @@ export function NexusSidebar({ sidebarOpen, setSidebarOpen, mobileMenuOpen, setM
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({
     Annuaire: true,
     Portefeuille: true,
-    MarketProjets: true,
+    "Mes annonces": true,
+    Market: true,
   })
 
   const toggleExpanded = (title: string) => {

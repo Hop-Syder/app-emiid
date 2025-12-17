@@ -1,6 +1,6 @@
 "use client"
 
-import { Building2, Bookmark, MessageSquare } from "lucide-react"
+import { Building2, MessageSquare, Heart } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -78,9 +78,6 @@ export function PartenairesProjects() {
             <CardHeader>
               <div className="flex items-start justify-between">
                 <Badge className="rounded-xl bg-amber-100 text-amber-700">Partenaires</Badge>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <Bookmark className="h-4 w-4" />
-                </Button>
               </div>
               <CardTitle className="mt-4">{project.title}</CardTitle>
               <CardDescription>
@@ -107,9 +104,10 @@ export function PartenairesProjects() {
               </div>
 
               <div className="flex gap-2 pt-2">
-                <Button className="flex-1 rounded-2xl">Proposer Partenariat</Button>
+                <Button className="flex-1 rounded-2xl">Détails</Button>
                 <Button variant="outline" className="flex-1 rounded-2xl bg-transparent">
-                  Détails
+                  <Heart className="mr-1 h-3 w-3" />
+                  Suivre
                 </Button>
               </div>
             </CardContent>

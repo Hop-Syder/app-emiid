@@ -7,8 +7,11 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
+import { useRouter } from "next/navigation"
 
 export function DashboardContent() {
+  const router = useRouter()
+
   return (
     <div className="space-y-8">
       {/* Hero Section */}
@@ -27,10 +30,16 @@ export function DashboardContent() {
               entrepreneurs, artisans et institutions à travers l'Afrique de l'Ouest.
             </p>
             <div className="flex flex-wrap gap-3">
-              <Button className="rounded-2xl bg-white text-green-700 hover:bg-white/90">Explorer le Réseau</Button>
+              <Button
+                className="rounded-2xl bg-white text-green-700 hover:bg-white/90"
+                onClick={() => router.push("/creer-annonce")}
+              >
+                Créer une Annonce
+              </Button>
               <Button
                 variant="outline"
                 className="rounded-2xl bg-transparent border-white text-white hover:bg-white/10"
+                onClick={() => router.push("/creer-profil")}
               >
                 Créer mon Profil
               </Button>

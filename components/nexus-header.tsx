@@ -1,6 +1,6 @@
 "use client"
 
-import { Menu, PanelLeft, Bell, MessageSquare, Plus, Search } from "lucide-react"
+import { Menu, PanelLeft, Bell, MessageSquare, Search, Home, Users, Wallet, Briefcase } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -22,9 +22,7 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
     if (pathname === "/") return "dashboard"
     if (pathname.startsWith("/annuaire")) return "annuaire"
     if (pathname.startsWith("/portefeuille")) return "portefeuille"
-    if (pathname.startsWith("/market")) return "market"
-    if (pathname.startsWith("/messages")) return "messages"
-    if (pathname.startsWith("/parametres")) return "parametres"
+    if (pathname.startsWith("/market-projets")) return "market"
     return "dashboard"
   }
 
@@ -33,16 +31,14 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
       dashboard: "/",
       annuaire: "/annuaire/artisans",
       portefeuille: "/portefeuille/profils",
-      market: "/market/financement",
-      messages: "/messages",
-      parametres: "/parametres",
+      market: "/market-projets/financement",
     }
     router.push(routes[value] || "/")
   }
 
   return (
     <header className="sticky top-0 z-20 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-16 items-center gap-4 px-6 border-b">
+      <div className="flex h-16 items-center gap-4 px-4 md:px-6 border-b">
         <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileMenuOpen(true)}>
           <Menu className="h-5 w-5" />
         </Button>
@@ -51,12 +47,12 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
           <PanelLeft className="h-5 w-5" />
         </Button>
 
-        <div className="flex-1">
-          <h1 className="text-xl font-semibold">Nexus Connect</h1>
-          <p className="text-xs text-muted-foreground">Afrique de l'Ouest</p>
+        <div className="flex-1 min-w-0">
+          <h1 className="text-lg md:text-xl font-semibold truncate">Nexus Connect</h1>
+          <p className="text-xs text-muted-foreground hidden sm:block">Afrique de l'Ouest</p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 md:gap-2">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -95,44 +91,35 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
             </Tooltip>
           </TooltipProvider>
 
-          <Avatar className="h-9 w-9 border-2 border-primary">
+          <Avatar className="h-8 w-8 md:h-9 md:w-9 border-2 border-primary">
             <AvatarImage src="/african-user.jpg" alt="User" />
             <AvatarFallback>MK</AvatarFallback>
           </Avatar>
         </div>
       </div>
 
-      <div className="px-6 py-3">
+      <div className="px-4 md:px-6 py-3 overflow-x-auto">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <Tabs value={getActiveTab()} onValueChange={handleTabChange} className="w-full">
-            <TabsList className="grid w-full max-w-[700px] grid-cols-5 md:grid-cols-6 rounded-2xl p-1">
+            <TabsList className="grid w-full grid-cols-4 md:max-w-[500px] rounded-2xl p-1">
               <TabsTrigger value="dashboard" className="rounded-xl data-[state=active]:rounded-xl">
-                Dashboard
+                <Home className="h-4 w-4 md:mr-2" />
+                <span className="hidden md:inline">Dashboard</span>
               </TabsTrigger>
               <TabsTrigger value="annuaire" className="rounded-xl data-[state=active]:rounded-xl">
-                Annuaire
+                <Users className="h-4 w-4 md:mr-2" />
+                <span className="hidden md:inline">Annuaire</span>
               </TabsTrigger>
               <TabsTrigger value="portefeuille" className="rounded-xl data-[state=active]:rounded-xl">
-                Portefeuille
+                <Wallet className="h-4 w-4 md:mr-2" />
+                <span className="hidden md:inline">Portefeuille</span>
               </TabsTrigger>
               <TabsTrigger value="market" className="rounded-xl data-[state=active]:rounded-xl">
-                Market
-              </TabsTrigger>
-              <TabsTrigger value="messages" className="rounded-xl data-[state=active]:rounded-xl md:hidden">
-                Messages
-              </TabsTrigger>
-              <TabsTrigger value="parametres" className="rounded-xl data-[state=active]:rounded-xl">
-                Paramètres
+                <Briefcase className="h-4 w-4 md:mr-2" />
+                <span className="hidden md:inline">Market</span>
               </TabsTrigger>
             </TabsList>
           </Tabs>
-
-          <div className="hidden md:flex gap-2">
-            <Button className="rounded-2xl bg-gradient-to-r from-green-600 to-amber-500 hover:from-green-700 hover:to-amber-600">
-              <Plus className="mr-2 h-4 w-4" />
-              Nouveau Projet
-            </Button>
-          </div>
         </div>
       </div>
     </header>

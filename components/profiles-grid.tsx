@@ -1,6 +1,6 @@
 "use client"
 
-import { Shield, MapPin, TrendingUp, Filter, Search } from "lucide-react"
+import { Shield, MapPin, TrendingUp, Filter, Search, Heart } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -108,9 +108,15 @@ export function ProfilesGrid({ profiles, category }: ProfilesGridProps) {
                 </div>
                 <span>{profile.projects} projets</span>
               </div>
-              <Button size="sm" className="w-full rounded-2xl mt-2">
-                Voir le Profil
-              </Button>
+              <div className="flex gap-2">
+                <Button size="sm" className="flex-1 rounded-2xl">
+                  Voir Profil
+                </Button>
+                <Button size="sm" variant="outline" className="flex-1 rounded-2xl bg-transparent">
+                  <Heart className="mr-1 h-3 w-3" />
+                  Suivre
+                </Button>
+              </div>
             </CardContent>
           </Card>
         ))}
