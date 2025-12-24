@@ -1,0 +1,7 @@
+{
+  "/dashboard/page": "app/dashboard/page.js",
+  "/messages/page": "app/messages/page.js",
+  "/creer-profil/page": "app/creer-profil/page.js",
+  "/annuaire/artisans/page": "app/annuaire/artisans/page.js",
+  "/annuaire/freelances/page": "app/annuaire/freelances/page.js"
+}
