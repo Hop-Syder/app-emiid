@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useRef } from "react"
-import { Send, Search, Image, Paperclip } from "lucide-react"
+import { useState } from "react"
+import { Send, Phone, Video, MoreVertical, Search } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -11,8 +11,6 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 
 export function MessagesContent() {
   const [message, setMessage] = useState("")
-  const imageInputRef = useRef<HTMLInputElement>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const messages = [
     {
@@ -54,38 +52,10 @@ export function MessagesContent() {
     },
   ]
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files
-    if (files && files.length > 0) {
-      const file = files[0]
-      console.log("Image sélectionnée:", file.name)
-      // TODO: Implémenter l'upload réel de l'image
-      alert(`Image sélectionnée: ${file.name}`)
-    }
-  }
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files
-    if (files && files.length > 0) {
-      const file = files[0]
-      console.log("Fichier sélectionné:", file.name)
-      // TODO: Implémenter l'upload réel du fichier
-      alert(`Fichier sélectionné: ${file.name}`)
-    }
-  }
-
-  const handleSendMessage = () => {
-    if (message.trim()) {
-      console.log("Message envoyé:", message)
-      // TODO: Implémenter l'envoi réel du message
-      setMessage("")
-    }
-  }
-
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[minmax(300px,350px)_1fr] gap-6 h-[calc(100vh-16rem)] overflow-y-auto">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-12rem)]">
       {/* Conversations List */}
-      <Card className="rounded-3xl">
+      <Card className="rounded-3xl lg:col-span-1">
         <CardContent className="p-4 h-full flex flex-col">
           <div className="mb-4">
             <div className="relative">
@@ -103,7 +73,7 @@ export function MessagesContent() {
                 </Avatar>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
-                    <h4 className="font-semibold text-sm">Service Client</h4>
+                    <h4 className="font-semibold text-sm">Service Nexus Connect</h4>
                     <Badge className="rounded-full bg-green-500">En ligne</Badge>
                   </div>
                   <p className="text-xs text-muted-foreground truncate">Parfait! La poterie traditionnelle est...</p>
@@ -115,7 +85,7 @@ export function MessagesContent() {
       </Card>
 
       {/* Messages Area */}
-      <Card className="rounded-3xl">
+      <Card className="rounded-3xl lg:col-span-2">
         <CardContent className="p-0 h-full flex flex-col">
           {/* Chat Header */}
           <div className="flex items-center justify-between p-4 border-b">
@@ -125,9 +95,20 @@ export function MessagesContent() {
                 <AvatarFallback>NC</AvatarFallback>
               </Avatar>
               <div>
-                <h3 className="font-semibold">Service Client</h3>
+                <h3 className="font-semibold">Service Nexus Connect</h3>
                 <p className="text-xs text-muted-foreground">En ligne • Répond généralement en quelques minutes</p>
               </div>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="ghost" size="icon" className="rounded-2xl">
+                <Phone className="h-5 w-5" />
+              </Button>
+              <Button variant="ghost" size="icon" className="rounded-2xl">
+                <Video className="h-5 w-5" />
+              </Button>
+              <Button variant="ghost" size="icon" className="rounded-2xl">
+                <MoreVertical className="h-5 w-5" />
+              </Button>
             </div>
           </div>
 
@@ -160,38 +141,6 @@ export function MessagesContent() {
           {/* Message Input */}
           <div className="p-4 border-t">
             <div className="flex gap-2">
-              {/* Hidden file inputs */}
-              <input
-                type="file"
-                ref={imageInputRef}
-                accept="image/*"
-                className="hidden"
-                onChange={handleImageUpload}
-              />
-              <input
-                type="file"
-                ref={fileInputRef}
-                accept=".pdf,.doc,.docx,.txt"
-                className="hidden"
-                onChange={handleFileUpload}
-              />
-
-              <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-2xl"
-                onClick={() => imageInputRef.current?.click()}
-              >
-                <Image className="h-5 w-5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-2xl"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <Paperclip className="h-5 w-5" />
-              </Button>
               <Input
                 placeholder="Écrivez votre message..."
                 value={message}
@@ -199,15 +148,12 @@ export function MessagesContent() {
                 className="rounded-2xl"
                 onKeyPress={(e) => {
                   if (e.key === "Enter") {
-                    handleSendMessage()
+                    // Handle send message
+                    setMessage("")
                   }
                 }}
               />
-              <Button
-                className="rounded-2xl"
-                size="icon"
-                onClick={handleSendMessage}
-              >
+              <Button className="rounded-2xl" size="icon">
                 <Send className="h-5 w-5" />
               </Button>
             </div>

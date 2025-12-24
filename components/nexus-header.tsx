@@ -1,6 +1,6 @@
 "use client"
 
-import { Menu, PanelLeft, Bell, MessageSquare, Home, Users, Wallet, Briefcase } from "lucide-react"
+import { Menu, PanelLeft, Bell, MessageSquare, Search, Home, Users, Wallet, Briefcase } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -28,7 +28,7 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
 
   const handleTabChange = (value: string) => {
     const routes: Record<string, string> = {
-      dashboard: "/dashboard",
+      dashboard: "/",
       annuaire: "/annuaire/artisans",
       portefeuille: "/portefeuille/profils",
       market: "/market-projets/financement",
@@ -53,7 +53,16 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
         </div>
 
         <div className="flex items-center gap-1 md:gap-2">
-
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" className="rounded-2xl">
+                  <Search className="h-5 w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Rechercher</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
 
           <TooltipProvider>
             <Tooltip>

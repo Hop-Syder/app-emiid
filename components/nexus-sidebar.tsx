@@ -28,7 +28,7 @@ const sidebarItems = [
   {
     title: "Dashboard",
     icon: <Home />,
-    href: "/dashboard",
+    href: "/",
   },
   {
     title: "Annuaire",

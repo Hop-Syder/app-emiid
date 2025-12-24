@@ -1,6 +1,6 @@
 "use client"
 
-import { User, Shield, Mail, Smartphone, Bell, Settings } from "lucide-react"
+import { User, Shield, Mail, Smartphone } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -15,21 +15,17 @@ export function ParametresContent() {
   return (
     <Tabs defaultValue="profil" className="space-y-6">
       <TabsList className="grid w-full max-w-[600px] grid-cols-4 rounded-2xl p-1">
-        <TabsTrigger value="profil" className="rounded-xl data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">
-          <User className="h-4 w-4 lg:mr-2" />
-          <span className="hidden lg:inline">Profil</span>
+        <TabsTrigger value="profil" className="rounded-xl">
+          Profil
         </TabsTrigger>
-        <TabsTrigger value="securite" className="rounded-xl data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">
-          <Shield className="h-4 w-4 lg:mr-2" />
-          <span className="hidden lg:inline">Sécurité</span>
+        <TabsTrigger value="securite" className="rounded-xl">
+          Sécurité
         </TabsTrigger>
-        <TabsTrigger value="notifications" className="rounded-xl data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">
-          <Bell className="h-4 w-4 lg:mr-2" />
-          <span className="hidden lg:inline">Notifications</span>
+        <TabsTrigger value="notifications" className="rounded-xl">
+          Notifications
         </TabsTrigger>
-        <TabsTrigger value="preferences" className="rounded-xl data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">
-          <Settings className="h-4 w-4 lg:mr-2" />
-          <span className="hidden lg:inline">Préférences</span>
+        <TabsTrigger value="preferences" className="rounded-xl">
+          Préférences
         </TabsTrigger>
       </TabsList>
 
