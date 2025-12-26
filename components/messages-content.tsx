@@ -1,7 +1,17 @@
+/**
+ * @author @hopsyder
+ * @organization Nexus Partners
+ * @description Page de messagerie avec Service Client et gestion d'uploads
+ * @created 2025-12-24
+ * @updated 2025-12-26
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+*/
+
 "use client"
 
-import { useState } from "react"
-import { Send, Phone, Video, MoreVertical, Search } from "lucide-react"
+import { useState, useRef } from "react"
+import { Send, Search, Image, Paperclip } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -11,6 +21,8 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 
 export function MessagesContent() {
   const [message, setMessage] = useState("")
+  const imageInputRef = useRef<HTMLInputElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const messages = [
     {
@@ -29,7 +41,7 @@ export function MessagesContent() {
     },
     {
       id: 3,
-      sender: "Nexus Connect",
+      sender: "Service Client",
       content:
         "Excellent! Pour créer votre profil artisan, j'ai besoin de quelques informations. Quelle est votre spécialité artisanale?",
       time: "10:32",
@@ -44,7 +56,7 @@ export function MessagesContent() {
     },
     {
       id: 5,
-      sender: "Nexus Connect",
+      sender: "Service Client",
       content:
         "Parfait! La poterie traditionnelle est très recherchée. Dans quelle ville êtes-vous basé? Cela aidera les clients à vous trouver facilement.",
       time: "10:36",
@@ -52,10 +64,32 @@ export function MessagesContent() {
     },
   ]
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (files && files.length > 0) {
+      const file = files[0]
+      alert(`Image sélectionnée: ${file.name}`)
+    }
+  }
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (files && files.length > 0) {
+      const file = files[0]
+      alert(`Fichier sélectionné: ${file.name}`)
+    }
+  }
+
+  const handleSendMessage = () => {
+    if (message.trim()) {
+      setMessage("")
+    }
+  }
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-12rem)]">
+    <div className="grid grid-cols-1 lg:grid-cols-[minmax(300px,350px)_1fr] gap-6 h-[calc(100vh-16rem)] overflow-y-auto">
       {/* Conversations List */}
-      <Card className="rounded-3xl lg:col-span-1">
+      <Card className="rounded-3xl shadow-sm border-none">
         <CardContent className="p-4 h-full flex flex-col">
           <div className="mb-4">
             <div className="relative">
@@ -66,15 +100,15 @@ export function MessagesContent() {
 
           <ScrollArea className="flex-1">
             <div className="space-y-2">
-              <div className="flex items-center gap-3 p-3 rounded-2xl bg-primary/10 cursor-pointer">
+              <div className="flex items-center gap-3 p-3 rounded-2xl bg-primary/10 cursor-pointer border border-primary/5">
                 <Avatar>
                   <AvatarImage src="/nexus-connect-logo.jpg" />
                   <AvatarFallback>NC</AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
-                    <h4 className="font-semibold text-sm">Service Nexus Connect</h4>
-                    <Badge className="rounded-full bg-green-500">En ligne</Badge>
+                    <h4 className="font-semibold text-sm">Service Client</h4>
+                    <Badge className="rounded-full bg-green-500 text-[10px] h-4">En ligne</Badge>
                   </div>
                   <p className="text-xs text-muted-foreground truncate">Parfait! La poterie traditionnelle est...</p>
                 </div>
@@ -85,7 +119,7 @@ export function MessagesContent() {
       </Card>
 
       {/* Messages Area */}
-      <Card className="rounded-3xl lg:col-span-2">
+      <Card className="rounded-3xl shadow-sm border-none">
         <CardContent className="p-0 h-full flex flex-col">
           {/* Chat Header */}
           <div className="flex items-center justify-between p-4 border-b">
@@ -95,20 +129,9 @@ export function MessagesContent() {
                 <AvatarFallback>NC</AvatarFallback>
               </Avatar>
               <div>
-                <h3 className="font-semibold">Service Nexus Connect</h3>
-                <p className="text-xs text-muted-foreground">En ligne • Répond généralement en quelques minutes</p>
+                <h3 className="font-semibold text-primary">Service Client</h3>
+                <p className="text-xs text-muted-foreground italic">En ligne • Répond en quelques minutes</p>
               </div>
-            </div>
-            <div className="flex gap-2">
-              <Button variant="ghost" size="icon" className="rounded-2xl">
-                <Phone className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="icon" className="rounded-2xl">
-                <Video className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="icon" className="rounded-2xl">
-                <MoreVertical className="h-5 w-5" />
-              </Button>
             </div>
           </div>
 
@@ -117,20 +140,25 @@ export function MessagesContent() {
             <div className="space-y-4">
               {messages.map((msg) => (
                 <div key={msg.id} className={`flex ${msg.isBot ? "justify-start" : "justify-end"}`}>
-                  <div className={`flex gap-2 max-w-[70%] ${msg.isBot ? "flex-row" : "flex-row-reverse"}`}>
+                  <div className={`flex gap-2 max-w-[75%] ${msg.isBot ? "flex-row" : "flex-row-reverse"}`}>
                     {msg.isBot && (
-                      <Avatar className="h-8 w-8">
+                      <Avatar className="h-8 w-8 mt-1 border">
                         <AvatarImage src="/nexus-connect-logo.jpg" />
                         <AvatarFallback>NC</AvatarFallback>
                       </Avatar>
                     )}
                     <div>
                       <div
-                        className={`rounded-2xl p-3 ${msg.isBot ? "bg-muted" : "bg-primary text-primary-foreground"}`}
+                        className={`rounded-2xl p-4 shadow-sm ${msg.isBot
+                            ? "bg-muted text-foreground rounded-tl-none border border-muted-foreground/5"
+                            : "bg-primary text-primary-foreground rounded-tr-none shadow-md"
+                          }`}
                       >
-                        <p className="text-sm">{msg.content}</p>
+                        <p className="text-sm leading-relaxed">{msg.content}</p>
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1 px-2">{msg.time}</p>
+                      <p className={`text-[10px] text-muted-foreground mt-1.5 px-2 ${msg.isBot ? "text-left" : "text-right"}`}>
+                        {msg.time}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -139,26 +167,60 @@ export function MessagesContent() {
           </ScrollArea>
 
           {/* Message Input */}
-          <div className="p-4 border-t">
+          <div className="p-4 border-t bg-muted/20">
             <div className="flex gap-2">
+              <input
+                type="file"
+                ref={imageInputRef}
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageUpload}
+              />
+              <input
+                type="file"
+                ref={fileInputRef}
+                accept=".pdf,.doc,.docx,.txt"
+                className="hidden"
+                onChange={handleFileUpload}
+              />
+
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-full hover:bg-primary/10 hover:text-primary transition-colors"
+                onClick={() => imageInputRef.current?.click()}
+              >
+                <Image className="h-5 w-5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-full hover:bg-primary/10 hover:text-primary transition-colors"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <Paperclip className="h-5 w-5" />
+              </Button>
               <Input
                 placeholder="Écrivez votre message..."
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                className="rounded-2xl"
+                className="rounded-2xl border-muted bg-white px-4"
                 onKeyPress={(e) => {
                   if (e.key === "Enter") {
-                    // Handle send message
-                    setMessage("")
+                    handleSendMessage()
                   }
                 }}
               />
-              <Button className="rounded-2xl" size="icon">
-                <Send className="h-5 w-5" />
+              <Button
+                className="rounded-full shadow-lg transition-transform active:scale-95"
+                size="icon"
+                onClick={handleSendMessage}
+              >
+                <Send className="h-4 w-4" />
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground mt-2 px-2">
-              Notre équipe est disponible du lundi au vendredi, de 9h à 18h WAT
+            <p className="text-[10px] text-center text-muted-foreground mt-3 uppercase tracking-wider font-semibold">
+              Support Nexus • Lun-Ven • 9h-18h WAT
             </p>
           </div>
         </CardContent>

@@ -19,7 +19,7 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
   const notifications = 3
 
   const getActiveTab = () => {
-    if (pathname === "/") return "dashboard"
+    if (pathname === "/dashboard" || pathname === "/") return "dashboard"
     if (pathname.startsWith("/annuaire")) return "annuaire"
     if (pathname.startsWith("/portefeuille")) return "portefeuille"
     if (pathname.startsWith("/market-projets")) return "market"
@@ -28,12 +28,12 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
 
   const handleTabChange = (value: string) => {
     const routes: Record<string, string> = {
-      dashboard: "/",
+      dashboard: "/dashboard",
       annuaire: "/annuaire/artisans",
       portefeuille: "/portefeuille/profils",
       market: "/market-projets/financement",
     }
-    router.push(routes[value] || "/")
+    router.push(routes[value] || "/dashboard")
   }
 
   return (
@@ -52,17 +52,6 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
         </div>
 
         <div className="flex items-center gap-1 md:gap-2">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-2xl">
-                  <Search className="h-5 w-5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Rechercher</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
