@@ -1,0 +1,136 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer base {
+  :root {
+    --font-sans: 'Inter', system-ui, sans-serif;
+    --font-mono: ui-monospace, monospace;
+    
+    /* Backgrounds */
+    --background: 0 0% 100%;
+    --foreground: 210 100% 10%;
+    
+    /* Cards */
+    --card: 0 0% 100%;
+    --card-foreground: 210 100% 10%;
+    
+    /* Popovers */
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 100% 10%;
+    
+    /* Primary - Bleu Marine #022753 */
+    --primary: 210 95% 16%;
+    --primary-foreground: 0 0% 100%;
+    
+    /* Secondary - Or/Ambre #F59E0B */
+    --secondary: 38 92% 50%;
+    --secondary-foreground: 210 100% 10%;
+    
+    /* Muted - Gris Chaud */
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+    
+    /* Accent - Corail #FF6B6B */
+    --accent: 0 100% 71%;
+    --accent-foreground: 0 0% 100%;
+    
+    /* Destructive */
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    
+    /* Borders & Inputs */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 210 95% 16%;
+    
+    /* Charts */
+    --chart-1: 210 95% 16%;
+    --chart-2: 0 100% 71%;
+    --chart-3: 38 92% 50%;
+    --chart-4: 142 71% 45%;
+    --chart-5: 220 9% 46%;
+    
+    --radius: 0.75rem;
+    
+    /* Sidebar */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 210 100% 10%;
+    --sidebar-primary: 210 95% 16%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 96%;
+    --sidebar-accent-foreground: 210 100% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 210 95% 16%;
+  }
+  .dark {
+    /* Backgrounds */
+    --background: 210 100% 6%;
+    --foreground: 0 0% 98%;
+    
+    /* Cards */
+    --card: 210 50% 10%;
+    --card-foreground: 0 0% 98%;
+    
+    /* Popovers */
+    --popover: 210 50% 10%;
+    --popover-foreground: 0 0% 98%;
+    
+    /* Primary - Bleu Marine (plus clair en dark) */
+    --primary: 210 100% 70%;
+    --primary-foreground: 210 100% 10%;
+    
+    /* Secondary - Or/Ambre */
+    --secondary: 38 92% 50%;
+    --secondary-foreground: 210 100% 10%;
+    
+    /* Muted */
+    --muted: 210 30% 20%;
+    --muted-foreground: 220 9% 70%;
+    
+    /* Accent - Corail */
+    --accent: 0 100% 71%;
+    --accent-foreground: 210 100% 10%;
+    
+    /* Destructive */
+    --destructive: 0 62.8% 50%;
+    --destructive-foreground: 0 0% 98%;
+    
+    /* Borders & Inputs */
+    --border: 210 30% 25%;
+    --input: 210 30% 25%;
+    --ring: 210 100% 70%;
+    
+    /* Charts */
+    --chart-1: 210 100% 70%;
+    --chart-2: 0 100% 71%;
+    --chart-3: 38 92% 60%;
+    --chart-4: 142 71% 55%;
+    --chart-5: 220 9% 70%;
+    
+    /* Sidebar */
+    --sidebar-background: 210 50% 10%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 210 100% 70%;
+    --sidebar-primary-foreground: 210 100% 10%;
+    --sidebar-accent: 210 30% 20%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 210 30% 25%;
+    --sidebar-ring: 210 100% 70%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
