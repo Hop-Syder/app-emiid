@@ -1,18 +1,4 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
-  "/annuaire/entreprises/page": "app/annuaire/entreprises/page.js",
-  "/annuaire/freelances/page": "app/annuaire/freelances/page.js",
-  "/annuaire/ong/page": "app/annuaire/ong/page.js",
   "/dashboard/page": "app/dashboard/page.js",
-  "/creer-annonce/page": "app/creer-annonce/page.js",
-  "/creer-profil/page": "app/creer-profil/page.js",
-  "/market-projets/a-vendre/page": "app/market-projets/a-vendre/page.js",
-  "/market-projets/financement/page": "app/market-projets/financement/page.js",
-  "/page": "app/page.js",
-  "/market-projets/partenaires/page": "app/market-projets/partenaires/page.js",
-  "/messages/page": "app/messages/page.js",
-  "/parametres/page": "app/parametres/page.js",
-  "/portefeuille/profils/page": "app/portefeuille/profils/page.js",
-  "/portefeuille/projets/page": "app/portefeuille/projets/page.js",
-  "/annuaire/artisans/page": "app/annuaire/artisans/page.js"
+  "/page": "app/page.js"
 }
