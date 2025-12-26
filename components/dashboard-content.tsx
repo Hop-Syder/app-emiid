@@ -41,7 +41,7 @@ export function DashboardContent() {
         transition={{ duration: 0.5 }}
         className="relative overflow-hidden rounded-3xl p-8 text-white min-h-[300px] flex flex-col justify-center"
         style={{
-          backgroundImage: 'url(/dashboard/background-1.jpg)',
+          backgroundImage: 'url(/dashboard/background-1.svg)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}

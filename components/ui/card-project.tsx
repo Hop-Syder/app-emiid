@@ -33,7 +33,8 @@ export function CardProject({ project }: CardProjectProps) {
     }
 
     return (
-        <Card className="rounded-3xl border-none shadow-sm hover:shadow-md transition-all duration-300 group overflow-hidden">
+        <Card className="rounded-3xl border-none shadow-sm hover:shadow-md transition-all duration-300 group overflow-hidden relative">
+
             <CardHeader className="relative overflow-hidden">
                 {project.category === 'Financement' && (
                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">

@@ -22,8 +22,8 @@ export function CardEntrepreneur({ entrepreneur }: CardEntrepreneurProps) {
     return (
         <Card
             className={`rounded-3xl hover:shadow-xl transition-all duration-300 group ${entrepreneur.premium
-                    ? 'relative overflow-hidden border-2 border-transparent'
-                    : 'hover:shadow-lg border-muted/50'
+                ? 'relative overflow-hidden border-2 border-transparent'
+                : 'hover:shadow-lg border-muted/50 relative overflow-hidden'
                 }`}
         >
             {/* Premium background */}
@@ -61,8 +61,8 @@ export function CardEntrepreneur({ entrepreneur }: CardEntrepreneurProps) {
                         <Badge
                             variant="outline"
                             className={`rounded-full transition-colors ${entrepreneur.premium
-                                    ? 'bg-primary/10 border-primary/30 text-primary'
-                                    : 'bg-muted/50'
+                                ? 'bg-primary/10 border-primary/30 text-primary'
+                                : 'bg-muted/50'
                                 }`}
                         >
                             <Shield className="mr-1 h-3 w-3" />
@@ -86,8 +86,8 @@ export function CardEntrepreneur({ entrepreneur }: CardEntrepreneurProps) {
 
                 <Badge
                     className={`rounded-xl px-3 py-1 font-semibold ${entrepreneur.premium
-                            ? 'bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 text-primary'
-                            : 'bg-secondary/10 text-secondary-foreground border border-secondary/20'
+                        ? 'bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 text-primary'
+                        : 'bg-secondary/10 text-secondary-foreground border border-secondary/20'
                         }`}
                 >
                     {entrepreneur.specialty}
@@ -102,8 +102,8 @@ export function CardEntrepreneur({ entrepreneur }: CardEntrepreneurProps) {
                     <Button
                         size="sm"
                         className={`rounded-xl px-5 transition-all active:scale-95 shadow-sm ${entrepreneur.premium
-                                ? 'bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-white font-bold hover:shadow-md'
-                                : 'bg-white hover:bg-primary hover:text-primary-foreground text-foreground border border-muted-foreground/20'
+                            ? 'bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-white font-bold hover:shadow-md'
+                            : 'bg-white hover:bg-primary hover:text-primary-foreground text-foreground border border-muted-foreground/20'
                             }`}
                     >
                         Suivre
