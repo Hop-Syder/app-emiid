@@ -4,6 +4,7 @@ import { Building2, MessageSquare, Heart } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { motion } from "framer-motion"
 
 export function PartenairesProjects() {
   const projects = [
@@ -72,48 +73,55 @@ export function PartenairesProjects() {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <motion.div
+        className="grid grid-cols-1 gap-4 md:grid-cols-2"
+        initial="hidden"
+        animate="visible"
+        variants={{
+          hidden: { opacity: 0 },
+          visible: {
+            opacity: 1,
+            transition: {
+              staggerChildren: 0.2,
+            },
+          },
+        }}
+      >
         {projects.map((project) => (
-          <Card key={project.title} className="rounded-3xl hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <Badge className="rounded-xl bg-amber-100 text-amber-700">Partenaires</Badge>
-              </div>
-              <CardTitle className="mt-4">{project.title}</CardTitle>
-              <CardDescription>
-                {project.creator} • {project.location}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm text-muted-foreground">{project.description}</p>
-
-              <div className="flex items-center gap-2 text-sm">
-                <Building2 className="h-4 w-4 text-amber-600" />
-                <span className="font-medium">Recherche:</span>
-                <span className="text-muted-foreground">{project.seeks}</span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Badge variant="secondary" className="rounded-xl">
-                  {project.type}
-                </Badge>
-                <Badge variant="outline" className="rounded-full">
-                  <MessageSquare className="mr-1 h-3 w-3" />
-                  {project.responses} réponses
-                </Badge>
-              </div>
-
-              <div className="flex gap-2 pt-2">
-                <Button className="flex-1 rounded-2xl">Détails</Button>
-                <Button variant="outline" className="flex-1 rounded-2xl bg-transparent">
-                  <Heart className="mr-1 h-3 w-3" />
-                  Suivre
+          <motion.div
+            key={project.title}
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0 },
+            }}
+            whileHover={{ y: -5, scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
+            <Card className="rounded-3xl h-full hover:shadow-xl transition-shadow duration-300">
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <Badge className="rounded-xl bg-amber-100 text-amber-700">Partenaires</Badge>
+                  <Badge variant="outline" className="rounded-full">
+                    {project.responses} réponses
+                  </Badge>
+                </div>
+                <CardTitle className="mt-4">{project.title}</CardTitle>
+                <CardDescription>{project.creator} • {project.location}</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4 flex-1">
+                <p className="text-sm">{project.description}</p>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Building2 className="h-4 w-4" />
+                  <span>Partenariat: {project.seeks}</span>
+                </div>
+                <Button className="w-full rounded-2xl bg-transparent" variant="outline">
+                  Proposer un Partenariat
                 </Button>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     </div>
   )
 }

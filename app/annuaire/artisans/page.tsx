@@ -12,6 +12,7 @@ export default function ArtisansPage() {
       verified: true,
       followers: 234,
       projects: 12,
+      premium: true,
     },
     {
       name: "Ibrahim Keita",
@@ -22,6 +23,7 @@ export default function ArtisansPage() {
       verified: false,
       followers: 156,
       projects: 45,
+      premium: false,
     },
     {
       name: "Fatou Sow",
@@ -32,6 +34,7 @@ export default function ArtisansPage() {
       verified: true,
       followers: 567,
       projects: 23,
+      premium: true,
     },
     {
       name: "Mamadou Diop",
@@ -42,6 +45,7 @@ export default function ArtisansPage() {
       verified: true,
       followers: 189,
       projects: 34,
+      premium: false,
     },
   ]
 

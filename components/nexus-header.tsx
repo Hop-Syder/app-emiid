@@ -48,8 +48,7 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
         </Button>
 
         <div className="flex-1 min-w-0">
-          <h1 className="text-lg md:text-xl font-semibold truncate">Nexus Connect</h1>
-          <p className="text-xs text-muted-foreground hidden sm:block">Afrique de l'Ouest</p>
+          <img src="/logo/logo.png" alt="Nexus Connect" className="h-8 w-auto" />
         </div>
 
         <div className="flex items-center gap-1 md:gap-2">

@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
+import { motion } from "framer-motion"
 
 export function FinancementProjects() {
   const projects = [
@@ -83,55 +84,60 @@ export function FinancementProjects() {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <motion.div
+        className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
+        initial="hidden"
+        animate="visible"
+        variants={{
+          hidden: { opacity: 0 },
+          visible: {
+            opacity: 1,
+            transition: {
+              staggerChildren: 0.2,
+            },
+          },
+        }}
+      >
         {projects.map((project) => (
-          <Card key={project.title} className="rounded-3xl hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <Badge className="rounded-xl bg-green-100 text-green-700">Financement</Badge>
-              </div>
-              <CardTitle className="mt-4">{project.title}</CardTitle>
-              <CardDescription>
-                {project.creator} • {project.location}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm text-muted-foreground">{project.description}</p>
-
-              <div>
-                <div className="flex items-center justify-between text-sm mb-2">
-                  <span className="font-semibold">{project.amount}</span>
-                  <span className="text-muted-foreground">sur {project.goal}</span>
+          <motion.div
+            key={project.title}
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0 },
+            }}
+            whileHover={{ y: -5, scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
+            <Card className="rounded-3xl h-full hover:shadow-xl transition-shadow duration-300">
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <Badge className="rounded-xl bg-green-100 text-green-700">Financement</Badge>
+                  <Badge variant="outline" className="rounded-full">
+                    {project.dueDate} restants
+                  </Badge>
                 </div>
-                <Progress value={project.progress} className="h-2" />
-              </div>
-
-              <div className="flex items-center justify-between text-sm text-muted-foreground">
-                <div className="flex items-center gap-1">
-                  <Users className="h-4 w-4" />
-                  {project.backers}
+                <CardTitle className="mt-4">{project.title}</CardTitle>
+                <CardDescription>{project.creator} • {project.location}</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4 flex-1">
+                <p className="text-sm">{project.description}</p>
+                <div>
+                  <div className="flex items-center justify-between text-sm mb-2">
+                    <span className="font-semibold">{project.amount}</span>
+                    <span className="text-muted-foreground">sur {project.goal}</span>
+                  </div>
+                  <Progress value={project.progress} className="h-2" />
                 </div>
-                <div className="flex items-center gap-1">
-                  <Calendar className="h-4 w-4" />
-                  {project.dueDate}
+                <div className="flex items-center justify-between text-sm text-muted-foreground">
+                  <span>{project.backers} contributeurs</span>
+                  <span>{project.progress}% financé</span>
                 </div>
-                <div className="flex items-center gap-1">
-                  <TrendingUp className="h-4 w-4" />
-                  {project.progress}%
-                </div>
-              </div>
-
-              <div className="flex gap-2 pt-2">
-                <Button className="flex-1 rounded-2xl">Détails</Button>
-                <Button variant="outline" className="flex-1 rounded-2xl bg-transparent">
-                  <Heart className="mr-1 h-3 w-3" />
-                  Suivre
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+                <Button className="w-full rounded-2xl">Contribuer</Button>
+              </CardContent>
+            </Card>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     </div>
   )
 }
