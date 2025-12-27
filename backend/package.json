@@ -1,35 +1,31 @@
 {
-  "name": "nexus-connect-backend",
+  "name": "app-nexus-connect-backend",
   "version": "1.0.0",
-  "description": "Backend API for Nexus Connect",
-  "main": "dist/server.js",
+  "description": "Le cerveau de l'application Nexus Connect",
+  "main": "src/app.ts",
   "scripts": {
-    "start": "node dist/server.js",
-    "dev": "nodemon src/server.ts",
+    "start": "node dist/app.js",
+    "dev": "nodemon src/app.ts",
     "build": "tsc",
     "lint": "eslint src/**/*.ts",
     "format": "prettier --write \"src/**/*.ts\""
   },
-  "keywords": [
-    "nexus",
-    "connect",
-    "api",
-    "backend"
-  ],
-  "author": "Nexus Partners",
+  "author": "@hopsyder",
   "license": "ISC",
   "dependencies": {
+    "@supabase/supabase-js": "^2.89.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "helmet": "^7.1.0"
+    "helmet": "^8.1.0"
   },
   "devDependencies": {
-    "@types/cors": "^2.8.17",
-    "@types/express": "^4.17.21",
-    "@types/node": "^20.12.7",
-    "nodemon": "^3.1.0",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/helmet": "^0.0.48",
+    "@types/node": "^25.0.3",
+    "nodemon": "^3.1.4",
     "ts-node": "^10.9.2",
-    "typescript": "^5.4.5"
+    "typescript": "^5.9.3"
   }
 }
