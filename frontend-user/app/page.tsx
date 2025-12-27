@@ -45,12 +45,14 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row">
+    <div
+      className="min-h-screen flex flex-col lg:flex-row bg-cover bg-top bg-no-repeat"
+      style={{ backgroundImage: "url('/connexion/background.jpg')" }}
+    >
       {/* LEFT — Branding (TOUJOURS VISIBLE) */}
       <section
         className="relative w-full lg:w-1/2 h-[40vh] lg:h-auto 
                    flex flex-col justify-between px-6 py-8 lg:p-12 text-white"
-        style={{ backgroundImage: "url('/connexion/background.jpg')" }}
       >
         <div className="absolute inset-0 bg-black/60 backdrop-blur-md" />
 
@@ -76,7 +78,7 @@ export default function LoginPage() {
       </section>
 
       {/* RIGHT — Auth */}
-      <section className="flex flex-1 items-center justify-center px-4 py-12 bg-gradient-to-br from-gray-50 to-gray-100">
+      <section className="flex flex-1 items-center justify-center px-4 py-12">
         <div className="w-full max-w-sm space-y-10 rounded-3xl 
                         bg-white/70 backdrop-blur-xl p-8 
                         shadow-xl border border-white/50">
