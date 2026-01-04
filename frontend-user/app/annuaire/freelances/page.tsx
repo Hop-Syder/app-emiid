@@ -1,53 +1,52 @@
+"use client"
+
 import { NexusLayout } from "@/components/nexus-layout"
 import { ProfilesGrid } from "@/components/profiles-grid"
+import { useState, useEffect } from "react"
+import { fetchWithAuth } from "@/lib/apiClient"
+import { Loader2 } from "lucide-react"
 
 export default function FreelancesPage() {
-  const freelancesData = [
-    {
-      name: "Kofi Mensah",
-      role: "Designer Graphique",
-      location: "Accra, Ghana",
-      avatar: "/african-man-designer.jpg",
-      specialty: "Identité visuelle",
-      verified: true,
-      followers: 489,
-      projects: 28,
-    },
-    {
-      name: "Youssef El Mansouri",
-      role: "Développeur Web",
-      location: "Casablanca, Maroc",
-      avatar: "/african-man-developer.jpg",
-      specialty: "React & Node.js",
-      verified: true,
-      followers: 892,
-      projects: 67,
-    },
-    {
-      name: "Aisha Kamara",
-      role: "Rédactrice",
-      location: "Freetown, Sierra Leone",
-      avatar: "/african-woman-writer.jpg",
-      specialty: "Content Marketing",
-      verified: true,
-      followers: 423,
-      projects: 56,
-    },
-    {
-      name: "Omar Ba",
-      role: "Photographe",
-      location: "Dakar, Sénégal",
-      avatar: "/african-man-photographer.jpg",
-      specialty: "Photographie commerciale",
-      verified: false,
-      followers: 756,
-      projects: 89,
-    },
-  ]
+  const [profiles, setProfiles] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const loadProfiles = async () => {
+      try {
+        const response = await fetchWithAuth("/api/users?category=Freelance")
+        if (response.ok) {
+          const data = await response.json()
+          setProfiles(data.map((u: any) => ({
+            name: `${u.first_name} ${u.last_name}`,
+            role: u.role || "Freelance",
+            location: u.location || "N/A",
+            avatar: u.avatar_url || "/african-user.jpg",
+            specialty: u.specialty || "Services",
+            verified: true,
+            followers: 0,
+            projects: 0,
+            premium: false
+          })))
+        }
+      } catch (error) {
+        console.error("Erreur chargement freelances:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadProfiles()
+  }, [])
 
   return (
     <NexusLayout>
-      <ProfilesGrid profiles={freelancesData} category="freelances" />
+      {loading ? (
+        <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+          <Loader2 className="h-10 w-10 animate-spin text-primary" />
+          <p className="text-muted-foreground">Recherche des freelances...</p>
+        </div>
+      ) : (
+        <ProfilesGrid profiles={profiles} category="freelances" />
+      )}
     </NexusLayout>
   )
 }

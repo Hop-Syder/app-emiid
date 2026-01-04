@@ -1,57 +1,52 @@
+"use client"
+
 import { NexusLayout } from "@/components/nexus-layout"
 import { ProfilesGrid } from "@/components/profiles-grid"
+import { useState, useEffect } from "react"
+import { fetchWithAuth } from "@/lib/apiClient"
+import { Loader2 } from "lucide-react"
 
 export default function ArtisansPage() {
-  const artisansData = [
-    {
-      name: "Awa Diallo",
-      role: "Artisan Textile",
-      location: "Dakar, Sénégal",
-      avatar: "/african-woman-entrepreneur.jpg",
-      specialty: "Tissage traditionnel",
-      verified: true,
-      followers: 234,
-      projects: 12,
-      premium: true,
-    },
-    {
-      name: "Ibrahim Keita",
-      role: "Menuisier",
-      location: "Bamako, Mali",
-      avatar: "/african-carpenter.jpg",
-      specialty: "Mobilier sur mesure",
-      verified: false,
-      followers: 156,
-      projects: 45,
-      premium: false,
-    },
-    {
-      name: "Fatou Sow",
-      role: "Couturière",
-      location: "Lomé, Togo",
-      avatar: "/african-woman-tailor.jpg",
-      specialty: "Mode africaine contemporaine",
-      verified: true,
-      followers: 567,
-      projects: 23,
-      premium: true,
-    },
-    {
-      name: "Mamadou Diop",
-      role: "Potier",
-      location: "Ouagadougou, Burkina Faso",
-      avatar: "/african-man-potter.jpg",
-      specialty: "Céramique traditionnelle",
-      verified: true,
-      followers: 189,
-      projects: 34,
-      premium: false,
-    },
-  ]
+  const [profiles, setProfiles] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const loadProfiles = async () => {
+      try {
+        const response = await fetchWithAuth("/api/users?category=Artisan")
+        if (response.ok) {
+          const data = await response.json()
+          setProfiles(data.map((u: any) => ({
+            name: `${u.first_name} ${u.last_name}`,
+            role: u.role || "Artisan",
+            location: u.location || "N/A",
+            avatar: u.avatar_url || "/african-user.jpg",
+            specialty: u.specialty || "Artisanat",
+            verified: true,
+            followers: 0,
+            projects: 0,
+            premium: false
+          })))
+        }
+      } catch (error) {
+        console.error("Erreur chargement artisans:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadProfiles()
+  }, [])
 
   return (
     <NexusLayout>
-      <ProfilesGrid profiles={artisansData} category="artisans" />
+      {loading ? (
+        <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+          <Loader2 className="h-10 w-10 animate-spin text-primary" />
+          <p className="text-muted-foreground">Recherche des artisans...</p>
+        </div>
+      ) : (
+        <ProfilesGrid profiles={profiles} category="artisans" />
+      )}
     </NexusLayout>
   )
 }

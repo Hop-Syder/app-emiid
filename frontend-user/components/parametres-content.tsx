@@ -20,7 +20,10 @@ export function ParametresContent() {
     last_name: "",
     email: "",
     bio: "",
-    avatar_url: ""
+    avatar_url: "",
+    category: "Artisan",
+    role: "",
+    specialty: ""
   })
 
   // Charger le profil au démarrage
@@ -35,7 +38,10 @@ export function ParametresContent() {
             last_name: data.last_name || "",
             email: data.email || "",
             bio: data.bio || "",
-            avatar_url: data.avatar_url || ""
+            avatar_url: data.avatar_url || "",
+            category: data.category || "Artisan",
+            role: data.role || "",
+            specialty: data.specialty || ""
           })
         }
       } catch (error) {
@@ -132,6 +138,47 @@ export function ParametresContent() {
                   className="rounded-2xl"
                 />
               </div>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="category">Catégorie de profil</Label>
+                <Select
+                  value={profile.category}
+                  onValueChange={(val) => setProfile({ ...profile, category: val })}
+                >
+                  <SelectTrigger className="rounded-2xl">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Artisan">Artisan</SelectItem>
+                    <SelectItem value="Freelance">Freelance</SelectItem>
+                    <SelectItem value="Entreprise">Entreprise</SelectItem>
+                    <SelectItem value="ONG">ONG</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="role">Titre / Rôle (ex: Menuisier)</Label>
+                <Input
+                  id="role"
+                  value={profile.role}
+                  onChange={(e) => setProfile({ ...profile, role: e.target.value })}
+                  placeholder="Votre titre professionnel"
+                  className="rounded-2xl"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="specialty">Spécialité (ex: Mobilier Moderne)</Label>
+              <Input
+                id="specialty"
+                value={profile.specialty}
+                onChange={(e) => setProfile({ ...profile, specialty: e.target.value })}
+                placeholder="Votre expertise principale"
+                className="rounded-2xl"
+              />
             </div>
 
             <div className="space-y-2">

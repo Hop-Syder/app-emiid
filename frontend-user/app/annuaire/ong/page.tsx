@@ -1,53 +1,52 @@
+"use client"
+
 import { NexusLayout } from "@/components/nexus-layout"
 import { ProfilesGrid } from "@/components/profiles-grid"
+import { useState, useEffect } from "react"
+import { fetchWithAuth } from "@/lib/apiClient"
+import { Loader2 } from "lucide-react"
 
 export default function ONGPage() {
-  const ongData = [
-    {
-      name: "Education For All",
-      role: "ONG Éducation",
-      location: "Bamako, Mali",
-      avatar: "/education-ngo-logo.jpg",
-      specialty: "Accès à l'éducation",
-      verified: true,
-      followers: 5678,
-      projects: 45,
-    },
-    {
-      name: "Water Wells Initiative",
-      role: "ONG Environnement",
-      location: "Niamey, Niger",
-      avatar: "/water-ngo-logo.jpg",
-      specialty: "Accès à l'eau potable",
-      verified: true,
-      followers: 4321,
-      projects: 78,
-    },
-    {
-      name: "Women Entrepreneurs Network",
-      role: "ONG Entrepreneuriat",
-      location: "Dakar, Sénégal",
-      avatar: "/women-empowerment-ngo-logo.jpg",
-      specialty: "Entrepreneuriat féminin",
-      verified: true,
-      followers: 8934,
-      projects: 123,
-    },
-    {
-      name: "Health Access Africa",
-      role: "ONG Santé",
-      location: "Abidjan, Côte d'Ivoire",
-      avatar: "/health-ngo-logo.jpg",
-      specialty: "Soins médicaux",
-      verified: true,
-      followers: 6789,
-      projects: 89,
-    },
-  ]
+  const [profiles, setProfiles] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const loadProfiles = async () => {
+      try {
+        const response = await fetchWithAuth("/api/users?category=ONG")
+        if (response.ok) {
+          const data = await response.json()
+          setProfiles(data.map((u: any) => ({
+            name: `${u.first_name} ${u.last_name}`,
+            role: u.role || "Représentant ONG",
+            location: u.location || "N/A",
+            avatar: u.avatar_url || "/african-user.jpg",
+            specialty: u.specialty || "Social",
+            verified: true,
+            followers: 0,
+            projects: 0,
+            premium: false
+          })))
+        }
+      } catch (error) {
+        console.error("Erreur chargement ONG:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadProfiles()
+  }, [])
 
   return (
     <NexusLayout>
-      <ProfilesGrid profiles={ongData} category="ong" />
+      {loading ? (
+        <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+          <Loader2 className="h-10 w-10 animate-spin text-primary" />
+          <p className="text-muted-foreground">Recherche des ONG...</p>
+        </div>
+      ) : (
+        <ProfilesGrid profiles={profiles} category="ong" />
+      )}
     </NexusLayout>
   )
 }
