@@ -36,7 +36,7 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
     }
 
     // Injection de l'utilisateur dans l'objet Request pour les controllers suivants
-    req.user = user;
+    (req as any).user = user;
     
     next();
   } catch (err) {

@@ -13,9 +13,21 @@ const app: Application = express();
 const PORT = process.env.PORT || 5000;
 
 // Middlewares
+const allowedOrigins = process.env.CORS_ORIGIN 
+  ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim()) 
+  : ['http://localhost:3000'];
+
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000', // Correspond à l'URL du Frontend
-  credentials: true // Autorise l'envoi de cookies/headers d'authentification
+  origin: (origin, callback) => {
+    // Autorise les requêtes sans origine (comme Postman ou les outils serveurs)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Non autorisé par CORS'));
+    }
+  },
+  credentials: true
 }));
 app.use(express.json()); // Pour parser le JSON des requêtes
 
