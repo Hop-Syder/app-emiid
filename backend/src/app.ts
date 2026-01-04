@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import authRoutes from './api/routes/auth';
 import userRoutes from './api/routes/userRoutes';
 import adsRoutes from './api/routes/adsRoutes';
+import dashboardRoutes from './api/routes/dashboardRoutes';
 
 // Charger les variables d'environnement
 dotenv.config();
@@ -27,6 +28,7 @@ app.get('/', (req: Request, res: Response) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/ads', adsRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 app.listen(PORT, () => {
   console.log(`🚀 Serveur démarré sur le port ${PORT}`);

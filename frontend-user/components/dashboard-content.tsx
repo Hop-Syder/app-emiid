@@ -20,16 +20,70 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useRouter } from "next/navigation"
 import { CardEntrepreneur } from "@/components/ui/card-entrepreneur"
 import { CardProject } from "@/components/ui/card-project"
-import { entrepreneurs, projects } from "@/data/mock-data"
+import { fetchWithAuth } from "@/lib/apiClient"
+// import { entrepreneurs, projects } from "@/data/mock-data" // On utilisera les données réelles
 
 export function DashboardContent() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
+  const [stats, setStats] = useState({
+    totalEntrepreneurs: 0,
+    activeProjects: 0,
+    countriesCovered: 15,
+    totalFunding: 0
+  })
+  const [entrepreneursList, setEntrepreneursList] = useState<any[]>([])
+  const [projectsList, setProjectsList] = useState<any[]>([])
 
   useEffect(() => {
-    // Simulation d'un chargement initial pour le template
-    const timer = setTimeout(() => setLoading(false), 1200)
-    return () => clearTimeout(timer)
+    const loadDashboardData = async () => {
+      try {
+        const [statsRes, entRes, projRes] = await Promise.all([
+          fetchWithAuth("/api/dashboard/stats"),
+          fetchWithAuth("/api/dashboard/featured-entrepreneurs"),
+          fetchWithAuth("/api/ads")
+        ])
+
+        if (statsRes.ok) setStats(await statsRes.json())
+
+        if (entRes.ok) {
+          const entData = await entRes.json()
+          setEntrepreneursList(entData.map((e: any) => ({
+            id: e.user_id,
+            name: `${e.first_name} ${e.last_name}`,
+            role: e.role || "Membre Nexus",
+            location: e.location || "Afrique de l'Ouest",
+            avatar: e.avatar_url || "/african-user.jpg",
+            specialty: e.specialty || "Entrepreneuriat",
+            verified: true,
+            premium: false,
+            followers: 0
+          })))
+        }
+
+        if (projRes.ok) {
+          const projData = await projRes.json()
+          setProjectsList(projData.slice(0, 3).map((p: any) => ({
+            id: p.id,
+            title: p.title,
+            author: "Nexus Actor",
+            location: p.target_audience || "Dakar, Sénégal",
+            category: p.category === 'financement' ? 'Financement' : p.category === 'partenaire' ? 'Partenaires' : 'À vendre',
+            targetAmount: p.budget_limit || 0,
+            currentAmount: 0,
+            progress: 0,
+            daysRemaining: 30,
+            contributors: 0,
+            description: p.description
+          })))
+        }
+      } catch (error) {
+        console.error("Erreur chargement dashboard:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadDashboardData()
   }, [])
 
   return (
@@ -79,10 +133,10 @@ export function DashboardContent() {
       {/* Stats Section */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { label: "Entrepreneurs Connectés", value: "0", sub: "0 mois", icon: Users, color: "text-green-600" },
-          { label: "Projets Actifs", value: "0", sub: "0 mois", icon: Briefcase, color: "text-amber-500" },
-          { label: "Pays Couverts", value: "15", sub: "Afrique de l'Ouest", icon: Globe, color: "text-red-600" },
-          { label: "Financement Levé", value: "0 CFA", sub: "0 CFA cette année", icon: BadgeDollarSign, color: "text-primary" },
+          { label: "Entrepreneurs Connectés", value: stats.totalEntrepreneurs.toString(), sub: "Membres Nexus", icon: Users, color: "text-green-600" },
+          { label: "Projets Actifs", value: stats.activeProjects.toString(), sub: "Annonces Market", icon: Briefcase, color: "text-amber-500" },
+          { label: "Pays Couverts", value: stats.countriesCovered.toString(), sub: "Afrique de l'Ouest", icon: Globe, color: "text-red-600" },
+          { label: "Financement Levé", value: `${stats.totalFunding} CFA`, sub: "Cette année", icon: BadgeDollarSign, color: "text-primary" },
         ].map((stat, i) => (
           <Card key={i} className="rounded-3xl relative overflow-hidden border-none shadow-sm group hover:shadow-md transition-shadow">
             <div
@@ -143,7 +197,7 @@ export function DashboardContent() {
                 </div>
               ))
             ) : (
-              entrepreneurs.map((entrepreneur, index) => (
+              entrepreneursList.map((entrepreneur, index) => (
                 <motion.div
                   key={entrepreneur.id}
                   initial={{ opacity: 0, scale: 0.95 }}
@@ -196,7 +250,7 @@ export function DashboardContent() {
                 </div>
               ))
             ) : (
-              projects.map((project, index) => (
+              projectsList.map((project, index) => (
                 <motion.div
                   key={project.id}
                   initial={{ opacity: 0, y: 10 }}

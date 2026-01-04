@@ -46,7 +46,7 @@ export const getMyProfile = async (req: any, res: Response) => {
  */
 export const updateMyProfile = async (req: any, res: Response) => {
   const userId = req.user.id;
-  const { first_name, last_name, bio, avatar_url } = req.body;
+  const { first_name, last_name, bio, avatar_url, role, specialty, category } = req.body;
 
   try {
     const { data, error } = await supabase
@@ -57,6 +57,9 @@ export const updateMyProfile = async (req: any, res: Response) => {
         last_name, 
         bio, 
         avatar_url,
+        role,
+        specialty,
+        category,
         updated_at: new Date().toISOString()
       }, { onConflict: 'user_id' })
       .select()
@@ -67,5 +70,31 @@ export const updateMyProfile = async (req: any, res: Response) => {
     res.json(data);
   } catch (err) {
     res.status(500).json({ error: "Erreur interne lors de la mise à jour du profil" });
+  }
+};
+
+/**
+ * Récupère tous les profils (public)
+ * GET /api/users
+ */
+export const getAllUsers = async (req: any, res: Response) => {
+  const { category } = req.query;
+  
+  try {
+    let query = supabase
+      .from('user_profiles')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (category) {
+      query = query.eq('category', category);
+    }
+
+    const { data, error } = await query;
+    if (error) return res.status(400).json({ error: error.message });
+    
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: "Erreur interne lors de la récupération des profils" });
   }
 };

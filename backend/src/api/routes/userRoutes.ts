@@ -6,7 +6,7 @@
 */
 
 import { Router } from 'express';
-import { getMyProfile, updateMyProfile } from '../../controllers/userController';
+import { getMyProfile, updateMyProfile, getAllUsers } from '../../controllers/userController';
 import { requireAuth } from '../../middlewares/authMiddleware';
 
 const router = Router();
@@ -21,5 +21,9 @@ router.get('/me', getMyProfile);
 // @route   PUT /api/users/me
 // @desc    Mettre à jour le profil connecté
 router.put('/me', updateMyProfile);
+
+// @route   GET /api/users
+// @desc    Récupérer tous les profils (Artisans, Freelances, etc)
+router.get('/', getAllUsers);
 
 export default router;

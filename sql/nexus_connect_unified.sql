@@ -23,7 +23,10 @@ CREATE TABLE IF NOT EXISTS public.user_profiles (
     last_name VARCHAR(100),
     email VARCHAR(255),
     avatar_url TEXT,
-    bio TEXT, -- Champ ajouté pour la personnalisation
+    bio TEXT,
+    category VARCHAR(50), -- Artisan, Freelance, Entreprise, ONG
+    role VARCHAR(100), -- Titre professionnel (ex: Artisan Textile)
+    specialty VARCHAR(100), -- Spécialité (ex: Tissage traditionnel)
     
     -- Statut & Métadonnées
     has_profile BOOLEAN DEFAULT FALSE,
@@ -96,7 +99,10 @@ BEGIN
         first_name_val,
         last_name_val,
         NEW.email,
-        COALESCE(NEW.raw_user_meta_data->>'avatar_url', NEW.raw_user_meta_data->>'picture')
+        COALESCE(NEW.raw_user_meta_data->>'avatar_url', NEW.raw_user_meta_data->>'picture'),
+        COALESCE(NEW.raw_user_meta_data->>'category', 'Artisan'),
+        COALESCE(NEW.raw_user_meta_data->>'role', ''),
+        COALESCE(NEW.raw_user_meta_data->>'specialty', '')
     )
     ON CONFLICT (user_id) DO NOTHING;
     RETURN NEW;
