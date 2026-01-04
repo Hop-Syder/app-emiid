@@ -1,0 +1,84 @@
+/**
+ * @author @hopsyder
+ * @organization Nexus Partners
+ * @description Contrôleur pour la gestion des annonces (Ads)
+ * @created 2026-01-04
+*/
+
+import { Response } from 'express';
+import { supabase } from '../config/supabase';
+
+/**
+ * Créer une nouvelle annonce
+ * POST /api/ads
+ */
+export const createAd = async (req: any, res: Response) => {
+  const userId = req.user.id;
+  const { title, description, content, target_audience, category, budget_limit } = req.body;
+
+  try {
+    const { data, error } = await supabase
+      .from('ads')
+      .insert({
+        user_id: userId,
+        title,
+        description,
+        content,
+        target_audience,
+        category,
+        budget_limit,
+        status: 'pending',
+        created_at: new Date().toISOString()
+      })
+      .select()
+      .single();
+
+    if (error) return res.status(400).json({ error: error.message });
+    
+    res.status(201).json(data);
+  } catch (err) {
+    res.status(500).json({ error: "Erreur interne lors de la création de l'annonce" });
+  }
+};
+
+/**
+ * Récupérer les annonces de l'utilisateur connecté
+ * GET /api/ads/my-ads
+ */
+export const getMyAds = async (req: any, res: Response) => {
+  const userId = req.user.id;
+
+  try {
+    const { data, error } = await supabase
+      .from('ads')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) return res.status(400).json({ error: error.message });
+    
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: "Erreur interne lors de la récupération des annonces" });
+  }
+};
+
+/**
+ * Récupérer toutes les annonces actives (Public)
+ * GET /api/ads
+ */
+export const getAllAds = async (req: any, res: Response) => {
+  try {
+    const { data, error } = await supabase
+      .from('ads')
+      .select('*')
+      .eq('status', 'active')
+      .order('created_at', { ascending: false });
+
+    if (error) return res.status(400).json({ error: error.message });
+    
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: "Erreur interne lors de la récupération des annonces" });
+  }
+};

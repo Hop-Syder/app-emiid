@@ -10,9 +10,14 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { Save, Send, DollarSign, Users, ShoppingBag } from "lucide-react"
+import { Save, Send, DollarSign, Users, ShoppingBag, Loader2 } from "lucide-react"
+import { fetchWithAuth } from "@/lib/apiClient"
+import { toast } from "sonner"
+import { useRouter } from "next/navigation"
 
 export default function CreateAnnoncePage() {
+  const router = useRouter()
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState({
     title: "",
     type: "",
@@ -27,12 +32,37 @@ export default function CreateAnnoncePage() {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
-  const handleSave = () => {
-    alert("Annonce enregistrée avec succès!")
-  }
+  const handlePublish = async () => {
+    if (!formData.title || !formData.type || !formData.description) {
+      toast.error("Veuillez remplir tous les champs obligatoires (*)")
+      return
+    }
 
-  const handlePublish = () => {
-    alert("Annonce publiée dans le Market!")
+    setIsSubmitting(true)
+    try {
+      const response = await fetchWithAuth("/api/ads", {
+        method: "POST",
+        body: JSON.stringify({
+          title: formData.title,
+          description: formData.description,
+          content: formData.description, // On utilise la description comme contenu par défaut
+          category: formData.category,
+          budget_limit: parseFloat(formData.amount) || 0,
+          target_audience: formData.location || "Global",
+        })
+      })
+
+      if (response.ok) {
+        toast.success("Annonce publiée avec succès !")
+        router.push("/market-projets/financement") // Redirection vers le market
+      } else {
+        toast.error("Erreur lors de la publication")
+      }
+    } catch (error) {
+      toast.error("Erreur réseau")
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const getIcon = () => {
@@ -160,12 +190,16 @@ export default function CreateAnnoncePage() {
 
                 {/* Actions */}
                 <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                  <Button onClick={handleSave} variant="outline" className="rounded-2xl flex-1 bg-transparent">
+                  <Button variant="outline" className="rounded-2xl flex-1 bg-transparent" disabled={isSubmitting}>
                     <Save className="mr-2 h-4 w-4" />
                     Enregistrer le brouillon
                   </Button>
-                  <Button onClick={handlePublish} className="rounded-2xl flex-1">
-                    <Send className="mr-2 h-4 w-4" />
+                  <Button onClick={handlePublish} className="rounded-2xl flex-1" disabled={isSubmitting}>
+                    {isSubmitting ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Send className="mr-2 h-4 w-4" />
+                    )}
                     Publier l'annonce
                   </Button>
                 </div>
@@ -182,13 +216,12 @@ export default function CreateAnnoncePage() {
                 <div className="flex items-start justify-between">
                   {formData.type && (
                     <Badge
-                      className={`rounded-xl ${
-                        formData.type === "financement"
+                      className={`rounded-xl ${formData.type === "financement"
                           ? "bg-green-100 text-green-700"
                           : formData.type === "partenaire"
                             ? "bg-amber-100 text-amber-700"
                             : "bg-red-100 text-red-700"
-                      }`}
+                        }`}
                     >
                       {getIcon()}
                       <span className="ml-1">

@@ -6,6 +6,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { usePathname, useRouter } from "next/navigation"
+import { useState, useEffect } from "react"
+import { fetchWithAuth } from "@/lib/apiClient"
 
 interface NexusHeaderProps {
   sidebarOpen: boolean
@@ -17,6 +19,22 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
   const pathname = usePathname()
   const router = useRouter()
   const notifications = 3
+  const [user, setUser] = useState<{ first_name: string; last_name: string; avatar_url?: string } | null>(null)
+
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const response = await fetchWithAuth("/api/users/me")
+        if (response.ok) {
+          const data = await response.json()
+          setUser(data)
+        }
+      } catch (error) {
+        console.error("Erreur chargement user header:", error)
+      }
+    }
+    loadUser()
+  }, [])
 
   const getActiveTab = () => {
     if (pathname === "/dashboard" || pathname === "/") return "dashboard"
@@ -80,8 +98,8 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
           </TooltipProvider>
 
           <Avatar className="h-8 w-8 md:h-9 md:w-9 border-2 border-primary">
-            <AvatarImage src="/african-user.jpg" alt="User" />
-            <AvatarFallback>MK</AvatarFallback>
+            <AvatarImage src={user?.avatar_url || "/african-user.jpg"} alt="User" />
+            <AvatarFallback>{user?.first_name?.[0] || 'U'}{user?.last_name?.[0] || ''}</AvatarFallback>
           </Avatar>
         </div>
       </div>

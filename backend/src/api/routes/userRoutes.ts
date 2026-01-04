@@ -1,0 +1,25 @@
+/**
+ * @author @hopsyder
+ * @organization Nexus Partners
+ * @description Routes pour la gestion des utilisateurs
+ * @created 2026-01-04
+*/
+
+import { Router } from 'express';
+import { getMyProfile, updateMyProfile } from '../../controllers/userController';
+import { requireAuth } from '../../middlewares/authMiddleware';
+
+const router = Router();
+
+// Toutes les routes ici nécessitent une authentification
+router.use(requireAuth);
+
+// @route   GET /api/users/me
+// @desc    Récupérer le profil connecté
+router.get('/me', getMyProfile);
+
+// @route   PUT /api/users/me
+// @desc    Mettre à jour le profil connecté
+router.put('/me', updateMyProfile);
+
+export default router;

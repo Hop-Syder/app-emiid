@@ -6,54 +6,53 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { motion } from "framer-motion"
+import { useState, useEffect } from "react"
+import { fetchWithAuth } from "@/lib/apiClient"
+import { Loader2 } from "lucide-react"
 
 export function FinancementProjects() {
-  const projects = [
-    {
-      title: "Expansion Atelier Textile",
-      creator: "Awa Diallo",
-      location: "Dakar, Sénégal",
-      amount: "15,000 €",
-      goal: "25,000 €",
-      progress: 60,
-      dueDate: "30j",
-      backers: 45,
-      description: "Agrandissement de l'atelier et achat de nouveaux métiers à tisser",
-    },
-    {
-      title: "Application Mobile Agricole",
-      creator: "Moussa Traoré",
-      location: "Bamako, Mali",
-      amount: "8,500 €",
-      goal: "15,000 €",
-      progress: 57,
-      dueDate: "45j",
-      backers: 32,
-      description: "Plateforme connectant agriculteurs et acheteurs locaux",
-    },
-    {
-      title: "École de Couture Moderne",
-      creator: "Fatou Sow",
-      location: "Lomé, Togo",
-      amount: "12,000 €",
-      goal: "20,000 €",
-      progress: 60,
-      dueDate: "20j",
-      backers: 56,
-      description: "Centre de formation en couture avec équipements modernes",
-    },
-    {
-      title: "Restaurant Gastronomique Africain",
-      creator: "Chef Kwame",
-      location: "Accra, Ghana",
-      amount: "18,500 €",
-      goal: "30,000 €",
-      progress: 62,
-      dueDate: "60j",
-      backers: 78,
-      description: "Restaurant mettant en valeur la cuisine ouest-africaine",
-    },
-  ]
+  const [projects, setProjects] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const loadAds = async () => {
+      try {
+        const response = await fetchWithAuth("/api/ads")
+        if (response.ok) {
+          const data = await response.json()
+          // Filtrer par catégorie ou type si nécessaire, ici on prend tout pour l'exemple
+          const mappedProjects = data.map((ad: any) => ({
+            id: ad.id,
+            title: ad.title,
+            creator: "Entrepreneur Nexus", // À améliorer avec une jointure profile
+            location: ad.target_audience || "N/A",
+            amount: "0 €", // Donnée non disponible pour le moment
+            goal: `${ad.budget_limit} €`,
+            progress: 0,
+            dueDate: "En cours",
+            backers: 0,
+            description: ad.description,
+            category: ad.category
+          }))
+          setProjects(mappedProjects)
+        }
+      } catch (error) {
+        console.error("Erreur chargement market:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadAds()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <p className="text-muted-foreground">Chargement des projets...</p>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -100,7 +99,7 @@ export function FinancementProjects() {
       >
         {projects.map((project) => (
           <motion.div
-            key={project.title}
+            key={project.id || project.title}
             variants={{
               hidden: { opacity: 0, y: 20 },
               visible: { opacity: 1, y: 0 },

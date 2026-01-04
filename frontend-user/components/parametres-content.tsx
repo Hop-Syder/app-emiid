@@ -1,6 +1,5 @@
-"use client"
-
-import { User, Shield, Mail, Smartphone } from "lucide-react"
+import { useState, useEffect } from "react"
+import { User, Shield, Mail, Smartphone, Loader2 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -10,8 +9,73 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { fetchWithAuth } from "@/lib/apiClient"
+import { toast } from "sonner"
 
 export function ParametresContent() {
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [profile, setProfile] = useState({
+    first_name: "",
+    last_name: "",
+    email: "",
+    bio: "",
+    avatar_url: ""
+  })
+
+  // Charger le profil au démarrage
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const response = await fetchWithAuth("/api/users/me")
+        if (response.ok) {
+          const data = await response.json()
+          setProfile({
+            first_name: data.first_name || "",
+            last_name: data.last_name || "",
+            email: data.email || "",
+            bio: data.bio || "",
+            avatar_url: data.avatar_url || ""
+          })
+        }
+      } catch (error) {
+        console.error("Erreur chargement profil:", error)
+        toast.error("Impossible de charger votre profil")
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadProfile()
+  }, [])
+
+  const handleSave = async () => {
+    setSaving(true)
+    try {
+      const response = await fetchWithAuth("/api/users/me", {
+        method: "PUT",
+        body: JSON.stringify(profile)
+      })
+      if (response.ok) {
+        toast.success("Profil mis à jour avec succès !")
+      } else {
+        toast.error("Erreur lors de la mise à jour")
+      }
+    } catch (error) {
+      toast.error("Erreur réseau")
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <p className="text-muted-foreground">Chargement de votre profil...</p>
+      </div>
+    )
+  }
+
   return (
     <Tabs defaultValue="profil" className="space-y-6">
       <TabsList className="grid w-full max-w-[600px] grid-cols-4 rounded-2xl p-1">
@@ -38,8 +102,8 @@ export function ParametresContent() {
           <CardContent className="space-y-6">
             <div className="flex items-center gap-4">
               <Avatar className="h-20 w-20">
-                <AvatarImage src="/african-user.jpg" alt="User" />
-                <AvatarFallback>MK</AvatarFallback>
+                <AvatarImage src={profile.avatar_url || "/african-user.jpg"} alt="User" />
+                <AvatarFallback>{profile.first_name?.[0]}{profile.last_name?.[0]}</AvatarFallback>
               </Avatar>
               <div className="space-y-2">
                 <Button variant="outline" className="rounded-2xl bg-transparent">
@@ -52,17 +116,33 @@ export function ParametresContent() {
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="prenom">Prénom</Label>
-                <Input id="prenom" defaultValue="Mohamed" className="rounded-2xl" />
+                <Input
+                  id="prenom"
+                  value={profile.first_name}
+                  onChange={(e) => setProfile({ ...profile, first_name: e.target.value })}
+                  className="rounded-2xl"
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="nom">Nom</Label>
-                <Input id="nom" defaultValue="Keita" className="rounded-2xl" />
+                <Input
+                  id="nom"
+                  value={profile.last_name}
+                  onChange={(e) => setProfile({ ...profile, last_name: e.target.value })}
+                  className="rounded-2xl"
+                />
               </div>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" defaultValue="mohamed.keita@example.com" className="rounded-2xl" />
+              <Input
+                id="email"
+                type="email"
+                value={profile.email}
+                className="rounded-2xl bg-muted"
+                disabled
+              />
             </div>
 
             <div className="space-y-2">
@@ -91,7 +171,8 @@ export function ParametresContent() {
                 id="bio"
                 className="w-full min-h-[100px] rounded-2xl border border-input bg-background px-3 py-2 text-sm"
                 placeholder="Parlez-nous de vous..."
-                defaultValue="Entrepreneur passionné basé à Bamako"
+                value={profile.bio}
+                onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
               />
             </div>
 
@@ -99,7 +180,13 @@ export function ParametresContent() {
               <Button variant="outline" className="rounded-2xl bg-transparent">
                 Annuler
               </Button>
-              <Button className="rounded-2xl">Enregistrer les modifications</Button>
+              <Button
+                onClick={handleSave}
+                disabled={saving}
+                className="rounded-2xl"
+              >
+                {saving ? "Enregistrement..." : "Enregistrer les modifications"}
+              </Button>
             </div>
           </CardContent>
         </Card>
