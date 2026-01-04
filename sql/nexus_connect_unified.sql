@@ -3,21 +3,27 @@
  * @organization Nexus Partners
  * @description Schéma SQL Unifié : Authentification + Application (Profils & Annonces)
  * @created 2026-01-04
-*/
+ *
+ * Version finale : corrections
+ * - Utilise gen_random_uuid() (pgcrypto) pour cohérence
+ * - INSERT du trigger handle_new_user : liste de colonnes alignée sur les valeurs
+ * - Fonction handle_new_user déclarée SECURITY DEFINER (on recommande de révoquer l'exécution pour anon/authenticated)
+ * - Trigger empêchant la modification de ads.user_id
+ * - Politiques RLS corrigées (éviter références invalides à NEW)
+ */
 
 -- ==========================================
 -- 1. EXTENSIONS & PRÉPARATION
 -- ==========================================
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS pgcrypto;      -- fournit gen_random_uuid()
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";  -- optionnel, conservé si besoin
 
 -- ==========================================
 -- 2. TABLE DES PROFILS (user_profiles)
 -- ==========================================
--- Cette table stocke les informations visibles et modifiables de l'utilisateur.
 CREATE TABLE IF NOT EXISTS public.user_profiles (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE UNIQUE NOT NULL,
-    
     -- Informations personnelles
     first_name VARCHAR(100),
     last_name VARCHAR(100),
@@ -25,53 +31,45 @@ CREATE TABLE IF NOT EXISTS public.user_profiles (
     avatar_url TEXT,
     bio TEXT,
     category VARCHAR(50), -- Artisan, Freelance, Entreprise, ONG
-    role VARCHAR(100), -- Titre professionnel (ex: Artisan Textile)
-    specialty VARCHAR(100), -- Spécialité (ex: Tissage traditionnel)
-    
+    role VARCHAR(100),    -- Titre professionnel
+    specialty VARCHAR(100), -- Spécialité
     -- Statut & Métadonnées
     has_profile BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Index pour la rapidité des recherches par user_id
 CREATE INDEX IF NOT EXISTS idx_user_profiles_user_id ON public.user_profiles(user_id);
 
 -- ==========================================
 -- 3. TABLE DES ANNONCES (ads)
 -- ==========================================
--- Gère les annonces (Marketplace) postées par les utilisateurs.
 CREATE TABLE IF NOT EXISTS public.ads (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
-    
     -- Contenu de l'annonce
     title TEXT NOT NULL,
     description TEXT,
     content TEXT,
     category VARCHAR(50),
     target_audience TEXT,
-    
     -- Valeurs financières & Statut
     budget_limit NUMERIC DEFAULT 0,
     status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('pending', 'active', 'completed', 'deleted')),
-    
     -- Timestamps
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Index pour filtrer par user, statut et date (Performance Senior)
 CREATE INDEX IF NOT EXISTS idx_ads_user_id ON public.ads(user_id);
 CREATE INDEX IF NOT EXISTS idx_ads_status ON public.ads(status);
 CREATE INDEX IF NOT EXISTS idx_ads_created_at ON public.ads(created_at DESC);
 
 -- ==========================================
--- 4. LOGIQUE AUTOMATIQUE (Triggers)
+-- 4. LOGIQUE AUTOMATIQUE (Triggers & fonctions)
 -- ==========================================
 
 -- Fonction pour créer automatiquement un profil à l'inscription
--- Gère intelligemment Google, LinkedIn et Email
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -80,20 +78,30 @@ DECLARE
 BEGIN
     -- Extraction intelligente du prénom/nom selon le provider
     first_name_val := COALESCE(
-        NEW.raw_user_meta_data->>'first_name', 
-        NEW.raw_user_meta_data->>'given_name', 
+        NEW.raw_user_meta_data->>'first_name',
+        NEW.raw_user_meta_data->>'given_name',
         split_part(NEW.raw_user_meta_data->>'full_name', ' ', 1),
         'Utilisateur'
     );
-    
+
     last_name_val := COALESCE(
-        NEW.raw_user_meta_data->>'last_name', 
+        NEW.raw_user_meta_data->>'last_name',
         NEW.raw_user_meta_data->>'family_name',
-        NULLIF(substring(NEW.raw_user_meta_data->>'full_name' FROM length(split_part(NEW.raw_user_meta_data->>'full_name', ' ', 1)) + 2), ''),
+        NULLIF(substring(NEW.raw_user_meta_data->>'full_name'
+            FROM length(split_part(NEW.raw_user_meta_data->>'full_name', ' ', 1)) + 2), ''),
         ''
     );
 
-    INSERT INTO public.user_profiles (user_id, first_name, last_name, email, avatar_url)
+    INSERT INTO public.user_profiles (
+        user_id,
+        first_name,
+        last_name,
+        email,
+        avatar_url,
+        category,
+        role,
+        specialty
+    )
     VALUES (
         NEW.id,
         first_name_val,
@@ -105,42 +113,85 @@ BEGIN
         COALESCE(NEW.raw_user_meta_data->>'specialty', '')
     )
     ON CONFLICT (user_id) DO NOTHING;
+
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Activation du trigger sur auth.users
+-- Trigger pour appeler la fonction après création d'un utilisateur auth
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
     AFTER INSERT ON auth.users
     FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
+-- Fonction pour empêcher la modification de ads.user_id
+CREATE OR REPLACE FUNCTION public.prevent_ads_user_id_change()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF TG_OP = 'UPDATE' THEN
+        IF NEW.user_id IS DISTINCT FROM OLD.user_id THEN
+            RAISE EXCEPTION 'Modification du champ user_id non autorisée';
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS prevent_ads_user_id_change_trg ON public.ads;
+CREATE TRIGGER prevent_ads_user_id_change_trg
+    BEFORE UPDATE ON public.ads
+    FOR EACH ROW EXECUTE FUNCTION public.prevent_ads_user_id_change();
+
+-- Revoke execute on sensitive functions from public/authenticated (bonne pratique)
+REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM authenticated;
+REVOKE EXECUTE ON FUNCTION public.prevent_ads_user_id_change() FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.prevent_ads_user_id_change() FROM authenticated;
+
 -- ==========================================
 -- 5. SÉCURITÉ (Row Level Security - RLS)
 -- ==========================================
 
--- Activer RLS sur les tables
 ALTER TABLE public.user_profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.ads ENABLE ROW LEVEL SECURITY;
 
--- POLITIQUES POUR USER_PROFILES
--- Tout le monde peut voir les profils
+-- USER_PROFILES policies
+DROP POLICY IF EXISTS "Profils publics" ON public.user_profiles;
 CREATE POLICY "Profils publics" ON public.user_profiles
     FOR SELECT USING (true);
 
--- L'utilisateur peut modifier SON profil
+DROP POLICY IF EXISTS "Modification propre profil" ON public.user_profiles;
 CREATE POLICY "Modification propre profil" ON public.user_profiles
-    FOR UPDATE USING (auth.uid() = user_id);
+    FOR UPDATE USING ((SELECT auth.uid()) = user_id)
+    WITH CHECK ((SELECT auth.uid()) = user_id);
 
--- POLITIQUES POUR ADS (ANNONCES)
--- Tout le monde voit les annonces actives
+-- ADS policies
+DROP POLICY IF EXISTS "Annonces actives visibles" ON public.ads;
 CREATE POLICY "Annonces actives visibles" ON public.ads
-    FOR SELECT USING (status = 'active' OR auth.uid() = user_id);
+    FOR SELECT USING (status = 'active' OR (SELECT auth.uid()) = user_id);
 
--- L'utilisateur peut insérer ses annonces
+DROP POLICY IF EXISTS "Utilisateurs créent annonces" ON public.ads;
 CREATE POLICY "Utilisateurs créent annonces" ON public.ads
-    FOR INSERT WITH CHECK (auth.uid() = user_id);
+    FOR INSERT WITH CHECK ((SELECT auth.uid()) = user_id);
 
--- L'utilisateur peut modifier ses annonces
+DROP POLICY IF EXISTS "Utilisateurs modifient annonces" ON public.ads;
 CREATE POLICY "Utilisateurs modifient annonces" ON public.ads
-    FOR UPDATE USING (auth.uid() = user_id);
+    FOR UPDATE
+    USING ((SELECT auth.uid()) = user_id)
+    WITH CHECK ((SELECT auth.uid()) = user_id);
+
+-- ==========================================
+-- 6. RECOMMANDATIONS & NOTES
+-- ==========================================
+-- 1) Cohérence UUID :
+--    - Ce fichier utilise gen_random_uuid() (pgcrypto). Si vous préférez uuid-ossp, remplacez gen_random_uuid() par uuid_generate_v4()
+--      et vérifiez que l'extension uuid-ossp est activée et disponible dans votre instance.
+-- 2) Confidentialité :
+--    - La policy "Profils publics" expose toutes les colonnes en lecture. Si vous souhaitez masquer des champs sensibles (email),
+--      créez une vue publique avec les champs non sensibles et limitez l'accès direct à la table.
+-- 3) Permissions :
+--    - Les fonctions SECURITY DEFINER sont créées ; conservez la révocation d'EXECUTE pour anon/authenticated si la logique doit rester uniquement
+--      déclenchée par des triggers et non appelée directement par des utilisateurs.
+-- 4) Tests :
+--    - Testez l'inscription d'un utilisateur via l'API Auth et vérifiez la création automatique du profil.
+--    - Testez l'insertion/mise à jour/suppression d'annonces en tant qu'utilisateur authentifié et non-authentifié pour valider les politiques RLS.
