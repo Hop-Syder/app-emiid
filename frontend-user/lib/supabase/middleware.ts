@@ -31,30 +31,28 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
+  // IMPORTANT: getUser() est plus sûr que getSession() pour le middleware
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Routes publiques (ajouter ici si besoin)
-  const isPublicRoute = request.nextUrl.pathname === '/login' || 
-                        request.nextUrl.pathname === '/auth/callback' ||
-                        request.nextUrl.pathname.startsWith('/api/') // L'API a sa propre auth
+  const pathname = request.nextUrl.pathname
 
-  // Protection des routes privées
-  const isPrivateRoute = request.nextUrl.pathname.startsWith('/dashboard') ||
-                         request.nextUrl.pathname.startsWith('/annuaire') ||
-                         request.nextUrl.pathname.startsWith('/portefeuille') ||
-                         request.nextUrl.pathname.startsWith('/creer-') ||
-                         request.nextUrl.pathname.startsWith('/market-projets') ||
-                         request.nextUrl.pathname.startsWith('/messages') ||
-                         request.nextUrl.pathname.startsWith('/parametres')
+  // Les routes qui ne nécessitent PAS de connexion
+  // Note: La page de login est à la racine '/'
+  const isPublicRoute = pathname === '/' || 
+                        pathname === '/auth/callback' ||
+                        pathname.startsWith('/api/') ||
+                        pathname.startsWith('/_next') ||
+                        pathname === '/favicon.ico'
 
-  if (isPrivateRoute && !user) {
-    return NextResponse.redirect(new URL('/login', request.url))
+  // Protection : Si on n'est pas sur une route publique et pas connecté -> redirection vers '/'
+  if (!isPublicRoute && !user) {
+    return NextResponse.redirect(new URL('/', request.url))
   }
 
-  // Rediriger vers dashboard si déjà connecté et tente d'aller sur login
-  if (request.nextUrl.pathname === '/login' && user) {
+  // Si on est déjà connecté et qu'on tente d'aller sur la page de login ('/') -> redirection vers '/dashboard'
+  if (pathname === '/' && user) {
      return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
