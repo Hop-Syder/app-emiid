@@ -10,7 +10,6 @@ import dashboardRoutes from './api/routes/dashboardRoutes';
 dotenv.config();
 
 const app: Application = express();
-const PORT = process.env.PORT || 5000;
 
 // Middlewares
 const allowedOrigins = process.env.CORS_ORIGIN 
@@ -42,6 +41,10 @@ app.use('/api/users', userRoutes);
 app.use('/api/ads', adsRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
+const PORT = process.env.PORT || 5000;
+
 app.listen(PORT, () => {
-  console.log(`🚀 Serveur démarré sur le port ${PORT}`);
+  console.log(`🚀 Serveur démarré !`);
+  console.log(`📡 URL Locale : http://localhost:${PORT}`);
+  console.log(`☁️  Port configuré (Railway) : ${process.env.PORT || 'non défini (usage du port 5000)'}`);
 });
