@@ -5,40 +5,50 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { motion } from "framer-motion"
+import { useState, useEffect } from "react"
+import { fetchWithAuth } from "@/lib/apiClient"
+import { Loader2 } from "lucide-react"
 
 export function AVendreProjects() {
-  const projects = [
-    {
-      title: "Startup Fintech - Parts Sociales",
-      creator: "Aminata Touré",
-      location: "Abidjan, Côte d'Ivoire",
-      amount: "50,000 €",
-      shares: "20%",
-      interested: 8,
-      description: "Plateforme de paiement mobile, croissance 150% annuelle",
-      revenue: "120K €/an",
-    },
-    {
-      title: "Entreprise E-commerce Mode",
-      creator: "Fashion Hub",
-      location: "Dakar, Sénégal",
-      amount: "35,000 €",
-      shares: "15%",
-      interested: 12,
-      description: "Marketplace mode africaine, 5000+ clients actifs",
-      revenue: "85K €/an",
-    },
-    {
-      title: "Agence Marketing Digital",
-      creator: "Digital West Africa",
-      location: "Lagos, Nigeria",
-      amount: "75,000 €",
-      shares: "25%",
-      interested: 5,
-      description: "Agence établie, 30+ clients réguliers",
-      revenue: "200K €/an",
-    },
-  ]
+  const [projects, setProjects] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const loadAds = async () => {
+      try {
+        const response = await fetchWithAuth("/api/ads")
+        if (response.ok) {
+          const data = await response.json()
+          const mappedProjects = data.map((ad: any) => ({
+            id: ad.id,
+            title: ad.title,
+            creator: "Entrepreneur Nexus",
+            location: ad.target_audience || "N/A",
+            amount: `${ad.budget_limit} €`,
+            shares: "N/A",
+            interested: 0,
+            description: ad.description,
+            revenue: "N/A"
+          }))
+          setProjects(mappedProjects)
+        }
+      } catch (error) {
+        console.error("Erreur chargement à vendre:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadAds()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <p className="text-muted-foreground">Chargement des offres...</p>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -85,7 +95,7 @@ export function AVendreProjects() {
       >
         {projects.map((project) => (
           <motion.div
-            key={project.title}
+            key={project.id || project.title}
             variants={{
               hidden: { opacity: 0, y: 20 },
               visible: { opacity: 1, y: 0 },

@@ -5,46 +5,50 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { motion } from "framer-motion"
+import { useState, useEffect } from "react"
+import { fetchWithAuth } from "@/lib/apiClient"
+import { Loader2 } from "lucide-react"
 
 export function PartenairesProjects() {
-  const projects = [
-    {
-      title: "Partenariat Distribution Artisanat",
-      creator: "Kofi Mensah",
-      location: "Accra, Ghana",
-      seeks: "Distributeur Europe",
-      responses: 12,
-      description: "Recherche partenaire pour distribuer produits artisanaux en Europe",
-      type: "Distribution",
-    },
-    {
-      title: "Centre Formation Couture",
-      creator: "Fatou Sow",
-      location: "Lomé, Togo",
-      seeks: "Formateurs et sponsors",
-      responses: 15,
-      description: "Partenariat pour former jeunes couturières",
-      type: "Formation",
-    },
-    {
-      title: "Export Produits Bio",
-      creator: "Bio Sahel",
-      location: "Ouagadougou, Burkina Faso",
-      seeks: "Importateurs internationaux",
-      responses: 8,
-      description: "Recherche partenaires pour export produits biologiques",
-      type: "Export",
-    },
-    {
-      title: "Réseau Épiceries Locales",
-      creator: "Fresh Market",
-      location: "Bamako, Mali",
-      seeks: "Producteurs locaux",
-      responses: 23,
-      description: "Partenariat avec agriculteurs pour approvisionnement",
-      type: "Approvisionnement",
-    },
-  ]
+  const [projects, setProjects] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const loadAds = async () => {
+      try {
+        const response = await fetchWithAuth("/api/ads")
+        if (response.ok) {
+          const data = await response.json()
+          // Filtrer par type 'partenaire' si possible, sinon on affiche tout pour l'instant
+          const mappedProjects = data.map((ad: any) => ({
+            id: ad.id,
+            title: ad.title,
+            creator: "Entrepreneur Nexus",
+            location: ad.target_audience || "N/A",
+            seeks: ad.category || "Partenariat local",
+            responses: 0,
+            description: ad.description,
+            type: "Collaboration"
+          }))
+          setProjects(mappedProjects)
+        }
+      } catch (error) {
+        console.error("Erreur chargement partenaires:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadAds()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <p className="text-muted-foreground">Chargement des opportunités...</p>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -89,7 +93,7 @@ export function PartenairesProjects() {
       >
         {projects.map((project) => (
           <motion.div
-            key={project.title}
+            key={project.id || project.title}
             variants={{
               hidden: { opacity: 0, y: 20 },
               visible: { opacity: 1, y: 0 },

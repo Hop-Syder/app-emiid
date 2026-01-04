@@ -35,13 +35,26 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Protect dashboard routes
-  if (request.nextUrl.pathname.startsWith('/dashboard') && !user) {
+  // Routes publiques (ajouter ici si besoin)
+  const isPublicRoute = request.nextUrl.pathname === '/login' || 
+                        request.nextUrl.pathname === '/auth/callback' ||
+                        request.nextUrl.pathname.startsWith('/api/') // L'API a sa propre auth
+
+  // Protection des routes privées
+  const isPrivateRoute = request.nextUrl.pathname.startsWith('/dashboard') ||
+                         request.nextUrl.pathname.startsWith('/annuaire') ||
+                         request.nextUrl.pathname.startsWith('/portefeuille') ||
+                         request.nextUrl.pathname.startsWith('/creer-') ||
+                         request.nextUrl.pathname.startsWith('/market-projets') ||
+                         request.nextUrl.pathname.startsWith('/messages') ||
+                         request.nextUrl.pathname.startsWith('/parametres')
+
+  if (isPrivateRoute && !user) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  // Redirect to dashboard if logged in and trying to access login
-  if (request.nextUrl.pathname.startsWith('/login') && user) {
+  // Rediriger vers dashboard si déjà connecté et tente d'aller sur login
+  if (request.nextUrl.pathname === '/login' && user) {
      return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 

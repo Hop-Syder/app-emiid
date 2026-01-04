@@ -58,23 +58,43 @@ CREATE TABLE IF NOT EXISTS public.ads (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Index pour filtrer par user ou statut
+-- Index pour filtrer par user, statut et date (Performance Senior)
 CREATE INDEX IF NOT EXISTS idx_ads_user_id ON public.ads(user_id);
 CREATE INDEX IF NOT EXISTS idx_ads_status ON public.ads(status);
+CREATE INDEX IF NOT EXISTS idx_ads_created_at ON public.ads(created_at DESC);
 
 -- ==========================================
 -- 4. LOGIQUE AUTOMATIQUE (Triggers)
 -- ==========================================
 
 -- Fonction pour créer automatiquement un profil à l'inscription
+-- Gère intelligemment Google, LinkedIn et Email
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
+DECLARE
+    first_name_val TEXT;
+    last_name_val TEXT;
 BEGIN
+    -- Extraction intelligente du prénom/nom selon le provider
+    first_name_val := COALESCE(
+        NEW.raw_user_meta_data->>'first_name', 
+        NEW.raw_user_meta_data->>'given_name', 
+        split_part(NEW.raw_user_meta_data->>'full_name', ' ', 1),
+        'Utilisateur'
+    );
+    
+    last_name_val := COALESCE(
+        NEW.raw_user_meta_data->>'last_name', 
+        NEW.raw_user_meta_data->>'family_name',
+        NULLIF(substring(NEW.raw_user_meta_data->>'full_name' FROM length(split_part(NEW.raw_user_meta_data->>'full_name', ' ', 1)) + 2), ''),
+        ''
+    );
+
     INSERT INTO public.user_profiles (user_id, first_name, last_name, email, avatar_url)
     VALUES (
         NEW.id,
-        COALESCE(NEW.raw_user_meta_data->>'first_name', NEW.raw_user_meta_data->>'given_name', 'Utilisateur'),
-        COALESCE(NEW.raw_user_meta_data->>'last_name', NEW.raw_user_meta_data->>'family_name', ''),
+        first_name_val,
+        last_name_val,
         NEW.email,
         COALESCE(NEW.raw_user_meta_data->>'avatar_url', NEW.raw_user_meta_data->>'picture')
     )
