@@ -17,9 +17,9 @@ export const getMyProfile = async (req: any, res: Response) => {
 
   try {
     const { data, error } = await supabase
-      .from('profiles')
+      .from('user_profiles')
       .select('*')
-      .eq('id', userId)
+      .eq('user_id', userId)
       .single();
 
     if (error) {
@@ -50,15 +50,15 @@ export const updateMyProfile = async (req: any, res: Response) => {
 
   try {
     const { data, error } = await supabase
-      .from('profiles')
+      .from('user_profiles')
       .upsert({ 
-        id: userId,
+        user_id: userId,
         first_name, 
         last_name, 
         bio, 
         avatar_url,
         updated_at: new Date().toISOString()
-      })
+      }, { onConflict: 'user_id' })
       .select()
       .single();
 
