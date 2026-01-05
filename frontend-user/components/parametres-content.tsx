@@ -16,6 +16,14 @@ import { toast } from "sonner"
 import { LocationSelector } from "@/components/LocationSelector"
 import { AvatarUpload } from "@/components/AvatarUpload"
 import { SmartSelect } from "@/components/SmartSelect"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp"
 
 export function ParametresContent() {
   const [loading, setLoading] = useState(true)
@@ -33,8 +41,17 @@ export function ParametresContent() {
     country_id: "",
     country_code: "",
     country_name: "",
-    city: ""
+    country_name: "",
+    city: "",
+    pin_enabled: false
   })
+
+  // États pour la gestion du PIN
+  const [pinDialogOpen, setPinDialogOpen] = useState(false)
+  const [pinStep, setPinStep] = useState<"enter" | "confirm">("enter")
+  const [tempPin, setTempPin] = useState("")
+  const [confirmPin, setConfirmPin] = useState("")
+  const [pinError, setPinError] = useState("")
 
   const [sectors, setSectors] = useState<{ id: string, name: string }[]>([])
   const [professions, setProfessions] = useState<{ id: string, name: string, sector_id: string }[]>([])
@@ -61,7 +78,10 @@ export function ParametresContent() {
           country_id: data.country_id || "",
           country_code: data.country_code || "",
           country_name: data.country_name || "",
-          city: data.city || ""
+          country_code: data.country_code || "",
+          country_name: data.country_name || "",
+          city: data.city || "",
+          pin_enabled: data.pin_enabled || false
         })
       }
     } catch (error) {
@@ -409,11 +429,39 @@ export function ParametresContent() {
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between p-4 border rounded-2xl">
               <div>
-                <p className="font-medium">Authentification SMS</p>
-                <p className="text-sm text-muted-foreground">Recevez un code par SMS</p>
+                <p className="font-medium text-[#022753]">Verrouillage par Code PIN</p>
+                <p className="text-sm text-muted-foreground">Sécurisez l'accès au tableau de bord</p>
               </div>
-              <Switch />
+              <Switch
+                checked={profile.pin_enabled}
+                onCheckedChange={(checked) => {
+                  if (checked) {
+                    setPinStep("enter")
+                    setTempPin("")
+                    setConfirmPin("")
+                    setPinError("")
+                    setPinDialogOpen(true)
+                  } else {
+                    // Désactivation directe (pour l'instant, sans demander l'ancien PIN)
+                    // Idéalement on devrait demander le PIN actuel pour désactiver
+                    const disablePin = async () => {
+                      try {
+                        const res = await fetchWithAuth("/api/users/me", {
+                          method: "PUT",
+                          body: JSON.stringify({ ...profile, pin_enabled: false })
+                        })
+                        if (res.ok) {
+                          setProfile(prev => ({ ...prev, pin_enabled: false }))
+                          toast.success("Verrouillage PIN désactivé")
+                        }
+                      } catch (e) { toast.error("Erreur") }
+                    }
+                    disablePin()
+                  }
+                }}
+              />
             </div>
+            {/* Authentification SMS removed/replaced */}
             <div className="flex items-center justify-between p-4 border rounded-2xl">
               <div>
                 <p className="font-medium">Application d'authentification</p>
@@ -566,6 +614,71 @@ export function ParametresContent() {
           </CardContent>
         </Card>
       </TabsContent>
+      <Dialog open={pinDialogOpen} onOpenChange={setPinDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Créer votre Code PIN</DialogTitle>
+            <DialogDescription>
+              {pinStep === "enter" ? "Choisissez un code à 6 chiffres" : "Confirmez votre code"}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col items-center gap-6 py-4">
+            <InputOTP
+              maxLength={6}
+              value={pinStep === "enter" ? tempPin : confirmPin}
+              onChange={(val) => {
+                if (pinStep === "enter") setTempPin(val)
+                else setConfirmPin(val)
+                setPinError("")
+              }}
+            >
+              <InputOTPGroup>
+                <InputOTPSlot index={0} />
+                <InputOTPSlot index={1} />
+                <InputOTPSlot index={2} />
+                <InputOTPSlot index={3} />
+                <InputOTPSlot index={4} />
+                <InputOTPSlot index={5} />
+              </InputOTPGroup>
+            </InputOTP>
+
+            {pinError && <p className="text-red-500 text-sm">{pinError}</p>}
+
+            <div className="flex gap-2 w-full justify-end">
+              <Button variant="ghost" onClick={() => setPinDialogOpen(false)}>Annuler</Button>
+              <Button
+                onClick={async () => {
+                  if (pinStep === "enter") {
+                    if (tempPin.length !== 6) { setPinError("Code incomplet"); return }
+                    setPinStep("confirm")
+                  } else {
+                    if (confirmPin !== tempPin) { setPinError("Les codes ne correspondent pas"); return }
+
+                    // Save
+                    try {
+                      const res = await fetchWithAuth("/api/users/me", {
+                        method: "PUT",
+                        body: JSON.stringify({ ...profile, pin_enabled: true, pin_code: confirmPin })
+                      })
+                      if (res.ok) {
+                        setProfile(prev => ({ ...prev, pin_enabled: true }))
+                        setPinDialogOpen(false)
+                        toast.success("Sécurité PIN activée !")
+                        // Marquer session comme vérifiée pour ne pas être bloqué tout de suite
+                        sessionStorage.setItem("nexus_pin_verified", "true")
+                      } else {
+                        toast.error("Erreur serveur (avez-vous migré la DB ?)")
+                      }
+                    } catch (e) { toast.error("Erreur réseau") }
+                  }
+                }}
+              >
+                {pinStep === "enter" ? "Suivant" : "Confirmer"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Tabs >
   )
 }

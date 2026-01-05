@@ -1,0 +1,135 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import { useRouter, usePathname } from "next/navigation"
+import { fetchWithAuth } from "@/lib/apiClient"
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp"
+import { Button } from "@/components/ui/button"
+import { Lock } from "lucide-react"
+
+export function PinGate({ children }: { children: React.ReactNode }) {
+    const [locked, setLocked] = useState(false)
+    const [pin, setPin] = useState("")
+    const [error, setError] = useState("")
+    const [loading, setLoading] = useState(true)
+    const router = useRouter()
+    const pathname = usePathname()
+
+    const checkPinStatus = async () => {
+        // 1. Vérification session (évite l'appel API si déjà vérifié)
+        if (typeof window !== "undefined") {
+            const verified = sessionStorage.getItem("nexus_pin_verified")
+            if (verified === "true") {
+                setLocked(false)
+                setLoading(false)
+                return
+            }
+        }
+
+        // 2. Vérification DB
+        try {
+            const res = await fetchWithAuth("/api/users/me")
+            if (res.ok) {
+                const user = await res.json()
+                if (user.pin_enabled) {
+                    setLocked(true)
+                } else {
+                    setLocked(false)
+                }
+            }
+        } catch (e) {
+            console.error("Erreur vérification PIN:", e)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    // Vérifier à chaque changement de route ou montage
+    useEffect(() => {
+        checkPinStatus()
+    }, [pathname])
+
+    const handleVerify = async (value: string) => {
+        setPin(value)
+        setError("")
+        if (value.length !== 6) return
+
+        try {
+            const res = await fetchWithAuth("/api/users/verify-pin", {
+                method: "POST",
+                body: JSON.stringify({ pin: value })
+            })
+            const data = await res.json()
+
+            if (res.ok && data.success) {
+                sessionStorage.setItem("nexus_pin_verified", "true")
+                setLocked(false)
+            } else {
+                setError(data.error || "Code incorrect")
+                setPin("")
+            }
+        } catch (e) {
+            setError("Erreur de connexion")
+        }
+    }
+
+    if (loading) {
+        // Écran de chargement minimaliste pour éviter le flash
+        return (
+            <div className="flex h-screen w-full items-center justify-center bg-white">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#022753] border-t-transparent" />
+            </div>
+        )
+    }
+
+    if (locked) {
+        return (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white/80 backdrop-blur-md">
+                <div className="bg-white border border-gray-100 shadow-2xl p-8 rounded-3xl flex flex-col items-center gap-6 max-w-sm w-full animate-in zoom-in-95 duration-300">
+                    <div className="h-16 w-16 bg-[#022753]/5 rounded-full flex items-center justify-center mb-2">
+                        <Lock className="h-7 w-7 text-[#022753]" />
+                    </div>
+
+                    <div className="text-center space-y-2">
+                        <h2 className="text-xl font-bold text-[#022753]">Sécurité Nexus</h2>
+                        <p className="text-sm text-gray-500">Veuillez confirmez votre identité</p>
+                    </div>
+
+                    <div className="w-full flex flex-col items-center gap-4">
+                        <InputOTP maxLength={6} value={pin} onChange={handleVerify}>
+                            <InputOTPGroup className="gap-2">
+                                <InputOTPSlot index={0} className="w-10 h-12 rounded-lg border-gray-200" />
+                                <InputOTPSlot index={1} className="w-10 h-12 rounded-lg border-gray-200" />
+                                <InputOTPSlot index={2} className="w-10 h-12 rounded-lg border-gray-200" />
+                                <InputOTPSlot index={3} className="w-10 h-12 rounded-lg border-gray-200" />
+                                <InputOTPSlot index={4} className="w-10 h-12 rounded-lg border-gray-200" />
+                                <InputOTPSlot index={5} className="w-10 h-12 rounded-lg border-gray-200" />
+                            </InputOTPGroup>
+                        </InputOTP>
+
+                        <div className="h-6">
+                            {error && (
+                                <p className="text-xs font-medium text-red-500 animate-in fade-in slide-in-from-top-1">
+                                    {error}
+                                </p>
+                            )}
+                        </div>
+                    </div>
+
+                    <Button
+                        variant="ghost"
+                        className="text-gray-400 hover:text-gray-600 font-normal text-xs"
+                        onClick={() => {
+                            // Logout si bloqué ou veut partir
+                            router.push('/')
+                        }}
+                    >
+                        Retour à l'accueil
+                    </Button>
+                </div>
+            </div>
+        )
+    }
+
+    return <>{children}</>
+}
