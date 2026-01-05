@@ -117,9 +117,6 @@ export function NexusSidebar({ sidebarOpen, setSidebarOpen, mobileMenuOpen, setM
     <div className="flex h-full flex-col">
       <div className="p-4">
         <div className="flex items-center gap-3">
-          <div className="flex aspect-square size-10 items-center justify-center rounded-2xl bg-gradient-to-br from-green-600 to-amber-500 text-white">
-            <Globe className="size-5" />
-          </div>
           <Image
             src="/logo/logo-1.png"
             alt="Nexus Connect Logo"
