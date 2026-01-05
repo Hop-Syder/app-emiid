@@ -10,10 +10,9 @@
 
 "use client"
 
-"use client"
-
 import { useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Globe, Loader2, ShieldCheck } from "lucide-react"
@@ -56,11 +55,14 @@ export default function LoginPage() {
       >
         <div className="absolute inset-0 bg-black/60 backdrop-blur-md" />
 
-        <div className="relative z-10 flex items-center gap-3 text-xl lg:text-2xl font-bold">
-          <div className="flex size-10 items-center justify-center rounded-xl bg-primary shadow-lg">
-            <Globe className="size-6" />
-          </div>
-          Nexus Connect
+        <div className="relative z-10 flex items-center gap-3">
+          <Image
+            src="/logo/logo-2.png"
+            alt="Nexus Connect Logo"
+            width={20}
+            height={20}
+            className="h-auto w-auto object-contain"
+          />
         </div>
 
         <blockquote className="relative z-10 max-w-md space-y-3">
