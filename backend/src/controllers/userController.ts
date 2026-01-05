@@ -49,10 +49,34 @@ export const updateMyProfile = async (req: any, res: Response) => {
   const { 
     first_name, last_name, bio, avatar_url, 
     role, specialty, category, activity_domain,
-    country_id, city 
+    country_id, country_code, country_name, city 
   } = req.body;
 
   try {
+    let finalCountryId = country_id;
+
+    // Si on a un code pays mais pas d'ID, on cherche ou on crée
+    if (!finalCountryId && country_code) {
+      const { data: countryData, error: countryError } = await supabase
+        .from('countries')
+        .select('id')
+        .eq('iso_code', country_code)
+        .single();
+
+      if (countryData) {
+        finalCountryId = countryData.id;
+      } else {
+        // Créer le pays s'il n'existe pas
+        const { data: newCountry, error: createError } = await supabase
+          .from('countries')
+          .insert({ name: country_name, iso_code: country_code })
+          .select()
+          .single();
+        
+        if (newCountry) finalCountryId = newCountry.id;
+      }
+    }
+
     const { data, error } = await supabase
       .from('user_profiles')
       .upsert({ 
@@ -65,7 +89,7 @@ export const updateMyProfile = async (req: any, res: Response) => {
         specialty,
         category,
         activity_domain,
-        country_id,
+        country_id: finalCountryId,
         city,
         updated_at: new Date().toISOString()
       }, { onConflict: 'user_id' })

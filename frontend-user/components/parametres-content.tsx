@@ -13,6 +13,8 @@ import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { toast } from "sonner"
+import { LocationSelector } from "@/components/LocationSelector"
+import { AvatarUpload } from "@/components/AvatarUpload"
 
 export function ParametresContent() {
   const [loading, setLoading] = useState(true)
@@ -28,13 +30,15 @@ export function ParametresContent() {
     specialty: "",
     activity_domain: "",
     country_id: "",
+    country_code: "",
+    country_name: "",
     city: ""
   })
 
   const [sectors, setSectors] = useState<{ id: string, name: string }[]>([])
   const [professions, setProfessions] = useState<{ id: string, name: string, sector_id: string }[]>([])
   const [filteredProfessions, setFilteredProfessions] = useState<{ id: string, name: string }[]>([])
-  const [countries, setCountries] = useState<{ id: string, name: string, is_west_africa: boolean }[]>([])
+  const [countries, setCountries] = useState<{ id: string, name: string, iso_code: string, is_west_africa: boolean }[]>([])
 
   // Charger le profil au démarrage
   useEffect(() => {
@@ -54,6 +58,8 @@ export function ParametresContent() {
             specialty: data.specialty || "",
             activity_domain: data.activity_domain || "",
             country_id: data.country_id || "",
+            country_code: data.country_code || "",
+            country_name: data.country_name || "",
             city: data.city || ""
           })
         }
@@ -151,18 +157,26 @@ export function ParametresContent() {
             <CardDescription>Mettez à jour vos informations personnelles</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="flex items-center gap-4">
-              <Avatar className="h-20 w-20">
-                <AvatarImage src={profile.avatar_url || "/african-user.jpg"} alt="User" />
-                <AvatarFallback>{profile.first_name?.[0]}{profile.last_name?.[0]}</AvatarFallback>
-              </Avatar>
-              <div className="space-y-2">
-                <Button variant="outline" className="rounded-2xl bg-transparent">
-                  Changer la photo
-                </Button>
-                <p className="text-xs text-muted-foreground">JPG, PNG ou GIF. Max 2MB.</p>
-              </div>
-            </div>
+            <AvatarUpload
+              currentAvatarUrl={profile.avatar_url}
+              onUploadComplete={async (newUrl: string) => {
+                const updatedProfile = { ...profile, avatar_url: newUrl };
+                setProfile(updatedProfile);
+
+                // Auto-sauvegarde après l'upload
+                try {
+                  const response = await fetchWithAuth("/api/users/me", {
+                    method: "PUT",
+                    body: JSON.stringify(updatedProfile)
+                  });
+                  if (response.ok) {
+                    toast.success("Photo de profil mise à jour !");
+                  }
+                } catch (error) {
+                  console.error("Erreur sauvegarde avatar:", error);
+                }
+              }}
+            />
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
@@ -270,40 +284,33 @@ export function ParametresContent() {
               <Input id="telephone" type="tel" defaultValue="+223 70 12 34 56" className="rounded-2xl" />
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="localisation">Pays</Label>
-                <Select
-                  value={profile.country_id}
-                  onValueChange={(val) => {
-                    const country = countries.find(c => c.id === val);
-                    setProfile({ ...profile, country_id: val, city: country?.is_west_africa ? profile.city : "" });
-                  }}
-                >
-                  <SelectTrigger className="rounded-2xl">
-                    <SelectValue placeholder="Choisir un pays..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {countries.map(c => (
-                      <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            <LocationSelector
+              defaultCountryCode={countries.find(c => c.id === profile.country_id)?.iso_code}
+              defaultCity={profile.city}
+              onLocationSelect={async (countryInfo, cityName) => {
+                // Trouver l'ID du pays dans notre base locale via son code ISO
+                let localCountry = countries.find(c => c.iso_code === countryInfo.isoCode);
 
-              {countries.find(c => c.id === profile.country_id)?.is_west_africa && (
-                <div className="space-y-2">
-                  <Label htmlFor="city">Ville</Label>
-                  <Input
-                    id="city"
-                    value={profile.city}
-                    onChange={(e) => setProfile({ ...profile, city: e.target.value })}
-                    placeholder="Ex: Bamako, Dakar..."
-                    className="rounded-2xl"
-                  />
-                </div>
-              )}
-            </div>
+                if (localCountry) {
+                  setProfile({
+                    ...profile,
+                    country_id: localCountry.id,
+                    country_code: countryInfo.isoCode,
+                    country_name: countryInfo.name,
+                    city: cityName
+                  });
+                } else {
+                  // Si pays nouveau, on envoie le code et le nom pour que le backend le crée
+                  setProfile({
+                    ...profile,
+                    country_id: "",
+                    country_code: countryInfo.isoCode,
+                    country_name: countryInfo.name,
+                    city: cityName
+                  });
+                }
+              }}
+            />
 
             <div className="space-y-2">
               <Label htmlFor="bio">Bio</Label>
