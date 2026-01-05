@@ -1,13 +1,22 @@
 "use client"
 
-import { Menu, PanelLeft, Bell, MessageSquare, Search, Home, Users, Wallet, Briefcase } from "lucide-react"
+import { Menu, PanelLeft, Bell, MessageSquare, Search, Home, Users, Wallet, Briefcase, LogOut, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { usePathname, useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
 import { fetchWithAuth } from "@/lib/apiClient"
+import { createClient } from "@/lib/supabase/client"
 
 interface NexusHeaderProps {
   sidebarOpen: boolean
@@ -19,7 +28,8 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
   const pathname = usePathname()
   const router = useRouter()
   const notifications = 3
-  const [user, setUser] = useState<{ first_name: string; last_name: string; avatar_url?: string } | null>(null)
+  const [user, setUser] = useState<{ first_name: string; last_name: string; avatar_url?: string; email?: string } | null>(null)
+  const supabase = createClient()
 
   useEffect(() => {
     const loadUser = async () => {
@@ -35,6 +45,12 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
     }
     loadUser()
   }, [])
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    router.push("/")
+    router.refresh()
+  }
 
   const getActiveTab = () => {
     if (pathname === "/dashboard" || pathname === "/") return "dashboard"
@@ -97,10 +113,33 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
             </Tooltip>
           </TooltipProvider>
 
-          <Avatar className="h-8 w-8 md:h-9 md:w-9 border-2 border-primary">
-            <AvatarImage src={user?.avatar_url || "/african-user.jpg"} alt="User" />
-            <AvatarFallback>{user?.first_name?.[0] || 'U'}{user?.last_name?.[0] || ''}</AvatarFallback>
-          </Avatar>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                <Avatar className="h-8 w-8 md:h-9 md:w-9 border-2 border-primary cursor-pointer transition-transform hover:scale-105">
+                  <AvatarImage src={user?.avatar_url || "/african-user.jpg"} alt="User" />
+                  <AvatarFallback>{user?.first_name?.[0] || 'U'}{user?.last_name?.[0] || ''}</AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="end" forceMount>
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none">{user?.first_name} {user?.last_name}</p>
+                  <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => router.push("/parametres")}>
+                <User className="mr-2 h-4 w-4" />
+                <span>Mon Profil</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600">
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Déconnexion</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
