@@ -41,37 +41,39 @@ export function ParametresContent() {
   const [filteredProfessions, setFilteredProfessions] = useState<{ id: string, name: string }[]>([])
   const [countries, setCountries] = useState<{ id: string, name: string, iso_code: string, is_west_africa: boolean }[]>([])
 
-  // Charger le profil au démarrage
-  useEffect(() => {
-    const loadProfile = async () => {
-      try {
-        const response = await fetchWithAuth("/api/users/me")
-        if (response.ok) {
-          const data = await response.json()
-          setProfile({
-            first_name: data.first_name || "",
-            last_name: data.last_name || "",
-            email: data.email || "",
-            bio: data.bio || "",
-            avatar_url: data.avatar_url || "",
-            category: data.category || "Artisan",
-            role: data.role || "",
-            specialty: data.specialty || "",
-            activity_domain: data.activity_domain || "",
-            country_id: data.country_id || "",
-            country_code: data.country_code || "",
-            country_name: data.country_name || "",
-            city: data.city || ""
-          })
-        }
-      } catch (error) {
-        console.error("Erreur chargement profil:", error)
-        toast.error("Impossible de charger votre profil")
-      } finally {
-        setLoading(false)
+  // Fonction pour charger le profil (extraite pour être réutilisable)
+  const loadUserProfile = async () => {
+    try {
+      setLoading(true)
+      const response = await fetchWithAuth("/api/users/me")
+      if (response.ok) {
+        const data = await response.json()
+        setProfile({
+          first_name: data.first_name || "",
+          last_name: data.last_name || "",
+          email: data.email || "",
+          bio: data.bio || "",
+          avatar_url: data.avatar_url || "",
+          category: data.category || "Artisan",
+          role: data.role || "",
+          specialty: data.specialty || "",
+          activity_domain: data.activity_domain || "",
+          country_id: data.country_id || "",
+          country_code: data.country_code || "",
+          country_name: data.country_name || "",
+          city: data.city || ""
+        })
       }
+    } catch (error) {
+      console.error("Erreur chargement profil:", error)
+      toast.error("Impossible de charger votre profil")
+    } finally {
+      setLoading(false)
     }
+  }
 
+  // Charger le profil et les références au démarrage
+  useEffect(() => {
     const loadReferences = async () => {
       try {
         const [secRes, profRes, countryRes] = await Promise.all([
@@ -87,7 +89,7 @@ export function ParametresContent() {
       }
     }
 
-    loadProfile()
+    loadUserProfile()
     loadReferences()
   }, [])
 
@@ -123,6 +125,11 @@ export function ParametresContent() {
     } finally {
       setSaving(false)
     }
+  }
+
+  const handleCancel = () => {
+    loadUserProfile()
+    toast.info("Modifications annulées")
   }
 
   if (loading) {
@@ -303,7 +310,11 @@ export function ParametresContent() {
             </div>
 
             <div className="flex justify-end gap-2">
-              <Button variant="outline" className="rounded-2xl bg-transparent">
+              <Button
+                variant="outline"
+                className="rounded-2xl bg-transparent"
+                onClick={handleCancel}
+              >
                 Annuler
               </Button>
               <Button

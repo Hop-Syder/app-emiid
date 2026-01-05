@@ -80,14 +80,17 @@ export const updateMyProfile = async (req: any, res: Response) => {
     }
 
     // --- SMART AUTOCOMPLETE LOGIC ---
-    if (job_title) {
-      await supabaseAdmin.from('jobs').upsert({ name: job_title }, { onConflict: 'name' });
+    // Correction: On utilise 'role' (envoyé par le front) pour alimenter 'jobs'
+    if (role) {
+      await supabaseAdmin.from('jobs').upsert({ name: role }, { onConflict: 'name' });
     }
-    if (industry) {
-      await supabaseAdmin.from('industries').upsert({ name: industry }, { onConflict: 'name' });
+    // Correction: On utilise 'activity_domain' pour 'industries'
+    if (activity_domain) {
+      await supabaseAdmin.from('industries').upsert({ name: activity_domain }, { onConflict: 'name' });
     }
 
     // --- PIN SECURITY LOGIC ---
+    // Construction sécurisée de l'objet updates pour éviter les erreurs de colonnes inexistantes
     const updates: any = { 
         user_id: userId,
         first_name, 
@@ -98,18 +101,19 @@ export const updateMyProfile = async (req: any, res: Response) => {
         specialty,
         category,
         activity_domain,
-        job_title,
-        industry,
         country_id: finalCountryId,
         city,
-        pin_enabled,
         updated_at: new Date().toISOString()
     };
+    
+    // Ajout conditionnel des champs PIN (seulement si présents)
+    if (pin_enabled !== undefined) updates.pin_enabled = pin_enabled;
 
     // Si un nouveau code PIN est envoyé, on le hashe
     if (pin_code && pin_code.length === 6) {
       const salt = await bcrypt.genSalt(10);
       updates.pin_code = await bcrypt.hash(pin_code, salt);
+      updates.pin_attempts = 0;
     }
 
     const { data, error } = await supabase
