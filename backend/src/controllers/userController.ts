@@ -46,7 +46,11 @@ export const getMyProfile = async (req: any, res: Response) => {
  */
 export const updateMyProfile = async (req: any, res: Response) => {
   const userId = req.user.id;
-  const { first_name, last_name, bio, avatar_url, role, specialty, category } = req.body;
+  const { 
+    first_name, last_name, bio, avatar_url, 
+    role, specialty, category, activity_domain,
+    country_id, city 
+  } = req.body;
 
   try {
     const { data, error } = await supabase
@@ -60,6 +64,9 @@ export const updateMyProfile = async (req: any, res: Response) => {
         role,
         specialty,
         category,
+        activity_domain,
+        country_id,
+        city,
         updated_at: new Date().toISOString()
       }, { onConflict: 'user_id' })
       .select()

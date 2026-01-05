@@ -19,6 +19,77 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;      -- fournit gen_random_uuid()
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";  -- optionnel, conservé si besoin
 
 -- ==========================================
+-- 1.5. TABLES DE RÉFÉRENCE (Secteurs & Professions)
+-- ==========================================
+CREATE TABLE IF NOT EXISTS public.activity_sectors (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(100) NOT NULL,
+    slug VARCHAR(100) UNIQUE NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.professions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    sector_id UUID REFERENCES public.activity_sectors(id) ON DELETE CASCADE,
+    name VARCHAR(100) NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Insertion des données initiales
+INSERT INTO public.activity_sectors (name, slug) VALUES
+('Artisanat', 'artisanat'),
+('Technologie & Digital', 'tech-digital'),
+('Commerce & Vente', 'commerce-vente'),
+('Agriculture & Agro-industrie', 'agriculture'),
+('Services aux entreprises', 'services-entreprises'),
+('Bâtiment & Travaux Publics', 'btp'),
+('Transport & Logistique', 'transport'),
+('Santé & Bien-être', 'sante'),
+('Éducation & Formation', 'education')
+ON CONFLICT (slug) DO NOTHING;
+
+-- On récupère les IDs pour insérer les professions (Exemple simplifié)
+INSERT INTO public.professions (name, sector_id) 
+SELECT 'Menuisier / Ébéniste', id FROM public.activity_sectors WHERE slug = 'btp' UNION ALL
+SELECT 'Plombier', id FROM public.activity_sectors WHERE slug = 'btp' UNION ALL
+SELECT 'Électricien', id FROM public.activity_sectors WHERE slug = 'btp' UNION ALL
+SELECT 'Développeur Fullstack', id FROM public.activity_sectors WHERE slug = 'tech-digital' UNION ALL
+SELECT 'Designer UI/UX', id FROM public.activity_sectors WHERE slug = 'tech-digital' UNION ALL
+SELECT 'Community Manager', id FROM public.activity_sectors WHERE slug = 'tech-digital' UNION ALL
+SELECT 'Comptable', id FROM public.activity_sectors WHERE slug = 'services-entreprises' UNION ALL
+SELECT 'Consultant', id FROM public.activity_sectors WHERE slug = 'services-entreprises'
+ON CONFLICT DO NOTHING;
+
+-- ==========================================
+-- 1.6. TABLE DES PAYS
+-- ==========================================
+CREATE TABLE IF NOT EXISTS public.countries (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(100) NOT NULL,
+    iso_code CHAR(2) UNIQUE NOT NULL, -- ex: 'ML', 'FR'
+    is_west_africa BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Insertion de quelques pays (Afrique de l'Ouest + Reste du monde)
+INSERT INTO public.countries (name, iso_code, is_west_africa) VALUES
+('Mali', 'ML', TRUE),
+('Sénégal', 'SN', TRUE),
+('Côte d''Ivoire', 'CI', TRUE),
+('Burkina Faso', 'BF', TRUE),
+('Bénin', 'BJ', TRUE),
+('Niger', 'NE', TRUE),
+('Togo', 'TG', TRUE),
+('Guinée', 'GN', TRUE),
+('Ghana', 'GH', TRUE),
+('Nigeria', 'NG', TRUE),
+('France', 'FR', FALSE),
+('États-Unis', 'US', FALSE),
+('Canada', 'CA', FALSE),
+('Chine', 'CN', FALSE)
+ON CONFLICT (iso_code) DO NOTHING;
+
+-- ==========================================
 -- 2. TABLE DES PROFILS (user_profiles)
 -- ==========================================
 CREATE TABLE IF NOT EXISTS public.user_profiles (
@@ -32,7 +103,13 @@ CREATE TABLE IF NOT EXISTS public.user_profiles (
     bio TEXT,
     category VARCHAR(50), -- Artisan, Freelance, Entreprise, ONG
     role VARCHAR(100),    -- Titre professionnel
-    specialty VARCHAR(100), -- Spécialité
+    specialty VARCHAR(255), -- Description (anciennement Spécialité)
+    activity_domain VARCHAR(100), -- Domaine d'activité
+    
+    -- Localisation
+    country_id UUID REFERENCES public.countries(id),
+    city VARCHAR(100),
+    
     -- Statut & Métadonnées
     has_profile BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMPTZ DEFAULT NOW(),

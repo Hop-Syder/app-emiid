@@ -25,8 +25,16 @@ export function ParametresContent() {
     avatar_url: "",
     category: "Artisan",
     role: "",
-    specialty: ""
+    specialty: "",
+    activity_domain: "",
+    country_id: "",
+    city: ""
   })
+
+  const [sectors, setSectors] = useState<{ id: string, name: string }[]>([])
+  const [professions, setProfessions] = useState<{ id: string, name: string, sector_id: string }[]>([])
+  const [filteredProfessions, setFilteredProfessions] = useState<{ id: string, name: string }[]>([])
+  const [countries, setCountries] = useState<{ id: string, name: string, is_west_africa: boolean }[]>([])
 
   // Charger le profil au démarrage
   useEffect(() => {
@@ -43,7 +51,10 @@ export function ParametresContent() {
             avatar_url: data.avatar_url || "",
             category: data.category || "Artisan",
             role: data.role || "",
-            specialty: data.specialty || ""
+            specialty: data.specialty || "",
+            activity_domain: data.activity_domain || "",
+            country_id: data.country_id || "",
+            city: data.city || ""
           })
         }
       } catch (error) {
@@ -53,8 +64,40 @@ export function ParametresContent() {
         setLoading(false)
       }
     }
+
+    const loadReferences = async () => {
+      try {
+        const [secRes, profRes, countryRes] = await Promise.all([
+          fetchWithAuth("/api/reference/sectors"),
+          fetchWithAuth("/api/reference/professions"),
+          fetchWithAuth("/api/reference/countries")
+        ])
+        if (secRes.ok) setSectors(await secRes.json())
+        if (profRes.ok) setProfessions(await profRes.json())
+        if (countryRes.ok) setCountries(await countryRes.json())
+      } catch (error) {
+        console.error("Erreur chargement références:", error)
+      }
+    }
+
     loadProfile()
+    loadReferences()
   }, [])
+
+  // Filtrer les professions quand le domaine change
+  useEffect(() => {
+    if (profile.activity_domain) {
+      // On cherche l'ID du secteur correspondant au nom du domaine (ou vice versa)
+      const sector = sectors.find(s => s.name === profile.activity_domain)
+      if (sector) {
+        setFilteredProfessions(professions.filter(p => p.sector_id === sector.id))
+      } else {
+        setFilteredProfessions([])
+      }
+    } else {
+      setFilteredProfessions(professions)
+    }
+  }, [profile.activity_domain, sectors, professions])
 
   const handleSave = async () => {
     setSaving(true)
@@ -161,26 +204,54 @@ export function ParametresContent() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="role">Titre / Rôle (ex: Menuisier)</Label>
-                <Input
-                  id="role"
+                <Label htmlFor="role">Titre de profession</Label>
+                <Select
                   value={profile.role}
-                  onChange={(e) => setProfile({ ...profile, role: e.target.value })}
-                  placeholder="Votre titre professionnel"
-                  className="rounded-2xl"
-                />
+                  onValueChange={(val) => setProfile({ ...profile, role: val })}
+                >
+                  <SelectTrigger className="rounded-2xl">
+                    <SelectValue placeholder="Choisir un titre..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {filteredProfessions.length > 0 ? (
+                      filteredProfessions.map(p => (
+                        <SelectItem key={p.id} value={p.name}>{p.name}</SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="Autre">Autre</SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="specialty">Spécialité (ex: Mobilier Moderne)</Label>
-              <Input
-                id="specialty"
-                value={profile.specialty}
-                onChange={(e) => setProfile({ ...profile, specialty: e.target.value })}
-                placeholder="Votre expertise principale"
-                className="rounded-2xl"
-              />
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="specialty">Description</Label>
+                <Input
+                  id="specialty"
+                  value={profile.specialty}
+                  onChange={(e) => setProfile({ ...profile, specialty: e.target.value })}
+                  placeholder="Ex: Expert en mobilier moderne..."
+                  className="rounded-2xl"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="activity_domain">Domaine d'activité</Label>
+                <Select
+                  value={profile.activity_domain}
+                  onValueChange={(val) => setProfile({ ...profile, activity_domain: val, role: "" })}
+                >
+                  <SelectTrigger className="rounded-2xl">
+                    <SelectValue placeholder="Choisir un domaine..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {sectors.map(s => (
+                      <SelectItem key={s.id} value={s.name}>{s.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -199,19 +270,39 @@ export function ParametresContent() {
               <Input id="telephone" type="tel" defaultValue="+223 70 12 34 56" className="rounded-2xl" />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="localisation">Localisation</Label>
-              <Select defaultValue="mali">
-                <SelectTrigger className="rounded-2xl">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="mali">Mali</SelectItem>
-                  <SelectItem value="senegal">Sénégal</SelectItem>
-                  <SelectItem value="ghana">Ghana</SelectItem>
-                  <SelectItem value="cote-ivoire">Côte d'Ivoire</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="localisation">Pays</Label>
+                <Select
+                  value={profile.country_id}
+                  onValueChange={(val) => {
+                    const country = countries.find(c => c.id === val);
+                    setProfile({ ...profile, country_id: val, city: country?.is_west_africa ? profile.city : "" });
+                  }}
+                >
+                  <SelectTrigger className="rounded-2xl">
+                    <SelectValue placeholder="Choisir un pays..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {countries.map(c => (
+                      <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {countries.find(c => c.id === profile.country_id)?.is_west_africa && (
+                <div className="space-y-2">
+                  <Label htmlFor="city">Ville</Label>
+                  <Input
+                    id="city"
+                    value={profile.city}
+                    onChange={(e) => setProfile({ ...profile, city: e.target.value })}
+                    placeholder="Ex: Bamako, Dakar..."
+                    className="rounded-2xl"
+                  />
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -288,7 +379,7 @@ export function ParametresContent() {
             </div>
           </CardContent>
         </Card>
-      </TabsContent>
+      </TabsContent >
 
       <TabsContent value="securite" className="space-y-6">
         <Card className="rounded-3xl">
@@ -478,6 +569,6 @@ export function ParametresContent() {
           </CardContent>
         </Card>
       </TabsContent>
-    </Tabs>
+    </Tabs >
   )
 }
