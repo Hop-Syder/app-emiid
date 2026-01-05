@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect } from "react"
 import { User, Shield, Mail, Smartphone, Loader2 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
