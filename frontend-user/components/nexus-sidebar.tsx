@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import {
   Briefcase,
@@ -119,10 +120,13 @@ export function NexusSidebar({ sidebarOpen, setSidebarOpen, mobileMenuOpen, setM
           <div className="flex aspect-square size-10 items-center justify-center rounded-2xl bg-gradient-to-br from-green-600 to-amber-500 text-white">
             <Globe className="size-5" />
           </div>
-          <div>
-            <h2 className="font-semibold">Nexus Connect</h2>
-            <p className="text-xs text-muted-foreground">Afrique de l'Ouest</p>
-          </div>
+          <Image
+            src="/logo/logo-1.png"
+            alt="Nexus Connect Logo"
+            width={150}
+            height={40}
+            className="h-auto w-auto object-contain"
+          />
         </div>
       </div>
 
@@ -250,10 +254,13 @@ export function NexusSidebar({ sidebarOpen, setSidebarOpen, mobileMenuOpen, setM
             <div className="flex aspect-square size-10 items-center justify-center rounded-2xl bg-gradient-to-br from-green-600 to-amber-500 text-white">
               <Globe className="size-5" />
             </div>
-            <div>
-              <h2 className="font-semibold">Nexus Connect</h2>
-              <p className="text-xs text-muted-foreground">Afrique de l'Ouest</p>
-            </div>
+            <Image
+              src="/logo/logo-1.png"
+              alt="Nexus Connect Logo"
+              width={140}
+              height={35}
+              className="h-auto w-auto object-contain"
+            />
           </div>
           <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)}>
             <X className="h-5 w-5" />
