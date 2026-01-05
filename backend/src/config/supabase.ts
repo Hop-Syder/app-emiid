@@ -18,3 +18,6 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey);

@@ -15,6 +15,7 @@ import { fetchWithAuth } from "@/lib/apiClient"
 import { toast } from "sonner"
 import { LocationSelector } from "@/components/LocationSelector"
 import { AvatarUpload } from "@/components/AvatarUpload"
+import { SmartSelect } from "@/components/SmartSelect"
 
 export function ParametresContent() {
   const [loading, setLoading] = useState(true)
@@ -217,26 +218,13 @@ export function ParametresContent() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="role">Titre de profession</Label>
-                <Select
-                  value={profile.role}
-                  onValueChange={(val) => setProfile({ ...profile, role: val })}
-                >
-                  <SelectTrigger className="rounded-2xl">
-                    <SelectValue placeholder="Choisir un titre..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {filteredProfessions.length > 0 ? (
-                      filteredProfessions.map(p => (
-                        <SelectItem key={p.id} value={p.name}>{p.name}</SelectItem>
-                      ))
-                    ) : (
-                      <SelectItem value="Autre">Autre</SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
+              <SmartSelect
+                table="jobs"
+                label="Titre de profession"
+                value={profile.role}
+                onChange={(val) => setProfile({ ...profile, role: val })}
+                placeholder="Ex: Développeur, Menuisier..."
+              />
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
@@ -250,22 +238,13 @@ export function ParametresContent() {
                   className="rounded-2xl"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="activity_domain">Domaine d'activité</Label>
-                <Select
-                  value={profile.activity_domain}
-                  onValueChange={(val) => setProfile({ ...profile, activity_domain: val, role: "" })}
-                >
-                  <SelectTrigger className="rounded-2xl">
-                    <SelectValue placeholder="Choisir un domaine..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {sectors.map(s => (
-                      <SelectItem key={s.id} value={s.name}>{s.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              <SmartSelect
+                table="industries"
+                label="Domaine d'activité"
+                value={profile.activity_domain}
+                onChange={(val) => setProfile({ ...profile, activity_domain: val, role: "" })}
+                placeholder="Ex: Informatique, BTP..."
+              />
             </div>
 
             <div className="space-y-2">

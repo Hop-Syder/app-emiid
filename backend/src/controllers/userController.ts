@@ -6,7 +6,8 @@
 */
 
 import { Response } from 'express';
-import { supabase } from '../config/supabase';
+import { supabase, supabaseAdmin } from '../config/supabase';
+import bcrypt from 'bcrypt';
 
 /**
  * Récupère le profil de l'utilisateur actuellement connecté (via Token Relay)
@@ -47,9 +48,10 @@ export const getMyProfile = async (req: any, res: Response) => {
 export const updateMyProfile = async (req: any, res: Response) => {
   const userId = req.user.id;
   const { 
-    first_name, last_name, bio, avatar_url, 
+    first_name, last_name, bio, avatar_url,
     role, specialty, category, activity_domain,
-    country_id, country_code, country_name, city 
+    country_id, country_code, country_name, city,
+    job_title, industry, pin_enabled, pin_code
   } = req.body;
 
   try {
@@ -77,9 +79,16 @@ export const updateMyProfile = async (req: any, res: Response) => {
       }
     }
 
-    const { data, error } = await supabase
-      .from('user_profiles')
-      .upsert({ 
+    // --- SMART AUTOCOMPLETE LOGIC ---
+    if (job_title) {
+      await supabaseAdmin.from('jobs').upsert({ name: job_title }, { onConflict: 'name' });
+    }
+    if (industry) {
+      await supabaseAdmin.from('industries').upsert({ name: industry }, { onConflict: 'name' });
+    }
+
+    // --- PIN SECURITY LOGIC ---
+    const updates: any = { 
         user_id: userId,
         first_name, 
         last_name, 
@@ -89,10 +98,23 @@ export const updateMyProfile = async (req: any, res: Response) => {
         specialty,
         category,
         activity_domain,
+        job_title,
+        industry,
         country_id: finalCountryId,
         city,
+        pin_enabled,
         updated_at: new Date().toISOString()
-      }, { onConflict: 'user_id' })
+    };
+
+    // Si un nouveau code PIN est envoyé, on le hashe
+    if (pin_code && pin_code.length === 6) {
+      const salt = await bcrypt.genSalt(10);
+      updates.pin_code = await bcrypt.hash(pin_code, salt);
+    }
+
+    const { data, error } = await supabase
+      .from('user_profiles')
+      .upsert(updates, { onConflict: 'user_id' })
       .select()
       .single();
 
@@ -127,5 +149,55 @@ export const getAllUsers = async (req: any, res: Response) => {
     res.json(data);
   } catch (err) {
     res.status(500).json({ error: "Erreur interne lors de la récupération des profils" });
+  }
+};
+/**
+ * Vérifie le code PIN de l'utilisateur
+ * POST /api/users/verify-pin
+ */
+export const verifyPin = async (req: any, res: Response) => {
+  const userId = req.user.id;
+  const { pin } = req.body;
+
+  try {
+    const { data: profile, error } = await supabaseAdmin
+      .from('user_profiles')
+      .select('pin_code, pin_attempts, pin_enabled')
+      .eq('user_id', userId)
+      .single();
+
+    if (error || !profile) return res.status(400).json({ error: "Profil introuvable" });
+
+    if (!profile.pin_enabled) return res.json({ success: true, message: "PIN non activé" });
+
+    if (profile.pin_attempts >= 6) {
+      return res.status(403).json({ error: "Compte bloqué après 6 essais infructueux. Veuillez contacter le support." });
+    }
+
+    const isMatch = await bcrypt.compare(pin, profile.pin_code);
+
+    if (isMatch) {
+      // Réinitialiser les tentatives si succès
+      await supabaseAdmin
+        .from('user_profiles')
+        .update({ pin_attempts: 0 })
+        .eq('user_id', userId);
+      
+      return res.json({ success: true });
+    } else {
+      // Incrémenter les tentatives
+      const newAttempts = (profile.pin_attempts || 0) + 1;
+      await supabaseAdmin
+        .from('user_profiles')
+        .update({ pin_attempts: newAttempts })
+        .eq('user_id', userId);
+      
+      return res.status(401).json({ 
+        error: "Code PIN incorrect", 
+        attempts_remaining: 6 - newAttempts 
+      });
+    }
+  } catch (err) {
+    res.status(500).json({ error: "Erreur lors de la vérification du PIN" });
   }
 };

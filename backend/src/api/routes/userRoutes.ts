@@ -6,7 +6,7 @@
 */
 
 import { Router } from 'express';
-import { getMyProfile, updateMyProfile, getAllUsers } from '../../controllers/userController';
+import { getMyProfile, updateMyProfile, getAllUsers, verifyPin } from '../../controllers/userController';
 import { requireAuth } from '../../middlewares/authMiddleware';
 
 const router = Router();
@@ -21,6 +21,10 @@ router.get('/me', getMyProfile);
 // @route   PUT /api/users/me
 // @desc    Mettre à jour le profil connecté
 router.put('/me', updateMyProfile);
+
+// @route   POST /api/users/verify-pin
+// @desc    Vérifier le code PIN
+router.post('/verify-pin', verifyPin);
 
 // @route   GET /api/users
 // @desc    Récupérer tous les profils (Artisans, Freelances, etc)
