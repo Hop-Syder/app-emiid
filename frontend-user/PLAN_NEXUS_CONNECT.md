@@ -5,9 +5,11 @@
 **Nexus Connect** est une plateforme pan-africaine dédiée à la cartographie et à la mise en réseau des acteurs économiques d'Afrique de l'Ouest. L'objectif ambitieux est de répertorier et de connecter **100 000 acteurs économiques d'ici 2027**.
 
 ### Mission
+
 Propulser l'écosystème entrepreneurial ouest-africain en créant un réseau interconnecté d'entrepreneurs, artisans, freelances, entreprises et ONG pour faciliter la collaboration, le financement et les opportunités commerciales.
 
 ### Couverture géographique
+
 - 15 pays d'Afrique de l'Ouest
 - Focus sur les hubs économiques : Dakar (Sénégal), Accra (Ghana), Abidjan (Côte d'Ivoire), Bamako (Mali), Lagos (Nigeria), etc.
 
@@ -16,6 +18,7 @@ Propulser l'écosystème entrepreneurial ouest-africain en créant un réseau in
 ## Architecture Technique
 
 ### Stack Technologique
+
 - **Framework**: Next.js 15 (App Router)
 - **UI Library**: React 19
 - **Styling**: Tailwind CSS avec shadcn/ui components
@@ -24,9 +27,10 @@ Propulser l'écosystème entrepreneurial ouest-africain en créant un réseau in
 - **Fonts**: Geist (sans-serif) et Geist Mono
 
 ### Structure du Projet
+
 ```
 app/
-├── page.tsx                          # Dashboard principal
+├── page.tsx                          # dashboard-user principal
 ├── annuaire/
 │   ├── artisans/page.tsx             # Liste des artisans
 │   ├── freelances/page.tsx           # Liste des freelances
@@ -48,7 +52,7 @@ components/
 ├── nexus-layout.tsx                  # Layout principal avec sidebar/header
 ├── nexus-sidebar.tsx                 # Navigation latérale
 ├── nexus-header.tsx                  # En-tête avec menu horizontal
-├── dashboard-content.tsx             # Contenu du dashboard
+├── dashboard-user-content.tsx             # Contenu du dashboard-user
 ├── profiles-grid.tsx                 # Grille d'affichage des profils
 ├── financement-projects.tsx          # Projets de financement
 ├── partenaires-projects.tsx          # Projets partenaires
@@ -57,7 +61,8 @@ components/
 ```
 
 ### Design System
-- **Couleurs principales**: 
+
+- **Couleurs principales**:
   - Vert (#16a34a) - Représente la croissance
   - Ambre (#f59e0b) - Représente l'énergie
   - Rouge (#dc2626) - Représente la passion
@@ -69,23 +74,27 @@ components/
 
 ## Fonctionnalités Principales
 
-### 1. Dashboard (Page d'accueil)
+### 1. dashboard-user (Page d'accueil)
 
 **Objectif**: Vue d'ensemble de l'activité du réseau
 
 **Composants**:
-- **Hero Section**: 
+
+- **Hero Section**:
+
   - Message de bienvenue avec mission
   - Gradient pan-africain (vert → ambre → rouge)
   - Deux CTA principaux: "Créer une Annonce" et "Créer mon Profil"
 
 - **Statistiques en temps réel**:
+
   - Entrepreneurs connectés (12,458)
   - Projets actifs (3,847)
   - Pays couverts (15)
   - Financement levé (8.2M €)
 
 - **Entrepreneurs du Réseau**:
+
   - Grille de 4 cartes de profils récemment actifs
   - Affichage: Avatar, nom, rôle, localisation, spécialité
   - Badge de vérification
@@ -105,6 +114,7 @@ components/
 **Catégories**:
 
 #### 2.1 Artisans (`/annuaire/artisans`)
+
 - Professionnels du textile, bois, métal, céramique, etc.
 - Filtres: localisation, spécialité, niveau d'expérience
 - Affichage en grille avec cartes de profil
@@ -112,24 +122,28 @@ components/
 - Action: Bouton "Suivre" pour chaque profil
 
 #### 2.2 Freelances (`/annuaire/freelances`)
+
 - Designers, développeurs, consultants, photographes, etc.
 - Filtres: compétences, tarifs, disponibilité
 - Portfolio et réalisations
 - Notation et avis clients
 
 #### 2.3 Entreprises (`/annuaire/entreprises`)
+
 - PME, startups, entreprises établies
 - Filtres: secteur, taille, chiffre d'affaires
 - Informations: secteur d'activité, équipe, projets réalisés
 - Badge de vérification pour les entreprises certifiées
 
 #### 2.4 ONG (`/annuaire/ong`)
+
 - Organisations non gouvernementales et associations
 - Filtres: domaine d'intervention, zone géographique
 - Causes soutenues et projets en cours
 - Possibilité de partenariat ou bénévolat
 
 **Fonctionnalités communes**:
+
 - Recherche par mots-clés
 - Filtres avancés multiples
 - Tri par pertinence, popularité, nouveauté
@@ -142,6 +156,7 @@ components/
 **Objectif**: Permettre aux utilisateurs de créer leur carte de profil pour l'annuaire
 
 **Formulaire**:
+
 - **Catégorie**: Choix entre Artisan / Freelance / Entreprise / ONG
 - **Informations personnelles**:
   - Nom complet (requis)
@@ -156,15 +171,17 @@ components/
 - **Photo de profil**: Upload d'avatar
 
 **Fonctionnalités**:
+
 - **Aperçu en temps réel**: Visualisation de la carte de profil pendant la saisie
 - **Enregistrer**: Sauvegarde comme brouillon
-- **Publier/Dépublier**: 
+- **Publier/Dépublier**:
   - Publier rend le profil visible dans l'annuaire
   - Dépublier retire le profil de l'annuaire public
 - **Statut visible**: Badge "Publié" ou "Brouillon"
 - **Validation**: Champs requis marqués
 
 **Aperçu de carte**:
+
 - Avatar
 - Nom et titre
 - Badge de vérification (à venir après validation)
@@ -178,9 +195,11 @@ components/
 **Objectif**: Faciliter le financement, les partenariats et les transactions
 
 #### 4.1 Financement (`/market-projets/financement`)
+
 Projets recherchant des investissements ou du crowdfunding
 
 **Informations par projet**:
+
 - Titre et description
 - Porteur de projet
 - Montant recherché
@@ -192,14 +211,17 @@ Projets recherchant des investissements ou du crowdfunding
 - Localisation
 
 **Actions**:
+
 - Bouton "Détails" pour voir le projet complet
 - Bouton "Suivre" pour recevoir les mises à jour
 - Bouton "Contribuer" pour investir
 
 #### 4.2 Partenaires (`/market-projets/partenaires`)
+
 Recherche de collaborations commerciales ou stratégiques
 
 **Informations**:
+
 - Type de partenariat recherché
 - Secteur d'activité
 - Description des besoins
@@ -207,13 +229,16 @@ Recherche de collaborations commerciales ou stratégiques
 - Nombre de réponses reçues
 
 **Actions**:
+
 - "Proposer un Partenariat"
 - Système de matching intelligent
 
 #### 4.3 À vendre (`/market-projets/a-vendre`)
+
 Projets, entreprises ou parts sociales en vente
 
 **Informations**:
+
 - Prix demandé
 - Pourcentage de parts
 - Chiffre d'affaires annuel
@@ -223,6 +248,7 @@ Projets, entreprises ou parts sociales en vente
 - Nombre d'intéressés
 
 **Actions**:
+
 - "Manifester son Intérêt"
 - Contact direct avec le vendeur
 
@@ -231,6 +257,7 @@ Projets, entreprises ou parts sociales en vente
 **Objectif**: Publier un projet sur le Market
 
 **Formulaire**:
+
 - **Type d'annonce**: Financement / Partenaire / À vendre
 - **Titre du projet** (requis)
 - **Description détaillée** (requis)
@@ -240,6 +267,7 @@ Projets, entreprises ou parts sociales en vente
 - **Catégorie**: Textile, Tech, Agriculture, Artisanat, Services
 
 **Fonctionnalités**:
+
 - Aperçu en temps réel de la carte d'annonce
 - Enregistrer comme brouillon
 - Publier dans le Market
@@ -251,12 +279,14 @@ Projets, entreprises ou parts sociales en vente
 **Objectif**: Gestion des profils et projets suivis
 
 #### 6.1 Profils suivis (`/portefeuille/profils`)
+
 - Liste complète des entrepreneurs suivis
 - Notifications d'activité
 - Accès rapide aux profils
 - Badge avec nombre (ex: 12 profils)
 
 #### 6.2 Projets suivis (`/portefeuille/projets`)
+
 - Liste des projets Market suivis
 - Mise à jour de progression
 - Notifications d'échéances
@@ -267,11 +297,13 @@ Projets, entreprises ou parts sociales en vente
 **Objectif**: Gestion des contenus créés par l'utilisateur
 
 #### 7.1 Carte d'Annuaire (`/creer-profil`)
+
 - Redirection vers la page de création/édition de profil
 - Modification du profil existant
 - Gestion statut publié/brouillon
 
 #### 7.2 Carte Market (`/creer-annonce`)
+
 - Redirection vers création/édition d'annonce
 - Liste des annonces créées
 - Statistiques: vues, réponses, intérêt
@@ -281,6 +313,7 @@ Projets, entreprises ou parts sociales en vente
 **Objectif**: Communication entre membres
 
 **Fonctionnalités**:
+
 - Messagerie directe entre utilisateurs
 - Notifications en temps réel (badge avec nombre)
 - Historique des conversations
@@ -292,26 +325,23 @@ Projets, entreprises ou parts sociales en vente
 **Objectif**: Configuration du compte utilisateur
 
 **Sections**:
+
 - **Profil**:
   - Modification informations personnelles
   - Photo de profil
   - Bannière
-  
 - **Compte**:
   - Email et mot de passe
   - Vérification d'identité
   - Badges et certifications
-  
 - **Notifications**:
   - Préférences de notification
   - Email, push, SMS
   - Fréquence
-  
 - **Confidentialité**:
   - Visibilité du profil
   - Qui peut me contacter
   - Données partagées
-  
 - **Facturation**:
   - Méthodes de paiement
   - Historique des transactions
@@ -324,7 +354,8 @@ Projets, entreprises ou parts sociales en vente
 ### Menu Principal (Sidebar)
 
 **Sections**:
-1. **Dashboard** - Vue d'ensemble
+
+1. **dashboard-user** - Vue d'ensemble
 2. **Annuaire** - 4 sous-catégories
 3. **Portefeuille** - Profils et projets suivis (avec badges)
 4. **Mes annonces** - Carte Annuaire et Carte Market
@@ -333,6 +364,7 @@ Projets, entreprises ou parts sociales en vente
 7. **Paramètres** - Configuration
 
 **Fonctionnalités**:
+
 - Collapsible sur desktop
 - Drawer mobile avec overlay
 - Recherche intégrée
@@ -344,17 +376,20 @@ Projets, entreprises ou parts sociales en vente
 ### Menu Horizontal (Header)
 
 **Onglets principaux**:
-1. Dashboard
+
+1. dashboard-user
 2. Annuaire
 3. Portefeuille
 4. Market
 
 **Responsive**:
+
 - Desktop: Icône + texte
 - Tablet: Icône + texte réduit
 - Mobile: Icône uniquement
 
 **Éléments supplémentaires**:
+
 - Logo Nexus Connect (gauche)
 - Titre de page dynamique (centre mobile)
 - Icône Messages (droite)
@@ -364,6 +399,7 @@ Projets, entreprises ou parts sociales en vente
 ### Design Patterns
 
 **Cartes de profil**:
+
 - Border radius: rounded-3xl
 - Hover: shadow-lg
 - Transition fluide
@@ -373,6 +409,7 @@ Projets, entreprises ou parts sociales en vente
 - CTA en bas
 
 **Cartes de projet Market**:
+
 - Badge coloré par type
 - Badge d'échéance
 - Progress bar pour financement
@@ -380,12 +417,14 @@ Projets, entreprises ou parts sociales en vente
 - Actions contextuelles
 
 **Boutons**:
+
 - Primary: rounded-2xl, fond coloré
 - Outline: rounded-2xl, transparent, bordure
 - Icônes contextuelles
 - États hover/active
 
 **Badges**:
+
 - rounded-xl ou rounded-full
 - Couleurs sémantiques
 - Petit texte avec icône optionnelle
@@ -396,7 +435,7 @@ Projets, entreprises ou parts sociales en vente
 
 ### Flux 1: Nouveau membre s'inscrit et crée son profil
 
-1. Arrivée sur le Dashboard
+1. Arrivée sur le dashboard-user
 2. Clic sur "Créer mon Profil"
 3. Sélection de la catégorie (Artisan/Freelance/Entreprise/ONG)
 4. Remplissage du formulaire avec aperçu en temps réel
@@ -407,7 +446,7 @@ Projets, entreprises ou parts sociales en vente
 
 ### Flux 2: Entrepreneur recherche financement
 
-1. Clic sur "Créer une Annonce" depuis Dashboard ou menu
+1. Clic sur "Créer une Annonce" depuis dashboard-user ou menu
 2. Sélection "Recherche de Financement"
 3. Remplissage détails: titre, description, montant, échéance
 4. Aperçu de la carte en temps réel
@@ -440,17 +479,20 @@ Projets, entreprises ou parts sociales en vente
 ## Données Mock Actuelles
 
 ### Entrepreneurs
+
 - **Awa Diallo** - Artisan Textile, Dakar (234 abonnés)
 - **Kofi Mensah** - Designer Graphique, Accra (489 abonnés)
 - **Aminata Touré** - Fondatrice Startup Fintech, Abidjan (1203 abonnés)
 - **Ibrahim Keita** - Menuisier, Bamako (156 abonnés)
 
 ### Projets Market
+
 - **Expansion Atelier Textile** - Financement 25k€, 60% financé, 45 contributeurs
 - **Distribution Artisanat** - Partenaires, 12 réponses
 - **Startup Fintech** - À vendre 50k€ (20% parts), croissance 150%
 
 ### Statistiques
+
 - 12,458 entrepreneurs connectés (+2,350 ce mois)
 - 3,847 projets actifs (+890 ce mois)
 - 15 pays couverts (Afrique de l'Ouest)
@@ -461,6 +503,7 @@ Projets, entreprises ou parts sociales en vente
 ## Fonctionnalités Futures (Roadmap)
 
 ### Phase 2 (Court terme)
+
 - Système d'authentification complet
 - Base de données réelle avec Supabase/Neon
 - Upload d'images et documents
@@ -470,6 +513,7 @@ Projets, entreprises ou parts sociales en vente
 - Notifications push
 
 ### Phase 3 (Moyen terme)
+
 - Paiements intégrés (Stripe, Mobile Money)
 - Vérification d'identité KYC
 - Programme de certification
@@ -479,6 +523,7 @@ Projets, entreprises ou parts sociales en vente
 - Support multilingue (Français, Anglais, langues locales)
 
 ### Phase 4 (Long terme)
+
 - Intelligence artificielle pour recommandations
 - Blockchain pour transparence financière
 - Système de réputation décentralisé
@@ -491,6 +536,7 @@ Projets, entreprises ou parts sociales en vente
 ## Métriques de Succès
 
 ### Indicateurs Clés (KPIs)
+
 - Nombre d'utilisateurs inscrits
 - Nombre de profils publiés par catégorie
 - Nombre de projets Market actifs
@@ -501,6 +547,7 @@ Projets, entreprises ou parts sociales en vente
 - Couverture géographique (villes, pays)
 
 ### Objectif 2027
+
 - **100 000 acteurs économiques** répertoriés et actifs
 - Présence dans tous les pays CEDEAO
 - Plateforme leader du networking entrepreneurial en Afrique de l'Ouest
@@ -510,6 +557,7 @@ Projets, entreprises ou parts sociales en vente
 ## Sécurité et Conformité
 
 ### Sécurité
+
 - Authentification sécurisée (JWT, OAuth)
 - Chiffrement des données sensibles
 - Protection RGPD/GDPR
@@ -518,6 +566,7 @@ Projets, entreprises ou parts sociales en vente
 - Vérification des identités
 
 ### Conformité
+
 - Respect réglementations locales
 - Transparence financière
 - Protection données personnelles
@@ -529,6 +578,7 @@ Projets, entreprises ou parts sociales en vente
 ## Support et Contact
 
 ### Pour les utilisateurs
+
 - Centre d'aide intégré
 - Chat support (section Messages)
 - FAQ contextuelle
@@ -536,6 +586,7 @@ Projets, entreprises ou parts sociales en vente
 - Webinaires de formation
 
 ### Pour les partenaires
+
 - Programme partenaires
 - API documentation
 - Support dédié

@@ -383,7 +383,7 @@ BEGIN
     RAISE NOTICE '   - Email (actif)';
     RAISE NOTICE '';
     RAISE NOTICE '📝 Prochaines étapes:';
-    RAISE NOTICE '   1. Configurer LinkedIn OAuth dans Supabase Dashboard';
+    RAISE NOTICE '   1. Configurer LinkedIn OAuth dans Supabase dashboard-user';
     RAISE NOTICE '   2. Tester la connexion avec différents providers';
     RAISE NOTICE '   3. Vérifier la table user_auth_providers';
     RAISE NOTICE '';

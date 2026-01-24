@@ -155,6 +155,40 @@ export const getAllUsers = async (req: any, res: Response) => {
     res.status(500).json({ error: "Erreur interne lors de la récupération des profils" });
   }
 };
+
+/**
+ * Récupère uniquement les profils publiés (public, pas d'auth requise)
+ * GET /api/public/profiles
+ */
+export const getPublicProfiles = async (req: Request, res: Response) => {
+  const { category, search } = req.query;
+  
+  try {
+    let query = supabase
+      .from('user_profiles')
+      .select(`
+        *,
+        countries(name, iso_code)
+      `)
+      .eq('is_published', true)
+      .order('updated_at', { ascending: false });
+
+    if (category) {
+      query = query.eq('category', category);
+    }
+
+    if (search) {
+      query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,role.ilike.%${search}%,specialty.ilike.%${search}%`);
+    }
+
+    const { data, error } = await query;
+    if (error) return res.status(400).json({ error: error.message });
+    
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: "Erreur interne lors de la récupération des profils publics" });
+  }
+};
 /**
  * Vérifie le code PIN de l'utilisateur
  * POST /api/users/verify-pin

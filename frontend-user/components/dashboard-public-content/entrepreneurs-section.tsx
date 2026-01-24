@@ -1,0 +1,68 @@
+"use client"
+
+import { motion, AnimatePresence } from "framer-motion"
+import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
+import { CardPremium } from "@/components/carte-profil/card-premium/card-premium"
+
+interface EntrepreneursSectionProps {
+    entrepreneursList: any[]
+    loading: boolean
+}
+
+export function EntrepreneursSection({ entrepreneursList, loading }: EntrepreneursSectionProps) {
+    const router = useRouter()
+
+    return (
+        <section>
+            <div className="mb-6 flex items-center justify-between">
+                <div>
+                    <h3 className="text-2xl font-bold">Entrepreneurs du Réseau</h3>
+                    <p className="text-sm text-muted-foreground">Découvrez les profils premium du moment</p>
+                </div>
+                <Button
+                    variant="outline"
+                    className="rounded-2xl bg-transparent"
+                    onClick={() => router.push("/annuaire/artisans")}
+                >
+                    Voir Tout
+                </Button>
+            </div>
+
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <AnimatePresence mode="wait">
+                    {loading ? (
+                        Array.from({ length: 6 }).map((_, i) => (
+                            <div key={i} className="space-y-4 p-6 border rounded-3xl bg-card">
+                                <div className="flex items-center gap-4">
+                                    <Skeleton className="h-16 w-16 rounded-full" />
+                                    <div className="space-y-2 flex-1">
+                                        <Skeleton className="h-4 w-[120px]" />
+                                        <Skeleton className="h-3 w-[80px]" />
+                                    </div>
+                                </div>
+                                <Skeleton className="h-4 w-full" />
+                                <div className="flex justify-between items-center pt-4">
+                                    <Skeleton className="h-4 w-20" />
+                                    <Skeleton className="h-10 w-24 rounded-xl" />
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        entrepreneursList.map((entrepreneur, index) => (
+                            <motion.div
+                                key={entrepreneur.id}
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ duration: 0.3, delay: index * 0.1 }}
+                            >
+                                <CardPremium entrepreneur={entrepreneur} />
+                            </motion.div>
+                        ))
+                    )}
+                </AnimatePresence>
+            </div>
+        </section>
+    )
+}

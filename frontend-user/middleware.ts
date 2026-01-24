@@ -39,28 +39,30 @@ export async function middleware(request: NextRequest) {
   // Routes accessibles à TOUT LE MONDE (même non connecté)
   // - / : L'Onboarding
   // - /login : La connexion
-  // - /auth/callback : Nécessaire pour le retour de Google/LinkedIn
-  const publicRoutes = ['/', '/login', '/auth/callback'];
+  // - /dashboard-public : Le dashboard visiteurs
+  // - /annuaire : L'accès public à l'annuaire
+  const publicRoutes = ['/', '/login', '/auth/callback', '/dashboard-public'];
+  const isAnnuaire = path.startsWith('/annuaire');
 
   // --- LOGIQUE DE REDIRECTION ---
 
   // CAS 1 : L'utilisateur est DÉJÀ CONNECTÉ (Connu)
   // S'il essaie de retourner sur l'Onboarding (/) ou le Login (/login)
-  // -> On le force à aller sur le Dashboard.
+  // -> On le force à aller sur le dashboard-user.
   if (user && (path === '/' || path === '/login')) {
-    url.pathname = '/dashboard'
+    url.pathname = '/dashboard-user'
     return NextResponse.redirect(url)
   }
 
   // CAS 2 : L'utilisateur N'EST PAS CONNECTÉ (Inconnu)
-  // S'il essaie d'aller sur une page privée (ex: /dashboard, /profil, /market...)
+  // S'il essaie d'aller sur une page privée (ex: /dashboard-user, /profil, /market...)
   // -> On le force à aller sur l'Onboarding (/)
-  if (!user && !publicRoutes.includes(path)) {
+  if (!user && !publicRoutes.includes(path) && !isAnnuaire) {
     url.pathname = '/' // Ou '/login' selon ta préférence
     return NextResponse.redirect(url)
   }
 
-  // Si aucun des cas ci-dessus, on laisse passer (ex: User connecté va sur Dashboard)
+  // Si aucun des cas ci-dessus, on laisse passer (ex: User connecté va sur dashboard-user)
   return response
 }
 

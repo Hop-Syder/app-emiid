@@ -1,7 +1,7 @@
 "use client"
 
-import { NexusLayout } from "@/components/nexus-layout"
-import { ProfilesGrid } from "@/components/profiles-grid"
+import { NexusLayout } from "@/components/menu/nexus-layout"
+import { AnnuaireContent } from "@/components/annuaire-content/annuaire-content"
 import { useState, useEffect } from "react"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { Loader2 } from "lucide-react"
@@ -45,7 +45,7 @@ export default function ONGPage() {
           <p className="text-muted-foreground">Recherche des ONG...</p>
         </div>
       ) : (
-        <ProfilesGrid profiles={profiles} category="ong" />
+        <AnnuaireContent profiles={profiles} category="ong" />
       )}
     </NexusLayout>
   )

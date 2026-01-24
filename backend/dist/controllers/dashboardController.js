@@ -2,15 +2,15 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Contrôleur pour les données du Dashboard (Stats & Discovery)
+ * @description Contrôleur pour les données du dashboard-user-user (Stats & Discovery)
  * @created 2026-01-04
 */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getFeaturedEntrepreneurs = exports.getGlobalStats = void 0;
 const supabase_1 = require("../config/supabase");
 /**
- * Récupère les statistiques globales pour le dashboard
- * GET /api/dashboard/stats
+ * Récupère les statistiques globales pour le dashboard-user-user
+ * GET /api/dashboard-user-user/stats
  */
 const getGlobalStats = async (req, res) => {
     try {
@@ -40,7 +40,7 @@ const getGlobalStats = async (req, res) => {
 exports.getGlobalStats = getGlobalStats;
 /**
  * Récupère les entrepreneurs en vedette (Discovery)
- * GET /api/dashboard/featured-entrepreneurs
+ * GET /api/dashboard-user-user/featured-entrepreneurs
  */
 const getFeaturedEntrepreneurs = async (req, res) => {
     try {

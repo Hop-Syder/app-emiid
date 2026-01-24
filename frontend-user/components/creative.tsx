@@ -336,7 +336,7 @@ const communityPosts = [
     time: "1 week ago",
   },
   {
-    title: "UI Dashboard Redesign",
+    title: "UI dashboard-user-user Redesign",
     author: "Thomas Wright",
     likes: 276,
     comments: 32,
@@ -355,7 +355,7 @@ const communityPosts = [
 
 const sidebarItems = [
   {
-    title: "Dashboard",
+    title: "dashboard-user-user",
     icon: <Home />,
     isActive: true,
   },
@@ -500,7 +500,7 @@ export function DesignaliCreative() {
   // Updated notifications count
   const [notifications, setNotifications] = useState(8)
   // Updated active tab state
-  const [activeTab, setActiveTab] = useState("dashboard")
+  const [activeTab, setActiveTab] = useState("dashboard-user-user")
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({})
@@ -787,11 +787,11 @@ export function DesignaliCreative() {
         </header>
 
         <main className="flex-1 p-4 md:p-6">
-          <Tabs defaultValue="dashboard" value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs defaultValue="dashboard-user-user" value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <TabsList className="grid w-full max-w-[700px] grid-cols-5 rounded-2xl p-1">
-                <TabsTrigger value="dashboard" className="rounded-xl data-[state=active]:rounded-xl">
-                  Dashboard
+                <TabsTrigger value="dashboard-user-user" className="rounded-xl data-[state=active]:rounded-xl">
+                  dashboard-user-user
                 </TabsTrigger>
                 <TabsTrigger value="annuaire" className="rounded-xl data-[state=active]:rounded-xl">
                   Annuaire
@@ -822,7 +822,7 @@ export function DesignaliCreative() {
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
               >
-                <TabsContent value="dashboard" className="space-y-8 mt-0">
+                <TabsContent value="dashboard-user-user" className="space-y-8 mt-0">
                   <section>
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}

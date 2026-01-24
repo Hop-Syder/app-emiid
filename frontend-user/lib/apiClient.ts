@@ -34,3 +34,20 @@ export const fetchWithAuth = async (endpoint: string, options: RequestInit = {})
     headers,
   });
 };
+
+/**
+ * Wrapper autour de fetch pour les routes publiques (sans auth).
+ */
+export const fetchPublic = async (endpoint: string, options: RequestInit = {}) => {
+  const headers = {
+    'Content-Type': 'application/json',
+    ...options.headers,
+  };
+
+  const url = endpoint.startsWith('http') ? endpoint : `${API_URL}${endpoint}`;
+  
+  return fetch(url, {
+    ...options,
+    headers,
+  });
+};

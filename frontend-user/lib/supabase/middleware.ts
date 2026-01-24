@@ -51,9 +51,9 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(new URL('/', request.url))
   }
 
-  // Si on est déjà connecté et qu'on tente d'aller sur la page de login ('/') -> redirection vers '/dashboard'
+  // Si on est déjà connecté et qu'on tente d'aller sur la page de login ('/') -> redirection vers '/dashboard-user'
   if (pathname === '/' && user) {
-     return NextResponse.redirect(new URL('/dashboard', request.url))
+     return NextResponse.redirect(new URL('/dashboard-user', request.url))
   }
 
   return response

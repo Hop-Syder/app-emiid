@@ -1,0 +1,35 @@
+"use client"
+
+import { Filter } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { AnnuaireFilters } from "./annuaire-filters"
+import { AnnuaireGrid } from "./annuaire-grid"
+import { Profile } from "./annuaire-card"
+
+interface AnnuaireContentProps {
+    profiles: Profile[]
+    category: string
+}
+
+export function AnnuaireContent({ profiles, category }: AnnuaireContentProps) {
+    return (
+        <div className="space-y-6">
+            {/* Filters */}
+            <AnnuaireFilters />
+
+            {/* Results Count */}
+            <div className="flex items-center justify-between">
+                <p className="text-sm text-muted-foreground">
+                    {profiles.length} profil{profiles.length > 1 ? "s" : ""} trouvé{profiles.length > 1 ? "s" : ""}
+                </p>
+                <Button variant="outline" className="rounded-2xl bg-transparent" size="sm">
+                    <Filter className="mr-2 h-4 w-4" />
+                    Plus de filtres
+                </Button>
+            </div>
+
+            {/* Profiles Grid */}
+            <AnnuaireGrid profiles={profiles} />
+        </div>
+    )
+}

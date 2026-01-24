@@ -40,7 +40,7 @@ app.get('/', (req, res) => {
 app.use('/api/auth', auth_1.default);
 app.use('/api/users', userRoutes_1.default);
 app.use('/api/ads', adsRoutes_1.default);
-app.use('/api/dashboard', dashboardRoutes_1.default);
+app.use('/api/dashboard-user-user', dashboardRoutes_1.default);
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`🚀 Serveur démarré !`);

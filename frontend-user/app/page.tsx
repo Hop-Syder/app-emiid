@@ -5,7 +5,7 @@
  * @created 2026-01-05
 */
 
-import { OnboardingCarousel } from "@/components/OnboardingCarousel";
+import { OnboardingCarousel } from "@/components/OnboardingCarousel/OnboardingCarousel";
 
 export default function Home() {
     return <OnboardingCarousel />;

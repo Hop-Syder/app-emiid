@@ -39,9 +39,9 @@ C'est l'application principale pour les utilisateurs.
 
 ## 3. Déployer l'Admin (Back Office)
 
-Le dashboard pour gérer la plateforme.
+Le dashboard-user pour gérer la plateforme.
 
-1. Retourne sur le Dashboard Vercel.
+1. Retourne sur le dashboard-user Vercel.
 2. Clique encore sur **"Add New..."** → **"Project"**.
 3. Importe le **GÊME** repository `app-nexus-connect` (Oui, encore une fois).
 4. **Configuration du Projet** :

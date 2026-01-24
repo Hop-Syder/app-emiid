@@ -49,7 +49,7 @@ Le projet est structuré en **Monorepo** pour une gestion cohérente du frontend
 
 ```text
 .
-├── admin/                # Dashboard administratif (Next.js 16 + Tailwind 4)
+├── admin/                # dashboard-user administratif (Next.js 16 + Tailwind 4)
 ├── backend/              # API Express sécurisée (TypeScript)
 │   ├── src/
 │   │   ├── api/routes/   # Définition des points d'entrée (Auth, etc.)
@@ -57,7 +57,7 @@ Le projet est structuré en **Monorepo** pour une gestion cohérente du frontend
 │   │   ├── middlewares/  # Validation, Auth, Sécurité (Helmet)
 │   │   └── app.ts        # Configuration & middleware Express
 ├── frontend-user/        # Application utilisateur principale (Next.js 15)
-│   ├── app/              # Routes Next.js (Dashboard, Market, Messagerie)
+│   ├── app/              # Routes Next.js (dashboard-user, Market, Messagerie)
 │   ├── components/       # Librairie de composants UI réutilisables
 │   └── lib/              # Client Supabase et outils utilitaires
 ├── package.json          # Scripts globaux (concurrently)

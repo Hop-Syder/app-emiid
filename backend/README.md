@@ -40,7 +40,7 @@ Ce backend est le moteur "Gendarme" de Nexus Connect. Il assure le relais d'auth
 - Récupération dynamique des dernières opportunités.
 - Sécurisation RLS (Row Level Security) couplée à la logique Backend.
 
-### 4. Dashboard & Statistiques
+### 4. dashboard-user & Statistiques
 
 - Calcul en temps réel des statistiques globales (Membres connectés, Projets actifs).
 - Discovery : Entrepreneurs en vedette et nouveaux arrivants.
@@ -92,16 +92,16 @@ Pour déployer ce backend sur Railway :
 
 ## 📡 Documentation des Endpoints API
 
-| Méthode  | Endpoint                                | Description                        | Auth |
-| -------- | --------------------------------------- | ---------------------------------- | ---- |
-| **GET**  | `/`                                     | État de santé de l'API             | 🔓   |
-| **GET**  | `/api/users/me`                         | Récupérer mon profil               | 🔒   |
-| **PUT**  | `/api/users/me`                         | Mettre à jour mon profil           | 🔒   |
-| **GET**  | `/api/users`                            | Lister tous les profils (Annuaire) | 🔒   |
-| **GET**  | `/api/ads`                              | Lister les annonces (Market)       | 🔒   |
-| **POST** | `/api/ads`                              | Créer une annonce                  | 🔒   |
-| **GET**  | `/api/dashboard/stats`                  | Statistiques globales              | 🔓   |
-| **GET**  | `/api/dashboard/featured-entrepreneurs` | Entrepreneurs Discovery            | 🔓   |
+| Méthode  | Endpoint                                     | Description                        | Auth |
+| -------- | -------------------------------------------- | ---------------------------------- | ---- |
+| **GET**  | `/`                                          | État de santé de l'API             | 🔓   |
+| **GET**  | `/api/users/me`                              | Récupérer mon profil               | 🔒   |
+| **PUT**  | `/api/users/me`                              | Mettre à jour mon profil           | 🔒   |
+| **GET**  | `/api/users`                                 | Lister tous les profils (Annuaire) | 🔒   |
+| **GET**  | `/api/ads`                                   | Lister les annonces (Market)       | 🔒   |
+| **POST** | `/api/ads`                                   | Créer une annonce                  | 🔒   |
+| **GET**  | `/api/dashboard-user/stats`                  | Statistiques globales              | 🔓   |
+| **GET**  | `/api/dashboard-user/featured-entrepreneurs` | Entrepreneurs Discovery            | 🔓   |
 
 ---
 

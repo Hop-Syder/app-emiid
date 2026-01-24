@@ -1,7 +1,7 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Contrôleur pour les données du Dashboard (Stats & Discovery)
+ * @description Contrôleur pour les données du dashboard-user (Stats & Discovery)
  * @created 2026-01-04
 */
 
@@ -9,8 +9,8 @@ import { Request, Response } from 'express';
 import { supabase } from '../config/supabase';
 
 /**
- * Récupère les statistiques globales pour le dashboard
- * GET /api/dashboard/stats
+ * Récupère les statistiques globales pour le dashboard-user
+ * GET /api/dashboard-user/stats
  */
 export const getGlobalStats = async (req: Request, res: Response) => {
   try {
@@ -32,8 +32,8 @@ export const getGlobalStats = async (req: Request, res: Response) => {
     res.json({
       totalEntrepreneurs: userCount || 0,
       activeProjects: adsCount || 0,
-      countriesCovered: 15, // Valeur statique demandée par Nexus
-      totalFunding: 0 // À implémenter quand on aura des transactions
+      countriesCovered: 15,
+      totalFunding: 0
     });
   } catch (err) {
     res.status(500).json({ error: "Erreur interne lors de la récupération des stats" });
@@ -41,8 +41,15 @@ export const getGlobalStats = async (req: Request, res: Response) => {
 };
 
 /**
+ * Récupère les statistiques publiques (identique à GlobalStats mais pour l'accès public)
+ */
+export const getPublicStats = (req: Request, res: Response) => {
+  getGlobalStats(req, res);
+};
+
+/**
  * Récupère les entrepreneurs en vedette (Discovery)
- * GET /api/dashboard/featured-entrepreneurs
+ * GET /api/dashboard-user/featured-entrepreneurs
  */
 export const getFeaturedEntrepreneurs = async (req: Request, res: Response) => {
   try {

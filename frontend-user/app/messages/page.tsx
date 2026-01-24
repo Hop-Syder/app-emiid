@@ -1,4 +1,4 @@
-import { NexusLayout } from "@/components/nexus-layout"
+import { NexusLayout } from "@/components/menu/nexus-layout"
 import { MessagesContent } from "@/components/messages-content"
 
 export default function MessagesPage() {
