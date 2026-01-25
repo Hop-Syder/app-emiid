@@ -17,7 +17,7 @@ const app: Application = express();
 // Middlewares
 const allowedOrigins = process.env.CORS_ORIGINS 
   ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim()) 
-  : ['http://localhost:3000'];
+  : ['http://localhost:3000', 'https://app-nexus-connect.vercel.app', 'https://app-nexus-connect-frontend.vercel.app'];
 
 app.use(cors({
   origin: (origin, callback) => {
