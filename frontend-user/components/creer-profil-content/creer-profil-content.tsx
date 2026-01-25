@@ -73,37 +73,35 @@ export function CreerProfilContent() {
             const lastName = nameParts.slice(1).join(" ") || ""
 
             const payload = {
-                p_user_id: user.id,
-                p_first_name: firstName,
-                p_last_name: lastName,
-                p_role: formData.role,
-                p_category: formData.category,
-                p_specialty: formData.specialty,
-                p_bio: formData.bio,
-                p_phone: formData.phone,
-                p_website: formData.website,
-                p_country_id: formData.country_id || null,
-                p_city: formData.city,
-                p_is_published: isPublished,
-                p_tags: formData.tags
+                first_name: firstName,
+                last_name: lastName,
+                role: formData.role,
+                category: formData.category,
+                specialty: formData.specialty,
+                bio: formData.bio,
+                phone: formData.phone, // Le backend devra supporter ce champ si pas déjà fait
+                website: formData.website,
+                country_id: formData.country_id || null,
+                city: formData.city,
+                is_published: isPublished,
+                // Note: Le backend devra idéalement gérer les tags aussi
             }
 
-            console.log("Tentative de sauvegarde avec payload:", payload)
+            console.log("Envoi au backend:", payload)
 
-            const { data, error } = await supabase.rpc("save_profile_card", payload)
+            const response = await fetchWithAuth("/api/users/me", {
+                method: "PUT",
+                body: JSON.stringify(payload)
+            })
 
-            if (error) {
-                console.error("Erreur RPC Supabase:", {
-                    message: error.message,
-                    details: error.details,
-                    hint: error.hint,
-                    code: error.code
-                })
-                throw error
+            if (!response.ok) {
+                const errorData = await response.json()
+                throw new Error(errorData.error || "Erreur lors de la sauvegarde")
             }
 
-            console.log("Réponse RPC succès:", data)
             toast.success("Profil enregistré avec succès!")
+            // Optionnel: Redirection si souhaité par le user, ou rester sur la page
+            // router.push("/dashboard-user") 
         } catch (error: any) {
             console.error("Erreur sauvegarde complète:", error)
             toast.error(`Erreur: ${error.message || "Une erreur est survenue lors de la sauvegarde"}`)

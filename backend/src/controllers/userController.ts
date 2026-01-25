@@ -51,7 +51,8 @@ export const updateMyProfile = async (req: any, res: Response) => {
     first_name, last_name, bio, avatar_url,
     role, specialty, category, activity_domain,
     country_id, country_code, country_name, city,
-    job_title, industry, pin_enabled, pin_code
+    job_title, industry, pin_enabled, pin_code,
+    phone, website, is_published
   } = req.body;
 
   try {
@@ -105,6 +106,9 @@ export const updateMyProfile = async (req: any, res: Response) => {
         activity_domain: finalDomain,
         country_id: finalCountryId,
         city,
+        phone,
+        website,
+        is_published,
         updated_at: new Date().toISOString()
     };
     
