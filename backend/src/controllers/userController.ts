@@ -225,12 +225,15 @@ export const getPublicProfiles = async (req: Request, res: Response) => {
        );
     }
 
-    // FallbackDev (Seulement si aucune data ET pas de filtres restrictifs)
-    if (!error && (!data || data.length === 0) && !search && !country && !city && !tags) {
-      console.log('FallbackDev: Serving mock/latest profiles');
+    // FallbackDev (Seulement si aucune data ET ABSOLUMENT AUCUN filtre restrictif)
+    const hasAnyFilter = !!(category || search || country || city || tags);
+    
+    if (!error && (!data || data.length === 0) && !hasAnyFilter) {
+      console.log('FallbackDev: Serving mock/latest profiles (No filters applied)');
       const fallback = await supabaseAdmin
         .from('user_profiles')
         .select(`*, countries(name, iso_code)`)
+        .eq('is_published', true) // Toujours filtrer sur published même en fallback
         .limit(6)
         .order('created_at', { ascending: false });
       data = fallback.data;
