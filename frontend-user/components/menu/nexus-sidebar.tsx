@@ -46,12 +46,6 @@ const sidebarItems: SidebarItem[] = [
     title: "Annuaire",
     icon: <Grid />,
     href: "/annuaire",
-    items: [
-      { title: "Artisans", href: "/annuaire/artisans" },
-      { title: "Freelances", href: "/annuaire/freelances" },
-      { title: "Entreprises", href: "/annuaire/entreprises" },
-      { title: "ONG", href: "/annuaire/ong" },
-    ],
   },
   {
     title: "Portefeuille",
