@@ -9,76 +9,105 @@
 
 "use client"
 
-import { Search, Filter } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { Search, X } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { LocationSelector } from "@/components/LocationSelector"
+import { Button } from "@/components/ui/button"
 
 interface AnnuaireFiltersProps {
-    currentCategory?: string;
+    filters: {
+        search: string
+        category: string
+        country: string
+        city: string
+        tags: string
+        status: string
+    }
+    onFilterChange: (key: string, value: string) => void
 }
 
-export function AnnuaireFilters({ currentCategory }: AnnuaireFiltersProps) {
-    const router = useRouter()
+export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProps) {
 
-    const handleCategoryChange = (value: string) => {
-        if (value === "all") {
-            router.push("/annuaire")
-        } else {
-            router.push(`/annuaire/${value}`);
-        }
+    // Wrapper simple pour LocationSelector qui attend un objet {name, isoCode}
+    const handleLocationSelect = (country: { name: string, isoCode: string }, city: string) => {
+        onFilterChange("country", country.isoCode || "all")
+        onFilterChange("city", city)
+    }
+
+    const resetFilters = () => {
+        onFilterChange("search", "")
+        onFilterChange("category", "all")
+        onFilterChange("country", "all")
+        onFilterChange("city", "")
+        onFilterChange("tags", "")
+        onFilterChange("status", "all")
     }
 
     return (
-        <Card className="rounded-3xl border-none shadow-sm mb-6">
-            <CardContent className="p-4">
+        <Card className="rounded-3xl border-none shadow-sm mb-6 bg-white/50 backdrop-blur-sm">
+            <CardContent className="p-6 space-y-6">
+                {/* Top Bar: Search & Tags */}
                 <div className="flex flex-col lg:flex-row gap-4">
-                    <div className="flex-1 relative">
+                    <div className="flex-[2] relative">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                         <Input
-                            placeholder="Rechercher par nom, métier ou spécialité..."
-                            className="pl-12 h-12 rounded-2xl bg-muted/50 border-none focus-visible:ring-primary"
+                            placeholder="Rechercher un talent (Nom, Rôle, Bio...)"
+                            className="pl-12 h-12 rounded-2xl bg-white border-muted focus-visible:ring-primary shadow-sm"
+                            value={filters.search}
+                            onChange={(e) => onFilterChange("search", e.target.value)}
                         />
                     </div>
+                    <div className="flex-1">
+                        <Input
+                            placeholder="Filtrer par Tags (Ex: React, BTP...)"
+                            className="h-12 rounded-2xl bg-white border-muted shadow-sm"
+                            value={filters.tags}
+                            onChange={(e) => onFilterChange("tags", e.target.value)}
+                        />
+                    </div>
+                </div>
 
-                    <div className="flex flex-wrap gap-3">
-                        <Select onValueChange={handleCategoryChange} value={currentCategory || "all"}>
-                            <SelectTrigger className="w-[180px] h-12 rounded-2xl bg-muted/50 border-none">
+                {/* Filters Row */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+
+                    {/* Catégorie */}
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium ml-1 text-muted-foreground">Secteur</label>
+                        <Select onValueChange={(val) => onFilterChange("category", val)} value={filters.category}>
+                            <SelectTrigger className="h-11 rounded-2xl bg-white border-muted">
                                 <SelectValue placeholder="Catégorie" />
                             </SelectTrigger>
                             <SelectContent className="rounded-2xl">
-                                <SelectItem value="all">Secteur (Tous)</SelectItem>
-                                <SelectItem value="artisans">Artisans</SelectItem>
-                                <SelectItem value="freelances">Freelances</SelectItem>
-                                <SelectItem value="entreprises">Entreprises</SelectItem>
+                                <SelectItem value="all">Tous les secteurs</SelectItem>
+                                <SelectItem value="artisan">Artisans</SelectItem>
+                                <SelectItem value="freelance">Freelances</SelectItem>
+                                <SelectItem value="entreprise">Entreprises</SelectItem>
                                 <SelectItem value="ong">ONG</SelectItem>
                             </SelectContent>
                         </Select>
+                    </div>
 
-                        <Select defaultValue="all">
-                            <SelectTrigger className="w-[180px] h-12 rounded-2xl bg-muted/50 border-none">
-                                <SelectValue placeholder="Localisation" />
-                            </SelectTrigger>
-                            <SelectContent className="rounded-2xl">
-                                <SelectItem value="all">Afrique de l'Ouest</SelectItem>
-                                <SelectItem value="benin">Bénin</SelectItem>
-                                <SelectItem value="senegal">Sénégal</SelectItem>
-                                <SelectItem value="cote-ivoire">Côte d'Ivoire</SelectItem>
-                                <SelectItem value="mali">Mali</SelectItem>
-                            </SelectContent>
-                        </Select>
+                    {/* Location Selector (Pays/Ville) intégrés */}
+                    <div className="lg:col-span-2">
+                        <LocationSelector
+                            onLocationSelect={handleLocationSelect}
+                            defaultCountryCode={filters.country !== "all" ? filters.country : undefined}
+                            defaultCity={filters.city}
+                        />
+                    </div>
 
-                        <Select defaultValue="all">
-                            <SelectTrigger className="w-[150px] h-12 rounded-2xl bg-muted/50 border-none">
-                                <SelectValue placeholder="Statut" />
-                            </SelectTrigger>
-                            <SelectContent className="rounded-2xl">
-                                <SelectItem value="all">Tous</SelectItem>
-                                <SelectItem value="verified">Vérifiés</SelectItem>
-                                <SelectItem value="premium">Premium</SelectItem>
-                            </SelectContent>
-                        </Select>
+                    {/* Actions / Reset */}
+                    <div className="flex items-end pb-1">
+                        <Button
+                            variant="ghost"
+                            onClick={resetFilters}
+                            className="w-full text-muted-foreground hover:text-red-500 hover:bg-red-50 rounded-2xl"
+                        >
+                            <X className="mr-2 h-4 w-4" />
+                            Réinitialiser
+                        </Button>
                     </div>
                 </div>
             </CardContent>

@@ -15,14 +15,35 @@ import { fetchPublic } from "@/lib/apiClient"
 import { CardPremium } from "@/components/carte-profil/card-premium/card-premium"
 import { Skeleton } from "@/components/ui/skeleton"
 
-export function AnnuaireGrid() {
+interface AnnuaireGridProps {
+    filters?: {
+        search: string
+        category: string
+        country: string
+        city: string
+        tags: string
+        status: string
+    }
+}
+
+export function AnnuaireGrid({ filters }: AnnuaireGridProps) {
     const [loading, setLoading] = useState(true)
     const [profiles, setProfiles] = useState<any[]>([])
 
     useEffect(() => {
         const loadProfiles = async () => {
+            setLoading(true)
             try {
-                const response = await fetchPublic("/api/public/profiles")
+                // Construction dynamique des query params
+                const params = new URLSearchParams()
+                if (filters?.search) params.append("search", filters.search)
+                if (filters?.category && filters.category !== "all") params.append("category", filters.category)
+                if (filters?.country && filters.country !== "all") params.append("country", filters.country)
+                if (filters?.city) params.append("city", filters.city)
+                if (filters?.tags) params.append("tags", filters.tags)
+
+                const response = await fetchPublic(`/api/public/profiles?${params.toString()}`)
+
                 if (response.ok) {
                     const data = await response.json()
                     setProfiles(data.map((e: any) => ({
@@ -44,7 +65,7 @@ export function AnnuaireGrid() {
             }
         }
         loadProfiles()
-    }, [])
+    }, [filters])
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

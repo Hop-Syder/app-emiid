@@ -3,19 +3,18 @@
  * @organization Nexus Partners
  * @description Wrapper principal pour le contenu de création de profil
  * @created 2026-01-16
- * @updated 2026-01-16
+ * @updated 2026-01-25
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
 */
 
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Badge } from "@/components/ui/badge"
 import { CreerProfilForm } from "./creer-profil-form"
 import { CreerProfilPreview } from "./creer-profil-preview"
-import { useEffect } from "react"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
@@ -45,23 +44,34 @@ export function CreerProfilContent() {
     useEffect(() => {
         const loadInitialData = async () => {
             try {
-                // Chargement des référentiels (parallélisé)
+                // Chargement des référentiels
                 const [countryRes, profileRes] = await Promise.all([
                     fetchWithAuth("/api/reference/countries"),
                     fetchWithAuth("/api/users/me"),
                 ])
 
+                let countriesList: any[] = []
                 if (countryRes.ok) {
-                    setCountries(await countryRes.json())
+                    countriesList = await countryRes.json()
+                    setCountries(countriesList)
                 }
 
-                // 1. Initialisation : Hydratation du formulaire
+                // Initialisation : Hydratation du formulaire
                 if (profileRes.ok) {
                     const data = await profileRes.json()
                     // PGRST116: Si pas de profil, l'API peut renvoyer une erreur standard ou un objet partiel
-                    // On vérifie si on a des données utiles
                     if (data && !data.error && !data.message) {
                         const name = `${data.first_name || ""} ${data.last_name || ""}`.trim()
+
+                        // Résolution du code pays pour le sélecteur
+                        let resolvedCountryCode = ""
+                        if (data.countries && data.countries.iso_code) {
+                            resolvedCountryCode = data.countries.iso_code
+                        } else if (data.country_id) {
+                            const found = countriesList.find((c: any) => c.id === data.country_id)
+                            if (found) resolvedCountryCode = found.iso_code
+                        }
+
                         setFormData((prev) => ({
                             ...prev,
                             name: name || prev.name,
@@ -73,6 +83,8 @@ export function CreerProfilContent() {
                             email: data.email || prev.email,
                             website: data.website || prev.website,
                             country_id: data.country_id || prev.country_id,
+                            country_code: resolvedCountryCode || prev.country_code,
+                            country_name: data.country_name || (data.countries?.name) || prev.country_name,
                             city: data.city || prev.city,
                             avatar: data.avatar_url || prev.avatar,
                         }))
@@ -83,7 +95,6 @@ export function CreerProfilContent() {
                 }
             } catch (error) {
                 console.error("Erreur chargement données:", error)
-                toast.error("Impossible de charger vos données sauvegardées")
             }
         }
         loadInitialData()
@@ -101,8 +112,6 @@ export function CreerProfilContent() {
             const firstName = nameParts[0] || ""
             const lastName = nameParts.slice(1).join(" ") || ""
 
-            // On push toutes les données actives MAIS on préserve le statut published actuel
-            // Si c'était false, ça reste false (Brouillon). Si c'était true, on publie la M.A.J mais on reste publié.
             const payload = {
                 first_name: firstName,
                 last_name: lastName,
@@ -112,9 +121,9 @@ export function CreerProfilContent() {
                 bio: formData.bio,
                 phone: formData.phone,
                 website: formData.website,
-                country_id: formData.country_id || null, // null si vide
+                country_id: formData.country_id || null,
                 city: formData.city,
-                is_published: isPublished, // État inchangé
+                is_published: isPublished,
             }
 
             console.log("Saving Draft:", payload)
@@ -130,7 +139,6 @@ export function CreerProfilContent() {
             }
 
             toast.success("Brouillon sauvegardé avec succès")
-            // UX: On ne redirige PAS, on laisse l'utilisateur continuer son édition.
         } catch (error: any) {
             console.error("Erreur save:", error)
             toast.error(`Erreur: ${error.message}`)
@@ -189,8 +197,6 @@ export function CreerProfilContent() {
         if (!isPublished) return
 
         try {
-            // On renvoie l'état complet actuel pour éviter d'écraser des données par mégarde
-            // mais on force is_published à false
             const trimmedName = formData.name.trim()
             const nameParts = trimmedName.split(" ")
 

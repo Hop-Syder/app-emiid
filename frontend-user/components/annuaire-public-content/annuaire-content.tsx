@@ -1,5 +1,7 @@
 "use client"
 
+import { useState } from "react"
+
 import { Filter } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { AnnuaireFilters } from "./annuaire-filters"
@@ -11,25 +13,34 @@ interface AnnuaireContentProps {
     category: string
 }
 
-export function AnnuaireContent({ profiles, category }: AnnuaireContentProps) {
+export function AnnuaireContent({ profiles: initialProfiles, category }: AnnuaireContentProps) {
+    const [filters, setFilters] = useState({
+        search: "",
+        category: category || "all",
+        country: "all",
+        city: "",
+        tags: "",
+        status: "all"
+    })
+
+    const handleFilterChange = (key: string, value: string) => {
+        setFilters(prev => ({ ...prev, [key]: value }))
+    }
+
     return (
         <div className="space-y-6">
             {/* Filters */}
-            <AnnuaireFilters />
+            <AnnuaireFilters
+                filters={filters}
+                onFilterChange={handleFilterChange}
+            />
 
-            {/* Results Count */}
-            <div className="flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">
-                    {profiles.length} profil{profiles.length > 1 ? "s" : ""} trouvé{profiles.length > 1 ? "s" : ""}
-                </p>
-                <Button variant="outline" className="rounded-2xl bg-transparent" size="sm">
-                    <Filter className="mr-2 h-4 w-4" />
-                    Plus de filtres
-                </Button>
-            </div>
+            {/* Results Count handled by Grid mostly, or we lift state fully... 
+                Pour l'instant, AnnuaireGrid gère son fetch, donc on lui passe les filtres. 
+            */}
 
             {/* Profiles Grid */}
-            <AnnuaireGrid profiles={profiles} />
+            <AnnuaireGrid filters={filters} />
         </div>
     )
 }

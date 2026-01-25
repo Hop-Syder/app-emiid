@@ -167,44 +167,87 @@ export const getAllUsers = async (req: any, res: Response) => {
  * GET /api/public/profiles
  */
 export const getPublicProfiles = async (req: Request, res: Response) => {
-  const { category, search } = req.query;
+  const { category, search, country, city, tags } = req.query;
   
   try {
     let query = supabaseAdmin
       .from('user_profiles')
       .select(`
         *,
-        countries(name, iso_code)
+        countries!inner(name, iso_code),
+        profile_tags(tags(name))
       `)
       .eq('is_published', true)
       .order('updated_at', { ascending: false });
 
+    // Filtre Catégorie
     if (category) {
       query = query.eq('category', category);
     }
 
+    // Filtre Pays (via le code ISO de la relation countries)
+    if (country) {
+      query = query.eq('countries.iso_code', country);
+    }
+
+    // Filtre Ville
+    if (city) {
+      query = query.ilike('city', `%${city}%`);
+    }
+
+    // Filtre Tags (Recherche simple si un tag est spécifié)
+    // Note: Le filtrage profond sur tags via PostgREST est limité sans extension.
+    // On suppose ici que si 'tags' est présent, c'est une string de recherche.
+    // Pour une vraie recherche par tags exacte, il faudrait une vue ou une func RPC.
+    // Ici on fait un fallback simple sur le champ texte si 'tags' est passé comme paramètre de recherche
+    // OU BIEN on compte sur le Frontend pour envoyer le tag dans 'search' si pas géré spécifiquement.
+    // Mais le user veut un filtre spécifique.
+    // Approche pragmatique : Si 'tags' est présent, on filtre ceux qui ont ce tag dans profile_tags
+    // Cela nécessite !inner sur profile_tags.
+    if (tags) {
+       // Cette syntaxe suppose que profile_tags a été joint avec !inner (ce qui est le cas si on filtre dessus)
+       // query = query.eq('profile_tags.tags.name', tags) // Difficile avec la structure actuelle sans casser la lecture
+    }
+
+    // Recherche Textuelle (Nom, Bio, Rôle)
+    if (search) {
+      query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,bio.ilike.%${search}%,role.ilike.%${search}%,specialty.ilike.%${search}%`);
+    }
+
     let { data, error } = await query;
-    console.log('Public Profiles (published):', { count: data?.length, error });
+    console.log('Public Profiles query params:', req.query);
     
-    // Fallback : Si aucun profil n'est marqué 'is_published', on en renvoie quand même quelques uns (pour le dev)
-    if (!error && (!data || data.length === 0)) {
-      console.log('No published profiles found, trying fallback...');
+    // Filtrage manuel pour les Tags (limitation Supabase JS Client simple)
+    if (tags && data) {
+       const tagSearch = (tags as string).toLowerCase();
+       data = data.filter((profile: any) => 
+          profile.profile_tags?.some((pt: any) => pt.tags?.name?.toLowerCase().includes(tagSearch))
+       );
+    }
+
+    // FallbackDev (Seulement si aucune data ET pas de filtres restrictifs)
+    if (!error && (!data || data.length === 0) && !search && !country && !city && !tags) {
+      console.log('FallbackDev: Serving mock/latest profiles');
       const fallback = await supabaseAdmin
         .from('user_profiles')
         .select(`*, countries(name, iso_code)`)
         .limit(6)
         .order('created_at', { ascending: false });
       data = fallback.data;
-      error = fallback.error;
-      console.log('Fallback Profiles:', { count: data?.length, error });
     }
 
     if (error) {
-       console.error('Error fetching profiles:', error);
+       console.error('Error fetching public profiles:', error);
        return res.status(400).json({ error: error.message });
     }
     
-    res.json(data);
+    // Nettoyage de la structure pour le frontend (aplatir tags)
+    const cleanedData = data?.map((p: any) => ({
+        ...p,
+        tags: p.profile_tags?.map((pt: any) => pt.tags?.name) || []
+    }));
+
+    res.json(cleanedData);
   } catch (err) {
     res.status(500).json({ error: "Erreur interne lors de la récupération des profils publics" });
   }
