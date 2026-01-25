@@ -45,6 +45,7 @@ export function CreerProfilContent() {
     useEffect(() => {
         const loadInitialData = async () => {
             try {
+                // Chargement des référentiels (parallélisé)
                 const [countryRes, profileRes] = await Promise.all([
                     fetchWithAuth("/api/reference/countries"),
                     fetchWithAuth("/api/users/me"),
@@ -54,29 +55,35 @@ export function CreerProfilContent() {
                     setCountries(await countryRes.json())
                 }
 
+                // 1. Initialisation : Hydratation du formulaire
                 if (profileRes.ok) {
                     const data = await profileRes.json()
-                    const name = `${data.first_name || ""} ${data.last_name || ""}`.trim()
-                    setFormData((prev) => ({
-                        ...prev,
-                        name: name || prev.name,
-                        role: data.role || prev.role,
-                        category: data.category || prev.category,
-                        specialty: data.specialty || prev.specialty,
-                        bio: data.bio || prev.bio,
-                        phone: data.phone || prev.phone,
-                        email: data.email || prev.email,
-                        website: data.website || prev.website,
-                        country_id: data.country_id || prev.country_id,
-                        city: data.city || prev.city,
-                        avatar: data.avatar_url || prev.avatar,
-                    }))
-                    if (typeof data.is_published === "boolean") {
-                        setIsPublished(data.is_published)
+                    // PGRST116: Si pas de profil, l'API peut renvoyer une erreur standard ou un objet partiel
+                    // On vérifie si on a des données utiles
+                    if (data && !data.error && !data.message) {
+                        const name = `${data.first_name || ""} ${data.last_name || ""}`.trim()
+                        setFormData((prev) => ({
+                            ...prev,
+                            name: name || prev.name,
+                            role: data.role || data.job_title || prev.role,
+                            category: data.category || prev.category,
+                            specialty: data.specialty || prev.specialty,
+                            bio: data.bio || prev.bio,
+                            phone: data.phone || prev.phone,
+                            email: data.email || prev.email,
+                            website: data.website || prev.website,
+                            country_id: data.country_id || prev.country_id,
+                            city: data.city || prev.city,
+                            avatar: data.avatar_url || prev.avatar,
+                        }))
+                        if (typeof data.is_published === "boolean") {
+                            setIsPublished(data.is_published)
+                        }
                     }
                 }
             } catch (error) {
-                console.error("Erreur chargement données profil:", error)
+                console.error("Erreur chargement données:", error)
+                toast.error("Impossible de charger vos données sauvegardées")
             }
         }
         loadInitialData()
@@ -86,32 +93,16 @@ export function CreerProfilContent() {
         setFormData((prev) => ({ ...prev, [field]: value }))
     }
 
+    // 2. Mutation & Persistance (Draft)
     const handleSave = async () => {
-        const trimmedName = formData.name.trim()
-        if (!trimmedName) {
-            toast.error("Veuillez renseigner votre nom avant d'enregistrer votre profil")
-            return
-        }
-        if (!formData.category) {
-            toast.error("Veuillez sélectionner une catégorie (Artisan, Freelance, etc.)")
-            return
-        }
-        if (!formData.specialty) {
-            toast.error("Veuillez renseigner votre spécialité")
-            return
-        }
-
         try {
-            const { data: { user } } = await supabase.auth.getUser()
-            if (!user) {
-                toast.error("Vous devez être connecté pour enregistrer votre profil")
-                return
-            }
-
+            const trimmedName = formData.name.trim()
             const nameParts = trimmedName.split(" ")
             const firstName = nameParts[0] || ""
             const lastName = nameParts.slice(1).join(" ") || ""
 
+            // On push toutes les données actives MAIS on préserve le statut published actuel
+            // Si c'était false, ça reste false (Brouillon). Si c'était true, on publie la M.A.J mais on reste publié.
             const payload = {
                 first_name: firstName,
                 last_name: lastName,
@@ -121,12 +112,12 @@ export function CreerProfilContent() {
                 bio: formData.bio,
                 phone: formData.phone,
                 website: formData.website,
-                country_id: formData.country_id || null,
+                country_id: formData.country_id || null, // null si vide
                 city: formData.city,
-                is_published: isPublished,
+                is_published: isPublished, // État inchangé
             }
 
-            console.log("Envoi au backend:", payload)
+            console.log("Saving Draft:", payload)
 
             const response = await fetchWithAuth("/api/users/me", {
                 method: "PUT",
@@ -138,118 +129,96 @@ export function CreerProfilContent() {
                 throw new Error(errorData?.error || "Erreur lors de la sauvegarde")
             }
 
-            toast.success("Profil enregistré avec succès!")
+            toast.success("Brouillon sauvegardé avec succès")
+            // UX: On ne redirige PAS, on laisse l'utilisateur continuer son édition.
         } catch (error: any) {
-            console.error("Erreur sauvegarde complète:", error)
-            toast.error(`Erreur: ${error.message || "Une erreur est survenue lors de la sauvegarde"}`)
+            console.error("Erreur save:", error)
+            toast.error(`Erreur: ${error.message}`)
         }
     }
 
+    // 3. Publication (Visibility ON)
     const handlePublish = async () => {
-        if (isPublished) return
+        if (isPublished) {
+            toast.info("Votre profil est déjà publié. Cliquez sur Enregistrer pour mettre à jour.")
+            return
+        }
 
         const trimmedName = formData.name.trim()
         if (!trimmedName) {
-            toast.error("Veuillez renseigner votre nom avant de publier votre profil")
+            toast.error("Veuillez renseigner votre nom avant de publier")
             return
         }
-        if (!formData.category || !formData.specialty) {
-            toast.error("Veuillez renseigner au minimum la catégorie et la spécialité avant de publier")
-            return
-        }
-        if (!formData.country_id && !formData.country_code) {
-            toast.error("Veuillez sélectionner un pays avant de publier votre profil dans l'annuaire")
+        if (!formData.specialty || !formData.category) {
+            toast.error("Veuillez remplir votre Spécialité et Catégorie pour publier")
             return
         }
 
         try {
-            const { data: { user } } = await supabase.auth.getUser()
-            if (!user) return
-
             const nameParts = trimmedName.split(" ")
-            const firstName = nameParts[0] || ""
-            const lastName = nameParts.slice(1).join(" ") || ""
-
             const payload = {
-                p_user_id: user.id,
-                p_first_name: firstName,
-                p_last_name: lastName,
-                p_role: formData.role,
-                p_category: formData.category,
-                p_specialty: formData.specialty,
-                p_bio: formData.bio,
-                p_phone: formData.phone,
-                p_website: formData.website,
-                p_country_id: formData.country_id || null,
-                p_city: formData.city,
-                p_is_published: true,
-                p_tags: formData.tags
+                first_name: nameParts[0] || "",
+                last_name: nameParts.slice(1).join(" ") || "",
+                role: formData.role,
+                category: formData.category,
+                specialty: formData.specialty,
+                bio: formData.bio,
+                phone: formData.phone,
+                website: formData.website,
+                country_id: formData.country_id || null,
+                city: formData.city,
+                is_published: true, // FORCE ON
             }
 
-            const { error } = await supabase.rpc("save_profile_card", payload)
+            const response = await fetchWithAuth("/api/users/me", {
+                method: "PUT",
+                body: JSON.stringify(payload)
+            })
 
-            if (error) {
-                console.error("Erreur RPC Publish:", {
-                    message: error.message,
-                    details: error.details,
-                    hint: error.hint,
-                    code: error.code
-                })
-                throw error
-            }
+            if (!response.ok) throw new Error("Erreur lors de la publication")
 
             setIsPublished(true)
-            toast.success("Profil publié dans l'annuaire!")
+            toast.success("Félicitations ! Votre profil est maintenant EN LIGNE.")
         } catch (error: any) {
-            console.error("Erreur publication complète:", error)
-            toast.error(`Erreur: ${error.message || "Erreur lors de la publication"}`)
+            toast.error(`Erreur: ${error.message}`)
         }
     }
 
+    // 4. Dépublication (Visibility OFF)
     const handleUnpublish = async () => {
         if (!isPublished) return
 
         try {
-            const { data: { user } } = await supabase.auth.getUser()
-            if (!user) return
-
-            const nameParts = formData.name.trim().split(" ")
-            const firstName = nameParts[0] || ""
-            const lastName = nameParts.slice(1).join(" ") || ""
+            // On renvoie l'état complet actuel pour éviter d'écraser des données par mégarde
+            // mais on force is_published à false
+            const trimmedName = formData.name.trim()
+            const nameParts = trimmedName.split(" ")
 
             const payload = {
-                p_user_id: user.id,
-                p_first_name: firstName,
-                p_last_name: lastName,
-                p_role: formData.role,
-                p_category: formData.category,
-                p_specialty: formData.specialty,
-                p_bio: formData.bio,
-                p_phone: formData.phone,
-                p_website: formData.website,
-                p_country_id: formData.country_id || null,
-                p_city: formData.city,
-                p_is_published: false,
-                p_tags: formData.tags
+                first_name: nameParts[0] || "",
+                last_name: nameParts.slice(1).join(" ") || "",
+                role: formData.role,
+                category: formData.category,
+                specialty: formData.specialty,
+                bio: formData.bio,
+                phone: formData.phone,
+                website: formData.website,
+                country_id: formData.country_id || null,
+                city: formData.city,
+                is_published: false, // FORCE OFF
             }
 
-            const { error } = await supabase.rpc("save_profile_card", payload)
+            const response = await fetchWithAuth("/api/users/me", {
+                method: "PUT",
+                body: JSON.stringify(payload)
+            })
 
-            if (error) {
-                console.error("Erreur RPC Unpublish:", {
-                    message: error.message,
-                    details: error.details,
-                    hint: error.hint,
-                    code: error.code
-                })
-                throw error
-            }
+            if (!response.ok) throw new Error("Erreur dépublication")
 
             setIsPublished(false)
-            toast.success("Profil dépublié avec succès!")
+            toast.success("Votre profil est masqué (mode Brouillon).")
         } catch (error: any) {
-            console.error("Erreur dépublication complète:", error)
-            toast.error(`Erreur: ${error.message || "Erreur lors de la dépublication"}`)
+            toast.error(`Erreur: ${error.message}`)
         }
     }
 
