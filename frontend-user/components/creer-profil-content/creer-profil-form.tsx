@@ -205,28 +205,35 @@ export function CreerProfilForm({
                 </div>
 
                 {/* Actions */}
-                <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                    <Button onClick={handleSave} variant="outline" className="rounded-2xl flex-1 bg-transparent">
+                {/* Actions */}
+                <div className="flex flex-col sm:flex-row gap-4 pt-6 mt-4 border-t border-muted/20">
+                    <Button
+                        onClick={handleSave}
+                        variant="outline"
+                        className="rounded-2xl flex-1 h-12 border-muted-foreground/20 hover:bg-secondary/50 hover:text-primary transition-all duration-300"
+                    >
                         <Save className="mr-2 h-4 w-4" />
-                        Enregistrer
+                        Enregistrer le Brouillon
                     </Button>
-                    <Button
-                        onClick={handlePublish}
-                        className="rounded-2xl flex-1 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white"
-                        disabled={isPublished}
-                    >
-                        <Eye className="mr-2 h-4 w-4" />
-                        Publier
-                    </Button>
-                    <Button
-                        onClick={handleUnpublish}
-                        className="rounded-2xl flex-1"
-                        variant="secondary"
-                        disabled={!isPublished}
-                    >
-                        <EyeOff className="mr-2 h-4 w-4" />
-                        Ne pas publier
-                    </Button>
+
+                    {!isPublished ? (
+                        <Button
+                            onClick={handlePublish}
+                            className="rounded-2xl flex-[2] h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-200 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 transform"
+                        >
+                            <Eye className="mr-2 h-5 w-5" />
+                            <span className="font-semibold text-lg">Publier le Profil</span>
+                        </Button>
+                    ) : (
+                        <Button
+                            onClick={handleUnpublish}
+                            variant="destructive"
+                            className="rounded-2xl flex-1 h-12 bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 shadow-sm"
+                        >
+                            <EyeOff className="mr-2 h-4 w-4" />
+                            Dépublier (Passer hors ligne)
+                        </Button>
+                    )}
                 </div>
             </CardContent>
         </Card>
