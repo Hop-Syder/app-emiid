@@ -122,7 +122,7 @@ export const updateMyProfile = async (req: any, res: Response) => {
       updates.pin_attempts = 0;
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('user_profiles')
       .upsert(updates, { onConflict: 'user_id' })
       .select()
