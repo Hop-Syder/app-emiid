@@ -14,10 +14,14 @@ import { AnnuaireHero } from "./annuaire-hero"
 import { AnnuaireFilters } from "./annuaire-filters"
 import { AnnuaireGrid } from "./annuaire-grid"
 
-export function AnnuairePublicContent() {
+interface AnnuairePublicContentProps {
+    initialCategory?: string
+}
+
+export function AnnuairePublicContent({ initialCategory = "all" }: AnnuairePublicContentProps) {
     const [filters, setFilters] = useState({
         search: "",
-        category: "all",
+        category: initialCategory,
         country: "all",
         city: "",
         tags: "",
