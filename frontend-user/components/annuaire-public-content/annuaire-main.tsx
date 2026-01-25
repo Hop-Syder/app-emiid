@@ -9,22 +9,36 @@
 
 "use client"
 
+import { useState } from "react"
 import { AnnuaireHero } from "./annuaire-hero"
 import { AnnuaireFilters } from "./annuaire-filters"
 import { AnnuaireGrid } from "./annuaire-grid"
 
 export function AnnuairePublicContent() {
+    const [filters, setFilters] = useState({
+        search: "",
+        category: "all",
+        country: "all",
+        city: "",
+        tags: "",
+        status: "all"
+    })
+
+    const handleFilterChange = (key: string, value: string) => {
+        setFilters(prev => ({ ...prev, [key]: value }))
+    }
+
     return (
         <div className="max-w-7xl mx-auto space-y-6">
             <AnnuaireHero />
-            <AnnuaireFilters currentCategory="all" />
+            <AnnuaireFilters filters={filters} onFilterChange={handleFilterChange} />
 
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
                     <h2 className="text-2xl font-bold text-[#022753]">Tous les Profils</h2>
                     <p className="text-muted-foreground text-sm font-medium">Recherche par pertinence</p>
                 </div>
-                <AnnuaireGrid />
+                <AnnuaireGrid filters={filters} />
             </div>
         </div>
     )
