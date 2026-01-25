@@ -16,7 +16,7 @@ export function StatsSection({ stats }: StatsSectionProps) {
     const statsItems = [
         {
             label: "Entrepreneurs Connectés",
-            value: stats.totalEntrepreneurs.toString(),
+            value: (stats.totalEntrepreneurs || 0).toString(),
             sub: "Membres Nexus",
             icon: Users,
             color: "text-green-600",
