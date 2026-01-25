@@ -49,6 +49,12 @@ export function CreerProfilPreview({ formData }: CreerProfilPreviewProps) {
 
                 {formData.specialty && <Badge className="rounded-xl">{formData.specialty}</Badge>}
 
+                {formData.category && (
+                    <Badge variant="outline" className="rounded-xl border-primary/30 text-primary">
+                        {formData.category}
+                    </Badge>
+                )}
+
                 {formData.tags && formData.tags.length > 0 && (
                     <div className="flex flex-wrap gap-2 pt-2">
                         {formData.tags.map((tag: string) => (

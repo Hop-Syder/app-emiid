@@ -12,6 +12,7 @@ export interface Entrepreneur {
     location: string;
     avatar: string;
     specialty: string;
+    category?: string;
     verified: boolean;
     premium: boolean;
     followers: number;
@@ -92,9 +93,17 @@ export function CardPremium({ entrepreneur }: CardPremiumProps) {
                     <span className="truncate">{entrepreneur.location}</span>
                 </div>
 
-                <Badge className="rounded-xl px-3 py-1 font-semibold bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 text-primary">
-                    {entrepreneur.specialty}
-                </Badge>
+                <div className="flex flex-wrap gap-2">
+                    <Badge className="rounded-xl px-3 py-1 font-semibold bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 text-primary">
+                        {entrepreneur.specialty}
+                    </Badge>
+
+                    {entrepreneur.category && (
+                        <Badge variant="outline" className="rounded-xl px-3 py-1 font-semibold border-amber-500/30 text-amber-600">
+                            {entrepreneur.category}
+                        </Badge>
+                    )}
+                </div>
 
                 <div className="flex items-center justify-between pt-4 border-t border-muted/50">
                     <div className="flex items-center gap-1.5 text-sm font-medium">

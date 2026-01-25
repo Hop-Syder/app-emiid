@@ -53,6 +53,7 @@ export function AnnuaireGrid({ filters }: AnnuaireGridProps) {
                         location: e.city ? `${e.city}, ${e.countries?.name || ''}` : (e.countries?.name || "Afrique de l'Ouest"),
                         avatar: e.avatar_url || "/african-user.jpg",
                         specialty: e.specialty || "Expertise",
+                        category: e.category || "",
                         verified: true,
                         premium: e.category?.toLowerCase() === 'entreprise',
                         followers: 0,
