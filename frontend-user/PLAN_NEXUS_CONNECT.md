@@ -278,19 +278,12 @@ Projets, entreprises ou parts sociales en vente
 
 **Objectif**: Gestion des profils et projets suivis
 
-#### 6.1 Profils suivis (`/portefeuille/profils`)
+#### 6.1 Profils suivis (`/portefeuille/`)
 
 - Liste complète des entrepreneurs suivis
 - Notifications d'activité
 - Accès rapide aux profils
 - Badge avec nombre (ex: 12 profils)
-
-#### 6.2 Projets suivis (`/portefeuille/projets`)
-
-- Liste des projets Market suivis
-- Mise à jour de progression
-- Notifications d'échéances
-- Badge avec nombre (ex: 5 projets)
 
 ### 7. Mes Annonces
 

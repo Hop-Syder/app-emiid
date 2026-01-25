@@ -56,7 +56,7 @@ const sidebarItems: SidebarItem[] = [
   {
     title: "Portefeuille",
     icon: <Wallet />,
-    href: "/portefeuille/profils",
+    href: "/portefeuille",
     badge: "12",
     requiresAuth: true,
   },

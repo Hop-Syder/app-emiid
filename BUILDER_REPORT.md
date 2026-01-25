@@ -14,7 +14,7 @@
 
 - \*\*Panel Admin (admin/app) : ✅ Fonctionnel - Dashboard implémenté, statistiques dynamiques liées au backend, UI de modération en place.
 - \*\*Module de Messagerie (frontend-user/app/messages) : ✅ Fonctionnel - Schéma SQL créé, API Backend implémentée, Frontend connecté (Conversations & Messages réels).
-- \*\*Portefeuille (frontend-user/app/portefeuille/profils) : ✅ Fonctionnel - Système de follow implémenté (Table SQL + API), affichage dynamique des profils suivis.
+- \*\*Portefeuille (frontend-user/app/portefeuille/) : ✅ Fonctionnel - Système de follow implémenté (Table SQL + API), affichage dynamique des profils suivis.
 
 ## 3. 🗄️ Audit de la Base de Données & Sécurité
 

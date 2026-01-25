@@ -92,7 +92,7 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
     const routes: Record<string, string> = {
       "dashboard-user": session ? "/dashboard-user" : "/dashboard-public",
       annuaire: "/annuaire",
-      portefeuille: "/portefeuille/profils",
+      portefeuille: "/portefeuille",
       "creer-profil": "/creer-profil",
     }
 
