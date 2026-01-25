@@ -43,17 +43,43 @@ export function CreerProfilContent() {
     })
 
     useEffect(() => {
-        const loadReferences = async () => {
+        const loadInitialData = async () => {
             try {
-                const countryRes = await fetchWithAuth("/api/reference/countries")
+                const [countryRes, profileRes] = await Promise.all([
+                    fetchWithAuth("/api/reference/countries"),
+                    fetchWithAuth("/api/users/me"),
+                ])
+
                 if (countryRes.ok) {
                     setCountries(await countryRes.json())
                 }
+
+                if (profileRes.ok) {
+                    const data = await profileRes.json()
+                    const name = `${data.first_name || ""} ${data.last_name || ""}`.trim()
+                    setFormData((prev) => ({
+                        ...prev,
+                        name: name || prev.name,
+                        role: data.role || prev.role,
+                        category: data.category || prev.category,
+                        specialty: data.specialty || prev.specialty,
+                        bio: data.bio || prev.bio,
+                        phone: data.phone || prev.phone,
+                        email: data.email || prev.email,
+                        website: data.website || prev.website,
+                        country_id: data.country_id || prev.country_id,
+                        city: data.city || prev.city,
+                        avatar: data.avatar_url || prev.avatar,
+                    }))
+                    if (typeof data.is_published === "boolean") {
+                        setIsPublished(data.is_published)
+                    }
+                }
             } catch (error) {
-                console.error("Erreur chargement pays:", error)
+                console.error("Erreur chargement données profil:", error)
             }
         }
-        loadReferences()
+        loadInitialData()
     }, [])
 
     const handleInputChange = (field: string, value: string) => {
@@ -61,6 +87,20 @@ export function CreerProfilContent() {
     }
 
     const handleSave = async () => {
+        const trimmedName = formData.name.trim()
+        if (!trimmedName) {
+            toast.error("Veuillez renseigner votre nom avant d'enregistrer votre profil")
+            return
+        }
+        if (!formData.category) {
+            toast.error("Veuillez sélectionner une catégorie (Artisan, Freelance, etc.)")
+            return
+        }
+        if (!formData.specialty) {
+            toast.error("Veuillez renseigner votre spécialité")
+            return
+        }
+
         try {
             const { data: { user } } = await supabase.auth.getUser()
             if (!user) {
@@ -68,7 +108,7 @@ export function CreerProfilContent() {
                 return
             }
 
-            const nameParts = formData.name.trim().split(" ")
+            const nameParts = trimmedName.split(" ")
             const firstName = nameParts[0] || ""
             const lastName = nameParts.slice(1).join(" ") || ""
 
@@ -79,12 +119,11 @@ export function CreerProfilContent() {
                 category: formData.category,
                 specialty: formData.specialty,
                 bio: formData.bio,
-                phone: formData.phone, // Le backend devra supporter ce champ si pas déjà fait
+                phone: formData.phone,
                 website: formData.website,
                 country_id: formData.country_id || null,
                 city: formData.city,
                 is_published: isPublished,
-                // Note: Le backend devra idéalement gérer les tags aussi
             }
 
             console.log("Envoi au backend:", payload)
@@ -95,13 +134,11 @@ export function CreerProfilContent() {
             })
 
             if (!response.ok) {
-                const errorData = await response.json()
-                throw new Error(errorData.error || "Erreur lors de la sauvegarde")
+                const errorData = await response.json().catch(() => null)
+                throw new Error(errorData?.error || "Erreur lors de la sauvegarde")
             }
 
             toast.success("Profil enregistré avec succès!")
-            // Optionnel: Redirection si souhaité par le user, ou rester sur la page
-            // router.push("/dashboard-user") 
         } catch (error: any) {
             console.error("Erreur sauvegarde complète:", error)
             toast.error(`Erreur: ${error.message || "Une erreur est survenue lors de la sauvegarde"}`)
@@ -111,11 +148,25 @@ export function CreerProfilContent() {
     const handlePublish = async () => {
         if (isPublished) return
 
+        const trimmedName = formData.name.trim()
+        if (!trimmedName) {
+            toast.error("Veuillez renseigner votre nom avant de publier votre profil")
+            return
+        }
+        if (!formData.category || !formData.specialty) {
+            toast.error("Veuillez renseigner au minimum la catégorie et la spécialité avant de publier")
+            return
+        }
+        if (!formData.country_id && !formData.country_code) {
+            toast.error("Veuillez sélectionner un pays avant de publier votre profil dans l'annuaire")
+            return
+        }
+
         try {
             const { data: { user } } = await supabase.auth.getUser()
             if (!user) return
 
-            const nameParts = formData.name.trim().split(" ")
+            const nameParts = trimmedName.split(" ")
             const firstName = nameParts[0] || ""
             const lastName = nameParts.slice(1).join(" ") || ""
 

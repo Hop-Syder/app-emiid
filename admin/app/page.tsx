@@ -10,6 +10,8 @@
 import { useState, useEffect } from "react"
 import { Users, FileText, Globe, DollarSign, Loader2, ShieldCheck, AlertCircle } from "lucide-react"
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+
 export default function AdminDashboard() {
   const [stats, setStats] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -18,7 +20,7 @@ export default function AdminDashboard() {
     const fetchStats = async () => {
       try {
         // On réutilise l'API publique pour les stats globales pour l'instant
-        const res = await fetch("http://localhost:5000/api/public/stats")
+        const res = await fetch(`${API_URL}/api/public/stats`)
         if (res.ok) {
           const data = await res.json()
           setStats(data)

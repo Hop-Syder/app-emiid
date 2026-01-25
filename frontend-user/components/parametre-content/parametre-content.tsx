@@ -107,7 +107,8 @@ export function ParametresContent() {
             if (response.ok) {
                 toast.success("Profil mis à jour avec succès !")
             } else {
-                toast.error("Erreur lors de la mise à jour")
+                const errorData = await response.json().catch(() => null)
+                toast.error(errorData?.error || "Erreur lors de la mise à jour")
             }
         } catch (error) {
             toast.error("Erreur réseau")

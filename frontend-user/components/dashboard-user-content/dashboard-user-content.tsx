@@ -26,6 +26,7 @@ export function DashboardContent() {
     totalFunding: 0,
   })
   const [entrepreneursList, setEntrepreneursList] = useState<any[]>([])
+  const [projects, setProjects] = useState<any[]>([])
 
 
   useEffect(() => {
@@ -59,7 +60,12 @@ export function DashboardContent() {
           console.error("Erreur API entrepreneurs (User):", entRes.status)
         }
 
-
+        if (projRes.ok) {
+          const adsData = await projRes.json()
+          setProjects(adsData)
+        } else {
+          console.error("Erreur API projets (User):", projRes.status)
+        }
       } catch (error) {
         console.error("Erreur chargement dashboard-user:", error)
       } finally {
@@ -80,7 +86,25 @@ export function DashboardContent() {
       {/* Entrepreneurs du Réseau */}
       <EntrepreneursSection entrepreneursList={entrepreneursList} loading={loading} />
 
-
+      {projects.length > 0 && (
+        <section className="space-y-4">
+          <h3 className="text-xl font-bold">Projets actifs</h3>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {projects.slice(0, 3).map((p: any) => (
+              <div key={p.id} className="rounded-2xl border bg-card p-4 shadow-sm">
+                <h4 className="font-semibold mb-1">{p.title}</h4>
+                <p className="text-sm text-muted-foreground line-clamp-3">
+                  {p.description || p.content}
+                </p>
+                <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
+                  <span>Budget : {p.budget_limit ?? 0}</span>
+                  <span className="capitalize">{p.status}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   )
 }

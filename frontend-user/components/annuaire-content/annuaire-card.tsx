@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { Shield, MapPin, Users } from "lucide-react"
 import { motion } from "framer-motion"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"

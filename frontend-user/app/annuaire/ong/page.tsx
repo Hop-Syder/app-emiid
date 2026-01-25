@@ -17,6 +17,7 @@ export default function ONGPage() {
         if (response.ok) {
           const data = await response.json()
           setProfiles(data.map((u: any) => ({
+            id: u.user_id || u.id,
             name: `${u.first_name} ${u.last_name}`,
             role: u.role || "Représentant ONG",
             location: u.location || "N/A",

@@ -17,6 +17,7 @@ export default function EntreprisesPage() {
         if (response.ok) {
           const data = await response.json()
           setProfiles(data.map((u: any) => ({
+            id: u.user_id || u.id,
             name: `${u.first_name} ${u.last_name}`,
             role: u.role || "Chef d'entreprise",
             location: u.location || "N/A",
