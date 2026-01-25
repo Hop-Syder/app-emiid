@@ -1,16 +1,35 @@
 import { Request, Response } from 'express';
+import { supabaseAdmin } from '../config/supabase';
 
 /**
- * @description Gère la logique de la requête d'enregistrement d'un utilisateur.
+ * @description Gère l'enregistrement d'un utilisateur via le Backend (mode Admin)
  * @route POST /api/auth/register
  */
-export const registerUser = async (req: Request, res: Response): Promise<void> => {
+export const registerUser = async (req: Request, res: Response) => {
+    const { email, password, first_name, last_name, role } = req.body;
+
     try {
-        // TODO: Valider les données (req.body)
-        // TODO: Appeler le service d'authentification pour créer l'utilisateur
-        
-        res.status(201).json({ message: "Utilisateur enregistré avec succès (placeholder)" });
+        if (!email || !password) {
+            return res.status(400).json({ error: "Email et mot de passe requis" });
+        }
+
+        // 1. Création de l'utilisateur dans Supabase Auth
+        const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+            email,
+            password,
+            email_confirm: true,
+            user_metadata: { first_name, last_name, role }
+        });
+
+        if (authError) return res.status(400).json({ error: authError.message });
+
+        // Note: Le trigger SQL 'handle_new_user' devrait normalement créer le profil.
+        // On renvoie les données de l'utilisateur créé.
+        res.status(201).json({ 
+            message: "Utilisateur créé avec succès", 
+            user: authData.user 
+        });
     } catch (error: any) {
-        res.status(500).json({ message: "Erreur serveur lors de l'enregistrement", error: error.message });
+        res.status(500).json({ error: "Erreur serveur lors de l'enregistrement", details: error.message });
     }
 };

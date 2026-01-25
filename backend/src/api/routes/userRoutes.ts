@@ -7,6 +7,7 @@
 
 import { Router } from 'express';
 import { getMyProfile, updateMyProfile, getAllUsers, verifyPin } from '../../controllers/userController';
+import { getFollowedProfiles, toggleFollowProfile } from '../../controllers/followController';
 import { requireAuth } from '../../middlewares/authMiddleware';
 
 const router = Router();
@@ -29,5 +30,13 @@ router.post('/verify-pin', verifyPin);
 // @route   GET /api/users
 // @desc    Récupérer tous les profils (Artisans, Freelances, etc)
 router.get('/', getAllUsers);
+
+// @route   GET /api/users/follows
+// @desc    Récupérer les profils suivis
+router.get('/follows', getFollowedProfiles);
+
+// @route   POST /api/users/follow/:id
+// @desc    Suivre ou ne plus suivre un profil
+router.post('/follow/:id', toggleFollowProfile);
 
 export default router;

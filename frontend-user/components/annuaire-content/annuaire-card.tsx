@@ -7,7 +7,10 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
+import { fetchWithAuth } from "@/lib/apiClient"
+
 export interface Profile {
+    id: string
     name: string
     role: string
     location: string
@@ -24,6 +27,22 @@ interface AnnuaireCardProps {
 }
 
 export function AnnuaireCard({ profile }: AnnuaireCardProps) {
+    const [isFollowed, setIsFollowed] = useState(false)
+    const [followersCount, setFollowersCount] = useState(profile.followers)
+
+    const handleFollow = async () => {
+        try {
+            const res = await fetchWithAuth(`/api/users/follow/${profile.id}`, { method: 'POST' })
+            if (res.ok) {
+                const data = await res.json()
+                setIsFollowed(data.followed)
+                setFollowersCount(prev => data.followed ? prev + 1 : prev - 1)
+            }
+        } catch (error) {
+            console.error("Follow error:", error)
+        }
+    }
+
     return (
         <motion.div
             variants={{
@@ -61,7 +80,7 @@ export function AnnuaireCard({ profile }: AnnuaireCardProps) {
                         <div className="relative">
                             <Avatar className={`h-16 w-16 ${profile.premium ? "ring-2 ring-primary/30" : ""}`}>
                                 <AvatarImage src={profile.avatar || "/placeholder.svg"} alt={profile.name} />
-                                <AvatarFallback className="text-lg">{profile.name[0]}</AvatarFallback>
+                                <AvatarFallback className="text-lg">{profile.name ? profile.name[0] : 'N'}</AvatarFallback>
                             </Avatar>
                             {profile.premium && (
                                 <div className="absolute -bottom-1 -right-1 bg-gradient-to-r from-primary to-accent rounded-full p-1">
@@ -101,26 +120,28 @@ export function AnnuaireCard({ profile }: AnnuaireCardProps) {
 
                     <Badge
                         className={`rounded-xl ${profile.premium
-                                ? "bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 text-primary"
-                                : ""
+                            ? "bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 text-primary"
+                            : ""
                             }`}
                     >
                         {profile.specialty}
                     </Badge>
 
-                    <div className="flex items-center justify-between pt-2 border-t">
-                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                    <div className="flex items-center justify-between pt-2 border-t text-sm">
+                        <div className="flex items-center gap-1 text-muted-foreground">
                             <Users className="h-4 w-4" />
-                            <span className="font-medium">{profile.followers}</span>
+                            <span className="font-medium">{followersCount}</span>
                         </div>
                         <Button
                             size="sm"
-                            className={`rounded-xl ${profile.premium
-                                    ? "bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-white font-semibold shadow-md"
-                                    : ""
+                            onClick={handleFollow}
+                            variant={isFollowed ? "secondary" : "default"}
+                            className={`rounded-xl px-4 ${profile.premium && !isFollowed
+                                ? "bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-white font-semibold shadow-md border-none"
+                                : ""
                                 }`}
                         >
-                            Suivre
+                            {isFollowed ? "Suivi" : "Suivre"}
                         </Button>
                     </div>
                 </CardContent>

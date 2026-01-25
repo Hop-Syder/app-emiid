@@ -80,13 +80,15 @@ export const updateMyProfile = async (req: any, res: Response) => {
     }
 
     // --- SMART AUTOCOMPLETE LOGIC ---
-    // Correction: On utilise 'role' (envoyé par le front) pour alimenter 'jobs'
-    if (role) {
-      await supabaseAdmin.from('jobs').upsert({ name: role }, { onConflict: 'name' });
+    // On utilise 'role' ou 'job_title' pour alimenter 'jobs'
+    const finalRole = role || job_title;
+    if (finalRole) {
+      await supabaseAdmin.from('jobs').upsert({ name: finalRole }, { onConflict: 'name' });
     }
-    // Correction: On utilise 'activity_domain' pour 'industries'
-    if (activity_domain) {
-      await supabaseAdmin.from('industries').upsert({ name: activity_domain }, { onConflict: 'name' });
+    // On utilise 'activity_domain' ou 'industry' pour 'industries'
+    const finalDomain = activity_domain || industry;
+    if (finalDomain) {
+      await supabaseAdmin.from('industries').upsert({ name: finalDomain }, { onConflict: 'name' });
     }
 
     // --- PIN SECURITY LOGIC ---
@@ -97,10 +99,10 @@ export const updateMyProfile = async (req: any, res: Response) => {
         last_name, 
         bio, 
         avatar_url,
-        role,
+        role: finalRole,
         specialty,
         category,
-        activity_domain,
+        activity_domain: finalDomain,
         country_id: finalCountryId,
         city,
         updated_at: new Date().toISOString()

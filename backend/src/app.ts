@@ -7,6 +7,7 @@ import adsRoutes from './api/routes/adsRoutes';
 import dashboardRoutes from './api/routes/dashboardRoutes';
 import referenceRoutes from './api/routes/referenceRoutes';
 import publicRoutes from './api/routes/publicRoutes';
+import messageRoutes from './api/routes/messageRoutes';
 
 // Charger les variables d'environnement
 dotenv.config();
@@ -14,9 +15,9 @@ dotenv.config();
 const app: Application = express();
 
 // Middlewares
-const allowedOrigins = process.env.CORS_ORIGIN 
-  ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim()) 
-  : ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://192.168.1.106:3000'];
+const allowedOrigins = process.env.CORS_ORIGINS 
+  ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim()) 
+  : ['http://localhost:3000'];
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -25,6 +26,7 @@ app.use(cors({
     if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*')) {
       callback(null, true);
     } else {
+      console.warn(`Origine bloquée par CORS: ${origin}`);
       callback(new Error('Non autorisé par CORS'));
     }
   },
@@ -44,6 +46,7 @@ app.use('/api/ads', adsRoutes);
 app.use('/api/dashboard-user', dashboardRoutes);
 app.use('/api/reference', referenceRoutes);
 app.use('/api/public', publicRoutes);
+app.use('/api/messages', messageRoutes);
 
 const PORT = process.env.PORT || 5000;
 

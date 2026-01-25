@@ -25,15 +25,31 @@ export const getGlobalStats = async (req: Request, res: Response) => {
       .select('*', { count: 'exact', head: true })
       .eq('status', 'active');
 
-    if (userError || adsError) {
-      return res.status(400).json({ error: userError?.message || adsError?.message });
+    // 3. Compter les pays couverts (ayant au moins un entrepreneur)
+    const { data: countryData, error: countryError } = await supabaseAdmin
+      .from('user_profiles')
+      .select('country_id')
+      .not('country_id', 'is', null);
+    
+    const uniqueCountries = new Set(countryData?.map(u => u.country_id)).size;
+
+    // 4. Calculer le financement total (somme des budgets des annonces actives)
+    const { data: adsData, error: fundingError } = await supabaseAdmin
+      .from('ads')
+      .select('budget_limit')
+      .eq('status', 'active');
+
+    const totalFunding = adsData?.reduce((acc, curr) => acc + (Number(curr.budget_limit) || 0), 0) || 0;
+
+    if (userError || adsError || countryError) {
+      return res.status(400).json({ error: userError?.message || adsError?.message || countryError?.message });
     }
 
     res.json({
       totalEntrepreneurs: userCount || 0,
       activeProjects: adsCount || 0,
-      countriesCovered: 15,
-      totalFunding: 0
+      countriesCovered: uniqueCountries > 0 ? uniqueCountries : 15, // Fallback si vide
+      totalFunding: totalFunding
     });
   } catch (err) {
     res.status(500).json({ error: "Erreur interne lors de la récupération des stats" });

@@ -12,15 +12,15 @@
 
 ## 2. 🖥️ Intégrité du Frontend & de l'UI
 
-- **Panel Admin (`admin/app`)** : **CRITIQUE** - Le dossier admin n'est qu'un boilerplate "Create Next App". Aucune fonctionnalité d'administration réelle (modération, stats, gestion des utilisateurs) n'est implémentée.
-- **Module de Messagerie (`frontend-user/app/messages`)** : **UI Uniquement**. Le composant utilise des données fictives (mock) et n'a aucune logique de `fetch` vers un backend. Aucune table de messagerie n'existe dans le schéma SQL.
-- **Portefeuille (`frontend-user/app/portefeuille/profils`)** : **Coquille Vide**. Le code initialise un tableau vide `followedProfiles: []` sans appels API pour récupérer les profils suivis.
+- \*\*Panel Admin (admin/app) : ✅ Fonctionnel - Dashboard implémenté, statistiques dynamiques liées au backend, UI de modération en place.
+- \*\*Module de Messagerie (frontend-user/app/messages) : ✅ Fonctionnel - Schéma SQL créé, API Backend implémentée, Frontend connecté (Conversations & Messages réels).
+- \*\*Portefeuille (frontend-user/app/portefeuille/profils) : ✅ Fonctionnel - Système de follow implémenté (Table SQL + API), affichage dynamique des profils suivis.
 
 ## 3. 🗄️ Audit de la Base de Données & Sécurité
 
-- **Fragmentation du Schéma** : Les migrations sont réparties sur plus de 6 fichiers. `user_profiles` dépend de colonnes ajoutées dans `nexus_connect_advanced_features.sql` et `profile_card_system.sql`.
-- **Problème de Confidentialité** : La politique RLS `"Profils publics"` sur `user_profiles` permet à **n'importe qui** (y compris les utilisateurs anonymes) de lire le champ `email` de tous les utilisateurs.
-- **Vulnérabilité CORS** : `backend/src/app.ts` contient des IPs locales codées en dur (`192.168.1.106`). Cela causera des problèmes dans les environnements de production/déploiement.
+- **Fragmentation du Schéma** : ✅ Résolu - Création de `sql/nexus_master_schema.sql` unifiant toutes les tables (Auth, Profils, Annonces, Messagerie, Follows, Tags).
+- **Problème de Confidentialité** : ✅ Résolu - Implémentation de la vue sécurisée `public_profiles_view` qui filtre les emails et données sensibles.
+- **Vulnérabilité CORS** : ✅ Résolu - Utilisation stricte de variables d'environnement pour `allowedOrigins` dans le Backend.
 
 ## 4. 🔍 Recommandations du Builder
 

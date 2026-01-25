@@ -5,13 +5,42 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import type { Entrepreneur } from "@/data/mock-data"
+export interface Entrepreneur {
+    id: string;
+    name: string;
+    role: string;
+    location: string;
+    avatar: string;
+    specialty: string;
+    verified: boolean;
+    premium: boolean;
+    followers: number;
+}
+
+import { useState } from "react"
+import { fetchWithAuth } from "@/lib/apiClient"
 
 interface CardPremiumProps {
     entrepreneur: Entrepreneur;
 }
 
 export function CardPremium({ entrepreneur }: CardPremiumProps) {
+    const [isFollowed, setIsFollowed] = useState(false)
+    const [followersCount, setFollowersCount] = useState(entrepreneur.followers)
+
+    const handleFollow = async () => {
+        try {
+            const res = await fetchWithAuth(`/api/users/follow/${entrepreneur.id}`, { method: 'POST' })
+            if (res.ok) {
+                const data = await res.json()
+                setIsFollowed(data.followed)
+                setFollowersCount(prev => data.followed ? prev + 1 : prev - 1)
+            }
+        } catch (error) {
+            console.error("Follow error:", error)
+        }
+    }
+
     return (
         <Card className="rounded-3xl hover:shadow-xl transition-all duration-300 group relative overflow-hidden border-2 border-transparent">
             {/* Premium background */}
@@ -31,7 +60,7 @@ export function CardPremium({ entrepreneur }: CardPremiumProps) {
                     <div className="relative">
                         <Avatar className="h-16 w-16 transition-transform group-hover:scale-105 ring-2 ring-primary/30 shadow-md">
                             <AvatarImage src={entrepreneur.avatar || "/placeholder.svg"} alt={entrepreneur.name} />
-                            <AvatarFallback className="text-lg">{entrepreneur.name[0]}</AvatarFallback>
+                            <AvatarFallback className="text-lg">{entrepreneur.name ? entrepreneur.name[0] : 'N'}</AvatarFallback>
                         </Avatar>
                         <div className="absolute -bottom-1 -right-1 bg-gradient-to-r from-primary to-accent rounded-full p-1 shadow-sm">
                             <div className="h-5 w-5 rounded-full bg-white text-primary p-0 flex items-center justify-center text-[10px] font-bold">
@@ -70,14 +99,16 @@ export function CardPremium({ entrepreneur }: CardPremiumProps) {
                 <div className="flex items-center justify-between pt-4 border-t border-muted/50">
                     <div className="flex items-center gap-1.5 text-sm font-medium">
                         <Users className="h-4 w-4 text-muted-foreground" />
-                        <span>{entrepreneur.followers}</span>
+                        <span>{followersCount}</span>
                         <span className="text-muted-foreground font-normal">followers</span>
                     </div>
                     <Button
                         size="sm"
-                        className="rounded-xl px-5 transition-all active:scale-95 shadow-sm bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-white font-bold hover:shadow-md"
+                        onClick={handleFollow}
+                        variant={isFollowed ? "secondary" : "default"}
+                        className={`rounded-xl px-5 transition-all active:scale-95 shadow-sm font-bold ${!isFollowed ? "bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-white" : ""}`}
                     >
-                        Suivre
+                        {isFollowed ? "Suivi" : "Suivre"}
                     </Button>
                 </div>
             </CardContent>

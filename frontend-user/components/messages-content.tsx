@@ -10,221 +10,211 @@
 
 "use client"
 
-import { useState, useRef } from "react"
-import { Send, Search, Image, Paperclip } from "lucide-react"
+import { useState, useRef, useEffect } from "react"
+import { Send, Search, Image, Paperclip, Loader2, User } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { fetchWithAuth } from "@/lib/apiClient"
 
 export function MessagesContent() {
   const [message, setMessage] = useState("")
+  const [conversations, setConversations] = useState<any[]>([])
+  const [selectedConv, setSelectedConv] = useState<any>(null)
+  const [messages, setMessages] = useState<any[]>([])
+  const [loadingConv, setLoadingConv] = useState(true)
+  const [loadingMsgs, setLoadingMsgs] = useState(false)
+  const [isSending, setIsSending] = useState(false)
+
   const imageInputRef = useRef<HTMLInputElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
 
-  const messages = [
-    {
-      id: 1,
-      sender: "Nexus Connect",
-      content: "Bonjour! Bienvenue sur Nexus Connect. Comment puis-je vous aider aujourd'hui?",
-      time: "10:30",
-      isBot: true,
-    },
-    {
-      id: 2,
-      sender: "Vous",
-      content: "Je voudrais créer mon profil artisan",
-      time: "10:32",
-      isBot: false,
-    },
-    {
-      id: 3,
-      sender: "Service Client",
-      content:
-        "Excellent! Pour créer votre profil artisan, j'ai besoin de quelques informations. Quelle est votre spécialité artisanale?",
-      time: "10:32",
-      isBot: true,
-    },
-    {
-      id: 4,
-      sender: "Vous",
-      content: "Je suis spécialisé dans la poterie traditionnelle",
-      time: "10:35",
-      isBot: false,
-    },
-    {
-      id: 5,
-      sender: "Service Client",
-      content:
-        "Parfait! La poterie traditionnelle est très recherchée. Dans quelle ville êtes-vous basé? Cela aidera les clients à vous trouver facilement.",
-      time: "10:36",
-      isBot: true,
-    },
-  ]
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files
-    if (files && files.length > 0) {
-      const file = files[0]
-      alert(`Image sélectionnée: ${file.name}`)
+  // 1. Charger les conversations au montage
+  useEffect(() => {
+    const loadConversations = async () => {
+      try {
+        const res = await fetchWithAuth("/api/messages/conversations")
+        if (res.ok) {
+          const data = await res.json()
+          setConversations(data)
+        }
+      } catch (err) {
+        console.error("Error loading convs:", err)
+      } finally {
+        setLoadingConv(false)
+      }
     }
-  }
+    loadConversations()
+  }, [])
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files
-    if (files && files.length > 0) {
-      const file = files[0]
-      alert(`Fichier sélectionné: ${file.name}`)
+  // 2. Charger les messages quand une conversation est sélectionnée
+  useEffect(() => {
+    if (!selectedConv) return
+
+    const loadMessages = async () => {
+      setLoadingMsgs(true)
+      try {
+        const res = await fetchWithAuth(`/api/messages/conversation/${selectedConv.id}`)
+        if (res.ok) {
+          const data = await res.json()
+          setMessages(data)
+          // Scroll to bottom
+          setTimeout(() => scrollRef.current?.scrollIntoView({ behavior: 'smooth' }), 100)
+        }
+      } catch (err) {
+        console.error("Error loading msgs:", err)
+      } finally {
+        setLoadingMsgs(false)
+      }
     }
-  }
+    loadMessages()
+  }, [selectedConv])
 
-  const handleSendMessage = () => {
-    if (message.trim()) {
-      setMessage("")
+  const handleSendMessage = async () => {
+    if (!message.trim() || !selectedConv || isSending) return
+
+    setIsSending(true)
+    try {
+      const res = await fetchWithAuth("/api/messages/send", {
+        method: "POST",
+        body: JSON.stringify({
+          receiverId: selectedConv.otherUser.id,
+          content: message
+        })
+      })
+
+      if (res.ok) {
+        const newMsg = await res.json()
+        setMessages([...messages, newMsg])
+        setMessage("")
+        setTimeout(() => scrollRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
+      }
+    } catch (err) {
+      console.error("Send error:", err)
+    } finally {
+      setIsSending(false)
     }
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[minmax(300px,350px)_1fr] gap-6 h-[calc(100vh-16rem)] overflow-y-auto">
+    <div className="grid grid-cols-1 lg:grid-cols-[minmax(300px,350px)_1fr] gap-6 h-[calc(100vh-12rem)]">
       {/* Conversations List */}
-      <Card className="rounded-3xl shadow-sm border-none">
-        <CardContent className="p-4 h-full flex flex-col">
-          <div className="mb-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Rechercher une conversation..." className="pl-9 rounded-2xl" />
-            </div>
+      <Card className="rounded-3xl shadow-sm border-none overflow-hidden flex flex-col">
+        <div className="p-4 border-b">
+          <div className="relative">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input placeholder="Rechercher..." className="pl-9 rounded-2xl bg-muted/50 border-none" />
           </div>
+        </div>
 
-          <ScrollArea className="flex-1">
-            <div className="space-y-2">
-              <div className="flex items-center gap-3 p-3 rounded-2xl bg-primary/10 cursor-pointer border border-primary/5">
-                <Avatar>
-                  <AvatarImage src="/nexus-connect-logo.jpg" />
-                  <AvatarFallback>NC</AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-semibold text-sm">Service Client</h4>
-                    <Badge className="rounded-full bg-green-500 text-[10px] h-4">En ligne</Badge>
+        <ScrollArea className="flex-1">
+          <CardContent className="p-2">
+            {loadingConv ? (
+              <div className="flex justify-center p-8"><Loader2 className="animate-spin text-primary" /></div>
+            ) : conversations.length > 0 ? (
+              conversations.map((conv) => (
+                <div
+                  key={conv.id}
+                  onClick={() => setSelectedConv(conv)}
+                  className={`flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition-all mb-1 ${selectedConv?.id === conv.id ? 'bg-primary text-white' : 'hover:bg-muted'}`}
+                >
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={conv.otherUser.avatar} />
+                    <AvatarFallback><User /></AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-semibold text-sm truncate">{conv.otherUser.name}</h4>
+                    </div>
+                    <p className={`text-xs truncate ${selectedConv?.id === conv.id ? 'text-white/80' : 'text-muted-foreground'}`}>
+                      {conv.lastMessage || "Nouveau message"}
+                    </p>
                   </div>
-                  <p className="text-xs text-muted-foreground truncate">Parfait! La poterie traditionnelle est...</p>
                 </div>
-              </div>
-            </div>
-          </ScrollArea>
-        </CardContent>
+              ))
+            ) : (
+              <p className="text-center text-muted-foreground text-sm p-8">Aucune conversation</p>
+            )}
+          </CardContent>
+        </ScrollArea>
       </Card>
 
       {/* Messages Area */}
-      <Card className="rounded-3xl shadow-sm border-none">
-        <CardContent className="p-0 h-full flex flex-col">
-          {/* Chat Header */}
-          <div className="flex items-center justify-between p-4 border-b">
-            <div className="flex items-center gap-3">
-              <Avatar>
-                <AvatarImage src="/nexus-connect-logo.jpg" />
-                <AvatarFallback>NC</AvatarFallback>
-              </Avatar>
-              <div>
-                <h3 className="font-semibold text-primary">Service Client</h3>
-                <p className="text-xs text-muted-foreground italic">En ligne • Répond en quelques minutes</p>
+      <Card className="rounded-3xl shadow-sm border-none overflow-hidden flex flex-col">
+        {selectedConv ? (
+          <>
+            <div className="flex items-center justify-between p-4 border-b bg-white">
+              <div className="flex items-center gap-3">
+                <Avatar>
+                  <AvatarImage src={selectedConv.otherUser.avatar} />
+                  <AvatarFallback><User /></AvatarFallback>
+                </Avatar>
+                <div>
+                  <h3 className="font-semibold text-primary">{selectedConv.otherUser.name}</h3>
+                  <p className="text-xs text-muted-foreground">{selectedConv.otherUser.role || "Membre Nexus"}</p>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Messages */}
-          <ScrollArea className="flex-1 p-4">
-            <div className="space-y-4">
-              {messages.map((msg) => (
-                <div key={msg.id} className={`flex ${msg.isBot ? "justify-start" : "justify-end"}`}>
-                  <div className={`flex gap-2 max-w-[75%] ${msg.isBot ? "flex-row" : "flex-row-reverse"}`}>
-                    {msg.isBot && (
-                      <Avatar className="h-8 w-8 mt-1 border">
-                        <AvatarImage src="/nexus-connect-logo.jpg" />
-                        <AvatarFallback>NC</AvatarFallback>
-                      </Avatar>
-                    )}
-                    <div>
-                      <div
-                        className={`rounded-2xl p-4 shadow-sm ${msg.isBot
-                            ? "bg-muted text-foreground rounded-tl-none border border-muted-foreground/5"
-                            : "bg-primary text-primary-foreground rounded-tr-none shadow-md"
-                          }`}
-                      >
-                        <p className="text-sm leading-relaxed">{msg.content}</p>
+            <ScrollArea className="flex-1 p-4 bg-muted/5">
+              <div className="space-y-4">
+                {messages.map((msg, idx) => {
+                  const isMe = msg.sender_id !== selectedConv.otherUser.id;
+                  return (
+                    <div key={msg.id || idx} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
+                      <div className={`rounded-2xl p-4 max-w-[80%] ${isMe
+                        ? "bg-primary text-primary-foreground rounded-tr-none"
+                        : "bg-white border rounded-tl-none"}`}>
+                        <p className="text-sm">{msg.content}</p>
+                        <p className={`text-[9px] mt-1 opacity-70 ${isMe ? 'text-right' : 'text-left'}`}>
+                          {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </p>
                       </div>
-                      <p className={`text-[10px] text-muted-foreground mt-1.5 px-2 ${msg.isBot ? "text-left" : "text-right"}`}>
-                        {msg.time}
-                      </p>
                     </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </ScrollArea>
+                  )
+                })}
+                <div ref={scrollRef} />
+              </div>
+            </ScrollArea>
 
-          {/* Message Input */}
-          <div className="p-4 border-t bg-muted/20">
-            <div className="flex gap-2">
-              <input
-                type="file"
-                ref={imageInputRef}
-                accept="image/*"
-                className="hidden"
-                onChange={handleImageUpload}
-              />
-              <input
-                type="file"
-                ref={fileInputRef}
-                accept=".pdf,.doc,.docx,.txt"
-                className="hidden"
-                onChange={handleFileUpload}
-              />
-
-              <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-full hover:bg-primary/10 hover:text-primary transition-colors"
-                onClick={() => imageInputRef.current?.click()}
-              >
-                <Image className="h-5 w-5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-full hover:bg-primary/10 hover:text-primary transition-colors"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <Paperclip className="h-5 w-5" />
-              </Button>
-              <Input
-                placeholder="Écrivez votre message..."
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                className="rounded-2xl border-muted bg-white px-4"
-                onKeyPress={(e) => {
-                  if (e.key === "Enter") {
-                    handleSendMessage()
-                  }
-                }}
-              />
-              <Button
-                className="rounded-full shadow-lg transition-transform active:scale-95"
-                size="icon"
-                onClick={handleSendMessage}
-              >
-                <Send className="h-4 w-4" />
-              </Button>
+            <div className="p-4 border-t bg-white">
+              <div className="flex gap-2 items-center">
+                <Button variant="ghost" size="icon" className="rounded-full shrink-0" onClick={() => imageInputRef.current?.click()}>
+                  <Image className="h-5 w-5" />
+                </Button>
+                <Input
+                  placeholder="Votre message..."
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  className="rounded-2xl bg-muted/30 border-none"
+                  onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+                />
+                <Button
+                  className="rounded-full h-11 w-11 shrink-0 bg-primary"
+                  onClick={handleSendMessage}
+                  disabled={isSending || !message.trim()}
+                >
+                  {isSending ? <Loader2 className="animate-spin" /> : <Send className="h-4 w-4" />}
+                </Button>
+              </div>
             </div>
-            <p className="text-[10px] text-center text-muted-foreground mt-3 uppercase tracking-wider font-semibold">
-              Support Nexus • Lun-Ven • 9h-18h WAT
-            </p>
+          </>
+        ) : (
+          <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground p-8 text-center">
+            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+              <Send className="w-8 h-8 opacity-20" />
+            </div>
+            <h3 className="font-semibold text-lg text-foreground">Vos Messages</h3>
+            <p className="max-w-[250px] mt-2">Sélectionnez une conversation pour commencer à discuter avec le réseau.</p>
           </div>
-        </CardContent>
+        )}
       </Card>
+
+      <input type="file" ref={imageInputRef} className="hidden" accept="image/*" />
     </div>
   )
 }
