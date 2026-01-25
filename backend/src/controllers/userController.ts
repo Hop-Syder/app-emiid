@@ -174,15 +174,15 @@ export const getPublicProfiles = async (req: Request, res: Response) => {
       .from('user_profiles')
       .select(`
         *,
-        countries!inner(name, iso_code),
+        countries(name, iso_code),
         profile_tags(tags(name))
       `)
       .eq('is_published', true)
       .order('updated_at', { ascending: false });
 
-    // Filtre Catégorie
+    // Filtre Catégorie (Case-insensitive pour éviter les mismatchs SN/sn ou Freelance/freelance)
     if (category) {
-      query = query.eq('category', category);
+      query = query.ilike('category', category as string);
     }
 
     // Filtre Pays (via le code ISO de la relation countries)
