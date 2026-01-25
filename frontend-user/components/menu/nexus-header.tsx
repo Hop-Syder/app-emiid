@@ -91,7 +91,7 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
   const handleTabChange = (value: string) => {
     const routes: Record<string, string> = {
       "dashboard-user": session ? "/dashboard-user" : "/dashboard-public",
-      annuaire: "/annuaire/artisans",
+      annuaire: "/annuaire",
       portefeuille: "/portefeuille/profils",
       "creer-profil": "/creer-profil",
     }

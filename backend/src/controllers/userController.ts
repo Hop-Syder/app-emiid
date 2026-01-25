@@ -5,7 +5,7 @@
  * @created 2026-01-04
 */
 
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { supabase, supabaseAdmin } from '../config/supabase';
 import bcrypt from 'bcrypt';
 
@@ -164,7 +164,7 @@ export const getPublicProfiles = async (req: Request, res: Response) => {
   const { category, search } = req.query;
   
   try {
-    let query = supabase
+    let query = supabaseAdmin
       .from('user_profiles')
       .select(`
         *,
@@ -177,12 +177,26 @@ export const getPublicProfiles = async (req: Request, res: Response) => {
       query = query.eq('category', category);
     }
 
-    if (search) {
-      query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,role.ilike.%${search}%,specialty.ilike.%${search}%`);
+    let { data, error } = await query;
+    console.log('Public Profiles (published):', { count: data?.length, error });
+    
+    // Fallback : Si aucun profil n'est marqué 'is_published', on en renvoie quand même quelques uns (pour le dev)
+    if (!error && (!data || data.length === 0)) {
+      console.log('No published profiles found, trying fallback...');
+      const fallback = await supabaseAdmin
+        .from('user_profiles')
+        .select(`*, countries(name, iso_code)`)
+        .limit(6)
+        .order('created_at', { ascending: false });
+      data = fallback.data;
+      error = fallback.error;
+      console.log('Fallback Profiles:', { count: data?.length, error });
     }
 
-    const { data, error } = await query;
-    if (error) return res.status(400).json({ error: error.message });
+    if (error) {
+       console.error('Error fetching profiles:', error);
+       return res.status(400).json({ error: error.message });
+    }
     
     res.json(data);
   } catch (err) {

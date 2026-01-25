@@ -24,7 +24,7 @@ export function EntrepreneursSection({ entrepreneursList, loading }: Entrepreneu
                 <Button
                     variant="outline"
                     className="rounded-2xl bg-transparent"
-                    onClick={() => router.push("/annuaire/artisans")}
+                    onClick={() => router.push("/annuaire")}
                 >
                     Voir Tout
                 </Button>
@@ -49,7 +49,7 @@ export function EntrepreneursSection({ entrepreneursList, loading }: Entrepreneu
                                 </div>
                             </div>
                         ))
-                    ) : (
+                    ) : entrepreneursList.length > 0 ? (
                         entrepreneursList.map((entrepreneur, index) => (
                             <motion.div
                                 key={entrepreneur.id}
@@ -60,6 +60,10 @@ export function EntrepreneursSection({ entrepreneursList, loading }: Entrepreneu
                                 <CardPremium entrepreneur={entrepreneur} />
                             </motion.div>
                         ))
+                    ) : (
+                        <div className="col-span-full py-12 text-center bg-muted/20 rounded-3xl border-2 border-dashed">
+                            <p className="text-muted-foreground">Aucun entrepreneur en vedette pour le moment.</p>
+                        </div>
                     )}
                 </AnimatePresence>
             </div>

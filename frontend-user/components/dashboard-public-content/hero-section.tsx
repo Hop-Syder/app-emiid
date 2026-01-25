@@ -34,7 +34,7 @@ export function HeroSection() {
                     <div className="flex flex-wrap gap-3">
                         <Button
                             className="rounded-2xl bg-white text-primary hover:bg-white/90 px-8 h-12 text-lg font-bold shadow-lg transition-transform hover:scale-105"
-                            onClick={() => router.push("/creer-profil")}
+                            onClick={() => router.push("/login")}
                         >
                             Créer un Profil
                         </Button>

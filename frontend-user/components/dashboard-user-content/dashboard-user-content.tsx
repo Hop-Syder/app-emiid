@@ -41,19 +41,22 @@ export function DashboardContent() {
 
         if (entRes.ok) {
           const entData = await entRes.json()
+          console.log("Données entrepreneurs reçues (User):", entData)
           setEntrepreneursList(
             entData.map((e: any) => ({
-              id: e.user_id,
-              name: `${e.first_name} ${e.last_name}`,
+              id: e.user_id || e.id || Math.random().toString(),
+              name: (e.first_name || e.last_name) ? `${e.first_name || ''} ${e.last_name || ''}`.trim() : "Utilisateur Nexus",
               role: e.role || "Membre Nexus",
-              location: e.location || "Afrique de l'Ouest",
+              location: e.city ? `${e.city}, ${e.countries?.name || ''}` : (e.countries?.name || "Afrique de l'Ouest"),
               avatar: e.avatar_url || "/african-user.jpg",
               specialty: e.specialty || "Entrepreneuriat",
               verified: true,
-              premium: false,
+              premium: e.category?.toLowerCase() === 'entreprise',
               followers: 0,
             })),
           )
+        } else {
+          console.error("Erreur API entrepreneurs (User):", entRes.status)
         }
 
 

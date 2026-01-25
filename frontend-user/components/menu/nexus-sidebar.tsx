@@ -45,6 +45,7 @@ const sidebarItems: SidebarItem[] = [
   {
     title: "Annuaire",
     icon: <Grid />,
+    href: "/annuaire",
     items: [
       { title: "Artisans", href: "/annuaire/artisans" },
       { title: "Freelances", href: "/annuaire/freelances" },
@@ -161,33 +162,33 @@ export function NexusSidebar({ sidebarOpen, setSidebarOpen, mobileMenuOpen, setM
         <div className="space-y-1">
           {sidebarItems.map((item) => (
             <div key={item.title} className="mb-1">
-              {item.href ? (
-                <Link
-                  href={item.href}
-                  className={cn(
-                    "flex w-full items-center justify-between rounded-2xl px-3 py-2 text-sm font-medium transition-colors",
-                    isActive(item.href) ? "bg-primary/10 text-primary" : "hover:bg-muted",
-                  )}
-                  onClick={(e) => {
-                    handleNavClick(e, item)
-                    if (!item.requiresAuth || session) setMobileMenuOpen(false)
-                  }}
-                >
-                  <div className="flex items-center gap-3">
-                    {item.icon}
-                    <span>{item.title}</span>
-                  </div>
-                  {item.badge && (
-                    <Badge variant="outline" className="ml-auto rounded-full px-2 py-0.5 text-xs">
-                      {item.badge}
-                    </Badge>
-                  )}
-                </Link>
-              ) : (
-                <>
+              <div className="flex items-center">
+                {item.href ? (
+                  <Link
+                    href={item.href}
+                    className={cn(
+                      "flex flex-1 items-center justify-between rounded-2xl px-3 py-2 text-sm font-medium transition-colors",
+                      isActive(item.href) ? "bg-primary/10 text-primary" : "hover:bg-muted",
+                    )}
+                    onClick={(e) => {
+                      handleNavClick(e, item)
+                      if (!item.requiresAuth || session) setMobileMenuOpen(false)
+                    }}
+                  >
+                    <div className="flex items-center gap-3">
+                      {item.icon}
+                      <span>{item.title}</span>
+                    </div>
+                    {item.badge && (
+                      <Badge variant="outline" className="ml-auto rounded-full px-2 py-0.5 text-xs">
+                        {item.badge}
+                      </Badge>
+                    )}
+                  </Link>
+                ) : (
                   <button
                     className={cn(
-                      "flex w-full items-center justify-between rounded-2xl px-3 py-2 text-sm font-medium transition-colors",
+                      "flex flex-1 items-center justify-between rounded-2xl px-3 py-2 text-sm font-medium transition-colors",
                       isParentActive(item.items) ? "bg-primary/10 text-primary" : "hover:bg-muted",
                     )}
                     onClick={() => toggleExpanded(item.title)}
@@ -196,44 +197,45 @@ export function NexusSidebar({ sidebarOpen, setSidebarOpen, mobileMenuOpen, setM
                       {item.icon}
                       <span>{item.title}</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      {item.badge && (
-                        <Badge variant="outline" className="rounded-full px-2 py-0.5 text-xs">
-                          {item.badge}
+                  </button>
+                )}
+
+                {item.items && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); toggleExpanded(item.title); }}
+                    className="p-2 hover:bg-muted rounded-xl ml-1"
+                  >
+                    <ChevronDown
+                      className={cn("h-4 w-4 transition-transform", expandedItems[item.title] ? "rotate-180" : "")}
+                    />
+                  </button>
+                )}
+              </div>
+
+              {item.items && expandedItems[item.title] && (
+                <div className="mt-1 ml-6 space-y-1 border-l pl-3">
+                  {item.items.map((subItem) => (
+                    <Link
+                      key={subItem.title}
+                      href={subItem.href}
+                      className={cn(
+                        "flex items-center justify-between rounded-2xl px-3 py-2 text-sm transition-colors",
+                        isActive(subItem.href) ? "bg-primary/10 text-primary font-medium" : "hover:bg-muted",
+                      )}
+                      onClick={(e) => {
+                        handleNavClick(e, subItem)
+                        if (!subItem.requiresAuth || session) setMobileMenuOpen(false)
+                      }}
+                    >
+                      {subItem.title}
+                      {subItem.badge && (
+                        <Badge variant="outline" className="ml-auto rounded-full px-2 py-0.5 text-xs">
+                          {subItem.badge}
                         </Badge>
                       )}
-                      <ChevronDown
-                        className={cn("h-4 w-4 transition-transform", expandedItems[item.title] ? "rotate-180" : "")}
-                      />
-                    </div>
-                  </button>
-
-                  {item.items && expandedItems[item.title] && (
-                    <div className="mt-1 ml-6 space-y-1 border-l pl-3">
-                      {item.items.map((subItem) => (
-                        <Link
-                          key={subItem.title}
-                          href={subItem.href}
-                          className={cn(
-                            "flex items-center justify-between rounded-2xl px-3 py-2 text-sm transition-colors",
-                            isActive(subItem.href) ? "bg-primary/10 text-primary font-medium" : "hover:bg-muted",
-                          )}
-                          onClick={(e) => {
-                            handleNavClick(e, subItem)
-                            if (!subItem.requiresAuth || session) setMobileMenuOpen(false)
-                          }}
-                        >
-                          {subItem.title}
-                          {subItem.badge && (
-                            <Badge variant="outline" className="ml-auto rounded-full px-2 py-0.5 text-xs">
-                              {subItem.badge}
-                            </Badge>
-                          )}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </>
+                    </Link>
+                  ))}
+                </div>
               )}
             </div>
           ))}

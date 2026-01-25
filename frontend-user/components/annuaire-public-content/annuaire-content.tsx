@@ -2,8 +2,7 @@
 
 import { Filter } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { AnnuaireHero } from "../annuaire-public-content/annuaire-hero"
-import { AnnuaireFilters } from "../annuaire-public-content/annuaire-filters"
+import { AnnuaireFilters } from "./annuaire-filters"
 import { AnnuaireGrid } from "./annuaire-grid"
 import { Profile } from "./annuaire-card"
 
@@ -13,20 +12,10 @@ interface AnnuaireContentProps {
 }
 
 export function AnnuaireContent({ profiles, category }: AnnuaireContentProps) {
-    const titles: Record<string, string> = {
-        artisans: "Nos Artisans",
-        freelances: "Nos Freelances",
-        entreprises: "Nos Entreprises",
-        ong: "Les ONG du Réseau"
-    }
-
     return (
         <div className="space-y-6">
-            {/* Unified Hero */}
-            <AnnuaireHero title={titles[category]} />
-
-            {/* Unified Filters */}
-            <AnnuaireFilters currentCategory={category} />
+            {/* Filters */}
+            <AnnuaireFilters />
 
             {/* Results Count */}
             <div className="flex items-center justify-between">

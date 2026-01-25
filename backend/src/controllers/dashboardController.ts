@@ -6,7 +6,7 @@
 */
 
 import { Request, Response } from 'express';
-import { supabase } from '../config/supabase';
+import { supabase, supabaseAdmin } from '../config/supabase';
 
 /**
  * Récupère les statistiques globales pour le dashboard-user
@@ -15,12 +15,12 @@ import { supabase } from '../config/supabase';
 export const getGlobalStats = async (req: Request, res: Response) => {
   try {
     // 1. Compter les entrepreneurs (user_profiles)
-    const { count: userCount, error: userError } = await supabase
+    const { count: userCount, error: userError } = await supabaseAdmin
       .from('user_profiles')
       .select('*', { count: 'exact', head: true });
 
     // 2. Compter les projets actifs (ads)
-    const { count: adsCount, error: adsError } = await supabase
+    const { count: adsCount, error: adsError } = await supabaseAdmin
       .from('ads')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'active');
@@ -53,9 +53,9 @@ export const getPublicStats = (req: Request, res: Response) => {
  */
 export const getFeaturedEntrepreneurs = async (req: Request, res: Response) => {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('user_profiles')
-      .select('*')
+      .select('*, countries(name, iso_code)')
       .limit(6)
       .order('created_at', { ascending: false });
 
