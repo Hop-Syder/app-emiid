@@ -1,6 +1,6 @@
 "use client"
 
-import { Shield, MapPin, Users } from "lucide-react"
+import { Shield, MapPin, Users, Star } from "lucide-react"
 import { motion } from "framer-motion"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -34,7 +34,7 @@ export function AnnuaireCard({ profile }: AnnuaireCardProps) {
             transition={{ type: "spring", stiffness: 300 }}
         >
             <Card
-                className={`rounded-3xl h-full hover:shadow-xl transition-all duration-300 group ${profile.premium ? "relative overflow-hidden border-2 border-transparent" : "hover:shadow-lg"
+                className={`rounded-3xl h-full hover:shadow-xl transition-all duration-300 group cursor-pointer ${profile.premium ? "relative overflow-hidden border-2 border-transparent" : "hover:shadow-lg"
                     }`}
             >
                 {/* Premium background */}
@@ -66,7 +66,7 @@ export function AnnuaireCard({ profile }: AnnuaireCardProps) {
                             {profile.premium && (
                                 <div className="absolute -bottom-1 -right-1 bg-gradient-to-r from-primary to-accent rounded-full p-1">
                                     <Badge className="h-5 w-5 rounded-full bg-white text-primary p-0 flex items-center justify-center text-xs font-bold">
-                                        ⭐
+                                        <Star className="h-3 w-3 fill-current" />
                                     </Badge>
                                 </div>
                             )}
@@ -101,8 +101,8 @@ export function AnnuaireCard({ profile }: AnnuaireCardProps) {
 
                     <Badge
                         className={`rounded-xl ${profile.premium
-                                ? "bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 text-primary"
-                                : ""
+                            ? "bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 text-primary"
+                            : ""
                             }`}
                     >
                         {profile.specialty}
@@ -116,8 +116,8 @@ export function AnnuaireCard({ profile }: AnnuaireCardProps) {
                         <Button
                             size="sm"
                             className={`rounded-xl ${profile.premium
-                                    ? "bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-white font-semibold shadow-md"
-                                    : ""
+                                ? "bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-white font-semibold shadow-md"
+                                : ""
                                 }`}
                         >
                             Suivre

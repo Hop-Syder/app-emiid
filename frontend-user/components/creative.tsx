@@ -789,7 +789,7 @@ export function DesignaliCreative() {
         <main className="flex-1 p-4 md:p-6">
           <Tabs defaultValue="dashboard-user-user" value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <TabsList className="grid w-full max-w-[700px] grid-cols-5 rounded-2xl p-1">
+              <TabsList className="grid w-full max-w-[700px] grid-cols-2 md:grid-cols-5 rounded-2xl p-1 h-auto">
                 <TabsTrigger value="dashboard-user-user" className="rounded-xl data-[state=active]:rounded-xl">
                   dashboard-user-user
                 </TabsTrigger>
