@@ -39,7 +39,7 @@ export function NexusLayout({ children }: NexusLayoutProps) {
         setMobileMenuOpen={setMobileMenuOpen}
       />
 
-      <div className={cn("transition-all duration-300", sidebarOpen ? "md:pl-64" : "md:pl-0")}>
+      <div className={cn("transition-all duration-300 pb-32", sidebarOpen ? "md:pl-64" : "md:pl-0")}>
         <NexusHeader sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} setMobileMenuOpen={setMobileMenuOpen} />
         <main className="p-6">{children}</main>
       </div>
