@@ -43,6 +43,10 @@ export function MessagesContent() {
         if (res.ok) {
           const data = await res.json()
           setConversations(data)
+          // Sur mobile / première visite, on ouvre automatiquement la conversation la plus récente
+          if (!selectedConv && data.length > 0) {
+            setSelectedConv(data[0])
+          }
         }
       } catch (err) {
         console.error("Error loading convs:", err)
@@ -51,7 +55,7 @@ export function MessagesContent() {
       }
     }
     loadConversations()
-  }, [])
+  }, [selectedConv])
 
   // 2. Charger les messages quand une conversation est sélectionnée
   useEffect(() => {
@@ -135,10 +139,54 @@ export function MessagesContent() {
     }
   }
 
+  const handleFileUpload = async (file: File, type: "image" | "file") => {
+    if (!selectedConv || !file) return
+
+    setIsSending(true)
+    try {
+      const extension = file.name.split(".").pop()
+      const filePath = `conversation-${selectedConv.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${extension}`
+
+      const { data, error } = await supabase.storage.from("messages").upload(filePath, file)
+      if (error) {
+        console.error("Upload error:", error)
+        return
+      }
+
+      const { data: publicUrlData } = supabase.storage.from("messages").getPublicUrl(filePath)
+      const publicUrl = publicUrlData.publicUrl
+
+      const placeholder =
+        type === "image"
+          ? `[Image] ${publicUrl}`
+          : `[Fichier] ${file.name} - ${publicUrl}`
+
+      const res = await fetchWithAuth("/api/messages/send", {
+        method: "POST",
+        body: JSON.stringify({
+          receiverId: selectedConv.otherUser.id,
+          content: placeholder,
+        }),
+      })
+
+      if (res.ok) {
+        const newMsg = await res.json()
+        setMessages((prev) => [...prev, newMsg])
+        setTimeout(() => scrollRef.current?.scrollIntoView({ behavior: "smooth" }), 50)
+      }
+    } catch (err) {
+      console.error("Attachment send error:", err)
+    } finally {
+      setIsSending(false)
+      if (imageInputRef.current) imageInputRef.current.value = ""
+      if (fileInputRef.current) fileInputRef.current.value = ""
+    }
+  }
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[minmax(300px,350px)_1fr] gap-6 h-[calc(100vh-12rem)]">
-      {/* Conversations List */}
-      <Card className="rounded-3xl shadow-sm border-none overflow-hidden flex flex-col">
+    <div className="grid grid-cols-1 lg:grid-cols-[minmax(300px,350px)_1fr] gap-4 lg:gap-6 h-[calc(100vh-12rem)]">
+      {/* Conversations List - visible uniquement sur desktop pour une expérience type WhatsApp Web */}
+      <Card className="hidden lg:flex rounded-3xl shadow-sm border-none overflow-hidden flex-col">
         <div className="p-4 border-b">
           <div className="relative">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -178,7 +226,7 @@ export function MessagesContent() {
         </ScrollArea>
       </Card>
 
-      {/* Messages Area */}
+      {/* Zone de conversation principale (type WhatsApp) */}
       <Card className="rounded-3xl shadow-sm border-none overflow-hidden flex flex-col">
         {selectedConv ? (
           <>
@@ -189,8 +237,12 @@ export function MessagesContent() {
                   <AvatarFallback><User /></AvatarFallback>
                 </Avatar>
                 <div>
-                  <h3 className="font-semibold text-primary">{selectedConv.otherUser.name}</h3>
-                  <p className="text-xs text-muted-foreground">{selectedConv.otherUser.role || "Membre Nexus"}</p>
+                  <h3 className="font-semibold text-primary">
+                    {selectedConv.otherUser.name || "Service Client Nexus"}
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    {selectedConv.otherUser.role || "Service Client"}
+                  </p>
                 </div>
               </div>
             </div>
@@ -216,10 +268,23 @@ export function MessagesContent() {
               </div>
             </ScrollArea>
 
-            <div className="p-4 border-t bg-white">
+            <div className="p-3 sm:p-4 border-t bg-white">
               <div className="flex gap-2 items-center">
-                <Button variant="ghost" size="icon" className="rounded-full shrink-0" onClick={() => imageInputRef.current?.click()}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="rounded-full shrink-0"
+                  onClick={() => imageInputRef.current?.click()}
+                >
                   <Image className="h-5 w-5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="rounded-full shrink-0"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Paperclip className="h-5 w-5" />
                 </Button>
                 <Input
                   placeholder="Votre message..."
@@ -249,7 +314,26 @@ export function MessagesContent() {
         )}
       </Card>
 
-      <input type="file" ref={imageInputRef} className="hidden" accept="image/*" />
+      <input
+        type="file"
+        ref={imageInputRef}
+        className="hidden"
+        accept="image/*"
+        onChange={(e) => {
+          const file = e.target.files?.[0]
+          if (file) handleFileUpload(file, "image")
+        }}
+      />
+      <input
+        type="file"
+        ref={fileInputRef}
+        className="hidden"
+        accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.rar"
+        onChange={(e) => {
+          const file = e.target.files?.[0]
+          if (file) handleFileUpload(file, "file")
+        }}
+      />
     </div>
   )
 }

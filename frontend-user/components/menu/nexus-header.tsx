@@ -17,6 +17,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { createClient } from "@/lib/supabase/client"
+import { cn } from "@/lib/utils"
 import { useNotifications } from "@/hooks/use-notifications"
 import { formatDistanceToNow } from "date-fns"
 import { fr } from "date-fns/locale"
@@ -219,7 +220,14 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
         </div>
       </header>
 
-      <nav className="fixed inset-x-0 bottom-0 z-50 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <nav
+        className={cn(
+          // Mobile: barre de navigation flottante en bas, pleine largeur
+          "fixed inset-x-0 bottom-0 z-50 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
+          // Tablette / Desktop: intégrée sous le header, défile avec la page
+          "md:static md:inset-auto md:border-t-0 md:border-b"
+        )}
+      >
         <div className="px-4 md:px-6 py-3 overflow-x-auto">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <Tabs value={getActiveTab()} onValueChange={handleTabChange} className="w-full">
