@@ -15,6 +15,7 @@ import { motion } from "framer-motion"
 import { Badge } from "@/components/ui/badge"
 import { CreerProfilForm } from "./creer-profil-form"
 import { CreerProfilPreview } from "./creer-profil-preview"
+import { ProjectGallery } from "./project-gallery"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
@@ -255,6 +256,9 @@ export function CreerProfilContent() {
                     />
                     <CreerProfilPreview formData={formData} />
                 </div>
+
+                {/* Galerie de Projets */}
+                <ProjectGallery />
             </motion.div>
         </div>
     )

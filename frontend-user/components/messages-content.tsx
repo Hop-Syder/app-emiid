@@ -19,6 +19,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { fetchWithAuth } from "@/lib/apiClient"
+import { createClient } from "@/lib/supabase/client"
 
 export function MessagesContent() {
   const [message, setMessage] = useState("")
@@ -32,6 +33,7 @@ export function MessagesContent() {
   const imageInputRef = useRef<HTMLInputElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
+  const supabase = createClient()
 
   // 1. Charger les conversations au montage
   useEffect(() => {
@@ -73,6 +75,39 @@ export function MessagesContent() {
     }
     loadMessages()
   }, [selectedConv])
+
+  // 3. Souscription Temps Réel (Supabase Realtime)
+  useEffect(() => {
+    if (!selectedConv) return
+
+    const channel = supabase
+      .channel(`room-${selectedConv.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `conversation_id=eq.${selectedConv.id}`
+        },
+        (payload) => {
+          const newMsg = payload.new
+          // Éviter les doublons si on est l'expéditeur (le message est déjà ajouté via handleSendMessage)
+          setMessages((prev) => {
+            const exists = prev.some(m => m.id === newMsg.id)
+            if (exists) return prev
+            return [...prev, newMsg]
+          })
+          // Auto-scroll
+          setTimeout(() => scrollRef.current?.scrollIntoView({ behavior: 'smooth' }), 100)
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [selectedConv, supabase])
 
   const handleSendMessage = async () => {
     if (!message.trim() || !selectedConv || isSending) return

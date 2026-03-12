@@ -17,6 +17,9 @@ import { usePathname, useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { createClient } from "@/lib/supabase/client"
+import { useNotifications } from "@/hooks/use-notifications"
+import { formatDistanceToNow } from "date-fns"
+import { fr } from "date-fns/locale"
 
 interface NexusHeaderProps {
   sidebarOpen: boolean
@@ -27,7 +30,7 @@ interface NexusHeaderProps {
 export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: NexusHeaderProps) {
   const pathname = usePathname()
   const router = useRouter()
-  const notifications = 3
+  const { notifications, unreadCount, markAsRead } = useNotifications()
   const [user, setUser] = useState<{ first_name: string; last_name: string; avatar_url?: string; email?: string } | null>(null)
   const [session, setSession] = useState<any>(null)
   const supabase = createClient()
@@ -132,21 +135,58 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
               </Tooltip>
             </TooltipProvider>
 
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="rounded-2xl relative" onClick={(e) => handleRestrictedAction(e)}>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <div className="relative">
+                  <Button variant="ghost" size="icon" className="rounded-2xl">
                     <Bell className="h-5 w-5" />
-                    {notifications > 0 && (
-                      <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-                        {notifications}
+                    {unreadCount > 0 && (
+                      <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white font-bold ring-2 ring-background">
+                        {unreadCount > 9 ? "9+" : unreadCount}
                       </span>
                     )}
                   </Button>
-                </TooltipTrigger>
-                <TooltipContent>Notifications</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+                </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-80 p-0 rounded-3xl overflow-hidden shadow-2xl border-muted/20" align="end">
+                <div className="px-4 py-3 border-b bg-muted/30">
+                  <h3 className="font-semibold text-sm">Notifications</h3>
+                </div>
+                <div className="max-h-[400px] overflow-y-auto">
+                  {notifications.length > 0 ? (
+                    notifications.map((n) => (
+                      <div
+                        key={n.id}
+                        onClick={() => {
+                          markAsRead(n.id)
+                          if (n.link) router.push(n.link)
+                        }}
+                        className={`p-4 border-b last:border-0 cursor-pointer transition-colors hover:bg-muted/50 ${!n.is_read ? 'bg-primary/5' : ''}`}
+                      >
+                        <div className="flex justify-between items-start gap-2">
+                          <h4 className="text-sm font-semibold">{n.title}</h4>
+                          <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+                            {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: fr })}
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{n.content}</p>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="p-8 text-center text-sm text-muted-foreground">
+                      Aucune notification
+                    </div>
+                  )}
+                </div>
+                {notifications.length > 0 && (
+                  <div className="p-2 border-t text-center bg-muted/10">
+                    <Button variant="ghost" size="sm" className="text-xs w-full rounded-xl">
+                      Voir tout
+                    </Button>
+                  </div>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
