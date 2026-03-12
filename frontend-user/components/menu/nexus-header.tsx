@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,6 +22,8 @@ import { cn } from "@/lib/utils"
 import { useNotifications } from "@/hooks/use-notifications"
 import { formatDistanceToNow } from "date-fns"
 import { fr } from "date-fns/locale"
+import { motion, useScroll, useMotionValueEvent } from "framer-motion"
+import { Drawer } from "vaul"
 
 interface NexusHeaderProps {
   sidebarOpen: boolean
@@ -34,7 +37,18 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
   const { notifications, unreadCount, markAsRead } = useNotifications()
   const [user, setUser] = useState<{ first_name: string; last_name: string; avatar_url?: string; email?: string } | null>(null)
   const [session, setSession] = useState<any>(null)
+  const [hidden, setHidden] = useState(false)
+  const { scrollY } = useScroll()
   const supabase = createClient()
+
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    const previous = scrollY.getPrevious() ?? 0
+    if (latest > previous && latest > 150) {
+      setHidden(true)
+    } else {
+      setHidden(false)
+    }
+  })
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -110,7 +124,15 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
 
   return (
     <>
-      <header className="sticky top-0 z-20 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <motion.header
+        variants={{
+          visible: { y: 0 },
+          hidden: { y: "-100%" },
+        }}
+        animate={hidden ? "hidden" : "visible"}
+        transition={{ duration: 0.35, ease: "easeInOut" }}
+        className="sticky top-0 z-20 border-b bg-background/70 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60"
+      >
         <div className="flex h-16 items-center gap-4 px-4 md:px-6">
           <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileMenuOpen(true)}>
             <Menu className="h-5 w-5" />
@@ -136,58 +158,107 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
               </Tooltip>
             </TooltipProvider>
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <div className="relative">
-                  <Button variant="ghost" size="icon" className="rounded-2xl">
-                    <Bell className="h-5 w-5" />
-                    {unreadCount > 0 && (
-                      <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white font-bold ring-2 ring-background">
-                        {unreadCount > 9 ? "9+" : unreadCount}
-                      </span>
-                    )}
-                  </Button>
-                </div>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-80 p-0 rounded-3xl overflow-hidden shadow-2xl border-muted/20" align="end">
-                <div className="px-4 py-3 border-b bg-muted/30">
-                  <h3 className="font-semibold text-sm">Notifications</h3>
-                </div>
-                <div className="max-h-[400px] overflow-y-auto">
-                  {notifications.length > 0 ? (
-                    notifications.map((n) => (
-                      <div
-                        key={n.id}
-                        onClick={() => {
-                          markAsRead(n.id)
-                          if (n.link) router.push(n.link)
-                        }}
-                        className={`p-4 border-b last:border-0 cursor-pointer transition-colors hover:bg-muted/50 ${!n.is_read ? 'bg-primary/5' : ''}`}
-                      >
-                        <div className="flex justify-between items-start gap-2">
-                          <h4 className="text-sm font-semibold">{n.title}</h4>
-                          <span className="text-[10px] text-muted-foreground whitespace-nowrap">
-                            {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: fr })}
-                          </span>
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{n.content}</p>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="p-8 text-center text-sm text-muted-foreground">
-                      Aucune notification
-                    </div>
-                  )}
-                </div>
-                {notifications.length > 0 && (
-                  <div className="p-2 border-t text-center bg-muted/10">
-                    <Button variant="ghost" size="sm" className="text-xs w-full rounded-xl">
-                      Voir tout
+            {/* Notifications - Desktop & Mobile */}
+            <div className="hidden md:block">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <div className="relative">
+                    <Button variant="ghost" size="icon" className="rounded-2xl">
+                      <Bell className="h-5 w-5" />
+                      {unreadCount > 0 && (
+                        <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white font-bold ring-2 ring-background">
+                          {unreadCount > 9 ? "9+" : unreadCount}
+                        </span>
+                      )}
                     </Button>
                   </div>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-80 p-0 rounded-3xl overflow-hidden shadow-2xl border-muted/20" align="end">
+                  <div className="px-4 py-3 border-b bg-muted/30">
+                    <h3 className="font-semibold text-sm">Notifications</h3>
+                  </div>
+                  <div className="max-h-[400px] overflow-y-auto">
+                    {notifications.length > 0 ? (
+                      notifications.map((n) => (
+                        <div
+                          key={n.id}
+                          onClick={() => {
+                            markAsRead(n.id)
+                            if (n.link) router.push(n.link)
+                          }}
+                          className={`p-4 border-b last:border-0 cursor-pointer transition-colors hover:bg-muted/50 ${!n.is_read ? 'bg-primary/5' : ''}`}
+                        >
+                          <div className="flex justify-between items-start gap-2">
+                            <h4 className="text-sm font-semibold">{n.title}</h4>
+                            <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+                              {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: fr })}
+                            </span>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{n.content}</p>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="p-8 text-center text-sm text-muted-foreground">
+                        Aucune notification
+                      </div>
+                    )}
+                  </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            {/* Notifications - Mobile (Drawer) */}
+            <div className="md:hidden">
+              <Drawer.Root>
+                <Drawer.Trigger asChild>
+                  <div className="relative">
+                    <Button variant="ghost" size="icon" className="rounded-2xl">
+                      <Bell className="h-5 w-5" />
+                      {unreadCount > 0 && (
+                        <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white font-bold ring-2 ring-background">
+                          {unreadCount > 9 ? "9+" : unreadCount}
+                        </span>
+                      )}
+                    </Button>
+                  </div>
+                </Drawer.Trigger>
+                <Drawer.Portal>
+                  <Drawer.Overlay className="fixed inset-0 bg-black/40 z-50 backdrop-blur-sm" />
+                  <Drawer.Content className="bg-white flex flex-col rounded-t-[32px] h-[70vh] fixed bottom-0 left-0 right-0 z-50 outline-none">
+                    <div className="p-4 bg-white rounded-t-[32px] flex-1">
+                      <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-zinc-300 mb-8" />
+                      <div className="max-w-md mx-auto">
+                        <Drawer.Title className="font-bold text-xl mb-4 px-4">Notifications</Drawer.Title>
+                        <ScrollArea className="h-[55vh] px-2">
+                          {notifications.length > 0 ? (
+                            notifications.map((n) => (
+                              <div
+                                key={n.id}
+                                onClick={() => {
+                                  markAsRead(n.id);
+                                  if (n.link) router.push(n.link);
+                                }}
+                                className={`p-4 mb-2 rounded-2xl transition-colors ${!n.is_read ? 'bg-primary/5 border border-primary/10' : 'bg-slate-50'}`}
+                              >
+                                <div className="flex justify-between items-start gap-2">
+                                  <h4 className="text-sm font-bold">{n.title}</h4>
+                                  <span className="text-[10px] text-muted-foreground">
+                                    {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: fr })}
+                                  </span>
+                                </div>
+                                <p className="text-xs text-muted-foreground mt-1">{n.content}</p>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="text-center py-20 text-muted-foreground">Rien de nouveau ici.</div>
+                          )}
+                        </ScrollArea>
+                      </div>
+                    </div>
+                  </Drawer.Content>
+                </Drawer.Portal>
+              </Drawer.Root>
+            </div>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -218,41 +289,8 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
             </DropdownMenu>
           </div>
         </div>
-      </header>
+      </motion.header>
 
-      <nav
-        className={cn(
-          // Mobile: barre de navigation flottante en bas, pleine largeur
-          "fixed inset-x-0 bottom-0 z-50 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
-          // Tablette / Desktop: intégrée sous le header, défile avec la page
-          "md:static md:inset-auto md:border-t-0 md:border-b"
-        )}
-      >
-        <div className="px-4 md:px-6 py-3 overflow-x-auto">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <Tabs value={getActiveTab()} onValueChange={handleTabChange} className="w-full">
-              <TabsList className="grid w-full grid-cols-4 md:max-w-[500px] rounded-2xl p-1">
-                <TabsTrigger value="dashboard-user" className="rounded-xl data-[state=active]:rounded-xl">
-                  <Home className="h-4 w-4 md:mr-2" />
-                  <span className="hidden md:inline">Dashboard</span>
-                </TabsTrigger>
-                <TabsTrigger value="annuaire" className="rounded-xl data-[state=active]:rounded-xl">
-                  <Users className="h-4 w-4 md:mr-2" />
-                  <span className="hidden md:inline">Annuaire</span>
-                </TabsTrigger>
-                <TabsTrigger value="portefeuille" className="rounded-xl data-[state=active]:rounded-xl">
-                  <Wallet className="h-4 w-4 md:mr-2" />
-                  <span className="hidden md:inline">Portefeuille</span>
-                </TabsTrigger>
-                <TabsTrigger value="creer-profil" className="rounded-xl data-[state=active]:rounded-xl">
-                  <PlusCircle className="h-4 w-4 md:mr-2" />
-                  <span className="hidden md:inline">Carte de profils</span>
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
-        </div>
-      </nav>
     </>
   )
 }

@@ -7,6 +7,8 @@ import { motion } from "framer-motion"
 import { NexusSidebar } from "./nexus-sidebar"
 import { NexusHeader } from "./nexus-header"
 import { cn } from "@/lib/utils"
+import { Plus, MessageSquare, Camera } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 interface NexusLayoutProps {
   children: React.ReactNode
@@ -39,9 +41,28 @@ export function NexusLayout({ children }: NexusLayoutProps) {
         setMobileMenuOpen={setMobileMenuOpen}
       />
 
-      <div className={cn("transition-all duration-300 pb-24 md:pb-0", sidebarOpen ? "md:pl-64" : "md:pl-0")}>
+      <div className={cn("transition-all duration-300", sidebarOpen ? "md:pl-64" : "md:pl-0")}>
         <NexusHeader sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} setMobileMenuOpen={setMobileMenuOpen} />
-        <main className="p-6">{children}</main>
+        <main className="p-6 relative">
+          {children}
+        </main>
+      </div>
+
+      {/* Floating Action Button (Mobile Only) */}
+      <div className="fixed bottom-6 right-6 z-40 md:hidden flex flex-col gap-3">
+        <motion.div
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 1 }}
+          className="flex flex-col gap-3"
+        >
+          <Button
+            size="icon"
+            className="h-14 w-14 rounded-full shadow-2xl bg-primary text-white hover:scale-110 active:scale-95 transition-all"
+          >
+            <Plus className="h-6 w-6" />
+          </Button>
+        </motion.div>
       </div>
     </div>
   )
