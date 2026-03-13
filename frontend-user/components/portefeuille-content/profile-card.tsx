@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 export interface ProfileData {
+    id: string
     name: string
     role: string
     location: string
@@ -22,9 +23,11 @@ export interface ProfileData {
 
 interface ProfileCardProps {
     profile: ProfileData
+    onUnfollow?: (id: string) => void
+    onViewProfile?: (id: string) => void
 }
 
-export function ProfileCard({ profile }: ProfileCardProps) {
+export function ProfileCard({ profile, onUnfollow, onViewProfile }: ProfileCardProps) {
     // Use a default premium value if not provided, just to show the logic if needed. 
     // For portfolio, maybe not all are premium, but we apply the same design structure.
 
@@ -115,14 +118,23 @@ export function ProfileCard({ profile }: ProfileCardProps) {
                 </p>
 
                 <div className="flex gap-2 pt-2">
-                    <Button size="sm" className={`flex-1 rounded-xl transition-all active:scale-95 shadow-sm ${profile.premium
+                    <Button
+                        size="sm"
+                        onClick={() => onViewProfile?.(profile.id)}
+                        className={`flex-1 rounded-xl transition-all active:scale-95 shadow-sm ${profile.premium
                             ? 'bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-white font-bold hover:shadow-md'
                             : 'bg-white hover:bg-primary hover:text-primary-foreground text-foreground border border-muted-foreground/20'
-                        }`}>
+                            }`}
+                    >
                         <Eye className="mr-2 h-4 w-4" />
                         Voir le profil
                     </Button>
-                    <Button size="sm" variant="outline" className="rounded-xl px-4 bg-transparent border-muted-foreground/20 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30">
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => onUnfollow?.(profile.id)}
+                        className="rounded-xl px-4 bg-transparent border-muted-foreground/20 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
+                    >
                         Ne plus suivre
                     </Button>
                 </div>
