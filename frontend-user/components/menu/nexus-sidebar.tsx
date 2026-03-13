@@ -39,38 +39,37 @@ interface SidebarItem {
 const sidebarItems: SidebarItem[] = [
   {
     title: "Dashboard",
-    icon: <Home />,
+    icon: "/svg/Home.svg",
     href: "/dashboard-user",
   },
   {
     title: "Annuaire",
-    icon: <Grid />,
+    icon: "/svg/Grid.svg",
     href: "/annuaire",
   },
   {
     title: "Portefeuille",
-    icon: <Wallet />,
+    icon: "/svg/Wallet.svg",
     href: "/portefeuille",
     badge: "12",
     requiresAuth: true,
   },
   {
     title: "Carte de profils",
-    icon: <FileText />,
+    icon: "/svg/FileText.svg",
     href: "/creer-profil",
     requiresAuth: true,
   },
-
   {
     title: "Messages",
-    icon: <MessageSquare />,
+    icon: "/svg/MessageSquare.svg",
     href: "/messages",
     badge: "8",
     requiresAuth: true,
   },
   {
     title: "Paramètres",
-    icon: <Settings />,
+    icon: <Settings className="h-5 w-5" />,
     href: "/parametres",
     requiresAuth: true,
   },
@@ -170,7 +169,11 @@ export function NexusSidebar({ sidebarOpen, setSidebarOpen, mobileMenuOpen, setM
                     }}
                   >
                     <div className="flex items-center gap-3">
-                      {item.icon}
+                      {typeof item.icon === "string" ? (
+                        <img src={item.icon} alt={item.title} className="h-5 w-5 object-contain" />
+                      ) : (
+                        item.icon
+                      )}
                       <span>{item.title}</span>
                     </div>
                     {item.badge && (
@@ -188,7 +191,11 @@ export function NexusSidebar({ sidebarOpen, setSidebarOpen, mobileMenuOpen, setM
                     onClick={() => toggleExpanded(item.title)}
                   >
                     <div className="flex items-center gap-3">
-                      {item.icon}
+                      {typeof item.icon === "string" ? (
+                        <img src={item.icon} alt={item.title} className="h-5 w-5 object-contain" />
+                      ) : (
+                        item.icon
+                      )}
                       <span>{item.title}</span>
                     </div>
                   </button>
