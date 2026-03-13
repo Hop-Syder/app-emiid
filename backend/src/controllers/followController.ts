@@ -16,12 +16,22 @@ export const getFollowedProfiles = async (req: any, res: Response) => {
   const userId = req.user.id;
 
   try {
-    const { data, error } = await supabaseAdmin
+    const { data: follows, error: followsError } = await supabaseAdmin
       .from('user_follows')
+      .select('following_id, notes')
+      .eq('follower_id', userId);
+
+    if (followsError) return res.status(400).json({ error: followsError.message });
+
+    if (!follows || follows.length === 0) {
+        return res.json([]);
+    }
+
+    const followingIds = follows.map(f => f.following_id);
+
+    const { data: profilesData, error: profilesError } = await supabaseAdmin
+      .from('user_profiles')
       .select(`
-        following_id,
-        notes,
-        user_profiles:following_id (
           user_id,
           first_name,
           last_name,
@@ -31,19 +41,21 @@ export const getFollowedProfiles = async (req: any, res: Response) => {
           category,
           specialty,
           countries(name)
-        )
       `)
-      .eq('follower_id', userId);
+      .in('user_id', followingIds);
 
-    if (error) return res.status(400).json({ error: error.message });
+    if (profilesError) return res.status(400).json({ error: profilesError.message });
 
-    // Transformer pour un format plus simple
-    const profiles = data.map((f: any) => ({
-        ...f.user_profiles,
-        name: `${f.user_profiles?.first_name || ''} ${f.user_profiles?.last_name || ''}`.trim() || 'Membre',
-        location: f.user_profiles?.city || "Afrique de l'Ouest",
-        notes: f.notes
-    }));
+    // Transformer et fusionner les notes
+    const profiles = profilesData.map((p: any) => {
+        const followInfo = follows.find(f => f.following_id === p.user_id);
+        return {
+            ...p,
+            name: `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Membre',
+            location: p.city || "Afrique de l'Ouest",
+            notes: followInfo?.notes || null
+        };
+    });
 
     res.json(profiles);
   } catch (err) {
@@ -103,11 +115,22 @@ export const getFollowers = async (req: any, res: Response) => {
   const userId = req.user.id;
 
   try {
-    const { data, error } = await supabaseAdmin
+    const { data: follows, error: followsError } = await supabaseAdmin
       .from('user_follows')
+      .select('follower_id')
+      .eq('following_id', userId);
+
+    if (followsError) return res.status(400).json({ error: followsError.message });
+
+    if (!follows || follows.length === 0) {
+        return res.json([]);
+    }
+
+    const followerIds = follows.map(f => f.follower_id);
+
+    const { data: profilesData, error: profilesError } = await supabaseAdmin
+      .from('user_profiles')
       .select(`
-        follower_id,
-        user_profiles:follower_id (
           user_id,
           first_name,
           last_name,
@@ -117,16 +140,15 @@ export const getFollowers = async (req: any, res: Response) => {
           category,
           specialty,
           countries(name)
-        )
       `)
-      .eq('following_id', userId);
+      .in('user_id', followerIds);
 
-    if (error) return res.status(400).json({ error: error.message });
+    if (profilesError) return res.status(400).json({ error: profilesError.message });
 
-    const profiles = data.map((f: any) => ({
-        ...f.user_profiles,
-        name: `${f.user_profiles?.first_name || ''} ${f.user_profiles?.last_name || ''}`.trim() || 'Membre',
-        location: f.user_profiles?.city || "Afrique de l'Ouest"
+    const profiles = profilesData.map((p: any) => ({
+        ...p,
+        name: `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Membre',
+        location: p.city || "Afrique de l'Ouest"
     }));
 
     res.json(profiles);
