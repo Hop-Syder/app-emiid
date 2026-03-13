@@ -24,11 +24,11 @@ export function NexusLayout({ children }: NexusLayoutProps) {
   const router = useRouter()
 
   const allMenus = [
-    { title: "Dashboard", icon: Home, href: "/dashboard-user" },
-    { title: "Annuaire", icon: Grid, href: "/annuaire" },
-    { title: "Portefeuille", icon: Wallet, href: "/portefeuille" },
-    { title: "Carte de profils", icon: FileText, href: "/creer-profil" },
-    { title: "Messages", icon: MessageSquare, href: "/messages" },
+    { title: "Dashboard", icon: "/svg/Home.svg", href: "/dashboard-user" },
+    { title: "Annuaire", icon: "/svg/Grid.svg", href: "/annuaire" },
+    { title: "Portefeuille", icon: "/svg/Wallet.svg", href: "/portefeuille" },
+    { title: "Carte de profils", icon: "/svg/FileText.svg", href: "/creer-profil" },
+    { title: "Messages", icon: "/svg/MessageSquare.svg", href: "/messages" },
   ]
 
   // Filtrer le menu actuel pour ne pas l'afficher dans le FAB
@@ -93,9 +93,9 @@ export function NexusLayout({ children }: NexusLayoutProps) {
                         router.push(menu.href)
                         setFabOpen(false)
                       }}
-                      className="h-12 w-12 rounded-full shadow-xl bg-white text-slate-700 hover:bg-slate-50 border border-slate-100"
+                      className="h-12 w-12 rounded-full shadow-xl bg-white text-slate-700 hover:bg-slate-50 border border-slate-100 flex items-center justify-center p-2.5"
                     >
-                      <menu.icon className="h-5 w-5" />
+                      <img src={menu.icon} alt={menu.title} className="h-full w-full object-contain" />
                     </Button>
                   </motion.div>
                 ))}
