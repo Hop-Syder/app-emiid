@@ -66,11 +66,16 @@ export function CreerProfilContent() {
 
                         // Résolution du code pays pour le sélecteur
                         let resolvedCountryCode = ""
+                        let resolvedCountryName = ""
                         if (data.countries && data.countries.iso_code) {
                             resolvedCountryCode = data.countries.iso_code
+                            resolvedCountryName = data.countries.name
                         } else if (data.country_id) {
                             const found = countriesList.find((c: any) => c.id === data.country_id)
-                            if (found) resolvedCountryCode = found.iso_code
+                            if (found) {
+                                resolvedCountryCode = found.iso_code
+                                resolvedCountryName = found.name
+                            }
                         }
 
                         setFormData((prev) => ({
@@ -85,7 +90,7 @@ export function CreerProfilContent() {
                             website: data.website || prev.website,
                             country_id: data.country_id || prev.country_id,
                             country_code: resolvedCountryCode || prev.country_code,
-                            country_name: data.country_name || (data.countries?.name) || prev.country_name,
+                            country_name: resolvedCountryName || prev.country_name,
                             city: data.city || prev.city,
                             avatar: data.avatar_url || prev.avatar,
                         }))
