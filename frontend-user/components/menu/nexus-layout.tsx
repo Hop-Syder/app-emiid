@@ -7,8 +7,10 @@ import { motion } from "framer-motion"
 import { NexusSidebar } from "./nexus-sidebar"
 import { NexusHeader } from "./nexus-header"
 import { cn } from "@/lib/utils"
-import { Plus, MessageSquare, Camera } from "lucide-react"
+import { Plus, MessageSquare, Camera, Home, Grid, Wallet, FileText, Settings, X, LayoutGrid } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { usePathname, useRouter } from "next/navigation"
+import { AnimatePresence } from "framer-motion"
 
 interface NexusLayoutProps {
   children: React.ReactNode
@@ -17,6 +19,20 @@ interface NexusLayoutProps {
 export function NexusLayout({ children }: NexusLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [fabOpen, setFabOpen] = useState(false)
+  const pathname = usePathname()
+  const router = useRouter()
+
+  const allMenus = [
+    { title: "Dashboard", icon: Home, href: "/dashboard-user" },
+    { title: "Annuaire", icon: Grid, href: "/annuaire" },
+    { title: "Portefeuille", icon: Wallet, href: "/portefeuille" },
+    { title: "Carte de profils", icon: FileText, href: "/creer-profil" },
+    { title: "Messages", icon: MessageSquare, href: "/messages" },
+  ]
+
+  // Filtrer le menu actuel pour ne pas l'afficher dans le FAB
+  const filteredMenus = allMenus.filter(menu => pathname !== menu.href)
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-amber-50">
@@ -48,21 +64,56 @@ export function NexusLayout({ children }: NexusLayoutProps) {
         </main>
       </div>
 
-      {/* Floating Action Button (Mobile Only) */}
-      <div className="fixed bottom-6 right-6 z-40 md:hidden flex flex-col gap-3">
-        <motion.div
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 1 }}
-          className="flex flex-col gap-3"
-        >
+      {/* Contextual FAB Navigation (Mobile & Tablet) */}
+      <div className="fixed bottom-6 right-6 z-50 md:hidden">
+        <div className="relative flex flex-col items-end">
+          <AnimatePresence>
+            {fabOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                className="flex flex-col gap-3 mb-4 items-end"
+              >
+                {filteredMenus.map((menu, idx) => (
+                  <motion.div
+                    key={menu.href}
+                    initial={{ scale: 0, x: 20 }}
+                    animate={{ scale: 1, x: 0 }}
+                    exit={{ scale: 0, x: 20 }}
+                    transition={{ delay: idx * 0.05 }}
+                    className="flex items-center gap-3"
+                  >
+                    <span className="bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-xl text-[10px] font-bold shadow-sm border border-slate-100">
+                      {menu.title}
+                    </span>
+                    <Button
+                      size="icon"
+                      onClick={() => {
+                        router.push(menu.href)
+                        setFabOpen(false)
+                      }}
+                      className="h-12 w-12 rounded-full shadow-xl bg-white text-slate-700 hover:bg-slate-50 border border-slate-100"
+                    >
+                      <menu.icon className="h-5 w-5" />
+                    </Button>
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           <Button
             size="icon"
-            className="h-14 w-14 rounded-full shadow-2xl bg-primary text-white hover:scale-110 active:scale-95 transition-all"
+            onClick={() => setFabOpen(!fabOpen)}
+            className={cn(
+              "h-16 w-16 rounded-full shadow-2xl transition-all duration-300",
+              fabOpen ? "bg-slate-900 text-white rotate-45" : "bg-primary text-white shadow-primary/20"
+            )}
           >
-            <Plus className="h-6 w-6" />
+            {fabOpen ? <Plus className="h-8 w-8" /> : <LayoutGrid className="h-7 w-7" />}
           </Button>
-        </motion.div>
+        </div>
       </div>
     </div>
   )
