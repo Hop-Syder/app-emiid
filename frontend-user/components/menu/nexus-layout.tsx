@@ -29,6 +29,7 @@ export function NexusLayout({ children }: NexusLayoutProps) {
     { title: "Portefeuille", icon: "/svg/Wallet.svg", href: "/portefeuille" },
     { title: "Carte de profils", icon: "/svg/FileText.svg", href: "/creer-profil" },
     { title: "Messages", icon: "/svg/MessageSquare.svg", href: "/messages" },
+    { title: "Paramètres", icon: "/svg/setting.svg", href: "/parametres" },
   ]
 
   // Filtrer le menu actuel pour ne pas l'afficher dans le FAB

@@ -69,7 +69,7 @@ const sidebarItems: SidebarItem[] = [
   },
   {
     title: "Paramètres",
-    icon: <Settings className="h-5 w-5" />,
+    icon: "/svg/setting.svg",
     href: "/parametres",
     requiresAuth: true,
   },
