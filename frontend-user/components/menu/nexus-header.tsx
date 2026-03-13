@@ -134,9 +134,6 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
         className="sticky top-0 z-20 border-b bg-background/70 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60"
       >
         <div className="flex h-16 items-center gap-4 px-4 md:px-6">
-          <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileMenuOpen(true)}>
-            <Menu className="h-5 w-5" />
-          </Button>
 
           <Button variant="ghost" size="icon" className="hidden md:flex" onClick={() => setSidebarOpen(!sidebarOpen)}>
             <PanelLeft className="h-5 w-5" />
