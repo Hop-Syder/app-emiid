@@ -137,8 +137,9 @@ export const updateMyProfile = async (req: any, res: Response) => {
     
     // --- TAGS LOGIC ---
     if (tags && Array.isArray(tags)) {
+        const profileId = data.id;
         // Supprimer les anciens tags
-        await supabaseAdmin.from('profile_tags').delete().eq('user_id', userId);
+        await supabaseAdmin.from('profile_tags').delete().eq('profile_id', profileId);
         
         for (const tagName of tags) {
             const cleanTag = tagName.toLowerCase().trim();
@@ -146,7 +147,7 @@ export const updateMyProfile = async (req: any, res: Response) => {
                 // Upsert tag
                 const { data: tagData } = await supabaseAdmin.from('tags').upsert({ name: cleanTag }, { onConflict: 'name' }).select('id').single();
                 if (tagData) {
-                    await supabaseAdmin.from('profile_tags').insert({ user_id: userId, tag_id: tagData.id });
+                    await supabaseAdmin.from('profile_tags').insert({ profile_id: profileId, tag_id: tagData.id });
                 }
             }
         }
