@@ -118,6 +118,15 @@ export function CreerProfilForm({
                                 }));
                             }}
                         />
+                        {(formData.country_name || formData.city) && (
+                            <div className="flex items-center gap-2 mt-2 px-1 text-sm text-muted-foreground">
+                                <span className="inline-block w-2 h-2 rounded-full bg-green-500"></span>
+                                <span>Sélection actuelle :</span>
+                                <span className="font-semibold text-foreground">
+                                    {formData.country_name} {formData.country_name && formData.city ? "-" : ""} {formData.city}
+                                </span>
+                            </div>
+                        )}
                     </div>
                     <div className="space-y-2 md:col-span-2">
                         <Label htmlFor="specialty">Spécialité *</Label>
@@ -141,6 +150,17 @@ export function CreerProfilForm({
                         value={formData.bio}
                         onChange={(e) => handleInputChange("bio", e.target.value)}
                     />
+                    {formData.bio && (
+                        <div className="flex items-start gap-2 mt-2 px-1 text-sm text-muted-foreground bg-muted/20 p-2 rounded-xl border border-muted/50">
+                            <span className="inline-block w-2 h-2 rounded-full bg-green-500 mt-1.5 shrink-0"></span>
+                            <div>
+                                <span className="block text-xs uppercase opacity-70 mb-1">Texte enregistré :</span>
+                                <span className="font-medium text-foreground italic">
+                                    "{formData.bio.length > 200 ? formData.bio.substring(0, 200) + '...' : formData.bio}"
+                                </span>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Contact Info */}
@@ -202,6 +222,15 @@ export function CreerProfilForm({
                             </div>
                         ))}
                     </div>
+                    {tags.length > 0 && (
+                        <div className="flex items-center gap-2 mt-3 px-1.5 py-2 text-sm text-muted-foreground bg-muted/20 rounded-xl border border-muted/50">
+                            <span className="inline-block w-2 h-2 rounded-full bg-green-500 shrink-0"></span>
+                            <span className="text-xs uppercase opacity-70 shrink-0">Tags actuels :</span>
+                            <span className="font-medium text-foreground truncate">
+                                {tags.length > 8 ? tags.slice(0, 8).join(" • ") + "..." : tags.join(" • ")}
+                            </span>
+                        </div>
+                    )}
                 </div>
 
                 {/* Actions */}

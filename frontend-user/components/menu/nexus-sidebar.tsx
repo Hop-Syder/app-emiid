@@ -51,7 +51,6 @@ const sidebarItems: SidebarItem[] = [
     title: "Portefeuille",
     icon: "/svg/Wallet.svg",
     href: "/portefeuille",
-    badge: "12",
     requiresAuth: true,
   },
   {
@@ -64,7 +63,6 @@ const sidebarItems: SidebarItem[] = [
     title: "Messages",
     icon: "/svg/MessageSquare.svg",
     href: "/messages",
-    badge: "8",
     requiresAuth: true,
   },
   {
