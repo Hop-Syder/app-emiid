@@ -1,10 +1,12 @@
 "use client"
 
-import { Clock, Bell, MapPin, TrendingUp, Eye } from "lucide-react"
+import { Clock, Bell, MapPin, TrendingUp, Eye, MessageSquare as MessageIcon, StickyNote, Save, Loader2 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState } from "react"
+import { Textarea } from "@/components/ui/textarea"
 
 export interface ProfileData {
     id: string
@@ -19,17 +21,30 @@ export interface ProfileData {
     premium?: boolean
     verified?: boolean
     specialty?: string
+    notes?: string
 }
 
 interface ProfileCardProps {
     profile: ProfileData
     onUnfollow?: (id: string) => void
     onViewProfile?: (id: string) => void
+    onSaveNote?: (id: string, note: string) => void
+    onMessage?: (id: string) => void
 }
 
-export function ProfileCard({ profile, onUnfollow, onViewProfile }: ProfileCardProps) {
-    // Use a default premium value if not provided, just to show the logic if needed. 
-    // For portfolio, maybe not all are premium, but we apply the same design structure.
+export function ProfileCard({ profile, onUnfollow, onViewProfile, onSaveNote, onMessage }: ProfileCardProps) {
+    const [showNotes, setShowNotes] = useState(false)
+    const [localNote, setLocalNote] = useState(profile.notes || "")
+    const [isSaving, setIsSaving] = useState(false)
+
+    const handleSave = async () => {
+        setIsSaving(true)
+        try {
+            await onSaveNote?.(profile.id, localNote)
+        } finally {
+            setIsSaving(false)
+        }
+    }
 
     return (
         <Card
@@ -117,6 +132,38 @@ export function ProfileCard({ profile, onUnfollow, onViewProfile }: ProfileCardP
                     {profile.lastUpdate}
                 </p>
 
+                <div className="space-y-2">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full justify-start text-xs text-muted-foreground hover:text-primary gap-2"
+                        onClick={() => setShowNotes(!showNotes)}
+                    >
+                        <StickyNote className="h-3 w-3" />
+                        {showNotes ? "Masquer mes notes" : (profile.notes ? "Voir mes notes" : "Ajouter une note privée")}
+                    </Button>
+
+                    {showNotes && (
+                        <div className="space-y-2 animate-in slide-in-from-top-2 duration-200">
+                            <Textarea
+                                placeholder="Note personnelle sur cet entrepreneur..."
+                                className="text-xs min-h-[60px] rounded-xl bg-muted/30 focus-visible:ring-primary/20"
+                                value={localNote}
+                                onChange={(e) => setLocalNote(e.target.value)}
+                            />
+                            <Button
+                                size="sm"
+                                className="w-full text-[10px] h-7 rounded-lg"
+                                onClick={handleSave}
+                                disabled={isSaving || localNote === profile.notes}
+                            >
+                                {isSaving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3 mr-1" />}
+                                Enregistrer la note
+                            </Button>
+                        </div>
+                    )}
+                </div>
+
                 <div className="flex gap-2 pt-2">
                     <Button
                         size="sm"
@@ -127,13 +174,21 @@ export function ProfileCard({ profile, onUnfollow, onViewProfile }: ProfileCardP
                             }`}
                     >
                         <Eye className="mr-2 h-4 w-4" />
-                        Voir le profil
+                        Voir
+                    </Button>
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => onMessage?.(profile.id)}
+                        className="rounded-xl px-2 bg-white hover:bg-muted border-muted-foreground/20"
+                    >
+                        <MessageIcon className="h-4 w-4" />
                     </Button>
                     <Button
                         size="sm"
                         variant="outline"
                         onClick={() => onUnfollow?.(profile.id)}
-                        className="rounded-xl px-4 bg-transparent border-muted-foreground/20 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
+                        className="rounded-xl px-2 bg-transparent border-muted-foreground/20 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
                     >
                         Ne plus suivre
                     </Button>
