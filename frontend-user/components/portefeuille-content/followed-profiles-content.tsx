@@ -217,7 +217,7 @@ export function FollowedProfilesContent() {
                                     lastActive: profile.is_active_today ? "Actif aujourd'hui" : "Actif récemment",
                                     newUpdates: profile.new_updates || 0,
                                     lastUpdate: profile.last_update_title || profile.specialty || "Aucune mise à jour récente",
-                                    followers: profile.followers_count || 0,
+                                    followers: profile.followers || profile.followers_count || 0,
                                     premium: profile.category?.toLowerCase() === 'entreprise',
                                     verified: true,
                                     notes: profile.notes
@@ -256,7 +256,7 @@ export function FollowedProfilesContent() {
                                     lastActive: profile.is_active_today ? "Actif aujourd'hui" : "Actif récemment",
                                     newUpdates: 0,
                                     lastUpdate: "S'est abonné à votre profil",
-                                    followers: profile.followers_count || 0,
+                                    followers: profile.followers || profile.followers_count || 0,
                                     premium: profile.category?.toLowerCase() === 'entreprise',
                                     verified: true
                                 }}

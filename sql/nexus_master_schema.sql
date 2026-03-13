@@ -74,6 +74,7 @@ CREATE TABLE IF NOT EXISTS public.user_profiles (
     role VARCHAR(100),    -- Titre affiché
     job_title TEXT,       -- Normalisé (backend logic)
     specialty VARCHAR(255),
+    followers_count INT DEFAULT 0,
     
     -- Business & Localisation
     activity_domain VARCHAR(100),
@@ -264,16 +265,28 @@ DROP POLICY IF EXISTS "User Update Own Profile" ON public.user_profiles;
 CREATE POLICY "User Update Own Profile" ON public.user_profiles FOR UPDATE USING (auth.uid() = user_id);
 
 -- Policies Ads
+DROP POLICY IF EXISTS "Ads Read" ON public.ads;
 CREATE POLICY "Ads Read" ON public.ads FOR SELECT USING (status = 'active' OR auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Ads Write" ON public.ads;
 CREATE POLICY "Ads Write" ON public.ads FOR ALL USING (auth.uid() = user_id);
 
 -- Policies Follows
+DROP POLICY IF EXISTS "Follows Read" ON public.user_follows;
 CREATE POLICY "Follows Read" ON public.user_follows FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Follows Write" ON public.user_follows;
 CREATE POLICY "Follows Write" ON public.user_follows FOR ALL USING (auth.uid() = follower_id);
 
 -- Policies Messages
+DROP POLICY IF EXISTS "Conv Own" ON public.conversations;
 CREATE POLICY "Conv Own" ON public.conversations FOR SELECT USING (auth.uid() = participant1_id OR auth.uid() = participant2_id);
+
+DROP POLICY IF EXISTS "Msg Own" ON public.messages;
 CREATE POLICY "Msg Own" ON public.messages FOR SELECT USING (
     conversation_id IN (SELECT id FROM public.conversations WHERE participant1_id = auth.uid() OR participant2_id = auth.uid())
 );
+
+DROP POLICY IF EXISTS "Msg Send" ON public.messages;
 CREATE POLICY "Msg Send" ON public.messages FOR INSERT WITH CHECK (sender_id = auth.uid());
+

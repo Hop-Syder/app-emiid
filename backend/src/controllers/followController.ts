@@ -40,6 +40,7 @@ export const getFollowedProfiles = async (req: any, res: Response) => {
           city,
           category,
           specialty,
+          followers_count,
           countries(name)
       `)
       .in('user_id', followingIds);
@@ -53,6 +54,7 @@ export const getFollowedProfiles = async (req: any, res: Response) => {
             ...p,
             name: `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Membre',
             location: p.city || "Afrique de l'Ouest",
+            followers: p.followers_count || 0,
             notes: followInfo?.notes || null
         };
     });
@@ -143,6 +145,7 @@ export const getFollowers = async (req: any, res: Response) => {
           city,
           category,
           specialty,
+          followers_count,
           countries(name)
       `)
       .in('user_id', followerIds);
@@ -152,7 +155,8 @@ export const getFollowers = async (req: any, res: Response) => {
     const profiles = profilesData.map((p: any) => ({
         ...p,
         name: `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Membre',
-        location: p.city || "Afrique de l'Ouest"
+        location: p.city || "Afrique de l'Ouest",
+        followers: p.followers_count || 0
     }));
 
     res.json(profiles);
