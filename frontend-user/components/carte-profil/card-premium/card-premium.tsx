@@ -20,6 +20,7 @@ export interface Entrepreneur {
 
 import { useState } from "react"
 import { fetchWithAuth } from "@/lib/apiClient"
+import { toast } from "sonner"
 
 interface CardPremiumProps {
     entrepreneur: Entrepreneur;
@@ -32,13 +33,26 @@ export function CardPremium({ entrepreneur }: CardPremiumProps) {
     const handleFollow = async () => {
         try {
             const res = await fetchWithAuth(`/api/users/follow/${entrepreneur.id}`, { method: 'POST' })
+            const data = await res.json()
+
             if (res.ok) {
-                const data = await res.json()
                 setIsFollowed(data.followed)
                 setFollowersCount(prev => data.followed ? prev + 1 : prev - 1)
+                if (data.followed) {
+                    toast.success("Mis dans le portefeuille", {
+                        description: `${entrepreneur.name} a été ajouté à votre portefeuille.`
+                    })
+                } else {
+                    toast.info("Retiré du portefeuille")
+                }
+            } else {
+                toast.error("Action impossible", {
+                    description: data.error || "Une erreur est survenue."
+                })
             }
         } catch (error) {
             console.error("Follow error:", error)
+            toast.error("Erreur de connexion")
         }
     }
 

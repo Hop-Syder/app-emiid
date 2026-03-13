@@ -117,9 +117,32 @@ export function FollowedProfilesContent() {
         }
     }
 
+    const handleSaveNote = async (profileId: string, note: string) => {
+        try {
+            const res = await fetchWithAuth(`/api/users/follow/${profileId}/note`, {
+                method: "PUT",
+                body: JSON.stringify({ note })
+            })
+            if (res.ok) {
+                setFollowedProfiles(prev => prev.map(p =>
+                    (p.id === profileId || p.user_id === profileId) ? { ...p, notes: note } : p
+                ))
+                toast.success("Note enregistrée avec succès")
+            } else {
+                toast.error("Erreur lors de l'enregistrement de la note")
+            }
+        } catch (error) {
+            toast.error("Erreur de connexion")
+        }
+    }
+
     const handleViewProfile = (profileId: string) => {
         // En attendant une page de profil dédiée, on redirige vers l'annuaire ou on affiche un message
         router.push(`/annuaire?search=${profileId}`)
+    }
+
+    const handleMessage = (profileId: string) => {
+        router.push(`/messages?user=${profileId}`)
     }
 
     if (loading) {
@@ -196,10 +219,13 @@ export function FollowedProfilesContent() {
                                     lastUpdate: profile.last_update_title || profile.specialty || "Aucune mise à jour récente",
                                     followers: profile.followers_count || 0,
                                     premium: profile.category?.toLowerCase() === 'entreprise',
-                                    verified: true
+                                    verified: true,
+                                    notes: profile.notes
                                 }}
                                 onUnfollow={handleUnfollow}
                                 onViewProfile={handleViewProfile}
+                                onSaveNote={handleSaveNote}
+                                onMessage={handleMessage}
                             />
                         ))
                     ) : (
@@ -235,6 +261,7 @@ export function FollowedProfilesContent() {
                                     verified: true
                                 }}
                                 onViewProfile={handleViewProfile}
+                                onMessage={handleMessage}
                             />
                         ))
                     ) : (

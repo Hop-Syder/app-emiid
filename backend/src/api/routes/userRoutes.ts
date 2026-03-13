@@ -7,7 +7,7 @@
 
 import { Router } from 'express';
 import { getMyProfile, updateMyProfile, getAllUsers, verifyPin } from '../../controllers/userController';
-import { getFollowedProfiles, toggleFollowProfile } from '../../controllers/followController';
+import { getFollowedProfiles, toggleFollowProfile, getFollowers, updateFollowNote } from '../../controllers/followController';
 import { requireAuth } from '../../middlewares/authMiddleware';
 
 const router = Router();
@@ -35,8 +35,16 @@ router.get('/', getAllUsers);
 // @desc    Récupérer les profils suivis
 router.get('/follows', getFollowedProfiles);
 
+// @route   GET /api/users/followers
+// @desc    Récupérer les profils des utilisateurs qui vous suivent
+router.get('/followers', getFollowers);
+
 // @route   POST /api/users/follow/:id
 // @desc    Suivre ou ne plus suivre un profil
 router.post('/follow/:id', toggleFollowProfile);
+
+// @route   PUT /api/users/follow/:id/note
+// @desc    Mettre à jour la note privée sur un utilisateur suivi
+router.put('/follow/:id/note', updateFollowNote);
 
 export default router;
