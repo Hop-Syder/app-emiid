@@ -19,7 +19,7 @@ export const getMyProfile = async (req: any, res: Response) => {
   try {
     const { data, error } = await supabase
       .from('user_profiles')
-      .select('*')
+      .select('*, countries(name, iso_code)')
       .eq('user_id', userId)
       .single();
 
