@@ -107,11 +107,11 @@ export function NexusLayout({ children }: NexusLayoutProps) {
             size="icon"
             onClick={() => setFabOpen(!fabOpen)}
             className={cn(
-              "h-16 w-16 rounded-full shadow-2xl transition-all duration-300",
-              fabOpen ? "bg-slate-900 text-white rotate-45" : "bg-primary text-white shadow-primary/20"
+              "h-16 w-16 rounded-full shadow-2xl transition-all duration-300 flex items-center justify-center p-4",
+              fabOpen ? "bg-slate-900 text-white rotate-45" : "bg-primary text-white shadow-primary/20 hover:scale-105"
             )}
           >
-            {fabOpen ? <Plus className="h-8 w-8" /> : <LayoutGrid className="h-7 w-7" />}
+            <img src="/svg/Add.svg" alt="Add" className="h-full w-full object-contain brightness-0 invert" />
           </Button>
         </div>
       </div>
