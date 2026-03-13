@@ -19,7 +19,7 @@ export const getMyProfile = async (req: any, res: Response) => {
   try {
     const { data, error } = await supabase
       .from('user_profiles')
-      .select('*, countries(name, iso_code)')
+      .select('*, countries(name, iso_code), profile_tags(tags(name))')
       .eq('user_id', userId)
       .single();
 
@@ -33,6 +33,11 @@ export const getMyProfile = async (req: any, res: Response) => {
          });
       }
       return res.status(400).json({ error: error.message });
+    }
+
+    if (data) {
+        data.tags = data.profile_tags?.map((pt: any) => pt.tags?.name).filter(Boolean) || [];
+        delete data.profile_tags;
     }
 
     res.json(data);
@@ -52,7 +57,7 @@ export const updateMyProfile = async (req: any, res: Response) => {
     role, specialty, category, activity_domain,
     country_id, country_code, country_name, city,
     job_title, industry, pin_enabled, pin_code,
-    phone, website, is_published
+    phone, website, is_published, tags
   } = req.body;
 
   try {
@@ -130,6 +135,23 @@ export const updateMyProfile = async (req: any, res: Response) => {
 
     if (error) return res.status(400).json({ error: error.message });
     
+    // --- TAGS LOGIC ---
+    if (tags && Array.isArray(tags)) {
+        // Supprimer les anciens tags
+        await supabaseAdmin.from('profile_tags').delete().eq('user_id', userId);
+        
+        for (const tagName of tags) {
+            const cleanTag = tagName.toLowerCase().trim();
+            if (cleanTag) {
+                // Upsert tag
+                const { data: tagData } = await supabaseAdmin.from('tags').upsert({ name: cleanTag }, { onConflict: 'name' }).select('id').single();
+                if (tagData) {
+                    await supabaseAdmin.from('profile_tags').insert({ user_id: userId, tag_id: tagData.id });
+                }
+            }
+        }
+    }
+
     res.json(data);
   } catch (err) {
     res.status(500).json({ error: "Erreur interne lors de la mise à jour du profil" });

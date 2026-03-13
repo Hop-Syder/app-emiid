@@ -93,6 +93,7 @@ export function CreerProfilContent() {
                             country_name: resolvedCountryName || prev.country_name,
                             city: data.city || prev.city,
                             avatar: data.avatar_url || prev.avatar,
+                            tags: data.tags || prev.tags,
                         }))
                         if (typeof data.is_published === "boolean") {
                             setIsPublished(data.is_published)
@@ -129,6 +130,7 @@ export function CreerProfilContent() {
                 website: formData.website,
                 country_id: formData.country_id || null,
                 city: formData.city,
+                tags: formData.tags,
                 is_published: isPublished,
             }
 
@@ -181,6 +183,7 @@ export function CreerProfilContent() {
                 website: formData.website,
                 country_id: formData.country_id || null,
                 city: formData.city,
+                tags: formData.tags,
                 is_published: true, // FORCE ON
             }
 
