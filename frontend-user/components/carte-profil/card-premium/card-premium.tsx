@@ -16,6 +16,7 @@ export interface Entrepreneur {
     verified: boolean;
     premium: boolean;
     followers: number;
+    isFollowed?: boolean;
 }
 
 import { useState } from "react"
@@ -27,7 +28,7 @@ interface CardPremiumProps {
 }
 
 export function CardPremium({ entrepreneur }: CardPremiumProps) {
-    const [isFollowed, setIsFollowed] = useState(false)
+    const [isFollowed, setIsFollowed] = useState(entrepreneur.isFollowed || false)
     const [followersCount, setFollowersCount] = useState(entrepreneur.followers)
 
     const handleFollow = async () => {

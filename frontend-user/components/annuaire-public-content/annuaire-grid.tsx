@@ -11,7 +11,7 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { fetchPublic } from "@/lib/apiClient"
+import { fetchPublic, fetchWithAuth } from "@/lib/apiClient"
 import { CardPremium } from "@/components/carte-profil/card-premium/card-premium"
 import { Skeleton } from "@/components/ui/skeleton"
 
@@ -44,20 +44,36 @@ export function AnnuaireGrid({ filters }: AnnuaireGridProps) {
 
                 const response = await fetchPublic(`/api/public/profiles?${params.toString()}`)
 
+                // Récupérer les follows de l'utilisateur (s'il est co) pour initialiser correctement les boutons
+                let userFollowsIds: string[] = []
+                try {
+                    const followsRes = await fetchWithAuth("/api/users/follows")
+                    if (followsRes.ok) {
+                        const followsData = await followsRes.json()
+                        userFollowsIds = followsData.map((f: any) => f.user_id || f.id)
+                    }
+                } catch (e) {
+                    // Ignorer (utilisateur non connecté)
+                }
+
                 if (response.ok) {
                     const data = await response.json()
-                    setProfiles(data.map((e: any) => ({
-                        id: e.user_id || e.id,
-                        name: `${e.first_name || ''} ${e.last_name || ''}`.trim() || 'Utilisateur Nexus',
-                        role: e.role || "Membre Nexus",
-                        location: e.city ? `${e.city}, ${e.countries?.name || ''}` : (e.countries?.name || "Afrique de l'Ouest"),
-                        avatar: e.avatar_url || "/african-user.jpg",
-                        specialty: e.specialty || "Expertise",
-                        category: e.category || "",
-                        verified: true,
-                        premium: e.category?.toLowerCase() === 'entreprise',
-                        followers: 0,
-                    })))
+                    setProfiles(data.map((e: any) => {
+                        const profileId = e.user_id || e.id
+                        return {
+                            id: profileId,
+                            name: `${e.first_name || ''} ${e.last_name || ''}`.trim() || 'Utilisateur Nexus',
+                            role: e.role || "Membre Nexus",
+                            location: e.city ? `${e.city}, ${e.countries?.name || ''}` : (e.countries?.name || "Afrique de l'Ouest"),
+                            avatar: e.avatar_url || "/african-user.jpg",
+                            specialty: e.specialty || "Expertise",
+                            category: e.category || "",
+                            verified: true,
+                            premium: e.category?.toLowerCase() === 'entreprise',
+                            followers: e.followers_count || 0, // Fallback si le backend ne le retourne pas encore
+                            isFollowed: userFollowsIds.includes(profileId),
+                        }
+                    }))
                 }
             } catch (error) {
                 console.error("Erreur chargement annuaire:", error)

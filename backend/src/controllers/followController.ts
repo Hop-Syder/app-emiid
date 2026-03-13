@@ -77,33 +77,37 @@ export const toggleFollowProfile = async (req: any, res: Response) => {
 
   try {
     // Vérifier si déjà suivi (cet utilisateur spécifique)
-    const { data: existing } = await supabase
+    const { data: existing, error: errCheck } = await supabaseAdmin
       .from('user_follows')
-      .select('*')
+      .select('id')
       .eq('follower_id', followerId)
       .eq('following_id', followingId)
-      .single();
+      .maybeSingle();
 
     if (existing) {
       // Unfollow
-      await supabase
+      const { error: errDel } = await supabaseAdmin
         .from('user_follows')
         .delete()
         .eq('follower_id', followerId)
         .eq('following_id', followingId);
         
+      if (errDel) throw errDel;
+        
       return res.json({ followed: false });
     } else {
       // Follow (Ajouter au portefeuille)
-      await supabase
+      const { error: errIns } = await supabaseAdmin
         .from('user_follows')
         .insert({ follower_id: followerId, following_id: followingId });
         
+      if (errIns) throw errIns;
+        
       return res.json({ followed: true });
     }
-  } catch (err) {
+  } catch (err: any) {
     console.error("Follow error:", err);
-    res.status(500).json({ error: "Erreur lors de l'action de suivi" });
+    res.status(500).json({ error: err.message || "Erreur lors de l'action de suivi" });
   }
 };
 
