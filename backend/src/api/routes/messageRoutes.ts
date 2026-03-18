@@ -6,7 +6,7 @@
 */
 
 import { Router } from 'express';
-import { getMyConversations, getConversationMessages, sendMessage, getSupportUser } from '../../controllers/messageController';
+import { getMyConversations, getConversationMessages, sendMessage, getSupportUser, markAsRead } from '../../controllers/messageController';
 import { requireAuth } from '../../middlewares/authMiddleware';
 
 const router = Router();
@@ -29,5 +29,9 @@ router.post('/send', sendMessage);
 // @route   GET /api/messages/support
 // @desc    Récupérer le service client
 router.get('/support', getSupportUser);
+
+// @route   POST /api/messages/read/:conversationId
+// @desc    Marquer les messages comme lus
+router.post('/read/:conversationId', markAsRead);
 
 export default router;

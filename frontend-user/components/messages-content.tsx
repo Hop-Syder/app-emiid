@@ -35,6 +35,9 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
+import { fetchWithAuth } from "@/lib/apiClient"
+import { createClient } from "@/lib/supabase/client"
+import { toast } from "sonner"
 
 // Types
 interface UserProfile {
@@ -68,37 +71,8 @@ interface Conversation {
   isMuted?: boolean
 }
 
-// Donnees de demonstration
-const mockUsers: UserProfile[] = [
-  { id: "user-1", name: "Amara Diallo", avatar: "/african-woman-entrepreneur.jpg", role: "CEO, TechAfrica", isOnline: true, lastSeen: null },
-  { id: "user-2", name: "Kofi Mensah", avatar: "/african-man-developer.jpg", role: "Lead Developer", isOnline: false, lastSeen: new Date(Date.now() - 1800000).toISOString() },
-  { id: "user-3", name: "Fatou Sow", avatar: "/african-woman-ceo.jpg", role: "Designer UX/UI", isOnline: true, lastSeen: null },
-  { id: "user-4", name: "Kwame Asante", avatar: "/african-man-designer.jpg", role: "Product Manager", isOnline: false, lastSeen: new Date(Date.now() - 7200000).toISOString() },
-  { id: "user-5", name: "Support Nexus", avatar: "/nexus-connect-logo.jpg", role: "Assistance 24/7", isOnline: true, lastSeen: null },
-]
-
-const mockConversations: Conversation[] = [
-  { id: "conv-1", otherUser: mockUsers[0], lastMessage: "Super! On se retrouve demain pour la presentation?", lastMessageAt: new Date(Date.now() - 120000).toISOString(), unreadCount: 3, isPinned: true },
-  { id: "conv-2", otherUser: mockUsers[1], lastMessage: "Le code est pret pour la review", lastMessageAt: new Date(Date.now() - 3600000).toISOString(), unreadCount: 0 },
-  { id: "conv-3", otherUser: mockUsers[2], lastMessage: "Voici les maquettes finales du projet", lastMessageAt: new Date(Date.now() - 7200000).toISOString(), unreadCount: 1 },
-  { id: "conv-4", otherUser: mockUsers[3], lastMessage: "Meeting reporte a 15h", lastMessageAt: new Date(Date.now() - 86400000).toISOString(), unreadCount: 0 },
-  { id: "conv-5", otherUser: mockUsers[4], lastMessage: "Comment puis-je vous aider?", lastMessageAt: new Date(Date.now() - 172800000).toISOString(), unreadCount: 0 },
-]
-
-const generateMockMessages = (conversationId: string, otherUserId: string): Message[] => {
-  const currentUserId = "current-user"
-  const baseTime = Date.now()
-  
-  return [
-    { id: `${conversationId}-1`, conversation_id: conversationId, sender_id: otherUserId, content: "Salut! Comment vas-tu?", created_at: new Date(baseTime - 7200000).toISOString(), is_read: true },
-    { id: `${conversationId}-2`, conversation_id: conversationId, sender_id: currentUserId, content: "Hey! Ca va super bien, merci! Et toi?", created_at: new Date(baseTime - 7100000).toISOString(), is_read: true },
-    { id: `${conversationId}-3`, conversation_id: conversationId, sender_id: otherUserId, content: "Tres bien! J'ai une excellente nouvelle a t'annoncer concernant notre projet.", created_at: new Date(baseTime - 7000000).toISOString(), is_read: true },
-    { id: `${conversationId}-4`, conversation_id: conversationId, sender_id: currentUserId, content: "Ah oui? Je t'ecoute avec attention!", created_at: new Date(baseTime - 6900000).toISOString(), is_read: true },
-    { id: `${conversationId}-5`, conversation_id: conversationId, sender_id: otherUserId, content: "Notre proposition a ete acceptee! On demarre la semaine prochaine.", created_at: new Date(baseTime - 6800000).toISOString(), is_read: true },
-    { id: `${conversationId}-6`, conversation_id: conversationId, sender_id: currentUserId, content: "C'est genial! Felicitations a toute l'equipe!", created_at: new Date(baseTime - 6700000).toISOString(), is_read: true },
-    { id: `${conversationId}-7`, conversation_id: conversationId, sender_id: otherUserId, content: "Super! On se retrouve demain pour la presentation?", created_at: new Date(baseTime - 120000).toISOString(), is_read: false },
-  ]
-}
+// Supprimé les mocks et generateMockMessages qui ne sont plus nécessaires
+const supabase = createClient()
 
 export function MessagesContent() {
   const [message, setMessage] = useState("")
@@ -108,86 +82,261 @@ export function MessagesContent() {
   const [loadingConv, setLoadingConv] = useState(true)
   const [loadingMsgs, setLoadingMsgs] = useState(false)
   const [isSending, setIsSending] = useState(false)
+  const [supportId, setSupportId] = useState<string | null>(null)
   const [showChatMobile, setShowChatMobile] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [filterType, setFilterType] = useState<"all" | "unread" | "pinned">("all")
-  const [currentUserId] = useState("current-user")
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  const imageInputRef = useRef<HTMLInputElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
-  // Charger les conversations
+  // Marquer comme lu
+  const markMessagesAsRead = useCallback(async (conversationId: string) => {
+    try {
+      setMessages(prev => prev.map(msg => ({ ...msg, is_read: true })))
+      setConversations(prev => prev.map(conv => 
+        conv.id === conversationId ? { ...conv, unreadCount: 0 } : conv
+      ))
+      
+      await fetchWithAuth(`/api/messages/read/${conversationId}`, { method: "POST" })
+    } catch (err) {
+      console.error("Error marking as read:", err)
+    }
+  }, [])
+
+  // 1. Charger les conversations
   useEffect(() => {
     const loadConversations = async () => {
       setLoadingConv(true)
-      await new Promise(resolve => setTimeout(resolve, 400))
-      setConversations(mockConversations)
-      setLoadingConv(false)
+      try {
+        const res = await fetchWithAuth("/api/messages/conversations")
+        if (res.ok) {
+          const data = await res.json()
+          setConversations(data)
+          
+          const support = data.find((c: any) => c.otherUser.role?.toLowerCase().includes("admin") || c.otherUser.name.toLowerCase().includes("nexus"))
+          if (support) setSupportId(support.otherUser.id)
+
+          if (!selectedConv && data.length > 0) {
+            setSelectedConv(data[0])
+          }
+        }
+      } catch (err) {
+        console.error("Error loading convs:", err)
+      } finally {
+        setLoadingConv(false)
+      }
     }
     loadConversations()
+
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) setCurrentUserId(user.id)
+    })
   }, [])
 
-  // Charger les messages
+  // 2. Charger les messages
   useEffect(() => {
     if (!selectedConv) return
 
     const loadMessages = async () => {
+      if (selectedConv.id === 'new-support') {
+        setMessages([])
+        setLoadingMsgs(false)
+        return
+      }
       setLoadingMsgs(true)
-      await new Promise(resolve => setTimeout(resolve, 250))
-      const msgs = generateMockMessages(selectedConv.id, selectedConv.otherUser.id)
-      setMessages(msgs)
-      setLoadingMsgs(false)
-      markMessagesAsRead(selectedConv.id)
+      try {
+        const res = await fetchWithAuth(`/api/messages/conversation/${selectedConv.id}`)
+        if (res.ok) {
+          const data = await res.json()
+          setMessages(data)
+          markMessagesAsRead(selectedConv.id)
+        }
+      } catch (err) {
+        console.error("Error loading msgs:", err)
+      } finally {
+        setLoadingMsgs(false)
+      }
     }
     loadMessages()
-  }, [selectedConv])
+  }, [selectedConv, markMessagesAsRead])
 
-  // Scroll vers le bas
+  // 3. Souscription Temps Réel (Supabase Realtime)
+  useEffect(() => {
+    if (!selectedConv || selectedConv.id === 'new-support') return
+
+    const channel = supabase
+      .channel(`room-${selectedConv.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `conversation_id=eq.${selectedConv.id}`
+        },
+        (payload) => {
+          const newMsg = payload.new as Message
+          setMessages((prev) => {
+            const exists = prev.some(m => m.id === newMsg.id)
+            if (exists) return prev
+            if (newMsg.sender_id !== currentUserId) {
+                markMessagesAsRead(selectedConv.id)
+            }
+            return [...prev, newMsg]
+          })
+
+          setConversations(prev => prev.map(conv => 
+            conv.id === selectedConv.id 
+                ? { ...conv, lastMessage: newMsg.content, lastMessageAt: newMsg.created_at }
+                : conv
+          ))
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [selectedConv, currentUserId, markMessagesAsRead])
+
+  // 4. Scroll vers le bas
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
-
-  // Marquer comme lu
-  const markMessagesAsRead = useCallback((conversationId: string) => {
-    setMessages(prev => prev.map(msg => ({ ...msg, is_read: true })))
-    setConversations(prev => prev.map(conv => 
-      conv.id === conversationId ? { ...conv, unreadCount: 0 } : conv
-    ))
-  }, [])
 
   // Envoyer un message
   const handleSendMessage = async () => {
     if (!message.trim() || !selectedConv || isSending) return
 
     setIsSending(true)
-    
-    const newMsg: Message = {
-      id: `msg-${Date.now()}`,
-      conversation_id: selectedConv.id,
-      sender_id: currentUserId,
-      content: message.trim(),
-      created_at: new Date().toISOString(),
-      is_read: false
+    try {
+      const res = await fetchWithAuth("/api/messages/send", {
+        method: "POST",
+        body: JSON.stringify({
+          receiverId: selectedConv.otherUser.id,
+          content: message.trim()
+        })
+      })
+
+      if (res.ok) {
+        const newMsg = await res.json()
+        
+        // Si c'était une nouvelle conversation support, on rafraîchit
+        if (selectedConv.id === 'new-support') {
+            const convRes = await fetchWithAuth("/api/messages/conversations")
+            if (convRes.ok) {
+                const convs = await convRes.json()
+                setConversations(convs)
+                const newRealConv = convs.find((c: any) => c.otherUser.id === selectedConv.otherUser.id)
+                if (newRealConv) {
+                    setSelectedConv(newRealConv)
+                } else {
+                    setSelectedConv({
+                        id: newMsg.conversation_id,
+                        otherUser: selectedConv.otherUser,
+                        lastMessage: newMsg.content,
+                        lastMessageAt: newMsg.created_at,
+                        unreadCount: 0
+                    })
+                }
+            }
+        }
+        
+        setMessages(prev => [...prev, newMsg])
+        setMessage("")
+      }
+    } catch (err) {
+      console.error("Send error:", err)
+      toast.error("Erreur lors de l'envoi")
+    } finally {
+      setIsSending(false)
     }
+  }
 
-    setMessages(prev => [...prev, newMsg])
-    setMessage("")
+  const handleFileUpload = async (file: File, type: "image" | "file") => {
+    if (!selectedConv || !file || !currentUserId) return
 
-    setConversations(prev => prev.map(conv => 
-      conv.id === selectedConv.id 
-        ? { ...conv, lastMessage: newMsg.content, lastMessageAt: newMsg.created_at }
-        : conv
-    ))
+    setIsSending(true)
+    try {
+      const extension = file.name.split(".").pop()
+      const convFolder = selectedConv.id === 'new-support' ? `initial-support-${selectedConv.otherUser.id}` : `conversation-${selectedConv.id}`
+      const filePath = `${convFolder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${extension}`
 
-    await new Promise(resolve => setTimeout(resolve, 400))
-    
-    setTimeout(() => {
-      setMessages(prev => prev.map(msg => 
-        msg.id === newMsg.id ? { ...msg, is_read: true } : msg
-      ))
-    }, 1500)
+      const { error } = await supabase.storage.from("messages").upload(filePath, file)
+      if (error) throw error
 
-    setIsSending(false)
+      const { data: publicUrlData } = supabase.storage.from("messages").getPublicUrl(filePath)
+      const publicUrl = publicUrlData.publicUrl
+
+      const content = type === "image" ? `[Image] ${publicUrl}` : `[Fichier] ${file.name} - ${publicUrl}`
+
+      const res = await fetchWithAuth("/api/messages/send", {
+        method: "POST",
+        body: JSON.stringify({
+          receiverId: selectedConv.otherUser.id,
+          content
+        }),
+      })
+
+      if (res.ok) {
+        const newMsg = await res.json()
+        if (selectedConv.id === 'new-support') {
+            const convRes = await fetchWithAuth("/api/messages/conversations")
+            if (convRes.ok) {
+                const convs = await convRes.json()
+                setConversations(convs)
+                const newRealConv = convs.find((c: any) => c.otherUser.id === selectedConv.otherUser.id)
+                if (newRealConv) setSelectedConv(newRealConv)
+            }
+        }
+        setMessages((prev) => [...prev, newMsg])
+      }
+    } catch (err: any) {
+      console.error("Upload error:", err)
+      toast.error("Erreur de partage du fichier")
+    } finally {
+      setIsSending(false)
+      if (imageInputRef.current) imageInputRef.current.value = ""
+      if (fileInputRef.current) fileInputRef.current.value = ""
+    }
+  }
+
+  const handleContactSupport = async () => {
+    try {
+      const res = await fetchWithAuth("/api/messages/support")
+      if (res.ok) {
+        const supportUser = await res.json()
+        const existing = conversations.find(c => c.otherUser.id === supportUser.id)
+        
+        if (existing) {
+          setSelectedConv(existing)
+        } else {
+          setSelectedConv({
+            id: 'new-support',
+            otherUser: {
+                id: supportUser.id,
+                name: supportUser.name || "Service Client Nexus",
+                avatar: supportUser.avatar || "/nexus-support.png",
+                role: "Support Technique",
+                isOnline: true,
+                lastSeen: null
+            },
+            lastMessage: "",
+            lastMessageAt: new Date().toISOString(),
+            unreadCount: 0
+          })
+          setMessages([])
+        }
+        setShowChatMobile(true)
+      }
+    } catch (err) {
+      console.error("Support error:", err)
+      toast.error("Support indisponible")
+    }
   }
 
   // Toggle pin
@@ -620,7 +769,34 @@ export function MessagesContent() {
                                 ? "bg-primary text-primary-foreground rounded-br-md" 
                                 : "bg-card border border-border rounded-bl-md"
                             )}>
-                              {msg.content}
+                              {msg.content.startsWith('[Image]') ? (
+                                <div className="space-y-2">
+                                  <img 
+                                    src={msg.content.split(' ')[1]} 
+                                    className="rounded-xl max-w-full hover:scale-[1.02] transition-transform cursor-pointer shadow-sm border border-black/5" 
+                                    alt="Shared" 
+                                    onClick={() => window.open(msg.content.split(' ')[1], '_blank')}
+                                  />
+                                </div>
+                              ) : msg.content.startsWith('[Fichier]') ? (
+                                <div className="flex items-center gap-3 bg-black/5 p-3 rounded-xl border border-white/10 group/file">
+                                  <div className="p-2 bg-primary/10 rounded-lg">
+                                    <Paperclip className="h-4 w-4 text-primary" />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="font-bold text-xs truncate">{msg.content.split(' - ')[0].replace('[Fichier] ', '')}</p>
+                                    <a 
+                                      href={msg.content.split(' - ')[1]} 
+                                      target="_blank" 
+                                      className="text-[10px] text-primary hover:underline font-semibold"
+                                    >
+                                      Télécharger le document
+                                    </a>
+                                  </div>
+                                </div>
+                              ) : (
+                                msg.content
+                              )}
                             </div>
                             
                             {isLastInGroup && (
@@ -683,15 +859,15 @@ export function MessagesContent() {
                     <div className="absolute right-2 bottom-2 flex items-center gap-0.5">
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg">
-                            <Smile className="h-4 w-4 text-muted-foreground" />
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => imageInputRef.current?.click()}>
+                            <Image className="h-4 w-4 text-muted-foreground" />
                           </Button>
                         </TooltipTrigger>
-                        <TooltipContent>Emoji</TooltipContent>
+                        <TooltipContent>Image</TooltipContent>
                       </Tooltip>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg">
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => fileInputRef.current?.click()}>
                             <Paperclip className="h-4 w-4 text-muted-foreground" />
                           </Button>
                         </TooltipTrigger>
@@ -719,6 +895,10 @@ export function MessagesContent() {
                   </Tooltip>
                 </div>
               </footer>
+
+              {/* Inputs cachés pour l'upload */}
+              <input type="file" ref={imageInputRef} className="hidden" accept="image/*" onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0], "image")} />
+              <input type="file" ref={fileInputRef} className="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.zip" onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0], "file")} />
             </>
           ) : (
             /* Etat vide - Aucune conversation selectionnee */

@@ -158,3 +158,26 @@ export const getSupportUser = async (req: any, res: Response) => {
         res.status(500).json({ error: "Erreur lors de la récupération du support" });
     }
 };
+
+/**
+ * Marque les messages d'une conversation comme lus
+ * POST /api/messages/read/:conversationId
+ */
+export const markAsRead = async (req: any, res: Response) => {
+    const userId = req.user.id;
+    const { conversationId } = req.params;
+
+    try {
+        const { error } = await supabaseAdmin
+            .from('messages')
+            .update({ is_read: true })
+            .eq('conversation_id', conversationId)
+            .neq('sender_id', userId);
+
+        if (error) return res.status(400).json({ error: error.message });
+
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: "Erreur lors du marquage comme lu" });
+    }
+};

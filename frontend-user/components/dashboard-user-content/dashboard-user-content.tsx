@@ -58,19 +58,34 @@ export function DashboardContent() {
 
         if (entRes.ok) {
           const entData = await entRes.json()
-          console.log("Données entrepreneurs reçues (User):", entData)
+          
+          let userFollowsIds: string[] = []
+          try {
+            const followsRes = await fetchWithAuth("/api/users/follows")
+            if (followsRes.ok) {
+              const followsData = await followsRes.json()
+              userFollowsIds = followsData.map((f: any) => f.user_id || f.id)
+            }
+          } catch (e) {}
+
           setEntrepreneursList(
-            entData.map((e: any) => ({
-              id: e.user_id || e.id || Math.random().toString(),
-              name: (e.first_name || e.last_name) ? `${e.first_name || ''} ${e.last_name || ''}`.trim() : "Utilisateur Nexus",
-              role: e.role || "Membre Nexus",
-              location: e.city ? `${e.city}, ${e.countries?.name || ''}` : (e.countries?.name || "Afrique de l'Ouest"),
-              avatar: e.avatar_url || "/african-user.jpg",
-              specialty: e.specialty || "Entrepreneuriat",
-              verified: true,
-              premium: e.category?.toLowerCase() === 'entreprise',
-              followers: 0,
-            })),
+            entData.map((e: any) => {
+              const profileId = e.user_id || e.id
+              return {
+                id: profileId,
+                name: (e.first_name || e.last_name) ? `${e.first_name || ''} ${e.last_name || ''}`.trim() : "Utilisateur Nexus",
+                role: e.role || "Membre Nexus",
+                location: e.city ? `${e.city}, ${e.countries?.name || ''}` : (e.countries?.name || "Afrique de l'Ouest"),
+                avatar: e.avatar_url || "/african-user.jpg",
+                specialty: e.specialty || "Expertise",
+                category: e.category || "",
+                verified: true,
+                premium: e.category?.toLowerCase() === 'entreprise',
+                followers: e.followers_count || 0,
+                isFollowed: userFollowsIds.includes(profileId),
+                tags: e.tags || []
+              }
+            }),
           )
         } else {
           console.error("Erreur API entrepreneurs (User):", entRes.status)

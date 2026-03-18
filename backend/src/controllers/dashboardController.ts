@@ -17,7 +17,8 @@ export const getGlobalStats = async (req: Request, res: Response) => {
     // 1. Compter les entrepreneurs (user_profiles)
     const { count: userCount, error: userError } = await supabaseAdmin
       .from('user_profiles')
-      .select('*', { count: 'exact', head: true });
+      .select('*', { count: 'exact', head: true })
+      .eq('is_published', true);
 
     // 2. Compter les projets actifs (ads)
     const { count: adsCount, error: adsError } = await supabaseAdmin
@@ -29,6 +30,7 @@ export const getGlobalStats = async (req: Request, res: Response) => {
     const { data: countryData, error: countryError } = await supabaseAdmin
       .from('user_profiles')
       .select('country_id')
+      .eq('is_published', true)
       .not('country_id', 'is', null);
     
     const uniqueCountries = new Set(countryData?.map(u => u.country_id)).size;
@@ -71,13 +73,24 @@ export const getFeaturedEntrepreneurs = async (req: Request, res: Response) => {
   try {
     const { data, error } = await supabaseAdmin
       .from('user_profiles')
-      .select('*, countries(name, iso_code)')
+      .select(`
+        *,
+        countries(name, iso_code),
+        profile_tags(tags(name))
+      `)
+      .eq('is_published', true)
       .limit(6)
-      .order('created_at', { ascending: false });
+      .order('updated_at', { ascending: false });
 
     if (error) return res.status(400).json({ error: error.message });
     
-    res.json(data);
+    // Nettoyage identique à getPublicProfiles
+    const cleanedData = data?.map((p: any) => ({
+        ...p,
+        tags: p.profile_tags?.map((pt: any) => pt.tags?.name) || []
+    }));
+
+    res.json(cleanedData);
   } catch (err) {
     res.status(500).json({ error: "Erreur interne" });
   }
