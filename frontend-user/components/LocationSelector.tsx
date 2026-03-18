@@ -29,11 +29,20 @@ export function LocationSelector({
     defaultCountryCode,
     defaultCity
 }: LocationSelectorProps) {
-    const [selectedCountry, setSelectedCountry] = useState<ICountry | null>(
-        defaultCountryCode ? (Country.getCountryByCode(defaultCountryCode) as ICountry | null) : null
-    )
-    const [selectedCity, setSelectedCity] = useState<string>(defaultCity || "")
+    const [selectedCountry, setSelectedCountry] = useState<ICountry | null>(null)
+    const [selectedCity, setSelectedCity] = useState<string>("")
     const [cities, setCities] = useState<ICity[]>([])
+
+    // Sync state with props when they change (initial load)
+    useEffect(() => {
+        if (defaultCountryCode) {
+            const country = Country.getCountryByCode(defaultCountryCode)
+            if (country) setSelectedCountry(country)
+        }
+        if (defaultCity) {
+            setSelectedCity(defaultCity)
+        }
+    }, [defaultCountryCode, defaultCity])
 
     const allCountries = Country.getAllCountries()
 
