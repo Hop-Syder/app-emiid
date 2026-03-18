@@ -124,54 +124,87 @@ export function ParametresContent() {
 
     if (loading) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-                <Loader2 className="h-10 w-10 animate-spin text-primary" />
-                <p className="text-muted-foreground">Chargement de votre profil...</p>
+            <div className="flex flex-col items-center justify-center min-h-[500px] gap-6 animate-in fade-in duration-500">
+                <div className="relative flex items-center justify-center">
+                    <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse" />
+                    <Loader2 className="h-12 w-12 animate-spin text-primary relative z-10" />
+                </div>
+                <div className="space-y-1 text-center">
+                    <p className="text-xl font-bold text-slate-900">Préparation de votre espace</p>
+                    <p className="text-sm font-medium text-slate-500">Chargement de vos paramètres de compte...</p>
+                </div>
             </div>
         )
     }
 
     return (
-        <Tabs defaultValue="profil" className="space-y-6">
-            <TabsList className="grid w-full max-w-[600px] grid-cols-4 rounded-2xl p-1">
-                <TabsTrigger value="profil" className="rounded-xl">
-                    Profil
-                </TabsTrigger>
-                <TabsTrigger value="securite" className="rounded-xl">
-                    Sécurité
-                </TabsTrigger>
-                <TabsTrigger value="notifications" className="rounded-xl">
-                    Notifications
-                </TabsTrigger>
-                <TabsTrigger value="preferences" className="rounded-xl">
-                    Préférences
-                </TabsTrigger>
-            </TabsList>
+        <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            {/* Header de la page */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white/60 backdrop-blur-xl p-8 rounded-[2.5rem] shadow-xl shadow-slate-200/40 border border-white">
+                <div className="space-y-2">
+                    <h1 className="text-3xl font-black tracking-tight text-slate-900">Paramètres du Compte</h1>
+                    <p className="text-slate-500 font-medium">
+                        Gérez vos informations personnelles, votre sécurité et vos préférences.
+                    </p>
+                </div>
+                {/* On pourrait ajouter un petit widget résumé ici si besoin */}
+            </div>
 
-            <TabsContent value="profil" className="space-y-6">
-                <ProfileSection
-                    profile={profile}
-                    setProfile={setProfile}
-                    saving={saving}
-                    handleSave={handleSave}
-                    handleCancel={handleCancel}
-                />
-            </TabsContent>
+            <Tabs defaultValue="profil" className="space-y-8">
+                <TabsList className="flex flex-wrap h-auto w-full max-w-full justify-start gap-2 bg-transparent p-0">
+                    <TabsTrigger 
+                        value="profil" 
+                        className="rounded-2xl h-14 px-8 font-bold data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-xl data-[state=active]:shadow-primary/25 bg-white border border-slate-100 text-slate-600 hover:bg-slate-50 transition-all duration-300"
+                    >
+                        Informations Personnelles
+                    </TabsTrigger>
+                    <TabsTrigger 
+                        value="securite" 
+                        className="rounded-2xl h-14 px-8 font-bold data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-xl data-[state=active]:shadow-primary/25 bg-white border border-slate-100 text-slate-600 hover:bg-slate-50 transition-all duration-300"
+                    >
+                        Sécurité & Mot de passe
+                    </TabsTrigger>
+                    <TabsTrigger 
+                        value="notifications" 
+                        className="rounded-2xl h-14 px-8 font-bold data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-xl data-[state=active]:shadow-primary/25 bg-white border border-slate-100 text-slate-600 hover:bg-slate-50 transition-all duration-300"
+                    >
+                        Notifications
+                    </TabsTrigger>
+                    <TabsTrigger 
+                        value="preferences" 
+                        className="rounded-2xl h-14 px-8 font-bold data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-xl data-[state=active]:shadow-primary/25 bg-white border border-slate-100 text-slate-600 hover:bg-slate-50 transition-all duration-300"
+                    >
+                        Préférences générales
+                    </TabsTrigger>
+                </TabsList>
 
-            <TabsContent value="securite" className="space-y-6">
-                <SecuritySection
-                    profile={profile}
-                    setProfile={setProfile}
-                />
-            </TabsContent>
+                <div className="min-h-[500px]">
+                    <TabsContent value="profil" className="mt-0 focus-visible:outline-none data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in data-[state=active]:slide-in-from-bottom-4 data-[state=active]:duration-500">
+                        <ProfileSection
+                            profile={profile}
+                            setProfile={setProfile}
+                            saving={saving}
+                            handleSave={handleSave}
+                            handleCancel={handleCancel}
+                        />
+                    </TabsContent>
 
-            <TabsContent value="notifications" className="space-y-6">
-                <NotificationsSection />
-            </TabsContent>
+                    <TabsContent value="securite" className="mt-0 focus-visible:outline-none data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in data-[state=active]:slide-in-from-bottom-4 data-[state=active]:duration-500">
+                        <SecuritySection
+                            profile={profile}
+                            setProfile={setProfile}
+                        />
+                    </TabsContent>
 
-            <TabsContent value="preferences" className="space-y-6">
-                <PreferencesSection />
-            </TabsContent>
-        </Tabs>
+                    <TabsContent value="notifications" className="mt-0 focus-visible:outline-none data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in data-[state=active]:slide-in-from-bottom-4 data-[state=active]:duration-500">
+                        <NotificationsSection />
+                    </TabsContent>
+
+                    <TabsContent value="preferences" className="mt-0 focus-visible:outline-none data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in data-[state=active]:slide-in-from-bottom-4 data-[state=active]:duration-500">
+                        <PreferencesSection />
+                    </TabsContent>
+                </div>
+            </Tabs>
+        </div>
     )
 }
