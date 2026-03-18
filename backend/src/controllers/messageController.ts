@@ -129,3 +129,31 @@ export const sendMessage = async (req: any, res: Response) => {
         res.status(500).json({ error: "Erreur lors de l'envoi du message" });
     }
 };
+/**
+ * Récupère le compte Service Client / Support
+ * GET /api/messages/support
+ */
+export const getSupportUser = async (req: any, res: Response) => {
+    try {
+        // On cherche le premier admin ou un compte nommé Service Client
+        const { data, error } = await supabaseAdmin
+            .from('user_profiles')
+            .select('user_id, first_name, last_name, avatar_url, role')
+            .or('role.ilike.%admin%,first_name.ilike.%service client%')
+            .limit(1)
+            .single();
+
+        if (error || !data) {
+            return res.status(404).json({ error: "Service Client non configuré" });
+        }
+
+        res.json({
+            id: data.user_id,
+            name: data.first_name + " " + (data.last_name || ""),
+            avatar: data.avatar_url,
+            role: data.role || "Support Nexus"
+        });
+    } catch (err) {
+        res.status(500).json({ error: "Erreur lors de la récupération du support" });
+    }
+};

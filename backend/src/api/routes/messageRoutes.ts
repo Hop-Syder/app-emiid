@@ -6,7 +6,7 @@
 */
 
 import { Router } from 'express';
-import { getMyConversations, getConversationMessages, sendMessage } from '../../controllers/messageController';
+import { getMyConversations, getConversationMessages, sendMessage, getSupportUser } from '../../controllers/messageController';
 import { requireAuth } from '../../middlewares/authMiddleware';
 
 const router = Router();
@@ -25,5 +25,9 @@ router.get('/conversation/:id', getConversationMessages);
 // @route   POST /api/messages/send
 // @desc    Envoyer un message
 router.post('/send', sendMessage);
+
+// @route   GET /api/messages/support
+// @desc    Récupérer le service client
+router.get('/support', getSupportUser);
 
 export default router;

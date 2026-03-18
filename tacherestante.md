@@ -1,24 +1,24 @@
 Fonctionnalités Métier
-Marketplace (Ads) : supprimer du projet et des textes
-Messagerie :implementer et ameliorer ,Interface de discussion intégrée, capable d'envoyer et de recevoir des messages via l'API. fonctionnalite whasapp
-Favoris (Portefeuille) : Système pour suivre/sauvegarder des entrepreneurs (dans portefeuille-content).
+✅ Messagerie : Implémentée avec Supabase Realtime (Temps réel), UI Premium (Glassmorphism), Service Client et partage de documents.
+✅ Favoris (Portefeuille) : Système pour suivre/sauvegarder avec notes privées et compteur de followers synchrone.
+✅ Profil : Pays/Ville/Bio/Mots-clés synchronisés et affichés proprement.
 
-1. Messagerie Temps Réel (Priorité Haute) 💬
-   Actuel : Le chat demande un rechargement ou une action pour voir les nouveaux messages.
-   À faire : Intégrer Supabase Realtime dans
+1. Galerie de Projets (Showcase) 🖼️ (EN COURS)
+   Actuel : Composant créé mais non intégré au formulaire de profil.
+   À faire : Intégrer la galerie dans `creer-profil-form.tsx`, permettre l'édition des titres et descriptions par photo.
 
-messages-content.tsx
-pour que les messages s'affichent instantanément sans rafraîchissement. 2. Portefeuille Financier & Paiements 💳
-Actuel : La section "Portefeuille" gère les favoris, pas l'argent.
-À faire : Intégrer une passerelle de paiement locale (Kkiapay ou FedaPay) pour permettre aux utilisateurs de payer pour des services ou de booster leurs annonces. 3. Galerie de Projets (Showcase) 🖼️
-Actuel : Profils statiques.
-À faire : Finaliser le système de Galerie de Projets (déjà amorcé dans les conversations précédentes) permettant aux artisans d'uploader jusqu'à 10 photos de leurs réalisations avec descriptions. 4. Centre de Notifications (Engagement) 🔔
-Actuel : L'icône cloche est présente mais souvent statique.
-À faire : Implémenter un système de notifications (In-app + Email) pour : "Nouveau message", "Nouveau follower", "Annonce validée". 5. Administration Complète (Modération) 🛠️
-Actuel : Le module admin est embryonnaire (une seule page).
-À faire : Étendre le dashboard admin pour modérer les annonces, bannir les profils inappropriés et voir les statistiques globales de croissance (Users/Ads/Volume de messages). 6. Optimisation Mobile & PWA 📱
-À faire : Configurer le manifest PWA pour que Nexus Connect soit installable sur smartphone comme une application native, améliorant l'UX pour les artisans sur le terrain.
-💡 MA RECOMMANDATION IMMÉDIATE
-Si tu es d'accord, je suggère de commencer par la Messagerie Temps Réel ou la Galerie de Projets, car ce sont les deux fonctionnalités qui apporteront le plus de valeur perçue aux utilisateurs.
+2. Centre de Notifications (Engagement) 🔔
+   Actuel : Table SQL créée.
+   À faire : Implémenter le système de notifications (In-app) pour : "Nouveau message", "Nouveau follower".
 
-Qu'en penses-tu ? On attaque quel module en premier ?
+3. Portefeuille Financier & Paiements 💳
+   À faire : Intégrer une passerelle de paiement locale (Kkiapay ou FedaPay) pour le boost d'annonces.
+
+4. Administration Complète (Modération) 🛠️
+   À faire : Étendre le dashboard admin pour modérer les profils et voir les statistiques.
+
+5. Optimisation Mobile & PWA 📱
+   À faire : Configurer le manifest PWA.
+
+💡 PROCHAINE ÉTAPE PROPOSÉE
+Finaliser l'intégration de la Galerie de Projets pour que les artisans puissent exposer leurs travaux.
