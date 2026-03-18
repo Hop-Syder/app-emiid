@@ -1,6 +1,6 @@
 "use client"
 
-import { Menu, PanelLeft, Bell, MessageSquare, Search, Home, Users, Wallet, LogOut, User, PlusCircle } from "lucide-react"
+import { Menu, PanelLeft, Bell, MessageSquare, Search, Home, Users, Wallet, LogOut, LogIn, User, PlusCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -278,9 +278,18 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
                   <User className="mr-2 h-4 w-4" />
                   <span>Parametre</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Déconnexion</span>
+                <DropdownMenuItem onClick={session ? handleLogout : () => router.push("/login")} className={session ? "text-red-600 focus:text-red-600" : ""}>
+                  {session ? (
+                    <>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Déconnexion</span>
+                    </>
+                  ) : (
+                    <>
+                      <LogIn className="mr-2 h-4 w-4" />
+                      <span>Connexion</span>
+                    </>
+                  )}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
