@@ -11,7 +11,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Loader2 } from "lucide-react"
+import { Loader2, User, Shield, Bell, Settings } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { toast } from "sonner"
@@ -152,37 +152,45 @@ export function ParametresContent() {
                 {/* On pourrait ajouter un petit widget résumé ici si besoin */}
             </div>
 
-            <Tabs defaultValue="profil" className="space-y-6 md:space-y-8">
-                <div className="w-full overflow-x-auto pb-4 -mb-4 scrollbar-hide">
-                    <TabsList className="inline-flex h-auto justify-start gap-2 bg-transparent p-0 w-max min-w-full px-1">
-                        <TabsTrigger 
-                            value="profil" 
-                            className="rounded-2xl h-12 md:h-14 px-6 md:px-8 text-sm md:text-base font-bold data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-xl data-[state=active]:shadow-primary/25 bg-white border border-slate-100 text-slate-600 hover:bg-slate-50 transition-all duration-300"
-                        >
-                            Informations Personnelles
-                        </TabsTrigger>
-                        <TabsTrigger 
-                            value="securite" 
-                            className="rounded-2xl h-12 md:h-14 px-6 md:px-8 text-sm md:text-base font-bold data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-xl data-[state=active]:shadow-primary/25 bg-white border border-slate-100 text-slate-600 hover:bg-slate-50 transition-all duration-300"
-                        >
-                            Sécurité & Mot de passe
-                        </TabsTrigger>
-                        <TabsTrigger 
-                            value="notifications" 
-                            className="rounded-2xl h-12 md:h-14 px-6 md:px-8 text-sm md:text-base font-bold data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-xl data-[state=active]:shadow-primary/25 bg-white border border-slate-100 text-slate-600 hover:bg-slate-50 transition-all duration-300"
-                        >
-                            Notifications
-                        </TabsTrigger>
-                        <TabsTrigger 
-                            value="preferences" 
-                            className="rounded-2xl h-12 md:h-14 px-6 md:px-8 text-sm md:text-base font-bold data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-xl data-[state=active]:shadow-primary/25 bg-white border border-slate-100 text-slate-600 hover:bg-slate-50 transition-all duration-300"
-                        >
-                            Préférences générales
-                        </TabsTrigger>
-                    </TabsList>
+            <Tabs defaultValue="profil" className="flex flex-col lg:flex-row gap-6 md:gap-8 lg:items-start" orientation="vertical">
+                {/* Menu latéral (Desktop) ou horizontal scroll (Mobile) */}
+                <div className="w-full lg:w-[280px] shrink-0 sticky top-24 z-10">
+                    <div className="w-full overflow-x-auto pb-4 -mb-4 lg:overflow-visible lg:pb-0 lg:mb-0 scrollbar-hide">
+                        <TabsList className="inline-flex lg:flex flex-row lg:flex-col h-auto justify-start items-stretch gap-2 bg-transparent p-0 w-max min-w-full lg:w-full px-1 lg:px-0">
+                            <TabsTrigger 
+                                value="profil" 
+                                className="group justify-start w-full rounded-2xl h-12 md:h-14 px-5 text-sm md:text-base font-bold data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 bg-white border border-slate-100/50 text-slate-600 hover:bg-slate-50 transition-all duration-300"
+                            >
+                                <User className="mr-3 h-5 w-5 opacity-70 group-data-[state=active]:opacity-100" />
+                                Informations Personnelles
+                            </TabsTrigger>
+                            <TabsTrigger 
+                                value="securite" 
+                                className="group justify-start w-full rounded-2xl h-12 md:h-14 px-5 text-sm md:text-base font-bold data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 bg-white border border-slate-100/50 text-slate-600 hover:bg-slate-50 transition-all duration-300"
+                            >
+                                <Shield className="mr-3 h-5 w-5 opacity-70 group-data-[state=active]:opacity-100" />
+                                Sécurité & Mot de passe
+                            </TabsTrigger>
+                            <TabsTrigger 
+                                value="notifications" 
+                                className="group justify-start w-full rounded-2xl h-12 md:h-14 px-5 text-sm md:text-base font-bold data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 bg-white border border-slate-100/50 text-slate-600 hover:bg-slate-50 transition-all duration-300"
+                            >
+                                <Bell className="mr-3 h-5 w-5 opacity-70 group-data-[state=active]:opacity-100" />
+                                Notifications
+                            </TabsTrigger>
+                            <TabsTrigger 
+                                value="preferences" 
+                                className="group justify-start w-full rounded-2xl h-12 md:h-14 px-5 text-sm md:text-base font-bold data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 bg-white border border-slate-100/50 text-slate-600 hover:bg-slate-50 transition-all duration-300"
+                            >
+                                <Settings className="mr-3 h-5 w-5 opacity-70 group-data-[state=active]:opacity-100" />
+                                Préférences générales
+                            </TabsTrigger>
+                        </TabsList>
+                    </div>
                 </div>
 
-                <div className="min-h-[500px]">
+                {/* Contenu principal */}
+                <div className="flex-1 min-h-[500px] w-full">
                     <TabsContent value="profil" className="mt-0 focus-visible:outline-none data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in data-[state=active]:slide-in-from-bottom-4 data-[state=active]:duration-500">
                         <ProfileSection
                             profile={profile}
