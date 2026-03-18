@@ -148,7 +148,16 @@ export function MessagesContent() {
                 const convs = await convRes.json()
                 setConversations(convs)
                 const newRealConv = convs.find((c: any) => c.otherUser.id === selectedConv.otherUser.id)
-                if (newRealConv) setSelectedConv(newRealConv)
+                if (newRealConv) {
+                    setSelectedConv(newRealConv)
+                } else {
+                    // Fallback si la conv n'est pas encore listée
+                    setSelectedConv({
+                        id: newMsg.conversation_id,
+                        otherUser: selectedConv.otherUser,
+                        lastMessage: newMsg.content
+                    })
+                }
             }
         }
         
@@ -169,11 +178,14 @@ export function MessagesContent() {
     setIsSending(true)
     try {
       const extension = file.name.split(".").pop()
-      const filePath = `conversation-${selectedConv.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${extension}`
+      // Si c'est une nouvelle conv, on utilise un chemin générique car on n'a pas encore d'ID de conversation
+      const convFolder = selectedConv.id === 'new-support' ? `initial-support-${selectedConv.otherUser.id}` : `conversation-${selectedConv.id}`
+      const filePath = `${convFolder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${extension}`
 
       const { data, error } = await supabase.storage.from("messages").upload(filePath, file)
       if (error) {
         console.error("Upload error:", error)
+        toast.error("Erreur d'upload")
         return
       }
 
@@ -195,6 +207,18 @@ export function MessagesContent() {
 
       if (res.ok) {
         const newMsg = await res.json()
+        
+         // Même logique de rafraîchissement pour les fichiers
+        if (selectedConv.id === 'new-support') {
+            const convRes = await fetchWithAuth("/api/messages/conversations")
+            if (convRes.ok) {
+                const convs = await convRes.json()
+                setConversations(convs)
+                const newRealConv = convs.find((c: any) => c.otherUser.id === selectedConv.otherUser.id)
+                if (newRealConv) setSelectedConv(newRealConv)
+            }
+        }
+
         setMessages((prev) => [...prev, newMsg])
         setTimeout(() => scrollRef.current?.scrollIntoView({ behavior: "smooth" }), 50)
       }
@@ -212,20 +236,31 @@ export function MessagesContent() {
       const res = await fetchWithAuth("/api/messages/support")
       if (res.ok) {
         const supportUser = await res.json()
+        // On cherche dans la liste existante si une conversation avec cet ID existe DEJA
         const existing = conversations.find(c => c.otherUser.id === supportUser.id)
+        
         if (existing) {
           setSelectedConv(existing)
         } else {
+          // Sinon on crée l'état temporaire
           setSelectedConv({
             id: 'new-support',
-            otherUser: supportUser,
+            otherUser: {
+                id: supportUser.id,
+                name: supportUser.name || "Service Client Nexus",
+                avatar: supportUser.avatar || "/nexus-support.png",
+                role: "Support Technique"
+            },
             lastMessage: ""
           })
           setMessages([])
         }
+      } else {
+          toast.error("Impossible de contacter le support pour le moment")
       }
     } catch (err) {
       console.error("Support error:", err)
+      toast.error("Erreur de connexion au service support")
     }
   }
 
