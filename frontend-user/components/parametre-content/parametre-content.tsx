@@ -155,7 +155,6 @@ export function ParametresContent() {
                     saving={saving}
                     handleSave={handleSave}
                     handleCancel={handleCancel}
-                    countries={countries}
                 />
             </TabsContent>
 
