@@ -39,7 +39,8 @@ export function ParametresContent() {
         country_code: "",
         country_name: "",
         city: "",
-        pin_enabled: false
+        pin_enabled: false,
+        phone: ""
     })
 
     const [sectors, setSectors] = useState<any[]>([])
@@ -66,7 +67,8 @@ export function ParametresContent() {
                     country_code: data.country_code || "",
                     country_name: data.country_name || "",
                     city: data.city || "",
-                    pin_enabled: data.pin_enabled || false
+                    pin_enabled: data.pin_enabled || false,
+                    phone: data.phone || ""
                 })
             }
         } catch (error) {

@@ -131,27 +131,41 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
         }}
         animate={hidden ? "hidden" : "visible"}
         transition={{ duration: 0.35, ease: "easeInOut" }}
-        className="sticky top-0 z-20 border-b bg-background/70 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60"
+        className="sticky top-0 z-20 border-b border-white/20 bg-white/70 backdrop-blur-2xl supports-[backdrop-filter]:bg-white/60 shadow-sm"
       >
-        <div className="flex h-16 items-center gap-4 px-4 md:px-6">
+        <div className="flex h-[72px] items-center gap-4 px-4 md:px-8">
 
-          <Button variant="ghost" size="icon" className="hidden md:flex" onClick={() => setSidebarOpen(!sidebarOpen)}>
-            <PanelLeft className="h-5 w-5" />
+          {/* Toggle Button for Mobile */}
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="md:hidden rounded-2xl bg-white shadow-sm border border-slate-100 hover:bg-slate-50 transition-all hover:scale-105" 
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+          >
+            <Menu className="h-5 w-5 text-slate-700" />
           </Button>
 
-          <div className="flex-1 min-w-0">
-            <img src="/logo/logo.png" alt="Nexus Connect" className="h-8 w-auto" />
+          {/* Title Area (mostly for mobile/tablet where sidebar is hidden) */}
+          <div className="flex-1 min-w-0 md:hidden flex items-center">
+            <img src="/logo/logo-1.png" alt="Nexus Connect" className="h-9 w-auto object-contain" />
           </div>
+          
+          <div className="flex-1 hidden md:block" />
 
-          <div className="flex items-center gap-1 md:gap-2">
+          <div className="flex items-center gap-2 md:gap-4">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="rounded-2xl" onClick={(e) => handleRestrictedAction(e, "/messages")}>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="rounded-2xl h-11 w-11 bg-white hover:bg-primary/5 hover:text-primary transition-all shadow-sm border border-slate-100" 
+                    onClick={(e) => handleRestrictedAction(e, "/messages")}
+                  >
                     <MessageSquare className="h-5 w-5" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Messages</TooltipContent>
+                <TooltipContent className="rounded-xl px-3 py-1.5 font-semibold">Messages</TooltipContent>
               </Tooltip>
             </TooltipProvider>
 
@@ -160,19 +174,23 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <div className="relative">
-                    <Button variant="ghost" size="icon" className="rounded-2xl">
+                    <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="rounded-2xl h-11 w-11 bg-white hover:bg-primary/5 hover:text-primary transition-all shadow-sm border border-slate-100"
+                    >
                       <Bell className="h-5 w-5" />
                       {unreadCount > 0 && (
-                        <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white font-bold ring-2 ring-background">
+                        <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white font-bold ring-2 ring-white shadow-sm shadow-red-500/30 animate-pulse">
                           {unreadCount > 9 ? "9+" : unreadCount}
                         </span>
                       )}
                     </Button>
                   </div>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-80 p-0 rounded-3xl overflow-hidden shadow-2xl border-muted/20" align="end">
-                  <div className="px-4 py-3 border-b bg-muted/30">
-                    <h3 className="font-semibold text-sm">Notifications</h3>
+                <DropdownMenuContent className="w-80 p-0 rounded-3xl overflow-hidden shadow-2xl border-white/40 bg-white/95 backdrop-blur-xl" align="end">
+                  <div className="px-5 py-4 border-b border-slate-100 bg-slate-50/50">
+                    <h3 className="font-bold text-slate-900">Notifications</h3>
                   </div>
                   <div className="max-h-[400px] overflow-y-auto">
                     {notifications.length > 0 ? (
@@ -183,19 +201,19 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
                             markAsRead(n.id)
                             if (n.link) router.push(n.link)
                           }}
-                          className={`p-4 border-b last:border-0 cursor-pointer transition-colors hover:bg-muted/50 ${!n.is_read ? 'bg-primary/5' : ''}`}
+                          className={`p-4 border-b border-slate-50 last:border-0 cursor-pointer transition-all hover:bg-slate-50 ${!n.is_read ? 'bg-primary/5 hover:bg-primary/10' : ''}`}
                         >
-                          <div className="flex justify-between items-start gap-2">
-                            <h4 className="text-sm font-semibold">{n.title}</h4>
-                            <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+                          <div className="flex justify-between items-start gap-3">
+                            <h4 className="text-sm font-bold text-slate-900 line-clamp-1">{n.title}</h4>
+                            <span className="text-[10px] font-semibold text-slate-400 whitespace-nowrap bg-white px-2 py-0.5 rounded-full shadow-sm">
                               {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: fr })}
                             </span>
                           </div>
-                          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{n.content}</p>
+                          <p className="text-xs text-slate-500 mt-1.5 line-clamp-2">{n.content}</p>
                         </div>
                       ))
                     ) : (
-                      <div className="p-8 text-center text-sm text-muted-foreground">
+                      <div className="p-8 text-center text-sm font-medium text-slate-400">
                         Aucune notification
                       </div>
                     )}
@@ -209,10 +227,14 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
               <Drawer.Root>
                 <Drawer.Trigger asChild>
                   <div className="relative">
-                    <Button variant="ghost" size="icon" className="rounded-2xl">
+                    <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="rounded-2xl h-11 w-11 bg-white hover:bg-primary/5 hover:text-primary transition-all shadow-sm border border-slate-100"
+                    >
                       <Bell className="h-5 w-5" />
                       {unreadCount > 0 && (
-                        <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white font-bold ring-2 ring-background">
+                        <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white font-bold ring-2 ring-white shadow-sm shadow-red-500/30">
                           {unreadCount > 9 ? "9+" : unreadCount}
                         </span>
                       )}
@@ -221,11 +243,11 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
                 </Drawer.Trigger>
                 <Drawer.Portal>
                   <Drawer.Overlay className="fixed inset-0 bg-black/40 z-50 backdrop-blur-sm" />
-                  <Drawer.Content className="bg-white flex flex-col rounded-t-[32px] h-[70vh] fixed bottom-0 left-0 right-0 z-50 outline-none">
-                    <div className="p-4 bg-white rounded-t-[32px] flex-1">
-                      <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-zinc-300 mb-8" />
+                  <Drawer.Content className="bg-white flex flex-col rounded-t-[2rem] h-[70vh] fixed bottom-0 left-0 right-0 z-50 outline-none">
+                    <div className="p-4 bg-white rounded-t-[2rem] flex-1">
+                      <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-slate-200 mb-6" />
                       <div className="max-w-md mx-auto">
-                        <Drawer.Title className="font-bold text-xl mb-4 px-4">Notifications</Drawer.Title>
+                        <Drawer.Title className="font-bold text-2xl mb-6 px-4 text-slate-900">Notifications</Drawer.Title>
                         <ScrollArea className="h-[55vh] px-2">
                           {notifications.length > 0 ? (
                             notifications.map((n) => (
@@ -235,19 +257,19 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
                                   markAsRead(n.id);
                                   if (n.link) router.push(n.link);
                                 }}
-                                className={`p-4 mb-2 rounded-2xl transition-colors ${!n.is_read ? 'bg-primary/5 border border-primary/10' : 'bg-slate-50'}`}
+                                className={`p-4 mb-3 rounded-2xl transition-all shadow-sm border ${!n.is_read ? 'bg-primary/5 border-primary/20 shadow-primary/5' : 'bg-white border-slate-100 hover:border-slate-200'}`}
                               >
-                                <div className="flex justify-between items-start gap-2">
-                                  <h4 className="text-sm font-bold">{n.title}</h4>
-                                  <span className="text-[10px] text-muted-foreground">
+                                <div className="flex justify-between items-start gap-2 mb-2">
+                                  <h4 className="text-sm font-bold text-slate-900">{n.title}</h4>
+                                  <span className="text-[10px] font-semibold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-full border border-slate-100">
                                     {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: fr })}
                                   </span>
                                 </div>
-                                <p className="text-xs text-muted-foreground mt-1">{n.content}</p>
+                                <p className="text-sm text-slate-500">{n.content}</p>
                               </div>
                             ))
                           ) : (
-                            <div className="text-center py-20 text-muted-foreground">Rien de nouveau ici.</div>
+                            <div className="text-center py-20 text-slate-400 font-medium">Rien de nouveau ici.</div>
                           )}
                         </ScrollArea>
                       </div>
@@ -257,39 +279,63 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
               </Drawer.Root>
             </div>
 
+            <div className="h-8 w-px bg-slate-200 mx-1 hidden md:block" />
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                  <Avatar className="h-8 w-8 md:h-9 md:w-9 border-2 border-primary cursor-pointer transition-transform hover:scale-105">
-                    <AvatarImage src={user?.avatar_url || "/african-user.jpg"} alt="User" />
-                    <AvatarFallback>{user?.first_name?.[0] || 'U'}{user?.last_name?.[0] || ''}</AvatarFallback>
+                <Button variant="ghost" className="relative p-0 h-11 w-11 rounded-full outline-none focus:ring-4 focus:ring-primary/20 transition-all ml-1 bg-white shadow-sm">
+                  <Avatar className="h-11 w-11 border-2 border-white shadow-sm transition-transform hover:scale-105">
+                    <AvatarImage src={user?.avatar_url || "/african-user.jpg"} alt="User" className="object-cover" />
+                    <AvatarFallback className="bg-primary/10 text-primary font-bold">{user?.first_name?.[0] || 'U'}{user?.last_name?.[0] || ''}</AvatarFallback>
                   </Avatar>
+                  <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-white" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
+              <DropdownMenuContent className="w-64 p-2 rounded-3xl mt-2 shadow-2xl border-white/50 bg-white/95 backdrop-blur-xl" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal p-3 bg-slate-50 rounded-2xl mb-1">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{user?.first_name} {user?.last_name}</p>
-                    <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
+                    <p className="text-sm font-bold leading-none text-slate-900 line-clamp-1">{user?.first_name} {user?.last_name}</p>
+                    <p className="text-xs font-medium leading-none text-slate-500 line-clamp-1">{user?.email}</p>
                   </div>
                 </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={(e) => handleRestrictedAction(e, "/parametres")}>
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Parametre</span>
+                
+                <DropdownMenuItem className="rounded-xl mt-1 h-10 px-3 cursor-pointer hover:bg-slate-50 focus:bg-slate-50 transition-colors font-medium text-slate-700" onClick={(e) => handleRestrictedAction(e, "/parametres")}>
+                  <div className="flex items-center gap-3 w-full">
+                    <div className="p-1.5 bg-slate-100 rounded-lg">
+                      <Settings className="h-4 w-4 text-slate-500" />
+                    </div>
+                    <span>Paramètres du compte</span>
+                  </div>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={session ? handleLogout : () => router.push("/login")} className={session ? "text-red-600 focus:text-red-600" : ""}>
-                  {session ? (
-                    <>
-                      <LogOut className="mr-2 h-4 w-4" />
-                      <span>Déconnexion</span>
-                    </>
-                  ) : (
-                    <>
-                      <LogIn className="mr-2 h-4 w-4" />
-                      <span>Connexion</span>
-                    </>
-                  )}
+                
+                <DropdownMenuSeparator className="my-1.5" />
+                
+                <DropdownMenuItem 
+                  className={cn(
+                    "rounded-xl h-10 px-3 cursor-pointer transition-colors font-bold",
+                    session 
+                      ? "text-red-600 hover:bg-red-50 focus:bg-red-50" 
+                      : "text-primary hover:bg-primary/10 focus:bg-primary/10"
+                  )} 
+                  onClick={session ? handleLogout : () => router.push("/login")}
+                >
+                  <div className="flex items-center gap-3 w-full">
+                    {session ? (
+                      <>
+                        <div className="p-1.5 bg-red-100/50 rounded-lg">
+                          <LogOut className="h-4 w-4 text-red-600" />
+                        </div>
+                        <span>Déconnexion</span>
+                      </>
+                    ) : (
+                      <>
+                        <div className="p-1.5 bg-primary/10 rounded-lg">
+                          <LogIn className="h-4 w-4 text-primary" />
+                        </div>
+                        <span>Connexion sécurisée</span>
+                      </>
+                    )}
+                  </div>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
