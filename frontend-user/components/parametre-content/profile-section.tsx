@@ -189,7 +189,7 @@ export function ProfileSection({
                 <p className="text-xs font-semibold text-slate-500">{profile.email}</p>
               </div>
             </div>
-            <Badge className="rounded-xl px-3 py-1 bg-green-100 text-green-700 hover:bg-green-100 border-none font-bold text-xs uppercase tracking-wider">
+            <Badge className="w-fit rounded-xl px-3 py-1 bg-green-100 text-green-700 hover:bg-green-100 border-none font-bold text-xs uppercase tracking-wider">
               <Shield className="mr-1.5 h-3.5 w-3.5" />
               Vérifié
             </Badge>
