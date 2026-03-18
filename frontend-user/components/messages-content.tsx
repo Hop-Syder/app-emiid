@@ -1,7 +1,7 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Page de messagerie avec statuts lu/non-lu et indicateur en ligne
+ * @description Page de messagerie moderne avec statuts lu/non-lu et indicateur en ligne
  * @created 2025-12-24
  * @updated 2026-03-18
  */
@@ -10,15 +10,31 @@
 
 import { useState, useRef, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Send, Search, Image, Paperclip, Loader2, User, MessageSquare, MoreVertical, ArrowLeft, Check, CheckCheck, Circle } from "lucide-react"
+import { 
+  Send, Search, Image, Paperclip, Smile, Mic, Phone, Video, 
+  MoreHorizontal, ArrowLeft, Check, CheckCheck, X, Plus,
+  Settings, Bell, Pin, Trash2, Archive, Star, Filter
+} from "lucide-react"
 import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
-import { createClient } from "@/lib/supabase/client"
 
 // Types
 interface UserProfile {
@@ -28,6 +44,7 @@ interface UserProfile {
   role: string | null
   isOnline: boolean
   lastSeen: string | null
+  isTyping?: boolean
 }
 
 interface Message {
@@ -37,6 +54,8 @@ interface Message {
   content: string
   created_at: string
   is_read: boolean
+  type?: "text" | "image" | "file" | "audio"
+  reactions?: string[]
 }
 
 interface Conversation {
@@ -45,50 +64,40 @@ interface Conversation {
   lastMessage: string | null
   lastMessageAt: string | null
   unreadCount: number
+  isPinned?: boolean
+  isMuted?: boolean
 }
 
-// Données de démonstration pour le frontend
+// Donnees de demonstration
 const mockUsers: UserProfile[] = [
-  { id: "user-1", name: "Amara Diallo", avatar: "/african-woman-entrepreneur.jpg", role: "Entrepreneur", isOnline: true, lastSeen: null },
-  { id: "user-2", name: "Kofi Mensah", avatar: "/african-man-developer.jpg", role: "Développeur", isOnline: false, lastSeen: new Date(Date.now() - 3600000).toISOString() },
-  { id: "user-3", name: "Fatou Sow", avatar: "/african-woman-ceo.jpg", role: "CEO", isOnline: true, lastSeen: null },
-  { id: "user-4", name: "Service Client Nexus", avatar: "/nexus-connect-logo.jpg", role: "Support Technique", isOnline: true, lastSeen: null },
+  { id: "user-1", name: "Amara Diallo", avatar: "/african-woman-entrepreneur.jpg", role: "CEO, TechAfrica", isOnline: true, lastSeen: null },
+  { id: "user-2", name: "Kofi Mensah", avatar: "/african-man-developer.jpg", role: "Lead Developer", isOnline: false, lastSeen: new Date(Date.now() - 1800000).toISOString() },
+  { id: "user-3", name: "Fatou Sow", avatar: "/african-woman-ceo.jpg", role: "Designer UX/UI", isOnline: true, lastSeen: null },
+  { id: "user-4", name: "Kwame Asante", avatar: "/african-man-designer.jpg", role: "Product Manager", isOnline: false, lastSeen: new Date(Date.now() - 7200000).toISOString() },
+  { id: "user-5", name: "Support Nexus", avatar: "/nexus-connect-logo.jpg", role: "Assistance 24/7", isOnline: true, lastSeen: null },
 ]
 
 const mockConversations: Conversation[] = [
-  { 
-    id: "conv-1", 
-    otherUser: mockUsers[0], 
-    lastMessage: "Bonjour, j'aimerais discuter de votre projet", 
-    lastMessageAt: new Date(Date.now() - 300000).toISOString(),
-    unreadCount: 2
-  },
-  { 
-    id: "conv-2", 
-    otherUser: mockUsers[1], 
-    lastMessage: "Le développement avance bien!", 
-    lastMessageAt: new Date(Date.now() - 86400000).toISOString(),
-    unreadCount: 0
-  },
-  { 
-    id: "conv-3", 
-    otherUser: mockUsers[2], 
-    lastMessage: "Merci pour la collaboration", 
-    lastMessageAt: new Date(Date.now() - 172800000).toISOString(),
-    unreadCount: 1
-  },
+  { id: "conv-1", otherUser: mockUsers[0], lastMessage: "Super! On se retrouve demain pour la presentation?", lastMessageAt: new Date(Date.now() - 120000).toISOString(), unreadCount: 3, isPinned: true },
+  { id: "conv-2", otherUser: mockUsers[1], lastMessage: "Le code est pret pour la review", lastMessageAt: new Date(Date.now() - 3600000).toISOString(), unreadCount: 0 },
+  { id: "conv-3", otherUser: mockUsers[2], lastMessage: "Voici les maquettes finales du projet", lastMessageAt: new Date(Date.now() - 7200000).toISOString(), unreadCount: 1 },
+  { id: "conv-4", otherUser: mockUsers[3], lastMessage: "Meeting reporte a 15h", lastMessageAt: new Date(Date.now() - 86400000).toISOString(), unreadCount: 0 },
+  { id: "conv-5", otherUser: mockUsers[4], lastMessage: "Comment puis-je vous aider?", lastMessageAt: new Date(Date.now() - 172800000).toISOString(), unreadCount: 0 },
 ]
 
 const generateMockMessages = (conversationId: string, otherUserId: string): Message[] => {
   const currentUserId = "current-user"
-  const messages: Message[] = [
-    { id: `${conversationId}-1`, conversation_id: conversationId, sender_id: otherUserId, content: "Bonjour! Comment allez-vous?", created_at: new Date(Date.now() - 7200000).toISOString(), is_read: true },
-    { id: `${conversationId}-2`, conversation_id: conversationId, sender_id: currentUserId, content: "Très bien merci! Et vous?", created_at: new Date(Date.now() - 7100000).toISOString(), is_read: true },
-    { id: `${conversationId}-3`, conversation_id: conversationId, sender_id: otherUserId, content: "Je voulais vous parler d'un projet intéressant", created_at: new Date(Date.now() - 7000000).toISOString(), is_read: true },
-    { id: `${conversationId}-4`, conversation_id: conversationId, sender_id: currentUserId, content: "Je suis à l'écoute!", created_at: new Date(Date.now() - 6900000).toISOString(), is_read: true },
-    { id: `${conversationId}-5`, conversation_id: conversationId, sender_id: otherUserId, content: "Parfait, je vous envoie les détails", created_at: new Date(Date.now() - 300000).toISOString(), is_read: false },
+  const baseTime = Date.now()
+  
+  return [
+    { id: `${conversationId}-1`, conversation_id: conversationId, sender_id: otherUserId, content: "Salut! Comment vas-tu?", created_at: new Date(baseTime - 7200000).toISOString(), is_read: true },
+    { id: `${conversationId}-2`, conversation_id: conversationId, sender_id: currentUserId, content: "Hey! Ca va super bien, merci! Et toi?", created_at: new Date(baseTime - 7100000).toISOString(), is_read: true },
+    { id: `${conversationId}-3`, conversation_id: conversationId, sender_id: otherUserId, content: "Tres bien! J'ai une excellente nouvelle a t'annoncer concernant notre projet.", created_at: new Date(baseTime - 7000000).toISOString(), is_read: true },
+    { id: `${conversationId}-4`, conversation_id: conversationId, sender_id: currentUserId, content: "Ah oui? Je t'ecoute avec attention!", created_at: new Date(baseTime - 6900000).toISOString(), is_read: true },
+    { id: `${conversationId}-5`, conversation_id: conversationId, sender_id: otherUserId, content: "Notre proposition a ete acceptee! On demarre la semaine prochaine.", created_at: new Date(baseTime - 6800000).toISOString(), is_read: true },
+    { id: `${conversationId}-6`, conversation_id: conversationId, sender_id: currentUserId, content: "C'est genial! Felicitations a toute l'equipe!", created_at: new Date(baseTime - 6700000).toISOString(), is_read: true },
+    { id: `${conversationId}-7`, conversation_id: conversationId, sender_id: otherUserId, content: "Super! On se retrouve demain pour la presentation?", created_at: new Date(baseTime - 120000).toISOString(), is_read: false },
   ]
-  return messages
 }
 
 export function MessagesContent() {
@@ -101,46 +110,44 @@ export function MessagesContent() {
   const [isSending, setIsSending] = useState(false)
   const [showChatMobile, setShowChatMobile] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
+  const [filterType, setFilterType] = useState<"all" | "unread" | "pinned">("all")
   const [currentUserId] = useState("current-user")
 
-  const imageInputRef = useRef<HTMLInputElement>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const supabase = createClient()
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
 
-  // Charger les conversations au montage
+  // Charger les conversations
   useEffect(() => {
     const loadConversations = async () => {
       setLoadingConv(true)
-      // Simuler un délai de chargement
-      await new Promise(resolve => setTimeout(resolve, 500))
+      await new Promise(resolve => setTimeout(resolve, 400))
       setConversations(mockConversations)
       setLoadingConv(false)
     }
     loadConversations()
   }, [])
 
-  // Charger les messages quand une conversation est sélectionnée
+  // Charger les messages
   useEffect(() => {
     if (!selectedConv) return
 
     const loadMessages = async () => {
       setLoadingMsgs(true)
-      await new Promise(resolve => setTimeout(resolve, 300))
+      await new Promise(resolve => setTimeout(resolve, 250))
       const msgs = generateMockMessages(selectedConv.id, selectedConv.otherUser.id)
       setMessages(msgs)
       setLoadingMsgs(false)
-      
-      // Marquer les messages comme lus
       markMessagesAsRead(selectedConv.id)
-      
-      // Scroll to bottom
-      setTimeout(() => scrollRef.current?.scrollIntoView({ behavior: 'smooth' }), 100)
     }
     loadMessages()
   }, [selectedConv])
 
-  // Marquer les messages comme lus
+  // Scroll vers le bas
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [messages])
+
+  // Marquer comme lu
   const markMessagesAsRead = useCallback((conversationId: string) => {
     setMessages(prev => prev.map(msg => ({ ...msg, is_read: true })))
     setConversations(prev => prev.map(conv => 
@@ -148,22 +155,7 @@ export function MessagesContent() {
     ))
   }, [])
 
-  // Mettre à jour le statut en ligne périodiquement (simulation)
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setConversations(prev => prev.map(conv => ({
-        ...conv,
-        otherUser: {
-          ...conv.otherUser,
-          // Simuler des changements de statut aléatoires
-          isOnline: conv.otherUser.role === "Support Technique" ? true : Math.random() > 0.3
-        }
-      })))
-    }, 30000) // Toutes les 30 secondes
-
-    return () => clearInterval(interval)
-  }, [])
-
+  // Envoyer un message
   const handleSendMessage = async () => {
     if (!message.trim() || !selectedConv || isSending) return
 
@@ -178,85 +170,51 @@ export function MessagesContent() {
       is_read: false
     }
 
-    // Ajouter le message localement immédiatement
     setMessages(prev => [...prev, newMsg])
     setMessage("")
 
-    // Mettre à jour la conversation
     setConversations(prev => prev.map(conv => 
       conv.id === selectedConv.id 
         ? { ...conv, lastMessage: newMsg.content, lastMessageAt: newMsg.created_at }
         : conv
     ))
 
-    // Simuler l'envoi au serveur
-    await new Promise(resolve => setTimeout(resolve, 500))
+    await new Promise(resolve => setTimeout(resolve, 400))
     
-    // Simuler la confirmation de lecture après un délai
     setTimeout(() => {
       setMessages(prev => prev.map(msg => 
         msg.id === newMsg.id ? { ...msg, is_read: true } : msg
       ))
-    }, 2000)
+    }, 1500)
 
     setIsSending(false)
-    setTimeout(() => scrollRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
   }
 
-  const handleFileUpload = async (file: File, type: "image" | "file") => {
-    if (!selectedConv || !file) return
-
-    setIsSending(true)
-    
-    const placeholder = type === "image"
-      ? `[Image] ${file.name}`
-      : `[Fichier] ${file.name}`
-
-    const newMsg: Message = {
-      id: `msg-${Date.now()}`,
-      conversation_id: selectedConv.id,
-      sender_id: currentUserId,
-      content: placeholder,
-      created_at: new Date().toISOString(),
-      is_read: false
-    }
-
-    setMessages(prev => [...prev, newMsg])
-    
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    setIsSending(false)
-    if (imageInputRef.current) imageInputRef.current.value = ""
-    if (fileInputRef.current) fileInputRef.current.value = ""
+  // Toggle pin
+  const togglePin = (convId: string) => {
+    setConversations(prev => prev.map(conv =>
+      conv.id === convId ? { ...conv, isPinned: !conv.isPinned } : conv
+    ))
   }
 
-  const handleContactSupport = () => {
-    const supportConv = conversations.find(c => c.otherUser.role === "Support Technique")
-    if (supportConv) {
-      setSelectedConv(supportConv)
-      setShowChatMobile(true)
-    } else {
-      // Créer une nouvelle conversation avec le support
-      const newSupportConv: Conversation = {
-        id: "conv-support",
-        otherUser: mockUsers[3],
-        lastMessage: null,
-        lastMessageAt: null,
-        unreadCount: 0
-      }
-      setConversations(prev => [newSupportConv, ...prev])
-      setSelectedConv(newSupportConv)
-      setShowChatMobile(true)
-    }
-  }
+  // Filtrer les conversations
+  const filteredConversations = conversations
+    .filter(conv => {
+      const matchesSearch = conv.otherUser.name.toLowerCase().includes(searchQuery.toLowerCase())
+      const matchesFilter = 
+        filterType === "all" ? true :
+        filterType === "unread" ? conv.unreadCount > 0 :
+        filterType === "pinned" ? conv.isPinned : true
+      return matchesSearch && matchesFilter
+    })
+    .sort((a, b) => {
+      if (a.isPinned && !b.isPinned) return -1
+      if (!a.isPinned && b.isPinned) return 1
+      return new Date(b.lastMessageAt || 0).getTime() - new Date(a.lastMessageAt || 0).getTime()
+    })
 
-  // Filtrer les conversations par recherche
-  const filteredConversations = conversations.filter(conv => 
-    conv.otherUser.name.toLowerCase().includes(searchQuery.toLowerCase())
-  )
-
-  // Formatter le temps relatif
-  const formatRelativeTime = (dateString: string | null) => {
+  // Format temps relatif
+  const formatTime = (dateString: string | null) => {
     if (!dateString) return ""
     const date = new Date(dateString)
     const now = new Date()
@@ -265,14 +223,13 @@ export function MessagesContent() {
     const diffHours = Math.floor(diffMs / 3600000)
     const diffDays = Math.floor(diffMs / 86400000)
 
-    if (diffMins < 1) return "À l'instant"
-    if (diffMins < 60) return `Il y a ${diffMins}min`
-    if (diffHours < 24) return `Il y a ${diffHours}h`
-    if (diffDays < 7) return `Il y a ${diffDays}j`
+    if (diffMins < 1) return "Maintenant"
+    if (diffMins < 60) return `${diffMins}m`
+    if (diffHours < 24) return `${diffHours}h`
+    if (diffDays < 7) return `${diffDays}j`
     return date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })
   }
 
-  // Formatter "Vu à" pour le statut hors ligne
   const formatLastSeen = (lastSeen: string | null) => {
     if (!lastSeen) return "Hors ligne"
     const date = new Date(lastSeen)
@@ -281,465 +238,508 @@ export function MessagesContent() {
     const diffMins = Math.floor(diffMs / 60000)
     const diffHours = Math.floor(diffMs / 3600000)
 
+    if (diffMins < 5) return "En ligne recemment"
     if (diffMins < 60) return `Vu il y a ${diffMins}min`
     if (diffHours < 24) return `Vu il y a ${diffHours}h`
     return `Vu le ${date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}`
   }
 
-  // Composant pour l'indicateur de statut en ligne
-  const OnlineIndicator = ({ isOnline, size = "md" }: { isOnline: boolean; size?: "sm" | "md" | "lg" }) => {
-    const sizeClasses = {
-      sm: "w-2.5 h-2.5",
-      md: "w-3 h-3",
-      lg: "w-3.5 h-3.5"
-    }
-    
-    return (
-      <div className={cn(
-        "rounded-full border-2 border-white shadow-sm",
-        sizeClasses[size],
-        isOnline ? "bg-green-500" : "bg-slate-400"
-      )}>
-        {isOnline && (
-          <div className="w-full h-full rounded-full bg-green-500 animate-pulse" />
-        )}
-      </div>
-    )
+  const formatMessageTime = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
   }
 
-  // Composant pour le statut de lecture des messages
-  const MessageStatus = ({ isRead, isSent }: { isRead: boolean; isSent: boolean }) => {
-    if (!isSent) return null
-    
-    return (
-      <span className="inline-flex items-center ml-1">
-        {isRead ? (
-          <CheckCheck className="w-3.5 h-3.5 text-blue-400" />
-        ) : (
-          <Check className="w-3.5 h-3.5 text-slate-400" />
-        )}
-      </span>
-    )
-  }
+  // Total non lus
+  const totalUnread = conversations.reduce((acc, conv) => acc + conv.unreadCount, 0)
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-0 h-[calc(100vh-10rem)] bg-white/40 backdrop-blur-2xl rounded-[2.5rem] border border-white/50 shadow-2xl overflow-hidden shadow-indigo-100/50">
-      {/* Sidebar - Conversations */}
-      <div className={cn(
-        "flex flex-col border-r border-slate-100 bg-white/30 backdrop-blur-xl transition-all duration-300",
-        showChatMobile ? "hidden lg:flex" : "flex"
-      )}>
-        <div className="p-6 border-b border-slate-100/50">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600">Messages</h2>
-            <Badge variant="secondary" className="rounded-full bg-indigo-50 text-indigo-600 border-indigo-100">
-              {conversations.length} Discussions
-            </Badge>
-          </div>
-          <div className="relative group">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
-            <Input 
-              placeholder="Rechercher un contact..." 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 rounded-2xl bg-white/80 border-slate-200/60 focus-visible:ring-primary/20 focus-visible:border-primary transition-all shadow-sm" 
-            />
-          </div>
-        </div>
-
-        <ScrollArea className="flex-1">
-          <div className="p-4 space-y-2">
-            {/* Shortcut Service Client */}
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={handleContactSupport}
-              className="p-4 rounded-[1.5rem] bg-gradient-to-br from-indigo-600 to-blue-700 text-white shadow-xl shadow-indigo-200 mb-6 cursor-pointer relative overflow-hidden group"
-            >
-              <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl group-hover:scale-150 transition-transform duration-500" />
-              <div className="relative flex items-center gap-3">
-                <div className="p-2 bg-white/20 rounded-xl backdrop-blur-md">
-                  <MessageSquare className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <p className="font-bold text-sm">Service Client Nexus</p>
-                  <div className="flex items-center gap-1.5 mt-0.5">
-                    <Circle className="w-2 h-2 fill-green-400 text-green-400" />
-                    <p className="text-[10px] text-white/80">En ligne - Support 24/7</p>
-                  </div>
-                </div>
+    <TooltipProvider>
+      <div className="h-[calc(100vh-8rem)] flex bg-background rounded-3xl border shadow-sm overflow-hidden">
+        
+        {/* Sidebar - Liste des conversations */}
+        <aside className={cn(
+          "w-full md:w-[340px] lg:w-[380px] flex flex-col border-r bg-card",
+          showChatMobile && "hidden md:flex"
+        )}>
+          {/* Header Sidebar */}
+          <header className="p-4 lg:p-5 border-b space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <h1 className="text-xl font-bold text-foreground">Messages</h1>
+                {totalUnread > 0 && (
+                  <Badge className="h-6 px-2.5 rounded-full bg-primary text-primary-foreground text-xs font-semibold">
+                    {totalUnread}
+                  </Badge>
+                )}
               </div>
-            </motion.div>
-
-            {loadingConv ? (
-              <div className="flex flex-col items-center justify-center p-12 space-y-3">
-                <Loader2 className="animate-spin text-primary h-8 w-8" />
-                <p className="text-xs text-slate-400 font-medium">Chargement des données...</p>
+              <div className="flex items-center gap-1">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl">
+                      <Settings className="h-4 w-4 text-muted-foreground" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Parametres</TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl">
+                      <Plus className="h-4 w-4 text-muted-foreground" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Nouvelle conversation</TooltipContent>
+                </Tooltip>
               </div>
-            ) : filteredConversations.length > 0 ? (
-              <AnimatePresence mode="popLayout">
-                {filteredConversations.map((conv) => {
-                  const isSelected = selectedConv?.id === conv.id
-                  return (
-                    <motion.div
-                      key={conv.id}
-                      layout
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      onClick={() => {
-                        setSelectedConv(conv)
-                        setShowChatMobile(true)
-                      }}
-                      className={cn(
-                        "group relative flex items-center gap-4 p-4 rounded-[1.5rem] cursor-pointer transition-all duration-300",
-                        isSelected 
-                          ? "bg-white shadow-lg shadow-slate-200/50 ring-1 ring-slate-100" 
-                          : "hover:bg-white/60"
-                      )}
-                    >
-                      {isSelected && (
-                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-primary rounded-r-full shadow-[2px_0_10px_rgba(var(--primary),0.5)]" />
-                      )}
-                      
-                      <div className="relative">
-                        <Avatar className="h-12 w-12 ring-2 ring-white shadow-sm">
-                          <AvatarImage src={conv.otherUser.avatar || undefined} />
-                          <AvatarFallback className="bg-slate-100 text-slate-500">
-                            <User className="h-5 w-5" />
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="absolute -bottom-0.5 -right-0.5">
-                          <OnlineIndicator isOnline={conv.otherUser.isOnline} size="md" />
-                        </div>
-                      </div>
+            </div>
 
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-0.5">
-                          <h4 className={cn(
-                            "font-bold text-sm truncate",
-                            isSelected ? "text-slate-900" : "text-slate-700"
-                          )}>
-                            {conv.otherUser.name}
-                          </h4>
-                          <span className="text-[10px] text-slate-400 font-medium whitespace-nowrap">
-                            {formatRelativeTime(conv.lastMessageAt)}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <p className={cn(
-                            "text-xs truncate font-medium flex-1",
-                            isSelected ? "text-slate-500" : "text-slate-400",
-                            conv.unreadCount > 0 && "font-semibold text-slate-700"
-                          )}>
-                            {conv.lastMessage || "Ouvrir la discussion"}
-                          </p>
-                          {conv.unreadCount > 0 && (
-                            <Badge className="ml-2 h-5 min-w-5 rounded-full bg-primary text-white text-[10px] font-bold px-1.5">
-                              {conv.unreadCount}
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                    </motion.div>
-                  )
-                })}
-              </AnimatePresence>
-            ) : (
-              <div className="text-center py-10">
-                <div className="inline-flex p-3 bg-slate-50 rounded-2xl mb-3">
-                  <MessageSquare className="h-6 w-6 text-slate-300" />
-                </div>
-                <p className="text-sm text-slate-400 font-medium px-6 leading-relaxed">
-                  {searchQuery ? "Aucun résultat trouvé" : "Prêt à networker ? Commencez une conversation."}
-                </p>
-              </div>
-            )}
-          </div>
-        </ScrollArea>
-      </div>
-
-      {/* Zone principale - Chat */}
-      <div className={cn(
-        "flex flex-col relative bg-slate-50/30 transition-all duration-300",
-        !showChatMobile ? "hidden lg:flex" : "flex"
-      )}>
-        {selectedConv ? (
-          <>
-            {/* Chat Header */}
-            <div className="flex items-center justify-between p-4 md:p-6 bg-white/70 backdrop-blur-md border-b border-slate-100 z-10">
-              <div className="flex items-center gap-4">
+            {/* Recherche */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input 
+                placeholder="Rechercher..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 h-10 rounded-xl bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary/30" 
+              />
+              {searchQuery && (
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="lg:hidden rounded-xl bg-slate-100 text-slate-500"
-                  onClick={() => setShowChatMobile(false)}
+                  className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 rounded-lg"
+                  onClick={() => setSearchQuery("")}
                 >
-                  <ArrowLeft className="h-5 w-5" />
+                  <X className="h-3.5 w-3.5" />
                 </Button>
-                <div className="relative">
-                  <Avatar className="h-10 w-10 md:h-12 md:w-12 border-2 border-white shadow-md">
-                    <AvatarImage src={selectedConv.otherUser.avatar || undefined} />
-                    <AvatarFallback className="bg-primary/5 text-primary">
-                      <User />
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="absolute -bottom-0.5 -right-0.5">
-                    <OnlineIndicator isOnline={selectedConv.otherUser.isOnline} size="md" />
-                  </div>
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-bold text-slate-900 tracking-tight">
-                      {selectedConv.otherUser.name}
-                    </h3>
-                    {selectedConv.otherUser.role === "Support Technique" && (
-                      <Badge className="bg-blue-100 text-blue-600 border-blue-200 rounded-lg text-[9px] hover:bg-blue-100">
-                        VERIFIED
-                      </Badge>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-1.5 mt-0.5">
-                    {selectedConv.otherUser.isOnline ? (
-                      <>
-                        <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-                        <p className="text-[11px] font-semibold text-green-600 uppercase tracking-widest">
-                          En ligne
-                        </p>
-                      </>
-                    ) : (
-                      <>
-                        <span className="w-1.5 h-1.5 bg-slate-400 rounded-full" />
-                        <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest">
-                          {formatLastSeen(selectedConv.otherUser.lastSeen)}
-                        </p>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon" className="rounded-2xl text-slate-400 hover:text-primary transition-colors">
-                  <Search className="h-5 w-5" />
-                </Button>
-                <Button variant="ghost" size="icon" className="rounded-2xl text-slate-400 hover:text-primary transition-colors">
-                  <MoreVertical className="h-5 w-5" />
-                </Button>
-              </div>
+              )}
             </div>
 
-            {/* Messages Scroll Area */}
-            <ScrollArea className="flex-1">
-              <div className="p-4 md:p-8 space-y-4 md:space-y-6">
-                {loadingMsgs ? (
-                  <div className="flex flex-col items-center justify-center py-20">
-                    <Loader2 className="animate-spin text-primary h-8 w-8" />
-                    <p className="text-xs text-slate-400 font-medium mt-3">Chargement des messages...</p>
-                  </div>
-                ) : messages.length > 0 ? (
-                  <AnimatePresence mode="popLayout">
-                    {messages.map((msg, idx) => {
-                      const isMe = msg.sender_id === currentUserId
-                      const showDateSeparator = idx === 0 || 
-                        new Date(msg.created_at).toDateString() !== new Date(messages[idx - 1].created_at).toDateString()
-                      
-                      return (
-                        <div key={msg.id}>
-                          {showDateSeparator && (
-                            <div className="flex items-center justify-center my-6">
-                              <div className="bg-slate-100 text-slate-500 text-[10px] font-semibold uppercase tracking-wider px-4 py-1.5 rounded-full">
-                                {new Date(msg.created_at).toLocaleDateString('fr-FR', { 
-                                  weekday: 'long', 
-                                  day: 'numeric', 
-                                  month: 'long' 
-                                })}
-                              </div>
-                            </div>
-                          )}
-                          <motion.div 
-                            layout
-                            initial={{ opacity: 0, x: isMe ? 20 : -20, scale: 0.95 }}
-                            animate={{ opacity: 1, x: 0, scale: 1 }}
-                            className={cn("flex", isMe ? "justify-end" : "justify-start")}
-                          >
-                            <div className={cn(
-                              "group relative flex flex-col max-w-[85%] md:max-w-[75%]",
-                              isMe ? "items-end" : "items-start"
-                            )}>
-                              <div className={cn(
-                                "relative px-4 py-3 md:px-5 md:py-4 shadow-lg",
-                                isMe
-                                  ? "bg-gradient-to-br from-indigo-600 to-blue-700 text-white rounded-3xl rounded-tr-md shadow-indigo-200/30"
-                                  : "bg-white text-slate-800 border border-slate-100 rounded-3xl rounded-tl-md shadow-slate-200/30"
-                              )}>
-                                {/* Indicateur non lu */}
-                                {!isMe && !msg.is_read && (
-                                  <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-2 h-2 bg-primary rounded-full" />
-                                )}
-                                <p className="text-[14px] md:text-[14.5px] leading-relaxed font-medium whitespace-pre-wrap">
-                                  {msg.content.startsWith('[Image]') ? (
-                                    <span className="flex items-center gap-2 text-sm opacity-80">
-                                      <Image className="w-4 h-4" />
-                                      {msg.content.replace('[Image] ', '')}
-                                    </span>
-                                  ) : msg.content.startsWith('[Fichier]') ? (
-                                    <span className="flex items-center gap-2 text-sm opacity-80">
-                                      <Paperclip className="w-4 h-4" />
-                                      {msg.content.replace('[Fichier] ', '')}
-                                    </span>
-                                  ) : msg.content}
-                                </p>
-                              </div>
-                              <div className={cn(
-                                "flex items-center gap-1 mt-1.5 px-1",
-                                isMe ? "flex-row-reverse" : "flex-row"
-                              )}>
-                                <span className={cn(
-                                  "text-[9px] font-bold uppercase tracking-wider opacity-50",
-                                  isMe ? "text-indigo-900" : "text-slate-500"
-                                )}>
-                                  {new Date(msg.created_at).toLocaleTimeString('fr-FR', { 
-                                    hour: '2-digit', 
-                                    minute: '2-digit' 
-                                  })}
-                                </span>
-                                {isMe && <MessageStatus isRead={msg.is_read} isSent={true} />}
-                              </div>
-                            </div>
-                          </motion.div>
-                        </div>
-                      )
-                    })}
-                  </AnimatePresence>
-                ) : (
-                  <div className="flex flex-col items-center justify-center py-20 text-center">
-                    <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
-                      <MessageSquare className="h-8 w-8 text-slate-300" />
+            {/* Filtres */}
+            <div className="flex gap-2">
+              {[
+                { key: "all", label: "Tous" },
+                { key: "unread", label: "Non lus" },
+                { key: "pinned", label: "Epingles" },
+              ].map((filter) => (
+                <Button
+                  key={filter.key}
+                  variant={filterType === filter.key ? "default" : "outline"}
+                  size="sm"
+                  className={cn(
+                    "h-8 px-3 rounded-lg text-xs font-medium transition-all",
+                    filterType === filter.key 
+                      ? "bg-primary text-primary-foreground shadow-sm" 
+                      : "bg-transparent border-muted-foreground/20 text-muted-foreground hover:text-foreground"
+                  )}
+                  onClick={() => setFilterType(filter.key as typeof filterType)}
+                >
+                  {filter.label}
+                </Button>
+              ))}
+            </div>
+          </header>
+
+          {/* Liste des conversations */}
+          <ScrollArea className="flex-1">
+            <div className="p-2">
+              {loadingConv ? (
+                <div className="space-y-2 p-2">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <div key={i} className="flex items-center gap-3 p-3 rounded-2xl animate-pulse">
+                      <div className="w-12 h-12 rounded-full bg-muted" />
+                      <div className="flex-1 space-y-2">
+                        <div className="h-4 w-24 bg-muted rounded" />
+                        <div className="h-3 w-32 bg-muted rounded" />
+                      </div>
                     </div>
-                    <p className="text-sm text-slate-400 font-medium">
-                      Commencez la conversation!
+                  ))}
+                </div>
+              ) : filteredConversations.length > 0 ? (
+                <div className="space-y-1">
+                  {filteredConversations.map((conv) => {
+                    const isSelected = selectedConv?.id === conv.id
+                    const isOnline = conv.otherUser.isOnline
+                    
+                    return (
+                      <motion.div
+                        key={conv.id}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        onClick={() => {
+                          setSelectedConv(conv)
+                          setShowChatMobile(true)
+                        }}
+                        className={cn(
+                          "relative flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition-all group",
+                          isSelected 
+                            ? "bg-primary/10 border border-primary/20" 
+                            : "hover:bg-muted/60"
+                        )}
+                      >
+                        {/* Avatar avec indicateur en ligne */}
+                        <div className="relative shrink-0">
+                          <Avatar className="h-12 w-12 border-2 border-background shadow-sm">
+                            <AvatarImage src={conv.otherUser.avatar || undefined} className="object-cover" />
+                            <AvatarFallback className="bg-muted text-muted-foreground font-medium">
+                              {conv.otherUser.name.split(' ').map(n => n[0]).join('')}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className={cn(
+                            "absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-background",
+                            isOnline ? "bg-emerald-500" : "bg-muted-foreground/40"
+                          )}>
+                            {isOnline && (
+                              <span className="absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-75" />
+                            )}
+                          </span>
+                        </div>
+
+                        {/* Contenu */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-2 mb-0.5">
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              {conv.isPinned && (
+                                <Pin className="h-3 w-3 text-primary shrink-0" />
+                              )}
+                              <span className={cn(
+                                "font-semibold text-sm truncate",
+                                conv.unreadCount > 0 ? "text-foreground" : "text-foreground/80"
+                              )}>
+                                {conv.otherUser.name}
+                              </span>
+                            </div>
+                            <span className="text-[11px] text-muted-foreground shrink-0">
+                              {formatTime(conv.lastMessageAt)}
+                            </span>
+                          </div>
+                          
+                          <div className="flex items-center justify-between gap-2">
+                            <p className={cn(
+                              "text-xs truncate",
+                              conv.unreadCount > 0 
+                                ? "text-foreground font-medium" 
+                                : "text-muted-foreground"
+                            )}>
+                              {conv.lastMessage || "Demarrer une conversation"}
+                            </p>
+                            {conv.unreadCount > 0 && (
+                              <Badge className="h-5 min-w-5 px-1.5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold shrink-0">
+                                {conv.unreadCount}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Menu contextuel */}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-8 w-8 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                            >
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-48 rounded-xl">
+                            <DropdownMenuItem onClick={() => togglePin(conv.id)} className="rounded-lg">
+                              <Pin className="h-4 w-4 mr-2" />
+                              {conv.isPinned ? "Desepingler" : "Epingler"}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="rounded-lg">
+                              <Bell className="h-4 w-4 mr-2" />
+                              {conv.isMuted ? "Reactiver" : "Mettre en sourdine"}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="rounded-lg">
+                              <Archive className="h-4 w-4 mr-2" />
+                              Archiver
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem className="rounded-lg text-destructive focus:text-destructive">
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Supprimer
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </motion.div>
+                    )
+                  })}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+                  <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+                    <Search className="h-7 w-7 text-muted-foreground" />
+                  </div>
+                  <p className="text-sm font-medium text-foreground mb-1">
+                    Aucune conversation
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {searchQuery 
+                      ? "Aucun resultat pour cette recherche" 
+                      : "Commencez une nouvelle discussion"}
+                  </p>
+                </div>
+              )}
+            </div>
+          </ScrollArea>
+        </aside>
+
+        {/* Zone de chat */}
+        <main className={cn(
+          "flex-1 flex flex-col bg-muted/20",
+          !showChatMobile && "hidden md:flex"
+        )}>
+          {selectedConv ? (
+            <>
+              {/* Header Chat */}
+              <header className="h-[72px] px-4 lg:px-6 flex items-center justify-between border-b bg-card/80 backdrop-blur-sm">
+                <div className="flex items-center gap-3">
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="md:hidden h-9 w-9 rounded-xl"
+                    onClick={() => setShowChatMobile(false)}
+                  >
+                    <ArrowLeft className="h-5 w-5" />
+                  </Button>
+                  
+                  <div className="relative">
+                    <Avatar className="h-10 w-10 border-2 border-background shadow-sm">
+                      <AvatarImage src={selectedConv.otherUser.avatar || undefined} className="object-cover" />
+                      <AvatarFallback className="bg-muted font-medium">
+                        {selectedConv.otherUser.name.split(' ').map(n => n[0]).join('')}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className={cn(
+                      "absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-card",
+                      selectedConv.otherUser.isOnline ? "bg-emerald-500" : "bg-muted-foreground/40"
+                    )} />
+                  </div>
+                  
+                  <div className="min-w-0">
+                    <h2 className="font-semibold text-sm text-foreground truncate">
+                      {selectedConv.otherUser.name}
+                    </h2>
+                    <p className="text-xs text-muted-foreground">
+                      {selectedConv.otherUser.isOnline 
+                        ? <span className="text-emerald-600 font-medium">En ligne</span>
+                        : formatLastSeen(selectedConv.otherUser.lastSeen)
+                      }
                     </p>
                   </div>
-                )}
-                <div ref={scrollRef} className="h-4" />
-              </div>
-            </ScrollArea>
-
-            {/* Input Area */}
-            <div className="p-4 md:p-6 bg-white/50 backdrop-blur-xl border-t border-slate-100">
-              <motion.div 
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                className="relative flex items-end gap-2 md:gap-3 bg-white p-2 md:p-2.5 rounded-[2rem] shadow-2xl shadow-indigo-100/50 border border-slate-100"
-              >
-                <div className="flex items-center gap-1 px-1 md:px-2 mb-1">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="rounded-full h-8 w-8 md:h-10 md:w-10 text-slate-400 hover:text-primary hover:bg-slate-50 transition-all"
-                    onClick={() => imageInputRef.current?.click()}
-                  >
-                    <Image className="h-4 w-4 md:h-5 md:w-5" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="rounded-full h-8 w-8 md:h-10 md:w-10 text-slate-400 hover:text-primary hover:bg-slate-50 transition-all"
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    <Paperclip className="h-4 w-4 md:h-5 md:w-5" />
-                  </Button>
                 </div>
-                
-                <Textarea
-                  placeholder="Écrivez votre message ici..."
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  rows={1}
-                  className="min-h-[40px] md:min-h-[44px] max-h-[120px] bg-transparent border-none focus-visible:ring-0 resize-none rounded-2xl text-[14px] md:text-[15px] font-medium py-2.5 md:py-3 placeholder:text-slate-400 leading-normal"
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault()
-                      handleSendMessage()
-                    }
-                  }}
-                />
-                
-                <Button
-                  className={cn(
-                    "rounded-full h-10 w-10 md:h-12 md:w-12 shrink-0 shadow-lg transition-all duration-300",
-                    message.trim() 
-                      ? "bg-primary scale-100 shadow-primary/30" 
-                      : "bg-slate-100 text-slate-400 scale-90"
-                  )}
-                  onClick={handleSendMessage}
-                  disabled={isSending || !message.trim()}
-                >
-                  {isSending ? (
-                    <Loader2 className="animate-spin h-4 w-4 md:h-5 md:w-5" />
-                  ) : (
-                    <Send className="h-4 w-4 md:h-5 md:w-5 fill-current" />
-                  )}
-                </Button>
-              </motion.div>
-              <p className="text-center text-[9px] md:text-[10px] text-slate-300 mt-3 font-medium uppercase tracking-[0.2em]">
-                Conversation sécurisée et cryptée
+
+                <div className="flex items-center gap-1">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hidden sm:flex">
+                        <Phone className="h-4 w-4 text-muted-foreground" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Appel audio</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hidden sm:flex">
+                        <Video className="h-4 w-4 text-muted-foreground" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Appel video</TooltipContent>
+                  </Tooltip>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl">
+                        <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48 rounded-xl">
+                      <DropdownMenuItem className="rounded-lg">
+                        <Star className="h-4 w-4 mr-2" />
+                        Messages importants
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="rounded-lg">
+                        <Search className="h-4 w-4 mr-2" />
+                        Rechercher
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem className="rounded-lg text-destructive focus:text-destructive">
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Supprimer la conversation
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </header>
+
+              {/* Messages */}
+              <ScrollArea className="flex-1 px-4 lg:px-6 py-4">
+                {loadingMsgs ? (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                      <p className="text-sm text-muted-foreground">Chargement...</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4 max-w-3xl mx-auto">
+                    {messages.map((msg, index) => {
+                      const isOwn = msg.sender_id === currentUserId
+                      const showAvatar = index === 0 || messages[index - 1]?.sender_id !== msg.sender_id
+                      const isLastInGroup = index === messages.length - 1 || messages[index + 1]?.sender_id !== msg.sender_id
+                      
+                      return (
+                        <motion.div
+                          key={msg.id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className={cn(
+                            "flex gap-2.5",
+                            isOwn ? "justify-end" : "justify-start"
+                          )}
+                        >
+                          {!isOwn && (
+                            <div className="w-8 shrink-0">
+                              {showAvatar && (
+                                <Avatar className="h-8 w-8 border border-border">
+                                  <AvatarImage src={selectedConv.otherUser.avatar || undefined} className="object-cover" />
+                                  <AvatarFallback className="text-xs bg-muted">
+                                    {selectedConv.otherUser.name.split(' ').map(n => n[0]).join('')}
+                                  </AvatarFallback>
+                                </Avatar>
+                              )}
+                            </div>
+                          )}
+                          
+                          <div className={cn(
+                            "max-w-[75%] sm:max-w-[65%]",
+                            isOwn ? "items-end" : "items-start"
+                          )}>
+                            <div className={cn(
+                              "px-4 py-2.5 rounded-2xl text-sm leading-relaxed",
+                              isOwn 
+                                ? "bg-primary text-primary-foreground rounded-br-md" 
+                                : "bg-card border border-border rounded-bl-md"
+                            )}>
+                              {msg.content}
+                            </div>
+                            
+                            {isLastInGroup && (
+                              <div className={cn(
+                                "flex items-center gap-1.5 mt-1 px-1",
+                                isOwn ? "justify-end" : "justify-start"
+                              )}>
+                                <span className="text-[10px] text-muted-foreground">
+                                  {formatMessageTime(msg.created_at)}
+                                </span>
+                                {isOwn && (
+                                  <span className="flex items-center">
+                                    {msg.is_read ? (
+                                      <CheckCheck className="h-3.5 w-3.5 text-primary" />
+                                    ) : (
+                                      <Check className="h-3.5 w-3.5 text-muted-foreground" />
+                                    )}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </motion.div>
+                      )
+                    })}
+                    <div ref={messagesEndRef} />
+                  </div>
+                )}
+              </ScrollArea>
+
+              {/* Input */}
+              <footer className="p-4 lg:px-6 border-t bg-card/80 backdrop-blur-sm">
+                <div className="flex items-end gap-2 max-w-3xl mx-auto">
+                  <div className="flex gap-1">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl shrink-0">
+                          <Plus className="h-5 w-5 text-muted-foreground" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Ajouter</TooltipContent>
+                    </Tooltip>
+                  </div>
+                  
+                  <div className="flex-1 relative">
+                    <Textarea
+                      ref={inputRef}
+                      placeholder="Ecrivez votre message..."
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault()
+                          handleSendMessage()
+                        }
+                      }}
+                      className="min-h-[44px] max-h-[120px] py-3 px-4 pr-24 resize-none rounded-2xl bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary/30"
+                      rows={1}
+                    />
+                    <div className="absolute right-2 bottom-2 flex items-center gap-0.5">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg">
+                            <Smile className="h-4 w-4 text-muted-foreground" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Emoji</TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg">
+                            <Paperclip className="h-4 w-4 text-muted-foreground" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Fichier</TooltipContent>
+                      </Tooltip>
+                    </div>
+                  </div>
+
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        size="icon" 
+                        className="h-10 w-10 rounded-xl shrink-0 bg-primary hover:bg-primary/90"
+                        onClick={handleSendMessage}
+                        disabled={!message.trim() || isSending}
+                      >
+                        {isSending ? (
+                          <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <Send className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Envoyer</TooltipContent>
+                  </Tooltip>
+                </div>
+              </footer>
+            </>
+          ) : (
+            /* Etat vide - Aucune conversation selectionnee */
+            <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
+              <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-6">
+                <Send className="h-8 w-8 text-muted-foreground" />
+              </div>
+              <h2 className="text-xl font-semibold text-foreground mb-2">
+                Vos messages
+              </h2>
+              <p className="text-sm text-muted-foreground max-w-sm mb-6">
+                Selectionnez une conversation ou demarrez une nouvelle discussion pour commencer a echanger.
               </p>
-            </div>
-          </>
-        ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-center p-8 md:p-12 overflow-hidden">
-            {/* Background Decoration */}
-            <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none flex items-center justify-center">
-              <MessageSquare className="w-[400px] md:w-[600px] h-[400px] md:h-[600px] rotate-12" />
-            </div>
-            
-            <div className="z-10 max-w-sm">
-              <motion.div 
-                animate={{ y: [0, -10, 0] }}
-                transition={{ repeat: Infinity, duration: 4 }}
-                className="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-indigo-500/10 to-blue-500/10 rounded-full flex items-center justify-center mb-6 md:mb-8 mx-auto ring-1 ring-indigo-100/50"
-              >
-                <Send className="w-8 h-8 md:w-10 md:h-10 text-primary opacity-40 -translate-x-1 translate-y-1" />
-              </motion.div>
-              <h3 className="text-xl md:text-2xl font-black text-slate-800 mb-3 md:mb-4 tracking-tight">
-                Vos Discussions
-              </h3>
-              <p className="text-sm md:text-base text-slate-400 font-medium mb-8 md:mb-10 leading-relaxed">
-                Échangez en direct avec vos contacts ou contactez le Service Client Nexus pour toute assistance.
-              </p>
-              <Button 
-                variant="outline" 
-                className="rounded-full px-6 md:px-8 h-10 md:h-12 border-slate-200 font-bold hover:bg-slate-50 transition-all shadow-sm"
-                onClick={handleContactSupport}
-              >
-                Contactez le Support
+              <Button className="rounded-xl px-6">
+                <Plus className="h-4 w-4 mr-2" />
+                Nouvelle conversation
               </Button>
             </div>
-          </div>
-        )}
+          )}
+        </main>
       </div>
-
-      <input
-        type="file"
-        ref={imageInputRef}
-        className="hidden"
-        accept="image/*"
-        onChange={(e) => {
-          const file = e.target.files?.[0]
-          if (file) handleFileUpload(file, "image")
-        }}
-      />
-      <input
-        type="file"
-        ref={fileInputRef}
-        className="hidden"
-        accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.rar"
-        onChange={(e) => {
-          const file = e.target.files?.[0]
-          if (file) handleFileUpload(file, "file")
-        }}
-      />
-    </div>
+    </TooltipProvider>
   )
 }
