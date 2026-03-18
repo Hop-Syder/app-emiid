@@ -41,7 +41,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         { title: "Dashboard", icon: LayoutDashboard, href: "/" },
         { title: "Utilisateurs", icon: Users, href: "/users" },
         { title: "Modération Galeries", icon: ImageIcon, href: "/moderation/galerie" },
-        { title: "Annonces & Ads", icon: ShieldAlert, href: "/moderation/ads" },
+        // { title: "Annonces & Ads", icon: ShieldAlert, href: "/moderation/ads" }, // Desactive pour le moment
         { title: "Paramètres", icon: Settings, href: "/settings" },
     ]
 

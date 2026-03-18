@@ -1,36 +1,126 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Frontend Admin - App Nexus Connect
 
-## Getting Started
+Panneau d'administration pour la plateforme App Nexus Connect. Interface moderne construite avec Next.js 16, Tailwind CSS 4, et connectee a Supabase.
 
-First, run the development server:
+## Fonctionnalites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+### Dashboard (`/`)
+- Statistiques en temps reel (utilisateurs, profils publies, messages, annonces)
+- Graphique d'activite hebdomadaire
+- Etat du systeme (API, Base de donnees, Stockage)
+- Liste des nouveaux utilisateurs
+- Repartition geographique par pays
+
+### Gestion Utilisateurs (`/users`)
+- Liste paginee des utilisateurs depuis Supabase
+- Filtres par statut (tous, publie, non publie) et role (tous, pro, particulier)
+- Recherche par nom ou email
+- Selection multiple pour actions groupees
+- Actions: publier/depublier profil, supprimer utilisateur
+- Modal de detail utilisateur avec informations completes
+
+### Moderation Galeries (`/moderation/galerie`)
+- Vue grille ou liste des images
+- Filtres par statut (en attente, approuve, rejete)
+- Indicateurs de signalements
+- Actions d'approbation/rejet
+- *Note: Utilise actuellement des donnees de demo*
+
+### Parametres (`/settings`)
+- Profil administrateur
+- Configuration des notifications (email, push)
+- Securite (2FA, timeout session)
+- Parametres systeme (stats serveur, backup, maintenance)
+- Apparence (theme, langue)
+
+## Stack Technique
+
+- **Framework**: Next.js 16 (App Router)
+- **Styling**: Tailwind CSS 4
+- **Animations**: Framer Motion
+- **Icons**: Lucide React
+- **Notifications**: Sonner
+- **Base de donnees**: Supabase
+- **Langage**: TypeScript
+
+## Structure du Projet
+
+```
+frontend-admin/
+├── app/
+│   ├── page.tsx                    # Dashboard (Server Component)
+│   ├── layout.tsx                  # Layout principal
+│   ├── globals.css                 # Styles globaux
+│   ├── users/
+│   │   └── page.tsx                # Page utilisateurs
+│   ├── moderation/
+│   │   ├── galerie/
+│   │   │   └── page.tsx            # Moderation images
+│   │   └── ads/
+│   │       └── page.tsx            # Moderation annonces (desactive)
+│   └── settings/
+│       └── page.tsx                # Parametres
+├── components/
+│   ├── admin-layout.tsx            # Layout admin avec sidebar
+│   ├── dashboard-client.tsx        # Dashboard (Client Component)
+│   └── users-client.tsx            # Gestion utilisateurs (Client)
+└── lib/
+    ├── actions/
+    │   └── admin.ts                # Server Actions (CRUD Supabase)
+    ├── supabase/
+    │   ├── client.ts               # Client Supabase (browser)
+    │   └── server.ts               # Client Supabase (server/admin)
+    └── utils.ts                    # Utilitaires (cn)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Variables d'Environnement
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Schema Supabase Requis
 
-## Learn More
+Le frontend-admin se connecte aux tables suivantes:
 
-To learn more about Next.js, take a look at the following resources:
+- `user_profiles` - Profils utilisateurs
+- `ads` - Annonces
+- `conversations` - Conversations
+- `messages` - Messages
+- `countries` - Pays
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Installation
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+# Installer les dependances
+npm install
 
-## Deploy on Vercel
+# Lancer en developpement
+npm run dev
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# Build pour production
+npm run build
+npm start
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Server Actions Disponibles
+
+| Action | Description |
+|--------|-------------|
+| `getDashboardStats()` | Recupere les statistiques du dashboard |
+| `getUsers(params)` | Liste les utilisateurs avec filtres et pagination |
+| `updateUserProfile(id, data)` | Met a jour un profil utilisateur |
+| `toggleUserPublished(id, published)` | Publie/depublie un profil |
+| `deleteUser(id)` | Supprime un utilisateur |
+| `getAds(params)` | Liste les annonces |
+| `updateAdStatus(id, status)` | Change le statut d'une annonce |
+| `getCountries()` | Liste des pays |
+
+## Design
+
+- Palette: Slate (neutres), Blue (primaire), Emerald (succes), Amber (warning), Rose (danger)
+- Animations subtiles avec Framer Motion
+- Interface responsive (sidebar collapsible sur mobile)
+- Theme clair (dark mode disponible dans settings)
