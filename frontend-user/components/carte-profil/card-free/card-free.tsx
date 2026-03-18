@@ -1,65 +1,126 @@
 "use client"
 
-import { Shield, MapPin, Users } from "lucide-react"
+import { Shield, MapPin, Users, MessageCircle, Eye } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
+import { useState } from "react"
+import { toast } from "sonner"
+import Link from "next/link"
 import type { Entrepreneur } from "@/data/mock-data"
 
 interface CardFreeProps {
-    entrepreneur: Entrepreneur;
+    entrepreneur: Entrepreneur
 }
 
 export function CardFree({ entrepreneur }: CardFreeProps) {
+    const [isFollowed, setIsFollowed] = useState(false)
+    const [followersCount, setFollowersCount] = useState(entrepreneur.followers)
+
+    const handleFollow = (e: React.MouseEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+        setIsFollowed(!isFollowed)
+        setFollowersCount(prev => isFollowed ? prev - 1 : prev + 1)
+        toast.success(isFollowed ? "Retire du portefeuille" : "Ajoute au portefeuille")
+    }
+
+    const initials = entrepreneur.name
+        ?.split(' ')
+        .map(n => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2) || 'NA'
+
     return (
-        <Card className="rounded-3xl hover:shadow-lg border-muted/50 relative overflow-hidden transition-all duration-300 group">
-            <CardHeader className="relative">
-                <div className="flex items-start justify-between">
-                    <div className="relative">
-                        <Avatar className="h-16 w-16 border border-muted transition-transform group-hover:scale-105">
+        <Card className="group relative overflow-hidden rounded-2xl border border-border/50 bg-card transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 hover:border-primary/20">
+            <CardContent className="p-5">
+                {/* Header: Avatar + Info */}
+                <div className="flex items-start gap-4">
+                    {/* Avatar */}
+                    <div className="relative flex-shrink-0">
+                        <Avatar className="h-14 w-14 ring-2 ring-background shadow-md">
                             <AvatarImage src={entrepreneur.avatar || "/placeholder.svg"} alt={entrepreneur.name} />
-                            <AvatarFallback className="text-lg">{entrepreneur.name[0]}</AvatarFallback>
+                            <AvatarFallback className="bg-muted text-muted-foreground font-semibold">
+                                {initials}
+                            </AvatarFallback>
                         </Avatar>
                     </div>
-                    {entrepreneur.verified && (
-                        <Badge variant="outline" className="rounded-full bg-muted/50 transition-colors">
-                            <Shield className="mr-1 h-3 w-3" />
-                            Vérifié
-                        </Badge>
-                    )}
-                </div>
-                <div className="mt-4">
-                    <CardTitle className="text-xl font-bold group-hover:text-primary transition-colors">
-                        {entrepreneur.name}
-                    </CardTitle>
-                    <CardDescription className="mt-1 font-medium">{entrepreneur.role}</CardDescription>
-                </div>
-            </CardHeader>
 
-            <CardContent className="space-y-4 relative">
-                <div className="flex items-center text-sm text-muted-foreground bg-muted/20 p-2 rounded-xl border border-muted/10">
-                    <MapPin className="mr-2 h-4 w-4 flex-shrink-0 text-primary" />
-                    <span className="truncate">{entrepreneur.location}</span>
-                </div>
-
-                <Badge className="rounded-xl px-3 py-1 font-semibold bg-secondary/10 text-secondary-foreground border border-secondary/20">
-                    {entrepreneur.specialty}
-                </Badge>
-
-                <div className="flex items-center justify-between pt-4 border-t border-muted/50">
-                    <div className="flex items-center gap-1.5 text-sm font-medium">
-                        <Users className="h-4 w-4 text-muted-foreground" />
-                        <span>{entrepreneur.followers}</span>
-                        <span className="text-muted-foreground font-normal">followers</span>
+                    {/* Name & Role */}
+                    <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                            <h3 className="font-semibold text-foreground truncate">
+                                {entrepreneur.name}
+                            </h3>
+                            {entrepreneur.verified && (
+                                <Shield className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                            )}
+                        </div>
+                        <p className="text-sm text-muted-foreground truncate mt-0.5">
+                            {entrepreneur.role}
+                        </p>
+                        <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
+                            <MapPin className="h-3 w-3" />
+                            <span className="truncate">{entrepreneur.location}</span>
+                        </div>
                     </div>
-                    <Button
-                        size="sm"
-                        className="rounded-xl px-5 transition-all active:scale-95 shadow-sm bg-white hover:bg-primary hover:text-primary-foreground text-foreground border border-muted-foreground/20"
-                    >
-                        Suivre
-                    </Button>
                 </div>
+
+                {/* Tags */}
+                <div className="flex flex-wrap gap-1.5 mt-4">
+                    <Badge 
+                        variant="secondary" 
+                        className="rounded-full text-xs font-medium px-2.5 py-0.5"
+                    >
+                        {entrepreneur.specialty}
+                    </Badge>
+                </div>
+
+                {/* Stats & Actions */}
+                <div className="flex items-center justify-between mt-4 pt-4 border-t border-border/50">
+                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                        <Users className="h-4 w-4" />
+                        <span className="font-medium text-foreground">{followersCount}</span>
+                        <span>followers</span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 rounded-full"
+                            asChild
+                        >
+                            <Link href={`/messages?contact=${entrepreneur.id}`}>
+                                <MessageCircle className="h-4 w-4" />
+                            </Link>
+                        </Button>
+                        
+                        <Button
+                            variant={isFollowed ? "secondary" : "outline"}
+                            size="sm"
+                            onClick={handleFollow}
+                            className="rounded-full px-4 font-medium"
+                        >
+                            {isFollowed ? "Suivi" : "Suivre"}
+                        </Button>
+                    </div>
+                </div>
+
+                {/* View Profile Button */}
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full mt-3 rounded-full font-medium text-muted-foreground hover:text-foreground"
+                    asChild
+                >
+                    <Link href={`/profil/${entrepreneur.id}`}>
+                        <Eye className="h-4 w-4 mr-2" />
+                        Voir le profil
+                    </Link>
+                </Button>
             </CardContent>
         </Card>
     )
