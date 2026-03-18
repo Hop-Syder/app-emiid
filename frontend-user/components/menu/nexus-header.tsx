@@ -133,36 +133,36 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
         transition={{ duration: 0.35, ease: "easeInOut" }}
         className="sticky top-0 z-20 border-b border-white/20 bg-white/70 backdrop-blur-2xl supports-[backdrop-filter]:bg-white/60 shadow-sm"
       >
-        <div className="flex h-[72px] items-center gap-4 px-4 md:px-8">
+        <div className="flex h-16 md:h-[72px] items-center gap-2 md:gap-4 px-3 md:px-8">
 
           {/* Toggle Button for Mobile */}
           <Button 
             variant="ghost" 
             size="icon" 
-            className="md:hidden rounded-2xl bg-white shadow-sm border border-slate-100 hover:bg-slate-50 transition-all hover:scale-105" 
+            className="md:hidden shrink-0 rounded-xl bg-white shadow-sm border border-slate-100 active:bg-slate-50 transition-all h-10 w-10" 
             onClick={() => setMobileMenuOpen(true)}
           >
             <Menu className="h-5 w-5 text-slate-700" />
           </Button>
 
           {/* Title Area (mostly for mobile/tablet where sidebar is hidden) */}
-          <div className="flex-1 min-w-0 md:hidden flex items-center">
-            <img src="/logo/logo-1.png" alt="Nexus Connect" className="h-9 w-auto object-contain" />
+          <div className="flex-1 min-w-0 md:hidden flex justify-center items-center">
+            <img src="/logo/logo-1.png" alt="Nexus Connect" className="h-7 w-auto max-w-[130px] object-contain" />
           </div>
           
           <div className="flex-1 hidden md:block" />
 
-          <div className="flex items-center gap-2 md:gap-4">
+          <div className="flex items-center gap-1 sm:gap-2 md:gap-4 shrink-0">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button 
                     variant="ghost" 
                     size="icon" 
-                    className="rounded-2xl h-11 w-11 bg-white hover:bg-primary/5 hover:text-primary transition-all shadow-sm border border-slate-100" 
+                    className="rounded-xl md:rounded-2xl h-10 w-10 md:h-11 md:w-11 bg-white hover:bg-primary/5 hover:text-primary transition-all shadow-sm border border-slate-100 hidden sm:flex" 
                     onClick={(e) => handleRestrictedAction(e, "/messages")}
                   >
-                    <MessageSquare className="h-5 w-5" />
+                    <MessageSquare className="h-4 w-4 md:h-5 md:w-5" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent className="rounded-xl px-3 py-1.5 font-semibold">Messages</TooltipContent>
@@ -177,11 +177,11 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
                     <Button 
                         variant="ghost" 
                         size="icon" 
-                        className="rounded-2xl h-11 w-11 bg-white hover:bg-primary/5 hover:text-primary transition-all shadow-sm border border-slate-100"
+                        className="rounded-xl md:rounded-2xl h-10 w-10 md:h-11 md:w-11 bg-white hover:bg-primary/5 hover:text-primary transition-all shadow-sm border border-slate-100"
                     >
-                      <Bell className="h-5 w-5" />
+                      <Bell className="h-4 w-4 md:h-5 md:w-5" />
                       {unreadCount > 0 && (
-                        <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white font-bold ring-2 ring-white shadow-sm shadow-red-500/30 animate-pulse">
+                        <span className="absolute -right-1 -top-1 flex h-4 w-4 md:h-5 md:w-5 items-center justify-center rounded-full bg-red-500 text-[9px] md:text-[10px] text-white font-bold ring-2 ring-white shadow-sm shadow-red-500/30 animate-pulse">
                           {unreadCount > 9 ? "9+" : unreadCount}
                         </span>
                       )}
@@ -230,11 +230,11 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
                     <Button 
                         variant="ghost" 
                         size="icon" 
-                        className="rounded-2xl h-11 w-11 bg-white hover:bg-primary/5 hover:text-primary transition-all shadow-sm border border-slate-100"
+                        className="rounded-xl md:rounded-2xl h-10 w-10 md:h-11 md:w-11 bg-white hover:bg-primary/5 hover:text-primary transition-all shadow-sm border border-slate-100"
                     >
-                      <Bell className="h-5 w-5" />
+                      <Bell className="h-4 w-4 md:h-5 md:w-5" />
                       {unreadCount > 0 && (
-                        <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white font-bold ring-2 ring-white shadow-sm shadow-red-500/30">
+                        <span className="absolute -right-1 -top-1 flex h-4 w-4 md:h-5 md:w-5 items-center justify-center rounded-full bg-red-500 text-[9px] md:text-[10px] text-white font-bold ring-2 ring-white shadow-sm shadow-red-500/30">
                           {unreadCount > 9 ? "9+" : unreadCount}
                         </span>
                       )}
@@ -283,12 +283,12 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative p-0 h-11 w-11 rounded-full outline-none focus:ring-4 focus:ring-primary/20 transition-all ml-1 bg-white shadow-sm">
-                  <Avatar className="h-11 w-11 border-2 border-white shadow-sm transition-transform hover:scale-105">
+                <Button variant="ghost" className="relative p-0 h-10 w-10 md:h-11 md:w-11 rounded-full outline-none focus:ring-4 focus:ring-primary/20 transition-all sm:ml-1 bg-white shadow-sm shrink-0">
+                  <Avatar className="h-10 w-10 md:h-11 md:w-11 border-2 border-white shadow-sm transition-transform hover:scale-105">
                     <AvatarImage src={user?.avatar_url || "/african-user.jpg"} alt="User" className="object-cover" />
-                    <AvatarFallback className="bg-primary/10 text-primary font-bold">{user?.first_name?.[0] || 'U'}{user?.last_name?.[0] || ''}</AvatarFallback>
+                    <AvatarFallback className="bg-primary/10 text-primary font-bold text-xs">{user?.first_name?.[0] || 'U'}{user?.last_name?.[0] || ''}</AvatarFallback>
                   </Avatar>
-                  <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-white" />
+                  <div className="absolute bottom-0 right-0 h-2.5 w-2.5 md:h-3 md:w-3 rounded-full bg-green-500 border-2 border-white" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-64 p-2 rounded-3xl mt-2 shadow-2xl border-white/50 bg-white/95 backdrop-blur-xl" align="end" forceMount>

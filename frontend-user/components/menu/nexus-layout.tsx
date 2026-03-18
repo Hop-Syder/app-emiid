@@ -36,10 +36,10 @@ export function NexusLayout({ children }: NexusLayoutProps) {
   const filteredMenus = allMenus.filter(menu => pathname !== menu.href)
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-amber-50">
-      {/* Animated background */}
+    <div className="relative min-h-screen bg-amber-50/30 font-sans">
+      {/* Animated background - now fixed to preserve it during scroll */}
       <motion.div
-        className="absolute inset-0 -z-10 opacity-40"
+        className="fixed inset-0 -z-10 opacity-40 pointer-events-none"
         animate={{
           background: [
             "radial-gradient(circle at 50% 50%, rgba(255, 183, 3, 0.4) 0%, rgba(0, 114, 41, 0.4) 50%, rgba(0, 0, 0, 0) 100%)",
@@ -94,7 +94,7 @@ export function NexusLayout({ children }: NexusLayoutProps) {
                         router.push(menu.href)
                         setFabOpen(false)
                       }}
-                      className="h-12 w-12 rounded-full shadow-xl bg-white text-slate-700 hover:bg-slate-50 border border-slate-100 flex items-center justify-center p-2.5"
+                      className="h-11 w-11 rounded-full shadow-xl bg-white text-slate-700 hover:bg-slate-50 border border-slate-100 flex items-center justify-center p-2.5"
                     >
                       <img src={menu.icon} alt={menu.title} className="h-full w-full object-contain" />
                     </Button>
@@ -108,7 +108,7 @@ export function NexusLayout({ children }: NexusLayoutProps) {
             size="icon"
             onClick={() => setFabOpen(!fabOpen)}
             className={cn(
-              "h-16 w-16 rounded-full shadow-2xl transition-all duration-300 flex items-center justify-center p-4",
+              "h-14 w-14 rounded-full shadow-2xl transition-all duration-300 flex items-center justify-center p-3.5",
               fabOpen ? "bg-slate-900 text-white rotate-45" : "bg-primary text-white shadow-primary/20 hover:scale-105"
             )}
           >
