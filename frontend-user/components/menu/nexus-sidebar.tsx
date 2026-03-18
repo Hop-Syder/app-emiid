@@ -128,10 +128,10 @@ export function NexusSidebar({ sidebarOpen, setSidebarOpen, mobileMenuOpen, setM
     return items.some((item) => pathname.startsWith(item.href))
   }
 
-  const SidebarContent = () => (
+  const SidebarContent = ({ isMobile = false }: { isMobile?: boolean }) => (
     <div className="flex h-full flex-col bg-white">
       {/* Logo Area */}
-      <div className="p-6 pb-4">
+      <div className="flex items-center justify-between p-6 pb-4">
         <div className="flex items-center gap-3">
           <Image
             src="/logo/logo-1.png"
@@ -141,6 +141,11 @@ export function NexusSidebar({ sidebarOpen, setSidebarOpen, mobileMenuOpen, setM
             className="h-auto w-auto object-contain transition-transform duration-300 hover:scale-105"
           />
         </div>
+        {isMobile && (
+          <Button variant="ghost" size="icon" className="md:hidden rounded-full hover:bg-slate-100 text-slate-500 shrink-0" onClick={() => setMobileMenuOpen(false)}>
+            <X className="h-5 w-5" />
+          </Button>
+        )}
       </div>
 
       {/* Search Area */}
@@ -329,40 +334,26 @@ export function NexusSidebar({ sidebarOpen, setSidebarOpen, mobileMenuOpen, setM
     <>
       {/* Mobile menu overlay */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-40 bg-black/50 md:hidden" onClick={() => setMobileMenuOpen(false)} />
+        <div 
+          className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm transition-opacity duration-300 md:hidden" 
+          onClick={() => setMobileMenuOpen(false)} 
+        />
       )}
 
-      {/* Sidebar - Mobile */}
+      {/* Sidebar - Mobile Responsive Pro Max */}
       <div
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-64 transform bg-background border-r transition-transform duration-300 ease-in-out md:hidden",
+          "fixed inset-y-0 left-0 z-50 w-[85%] max-w-[320px] transform bg-white shadow-2xl transition-transform duration-500 ease-out md:hidden rounded-r-[2.5rem] overflow-hidden flex flex-col",
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <div className="flex items-center justify-between p-4 border-b">
-          <div className="flex items-center gap-3">
-            <div className="flex aspect-square size-10 items-center justify-center rounded-2xl bg-gradient-to-br from-green-600 to-amber-500 text-white">
-              <Globe className="size-5" />
-            </div>
-            <Image
-              src="/logo/logo-1.png"
-              alt="Nexus Connect Logo"
-              width={140}
-              height={35}
-              className="h-auto w-auto object-contain"
-            />
-          </div>
-          <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)}>
-            <X className="h-5 w-5" />
-          </Button>
-        </div>
-        <SidebarContent />
+        <SidebarContent isMobile={true} />
       </div>
 
       {/* Sidebar - Desktop */}
       <div
         className={cn(
-          "fixed inset-y-0 left-0 z-30 hidden w-64 transform border-r bg-background transition-transform duration-300 ease-in-out md:block",
+          "fixed inset-y-0 left-0 z-30 hidden w-[260px] transform border-r border-slate-100 bg-white shadow-sm transition-transform duration-300 ease-in-out md:block",
           sidebarOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
