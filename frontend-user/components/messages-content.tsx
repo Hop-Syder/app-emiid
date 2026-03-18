@@ -12,7 +12,7 @@
 
 import { useState, useRef, useEffect } from "react"
 import { motion } from "framer-motion"
-import { Send, Search, Image, Paperclip, Loader2, User, MessageSquare, MoreVertical } from "lucide-react"
+import { Send, Search, Image, Paperclip, Loader2, User, MessageSquare, MoreVertical, ArrowLeft } from "lucide-react"
 import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -32,6 +32,7 @@ export function MessagesContent() {
   const [loadingMsgs, setLoadingMsgs] = useState(false)
   const [isSending, setIsSending] = useState(false)
   const [supportId, setSupportId] = useState<string | null>(null)
+  const [showChatMobile, setShowChatMobile] = useState(false)
 
   const imageInputRef = useRef<HTMLInputElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -236,13 +237,11 @@ export function MessagesContent() {
       const res = await fetchWithAuth("/api/messages/support")
       if (res.ok) {
         const supportUser = await res.json()
-        // On cherche dans la liste existante si une conversation avec cet ID existe DEJA
         const existing = conversations.find(c => c.otherUser.id === supportUser.id)
         
         if (existing) {
           setSelectedConv(existing)
         } else {
-          // Sinon on crée l'état temporaire
           setSelectedConv({
             id: 'new-support',
             otherUser: {
@@ -255,6 +254,7 @@ export function MessagesContent() {
           })
           setMessages([])
         }
+        setShowChatMobile(true)
       } else {
           toast.error("Impossible de contacter le support pour le moment")
       }
@@ -267,7 +267,10 @@ export function MessagesContent() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-0 h-[calc(100vh-10rem)] bg-white/40 backdrop-blur-2xl rounded-[2.5rem] border border-white/50 shadow-2xl overflow-hidden shadow-indigo-100/50">
       {/* Sidebar - Conversations */}
-      <div className="flex flex-col border-r border-slate-100 bg-white/30 backdrop-blur-xl">
+      <div className={cn(
+          "flex flex-col border-r border-slate-100 bg-white/30 backdrop-blur-xl transition-all duration-300",
+          showChatMobile ? "hidden lg:flex" : "flex"
+      )}>
         <div className="p-6 border-b border-slate-100/50">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600">Messages</h2>
@@ -320,7 +323,10 @@ export function MessagesContent() {
                     key={conv.id}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    onClick={() => setSelectedConv(conv)}
+                    onClick={() => {
+                        setSelectedConv(conv)
+                        setShowChatMobile(true)
+                    }}
                     className={`group relative flex items-center gap-4 p-4 rounded-[1.5rem] cursor-pointer transition-all duration-300 ${
                       isSelected 
                         ? 'bg-white shadow-lg shadow-slate-200/50 ring-1 ring-slate-100' 
@@ -366,13 +372,24 @@ export function MessagesContent() {
       </div>
 
       {/* Area principale - Chat */}
-      <div className="flex flex-col relative bg-slate-50/30">
+      <div className={cn(
+          "flex flex-col relative bg-slate-50/30 transition-all duration-300",
+          !showChatMobile ? "hidden lg:flex" : "flex"
+      )}>
         {selectedConv ? (
           <>
             {/* Chat Header */}
-            <div className="flex items-center justify-between p-6 bg-white/70 backdrop-blur-md border-b border-slate-100 z-10">
+            <div className="flex items-center justify-between p-4 md:p-6 bg-white/70 backdrop-blur-md border-b border-slate-100 z-10">
               <div className="flex items-center gap-4">
-                <Avatar className="h-12 w-12 border-2 border-white shadow-md">
+                <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="lg:hidden rounded-xl bg-slate-100 text-slate-500"
+                    onClick={() => setShowChatMobile(false)}
+                >
+                    <ArrowLeft className="h-5 w-5" />
+                </Button>
+                <Avatar className="h-10 w-10 md:h-12 md:w-12 border-2 border-white shadow-md">
                   <AvatarImage src={selectedConv.otherUser.avatar} />
                   <AvatarFallback className="bg-primary/5 text-primary"><User /></AvatarFallback>
                 </Avatar>

@@ -140,6 +140,7 @@ export const getSupportUser = async (req: any, res: Response) => {
             .from('user_profiles')
             .select('user_id, first_name, last_name, avatar_url, role')
             .or('role.ilike.%admin%,first_name.ilike.%service client%')
+            .neq('user_id', req.user.id)
             .limit(1)
             .single();
 
