@@ -10,7 +10,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion } from "framer-motion"
 import { fetchPublic, fetchWithAuth } from "@/lib/apiClient"
 import { CardPremium } from "@/components/carte-profil/card-premium/card-premium"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -84,30 +84,36 @@ export function AnnuaireGrid({ filters }: AnnuaireGridProps) {
         loadProfiles()
     }, [filters])
 
+    if (loading) {
+        return (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {Array.from({ length: 9 }).map((_, i) => (
+                    <div key={i} className="h-[350px] w-full bg-muted animate-pulse rounded-3xl" />
+                ))}
+            </div>
+        )
+    }
+
+    if (profiles.length === 0) {
+        return (
+            <div className="py-20 text-center">
+                <p className="text-xl text-muted-foreground">Aucun profil trouvé dans l'annuaire.</p>
+            </div>
+        )
+    }
+
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <AnimatePresence mode="wait">
-                {loading ? (
-                    Array.from({ length: 9 }).map((_, i) => (
-                        <div key={i} className="h-[350px] w-full bg-muted animate-pulse rounded-3xl" />
-                    ))
-                ) : profiles.length > 0 ? (
-                    profiles.map((profile, index) => (
-                        <motion.div
-                            key={profile.id}
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 0.3, delay: index * 0.05 }}
-                        >
-                            <CardPremium entrepreneur={profile} />
-                        </motion.div>
-                    ))
-                ) : (
-                    <div className="col-span-full py-20 text-center">
-                        <p className="text-xl text-muted-foreground">Aucun profil trouvé dans l'annuaire.</p>
-                    </div>
-                )}
-            </AnimatePresence>
+            {profiles.map((profile, index) => (
+                <motion.div
+                    key={profile.id}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                >
+                    <CardPremium entrepreneur={profile} />
+                </motion.div>
+            ))}
         </div>
     )
 }
