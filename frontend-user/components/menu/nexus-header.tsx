@@ -42,12 +42,8 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
   const supabase = createClient()
 
   useMotionValueEvent(scrollY, "change", (latest) => {
-    const previous = scrollY.getPrevious() ?? 0
-    if (latest > previous && latest > 150) {
-      setHidden(true)
-    } else {
-      setHidden(false)
-    }
+    // Logic to hide header on scroll disabled to satisfy user request for persistent navigation
+    setHidden(false)
   })
 
   useEffect(() => {
@@ -124,14 +120,8 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
 
   return (
     <>
-      <motion.header
-        variants={{
-          visible: { y: 0 },
-          hidden: { y: "-100%" },
-        }}
-        animate={hidden ? "hidden" : "visible"}
-        transition={{ duration: 0.35, ease: "easeInOut" }}
-        className="sticky top-4 md:top-6 z-20 mx-4 md:mx-6 mb-4 md:mb-6 rounded-2xl border border-white/20 bg-white/70 backdrop-blur-2xl supports-[backdrop-filter]:bg-white/60 shadow-lg"
+      <header
+        className="sticky top-0 md:top-6 z-50 md:mx-6 mb-4 md:mb-6 md:rounded-2xl border-b md:border border-white/20 bg-white/95 backdrop-blur-2xl supports-[backdrop-filter]:bg-white/80 shadow-md md:shadow-lg transition-all duration-300"
       >
         <div className="flex h-16 md:h-[72px] items-center gap-2 md:gap-4 px-3 md:px-8">
 
@@ -341,7 +331,7 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
             </DropdownMenu>
           </div>
         </div>
-      </motion.header>
+      </header>
 
     </>
   )

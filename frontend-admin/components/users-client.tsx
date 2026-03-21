@@ -349,10 +349,10 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
                     <div className="flex items-center gap-1.5">
                       <p className="text-sm font-semibold text-slate-900 flex items-center gap-1.5">
                         {user.first_name || ""} {user.last_name || ""}
-                        {user.is_verified && <BadgeCheck className="h-4 w-4 text-blue-500" title="Profil Vérifié" />}
-                        {user.is_premium && <Crown className="h-4 w-4 text-amber-500" title="Membre Premium" />}
+                        {user.is_verified && <BadgeCheck className="h-4 w-4 text-blue-500" />}
+                        {user.is_premium && <Crown className="h-4 w-4 text-amber-500" />}
                       </p>
-                      {user.has_profile && !user.is_verified && <BadgeCheck className="h-4 w-4 text-slate-300" title="A un profil complété" />}
+                      {user.has_profile && !user.is_verified && <BadgeCheck className="h-4 w-4 text-slate-300" />}
                     </div>
                     <p className="text-xs text-slate-500">{user.email || "Pas d'email"}</p>
                   </div>
@@ -531,10 +531,10 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
                       <div className="flex items-center gap-2">
                         <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
                           {selectedUser.first_name || ""} {selectedUser.last_name || ""}
-                          {selectedUser.is_verified && <BadgeCheck className="h-5 w-5 text-blue-500" title="Vérifié" />}
-                          {selectedUser.is_premium && <Crown className="h-5 w-5 text-amber-500" title="Premium" />}
+                          {selectedUser.is_verified && <BadgeCheck className="h-5 w-5 text-blue-500" />}
+                          {selectedUser.is_premium && <Crown className="h-5 w-5 text-amber-500" />}
                         </h2>
-                        {selectedUser.has_profile && !selectedUser.is_verified && <BadgeCheck className="h-5 w-5 text-slate-300" title="Profil Complété" />}
+                        {selectedUser.has_profile && !selectedUser.is_verified && <BadgeCheck className="h-5 w-5 text-slate-300" />}
                       </div>
                       <p className="text-sm text-slate-500">{selectedUser.email || "Pas d'email"}</p>
                     </div>

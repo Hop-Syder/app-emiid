@@ -1,7 +1,8 @@
 "use client"
 
-import { Shield, MapPin, Users, Star } from "lucide-react"
+import { Shield, MapPin, Users, Star, Eye } from "lucide-react"
 import { motion } from "framer-motion"
+import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -17,6 +18,7 @@ export interface Profile {
     followers: number
     projects: number
     premium?: boolean
+    id?: string
 }
 
 interface AnnuaireCardProps {
@@ -113,15 +115,29 @@ export function AnnuaireCard({ profile }: AnnuaireCardProps) {
                             <Users className="h-4 w-4" />
                             <span className="font-medium">{profile.followers}</span>
                         </div>
-                        <Button
-                            size="sm"
-                            className={`rounded-xl ${profile.premium
-                                ? "bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-white font-semibold shadow-md"
-                                : ""
-                                }`}
-                        >
-                            Suivre
-                        </Button>
+                        <div className="flex items-center gap-2">
+                            {profile.id && (
+                                <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-9 w-9 rounded-xl border border-slate-100 hover:bg-slate-50 transition-all"
+                                    asChild
+                                >
+                                    <Link href={`/profil/${profile.id}`}>
+                                        <Eye className="h-4.5 w-4.5 text-slate-500" />
+                                    </Link>
+                                </Button>
+                            )}
+                            <Button
+                                size="sm"
+                                className={`rounded-xl px-4 ${profile.premium
+                                    ? "bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-white font-semibold shadow-md"
+                                    : "bg-primary"
+                                    }`}
+                            >
+                                Suivre
+                            </Button>
+                        </div>
                     </div>
                 </CardContent>
             </Card>
