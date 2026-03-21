@@ -192,13 +192,42 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
         // Simulate API fetch
         const fetchProfile = async () => {
             setLoading(true)
-            await new Promise(resolve => setTimeout(resolve, 500))
-            
-            const foundProfile = mockProfiles[profileId] || { ...defaultProfile, id: profileId }
-            setProfile(foundProfile)
-            setIsFollowed(foundProfile.isFollowed)
-            setFollowersCount(foundProfile.followers)
-            setLoading(false)
+            try {
+                const response = await fetch(`/api/public/profiles/${profileId}`)
+                if (response.ok) {
+                    const data = await response.json()
+                    const mappedProfile: ProfileData = {
+                        id: data.user_id || data.id,
+                        name: `${data.first_name || ""} ${data.last_name || ""}`.trim() || "Utilisateur Nexus",
+                        role: data.role || "Membre Nexus",
+                        bio: data.bio || "Aucune description fournie.",
+                        location: data.city ? `${data.city}, ${data.countries?.name || ""}` : (data.countries?.name || "Afrique"),
+                        avatar: data.avatar_url || "/african-user.jpg",
+                        coverImage: data.cover_url || undefined,
+                        specialty: data.specialty || "Expertise",
+                        category: data.category || "",
+                        verified: !!data.is_verified,
+                        premium: !!data.is_premium,
+                        followers: data.followers_count || 0,
+                        following: data.following_count || 0,
+                        projects: data.projects_count || 0,
+                        isOnline: false, // Could be handled by extra logic later
+                        isFollowed: false, // Handled below
+                        joinedDate: new Date(data.created_at).toLocaleDateString(),
+                        email: data.email,
+                        website: data.website,
+                        skills: data.tags || [],
+                        experiences: [], // Need mapping if available in BDD later
+                        portfolio: [] // Need mapping if available in BDD later
+                    }
+                    setProfile(mappedProfile)
+                    setFollowersCount(mappedProfile.followers)
+                }
+            } catch (error) {
+                console.error("Erreur chargement profil:", error)
+            } finally {
+                setLoading(false)
+            }
         }
 
         fetchProfile()

@@ -40,7 +40,9 @@ export function ParametresContent() {
         country_name: "",
         city: "",
         pin_enabled: false,
-        phone: ""
+        phone: "",
+        is_verified: false,
+        is_premium: false
     })
 
     const [sectors, setSectors] = useState<any[]>([])
@@ -68,7 +70,9 @@ export function ParametresContent() {
                     country_name: data.country_name || "",
                     city: data.city || "",
                     pin_enabled: data.pin_enabled || false,
-                    phone: data.phone || ""
+                    phone: data.phone || "",
+                    is_verified: data.is_verified || false,
+                    is_premium: data.is_premium || false
                 })
             }
         } catch (error) {
@@ -144,12 +148,26 @@ export function ParametresContent() {
             {/* Header de la page */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 bg-white/60 backdrop-blur-xl p-5 md:p-8 rounded-xl md:rounded-xl shadow-xl shadow-slate-200/40 border border-white">
                 <div className="space-y-1.5 md:space-y-2">
-                    <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-900">Paramètres du Compte</h1>
+                    <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-900 flex items-center gap-2">
+                        Paramètres du Compte
+                        {profile.is_verified && <Shield className="h-6 w-6 text-primary" title="Compte Vérifié" />}
+                        {profile.is_premium && <Star className="h-6 w-6 text-amber-500 fill-amber-500" title="Membre Premium" />}
+                    </h1>
                     <p className="text-sm md:text-base text-slate-500 font-medium leading-relaxed">
                         Gérez vos informations personnelles, votre sécurité et vos préférences.
                     </p>
                 </div>
-                {/* On pourrait ajouter un petit widget résumé ici si besoin */}
+                {profile.is_premium && (
+                    <div className="bg-gradient-to-br from-amber-50 to-amber-100 flex items-center gap-3 px-4 py-2 rounded-xl border border-amber-200">
+                        <div className="p-2 bg-amber-500 rounded-lg text-white shadow-lg shadow-amber-500/30">
+                            <Star className="h-5 w-5 fill-current" />
+                        </div>
+                        <div>
+                            <p className="text-xs font-bold text-amber-800 uppercase tracking-wider">Statut</p>
+                            <p className="text-sm font-black text-amber-950">Membre Premium</p>
+                        </div>
+                    </div>
+                )}
             </div>
 
             <Tabs defaultValue="profil" className="flex flex-col lg:flex-row gap-6 md:gap-8 lg:items-start" orientation="vertical">

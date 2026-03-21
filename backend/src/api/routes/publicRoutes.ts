@@ -16,6 +16,10 @@ const router = Router();
 // @desc    Récupérer tous les profils publiés
 router.get('/profiles', (req: any, res: Response) => getPublicProfiles(req, res));
 
+// @route   GET /api/public/profiles/:id
+// @desc    Récupérer un profil spécifique
+router.get('/profiles/:id', (req: any, res: Response) => getPublicProfileById(req, res));
+
 // @route   GET /api/public/stats
 // @desc    Récupérer les statistiques globales publiques
 router.get('/stats', (req: any, res: Response) => getPublicStats(req, res));

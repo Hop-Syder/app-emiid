@@ -278,6 +278,42 @@ export const getPublicProfiles = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Erreur interne lors de la récupération des profils publics" });
   }
 };
+
+/**
+ * Récupère un profil public par son ID
+ * GET /api/public/profiles/:id
+ */
+export const getPublicProfileById = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('user_profiles')
+      .select(`
+        *,
+        countries(name, iso_code),
+        profile_tags(tags(name))
+      `)
+      .eq('user_id', id)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return res.status(404).json({ error: "Profil non trouvé" });
+      }
+      return res.status(400).json({ error: error.message });
+    }
+
+    if (data) {
+        data.tags = data.profile_tags?.map((pt: any) => pt.tags?.name).filter(Boolean) || [];
+        delete data.profile_tags;
+    }
+
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: "Erreur interne lors de la récupération du profil" });
+  }
+};
 /**
  * Vérifie le code PIN de l'utilisateur
  * POST /api/users/verify-pin
