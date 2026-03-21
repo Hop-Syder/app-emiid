@@ -7,7 +7,7 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { getPublicProfiles } from '../../controllers/userController';
+import { getPublicProfiles, getPublicProfileById } from '../../controllers/userController';
 import { getPublicStats } from '../../controllers/dashboardController';
 
 const router = Router();

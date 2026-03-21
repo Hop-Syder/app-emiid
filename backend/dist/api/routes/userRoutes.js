@@ -8,6 +8,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const userController_1 = require("../../controllers/userController");
+const followController_1 = require("../../controllers/followController");
 const authMiddleware_1 = require("../../middlewares/authMiddleware");
 const router = (0, express_1.Router)();
 // Toutes les routes ici nécessitent une authentification
@@ -18,7 +19,22 @@ router.get('/me', userController_1.getMyProfile);
 // @route   PUT /api/users/me
 // @desc    Mettre à jour le profil connecté
 router.put('/me', userController_1.updateMyProfile);
+// @route   POST /api/users/verify-pin
+// @desc    Vérifier le code PIN
+router.post('/verify-pin', userController_1.verifyPin);
 // @route   GET /api/users
 // @desc    Récupérer tous les profils (Artisans, Freelances, etc)
 router.get('/', userController_1.getAllUsers);
+// @route   GET /api/users/follows
+// @desc    Récupérer les profils suivis
+router.get('/follows', followController_1.getFollowedProfiles);
+// @route   GET /api/users/followers
+// @desc    Récupérer les profils des utilisateurs qui vous suivent
+router.get('/followers', followController_1.getFollowers);
+// @route   POST /api/users/follow/:id
+// @desc    Suivre ou ne plus suivre un profil
+router.post('/follow/:id', followController_1.toggleFollowProfile);
+// @route   PUT /api/users/follow/:id/note
+// @desc    Mettre à jour la note privée sur un utilisateur suivi
+router.put('/follow/:id/note', followController_1.updateFollowNote);
 exports.default = router;

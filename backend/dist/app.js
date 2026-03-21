@@ -10,13 +10,16 @@ const auth_1 = __importDefault(require("./api/routes/auth"));
 const userRoutes_1 = __importDefault(require("./api/routes/userRoutes"));
 const adsRoutes_1 = __importDefault(require("./api/routes/adsRoutes"));
 const dashboardRoutes_1 = __importDefault(require("./api/routes/dashboardRoutes"));
+const referenceRoutes_1 = __importDefault(require("./api/routes/referenceRoutes"));
+const publicRoutes_1 = __importDefault(require("./api/routes/publicRoutes"));
+const messageRoutes_1 = __importDefault(require("./api/routes/messageRoutes"));
 // Charger les variables d'environnement
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 // Middlewares
-const allowedOrigins = process.env.CORS_ORIGIN
-    ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
-    : ['http://localhost:3000'];
+const allowedOrigins = process.env.CORS_ORIGINS
+    ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
+    : ['http://localhost:3000', 'https://app-nexus-connect.vercel.app', 'https://app-nexus-connect-frontend.vercel.app'];
 app.use((0, cors_1.default)({
     origin: (origin, callback) => {
         // Autorise les requêtes sans origine (comme Postman ou les outils serveurs)
@@ -26,6 +29,7 @@ app.use((0, cors_1.default)({
             callback(null, true);
         }
         else {
+            console.warn(`Origine bloquée par CORS: ${origin}`);
             callback(new Error('Non autorisé par CORS'));
         }
     },
@@ -40,9 +44,12 @@ app.get('/', (req, res) => {
 app.use('/api/auth', auth_1.default);
 app.use('/api/users', userRoutes_1.default);
 app.use('/api/ads', adsRoutes_1.default);
-app.use('/api/dashboard-user-user', dashboardRoutes_1.default);
+app.use('/api/dashboard-user', dashboardRoutes_1.default);
+app.use('/api/reference', referenceRoutes_1.default);
+app.use('/api/public', publicRoutes_1.default);
+app.use('/api/messages', messageRoutes_1.default);
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+app.listen(Number(PORT), '0.0.0.0', () => {
     console.log(`🚀 Serveur démarré !`);
     console.log(`📡 URL Locale : http://localhost:${PORT}`);
     console.log(`☁️  Port configuré (Railway) : ${process.env.PORT || 'non défini (usage du port 5000)'}`);
