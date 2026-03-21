@@ -81,10 +81,10 @@ export function LocationSelector({
                     value={selectedCountry?.isoCode || ""}
                     onValueChange={handleCountryChange}
                 >
-                    <SelectTrigger className="rounded-2xl bg-white dark:bg-slate-900 border-muted">
+                    <SelectTrigger className="rounded-xl bg-white dark:bg-slate-900 border-muted">
                         <SelectValue placeholder="Sélectionner un pays..." />
                     </SelectTrigger>
-                    <SelectContent className="rounded-2xl">
+                    <SelectContent className="rounded-xl">
                         {allCountries.map((country) => (
                             <SelectItem key={country.isoCode} value={country.isoCode}>
                                 <span className="flex items-center gap-2">
@@ -105,10 +105,10 @@ export function LocationSelector({
                     onValueChange={handleCityChange}
                     disabled={!selectedCountry}
                 >
-                    <SelectTrigger className="rounded-2xl bg-white dark:bg-slate-900 border-muted disabled:opacity-50">
+                    <SelectTrigger className="rounded-xl bg-white dark:bg-slate-900 border-muted disabled:opacity-50">
                         <SelectValue placeholder={selectedCountry ? "Sélectionner une ville..." : "Choisir un pays d'abord"} />
                     </SelectTrigger>
-                    <SelectContent className="rounded-2xl max-h-[300px]">
+                    <SelectContent className="rounded-xl max-h-[300px]">
                         {cities.length > 0 ? (
                             cities.map((city, index) => (
                                 <SelectItem key={`${city.name}-${index}`} value={city.name}>

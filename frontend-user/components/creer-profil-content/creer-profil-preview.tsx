@@ -19,7 +19,7 @@ interface CreerProfilPreviewProps {
 
 export function CreerProfilPreview({ formData }: CreerProfilPreviewProps) {
     return (
-        <Card className="rounded-3xl h-fit sticky top-24">
+        <Card className="rounded-xl h-fit sticky top-24">
             <CardHeader>
                 <CardTitle>Aperçu</CardTitle>
                 <CardDescription>Votre profil tel qu'il apparaîtra</CardDescription>

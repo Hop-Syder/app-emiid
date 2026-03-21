@@ -136,10 +136,5 @@
     @apply bg-background text-foreground;
   }
 
-  /* Boutons : Couleur jaune/or au survol (sauf checkboxes et radix primitives) */
-  button:hover:not(:disabled):not([role="checkbox"]):not([data-radix-collection-item]) {
-    background-color: #ffcc00 !important;
-    color: #022753 !important;
-    transition: all 0.3s ease;
-  }
+
 }

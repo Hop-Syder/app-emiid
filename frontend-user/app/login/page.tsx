@@ -125,14 +125,14 @@ export default function LoginPage() {
       {/* RIGHT — Auth */}
       <section className="relative flex flex-1 items-center justify-center px-4 py-12">
         {/* Decorative background cards (floating behind for depth) */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-96 bg-primary/10 rounded-[3rem] -rotate-12 blur-3xl -z-10 animate-pulse" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-96 bg-emerald-500/10 rounded-[3rem] rotate-12 blur-3xl -z-10" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-96 bg-primary/10 rounded-xl -rotate-12 blur-3xl -z-10 animate-pulse" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-96 bg-emerald-500/10 rounded-xl rotate-12 blur-3xl -z-10" />
 
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="w-full max-w-sm space-y-10 rounded-[2.5rem] 
+          className="w-full max-w-sm space-y-10 rounded-xl 
                          bg-white/40 backdrop-blur-3xl p-10 
                          shadow-2xl border border-white/60 relative overflow-hidden"
         >
@@ -164,7 +164,7 @@ export default function LoginPage() {
                   variant="outline"
                   disabled={!acceptedTerms || providerLoading !== null}
                   onClick={() => handleLogin(provider)}
-                  className="h-16 w-16 rounded-2xl 
+                  className="h-16 w-16 rounded-xl 
                              transition-all duration-300 hover:scale-110 hover:shadow-2xl
                              active:scale-95 disabled:opacity-40
                              bg-white border-zinc-200 shadow-sm
@@ -189,7 +189,7 @@ export default function LoginPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.8 }}
-              className="flex items-start gap-3 text-sm text-zinc-600 bg-zinc-50/50 p-4 rounded-2xl border border-zinc-100"
+              className="flex items-start gap-3 text-sm text-zinc-600 bg-zinc-50/50 p-4 rounded-xl border border-zinc-100"
             >
               <Checkbox
                 id="terms"

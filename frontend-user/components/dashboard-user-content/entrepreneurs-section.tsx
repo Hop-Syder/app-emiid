@@ -23,7 +23,7 @@ export function EntrepreneursSection({ entrepreneursList, loading }: Entrepreneu
                 </div>
                 <Button
                     variant="outline"
-                    className="rounded-2xl bg-transparent"
+                    className="rounded-xl bg-transparent"
                     onClick={() => router.push("/annuaire/artisans")}
                 >
                     Voir Tout
@@ -33,7 +33,7 @@ export function EntrepreneursSection({ entrepreneursList, loading }: Entrepreneu
             {loading ? (
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {Array.from({ length: 6 }).map((_, i) => (
-                        <div key={i} className="space-y-4 p-6 border rounded-3xl bg-card">
+                        <div key={i} className="space-y-4 p-6 border rounded-xl bg-card">
                             <div className="flex items-center gap-4">
                                 <Skeleton className="h-16 w-16 rounded-full" />
                                 <div className="space-y-2 flex-1">
@@ -63,7 +63,7 @@ export function EntrepreneursSection({ entrepreneursList, loading }: Entrepreneu
                     ))}
                 </div>
             ) : (
-                <div className="py-12 text-center bg-muted/20 rounded-3xl border-2 border-dashed">
+                <div className="py-12 text-center bg-muted/20 rounded-xl border-2 border-dashed">
                     <p className="text-muted-foreground">Aucun entrepreneur en vedette pour le moment.</p>
                 </div>
             )}

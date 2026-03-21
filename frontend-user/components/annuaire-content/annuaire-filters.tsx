@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 export function AnnuaireFilters() {
     return (
-        <Card className="rounded-3xl">
+        <Card className="rounded-xl">
             <CardHeader>
                 <CardTitle>Filtres</CardTitle>
                 <CardDescription>Affinez votre recherche</CardDescription>
@@ -16,10 +16,10 @@ export function AnnuaireFilters() {
                 <div className="flex flex-col md:flex-row gap-4">
                     <div className="flex-1 relative">
                         <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input placeholder="Rechercher un profil..." className="pl-9 rounded-2xl" />
+                        <Input placeholder="Rechercher un profil..." className="pl-9 rounded-xl" />
                     </div>
                     <Select>
-                        <SelectTrigger className="w-full md:w-[200px] rounded-2xl">
+                        <SelectTrigger className="w-full md:w-[200px] rounded-xl">
                             <SelectValue placeholder="Localisation" />
                         </SelectTrigger>
                         <SelectContent>
@@ -31,7 +31,7 @@ export function AnnuaireFilters() {
                         </SelectContent>
                     </Select>
                     <Select>
-                        <SelectTrigger className="w-full md:w-[200px] rounded-2xl">
+                        <SelectTrigger className="w-full md:w-[200px] rounded-xl">
                             <SelectValue placeholder="Vérification" />
                         </SelectTrigger>
                         <SelectContent>

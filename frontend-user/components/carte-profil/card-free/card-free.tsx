@@ -34,7 +34,7 @@ export function CardFree({ entrepreneur }: CardFreeProps) {
         .slice(0, 2) || 'NA'
 
     return (
-        <Card className="group relative overflow-hidden rounded-2xl border border-border/50 bg-card transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 hover:border-primary/20">
+        <Card className="group relative overflow-hidden rounded-xl border border-border/50 bg-card transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 hover:border-primary/20">
             <CardContent className="p-5">
                 {/* Header: Avatar + Info */}
                 <div className="flex items-start gap-4">

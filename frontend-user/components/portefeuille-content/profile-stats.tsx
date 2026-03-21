@@ -10,7 +10,7 @@ interface ProfileStatsProps {
 
 export function ProfileStats({ total, updates, activeToday }: ProfileStatsProps) {
     return (
-        <Card className="rounded-3xl bg-gradient-to-r from-green-50 to-amber-50 dark:from-green-950 dark:to-amber-950">
+        <Card className="rounded-xl bg-gradient-to-r from-green-50 to-amber-50 dark:from-green-950 dark:to-amber-950">
             <CardHeader>
                 <CardTitle>Statistiques de suivi</CardTitle>
             </CardHeader>

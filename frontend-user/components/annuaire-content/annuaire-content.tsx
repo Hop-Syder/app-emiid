@@ -33,7 +33,7 @@ export function AnnuaireContent({ profiles, category }: AnnuaireContentProps) {
                 <p className="text-sm text-muted-foreground">
                     {profiles.length} profil{profiles.length > 1 ? "s" : ""} trouvé{profiles.length > 1 ? "s" : ""}
                 </p>
-                <Button variant="outline" className="rounded-2xl bg-transparent" size="sm">
+                <Button variant="outline" className="rounded-xl bg-transparent" size="sm">
                     <Filter className="mr-2 h-4 w-4" />
                     Plus de filtres
                 </Button>

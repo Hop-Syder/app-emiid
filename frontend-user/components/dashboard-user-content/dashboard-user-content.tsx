@@ -16,6 +16,30 @@ import { HeroSection } from "./hero-section"
 import { StatsSection } from "./stats-section"
 import { EntrepreneursSection } from "./entrepreneurs-section"
 
+export interface EntrepreneurProfile {
+  id: string;
+  name: string;
+  role: string;
+  location: string;
+  avatar: string;
+  specialty: string;
+  category?: string;
+  verified: boolean;
+  premium: boolean;
+  followers: number;
+  isFollowed?: boolean;
+  tags?: string[];
+}
+
+export interface ProjectAd {
+  id: string;
+  title: string;
+  description?: string;
+  content?: string;
+  budget_limit?: number;
+  status: string;
+}
+
 // Données mock pour le fallback
 const mockEntrepreneurs = [
     { id: "1", name: "Amara Diallo", role: "Entrepreneur Tech", location: "Dakar, Sénégal", avatar: "/african-woman-entrepreneur.jpg", specialty: "FinTech", verified: true, premium: true, followers: 234 },
@@ -33,6 +57,21 @@ const mockStats = {
     totalFunding: 2500000,
 }
 
+export interface EntrepreneurApiResponse {
+  id?: string;
+  user_id?: string;
+  first_name?: string;
+  last_name?: string;
+  role?: string;
+  city?: string;
+  countries?: { name: string };
+  avatar_url?: string;
+  specialty?: string;
+  category?: string;
+  followers_count?: number;
+  tags?: string[];
+}
+
 export function DashboardContent() {
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState({
@@ -41,8 +80,8 @@ export function DashboardContent() {
     countriesCovered: 15,
     totalFunding: 0,
   })
-  const [entrepreneursList, setEntrepreneursList] = useState<any[]>([])
-  const [projects, setProjects] = useState<any[]>([])
+  const [entrepreneursList, setEntrepreneursList] = useState<EntrepreneurProfile[]>([])
+  const [projects, setProjects] = useState<ProjectAd[]>([])
 
 
   useEffect(() => {
@@ -69,8 +108,8 @@ export function DashboardContent() {
           } catch (e) {}
 
           setEntrepreneursList(
-            entData.map((e: any) => {
-              const profileId = e.user_id || e.id
+            entData.map((e: EntrepreneurApiResponse) => {
+              const profileId = e.user_id || e.id || "0"
               return {
                 id: profileId,
                 name: (e.first_name || e.last_name) ? `${e.first_name || ''} ${e.last_name || ''}`.trim() : "Utilisateur Nexus",
@@ -124,8 +163,8 @@ export function DashboardContent() {
         <section className="space-y-4">
           <h3 className="text-xl font-bold">Projets actifs</h3>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {projects.slice(0, 3).map((p: any) => (
-              <div key={p.id} className="rounded-2xl border bg-card p-4 shadow-sm">
+            {projects.slice(0, 3).map((p: ProjectAd) => (
+              <div key={p.id} className="rounded-xl border bg-card p-4 shadow-sm">
                 <h4 className="font-semibold mb-1">{p.title}</h4>
                 <p className="text-sm text-muted-foreground line-clamp-3">
                   {p.description || p.content}

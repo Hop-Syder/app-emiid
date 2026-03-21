@@ -123,12 +123,12 @@ export function OnboardingCarousel() {
                                     y: { duration: 4, repeat: Infinity, ease: "easeInOut" }
                                 }}
                                 className={cn(
-                                    "w-32 h-32 rounded-[2.5rem] flex items-center justify-center mb-10 shadow-2xl text-white relative",
+                                    "w-32 h-32 rounded-xl flex items-center justify-center mb-10 shadow-2xl text-white relative",
                                     slide.color
                                 )}
                             >
                                 <slide.icon className="w-16 h-16" />
-                                <div className="absolute inset-0 rounded-[2.5rem] ring-4 ring-white/20" />
+                                <div className="absolute inset-0 rounded-xl ring-4 ring-white/20" />
                             </motion.div>
 
                             <motion.h2
@@ -165,7 +165,7 @@ export function OnboardingCarousel() {
                             <Link href="/dashboard-public" className="w-full block">
                                 <Button
                                     size="lg"
-                                    className="w-full h-16 text-lg bg-primary hover:bg-primary/90 rounded-[1.5rem] shadow-xl shadow-primary/20 font-bold"
+                                    className="w-full h-16 text-lg bg-primary hover:bg-primary/90 rounded-xl shadow-xl shadow-primary/20 font-bold"
                                 >
                                     Commencer l'aventure <ArrowRight className="ml-2 w-5 h-5" />
                                 </Button>
@@ -180,7 +180,7 @@ export function OnboardingCarousel() {
                         <Button
                             size="lg"
                             onClick={handleNext}
-                            className="w-full h-16 text-lg bg-primary hover:bg-primary/90 rounded-[1.5rem] shadow-xl shadow-primary/20 font-bold"
+                            className="w-full h-16 text-lg bg-primary hover:bg-primary/90 rounded-xl shadow-xl shadow-primary/20 font-bold"
                         >
                             Suivant <ChevronRight className="ml-2 w-5 h-5" />
                         </Button>

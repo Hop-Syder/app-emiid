@@ -28,7 +28,7 @@ export default function NotFound() {
                 className="text-center max-w-md relative z-10"
             >
                 <div className="mb-8 flex justify-center">
-                    <div className="w-24 h-24 bg-white rounded-3xl shadow-xl flex items-center justify-center relative transform rotate-12">
+                    <div className="w-24 h-24 bg-white rounded-xl shadow-xl flex items-center justify-center relative transform rotate-12">
                         <Compass className="w-12 h-12 text-blue-600" />
                         <div className="absolute -bottom-2 -right-2 bg-red-100 p-2 rounded-xl">
                             <SearchX className="w-6 h-6 text-red-500" />

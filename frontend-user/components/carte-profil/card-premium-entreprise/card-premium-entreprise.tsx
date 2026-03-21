@@ -13,7 +13,7 @@ interface CardPremiumEntrepriseProps {
 
 export function CardPremiumEntreprise({ entrepreneur }: CardPremiumEntrepriseProps) {
     return (
-        <Card className="rounded-3xl hover:shadow-xl transition-all duration-300 group relative overflow-hidden border-2 border-transparent">
+        <Card className="rounded-xl hover:shadow-xl transition-all duration-300 group relative overflow-hidden border-2 border-transparent">
             {/* Enterprise Premium background - Distinctive Blue/Gold theme or similar */}
             <div className="absolute inset-0 bg-gradient-to-br from-blue-900/10 via-amber-500/10 to-primary/10" />
             <div

@@ -13,7 +13,7 @@ export function HeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="relative overflow-hidden rounded-3xl p-8 text-white min-h-[300px] flex flex-col justify-center"
+            className="relative overflow-hidden rounded-xl p-8 text-white min-h-[300px] flex flex-col justify-center"
             style={{
                 backgroundImage: 'url(/dashboard-user/background-1.svg)',
                 backgroundSize: 'cover',
@@ -21,7 +21,7 @@ export function HeroSection() {
             }}
         >
             {/* Overlay pour améliorer la lisibilité */}
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/80 to-primary/40 rounded-3xl" />
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/80 to-primary/40 rounded-xl" />
 
             <div className="relative z-10 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
                 <div className="space-y-4">
@@ -33,7 +33,7 @@ export function HeroSection() {
                     </p>
                     <div className="flex flex-wrap gap-3">
                         <Button
-                            className="rounded-2xl bg-white text-primary hover:bg-white/90 px-8 h-12 text-lg font-bold shadow-lg transition-transform hover:scale-105"
+                            className="rounded-xl bg-white text-primary hover:bg-white/90 px-8 h-12 text-lg font-bold shadow-lg transition-transform hover:scale-105"
                             onClick={() => router.push("/login")}
                         >
                             Créer un Profil

@@ -16,7 +16,7 @@ import { Switch } from "@/components/ui/switch"
 
 export function PreferencesSection() {
     return (
-        <Card className="rounded-3xl">
+        <Card className="rounded-xl">
             <CardHeader>
                 <CardTitle>Préférences générales</CardTitle>
                 <CardDescription>Personnalisez votre expérience</CardDescription>
@@ -25,7 +25,7 @@ export function PreferencesSection() {
                 <div className="space-y-2">
                     <Label htmlFor="langue">Langue</Label>
                     <Select defaultValue="fr">
-                        <SelectTrigger className="rounded-2xl">
+                        <SelectTrigger className="rounded-xl">
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -39,7 +39,7 @@ export function PreferencesSection() {
                 <div className="space-y-2">
                     <Label htmlFor="devise">Devise</Label>
                     <Select defaultValue="eur">
-                        <SelectTrigger className="rounded-2xl">
+                        <SelectTrigger className="rounded-xl">
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -53,7 +53,7 @@ export function PreferencesSection() {
                 <div className="space-y-2">
                     <Label htmlFor="fuseau">Fuseau horaire</Label>
                     <Select defaultValue="gmt">
-                        <SelectTrigger className="rounded-2xl">
+                        <SelectTrigger className="rounded-xl">
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -63,7 +63,7 @@ export function PreferencesSection() {
                     </Select>
                 </div>
 
-                <div className="flex items-center justify-between p-4 border rounded-2xl">
+                <div className="flex items-center justify-between p-4 border rounded-xl">
                     <div>
                         <p className="font-medium">Mode sombre</p>
                         <p className="text-sm text-muted-foreground">Activer le thème sombre</p>
@@ -71,7 +71,7 @@ export function PreferencesSection() {
                     <Switch />
                 </div>
 
-                <div className="flex items-center justify-between p-4 border rounded-2xl">
+                <div className="flex items-center justify-between p-4 border rounded-xl">
                     <div>
                         <p className="font-medium">Profil public</p>
                         <p className="text-sm text-muted-foreground">Visible dans les recherches</p>
@@ -79,7 +79,7 @@ export function PreferencesSection() {
                     <Switch defaultChecked />
                 </div>
 
-                <Button className="rounded-2xl">Enregistrer les préférences</Button>
+                <Button className="rounded-xl">Enregistrer les préférences</Button>
             </CardContent>
         </Card>
     )

@@ -34,7 +34,7 @@ export function AnnuaireCard({ profile }: AnnuaireCardProps) {
             transition={{ type: "spring", stiffness: 300 }}
         >
             <Card
-                className={`rounded-3xl h-full hover:shadow-xl transition-all duration-300 group cursor-pointer ${profile.premium ? "relative overflow-hidden border-2 border-transparent" : "hover:shadow-lg"
+                className={`rounded-xl h-full hover:shadow-xl transition-all duration-300 group cursor-pointer ${profile.premium ? "relative overflow-hidden border-2 border-transparent" : "hover:shadow-lg"
                     }`}
             >
                 {/* Premium background */}

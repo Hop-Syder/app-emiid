@@ -26,7 +26,7 @@ export function AnnuaireHero({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="relative overflow-hidden rounded-3xl p-8 mb-8 text-white min-h-[250px] flex flex-col justify-center bg-[#022753]"
+            className="relative overflow-hidden rounded-xl p-8 mb-8 text-white min-h-[250px] flex flex-col justify-center bg-[#022753]"
         >
             <div className="absolute inset-0 opacity-10"
                 style={{ backgroundImage: 'url(/dashboard-user/background-1.svg)', backgroundSize: 'cover' }} />

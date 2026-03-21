@@ -21,7 +21,7 @@ interface CardEntrepreneurProps {
 export function CardEntrepreneur({ entrepreneur }: CardEntrepreneurProps) {
     return (
         <Card
-            className={`rounded-3xl hover:shadow-xl transition-all duration-300 group ${entrepreneur.premium
+            className={`rounded-xl hover:shadow-xl transition-all duration-300 group ${entrepreneur.premium
                 ? 'relative overflow-hidden border-2 border-transparent'
                 : 'hover:shadow-lg border-muted/50 relative overflow-hidden'
                 }`}

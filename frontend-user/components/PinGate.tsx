@@ -85,7 +85,7 @@ export function PinGate({ children }: { children: React.ReactNode }) {
     if (locked) {
         return (
             <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white/80 backdrop-blur-md">
-                <div className="bg-white border border-gray-100 shadow-2xl p-8 rounded-3xl flex flex-col items-center gap-6 max-w-sm w-full animate-in zoom-in-95 duration-300">
+                <div className="bg-white border border-gray-100 shadow-2xl p-8 rounded-xl flex flex-col items-center gap-6 max-w-sm w-full animate-in zoom-in-95 duration-300">
                     <div className="h-16 w-16 bg-[#022753]/5 rounded-full flex items-center justify-center mb-2">
                         <Lock className="h-7 w-7 text-[#022753]" />
                     </div>

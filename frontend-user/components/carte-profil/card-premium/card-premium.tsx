@@ -77,7 +77,7 @@ export function CardPremium({ entrepreneur }: CardPremiumProps) {
         .slice(0, 2) || 'NA'
 
     return (
-        <Card className="group relative overflow-hidden rounded-2xl border border-border/50 bg-card transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 hover:border-primary/20">
+        <Card className="group relative overflow-hidden rounded-xl border border-border/50 bg-card transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 hover:border-primary/20">
             {/* Premium indicator bar */}
             {entrepreneur.premium && (
                 <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-400" />

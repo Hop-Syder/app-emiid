@@ -186,11 +186,11 @@ export function ProjectGallery() {
     )
 
     return (
-        <Card className="rounded-[2.5rem] mt-8 overflow-hidden border-none shadow-2xl shadow-slate-200/50 bg-white/40 backdrop-blur-2xl">
+        <Card className="rounded-xl mt-8 overflow-hidden border-none shadow-2xl shadow-slate-200/50 bg-white/40 backdrop-blur-2xl">
             <div className="bg-gradient-to-r from-indigo-50 to-blue-50/50 p-8 border-b border-white">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div className="flex items-center gap-5">
-                       <div className="p-4 bg-white rounded-3xl shadow-xl shadow-indigo-100/50">
+                       <div className="p-4 bg-white rounded-xl shadow-xl shadow-indigo-100/50">
                            <LayoutGrid className="h-7 w-7 text-primary" />
                        </div>
                        <div>
@@ -222,7 +222,7 @@ export function ProjectGallery() {
                             initial={{ opacity: 0, scale: 0.9 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: idx * 0.05 }}
-                            className="group relative aspect-[4/5] rounded-[2rem] overflow-hidden bg-white border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500"
+                            className="group relative aspect-[4/5] rounded-xl overflow-hidden bg-white border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500"
                         >
                             <img src={img.image_url} alt={img.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                             
@@ -257,7 +257,7 @@ export function ProjectGallery() {
                     ))}
 
                     {images.length === 0 && (
-                        <div className="col-span-full py-24 flex flex-col items-center justify-center text-center space-y-6 bg-slate-50/50 rounded-[3rem] border-2 border-dashed border-slate-200">
+                        <div className="col-span-full py-24 flex flex-col items-center justify-center text-center space-y-6 bg-slate-50/50 rounded-xl border-2 border-dashed border-slate-200">
                             <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-xl shadow-slate-200/50 ring-1 ring-slate-100">
                                 <ImagePlus className="h-10 w-10 text-slate-300" />
                             </div>
@@ -274,7 +274,7 @@ export function ProjectGallery() {
 
             {/* Modal d'édition des détails (Dialog) */}
             <Dialog open={!!editingItem} onOpenChange={(open) => !open && setEditingItem(null)}>
-                <DialogContent className="rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden max-w-lg">
+                <DialogContent className="rounded-xl border-none shadow-2xl p-0 overflow-hidden max-w-lg">
                     <div className="aspect-video w-full relative">
                         <img src={editingItem?.image_url} className="w-full h-full object-cover" alt="Preview" />
                         <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent" />
@@ -284,7 +284,7 @@ export function ProjectGallery() {
                             <div className="space-y-2">
                                 <Label className="text-xs font-bold uppercase tracking-widest text-slate-400 px-1">Titre du Projet</Label>
                                 <Input 
-                                    className="rounded-2xl border-slate-100 bg-slate-50 h-12 focus:bg-white transition-all font-bold"
+                                    className="rounded-xl border-slate-100 bg-slate-50 h-12 focus:bg-white transition-all font-bold"
                                     value={editingItem?.title || ""}
                                     onChange={(e) => setEditingItem(prev => prev ? {...prev, title: e.target.value} : null)}
                                     placeholder="Ex: Tissage de soie rouge"
@@ -293,7 +293,7 @@ export function ProjectGallery() {
                             <div className="space-y-2">
                                 <Label className="text-xs font-bold uppercase tracking-widest text-slate-400 px-1">Description (Max 200 car.)</Label>
                                 <Textarea 
-                                    className="rounded-2xl border-slate-100 bg-slate-50 min-h-[100px] focus:bg-white transition-all text-sm font-medium leading-relaxed"
+                                    className="rounded-xl border-slate-100 bg-slate-50 min-h-[100px] focus:bg-white transition-all text-sm font-medium leading-relaxed"
                                     value={editingItem?.description || ""}
                                     onChange={(e) => setEditingItem(prev => prev ? {...prev, description: e.target.value} : null)}
                                     placeholder="Décrivez brièvement le travail effectué..."
@@ -302,9 +302,9 @@ export function ProjectGallery() {
                             </div>
                         </div>
                         <div className="flex gap-3">
-                            <Button variant="ghost" className="rounded-2xl flex-1 h-12 font-bold" onClick={() => setEditingItem(null)}>Annuler</Button>
+                            <Button variant="ghost" className="rounded-xl flex-1 h-12 font-bold" onClick={() => setEditingItem(null)}>Annuler</Button>
                             <Button 
-                                className="rounded-2xl flex-[2] h-12 font-bold bg-primary shadow-lg shadow-primary/20" 
+                                className="rounded-xl flex-[2] h-12 font-bold bg-primary shadow-lg shadow-primary/20" 
                                 onClick={updateProject}
                                 disabled={saving}
                             >

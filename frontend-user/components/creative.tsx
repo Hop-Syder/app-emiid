@@ -548,7 +548,7 @@ export function DesignaliCreative() {
         <div className="flex h-full flex-col border-r">
           <div className="flex items-center justify-between p-4">
             <div className="flex items-center gap-3">
-              <div className="flex aspect-square size-10 items-center justify-center rounded-2xl bg-gradient-to-br from-green-600 to-amber-500 text-white">
+              <div className="flex aspect-square size-10 items-center justify-center rounded-xl bg-gradient-to-br from-green-600 to-amber-500 text-white">
                 <Globe className="size-5" />
               </div>
               <div>
@@ -564,7 +564,7 @@ export function DesignaliCreative() {
           <div className="px-3 py-2">
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input type="search" placeholder="Rechercher..." className="w-full rounded-2xl bg-muted pl-9 pr-4 py-2" />
+              <Input type="search" placeholder="Rechercher..." className="w-full rounded-xl bg-muted pl-9 pr-4 py-2" />
             </div>
           </div>
 
@@ -574,7 +574,7 @@ export function DesignaliCreative() {
                 <div key={item.title} className="mb-1">
                   <button
                     className={cn(
-                      "flex w-full items-center justify-between rounded-2xl px-3 py-2 text-sm font-medium",
+                      "flex w-full items-center justify-between rounded-xl px-3 py-2 text-sm font-medium",
                       item.isActive ? "bg-primary/10 text-primary" : "hover:bg-muted",
                     )}
                     onClick={() => item.items && toggleExpanded(item.title)}
@@ -604,7 +604,7 @@ export function DesignaliCreative() {
                         <a
                           key={subItem.title}
                           href={subItem.url}
-                          className="flex items-center justify-between rounded-2xl px-3 py-2 text-sm hover:bg-muted"
+                          className="flex items-center justify-between rounded-xl px-3 py-2 text-sm hover:bg-muted"
                         >
                           {subItem.title}
                           {subItem.badge && (
@@ -623,7 +623,7 @@ export function DesignaliCreative() {
 
           <div className="border-t p-3">
             <div className="space-y-1">
-              <button className="flex w-full items-center justify-between rounded-2xl px-3 py-2 text-sm font-medium hover:bg-muted">
+              <button className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-sm font-medium hover:bg-muted">
                 <div className="flex items-center gap-3">
                   <Avatar className="h-6 w-6">
                     <AvatarImage src="/african-user.jpg" alt="User" />
@@ -650,7 +650,7 @@ export function DesignaliCreative() {
         <div className="flex h-full flex-col">
           <div className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex aspect-square size-10 items-center justify-center rounded-2xl bg-gradient-to-br from-green-600 to-amber-500 text-white">
+              <div className="flex aspect-square size-10 items-center justify-center rounded-xl bg-gradient-to-br from-green-600 to-amber-500 text-white">
                 <Globe className="size-5" />
               </div>
               <div>
@@ -663,7 +663,7 @@ export function DesignaliCreative() {
           <div className="px-3 py-2">
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input type="search" placeholder="Rechercher..." className="w-full rounded-2xl bg-muted pl-9 pr-4 py-2" />
+              <Input type="search" placeholder="Rechercher..." className="w-full rounded-xl bg-muted pl-9 pr-4 py-2" />
             </div>
           </div>
 
@@ -673,7 +673,7 @@ export function DesignaliCreative() {
                 <div key={item.title} className="mb-1">
                   <button
                     className={cn(
-                      "flex w-full items-center justify-between rounded-2xl px-3 py-2 text-sm font-medium",
+                      "flex w-full items-center justify-between rounded-xl px-3 py-2 text-sm font-medium",
                       item.isActive ? "bg-primary/10 text-primary" : "hover:bg-muted",
                     )}
                     onClick={() => item.items && toggleExpanded(item.title)}
@@ -703,7 +703,7 @@ export function DesignaliCreative() {
                         <a
                           key={subItem.title}
                           href={subItem.url}
-                          className="flex items-center justify-between rounded-2xl px-3 py-2 text-sm hover:bg-muted"
+                          className="flex items-center justify-between rounded-xl px-3 py-2 text-sm hover:bg-muted"
                         >
                           {subItem.title}
                           {subItem.badge && (
@@ -722,7 +722,7 @@ export function DesignaliCreative() {
 
           <div className="border-t p-3">
             <div className="space-y-1">
-              <button className="flex w-full items-center justify-between rounded-2xl px-3 py-2 text-sm font-medium hover:bg-muted">
+              <button className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-sm font-medium hover:bg-muted">
                 <div className="flex items-center gap-3">
                   <Avatar className="h-6 w-6">
                     <AvatarImage src="/african-user.jpg" alt="User" />
@@ -754,7 +754,7 @@ export function DesignaliCreative() {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="rounded-2xl">
+                    <Button variant="ghost" size="icon" className="rounded-xl">
                       <MessageSquare className="h-5 w-5" />
                     </Button>
                   </TooltipTrigger>
@@ -765,7 +765,7 @@ export function DesignaliCreative() {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="rounded-2xl relative">
+                    <Button variant="ghost" size="icon" className="rounded-xl relative">
                       <Bell className="h-5 w-5" />
                       {notifications > 0 && (
                         <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
@@ -789,7 +789,7 @@ export function DesignaliCreative() {
         <main className="flex-1 p-4 md:p-6">
           <Tabs defaultValue="dashboard-user-user" value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <TabsList className="grid w-full max-w-[700px] grid-cols-2 md:grid-cols-5 rounded-2xl p-1 h-auto">
+              <TabsList className="grid w-full max-w-[700px] grid-cols-2 md:grid-cols-5 rounded-xl p-1 h-auto">
                 <TabsTrigger value="dashboard-user-user" className="rounded-xl data-[state=active]:rounded-xl">
                   dashboard-user-user
                 </TabsTrigger>
@@ -807,7 +807,7 @@ export function DesignaliCreative() {
                 </TabsTrigger>
               </TabsList>
               <div className="hidden md:flex gap-2">
-                <Button className="rounded-2xl">
+                <Button className="rounded-xl">
                   <Plus className="mr-2 h-4 w-4" />
                   Créer un Profil
                 </Button>
@@ -828,7 +828,7 @@ export function DesignaliCreative() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.5 }}
-                      className="overflow-hidden rounded-3xl bg-gradient-to-r from-green-600 via-amber-500 to-red-600 p-8 text-white"
+                      className="overflow-hidden rounded-xl bg-gradient-to-r from-green-600 via-amber-500 to-red-600 p-8 text-white"
                     >
                       <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
                         <div className="space-y-4">
@@ -842,12 +842,12 @@ export function DesignaliCreative() {
                             l'Ouest.
                           </p>
                           <div className="flex flex-wrap gap-3">
-                            <Button className="rounded-2xl bg-white text-green-700 hover:bg-white/90">
+                            <Button className="rounded-xl bg-white text-green-700 hover:bg-white/90">
                               Explorer le Réseau
                             </Button>
                             <Button
                               variant="outline"
-                              className="rounded-2xl bg-transparent border-white text-white hover:bg-white/10"
+                              className="rounded-xl bg-transparent border-white text-white hover:bg-white/10"
                             >
                               Créer mon Profil
                             </Button>
@@ -859,7 +859,7 @@ export function DesignaliCreative() {
 
                   {/* Stats Section */}
                   <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    <Card className="rounded-3xl">
+                    <Card className="rounded-xl">
                       <CardHeader className="pb-2">
                         <div className="flex items-center justify-between">
                           <CardDescription>Entrepreneurs Connectés</CardDescription>
@@ -874,7 +874,7 @@ export function DesignaliCreative() {
                       </CardContent>
                     </Card>
 
-                    <Card className="rounded-3xl">
+                    <Card className="rounded-xl">
                       <CardHeader className="pb-2">
                         <div className="flex items-center justify-between">
                           <CardDescription>Projets Actifs</CardDescription>
@@ -889,7 +889,7 @@ export function DesignaliCreative() {
                       </CardContent>
                     </Card>
 
-                    <Card className="rounded-3xl">
+                    <Card className="rounded-xl">
                       <CardHeader className="pb-2">
                         <div className="flex items-center justify-between">
                           <CardDescription>Connexions Créées</CardDescription>
@@ -904,7 +904,7 @@ export function DesignaliCreative() {
                       </CardContent>
                     </Card>
 
-                    <Card className="rounded-3xl">
+                    <Card className="rounded-xl">
                       <CardHeader className="pb-2">
                         <div className="flex items-center justify-between">
                           <CardDescription>Pays Couverts</CardDescription>
@@ -922,14 +922,14 @@ export function DesignaliCreative() {
                   <section className="space-y-4">
                     <div className="flex items-center justify-between">
                       <h2 className="text-2xl font-semibold">Entrepreneurs Récemment Inscrits</h2>
-                      <Button variant="ghost" className="rounded-2xl">
+                      <Button variant="ghost" className="rounded-xl">
                         Voir Tous
                       </Button>
                     </div>
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                       {entrepreneurs.map((person) => (
                         <motion.div key={person.name} whileHover={{ scale: 1.02, y: -5 }} whileTap={{ scale: 0.98 }}>
-                          <Card className="overflow-hidden rounded-3xl border-2 hover:border-primary/50 transition-all duration-300">
+                          <Card className="overflow-hidden rounded-xl border-2 hover:border-primary/50 transition-all duration-300">
                             <CardHeader className="pb-2">
                               <div className="flex items-center gap-3">
                                 <Avatar className="h-12 w-12">
@@ -970,7 +970,7 @@ export function DesignaliCreative() {
                               </div>
                             </CardContent>
                             <CardFooter>
-                              <Button variant="secondary" className="w-full rounded-2xl text-sm">
+                              <Button variant="secondary" className="w-full rounded-xl text-sm">
                                 Voir Profil
                               </Button>
                             </CardFooter>
@@ -984,14 +984,14 @@ export function DesignaliCreative() {
                   <section className="space-y-4">
                     <div className="flex items-center justify-between">
                       <h2 className="text-2xl font-semibold">Projets en Tendance</h2>
-                      <Button variant="ghost" className="rounded-2xl">
+                      <Button variant="ghost" className="rounded-xl">
                         Voir Tous
                       </Button>
                     </div>
                     <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                       {marketProjects.slice(0, 2).map((project) => (
                         <motion.div key={project.title} whileHover={{ scale: 1.02, y: -5 }}>
-                          <Card className="rounded-3xl hover:border-primary/50 transition-all duration-300">
+                          <Card className="rounded-xl hover:border-primary/50 transition-all duration-300">
                             <CardHeader>
                               <div className="flex items-center justify-between">
                                 <Badge variant="outline" className="rounded-xl">
@@ -1021,7 +1021,7 @@ export function DesignaliCreative() {
                               )}
                             </CardContent>
                             <CardFooter>
-                              <Button variant="secondary" className="w-full rounded-2xl">
+                              <Button variant="secondary" className="w-full rounded-xl">
                                 En Savoir Plus
                               </Button>
                             </CardFooter>
@@ -1038,7 +1038,7 @@ export function DesignaliCreative() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.5 }}
-                      className="overflow-hidden rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 p-8 text-white"
+                      className="overflow-hidden rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 p-8 text-white"
                     >
                       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                         <div className="space-y-2">
@@ -1052,7 +1052,7 @@ export function DesignaliCreative() {
                           <Input
                             type="search"
                             placeholder="Rechercher..."
-                            className="w-full rounded-2xl pl-9 md:w-[250px]"
+                            className="w-full rounded-xl pl-9 md:w-[250px]"
                           />
                         </div>
                       </div>
@@ -1061,7 +1061,7 @@ export function DesignaliCreative() {
 
                   {/* Sub-tabs for Annuaire */}
                   <Tabs defaultValue="artisans" className="w-full">
-                    <TabsList className="grid w-full max-w-[500px] grid-cols-4 rounded-2xl p-1">
+                    <TabsList className="grid w-full max-w-[500px] grid-cols-4 rounded-xl p-1">
                       <TabsTrigger value="artisans" className="rounded-xl">
                         Artisans
                       </TabsTrigger>
@@ -1086,7 +1086,7 @@ export function DesignaliCreative() {
                               whileHover={{ scale: 1.02, y: -5 }}
                               whileTap={{ scale: 0.98 }}
                             >
-                              <Card className="overflow-hidden rounded-3xl border hover:border-primary/50 transition-all duration-300">
+                              <Card className="overflow-hidden rounded-xl border hover:border-primary/50 transition-all duration-300">
                                 <CardHeader className="pb-2">
                                   <div className="flex items-center gap-3">
                                     <Avatar className="h-12 w-12">
@@ -1127,10 +1127,10 @@ export function DesignaliCreative() {
                                   </div>
                                 </CardContent>
                                 <CardFooter className="flex gap-2">
-                                  <Button variant="secondary" className="flex-1 rounded-2xl text-sm">
+                                  <Button variant="secondary" className="flex-1 rounded-xl text-sm">
                                     Voir
                                   </Button>
-                                  <Button variant="outline" size="icon" className="rounded-2xl bg-transparent">
+                                  <Button variant="outline" size="icon" className="rounded-xl bg-transparent">
                                     <Heart className="h-4 w-4" />
                                   </Button>
                                 </CardFooter>
@@ -1150,7 +1150,7 @@ export function DesignaliCreative() {
                               whileHover={{ scale: 1.02, y: -5 }}
                               whileTap={{ scale: 0.98 }}
                             >
-                              <Card className="overflow-hidden rounded-3xl border hover:border-primary/50 transition-all duration-300">
+                              <Card className="overflow-hidden rounded-xl border hover:border-primary/50 transition-all duration-300">
                                 <CardHeader className="pb-2">
                                   <div className="flex items-center gap-3">
                                     <Avatar className="h-12 w-12">
@@ -1191,10 +1191,10 @@ export function DesignaliCreative() {
                                   </div>
                                 </CardContent>
                                 <CardFooter className="flex gap-2">
-                                  <Button variant="secondary" className="flex-1 rounded-2xl text-sm">
+                                  <Button variant="secondary" className="flex-1 rounded-xl text-sm">
                                     Voir
                                   </Button>
-                                  <Button variant="outline" size="icon" className="rounded-2xl bg-transparent">
+                                  <Button variant="outline" size="icon" className="rounded-xl bg-transparent">
                                     <Heart className="h-4 w-4" />
                                   </Button>
                                 </CardFooter>
@@ -1209,10 +1209,10 @@ export function DesignaliCreative() {
                         {entrepreneurs
                           .filter((p) => p.role.includes("Fondatrice") || p.role.includes("Startup"))
                           .map((person) => (
-                            <Card key={person.name} className="rounded-3xl">
+                            <Card key={person.name} className="rounded-xl">
                               <CardHeader>
                                 <div className="flex items-center gap-3">
-                                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 text-white">
                                     <Building2 className="h-6 w-6" />
                                   </div>
                                   <div className="flex-1">
@@ -1239,7 +1239,7 @@ export function DesignaliCreative() {
                                 </div>
                               </CardContent>
                               <CardFooter>
-                                <Button variant="secondary" className="w-full rounded-2xl text-sm">
+                                <Button variant="secondary" className="w-full rounded-xl text-sm">
                                   Voir Entreprise
                                 </Button>
                               </CardFooter>
@@ -1250,7 +1250,7 @@ export function DesignaliCreative() {
 
                     <TabsContent value="ong" className="space-y-4 mt-6">
                       <div className="flex items-center justify-center py-12">
-                        <Card className="max-w-md rounded-3xl border-dashed">
+                        <Card className="max-w-md rounded-xl border-dashed">
                           <CardHeader>
                             <CardTitle>Bientôt Disponible</CardTitle>
                             <CardDescription>
@@ -1270,7 +1270,7 @@ export function DesignaliCreative() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.5 }}
-                      className="overflow-hidden rounded-3xl bg-gradient-to-r from-teal-600 via-cyan-600 to-blue-600 p-8 text-white"
+                      className="overflow-hidden rounded-xl bg-gradient-to-r from-teal-600 via-cyan-600 to-blue-600 p-8 text-white"
                     >
                       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                         <div className="space-y-2">
@@ -1284,7 +1284,7 @@ export function DesignaliCreative() {
                   </section>
 
                   <Tabs defaultValue="profils" className="w-full">
-                    <TabsList className="grid w-full max-w-[400px] grid-cols-2 rounded-2xl p-1">
+                    <TabsList className="grid w-full max-w-[400px] grid-cols-2 rounded-xl p-1">
                       <TabsTrigger value="profils" className="rounded-xl">
                         Profils suivis
                       </TabsTrigger>
@@ -1294,7 +1294,7 @@ export function DesignaliCreative() {
                     </TabsList>
 
                     <TabsContent value="profils" className="space-y-4 mt-6">
-                      <div className="rounded-3xl border overflow-hidden">
+                      <div className="rounded-xl border overflow-hidden">
                         <div className="divide-y">
                           {followedProfiles.map((profile) => (
                             <motion.div
@@ -1346,7 +1346,7 @@ export function DesignaliCreative() {
                     <TabsContent value="projets" className="space-y-4 mt-6">
                       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                         {marketProjects.slice(0, 2).map((project) => (
-                          <Card key={project.title} className="rounded-3xl">
+                          <Card key={project.title} className="rounded-xl">
                             <CardHeader>
                               <div className="flex items-center justify-between">
                                 <Badge variant="outline" className="rounded-xl">
@@ -1371,7 +1371,7 @@ export function DesignaliCreative() {
                               )}
                             </CardContent>
                             <CardFooter>
-                              <Button variant="secondary" className="w-full rounded-2xl">
+                              <Button variant="secondary" className="w-full rounded-xl">
                                 Voir Projet
                               </Button>
                             </CardFooter>
@@ -1388,7 +1388,7 @@ export function DesignaliCreative() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.5 }}
-                      className="overflow-hidden rounded-3xl bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 p-8 text-white"
+                      className="overflow-hidden rounded-xl bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 p-8 text-white"
                     >
                       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                         <div className="space-y-2">
@@ -1397,7 +1397,7 @@ export function DesignaliCreative() {
                             Découvrez des opportunités de financement, partenariats et acquisitions.
                           </p>
                         </div>
-                        <Button className="w-fit rounded-2xl bg-white text-purple-700 hover:bg-white/90">
+                        <Button className="w-fit rounded-xl bg-white text-purple-700 hover:bg-white/90">
                           <Plus className="mr-2 h-4 w-4" />
                           Publier un Projet
                         </Button>
@@ -1406,7 +1406,7 @@ export function DesignaliCreative() {
                   </section>
 
                   <Tabs defaultValue="financement" className="w-full">
-                    <TabsList className="grid w-full max-w-[450px] grid-cols-3 rounded-2xl p-1">
+                    <TabsList className="grid w-full max-w-[450px] grid-cols-3 rounded-xl p-1">
                       <TabsTrigger value="financement" className="rounded-xl">
                         Financement
                       </TabsTrigger>
@@ -1424,7 +1424,7 @@ export function DesignaliCreative() {
                           .filter((p) => p.type === "Financement")
                           .map((project) => (
                             <motion.div key={project.title} whileHover={{ scale: 1.02, y: -5 }}>
-                              <Card className="rounded-3xl hover:border-primary/50 transition-all duration-300">
+                              <Card className="rounded-xl hover:border-primary/50 transition-all duration-300">
                                 <CardHeader>
                                   <div className="flex items-center justify-between">
                                     <Badge className="rounded-xl bg-green-500">
@@ -1455,10 +1455,10 @@ export function DesignaliCreative() {
                                   </div>
                                 </CardContent>
                                 <CardFooter className="flex gap-2">
-                                  <Button variant="secondary" className="flex-1 rounded-2xl">
+                                  <Button variant="secondary" className="flex-1 rounded-xl">
                                     Contribuer
                                   </Button>
-                                  <Button variant="outline" size="icon" className="rounded-2xl bg-transparent">
+                                  <Button variant="outline" size="icon" className="rounded-xl bg-transparent">
                                     <Share2 className="h-4 w-4" />
                                   </Button>
                                 </CardFooter>
@@ -1473,7 +1473,7 @@ export function DesignaliCreative() {
                         {marketProjects
                           .filter((p) => p.type === "Partenaires")
                           .map((project) => (
-                            <Card key={project.title} className="rounded-3xl">
+                            <Card key={project.title} className="rounded-xl">
                               <CardHeader>
                                 <Badge className="rounded-xl bg-blue-500">
                                   <HandshakeIcon className="h-3 w-3 mr-1" />
@@ -1487,7 +1487,7 @@ export function DesignaliCreative() {
                                   <MapPin className="h-3 w-3" />
                                   {project.location}
                                 </div>
-                                <div className="rounded-2xl bg-muted p-3">
+                                <div className="rounded-xl bg-muted p-3">
                                   <p className="text-sm font-medium">Recherche:</p>
                                   <p className="text-sm text-muted-foreground">{project.seeks}</p>
                                 </div>
@@ -1497,7 +1497,7 @@ export function DesignaliCreative() {
                                 </div>
                               </CardContent>
                               <CardFooter>
-                                <Button variant="secondary" className="w-full rounded-2xl">
+                                <Button variant="secondary" className="w-full rounded-xl">
                                   Proposer Partenariat
                                 </Button>
                               </CardFooter>
@@ -1511,7 +1511,7 @@ export function DesignaliCreative() {
                         {marketProjects
                           .filter((p) => p.type === "À vendre")
                           .map((project) => (
-                            <Card key={project.title} className="rounded-3xl">
+                            <Card key={project.title} className="rounded-xl">
                               <CardHeader>
                                 <Badge className="rounded-xl bg-amber-500">
                                   <BadgeDollarSign className="h-3 w-3 mr-1" />À vendre
@@ -1536,7 +1536,7 @@ export function DesignaliCreative() {
                                 </div>
                               </CardContent>
                               <CardFooter>
-                                <Button variant="secondary" className="w-full rounded-2xl">
+                                <Button variant="secondary" className="w-full rounded-xl">
                                   Manifester Intérêt
                                 </Button>
                               </CardFooter>
@@ -1553,7 +1553,7 @@ export function DesignaliCreative() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.5 }}
-                      className="overflow-hidden rounded-3xl bg-gradient-to-r from-slate-600 via-gray-600 to-zinc-600 p-8 text-white"
+                      className="overflow-hidden rounded-xl bg-gradient-to-r from-slate-600 via-gray-600 to-zinc-600 p-8 text-white"
                     >
                       <div className="flex flex-col gap-3">
                         <h2 className="text-3xl font-bold">Paramètres du Compte</h2>
@@ -1563,7 +1563,7 @@ export function DesignaliCreative() {
                   </section>
 
                   <Tabs defaultValue="profil" className="w-full">
-                    <TabsList className="grid w-full max-w-[600px] grid-cols-4 rounded-2xl p-1">
+                    <TabsList className="grid w-full max-w-[600px] grid-cols-4 rounded-xl p-1">
                       <TabsTrigger value="profil" className="rounded-xl">
                         Profil
                       </TabsTrigger>
@@ -1579,7 +1579,7 @@ export function DesignaliCreative() {
                     </TabsList>
 
                     <TabsContent value="profil" className="space-y-4 mt-6">
-                      <Card className="rounded-3xl max-w-2xl">
+                      <Card className="rounded-xl max-w-2xl">
                         <CardHeader>
                           <CardTitle>Informations du Profil</CardTitle>
                           <CardDescription>Mettez à jour vos informations personnelles</CardDescription>
@@ -1590,31 +1590,31 @@ export function DesignaliCreative() {
                               <AvatarImage src="/african-user.jpg" />
                               <AvatarFallback>MK</AvatarFallback>
                             </Avatar>
-                            <Button variant="outline" className="rounded-2xl bg-transparent">
+                            <Button variant="outline" className="rounded-xl bg-transparent">
                               Changer Photo
                             </Button>
                           </div>
                           <div className="space-y-2">
                             <label className="text-sm font-medium">Nom complet</label>
-                            <Input placeholder="Votre nom" className="rounded-2xl" />
+                            <Input placeholder="Votre nom" className="rounded-xl" />
                           </div>
                           <div className="space-y-2">
                             <label className="text-sm font-medium">Profession</label>
-                            <Input placeholder="Artisan, Designer, etc." className="rounded-2xl" />
+                            <Input placeholder="Artisan, Designer, etc." className="rounded-xl" />
                           </div>
                           <div className="space-y-2">
                             <label className="text-sm font-medium">Localisation</label>
-                            <Input placeholder="Ville, Pays" className="rounded-2xl" />
+                            <Input placeholder="Ville, Pays" className="rounded-xl" />
                           </div>
                         </CardContent>
                         <CardFooter>
-                          <Button className="rounded-2xl">Enregistrer les Modifications</Button>
+                          <Button className="rounded-xl">Enregistrer les Modifications</Button>
                         </CardFooter>
                       </Card>
                     </TabsContent>
 
                     <TabsContent value="securite" className="space-y-4 mt-6">
-                      <Card className="rounded-3xl max-w-2xl">
+                      <Card className="rounded-xl max-w-2xl">
                         <CardHeader>
                           <CardTitle>Sécurité du Compte</CardTitle>
                           <CardDescription>Gérez votre mot de passe et paramètres de sécurité</CardDescription>
@@ -1622,17 +1622,17 @@ export function DesignaliCreative() {
                         <CardContent className="space-y-4">
                           <div className="space-y-2">
                             <label className="text-sm font-medium">Mot de passe actuel</label>
-                            <Input type="password" className="rounded-2xl" />
+                            <Input type="password" className="rounded-xl" />
                           </div>
                           <div className="space-y-2">
                             <label className="text-sm font-medium">Nouveau mot de passe</label>
-                            <Input type="password" className="rounded-2xl" />
+                            <Input type="password" className="rounded-xl" />
                           </div>
                           <div className="space-y-2">
                             <label className="text-sm font-medium">Confirmer mot de passe</label>
-                            <Input type="password" className="rounded-2xl" />
+                            <Input type="password" className="rounded-xl" />
                           </div>
-                          <div className="flex items-center justify-between rounded-2xl border p-4">
+                          <div className="flex items-center justify-between rounded-xl border p-4">
                             <div className="flex items-center gap-3">
                               <Shield className="h-5 w-5 text-green-600" />
                               <div>
@@ -1640,19 +1640,19 @@ export function DesignaliCreative() {
                                 <p className="text-sm text-muted-foreground">Sécurité supplémentaire</p>
                               </div>
                             </div>
-                            <Button variant="outline" className="rounded-2xl bg-transparent">
+                            <Button variant="outline" className="rounded-xl bg-transparent">
                               Activer
                             </Button>
                           </div>
                         </CardContent>
                         <CardFooter>
-                          <Button className="rounded-2xl">Mettre à Jour Sécurité</Button>
+                          <Button className="rounded-xl">Mettre à Jour Sécurité</Button>
                         </CardFooter>
                       </Card>
                     </TabsContent>
 
                     <TabsContent value="notifications" className="space-y-4 mt-6">
-                      <Card className="rounded-3xl max-w-2xl">
+                      <Card className="rounded-xl max-w-2xl">
                         <CardHeader>
                           <CardTitle>Préférences de Notifications</CardTitle>
                           <CardDescription>Choisissez comment vous voulez être notifié</CardDescription>
@@ -1664,7 +1664,7 @@ export function DesignaliCreative() {
                             { title: "Projets", desc: "Mises à jour sur les projets que vous suivez" },
                             { title: "Newsletter", desc: "Actualités hebdomadaires de Nexus Connect" },
                           ].map((notif) => (
-                            <div key={notif.title} className="flex items-center justify-between rounded-2xl border p-4">
+                            <div key={notif.title} className="flex items-center justify-between rounded-xl border p-4">
                               <div>
                                 <p className="font-medium">{notif.title}</p>
                                 <p className="text-sm text-muted-foreground">{notif.desc}</p>
@@ -1679,7 +1679,7 @@ export function DesignaliCreative() {
                     </TabsContent>
 
                     <TabsContent value="preferences" className="space-y-4 mt-6">
-                      <Card className="rounded-3xl max-w-2xl">
+                      <Card className="rounded-xl max-w-2xl">
                         <CardHeader>
                           <CardTitle>Préférences Générales</CardTitle>
                           <CardDescription>Personnalisez votre expérience</CardDescription>
@@ -1687,7 +1687,7 @@ export function DesignaliCreative() {
                         <CardContent className="space-y-4">
                           <div className="space-y-2">
                             <label className="text-sm font-medium">Langue</label>
-                            <select className="w-full rounded-2xl border p-2">
+                            <select className="w-full rounded-xl border p-2">
                               <option>Français</option>
                               <option>English</option>
                               <option>Português</option>
@@ -1695,17 +1695,17 @@ export function DesignaliCreative() {
                           </div>
                           <div className="space-y-2">
                             <label className="text-sm font-medium">Fuseau horaire</label>
-                            <select className="w-full rounded-2xl border p-2">
+                            <select className="w-full rounded-xl border p-2">
                               <option>GMT (Afrique de l'Ouest)</option>
                               <option>GMT+1 (Afrique Centrale)</option>
                             </select>
                           </div>
-                          <div className="flex items-center justify-between rounded-2xl border p-4">
+                          <div className="flex items-center justify-between rounded-xl border p-4">
                             <div>
                               <p className="font-medium">Visibilité du profil</p>
                               <p className="text-sm text-muted-foreground">Qui peut voir votre profil</p>
                             </div>
-                            <select className="rounded-2xl border p-2">
+                            <select className="rounded-xl border p-2">
                               <option>Public</option>
                               <option>Réseau</option>
                               <option>Privé</option>
@@ -1713,7 +1713,7 @@ export function DesignaliCreative() {
                           </div>
                         </CardContent>
                         <CardFooter>
-                          <Button className="rounded-2xl">Enregistrer Préférences</Button>
+                          <Button className="rounded-xl">Enregistrer Préférences</Button>
                         </CardFooter>
                       </Card>
                     </TabsContent>

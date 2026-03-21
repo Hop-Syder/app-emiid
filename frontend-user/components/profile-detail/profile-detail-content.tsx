@@ -273,7 +273,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                 {/* Profile Header */}
                 <div className="relative">
                     {/* Cover Image */}
-                    <div className="h-32 sm:h-48 rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20 overflow-hidden">
+                    <div className="h-32 sm:h-48 rounded-xl bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20 overflow-hidden">
                         {profile.coverImage && (
                             <img 
                                 src={profile.coverImage} 
@@ -538,7 +538,7 @@ function ProfileSkeleton() {
                 </div>
             </div>
             <div className="container max-w-4xl mx-auto px-4 py-6">
-                <Skeleton className="h-48 rounded-2xl" />
+                <Skeleton className="h-48 rounded-xl" />
                 <div className="mt-16 space-y-4">
                     <Skeleton className="h-8 w-48" />
                     <Skeleton className="h-4 w-32" />

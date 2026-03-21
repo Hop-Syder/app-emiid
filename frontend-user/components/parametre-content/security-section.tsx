@@ -92,7 +92,7 @@ export function SecuritySection({ profile, setProfile }: SecuritySectionProps) {
 
     return (
         <div className="space-y-6">
-            <Card className="rounded-3xl">
+            <Card className="rounded-xl">
                 <CardHeader>
                     <CardTitle>Mot de passe</CardTitle>
                     <CardDescription>Modifiez votre mot de passe</CardDescription>
@@ -100,27 +100,27 @@ export function SecuritySection({ profile, setProfile }: SecuritySectionProps) {
                 <CardContent className="space-y-4">
                     <div className="space-y-2">
                         <Label htmlFor="current-password">Mot de passe actuel</Label>
-                        <Input id="current-password" type="password" className="rounded-2xl" />
+                        <Input id="current-password" type="password" className="rounded-xl" />
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="new-password">Nouveau mot de passe</Label>
-                        <Input id="new-password" type="password" className="rounded-2xl" />
+                        <Input id="new-password" type="password" className="rounded-xl" />
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="confirm-password">Confirmer le mot de passe</Label>
-                        <Input id="confirm-password" type="password" className="rounded-2xl" />
+                        <Input id="confirm-password" type="password" className="rounded-xl" />
                     </div>
-                    <Button className="rounded-2xl">Mettre à jour le mot de passe</Button>
+                    <Button className="rounded-xl">Mettre à jour le mot de passe</Button>
                 </CardContent>
             </Card>
 
-            <Card className="rounded-3xl">
+            <Card className="rounded-xl">
                 <CardHeader>
                     <CardTitle>Authentification à deux facteurs</CardTitle>
                     <CardDescription>Ajoutez une couche de sécurité supplémentaire</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between p-4 border rounded-2xl">
+                    <div className="flex items-center justify-between p-4 border rounded-xl">
                         <div>
                             <p className="font-medium text-[#022753]">Verrouillage par Code PIN</p>
                             <p className="text-sm text-muted-foreground">Sécurisez l'accès au tableau de bord</p>
@@ -130,7 +130,7 @@ export function SecuritySection({ profile, setProfile }: SecuritySectionProps) {
                             onCheckedChange={handlePinToggle}
                         />
                     </div>
-                    <div className="flex items-center justify-between p-4 border rounded-2xl">
+                    <div className="flex items-center justify-between p-4 border rounded-xl">
                         <div>
                             <p className="font-medium">Application d'authentification</p>
                             <p className="text-sm text-muted-foreground">Utilisez une app comme Google Authenticator</p>
@@ -140,27 +140,27 @@ export function SecuritySection({ profile, setProfile }: SecuritySectionProps) {
                 </CardContent>
             </Card>
 
-            <Card className="rounded-3xl border-red-200">
+            <Card className="rounded-xl border-red-200">
                 <CardHeader>
                     <CardTitle className="text-red-600">Zone de danger</CardTitle>
                     <CardDescription>Actions irréversibles sur votre compte</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between p-4 border border-red-200 rounded-2xl">
+                    <div className="flex items-center justify-between p-4 border border-red-200 rounded-xl">
                         <div>
                             <p className="font-medium">Désactiver le compte</p>
                             <p className="text-sm text-muted-foreground">Votre compte sera temporairement désactivé</p>
                         </div>
-                        <Button variant="outline" className="rounded-2xl border-red-200 text-red-600 bg-transparent">
+                        <Button variant="outline" className="rounded-xl border-red-200 text-red-600 bg-transparent">
                             Désactiver
                         </Button>
                     </div>
-                    <div className="flex items-center justify-between p-4 border border-red-200 rounded-2xl">
+                    <div className="flex items-center justify-between p-4 border border-red-200 rounded-xl">
                         <div>
                             <p className="font-medium">Supprimer le compte</p>
                             <p className="text-sm text-muted-foreground">Suppression définitive de toutes vos données</p>
                         </div>
-                        <Button variant="destructive" className="rounded-2xl">
+                        <Button variant="destructive" className="rounded-xl">
                             Supprimer
                         </Button>
                     </div>

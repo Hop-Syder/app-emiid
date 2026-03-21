@@ -166,7 +166,7 @@ export function FollowedProfilesContent() {
             />
 
             <Tabs defaultValue="following" onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-2 rounded-2xl p-1 bg-muted/20 border border-muted/10 h-12">
+                <TabsList className="grid w-full grid-cols-2 rounded-xl p-1 bg-muted/20 border border-muted/10 h-12">
                     <TabsTrigger value="following" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm">
                         Favoris ({followedProfiles.length})
                     </TabsTrigger>
@@ -175,12 +175,12 @@ export function FollowedProfilesContent() {
                     </TabsTrigger>
                 </TabsList>
 
-                <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white/50 backdrop-blur-sm p-4 rounded-3xl border border-white/20 shadow-sm mt-6">
+                <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white/50 backdrop-blur-sm p-4 rounded-xl border border-white/20 shadow-sm mt-6">
                     <div className="relative w-full md:max-w-md">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
                             placeholder={activeTab === "following" ? "Rechercher dans vos favoris..." : "Rechercher un abonné..."}
-                            className="pl-10 rounded-2xl bg-white/80 border-none shadow-inner"
+                            className="pl-10 rounded-xl bg-white/80 border-none shadow-inner"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
@@ -188,12 +188,12 @@ export function FollowedProfilesContent() {
 
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="outline" className="rounded-2xl gap-2 bg-white/80">
+                            <Button variant="outline" className="rounded-xl gap-2 bg-white/80">
                                 <SlidersHorizontal className="h-4 w-4" />
                                 Trier par: {sortBy === "name" ? "Nom" : sortBy === "followers" ? "Abonnés" : "Récents"}
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="rounded-2xl">
+                        <DropdownMenuContent align="end" className="rounded-xl">
                             <DropdownMenuLabel>Options de tri</DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => setSortBy("recent")}>Récents</DropdownMenuItem>
@@ -229,7 +229,7 @@ export function FollowedProfilesContent() {
                             />
                         ))
                     ) : (
-                        <div className="text-center py-20 bg-muted/20 rounded-3xl border-2 border-dashed">
+                        <div className="text-center py-20 bg-muted/20 rounded-xl border-2 border-dashed">
                             {searchQuery ? (
                                 <p className="text-muted-foreground text-lg">Aucun résultat pour "{searchQuery}"</p>
                             ) : (
@@ -265,7 +265,7 @@ export function FollowedProfilesContent() {
                             />
                         ))
                     ) : (
-                        <div className="text-center py-20 bg-muted/20 rounded-3xl border-2 border-dashed">
+                        <div className="text-center py-20 bg-muted/20 rounded-xl border-2 border-dashed">
                             <p className="text-muted-foreground text-lg">Vous n'avez pas encore d'abonnés.</p>
                             <p className="text-sm text-muted-foreground mt-2">Partagez votre profil pour attirer de nouveaux membres.</p>
                         </div>

@@ -33,11 +33,11 @@ export function ProfileSection({
 }: ProfileSectionProps) {
   return (
     <div className="space-y-6 md:space-y-8 animate-in fade-in duration-500">
-      <Card className="rounded-3xl md:rounded-[2.5rem] border-none shadow-2xl shadow-slate-200/50 bg-white/80 backdrop-blur-xl overflow-hidden relative">
+      <Card className="rounded-xl md:rounded-xl border-none shadow-2xl shadow-slate-200/50 bg-white/80 backdrop-blur-xl overflow-hidden relative">
         <div className="absolute top-0 right-0 p-32 bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
         <CardHeader className="pb-2">
             <div className="flex items-center gap-3 md:gap-4 mb-2">
-                <div className="p-2.5 md:p-3 bg-primary/10 rounded-xl md:rounded-2xl shrink-0">
+                <div className="p-2.5 md:p-3 bg-primary/10 rounded-xl md:rounded-xl shrink-0">
                     <User className="h-5 w-5 md:h-6 md:w-6 text-primary" />
                 </div>
                 <div>
@@ -47,7 +47,7 @@ export function ProfileSection({
             </div>
         </CardHeader>
         <CardContent className="space-y-6 md:space-y-8 p-4 sm:p-6 lg:p-8 relative z-10">
-          <div className="p-4 md:p-6 bg-slate-50/50 border border-slate-100 rounded-3xl md:rounded-[2rem] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="p-4 md:p-6 bg-slate-50/50 border border-slate-100 rounded-xl md:rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
                   <h3 className="font-bold text-slate-900 mb-1">Photo de profil</h3>
                   <p className="text-xs text-slate-500">Cela sera affiché sur votre profil public</p>
@@ -67,7 +67,7 @@ export function ProfileSection({
                 id="prenom"
                 value={profile.first_name || ""}
                 onChange={(e) => setProfile({ ...profile, first_name: e.target.value })}
-                className="h-12 md:h-14 rounded-2xl bg-slate-50 border-slate-200 focus:ring-primary/20 transition-all font-medium text-slate-900"
+                className="h-12 md:h-14 rounded-xl bg-slate-50 border-slate-200 focus:ring-primary/20 transition-all font-medium text-slate-900"
                 placeholder="Votre prénom"
               />
             </div>
@@ -77,7 +77,7 @@ export function ProfileSection({
                 id="nom"
                 value={profile.last_name || ""}
                 onChange={(e) => setProfile({ ...profile, last_name: e.target.value })}
-                className="h-12 md:h-14 rounded-2xl bg-slate-50 border-slate-200 focus:ring-primary/20 transition-all font-medium text-slate-900"
+                className="h-12 md:h-14 rounded-xl bg-slate-50 border-slate-200 focus:ring-primary/20 transition-all font-medium text-slate-900"
                 placeholder="Votre nom"
               />
             </div>
@@ -95,7 +95,7 @@ export function ProfileSection({
               value={profile.role || ""}
               onChange={(e) => setProfile({ ...profile, role: e.target.value })}
               placeholder="Ex: Architecte d'intérieur, Développeur Fullstack..."
-              className="h-12 md:h-14 rounded-2xl bg-slate-50 border-slate-200 focus:ring-primary/20 transition-all font-medium text-slate-900"
+              className="h-12 md:h-14 rounded-xl bg-slate-50 border-slate-200 focus:ring-primary/20 transition-all font-medium text-slate-900"
             />
           </div>
 
@@ -111,7 +111,7 @@ export function ProfileSection({
               value={profile.specialty || ""}
               onChange={(e) => setProfile({ ...profile, specialty: e.target.value })}
               placeholder="Ex: Spécialiste en aménagement d'espaces minimalistes..."
-              className="h-12 md:h-14 rounded-2xl bg-slate-50 border-slate-200 focus:ring-primary/20 transition-all font-medium text-slate-900"
+              className="h-12 md:h-14 rounded-xl bg-slate-50 border-slate-200 focus:ring-primary/20 transition-all font-medium text-slate-900"
             />
           </div>
 
@@ -124,7 +124,7 @@ export function ProfileSection({
                       id="email"
                       type="email"
                       value={profile.email || ""}
-                      className="h-12 md:h-14 pl-12 rounded-2xl bg-slate-100 border-none text-slate-500 font-medium opacity-80"
+                      className="h-12 md:h-14 pl-12 rounded-xl bg-slate-100 border-none text-slate-500 font-medium opacity-80"
                       disabled
                     />
                 </div>
@@ -139,7 +139,7 @@ export function ProfileSection({
                         type="tel" 
                         value={profile.phone || "+223 70 12 34 56"} 
                         onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
-                        className="h-12 md:h-14 pl-12 rounded-2xl bg-slate-50 border-slate-200 focus:ring-primary/20 transition-all font-medium text-slate-900" 
+                        className="h-12 md:h-14 pl-12 rounded-xl bg-slate-50 border-slate-200 focus:ring-primary/20 transition-all font-medium text-slate-900" 
                         placeholder="+000 00 00 00 00"
                     />
                 </div>
@@ -150,7 +150,7 @@ export function ProfileSection({
           <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 md:gap-4 pt-6 md:pt-8 border-t border-slate-100">
             <Button
               variant="outline"
-              className="w-full sm:w-auto rounded-2xl h-12 md:h-14 px-8 font-bold border-slate-200 text-slate-600 hover:bg-slate-50 transition-all"
+              className="w-full sm:w-auto rounded-xl h-12 md:h-14 px-8 font-bold border-slate-200 text-slate-600 hover:bg-slate-50 transition-all"
               onClick={handleCancel}
             >
               Annuler
@@ -158,7 +158,7 @@ export function ProfileSection({
             <Button
               onClick={handleSave}
               disabled={saving}
-              className="w-full sm:w-auto rounded-2xl h-12 md:h-14 px-10 font-bold bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all"
+              className="w-full sm:w-auto rounded-xl h-12 md:h-14 px-10 font-bold bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all"
             >
               {saving ? "Sauvegarde en cours..." : "Enregistrer"}
             </Button>
@@ -166,10 +166,10 @@ export function ProfileSection({
         </CardContent>
       </Card>
 
-      <Card className="rounded-3xl md:rounded-[2.5rem] border-none shadow-xl shadow-slate-200/50 bg-white/80 backdrop-blur-xl">
+      <Card className="rounded-xl md:rounded-xl border-none shadow-xl shadow-slate-200/50 bg-white/80 backdrop-blur-xl">
         <CardHeader className="pb-4 border-b border-slate-100">
             <div className="flex items-center gap-3 md:gap-4">
-                <div className="p-2.5 md:p-3 bg-indigo-50 rounded-xl md:rounded-2xl shrink-0">
+                <div className="p-2.5 md:p-3 bg-indigo-50 rounded-xl md:rounded-xl shrink-0">
                     <Shield className="h-5 w-5 md:h-6 md:w-6 text-indigo-500" />
                 </div>
                 <div>
@@ -179,9 +179,9 @@ export function ProfileSection({
             </div>
         </CardHeader>
         <CardContent className="space-y-4 p-4 sm:p-6 lg:p-8">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 md:p-5 bg-green-50/50 border border-green-100 rounded-3xl md:rounded-[2rem] gap-4 hover:shadow-md transition-all">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 md:p-5 bg-green-50/50 border border-green-100 rounded-xl md:rounded-xl gap-4 hover:shadow-md transition-all">
             <div className="flex items-center gap-3 md:gap-4">
-              <div className="p-2.5 md:p-3 bg-white rounded-xl md:rounded-2xl shadow-sm border border-green-50 shrink-0">
+              <div className="p-2.5 md:p-3 bg-white rounded-xl md:rounded-xl shadow-sm border border-green-50 shrink-0">
                   <Mail className="h-5 w-5 md:h-6 md:w-6 text-green-500" />
               </div>
               <div className="space-y-0.5">
@@ -195,9 +195,9 @@ export function ProfileSection({
             </Badge>
           </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 md:p-5 bg-green-50/50 border border-green-100 rounded-3xl md:rounded-[2rem] gap-4 hover:shadow-md transition-all">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 md:p-5 bg-green-50/50 border border-green-100 rounded-xl md:rounded-xl gap-4 hover:shadow-md transition-all">
             <div className="flex items-center gap-3 md:gap-4">
-              <div className="p-2.5 md:p-3 bg-white rounded-xl md:rounded-2xl shadow-sm border border-green-50 shrink-0">
+              <div className="p-2.5 md:p-3 bg-white rounded-xl md:rounded-xl shadow-sm border border-green-50 shrink-0">
                 <Smartphone className="h-5 w-5 md:h-6 md:w-6 text-green-500" />
               </div>
               <div className="space-y-0.5">
@@ -211,9 +211,9 @@ export function ProfileSection({
             </Badge>
           </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 md:p-5 bg-slate-50 border border-slate-100 rounded-3xl md:rounded-[2rem] gap-4 hover:shadow-md transition-all">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 md:p-5 bg-slate-50 border border-slate-100 rounded-xl md:rounded-xl gap-4 hover:shadow-md transition-all">
             <div className="flex items-center gap-3 md:gap-4">
-              <div className="p-2.5 md:p-3 bg-white rounded-xl md:rounded-2xl shadow-sm border border-slate-100 shrink-0">
+              <div className="p-2.5 md:p-3 bg-white rounded-xl md:rounded-xl shadow-sm border border-slate-100 shrink-0">
                 <User className="h-5 w-5 md:h-6 md:w-6 text-slate-400" />
               </div>
               <div className="space-y-0.5">

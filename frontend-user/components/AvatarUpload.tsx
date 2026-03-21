@@ -127,7 +127,7 @@ export function AvatarUpload({ currentAvatarUrl, onUploadComplete, disabled }: A
                 <Button
                     variant="outline"
                     size="sm"
-                    className="rounded-2xl"
+                    className="rounded-xl"
                     asChild
                     disabled={uploading || disabled}
                 >

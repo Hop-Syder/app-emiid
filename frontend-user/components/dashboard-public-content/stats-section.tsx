@@ -49,7 +49,7 @@ export function StatsSection({ stats }: StatsSectionProps) {
             {statsItems.map((stat, i) => (
                 <Card
                     key={i}
-                    className="rounded-3xl relative overflow-hidden border-none shadow-sm group hover:shadow-md transition-shadow"
+                    className="rounded-xl relative overflow-hidden border-none shadow-sm group hover:shadow-md transition-shadow"
                 >
                     <div
                         className="absolute inset-0 opacity-10 group-hover:opacity-15 transition-opacity"

@@ -58,10 +58,10 @@ export function CreerProfilForm({
         handleInputChange("tags", tags.filter(t => t !== tagToRemove) as any)
     }
     return (
-        <Card className="rounded-[2.5rem] lg:col-span-2 border-none shadow-2xl shadow-slate-200/50 bg-white/80 backdrop-blur-xl overflow-hidden">
+        <Card className="rounded-xl lg:col-span-2 border-none shadow-2xl shadow-slate-200/50 bg-white/80 backdrop-blur-xl overflow-hidden">
             <CardHeader className="pb-2">
                 <div className="flex items-center gap-4 mb-2">
-                    <div className="p-3 bg-primary/10 rounded-2xl">
+                    <div className="p-3 bg-primary/10 rounded-xl">
                         <Save className="h-6 w-6 text-primary" />
                     </div>
                     <div>
@@ -78,10 +78,10 @@ export function CreerProfilForm({
                         Catégorie de compte *
                     </Label>
                     <Select value={formData.category || ""} onValueChange={(value) => handleInputChange("category", value)}>
-                        <SelectTrigger id="category" className="h-14 rounded-2xl bg-slate-50 border-slate-200 focus:ring-2 focus:ring-primary/20 transition-all">
+                        <SelectTrigger id="category" className="h-14 rounded-xl bg-slate-50 border-slate-200 focus:ring-2 focus:ring-primary/20 transition-all">
                             <SelectValue placeholder="Choisissez votre catégorie..." />
                         </SelectTrigger>
-                        <SelectContent className="rounded-2xl border-slate-200 shadow-xl">
+                        <SelectContent className="rounded-xl border-slate-200 shadow-xl">
                             <SelectItem value="artisan" className="rounded-xl py-3 cursor-pointer">🎨 Artisan</SelectItem>
                             <SelectItem value="freelance" className="rounded-xl py-3 cursor-pointer">💻 Freelance</SelectItem>
                             <SelectItem value="entreprise" className="rounded-xl py-3 cursor-pointer">🏢 Entreprise</SelectItem>
@@ -102,7 +102,7 @@ export function CreerProfilForm({
                             <Input
                                 id="name"
                                 placeholder="Prénom et Nom"
-                                className="h-14 rounded-2xl bg-slate-50 border-slate-200 focus:ring-primary/20"
+                                className="h-14 rounded-xl bg-slate-50 border-slate-200 focus:ring-primary/20"
                                 value={formData.name || ""}
                                 onChange={(e) => handleInputChange("name", e.target.value)}
                             />
@@ -112,7 +112,7 @@ export function CreerProfilForm({
                             <Input
                                 id="role"
                                 placeholder="Ex: Directeur Créatif"
-                                className="h-14 rounded-2xl bg-slate-50 border-slate-200 focus:ring-primary/20"
+                                className="h-14 rounded-xl bg-slate-50 border-slate-200 focus:ring-primary/20"
                                 value={formData.role || ""}
                                 onChange={(e) => handleInputChange("role", e.target.value)}
                             />
@@ -127,7 +127,7 @@ export function CreerProfilForm({
                         Localisation & Spécialité
                     </Label>
                     <div className="space-y-6">
-                        <div className="p-6 rounded-[2rem] bg-slate-50 border border-slate-100 space-y-4">
+                        <div className="p-6 rounded-xl bg-slate-50 border border-slate-100 space-y-4">
                             <LocationSelector
                                 defaultCountryCode={formData.country_code}
                                 defaultCity={formData.city}
@@ -143,7 +143,7 @@ export function CreerProfilForm({
                                 }}
                             />
                             {(formData.country_name || formData.city) && (
-                                <div className="flex items-center gap-3 py-2 px-4 bg-white/80 rounded-2xl border border-slate-200/50 shadow-sm animate-in fade-in slide-in-from-top-2 duration-500">
+                                <div className="flex items-center gap-3 py-2 px-4 bg-white/80 rounded-xl border border-slate-200/50 shadow-sm animate-in fade-in slide-in-from-top-2 duration-500">
                                     <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-sm shadow-emerald-200 animate-pulse"></div>
                                     <span className="text-xs font-bold text-slate-500 uppercase tracking-tight">Zone active :</span>
                                     <span className="text-sm font-extrabold text-slate-900">
@@ -158,7 +158,7 @@ export function CreerProfilForm({
                             <Input
                                 id="specialty"
                                 placeholder="Ex: Développement Web Fullstack ou Menuiserie d'art"
-                                className="h-14 rounded-2xl bg-slate-50 border-slate-200 focus:ring-primary/20"
+                                className="h-14 rounded-xl bg-slate-50 border-slate-200 focus:ring-primary/20"
                                 value={formData.specialty || ""}
                                 onChange={(e) => handleInputChange("specialty", e.target.value)}
                             />
@@ -175,12 +175,12 @@ export function CreerProfilForm({
                     <Textarea
                         id="bio"
                         placeholder="Racontez votre parcours, vos plus belles réalisations et ce qui vous passionne. C'est ici que vous convainquez vos futurs clients."
-                        className="rounded-3xl min-h-[160px] bg-slate-50 border-slate-200 focus:ring-primary/20 p-5 leading-relaxed text-slate-700"
+                        className="rounded-xl min-h-[160px] bg-slate-50 border-slate-200 focus:ring-primary/20 p-5 leading-relaxed text-slate-700"
                         value={formData.bio || ""}
                         onChange={(e) => handleInputChange("bio", e.target.value)}
                     />
                     {formData.bio && (
-                        <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10 transition-all duration-300">
+                        <div className="p-4 bg-primary/5 rounded-xl border border-primary/10 transition-all duration-300">
                            <div className="flex items-center gap-2 mb-2">
                                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></div>
                                <span className="text-[10px] font-bold text-primary uppercase tracking-wider">Aperçu du contenu enregistré</span>
@@ -203,7 +203,7 @@ export function CreerProfilForm({
                             <Input
                                 id="phone"
                                 placeholder="Téléphone mobile"
-                                className="h-12 rounded-2xl bg-slate-50 border-slate-200"
+                                className="h-12 rounded-xl bg-slate-50 border-slate-200"
                                 value={formData.phone || ""}
                                 onChange={(e) => handleInputChange("phone", e.target.value)}
                             />
@@ -213,7 +213,7 @@ export function CreerProfilForm({
                                 id="email"
                                 type="email"
                                 placeholder="Contact email professionnel"
-                                className="h-12 rounded-2xl bg-slate-50 border-slate-200"
+                                className="h-12 rounded-xl bg-slate-50 border-slate-200"
                                 value={formData.email || ""}
                                 onChange={(e) => handleInputChange("email", e.target.value)}
                             />
@@ -222,7 +222,7 @@ export function CreerProfilForm({
                     <Input
                         id="website"
                         placeholder="Portfolio ou Site Web (https://...)"
-                        className="h-12 rounded-2xl bg-slate-50 border-slate-200"
+                        className="h-12 rounded-xl bg-slate-50 border-slate-200"
                         value={formData.website || ""}
                         onChange={(e) => handleInputChange("website", e.target.value)}
                     />
@@ -237,18 +237,18 @@ export function CreerProfilForm({
                     <div className="flex gap-2">
                         <Input
                             placeholder="Appuyez sur Entrée pour ajouter (ex: Marketing, Python...)"
-                            className="h-14 rounded-2xl bg-slate-50 border-slate-200 shadow-sm"
+                            className="h-14 rounded-xl bg-slate-50 border-slate-200 shadow-sm"
                             value={tagInput}
                             onChange={(e) => setTagInput(e.target.value)}
                             onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
                         />
-                        <Button type="button" onClick={addTag} variant="secondary" className="h-14 rounded-2xl px-6 font-bold">Ajouter</Button>
+                        <Button type="button" onClick={addTag} variant="secondary" className="h-14 rounded-xl px-6 font-bold">Ajouter</Button>
                     </div>
                     <div className="flex flex-wrap gap-2 min-h-[40px]">
                         {tags && tags.length > 0 ? tags.map((tag) => (
                             <div 
                                 key={tag} 
-                                className="flex items-center gap-2 bg-gradient-to-r from-primary to-blue-600 text-white pl-4 pr-2 py-2 rounded-2xl text-xs font-bold shadow-md shadow-primary/10"
+                                className="flex items-center gap-2 bg-gradient-to-r from-primary to-blue-600 text-white pl-4 pr-2 py-2 rounded-xl text-xs font-bold shadow-md shadow-primary/10"
                             >
                                 <span>{tag}</span>
                                 <button onClick={() => removeTag(tag)} className="p-1 hover:bg-white/20 rounded-lg transition-colors">
@@ -266,7 +266,7 @@ export function CreerProfilForm({
                     <Button
                         onClick={handleSave}
                         variant="outline"
-                        className="rounded-2xl flex-1 h-14 border-slate-200 text-slate-600 font-bold hover:bg-slate-50 group transition-all"
+                        className="rounded-xl flex-1 h-14 border-slate-200 text-slate-600 font-bold hover:bg-slate-50 group transition-all"
                     >
                         <Save className="mr-2 h-5 w-5 text-slate-400 group-hover:text-primary transition-colors" />
                         Sauvegarder
@@ -275,7 +275,7 @@ export function CreerProfilForm({
                     {!isPublished ? (
                         <Button
                             onClick={handlePublish}
-                            className="rounded-2xl flex-[1.5] h-14 bg-gradient-to-br from-indigo-600 via-blue-600 to-blue-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-blue-200 transition-all duration-300 font-extrabold text-lg shadow-xl shadow-blue-100"
+                            className="rounded-xl flex-[1.5] h-14 bg-gradient-to-br from-indigo-600 via-blue-600 to-blue-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-blue-200 transition-all duration-300 font-extrabold text-lg shadow-xl shadow-blue-100"
                         >
                             <Eye className="mr-2 h-6 w-6" />
                             Mettre en ligne
@@ -284,7 +284,7 @@ export function CreerProfilForm({
                         <Button
                             onClick={handleUnpublish}
                             variant="destructive"
-                            className="rounded-2xl flex-1 h-14 bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200 font-bold shadow-sm"
+                            className="rounded-xl flex-1 h-14 bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200 font-bold shadow-sm"
                         >
                             <EyeOff className="mr-2 h-5 w-5" />
                             Retirer de l'annuaire

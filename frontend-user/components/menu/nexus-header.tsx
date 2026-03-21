@@ -1,6 +1,6 @@
 "use client"
 
-import { Menu, PanelLeft, Bell, MessageSquare, Search, Home, Users, Wallet, LogOut, LogIn, User, PlusCircle } from "lucide-react"
+import { Menu, PanelLeft, Bell, MessageSquare, Search, Home, Users, Wallet, LogOut, LogIn, User, PlusCircle, Settings } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -131,7 +131,7 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
         }}
         animate={hidden ? "hidden" : "visible"}
         transition={{ duration: 0.35, ease: "easeInOut" }}
-        className="sticky top-0 z-20 border-b border-white/20 bg-white/70 backdrop-blur-2xl supports-[backdrop-filter]:bg-white/60 shadow-sm"
+        className="sticky top-4 md:top-6 z-20 mx-4 md:mx-6 mb-4 md:mb-6 rounded-2xl border border-white/20 bg-white/70 backdrop-blur-2xl supports-[backdrop-filter]:bg-white/60 shadow-lg"
       >
         <div className="flex h-16 md:h-[72px] items-center gap-2 md:gap-4 px-3 md:px-8">
 
@@ -159,7 +159,7 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
                   <Button 
                     variant="ghost" 
                     size="icon" 
-                    className="rounded-xl md:rounded-2xl h-10 w-10 md:h-11 md:w-11 bg-white hover:bg-primary/5 hover:text-primary transition-all shadow-sm border border-slate-100 hidden sm:flex" 
+                    className="rounded-xl md:rounded-xl h-10 w-10 md:h-11 md:w-11 bg-white hover:bg-primary/5 hover:text-primary transition-all shadow-sm border border-slate-100 hidden sm:flex" 
                     onClick={(e) => handleRestrictedAction(e, "/messages")}
                   >
                     <MessageSquare className="h-4 w-4 md:h-5 md:w-5" />
@@ -177,7 +177,7 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
                     <Button 
                         variant="ghost" 
                         size="icon" 
-                        className="rounded-xl md:rounded-2xl h-10 w-10 md:h-11 md:w-11 bg-white hover:bg-primary/5 hover:text-primary transition-all shadow-sm border border-slate-100"
+                        className="rounded-xl md:rounded-xl h-10 w-10 md:h-11 md:w-11 bg-white hover:bg-primary/5 hover:text-primary transition-all shadow-sm border border-slate-100"
                     >
                       <Bell className="h-4 w-4 md:h-5 md:w-5" />
                       {unreadCount > 0 && (
@@ -188,7 +188,7 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
                     </Button>
                   </div>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-80 p-0 rounded-3xl overflow-hidden shadow-2xl border-white/40 bg-white/95 backdrop-blur-xl" align="end">
+                <DropdownMenuContent className="w-80 p-0 rounded-xl overflow-hidden shadow-2xl border-white/40 bg-white/95 backdrop-blur-xl" align="end">
                   <div className="px-5 py-4 border-b border-slate-100 bg-slate-50/50">
                     <h3 className="font-bold text-slate-900">Notifications</h3>
                   </div>
@@ -230,7 +230,7 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
                     <Button 
                         variant="ghost" 
                         size="icon" 
-                        className="rounded-xl md:rounded-2xl h-10 w-10 md:h-11 md:w-11 bg-white hover:bg-primary/5 hover:text-primary transition-all shadow-sm border border-slate-100"
+                        className="rounded-xl md:rounded-xl h-10 w-10 md:h-11 md:w-11 bg-white hover:bg-primary/5 hover:text-primary transition-all shadow-sm border border-slate-100"
                     >
                       <Bell className="h-4 w-4 md:h-5 md:w-5" />
                       {unreadCount > 0 && (
@@ -257,7 +257,7 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
                                   markAsRead(n.id);
                                   if (n.link) router.push(n.link);
                                 }}
-                                className={`p-4 mb-3 rounded-2xl transition-all shadow-sm border ${!n.is_read ? 'bg-primary/5 border-primary/20 shadow-primary/5' : 'bg-white border-slate-100 hover:border-slate-200'}`}
+                                className={`p-4 mb-3 rounded-xl transition-all shadow-sm border ${!n.is_read ? 'bg-primary/5 border-primary/20 shadow-primary/5' : 'bg-white border-slate-100 hover:border-slate-200'}`}
                               >
                                 <div className="flex justify-between items-start gap-2 mb-2">
                                   <h4 className="text-sm font-bold text-slate-900">{n.title}</h4>
@@ -291,8 +291,8 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
                   <div className="absolute bottom-0 right-0 h-2.5 w-2.5 md:h-3 md:w-3 rounded-full bg-green-500 border-2 border-white" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-64 p-2 rounded-3xl mt-2 shadow-2xl border-white/50 bg-white/95 backdrop-blur-xl" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal p-3 bg-slate-50 rounded-2xl mb-1">
+              <DropdownMenuContent className="w-64 p-2 rounded-xl mt-2 shadow-2xl border-white/50 bg-white/95 backdrop-blur-xl" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal p-3 bg-slate-50 rounded-xl mb-1">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-bold leading-none text-slate-900 line-clamp-1">{user?.first_name} {user?.last_name}</p>
                     <p className="text-xs font-medium leading-none text-slate-500 line-clamp-1">{user?.email}</p>

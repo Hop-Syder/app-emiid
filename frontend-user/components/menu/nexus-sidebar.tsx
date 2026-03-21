@@ -155,7 +155,7 @@ export function NexusSidebar({ sidebarOpen, setSidebarOpen, mobileMenuOpen, setM
           <Input 
             type="search" 
             placeholder="Recherche rapide..." 
-            className="w-full rounded-2xl bg-slate-50 border-transparent hover:bg-slate-100 focus:bg-white focus:border-primary/30 focus:ring-4 focus:ring-primary/5 pl-10 pr-4 py-2.5 h-11 text-sm font-medium transition-all duration-300" 
+            className="w-full rounded-xl bg-slate-50 border-transparent hover:bg-slate-100 focus:bg-white focus:border-primary/30 focus:ring-4 focus:ring-primary/5 pl-10 pr-4 py-2.5 h-11 text-sm font-medium transition-all duration-300" 
           />
         </div>
       </div>
@@ -177,7 +177,7 @@ export function NexusSidebar({ sidebarOpen, setSidebarOpen, mobileMenuOpen, setM
                     <Link
                       href={item.href}
                       className={cn(
-                        "group flex flex-1 items-center justify-between rounded-2xl px-4 py-3 text-sm font-semibold transition-all duration-300 relative overflow-hidden",
+                        "group flex flex-1 items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300 relative overflow-hidden",
                         active 
                           ? "bg-primary text-white shadow-md shadow-primary/20" 
                           : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
@@ -221,7 +221,7 @@ export function NexusSidebar({ sidebarOpen, setSidebarOpen, mobileMenuOpen, setM
                   ) : (
                     <button
                       className={cn(
-                        "group flex flex-1 items-center justify-between rounded-2xl px-4 py-3 text-sm font-semibold transition-all duration-300 relative",
+                        "group flex flex-1 items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300 relative",
                         parentActive ? "bg-slate-50 text-primary" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                       )}
                       onClick={() => toggleExpanded(item.title)}
@@ -308,7 +308,7 @@ export function NexusSidebar({ sidebarOpen, setSidebarOpen, mobileMenuOpen, setM
       <div className="p-4 mt-auto">
         <Link
           href="/parametres"
-          className="flex w-full items-center justify-between rounded-[1.5rem] p-3 transition-all duration-300 bg-slate-50 hover:bg-slate-100 border border-slate-100 hover:shadow-md hover:-translate-y-0.5 group"
+          className="flex w-full items-center justify-between rounded-xl p-3 transition-all duration-300 bg-slate-50 hover:bg-slate-100 border border-slate-100 hover:shadow-md hover:-translate-y-0.5 group"
           onClick={(e) => handleNavClick(e, { requiresAuth: true })}
         >
           <div className="flex items-center gap-3">

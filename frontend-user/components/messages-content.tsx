@@ -403,7 +403,7 @@ export function MessagesContent() {
 
   return (
     <TooltipProvider>
-      <div className="h-[calc(100vh-8rem)] flex bg-background rounded-3xl border shadow-sm overflow-hidden">
+      <div className="h-[calc(100vh-8rem)] flex bg-background rounded-xl border shadow-sm overflow-hidden">
         
         {/* Sidebar - Liste des conversations */}
         <aside className={cn(
@@ -493,7 +493,7 @@ export function MessagesContent() {
               {loadingConv ? (
                 <div className="space-y-2 p-2">
                   {Array.from({ length: 5 }).map((_, i) => (
-                    <div key={i} className="flex items-center gap-3 p-3 rounded-2xl animate-pulse">
+                    <div key={i} className="flex items-center gap-3 p-3 rounded-xl animate-pulse">
                       <div className="w-12 h-12 rounded-full bg-muted" />
                       <div className="flex-1 space-y-2">
                         <div className="h-4 w-24 bg-muted rounded" />
@@ -518,7 +518,7 @@ export function MessagesContent() {
                           setShowChatMobile(true)
                         }}
                         className={cn(
-                          "relative flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition-all group",
+                          "relative flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all group",
                           isSelected 
                             ? "bg-primary/10 border border-primary/20" 
                             : "hover:bg-muted/60"
@@ -764,7 +764,7 @@ export function MessagesContent() {
                             isOwn ? "items-end" : "items-start"
                           )}>
                             <div className={cn(
-                              "px-4 py-2.5 rounded-2xl text-sm leading-relaxed",
+                              "px-4 py-2.5 rounded-xl text-sm leading-relaxed",
                               isOwn 
                                 ? "bg-primary text-primary-foreground rounded-br-md" 
                                 : "bg-card border border-border rounded-bl-md"
@@ -853,7 +853,7 @@ export function MessagesContent() {
                           handleSendMessage()
                         }
                       }}
-                      className="min-h-[44px] max-h-[120px] py-3 px-4 pr-24 resize-none rounded-2xl bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary/30"
+                      className="min-h-[44px] max-h-[120px] py-3 px-4 pr-24 resize-none rounded-xl bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary/30"
                       rows={1}
                     />
                     <div className="absolute right-2 bottom-2 flex items-center gap-0.5">

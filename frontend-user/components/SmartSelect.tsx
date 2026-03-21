@@ -109,7 +109,7 @@ export function SmartSelect({ table, label, value, onChange, placeholder }: Smar
             </label>
 
             <div className="relative">
-                <Command className="rounded-2xl border border-gray-200 bg-white overflow-visible shadow-sm focus-within:ring-2 focus-within:ring-[#022753]/20 focus-within:border-[#022753] transition-all">
+                <Command className="rounded-xl border border-gray-200 bg-white overflow-visible shadow-sm focus-within:ring-2 focus-within:ring-[#022753]/20 focus-within:border-[#022753] transition-all">
                     <div className="flex items-center px-3 border-b-0">
                         <CommandInput
                             placeholder={placeholder || "Rechercher ou créer..."}
