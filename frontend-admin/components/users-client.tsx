@@ -35,6 +35,8 @@ import {
   getUsers, 
   updateUserProfile, 
   toggleUserPublished, 
+  toggleUserVerified,
+  toggleUserPremium,
   deleteUser,
   type UserProfile, 
   type Country 
@@ -97,6 +99,30 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
       setUsers(prev => prev.map(u => 
         u.id === userId ? { ...u, is_published: !currentStatus } : u
       ))
+    }
+  }
+
+  const handleToggleVerified = async (userId: string, currentStatus: boolean) => {
+    const result = await toggleUserVerified(userId, !currentStatus)
+    if (result.success) {
+      setUsers(prev => prev.map(u => 
+        u.id === userId ? { ...u, is_verified: !currentStatus } : u
+      ))
+      if (selectedUser?.id === userId) {
+        setSelectedUser(prev => prev ? { ...prev, is_verified: !currentStatus } : null)
+      }
+    }
+  }
+
+  const handleTogglePremium = async (userId: string, currentStatus: boolean) => {
+    const result = await toggleUserPremium(userId, !currentStatus)
+    if (result.success) {
+      setUsers(prev => prev.map(u => 
+        u.id === userId ? { ...u, is_premium: !currentStatus } : u
+      ))
+      if (selectedUser?.id === userId) {
+        setSelectedUser(prev => prev ? { ...prev, is_premium: !currentStatus } : null)
+      }
     }
   }
 
@@ -321,10 +347,12 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
                   </div>
                   <div>
                     <div className="flex items-center gap-1.5">
-                      <p className="text-sm font-semibold text-slate-900">
+                      <p className="text-sm font-semibold text-slate-900 flex items-center gap-1.5">
                         {user.first_name || ""} {user.last_name || ""}
+                        {user.is_verified && <BadgeCheck className="h-4 w-4 text-blue-500" title="Profil Vérifié" />}
+                        {user.is_premium && <Crown className="h-4 w-4 text-amber-500" title="Membre Premium" />}
                       </p>
-                      {user.has_profile && <BadgeCheck className="h-4 w-4 text-blue-500" />}
+                      {user.has_profile && !user.is_verified && <BadgeCheck className="h-4 w-4 text-slate-300" title="A un profil complété" />}
                     </div>
                     <p className="text-xs text-slate-500">{user.email || "Pas d'email"}</p>
                   </div>
@@ -371,6 +399,28 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
                     title="Voir details"
                   >
                     <Eye className="h-4 w-4 text-slate-400" />
+                  </button>
+                  <button 
+                    onClick={() => handleToggleVerified(user.id, user.is_verified || false)}
+                    className="p-2 hover:bg-slate-100 rounded-lg transition-colors" 
+                    title={user.is_verified ? "Révoquer la vérification" : "Vérifier l'identité"}
+                  >
+                    {user.is_verified ? (
+                      <BadgeCheck className="h-4 w-4 text-blue-500" />
+                    ) : (
+                      <BadgeCheck className="h-4 w-4 text-slate-300" />
+                    )}
+                  </button>
+                  <button 
+                    onClick={() => handleTogglePremium(user.id, user.is_premium || false)}
+                    className="p-2 hover:bg-slate-100 rounded-lg transition-colors" 
+                    title={user.is_premium ? "Retirer statut Premium" : "Passer en Premium"}
+                  >
+                    {user.is_premium ? (
+                      <Crown className="h-4 w-4 text-amber-500" />
+                    ) : (
+                      <Crown className="h-4 w-4 text-slate-300" />
+                    )}
                   </button>
                   <button 
                     onClick={() => handleTogglePublished(user.id, user.is_published || false)}
@@ -479,10 +529,12 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h2 className="text-xl font-bold text-slate-900">
+                        <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
                           {selectedUser.first_name || ""} {selectedUser.last_name || ""}
+                          {selectedUser.is_verified && <BadgeCheck className="h-5 w-5 text-blue-500" title="Vérifié" />}
+                          {selectedUser.is_premium && <Crown className="h-5 w-5 text-amber-500" title="Premium" />}
                         </h2>
-                        {selectedUser.has_profile && <BadgeCheck className="h-5 w-5 text-blue-500" />}
+                        {selectedUser.has_profile && !selectedUser.is_verified && <BadgeCheck className="h-5 w-5 text-slate-300" title="Profil Complété" />}
                       </div>
                       <p className="text-sm text-slate-500">{selectedUser.email || "Pas d'email"}</p>
                     </div>
@@ -571,6 +623,30 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
 
                 {/* Actions */}
                 <div className="flex flex-col gap-3 pt-4 border-t border-slate-100">
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => handleToggleVerified(selectedUser.id, selectedUser.is_verified || false)}
+                      className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
+                        selectedUser.is_verified
+                          ? "bg-blue-50 text-blue-600 hover:bg-blue-100"
+                          : "bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200"
+                      }`}
+                    >
+                      <BadgeCheck className="h-4 w-4" />
+                      {selectedUser.is_verified ? "Certifié" : "Certifier"}
+                    </button>
+                    <button
+                      onClick={() => handleTogglePremium(selectedUser.id, selectedUser.is_premium || false)}
+                      className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
+                        selectedUser.is_premium
+                          ? "bg-amber-50 text-amber-600 hover:bg-amber-100"
+                          : "bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200"
+                      }`}
+                    >
+                      <Crown className="h-4 w-4" />
+                      {selectedUser.is_premium ? "Premium" : "Rendre Premium"}
+                    </button>
+                  </div>
                   <div className="flex items-center gap-3">
                     <button
                       onClick={() => handleTogglePublished(selectedUser.id, selectedUser.is_published || false)}

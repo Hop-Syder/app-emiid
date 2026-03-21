@@ -68,6 +68,8 @@ export interface EntrepreneurApiResponse {
   avatar_url?: string;
   specialty?: string;
   category?: string;
+  is_verified?: boolean;
+  is_premium?: boolean;
   followers_count?: number;
   tags?: string[];
 }
@@ -118,8 +120,8 @@ export function DashboardContent() {
                 avatar: e.avatar_url || "/african-user.jpg",
                 specialty: e.specialty || "Expertise",
                 category: e.category || "",
-                verified: true,
-                premium: e.category?.toLowerCase() === 'entreprise',
+                verified: !!e.is_verified,
+                premium: !!e.is_premium,
                 followers: e.followers_count || 0,
                 isFollowed: userFollowsIds.includes(profileId),
                 tags: e.tags || []

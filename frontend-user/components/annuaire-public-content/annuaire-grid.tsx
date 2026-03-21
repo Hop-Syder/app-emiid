@@ -68,8 +68,8 @@ export function AnnuaireGrid({ filters }: AnnuaireGridProps) {
                             avatar: e.avatar_url || "/african-user.jpg",
                             specialty: e.specialty || "Expertise",
                             category: e.category || "",
-                            verified: true,
-                            premium: e.category?.toLowerCase() === 'entreprise',
+                            verified: !!e.is_verified,
+                            premium: !!e.is_premium,
                             followers: e.followers_count || 0, // Fallback si le backend ne le retourne pas encore
                             isFollowed: userFollowsIds.includes(profileId),
                         }

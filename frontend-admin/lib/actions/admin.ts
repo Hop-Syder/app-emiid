@@ -24,6 +24,8 @@ export interface UserProfile {
   country_id: string | null
   has_profile: boolean | null
   is_published: boolean | null
+  is_verified?: boolean | null
+  is_premium?: boolean | null
   created_at: string
   updated_at: string | null
 }
@@ -202,6 +204,22 @@ export async function toggleUserPublished(
   isPublished: boolean
 ): Promise<{ success: boolean; error?: string }> {
   return updateUserProfile(userId, { is_published: isPublished })
+}
+
+// Toggle user verified status
+export async function toggleUserVerified(
+  userId: string,
+  isVerified: boolean
+): Promise<{ success: boolean; error?: string }> {
+  return updateUserProfile(userId, { is_verified: isVerified })
+}
+
+// Toggle user premium status
+export async function toggleUserPremium(
+  userId: string,
+  isPremium: boolean
+): Promise<{ success: boolean; error?: string }> {
+  return updateUserProfile(userId, { is_premium: isPremium })
 }
 
 // Delete user
