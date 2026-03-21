@@ -16,6 +16,36 @@ import { HeroSection } from "./hero-section"
 import { StatsSection } from "./stats-section"
 import { EntrepreneursSection } from "./entrepreneurs-section"
 
+export interface EntrepreneurProfile {
+  id: string;
+  name: string;
+  role: string;
+  location: string;
+  avatar: string;
+  specialty: string;
+  category?: string;
+  verified: boolean;
+  premium: boolean;
+  followers: number;
+  isFollowed?: boolean;
+  tags?: string[];
+}
+
+export interface EntrepreneurApiResponse {
+  id?: string;
+  user_id?: string;
+  first_name?: string;
+  last_name?: string;
+  role?: string;
+  city?: string;
+  countries?: { name: string };
+  avatar_url?: string;
+  specialty?: string;
+  category?: string;
+  followers_count?: number;
+  tags?: string[];
+}
+
 // Données mock pour le fallback
 const mockEntrepreneurs = [
     { id: "1", name: "Amara Diallo", role: "Entrepreneur Tech", location: "Dakar, Sénégal", avatar: "/african-woman-entrepreneur.jpg", specialty: "FinTech", verified: true, premium: true, followers: 234 },
@@ -41,7 +71,7 @@ export function DashboardPublicContent() {
         countriesCovered: 15,
         totalFunding: 0,
     })
-    const [entrepreneursList, setEntrepreneursList] = useState<any[]>([])
+    const [entrepreneursList, setEntrepreneursList] = useState<EntrepreneurProfile[]>([])
 
 
     useEffect(() => {
@@ -67,13 +97,13 @@ export function DashboardPublicContent() {
                         const followsRes = await fetchWithAuth("/api/users/follows")
                         if (followsRes.ok) {
                             const followsData = await followsRes.json()
-                            userFollowsIds = followsData.map((f: any) => f.user_id || f.id)
+                            userFollowsIds = followsData.map((f: { user_id?: string; id?: string }) => f.user_id || f.id)
                         }
                     } catch (e) {}
 
                     setEntrepreneursList(
-                        entData.map((e: any) => {
-                            const profileId = e.user_id || e.id
+                        entData.map((e: EntrepreneurApiResponse) => {
+                            const profileId = e.user_id || e.id || "0"
                             return {
                                 id: profileId,
                                 name: (e.first_name || e.last_name) ? `${e.first_name || ''} ${e.last_name || ''}`.trim() : "Utilisateur Nexus",
