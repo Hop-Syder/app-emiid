@@ -90,8 +90,10 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     .not("country_id", "is", null)
 
   const countryMap = new Map<string, number>()
-  usersByCountryData?.forEach((user: { country_id: string; countries: { name: string } | null }) => {
-    const countryName = user.countries?.name || "Inconnu"
+  usersByCountryData?.forEach((user: any) => {
+    // Handle case where countries might be interpreted as an array by PostgREST
+    const country = Array.isArray(user.countries) ? user.countries[0] : user.countries
+    const countryName = country?.name || "Inconnu"
     countryMap.set(countryName, (countryMap.get(countryName) || 0) + 1)
   })
 

@@ -139,7 +139,7 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
           <Button 
             variant="ghost" 
             size="icon" 
-            className="md:hidden shrink-0 rounded-xl bg-white shadow-sm border border-slate-100 active:bg-slate-50 transition-all h-10 w-10" 
+            className="hidden shrink-0 rounded-xl bg-white shadow-sm border border-slate-100 active:bg-slate-50 transition-all h-10 w-10" 
             onClick={() => setMobileMenuOpen(true)}
           >
             <Menu className="h-5 w-5 text-slate-700" />

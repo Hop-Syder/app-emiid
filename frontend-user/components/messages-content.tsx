@@ -9,6 +9,7 @@
 "use client"
 
 import { useState, useRef, useEffect, useCallback } from "react"
+import { useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { 
   Send, Search, Image, Paperclip, Smile, Mic, Phone, Video, 
@@ -75,6 +76,9 @@ interface Conversation {
 const supabase = createClient()
 
 export function MessagesContent() {
+  const searchParams = useSearchParams()
+  const contactId = searchParams.get("contact")
+
   const [message, setMessage] = useState("")
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [selectedConv, setSelectedConv] = useState<Conversation | null>(null)
@@ -120,7 +124,29 @@ export function MessagesContent() {
           const support = data.find((c: any) => c.otherUser.role?.toLowerCase().includes("admin") || c.otherUser.name.toLowerCase().includes("nexus"))
           if (support) setSupportId(support.otherUser.id)
 
-          if (!selectedConv && data.length > 0) {
+          if (contactId) {
+            const existing = data.find((c: any) => c.otherUser.id === contactId)
+            if (existing) {
+              setSelectedConv(existing)
+              setShowChatMobile(true)
+            } else {
+              setSelectedConv({
+                 id: `new-conv-${contactId}`,
+                 otherUser: {
+                    id: contactId,
+                    name: "Nouvelle interaction",
+                    avatar: null,
+                    role: null,
+                    isOnline: false,
+                    lastSeen: null
+                 },
+                 lastMessage: "Envoyez le premier message...",
+                 lastMessageAt: new Date().toISOString(),
+                 unreadCount: 0
+              })
+              setShowChatMobile(true)
+            }
+          } else if (!selectedConv && data.length > 0) {
             setSelectedConv(data[0])
           }
         }
@@ -142,7 +168,7 @@ export function MessagesContent() {
     if (!selectedConv) return
 
     const loadMessages = async () => {
-      if (selectedConv.id === 'new-support') {
+      if (selectedConv.id.startsWith('new-')) {
         setMessages([])
         setLoadingMsgs(false)
         return
@@ -166,7 +192,7 @@ export function MessagesContent() {
 
   // 3. Souscription Temps Réel (Supabase Realtime)
   useEffect(() => {
-    if (!selectedConv || selectedConv.id === 'new-support') return
+    if (!selectedConv || selectedConv.id.startsWith('new-')) return
 
     const channel = supabase
       .channel(`room-${selectedConv.id}`)
@@ -226,7 +252,7 @@ export function MessagesContent() {
         const newMsg = await res.json()
         
         // Si c'était une nouvelle conversation support, on rafraîchit
-        if (selectedConv.id === 'new-support') {
+        if (selectedConv.id.startsWith('new-')) {
             const convRes = await fetchWithAuth("/api/messages/conversations")
             if (convRes.ok) {
                 const convs = await convRes.json()
@@ -263,7 +289,7 @@ export function MessagesContent() {
     setIsSending(true)
     try {
       const extension = file.name.split(".").pop()
-      const convFolder = selectedConv.id === 'new-support' ? `initial-support-${selectedConv.otherUser.id}` : `conversation-${selectedConv.id}`
+      const convFolder = selectedConv.id.startsWith('new-') ? `initial-${selectedConv.otherUser.id}` : `conversation-${selectedConv.id}`
       const filePath = `${convFolder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${extension}`
 
       const { error } = await supabase.storage.from("messages").upload(filePath, file)
@@ -284,7 +310,7 @@ export function MessagesContent() {
 
       if (res.ok) {
         const newMsg = await res.json()
-        if (selectedConv.id === 'new-support') {
+        if (selectedConv.id.startsWith('new-')) {
             const convRes = await fetchWithAuth("/api/messages/conversations")
             if (convRes.ok) {
                 const convs = await convRes.json()
