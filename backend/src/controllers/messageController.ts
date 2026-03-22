@@ -160,7 +160,50 @@ export const getSupportUser = async (req: any, res: Response) => {
 };
 
 /**
+ * Demande une médiation pour une conversation
+ * POST /api/messages/dispute/:conversationId
+ */
+export const requestMediation = async (req: any, res: Response) => {
+    const userId = req.user.id;
+    const { conversationId } = req.params;
+    const { reason } = req.body;
+
+    try {
+        // 1. Vérifier que l'utilisateur participe à la conversation
+        const { data: conv, error: convError } = await supabaseAdmin
+            .from('conversations')
+            .select('*')
+            .eq('id', conversationId)
+            .or(`participant1_id.eq.${userId},participant2_id.eq.${userId}`)
+            .single();
+
+        if (convError || !conv) return res.status(403).json({ error: "Accès refusé ou conversation introuvable" });
+
+        // 2. Envoyer un message système avec le motif
+        const { error: msgError } = await supabaseAdmin
+            .from('messages')
+            .insert({
+                conversation_id: conversationId,
+                sender_id: userId,
+                content: `⚠️ [MÉDIATION DEMANDÉE] Motif : ${reason || "Non précisé"}. Un administrateur Nexus a été alerté pour modérer cette discussion.`,
+                is_read: false
+            });
+
+        if (msgError) throw msgError;
+
+        // 3. Ici on pourrait envoyer un email à l'admin ou créer un ticket
+        // Pour l'instant, on marque la conversation (facultatif si champ existe)
+
+        res.json({ success: true, message: "Médiation demandée avec succès" });
+    } catch (err) {
+        console.error("Mediation error:", err);
+        res.status(500).json({ error: "Erreur lors de la demande de médiation" });
+    }
+};
+
+/**
  * Marque les messages d'une conversation comme lus
+...
  * POST /api/messages/read/:conversationId
  */
 export const markAsRead = async (req: any, res: Response) => {

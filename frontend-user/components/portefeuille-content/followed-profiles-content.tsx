@@ -137,8 +137,7 @@ export function FollowedProfilesContent() {
     }
 
     const handleViewProfile = (profileId: string) => {
-        // En attendant une page de profil dédiée, on redirige vers l'annuaire ou on affiche un message
-        router.push(`/annuaire?search=${profileId}`)
+        router.push(`/profil/${profileId}`)
     }
 
     const handleMessage = (profileId: string) => {

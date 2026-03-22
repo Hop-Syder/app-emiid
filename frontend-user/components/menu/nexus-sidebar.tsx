@@ -54,7 +54,7 @@ const sidebarItems: SidebarItem[] = [
     requiresAuth: true,
   },
   {
-    title: "Carte de profils",
+    title: "Ma Carte Nexus",
     icon: "/svg/FileText.svg",
     href: "/creer-profil",
     requiresAuth: true,

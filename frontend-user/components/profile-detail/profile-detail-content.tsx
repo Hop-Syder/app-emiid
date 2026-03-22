@@ -28,6 +28,7 @@ import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { ProjectShowcase } from "./project-showcase"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -524,15 +525,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                             </TabsContent>
 
                             <TabsContent value="portfolio" className="animate-in fade-in slide-in-from-left-4 duration-500">
-                                <div className="p-12 rounded-[2.5rem] bg-white border border-slate-100 shadow-xl shadow-slate-200/30 text-center flex flex-col items-center gap-6">
-                                    <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center">
-                                        <Star className="h-10 w-10 text-slate-200" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <h3 className="text-xl font-black text-slate-900">Showcase Bientôt Disponible</h3>
-                                        <p className="text-slate-500 max-w-sm mx-auto font-medium">Le portfolio visuel de ce membre est en cours de création. Revenez bientôt !</p>
-                                    </div>
-                                </div>
+                                <ProjectShowcase userId={profileId} />
                             </TabsContent>
 
                             <TabsContent value="experience" className="animate-in fade-in slide-in-from-left-4 duration-500">

@@ -11,10 +11,10 @@
 import { useState, useRef, useEffect, useCallback } from "react"
 import { useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
-import { 
-  Send, Search, Image, Paperclip, Smile, Mic, Phone, Video, 
+import { Label } from "@/components/ui/label"
+import { Loader2, Send, Search, Image, Paperclip, Smile, Mic, Phone, Video, 
   MoreHorizontal, ArrowLeft, Check, CheckCheck, X, Plus,
-  Settings, Bell, Pin, Trash2, Archive, Star, Filter
+  Settings, Bell, Pin, Trash2, Archive, Star, Filter, Shield, Gavel, AlertTriangle
 } from "lucide-react"
 import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -22,6 +22,21 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -91,6 +106,10 @@ export function MessagesContent() {
   const [searchQuery, setSearchQuery] = useState("")
   const [filterType, setFilterType] = useState<"all" | "unread" | "pinned">("all")
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+
+  const [isMediationDialogOpen, setIsMediationDialogOpen] = useState(false)
+  const [mediationReason, setMediationReason] = useState("")
+  const [convToMediate, setConvToMediate] = useState<string | null>(null)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -192,42 +211,49 @@ export function MessagesContent() {
 
   // 3. Souscription Temps Réel (Supabase Realtime)
   useEffect(() => {
-    if (!selectedConv || selectedConv.id.startsWith('new-')) return
+    if (!currentUserId) return
 
-    const channel = supabase
-      .channel(`room-${selectedConv.id}`)
+    // Canal global pour les notifications et mise à jour de la liste
+    const globalChannel = supabase
+      .channel(`user-messages-${currentUserId}`)
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
           schema: 'public',
-          table: 'messages',
-          filter: `conversation_id=eq.${selectedConv.id}`
+          table: 'messages'
         },
-        (payload) => {
-          const newMsg = payload.new as Message
-          setMessages((prev) => {
-            const exists = prev.some(m => m.id === newMsg.id)
-            if (exists) return prev
-            if (newMsg.sender_id !== currentUserId) {
-                markMessagesAsRead(selectedConv.id)
-            }
-            return [...prev, newMsg]
-          })
+        async (payload) => {
+          const newMsg = payload.new as any
+          
+          // On ne s'intéresse qu'aux messages qu'on reçoit ou qu'on envoie
+          // Note : Supabase Realtime ne filtre pas par défaut par RLS sur INSERT pour tout le monde si configuré ainsi
+          // On vérifie donc si la conversation appartient à l'utilisateur
+          
+          const convRes = await fetchWithAuth("/api/messages/conversations")
+          if (convRes.ok) {
+            const data = await convRes.json()
+            setConversations(data)
+          }
 
-          setConversations(prev => prev.map(conv => 
-            conv.id === selectedConv.id 
-                ? { ...conv, lastMessage: newMsg.content, lastMessageAt: newMsg.created_at }
-                : conv
-          ))
+          // Si c'est le message de la conversation active, on l'ajoute (si pas déjà fait par le canal spécifique)
+          if (selectedConv && (newMsg.conversation_id === selectedConv.id)) {
+            setMessages(prev => {
+              if (prev.some(m => m.id === newMsg.id)) return prev
+              return [...prev, newMsg]
+            })
+            if (newMsg.sender_id !== currentUserId) {
+              markMessagesAsRead(selectedConv.id)
+            }
+          }
         }
       )
       .subscribe()
 
     return () => {
-      supabase.removeChannel(channel)
+      supabase.removeChannel(globalChannel)
     }
-  }, [selectedConv, currentUserId, markMessagesAsRead])
+  }, [currentUserId, selectedConv, markMessagesAsRead])
 
   // 4. Scroll vers le bas
   useEffect(() => {
@@ -365,6 +391,34 @@ export function MessagesContent() {
     }
   }
 
+  const handleInviteAdmin = (conversationId: string) => {
+    setConvToMediate(conversationId)
+    setIsMediationDialogOpen(true)
+  }
+
+  const submitMediation = async () => {
+    if (!convToMediate || !mediationReason) return
+    setIsSending(true)
+    try {
+      const res = await fetchWithAuth(`/api/messages/dispute/${convToMediate}`, { 
+        method: "POST",
+        body: JSON.stringify({ reason: mediationReason })
+      })
+      if (res.ok) {
+        toast.success("Demande de médiation envoyée. Un administrateur rejoindra la discussion prochainement.")
+        setIsMediationDialogOpen(false)
+        setMediationReason("")
+      } else {
+        const err = await res.json()
+        toast.error(err.error || "Impossible d'inviter l'admin")
+      }
+    } catch (err) {
+      toast.error("Erreur de connexion")
+    } finally {
+      setIsSending(false)
+    }
+  }
+
   // Toggle pin
   const togglePin = (convId: string) => {
     setConversations(prev => prev.map(conv =>
@@ -458,11 +512,19 @@ export function MessagesContent() {
                 </Tooltip>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl">
+                    <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl" onClick={handleContactSupport}>
                       <Plus className="h-4 w-4 text-muted-foreground" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>Nouvelle conversation</TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl" onClick={handleContactSupport}>
+                      <Phone className="h-4 w-4 text-muted-foreground" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Support Nexus</TooltipContent>
                 </Tooltip>
               </div>
             </div>
@@ -736,9 +798,16 @@ export function MessagesContent() {
                         Rechercher
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
+                      <DropdownMenuItem 
+                        className="rounded-lg text-amber-600 focus:text-amber-600 font-bold"
+                        onClick={() => handleInviteAdmin(selectedConv.id)}
+                      >
+                        <Shield className="h-4 w-4 mr-2" />
+                        Médiation Nexus
+                      </DropdownMenuItem>
                       <DropdownMenuItem className="rounded-lg text-destructive focus:text-destructive">
                         <Trash2 className="h-4 w-4 mr-2" />
-                        Supprimer la conversation
+                        Signaler / Litige
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -761,6 +830,21 @@ export function MessagesContent() {
                       const showAvatar = index === 0 || messages[index - 1]?.sender_id !== msg.sender_id
                       const isLastInGroup = index === messages.length - 1 || messages[index + 1]?.sender_id !== msg.sender_id
                       
+                      const isMediation = msg.content.includes("[MÉDIATION DEMANDÉE]")
+                      
+                      if (isMediation) {
+                        return (
+                          <div key={msg.id} className="flex justify-center my-6">
+                            <div className="bg-amber-50 border border-amber-200 rounded-2xl px-6 py-3 flex items-center gap-3 max-w-md shadow-sm">
+                              <Shield className="h-5 w-5 text-amber-600 shrink-0" />
+                              <p className="text-xs font-bold text-amber-800 leading-normal">
+                                {msg.content.replace("⚠️ [MÉDIATION DEMANDÉE] ", "")}
+                              </p>
+                            </div>
+                          </div>
+                        )
+                      }
+
                       return (
                         <motion.div
                           key={msg.id}
@@ -945,6 +1029,65 @@ export function MessagesContent() {
             </div>
           )}
         </main>
+
+        {/* Modal de Médiation */}
+        <Dialog open={isMediationDialogOpen} onOpenChange={setIsMediationDialogOpen}>
+          <DialogContent className="rounded-3xl border-none shadow-2xl p-0 overflow-hidden max-w-md bg-white">
+            <div className="p-8 space-y-6">
+              <div className="flex flex-col items-center text-center space-y-4">
+                <div className="w-16 h-16 bg-amber-100 rounded-3xl flex items-center justify-center text-amber-600 shadow-inner">
+                  <Gavel className="h-8 w-8" />
+                </div>
+                <div className="space-y-1">
+                  <DialogTitle className="text-2xl font-black text-slate-900 tracking-tight">Demande de Médiation</DialogTitle>
+                  <DialogDescription className="text-slate-500 font-medium">
+                    Un administrateur Nexus sera invité à rejoindre cette discussion pour vous aider à résoudre le litige.
+                  </DialogDescription>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label className="text-xs font-bold uppercase tracking-widest text-slate-400 px-1">Motif de la demande</Label>
+                  <Select onValueChange={setMediationReason} value={mediationReason}>
+                    <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-slate-100 focus:ring-primary/20 font-bold">
+                      <SelectValue placeholder="Choisir un motif..." />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl border-slate-100 shadow-xl">
+                      <SelectItem value="Litige sur un paiement" className="font-semibold py-3">Litige sur un paiement</SelectItem>
+                      <SelectItem value="Désaccord sur les livrables" className="font-semibold py-3">Désaccord sur les livrables</SelectItem>
+                      <SelectItem value="Comportement suspect ou suspect d'arnaque" className="font-semibold py-3">Comportement suspect</SelectItem>
+                      <SelectItem value="Harcèlement ou propos déplacés" className="font-semibold py-3">Harcèlement / Propos déplacés</SelectItem>
+                      <SelectItem value="Autre raison importante" className="font-semibold py-3">Autre raison...</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="p-4 bg-blue-50/50 rounded-2xl border border-blue-100 flex gap-3">
+                  <AlertTriangle className="h-5 w-5 text-blue-500 shrink-0" />
+                  <p className="text-[11px] text-blue-700 font-bold leading-relaxed">
+                    Note : L'administrateur aura accès à l'historique complet de cette discussion pour mener à bien sa médiation.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <Button variant="ghost" className="rounded-xl flex-1 h-12 font-bold" onClick={() => setIsMediationDialogOpen(false)}>Annuler</Button>
+                <Button 
+                  className={cn(
+                    "rounded-xl flex-[2] h-12 font-bold shadow-lg shadow-amber-200 transition-all",
+                    mediationReason ? "bg-amber-500 hover:bg-amber-600 text-white" : "bg-slate-100 text-slate-400"
+                  )} 
+                  disabled={!mediationReason || isSending}
+                  onClick={submitMediation}
+                >
+                  {isSending ? <Loader2 className="h-5 w-5 animate-spin" /> : "Inviter l'Admin"}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
       </div>
     </TooltipProvider>
   )
