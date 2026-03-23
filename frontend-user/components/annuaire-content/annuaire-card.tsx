@@ -73,13 +73,16 @@ export function AnnuaireCard({ profile }: AnnuaireCardProps) {
         ...profile,
         name: profile.name || "Membre Nexus",
         role: profile.role || "Professionnel",
+        followers: followersCount,
         tags: profile.tags || [profile.specialty]
     }
+
+    const activeVariant = (profile.card_variant as NexusCardVariant) || (profile.premium ? "elite" : "tech")
 
     return (
         <NexusProfileCard 
             user={userData}
-            variant={(profile.card_variant as NexusCardVariant) || "tech"}
+            variant={activeVariant}
             isFollowed={isFollowed}
             onAction={handleAction}
         />

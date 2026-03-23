@@ -1,13 +1,14 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Composant de carte de profil multi-styles (Elite, Glass, Tech)
+ * @description Carte de profil premium (Elite, Glass, Tech) - Version Optimisée & Responsive
  * @created 2026-03-23
+ * @updated 2026-03-23
 */
 
 "use client"
 
-import { Shield, MessageSquare, Plus, Check, Star, Zap, Globe, MapPin } from "lucide-react"
+import { Shield, MessageSquare, Plus, Check, Star, Zap, Globe, MapPin, MoreHorizontal } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -25,7 +26,7 @@ interface NexusProfileCardProps {
     category?: string
     specialty?: string
     location?: string
-    followers?: number
+    followers?: number | string
     verified?: boolean
     premium?: boolean
     tags?: string[]
@@ -33,85 +34,92 @@ interface NexusProfileCardProps {
   variant?: NexusCardVariant
   onAction?: (type: 'message' | 'follow' | 'view') => void
   isFollowed?: boolean
+  className?: string
 }
 
 export function NexusProfileCard({ 
   user, 
   variant = "tech", 
   onAction,
-  isFollowed = false
+  isFollowed = false,
+  className
 }: NexusProfileCardProps) {
 
-  // RENDU NEXUS ELITE (DARK GOLD LUXURY)
+  const name = user.name || "Membre Nexus"
+  const role = user.role || "Professionnel"
+  const location = user.location || "Afrique"
+  const category = user.category || "Nexus"
+
+  // NEXUS ELITE (Luxury Dark)
   if (variant === "elite") {
     return (
       <motion.div 
-        whileHover={{ scale: 1.02 }}
-        className="relative aspect-[3/4.2] w-full max-w-[340px] rounded-[32px] overflow-hidden bg-[#0A0B0E] border border-amber-500/20 shadow-2xl group"
+        whileHover={{ y: -6, transition: { duration: 0.3 } }}
+        onClick={() => onAction?.('view')}
+        className={cn(
+          "relative w-full max-w-[320px] sm:max-w-[280px] lg:max-w-[300px] aspect-[1/1.4] rounded-[2.5rem] overflow-hidden bg-[#050505] border border-amber-500/30 group shadow-2xl cursor-pointer",
+          className
+        )}
       >
-        {/* Elite Background elements */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(245,158,11,0.1),transparent_70%)]" />
-        <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
+        {/* Elite Decor */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(245,158,11,0.15),transparent_60%)]" />
+        <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
         
-        {/* Content */}
-        <div className="relative h-full flex flex-col p-6 text-white pt-10">
-           {/* Header / Badge */}
-           <div className="flex justify-center mb-6">
-              <div className="relative">
-                <div className="absolute inset-0 rounded-full bg-amber-500/20 blur-xl animate-pulse" />
-                <Avatar className="h-28 w-28 ring-2 ring-amber-500/50 p-1 bg-[#0A0B0E]">
-                  <AvatarImage src={user.avatar} className="rounded-full object-cover" />
-                  <AvatarFallback className="bg-amber-500/10 text-amber-500 text-2xl font-black">
-                     {user.name[0]}
-                  </AvatarFallback>
-                </Avatar>
-                {user.verified && (
-                  <div className="absolute -bottom-1 -right-1 bg-amber-500 rounded-full p-1.5 border-4 border-[#0A0B0E] shadow-lg">
-                    <Shield className="h-4 w-4 text-black fill-black" />
-                  </div>
-                )}
+        <div className="relative h-full flex flex-col p-5 sm:p-4 lg:p-6 text-white text-center">
+           <div className="flex justify-between items-center mb-4">
+              <div className="px-2 py-0.5 rounded-full border border-amber-500/20 bg-amber-500/5">
+                 <span className="text-[8px] font-black tracking-[0.2em] text-amber-500 uppercase">PRÉMIUM</span>
               </div>
+              <MoreHorizontal className="h-4 w-4 text-amber-500/30" />
            </div>
 
-           <div className="text-center space-y-1 mb-6 flex-1">
-              <p className="text-[10px] font-black tracking-[0.3em] text-amber-500 uppercase mb-2">
-                {user.category || "Membre Elite"}
-              </p>
-              <h3 className="text-2xl font-bold tracking-tight text-amber-50 font-serif">
-                {user.name}
+           <div className="relative mx-auto mb-4">
+              <div className="absolute inset-0 rounded-full bg-amber-500/10 blur-xl scale-125" />
+              <Avatar className="h-24 w-24 sm:h-20 sm:w-20 lg:h-24 lg:w-24 ring-2 ring-amber-500/40 p-1 bg-black">
+                <AvatarImage src={user.avatar} className="rounded-full object-cover" />
+                <AvatarFallback className="bg-amber-950 text-amber-500 font-bold">{name[0]}</AvatarFallback>
+              </Avatar>
+              {user.verified && (
+                <div className="absolute -bottom-1 -right-1 bg-amber-500 rounded-full p-1 border-4 border-black shadow-lg">
+                  <Shield className="h-3 w-3 text-black fill-black" />
+                </div>
+              )}
+           </div>
+
+           <div className="space-y-1 mb-4 flex-1 flex flex-col justify-center">
+              <h3 className="text-xl sm:text-lg lg:text-xl font-bold tracking-tight text-amber-50 font-serif line-clamp-1">
+                {name}
               </h3>
-              <p className="text-sm font-medium text-amber-100/60 tracking-wide">
-                {user.role}
+              <p className="text-[11px] sm:text-[10px] font-medium text-amber-500/60 tracking-wider line-clamp-1">
+                {role}
               </p>
            </div>
 
-           {/* Stats / Tech */}
-           <div className="grid grid-cols-2 gap-4 py-4 border-y border-amber-500/10 mb-6">
-              <div className="text-center">
-                 <p className="text-[10px] text-amber-500/50 font-bold uppercase mb-0.5">Followers</p>
-                 <p className="text-lg font-bold">{user.followers || 0}</p>
+           <div className="grid grid-cols-2 gap-2 py-3 border-y border-amber-500/10 mb-4 bg-white/5 rounded-2xl">
+              <div>
+                 <p className="text-[8px] sm:text-[7px] text-amber-500/40 font-black uppercase mb-0.5 tracking-tighter">Abonnés</p>
+                 <p className="text-sm font-bold">{user.followers || '0'}</p>
               </div>
-              <div className="text-center border-l border-amber-500/10">
-                 <p className="text-[10px] text-amber-500/50 font-bold uppercase mb-0.5">Rating</p>
-                 <div className="flex justify-center items-center h-7">
-                    <Star className="h-4 w-4 text-amber-500 fill-amber-500 mr-1" />
-                    <span className="font-bold">4.9</span>
+              <div className="border-l border-amber-500/10">
+                 <p className="text-[8px] sm:text-[7px] text-amber-500/40 font-black uppercase mb-0.5 tracking-tighter">Activité</p>
+                 <div className="flex justify-center items-center h-5">
+                    <Star className="h-3 w-3 text-amber-500 fill-amber-500 mr-1" />
+                    <span className="text-sm font-bold tracking-tighter">PRO</span>
                  </div>
               </div>
            </div>
 
-           {/* Actions */}
-           <div className="grid grid-cols-2 gap-3 pb-2">
+           <div className="grid grid-cols-2 gap-2 mt-auto">
               <Button 
-                onClick={() => onAction?.('message')}
-                className="rounded-2xl h-12 bg-amber-500 hover:bg-amber-600 text-black font-black uppercase tracking-wider text-[10px]"
+                onClick={(e) => { e.stopPropagation(); onAction?.('message') }}
+                className="rounded-xl h-10 bg-amber-500 hover:bg-amber-600 text-black font-black text-[9px] uppercase tracking-tighter"
               >
                 Message
               </Button>
               <Button 
-                onClick={() => onAction?.('follow')}
+                onClick={(e) => { e.stopPropagation(); onAction?.('follow') }}
                 variant="outline"
-                className="rounded-2xl h-12 border-amber-500/30 font-black uppercase tracking-wider text-[10px] text-amber-500 hover:bg-amber-500/10"
+                className="rounded-xl h-10 border-amber-500/20 bg-transparent text-amber-500 font-black text-[9px] uppercase tracking-tighter hover:bg-amber-500/10"
               >
                 {isFollowed ? 'Abonné' : 'Suivre'}
               </Button>
@@ -121,122 +129,119 @@ export function NexusProfileCard({
     )
   }
 
-  // RENDU NEXUS GLASS (BLUE NEON)
+  // NEXUS GLASS (Modern Blue)
   if (variant === "glass") {
     return (
       <motion.div 
-        whileHover={{ y: -8 }}
-        className="relative aspect-[3/4.2] w-full max-w-[340px] rounded-[40px] overflow-hidden bg-gradient-to-br from-blue-600/20 to-indigo-900/40 border border-white/20 backdrop-blur-xl shadow-2xl group shadow-blue-500/10"
+        whileHover={{ y: -6 }}
+        onClick={() => onAction?.('view')}
+        className={cn(
+          "relative w-full max-w-[320px] sm:max-w-[280px] lg:max-w-[300px] aspect-[1/1.4] rounded-[2.5rem] overflow-hidden bg-gradient-to-br from-blue-600/10 to-indigo-950/30 border border-white/20 backdrop-blur-xl shadow-xl hover:shadow-blue-500/20 cursor-pointer group",
+          className
+        )}
       >
-        <div className="absolute -top-24 -left-24 w-48 h-48 bg-blue-500/20 blur-[80px] rounded-full" />
-        <div className="absolute top-8 right-8">
-           <Zap className="h-8 w-8 text-blue-400 opacity-20 group-hover:opacity-60 transition-opacity" />
-        </div>
+        <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-blue-500/10 blur-[60px] rounded-full" />
+        
+        <div className="relative h-full flex flex-col p-6 sm:p-5 text-white">
+          <div className="flex items-center justify-between mb-4">
+             <Globe className="h-4 w-4 text-blue-400 opacity-40" />
+             <div className="px-2 py-0.5 rounded-md bg-blue-500/20 text-[8px] font-bold tracking-widest text-blue-300">MODERN</div>
+          </div>
 
-        <div className="relative h-full flex flex-col p-8 text-white">
-          <div className="mb-6">
-             <div className="flex items-center gap-4">
-               <Avatar className="h-20 w-20 ring-4 ring-white/10 shadow-2xl">
-                 <AvatarImage src={user.avatar} className="object-cover" />
-                 <AvatarFallback className="bg-blue-600/40">{user.name[0]}</AvatarFallback>
-               </Avatar>
-               <div>
-                  <h3 className="text-xl font-black tracking-tight">{user.name}</h3>
-                  <p className="text-xs font-bold text-blue-400 uppercase tracking-widest">{user.category}</p>
-               </div>
+          <div className="flex flex-col items-center mb-6">
+             <div className="relative">
+                <Avatar className="h-20 w-20 ring-4 ring-blue-500/10 shadow-2xl">
+                  <AvatarImage src={user.avatar} className="object-cover" />
+                  <AvatarFallback className="bg-blue-600/30">{name[0]}</AvatarFallback>
+                </Avatar>
+                <div className="absolute top-0 right-0 h-3 w-3 bg-green-500 border-2 border-[#12121e] rounded-full" />
+             </div>
+             <div className="mt-3 text-center">
+                <h3 className="text-lg font-black tracking-tight leading-tight">{name}</h3>
+                <p className="text-[10px] sm:text-[9px] font-bold text-blue-400 uppercase tracking-widest mt-0.5">{category}</p>
              </div>
           </div>
 
-          <p className="text-sm font-medium leading-relaxed opacity-80 flex-1 italic">
-             "{user.role} expert au service de vos projets digitaux."
-          </p>
-
-          <div className="space-y-4 pt-6 mt-6 border-t border-white/10">
-             <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                   <div className="h-2 w-2 bg-green-400 rounded-full animate-pulse" />
-                   <span className="text-[10px] font-bold tracking-widest uppercase opacity-60">Connecté</span>
-                </div>
-                <Badge className="rounded-lg bg-white/10 text-[10px] font-black tracking-widest border-0">#{user.specialty}</Badge>
+          <div className="flex flex-col gap-3 py-4 border-t border-white/5 flex-1">
+             <div className="flex items-center gap-2 text-[11px] opacity-70">
+                <MapPin className="h-3 w-3 text-blue-400" />
+                <span className="truncate">{location}</span>
              </div>
-
-             <div className="grid grid-cols-2 gap-3">
-                <Button 
-                   onClick={() => onAction?.('message')}
-                   className="rounded-3xl h-12 bg-white text-blue-900 font-black tracking-widest text-[10px] hover:bg-blue-50 shadow-lg shadow-blue-500/20"
-                >
-                   CONTACT
-                </Button>
-                <Button 
-                   onClick={() => onAction?.('follow')}
-                   className="rounded-3xl h-12 bg-blue-500/20 border border-white/20 font-black tracking-widest text-[10px] hover:bg-blue-500/40"
-                >
-                   {isFollowed ? 'SUIVI' : 'JOIN'}
-                </Button>
+             <div className="h-10 text-[11px] font-medium leading-relaxed opacity-80 italic line-clamp-2">
+                Expertise focalisée sur le {user.specialty || "secteur digital"}.
              </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 mt-auto pt-4 border-t border-white/5">
+             <Button 
+               onClick={(e) => { e.stopPropagation(); onAction?.('message') }}
+               className="rounded-full h-10 bg-white text-blue-900 font-bold text-[10px] tracking-wide hover:scale-105 transition-transform"
+             >
+               MESSAGE
+             </Button>
+             <Button 
+               onClick={(e) => { e.stopPropagation(); onAction?.('follow') }}
+               className="rounded-full h-10 bg-blue-500/20 border border-white/20 font-bold text-[10px] tracking-wide hover:bg-blue-500/40"
+             >
+               {isFollowed ? 'SUIVI' : 'SUIVRE'}
+             </Button>
           </div>
         </div>
       </motion.div>
     )
   }
 
-  // RENDU NEXUS TECH / MINIMAL (ORANGE MODERN)
+  // NEXUS TECH (White/Orange - Default)
   return (
     <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -5 }}
-      className="relative aspect-[3/4.2] w-full max-w-[340px] rounded-[48px] bg-white border border-slate-100 shadow-2xl shadow-slate-200/60 p-1 group flex flex-col"
+      whileHover={{ y: -6 }}
+      onClick={() => onAction?.('view')}
+      className={cn(
+        "relative w-full max-w-[320px] sm:max-w-[280px] lg:max-w-[300px] aspect-[1/1.4] rounded-[2.5rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl hover:shadow-slate-200/60 p-1 flex flex-col cursor-pointer group",
+        className
+      )}
     >
-      {/* Top Banner with Geometry */}
-      <div className="h-40 rounded-[38px] bg-[#F5F7FA] relative overflow-hidden m-2">
-         <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 -mr-10 -mt-10 rounded-full blur-2xl" />
-         <div className="absolute inset-0 flex items-center justify-center opacity-5 select-none pointer-events-none">
-            <h1 className="text-8xl font-black tracking-tighter italic">NEXUS</h1>
-         </div>
+      <div className="h-1/3 rounded-[2.2rem] bg-slate-50 relative overflow-hidden m-1.5 flex items-center justify-center">
+         <div className="absolute top-0 right-0 w-24 h-24 bg-orange-500/5 -mr-8 -mt-8 rounded-full blur-xl" />
+         <span className="text-4xl font-black text-slate-100 select-none tracking-tighter italic">NEXUS</span>
+         
+         <Avatar className="absolute -bottom-10 h-20 w-20 border-[6px] border-white shadow-lg">
+            <AvatarImage src={user.avatar} className="object-cover" />
+            <AvatarFallback className="bg-orange-500 text-white font-black text-xl">{name[0]}</AvatarFallback>
+         </Avatar>
       </div>
 
-      <div className="flex-1 flex flex-col items-center px-6 -mt-12 pb-8">
-         <Avatar className="h-24 w-24 border-[6px] border-white shadow-xl mb-4 group-hover:scale-105 transition-transform duration-500">
-            <AvatarImage src={user.avatar} className="object-cover" />
-            <AvatarFallback className="bg-orange-500 text-white font-black text-2xl">{user.name[0]}</AvatarFallback>
-         </Avatar>
+      <div className="flex-1 flex flex-col items-center px-5 pt-8 pb-5">
+         <div className="text-center space-y-1 w-full flex-1">
+            <h3 className="text-lg font-black text-slate-800 tracking-tight line-clamp-1">{name}</h3>
+            <p className="text-[11px] sm:text-[10px] font-bold text-orange-500 tracking-[0.1em] uppercase line-clamp-1">{role}</p>
 
-         <div className="text-center space-y-2 flex-1 w-full">
-            <h3 className="text-2xl font-black text-slate-800 tracking-tighter">
-              {user.name}
-            </h3>
-            <p className="text-xs font-bold text-orange-500 tracking-[0.2em] uppercase">
-              {user.role}
-            </p>
-            
-            <div className="flex items-center justify-center gap-4 py-4">
+            <div className="flex items-center justify-center gap-3 py-4 px-2">
                <div className="text-center">
-                  <span className="block text-lg font-black text-slate-900">{user.followers || 120}</span>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Abonnés</span>
+                  <span className="block text-sm font-black text-slate-900">{user.followers || '0'}</span>
+                  <span className="text-[8px] font-bold text-slate-400 uppercase tracking-wider">Abonnés</span>
                </div>
                <div className="h-6 w-px bg-slate-100" />
                <div className="text-center">
-                  <span className="block text-lg font-black text-slate-900">34</span>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Projets</span>
+                  <span className="block text-sm font-black text-slate-900">Nex</span>
+                  <span className="text-[8px] font-bold text-slate-400 uppercase tracking-wider">{category}</span>
                </div>
             </div>
          </div>
 
-         {/* Tech Actions */}
-         <div className="w-full flex gap-3 pt-6 border-t border-slate-50">
+         <div className="w-full flex gap-2 mt-auto">
             <Button 
-               onClick={() => onAction?.('message')}
-               className="flex-1 rounded-2xl h-14 bg-[#FF4F01] hover:bg-[#FF4F01]/90 shadow-xl shadow-[#FF4F01]/20 font-black text-[11px] tracking-widest uppercase"
+               onClick={(e) => { e.stopPropagation(); onAction?.('message') }}
+               className="flex-1 rounded-xl h-11 bg-[#FF4F01] hover:bg-[#FF4F01]/90 shadow-lg shadow-[#FF4F01]/10 font-black text-[10px] uppercase tracking-wider"
             >
                Message
             </Button>
             <Button 
-               onClick={() => onAction?.('follow')}
+               onClick={(e) => { e.stopPropagation(); onAction?.('follow') }}
                variant="outline"
-               className="h-14 w-14 rounded-2xl border-slate-100 shadow-sm text-slate-500 hover:text-orange-500 hover:bg-orange-50 transition-colors"
+               className="h-11 w-11 rounded-xl border-slate-100 text-slate-400 hover:text-orange-500 hover:bg-orange-50 transition-colors"
             >
-               {isFollowed ? <Check className="h-6 w-6" /> : <Plus className="h-6 w-6" />}
+               {isFollowed ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
             </Button>
          </div>
       </div>

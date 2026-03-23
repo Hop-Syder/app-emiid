@@ -1,13 +1,3 @@
-"use client"
-
-import { Shield, MapPin, Users, Star, Eye } from "lucide-react"
-import { motion } from "framer-motion"
-import Link from "next/link"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-
 import { NexusProfileCard, NexusCardVariant } from "@/components/carte-profil/nexus-profile-card"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
@@ -39,7 +29,6 @@ export function AnnuaireCard({ profile }: AnnuaireCardProps) {
             return
         }
 
-        // Pour le public, bloquer et rediriger vers login
         toast.info("Veuillez vous connecter pour interagir avec ce membre", {
             action: {
                 label: "Connexion",
@@ -56,10 +45,12 @@ export function AnnuaireCard({ profile }: AnnuaireCardProps) {
         tags: [profile.specialty]
     }
 
+    const activeVariant = (profile.card_variant as NexusCardVariant) || (profile.premium ? "elite" : "tech")
+
     return (
         <NexusProfileCard 
             user={userData}
-            variant={(profile.card_variant as NexusCardVariant) || "tech"}
+            variant={activeVariant}
             onAction={handleAction}
         />
     )

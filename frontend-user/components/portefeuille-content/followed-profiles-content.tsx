@@ -217,7 +217,8 @@ export function FollowedProfilesContent() {
                                     newUpdates: profile.new_updates || 0,
                                     lastUpdate: profile.last_update_title || profile.specialty || "Aucune mise à jour récente",
                                     followers: profile.followers || profile.followers_count || 0,
-                                    premium: profile.category?.toLowerCase() === 'entreprise',
+                                    premium: !!profile.is_premium,
+                                    card_variant: profile.card_variant,
                                     verified: true,
                                     notes: profile.notes
                                 }}
@@ -256,7 +257,8 @@ export function FollowedProfilesContent() {
                                     newUpdates: 0,
                                     lastUpdate: "S'est abonné à votre profil",
                                     followers: profile.followers || profile.followers_count || 0,
-                                    premium: profile.category?.toLowerCase() === 'entreprise',
+                                    premium: !!profile.is_premium,
+                                    card_variant: profile.card_variant,
                                     verified: true
                                 }}
                                 onViewProfile={handleViewProfile}
