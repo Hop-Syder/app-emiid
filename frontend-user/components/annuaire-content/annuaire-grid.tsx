@@ -10,7 +10,7 @@ interface AnnuaireGridProps {
 export function AnnuaireGrid({ profiles }: AnnuaireGridProps) {
     return (
         <motion.div
-            className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+            className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 justify-items-center"
             initial="hidden"
             animate="visible"
             variants={{

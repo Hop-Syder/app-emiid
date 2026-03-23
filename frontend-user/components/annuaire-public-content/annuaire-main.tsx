@@ -33,14 +33,14 @@ export function AnnuairePublicContent({ initialCategory = "all" }: AnnuairePubli
     }
 
     return (
-        <div className="max-w-7xl mx-auto space-y-6">
+        <div className="max-w-7xl mx-auto space-y-6 px-4 sm:px-6 lg:px-8">
             <AnnuaireHero />
             <AnnuaireFilters filters={filters} onFilterChange={handleFilterChange} />
 
             <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                    <h2 className="text-2xl font-bold text-[#022753]">Tous les Profils</h2>
-                    <p className="text-muted-foreground text-sm font-medium">Recherche par pertinence</p>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <h2 className="text-lg sm:text-2xl font-black text-[#022753] uppercase tracking-tight">Tous les Profils</h2>
+                    <p className="text-muted-foreground text-[10px] sm:text-sm font-bold uppercase tracking-widest opacity-60">Recherche par pertinence</p>
                 </div>
                 <AnnuaireGrid filters={filters} />
             </div>

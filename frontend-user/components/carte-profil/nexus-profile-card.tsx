@@ -57,15 +57,15 @@ export function NexusProfileCard({
         whileHover={{ y: -6, transition: { duration: 0.3 } }}
         onClick={() => onAction?.('view')}
         className={cn(
-          "relative w-full max-w-[320px] sm:max-w-[280px] lg:max-w-[300px] aspect-[1/1.4] rounded-[2.5rem] overflow-hidden bg-[#050505] border border-amber-500/30 group shadow-2xl cursor-pointer",
+          "relative w-full max-w-[320px] sm:max-w-[280px] lg:max-w-[300px] aspect-[1/1.4] mx-auto rounded-[2.5rem] overflow-hidden bg-[#050505] border border-amber-500/30 group shadow-2xl cursor-pointer",
           className
         )}
       >
         {/* Elite Decor */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(245,158,11,0.15),transparent_60%)]" />
-        <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(245,158,11,0.15),transparent_60%)] z-0" />
+        <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-amber-500/40 to-transparent z-0" />
         
-        <div className="relative h-full flex flex-col p-5 sm:p-4 lg:p-6 text-white text-center">
+        <div className="relative z-20 h-full flex flex-col p-5 sm:p-4 lg:p-6 text-white text-center">
            <div className="flex justify-between items-center mb-4">
               <div className="px-2 py-0.5 rounded-full border border-amber-500/20 bg-amber-500/5">
                  <span className="text-[8px] font-black tracking-[0.2em] text-amber-500 uppercase">PRÉMIUM</span>
@@ -73,38 +73,38 @@ export function NexusProfileCard({
               <MoreHorizontal className="h-4 w-4 text-amber-500/30" />
            </div>
 
-           <div className="relative mx-auto mb-4">
-              <div className="absolute inset-0 rounded-full bg-amber-500/10 blur-xl scale-125" />
-              <Avatar className="h-24 w-24 sm:h-20 sm:w-20 lg:h-24 lg:w-24 ring-2 ring-amber-500/40 p-1 bg-black">
+           <div className="relative mx-auto mb-2">
+              <div className="absolute inset-0 rounded-full bg-amber-500/10 blur-md scale-105" />
+              <Avatar className="h-16 w-16 sm:h-18 lg:h-22 ring-1 ring-amber-500/40 p-0.5 bg-black mx-auto">
                 <AvatarImage src={user.avatar} className="rounded-full object-cover" />
-                <AvatarFallback className="bg-amber-950 text-amber-500 font-bold">{name[0]}</AvatarFallback>
+                <AvatarFallback className="bg-amber-950 text-amber-500 font-bold text-xs">{name[0]}</AvatarFallback>
               </Avatar>
               {user.verified && (
-                <div className="absolute -bottom-1 -right-1 bg-amber-500 rounded-full p-1 border-4 border-black shadow-lg">
-                  <Shield className="h-3 w-3 text-black fill-black" />
+                <div className="absolute -bottom-1 -right-1 bg-amber-500 rounded-full p-0.5 border-2 border-black shadow-lg">
+                  <Shield className="h-2.5 w-2.5 text-black fill-black" />
                 </div>
               )}
            </div>
 
-           <div className="space-y-1 mb-4 flex-1 flex flex-col justify-center">
-              <h3 className="text-xl sm:text-lg lg:text-xl font-bold tracking-tight text-amber-50 font-serif line-clamp-1">
+           <div className="space-y-1 mb-2 flex flex-col justify-center min-h-[3.5rem]">
+              <h3 className="text-base sm:text-lg lg:text-xl font-bold tracking-tight text-amber-50 font-serif leading-tight">
                 {name}
               </h3>
-              <p className="text-[11px] sm:text-[10px] font-medium text-amber-500/60 tracking-wider line-clamp-1">
+              <p className="text-[10px] sm:text-[10px] font-medium text-amber-500/60 tracking-wider">
                 {role}
               </p>
            </div>
 
-           <div className="grid grid-cols-2 gap-2 py-3 border-y border-amber-500/10 mb-4 bg-white/5 rounded-2xl">
+           <div className="grid grid-cols-2 gap-2 py-2 border-y border-amber-500/10 mb-2 bg-white/5 rounded-xl">
               <div>
-                 <p className="text-[8px] sm:text-[7px] text-amber-500/40 font-black uppercase mb-0.5 tracking-tighter">Abonnés</p>
-                 <p className="text-sm font-bold">{user.followers || '0'}</p>
+                 <p className="text-[7px] text-amber-500/40 font-black uppercase mb-0 tracking-tighter">Abonnés</p>
+                 <p className="text-xs font-bold">{user.followers || '0'}</p>
               </div>
               <div className="border-l border-amber-500/10">
-                 <p className="text-[8px] sm:text-[7px] text-amber-500/40 font-black uppercase mb-0.5 tracking-tighter">Activité</p>
-                 <div className="flex justify-center items-center h-5">
-                    <Star className="h-3 w-3 text-amber-500 fill-amber-500 mr-1" />
-                    <span className="text-sm font-bold tracking-tighter">PRO</span>
+                 <p className="text-[7px] text-amber-500/40 font-black uppercase mb-0 tracking-tighter">Activité</p>
+                 <div className="flex justify-center items-center h-4">
+                    <Star className="h-2.5 w-2.5 text-amber-500 fill-amber-500 mr-1" />
+                    <span className="text-[10px] font-bold tracking-tighter">PRO</span>
                  </div>
               </div>
            </div>
@@ -136,7 +136,7 @@ export function NexusProfileCard({
         whileHover={{ y: -6 }}
         onClick={() => onAction?.('view')}
         className={cn(
-          "relative w-full max-w-[320px] sm:max-w-[280px] lg:max-w-[300px] aspect-[1/1.4] rounded-[2.5rem] overflow-hidden bg-gradient-to-br from-blue-600/10 to-indigo-950/30 border border-white/20 backdrop-blur-xl shadow-xl hover:shadow-blue-500/20 cursor-pointer group",
+          "relative w-full max-w-[320px] sm:max-w-[280px] lg:max-w-[300px] aspect-[1/1.4] mx-auto rounded-[2.5rem] overflow-hidden bg-gradient-to-br from-blue-600/10 to-indigo-950/30 border border-white/20 backdrop-blur-xl shadow-xl hover:shadow-blue-500/20 cursor-pointer group",
           className
         )}
       >
@@ -156,9 +156,9 @@ export function NexusProfileCard({
                 </Avatar>
                 <div className="absolute top-0 right-0 h-3 w-3 bg-green-500 border-2 border-[#12121e] rounded-full" />
              </div>
-             <div className="mt-3 text-center">
+             <div className="mt-3 text-center min-h-[3rem] flex flex-col justify-center">
                 <h3 className="text-lg font-black tracking-tight leading-tight">{name}</h3>
-                <p className="text-[10px] sm:text-[9px] font-bold text-blue-400 uppercase tracking-widest mt-0.5">{category}</p>
+                <p className="text-[10px] sm:text-[9px] font-bold text-blue-400 uppercase tracking-widest mt-0.5 line-clamp-2">{category}</p>
              </div>
           </div>
 
@@ -197,7 +197,7 @@ export function NexusProfileCard({
       whileHover={{ y: -6 }}
       onClick={() => onAction?.('view')}
       className={cn(
-        "relative w-full max-w-[320px] sm:max-w-[280px] lg:max-w-[300px] aspect-[1/1.4] rounded-[2.5rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl hover:shadow-slate-200/60 p-1 flex flex-col cursor-pointer group",
+        "relative w-full max-w-[320px] sm:max-w-[280px] lg:max-w-[300px] aspect-[1/1.4] mx-auto rounded-[2.5rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl hover:shadow-slate-200/60 p-1 flex flex-col cursor-pointer group",
         className
       )}
     >
@@ -212,9 +212,9 @@ export function NexusProfileCard({
       </div>
 
       <div className="flex-1 flex flex-col items-center px-5 pt-8 pb-5">
-         <div className="text-center space-y-1 w-full flex-1">
-            <h3 className="text-lg font-black text-slate-800 tracking-tight line-clamp-1">{name}</h3>
-            <p className="text-[11px] sm:text-[10px] font-bold text-orange-500 tracking-[0.1em] uppercase line-clamp-1">{role}</p>
+         <div className="text-center space-y-1 w-full flex-1 flex flex-col justify-center min-h-[4rem]">
+            <h3 className="text-lg font-black text-slate-800 tracking-tight leading-tight">{name}</h3>
+            <p className="text-[11px] sm:text-[10px] font-bold text-orange-500 tracking-[0.1em] uppercase line-clamp-2">{role}</p>
 
             <div className="flex items-center justify-center gap-3 py-4 px-2">
                <div className="text-center">
