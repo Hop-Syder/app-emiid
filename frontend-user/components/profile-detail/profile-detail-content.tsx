@@ -23,7 +23,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Skeleton } from "@/components/ui/skeleton"
-import { fetchPublic } from "@/lib/apiClient"
+import { fetchPublic, fetchWithAuth } from "@/lib/apiClient"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 import Link from "next/link"
@@ -233,6 +233,18 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                     }
                     setProfile(mappedProfile)
                     setFollowersCount(mappedProfile.followers)
+
+                    // Vérifier si l'utilisateur actuel suit ce profil
+                    try {
+                        const followRes = await fetchWithAuth("/api/users/follows")
+                        if (followRes.ok) {
+                            const follows = await followRes.json()
+                            const alreadyFollowed = follows.some((f: any) => f.user_id === mappedProfile.id)
+                            setIsFollowed(alreadyFollowed)
+                        }
+                    } catch (e) {
+                        // Pas connecté ou erreur silencieuse
+                    }
                 } else if (response.status === 404) {
                     setProfile(null)
                 }
@@ -241,17 +253,27 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
             } finally {
                 setLoading(false)
             }
-        }
-
         fetchProfile()
     }, [profileId])
 
-    const handleFollow = () => {
-        setIsFollowed(!isFollowed)
-        setFollowersCount(prev => isFollowed ? prev - 1 : prev + 1)
-        toast.success(isFollowed ? "Retiré du portefeuille" : "Ajouté au portefeuille", {
-            description: isFollowed ? "Vous ne suivez plus ce membre." : `Vous suivez maintenant ${profile?.name}.`
-        })
+    const handleFollow = async () => {
+        if (!profile) return
+        
+        try {
+            const res = await fetchWithAuth(`/api/users/follow/${profile.id}`, {
+                method: "POST"
+            })
+            if (res.ok) {
+                const data = await res.json()
+                setIsFollowed(data.followed)
+                setFollowersCount(prev => data.followed ? prev + 1 : prev - 1)
+                toast.success(data.followed ? "Abonnement effectué" : "Désabonné avec succès")
+            } else {
+                toast.error("Veuillez vous connecter pour suivre ce membre")
+            }
+        } catch (e) {
+            toast.error("Erreur de connexion")
+        }
     }
 
     const handleShare = () => {

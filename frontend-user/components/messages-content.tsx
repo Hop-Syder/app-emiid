@@ -312,6 +312,19 @@ export function MessagesContent() {
   const handleFileUpload = async (file: File, type: "image" | "file") => {
     if (!selectedConv || !file || !currentUserId) return
 
+    // VALIDATION : Taille Max
+    const maxSize = type === "image" ? 5 * 1024 * 1024 : 10 * 1024 * 1024 // 5MB image, 10MB file
+    if (file.size > maxSize) {
+       toast.error(`Fichier trop volumineux (Max ${type === "image" ? "5MB" : "10MB"})`)
+       return
+    }
+
+    // VALIDATION : Type Fichier
+    if (type === "image" && !file.type.startsWith("image/")) {
+        toast.error("Veuillez sélectionner une image valide")
+        return
+    }
+
     setIsSending(true)
     try {
       const extension = file.name.split(".").pop()
