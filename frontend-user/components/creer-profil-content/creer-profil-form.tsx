@@ -90,6 +90,25 @@ export function CreerProfilForm({
                     </Select>
                 </div>
 
+                {/* Card Style Selection */}
+                <div className="space-y-3">
+                    <Label htmlFor="card_variant" className="text-sm font-bold flex items-center gap-2">
+                        <Badge variant="outline" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-[10px] border-primary text-primary">✨</Badge>
+                        Design de votre Carte Nexus *
+                    </Label>
+                    <Select value={formData.card_variant || "tech"} onValueChange={(value) => handleInputChange("card_variant", value)}>
+                        <SelectTrigger id="card_variant" className="h-14 rounded-xl bg-slate-50 border-slate-200 focus:ring-2 focus:ring-primary/20 transition-all">
+                            <SelectValue placeholder="Choisissez le design de votre carte..." />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-xl border-slate-200 shadow-xl">
+                            <SelectItem value="tech" className="rounded-xl py-3 cursor-pointer">🟠 Nexus Tech (Minimalist & Orange)</SelectItem>
+                            <SelectItem value="glass" className="rounded-xl py-3 cursor-pointer">🔵 Nexus Glass (Modern & Blue)</SelectItem>
+                            <SelectItem value="elite" className="rounded-xl py-3 cursor-pointer">⭐ Nexus Elite (Premium & Gold)</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <p className="text-[10px] text-muted-foreground ml-1">Ce design sera visible dans l'annuaire au survol de votre profil.</p>
+                </div>
+
                 {/* Personal Info */}
                 <div className="space-y-6">
                     <Label className="text-sm font-bold flex items-center gap-2">

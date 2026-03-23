@@ -8,72 +8,41 @@
  * 📧 daoudaabassichristian@gmail.com
 */
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Shield, MapPin } from "lucide-react"
+import { NexusProfileCard, NexusCardVariant } from "@/components/carte-profil/nexus-profile-card"
 
 interface CreerProfilPreviewProps {
     formData: any
 }
 
 export function CreerProfilPreview({ formData }: CreerProfilPreviewProps) {
+    const previewUser = {
+        id: "preview",
+        name: formData.name || "Votre Nom",
+        role: formData.role || "Votre Rôle",
+        avatar: formData.avatar_url || formData.avatar || "/african-user.jpg",
+        category: formData.category || "Catégorie",
+        specialty: formData.specialty || "Spécialité",
+        location: formData.city ? `${formData.city}, ${formData.country_name || ""}` : (formData.country_name || "Zone"),
+        followers: 0,
+        verified: false,
+        premium: formData.premium || false,
+        tags: formData.tags || []
+    }
+
     return (
-        <Card className="rounded-xl h-fit sticky top-24">
-            <CardHeader>
-                <CardTitle>Aperçu</CardTitle>
-                <CardDescription>Votre profil tel qu'il apparaîtra</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <div className="flex items-start justify-between">
-                    <Avatar className="h-16 w-16">
-                        <AvatarImage src={formData.avatar || "/placeholder.svg"} alt={formData.name || "Preview"} />
-                        <AvatarFallback>{formData.name?.[0] || "?"}</AvatarFallback>
-                    </Avatar>
-                    <Badge variant="outline" className="rounded-full">
-                        <Shield className="mr-1 h-3 w-3" />À vérifier
-                    </Badge>
-                </div>
-
-                <div className="space-y-2">
-                    <h3 className="text-xl font-semibold">{formData.name || "Votre nom"}</h3>
-                    <p className="text-sm text-muted-foreground">{formData.role || "Votre titre"}</p>
-                </div>
-
-                {(formData.city || formData.country_name) && (
-                    <div className="flex items-center text-sm text-muted-foreground">
-                        <MapPin className="mr-2 h-4 w-4" />
-                        {formData.city}{formData.city && formData.country_name ? ", " : ""}{formData.country_name}
-                    </div>
-                )}
-
-                {formData.specialty && <Badge className="rounded-xl">{formData.specialty}</Badge>}
-
-                {formData.category && (
-                    <Badge variant="outline" className="rounded-xl border-primary/30 text-primary">
-                        {formData.category}
-                    </Badge>
-                )}
-
-                {formData.tags && formData.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2 pt-2">
-                        {formData.tags.map((tag: string) => (
-                            <Badge key={tag} variant="secondary" className="rounded-full text-[10px] px-2 py-0">
-                                #{tag}
-                            </Badge>
-                        ))}
-                    </div>
-                )}
-
-                {formData.bio && (
-                    <p className="text-sm text-muted-foreground line-clamp-3 pt-2 border-t">{formData.bio}</p>
-                )}
-
-                <div className="flex items-center justify-between text-sm text-muted-foreground pt-2 border-t">
-                    <span>0 abonnés</span>
-                    <span>0 projets</span>
-                </div>
-            </CardContent>
-        </Card>
+        <div className="h-fit sticky top-24 space-y-4">
+            <div className="px-4 py-2 bg-primary/5 rounded-2xl border border-primary/10">
+                <p className="text-[10px] font-black text-primary uppercase tracking-widest text-center">Aperçu en temps réel</p>
+            </div>
+            
+            <NexusProfileCard 
+                user={previewUser} 
+                variant={(formData.card_variant as NexusCardVariant) || "tech"} 
+            />
+            
+            <p className="text-[10px] text-center text-slate-400 font-medium px-8 italic">
+                Ceci est un aperçu de votre carte telle qu'elle apparaîtra dans l'annuaire Nexus Connect.
+            </p>
+        </div>
     )
 }
