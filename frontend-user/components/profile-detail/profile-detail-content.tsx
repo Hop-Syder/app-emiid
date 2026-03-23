@@ -253,6 +253,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
             } finally {
                 setLoading(false)
             }
+        }
         fetchProfile()
     }, [profileId])
 

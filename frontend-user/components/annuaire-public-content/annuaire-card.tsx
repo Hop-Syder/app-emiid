@@ -8,6 +8,10 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
+import { NexusProfileCard, NexusCardVariant } from "@/components/carte-profil/nexus-profile-card"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
+
 export interface Profile {
     name: string
     role: string
@@ -19,6 +23,7 @@ export interface Profile {
     projects: number
     premium?: boolean
     id?: string
+    card_variant?: string
 }
 
 interface AnnuaireCardProps {
@@ -26,121 +31,36 @@ interface AnnuaireCardProps {
 }
 
 export function AnnuaireCard({ profile }: AnnuaireCardProps) {
+    const router = useRouter()
+
+    const handleAction = (type: 'message' | 'follow' | 'view') => {
+        if (type === 'view') {
+            if (profile.id) router.push(`/profil/${profile.id}`)
+            return
+        }
+
+        // Pour le public, bloquer et rediriger vers login
+        toast.info("Veuillez vous connecter pour interagir avec ce membre", {
+            action: {
+                label: "Connexion",
+                onClick: () => router.push("/login")
+            }
+        })
+    }
+
+    const userData = {
+        ...profile,
+        id: profile.id || "temp",
+        name: profile.name || "Membre Nexus",
+        role: profile.role || "Professionnel",
+        tags: [profile.specialty]
+    }
+
     return (
-        <motion.div
-            variants={{
-                hidden: { opacity: 0, y: 20 },
-                visible: { opacity: 1, y: 0 },
-            }}
-            whileHover={{ y: -5, scale: 1.02 }}
-            transition={{ type: "spring", stiffness: 300 }}
-        >
-            <Card
-                className={`rounded-xl h-full hover:shadow-xl transition-all duration-300 group cursor-pointer ${profile.premium ? "relative overflow-hidden border-2 border-transparent" : "hover:shadow-lg"
-                    }`}
-            >
-                {/* Premium background */}
-                {profile.premium && (
-                    <>
-                        {/* Colored background */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-accent/10 to-secondary/10" />
-
-                        {/* Pattern overlay */}
-                        <div
-                            className="absolute inset-0 opacity-30"
-                            style={{
-                                backgroundImage: 'url("/carte%20de%20profil/background-premium-1.svg")',
-                                backgroundSize: "cover",
-                                backgroundPosition: "center",
-                                mixBlendMode: "multiply",
-                            }}
-                        />
-                    </>
-                )}
-
-                <CardHeader className="relative">
-                    <div className="flex items-start justify-between">
-                        <div className="relative">
-                            <Avatar className={`h-16 w-16 ${profile.premium ? "ring-2 ring-primary/30" : ""}`}>
-                                <AvatarImage src={profile.avatar || "/placeholder.svg"} alt={profile.name} />
-                                <AvatarFallback className="text-lg">{profile.name[0]}</AvatarFallback>
-                            </Avatar>
-                            {profile.premium && (
-                                <div className="absolute -bottom-1 -right-1 bg-gradient-to-r from-primary to-accent rounded-full p-1">
-                                    <Badge className="h-5 w-5 rounded-full bg-white text-primary p-0 flex items-center justify-center text-xs font-bold">
-                                        <Star className="h-3 w-3 fill-current" />
-                                    </Badge>
-                                </div>
-                            )}
-                        </div>
-                        {profile.verified && (
-                            <Badge
-                                variant="outline"
-                                className={`rounded-full ${profile.premium ? "bg-primary/10 border-primary/30 text-primary" : ""
-                                    }`}
-                            >
-                                <Shield className="mr-1 h-3 w-3" />
-                                Vérifié
-                            </Badge>
-                        )}
-                    </div>
-                    <div className="mt-4">
-                        <CardTitle
-                            className={`text-xl ${profile.premium ? "bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent" : ""
-                                }`}
-                        >
-                            {profile.name}
-                        </CardTitle>
-                        <CardDescription className="mt-1">{profile.role}</CardDescription>
-                    </div>
-                </CardHeader>
-
-                <CardContent className="space-y-4 relative flex-1">
-                    <div className="flex items-center text-sm text-muted-foreground">
-                        <MapPin className="mr-2 h-4 w-4 flex-shrink-0" />
-                        <span className="truncate">{profile.location}</span>
-                    </div>
-
-                    <Badge
-                        className={`rounded-xl ${profile.premium
-                            ? "bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 text-primary"
-                            : ""
-                            }`}
-                    >
-                        {profile.specialty}
-                    </Badge>
-
-                    <div className="flex items-center justify-between pt-2 border-t">
-                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                            <Users className="h-4 w-4" />
-                            <span className="font-medium">{profile.followers}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            {profile.id && (
-                                <Button 
-                                    variant="ghost" 
-                                    size="icon" 
-                                    className="h-9 w-9 rounded-xl border border-slate-100 hover:bg-slate-50 transition-all"
-                                    asChild
-                                >
-                                    <Link href={`/profil/${profile.id}`}>
-                                        <Eye className="h-4.5 w-4.5 text-slate-500" />
-                                    </Link>
-                                </Button>
-                            )}
-                            <Button
-                                size="sm"
-                                className={`rounded-xl px-4 ${profile.premium
-                                    ? "bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-white font-semibold shadow-md"
-                                    : "bg-primary"
-                                    }`}
-                            >
-                                Suivre
-                            </Button>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-        </motion.div>
+        <NexusProfileCard 
+            user={userData}
+            variant={(profile.card_variant as NexusCardVariant) || "tech"}
+            onAction={handleAction}
+        />
     )
 }
