@@ -6,13 +6,21 @@
 */
 
 import { Router } from 'express';
-import { getMyConversations, getConversationMessages, sendMessage, getSupportUser, markAsRead, requestMediation } from '../../controllers/messageController';
-import { requireAuth } from '../../middlewares/authMiddleware';
+import { getMyConversations, getConversationMessages, sendMessage, getSupportUser, markAsRead, requestMediation, getAdminDisputes, replyToMediation } from '../../controllers/messageController';
+import { requireAuth, requireAdmin } from '../../middlewares/authMiddleware';
 
 const router = Router();
 
 // Toutes les routes ici nécessitent une authentification
 router.use(requireAuth);
+
+// @route   GET /api/messages/admin/disputes
+// @desc    Liste des litiges pour l'administration
+router.get('/admin/disputes', requireAdmin, getAdminDisputes);
+
+// @route   POST /api/messages/admin/reply/:conversationId
+// @desc    Réponse admin dans une médiation
+router.post('/admin/reply/:conversationId', requireAdmin, replyToMediation);
 
 // @route   POST /api/messages/dispute/:conversationId
 // @desc    Inviter l'Admin pour une médiation

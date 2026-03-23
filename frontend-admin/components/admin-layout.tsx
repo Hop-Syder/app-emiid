@@ -22,7 +22,8 @@ import {
     Bell,
     ShieldAlert,
     Search,
-    CheckCircle2
+    CheckCircle2,
+    MessageSquare
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
@@ -40,6 +41,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     const menuItems = [
         { title: "Dashboard", icon: LayoutDashboard, href: "/" },
         { title: "Utilisateurs", icon: Users, href: "/users" },
+        { title: "Messagerie & Litiges", icon: MessageSquare, href: "/messages" },
         { title: "Modération Galeries", icon: ImageIcon, href: "/moderation/galerie" },
         { title: "Annonces & Ads", icon: ShieldAlert, href: "/moderation/ads" },
         { title: "Paramètres", icon: Settings, href: "/settings" },
