@@ -131,7 +131,12 @@ export function NexusSidebar({ sidebarOpen, setSidebarOpen, mobileMenuOpen, setM
   const SidebarContent = ({ isMobile = false }: { isMobile?: boolean }) => (
     <div className="flex h-full flex-col bg-white">
       {/* Logo Area */}
-      <div className="flex items-center justify-between p-6 pb-4">
+      <div
+        className={cn(
+          "flex items-center justify-between",
+          isMobile ? "p-6 pb-4" : "mx-4 mt-4 rounded-2xl bg-white/80 border border-white/60 shadow-sm px-4 py-3"
+        )}
+      >
         <div className="flex items-center gap-3">
           <Image
             src="/logo/logo-1.png"
@@ -149,13 +154,13 @@ export function NexusSidebar({ sidebarOpen, setSidebarOpen, mobileMenuOpen, setM
       </div>
 
       {/* Search Area */}
-      <div className="px-5 py-3">
-        <div className="relative group">
+      <div className={cn("py-3", isMobile ? "px-5" : "px-4")}>
+        <div className="relative group rounded-xl bg-white border border-slate-100 shadow-inner">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
           <Input 
             type="search" 
             placeholder="Recherche rapide..." 
-            className="w-full rounded-xl bg-slate-50 border-transparent hover:bg-slate-100 focus:bg-white focus:border-primary/30 focus:ring-4 focus:ring-primary/5 pl-10 pr-4 py-2.5 h-11 text-sm font-medium transition-all duration-300" 
+            className="w-full rounded-xl bg-transparent border-transparent hover:bg-slate-50 focus:bg-white focus:border-primary/30 focus:ring-4 focus:ring-primary/5 pl-10 pr-4 py-2.5 h-11 text-sm font-medium transition-all duration-300" 
           />
         </div>
       </div>
@@ -174,36 +179,36 @@ export function NexusSidebar({ sidebarOpen, setSidebarOpen, mobileMenuOpen, setM
               <div key={item.title} className="mb-0.5">
                 <div className="flex items-center">
                   {item.href ? (
-                    <Link
-                      href={item.href}
-                      className={cn(
-                        "group flex flex-1 items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300 relative overflow-hidden",
-                        active 
-                          ? "bg-primary text-white shadow-md shadow-primary/20" 
-                          : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                      )}
-                      onClick={(e) => {
-                        handleNavClick(e, item)
-                        if (!item.requiresAuth || session) setMobileMenuOpen(false)
-                      }}
-                    >
-                      {active && (
-                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-white rounded-r-full" />
-                      )}
-                      
-                      <div className="flex items-center gap-3.5 relative z-10">
-                        <div className={cn(
-                          "flex items-center justify-center transition-colors",
-                          active ? "text-white opacity-100" : "text-slate-400 group-hover:text-primary opacity-80"
-                        )}>
-                          {typeof item.icon === "string" ? (
-                            <img 
-                              src={item.icon} 
-                              alt={item.title} 
-                              className={cn("h-5 w-5 object-contain transition-all duration-300", active && "brightness-0 invert")} 
-                            />
-                          ) : (
-                            item.icon
+                  <Link
+                    href={item.href}
+                    className={cn(
+                      "group flex flex-1 items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 relative overflow-hidden",
+                      active 
+                        ? "bg-primary/90 text-white shadow-md shadow-primary/25" 
+                        : "text-slate-600 hover:bg-white hover:text-slate-900"
+                    )}
+                    onClick={(e) => {
+                      handleNavClick(e, item)
+                      if (!item.requiresAuth || session) setMobileMenuOpen(false)
+                    }}
+                  >
+                    {active && (
+                      <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-white/90 rounded-r-full" />
+                    )}
+                    
+                    <div className="flex items-center gap-3.5 relative z-10">
+                      <div className={cn(
+                        "flex items-center justify-center transition-colors",
+                        active ? "text-white opacity-100" : "text-slate-400 group-hover:text-primary opacity-80"
+                      )}>
+                        {typeof item.icon === "string" ? (
+                          <img 
+                            src={item.icon} 
+                            alt={item.title} 
+                            className={cn("h-5 w-5 object-contain transition-all duration-300 opacity-70 group-hover:opacity-100", active && "brightness-0 invert opacity-100")} 
+                          />
+                        ) : (
+                          item.icon
                           )}
                         </div>
                         <span className="tracking-tight">{item.title}</span>
