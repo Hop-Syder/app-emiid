@@ -85,6 +85,8 @@ export function CreerProfilForm({
                             <SelectItem value="artisan" className="rounded-xl py-3 cursor-pointer">🎨 Artisan</SelectItem>
                             <SelectItem value="freelance" className="rounded-xl py-3 cursor-pointer">💻 Freelance</SelectItem>
                             <SelectItem value="entreprise" className="rounded-xl py-3 cursor-pointer">🏢 Entreprise</SelectItem>
+                            <SelectItem value="agence" className="rounded-xl py-3 cursor-pointer">📣 Agence</SelectItem>
+                            <SelectItem value="startup" className="rounded-xl py-3 cursor-pointer">🚀 Startup</SelectItem>
                             <SelectItem value="ong" className="rounded-xl py-3 cursor-pointer">🌍 ONG</SelectItem>
                         </SelectContent>
                     </Select>

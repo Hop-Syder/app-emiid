@@ -17,6 +17,8 @@ export function AnnuaireContent({ profiles, category }: AnnuaireContentProps) {
         artisans: "Nos Artisans",
         freelances: "Nos Freelances",
         entreprises: "Nos Entreprises",
+        agence: "Nos Agences",
+        startup: "Nos Startup",
         ong: "Les ONG du Réseau"
     }
 

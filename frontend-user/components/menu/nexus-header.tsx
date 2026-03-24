@@ -123,26 +123,26 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
       <header
         className="sticky top-0 md:top-6 z-50 md:mx-6 mb-4 md:mb-6 md:rounded-2xl border-b md:border border-white/20 bg-white/95 backdrop-blur-2xl supports-[backdrop-filter]:bg-white/80 shadow-md md:shadow-lg transition-all duration-300"
       >
-        <div className="flex h-16 md:h-[72px] items-center gap-2 md:gap-4 px-3 md:px-8">
+        <div className="flex h-16 md:h-[72px] items-center justify-between gap-2 md:gap-4 px-3 md:px-8">
 
-          {/* Toggle Button for Mobile */}
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="hidden shrink-0 rounded-xl bg-white shadow-sm border border-slate-100 active:bg-slate-50 transition-all h-10 w-10" 
-            onClick={() => setMobileMenuOpen(true)}
-          >
-            <Menu className="h-5 w-5 text-slate-700" />
-          </Button>
+          <div className="flex items-center gap-2.5 min-w-0">
+            {/* Toggle Button for Mobile */}
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="hidden lg:inline-flex shrink-0 rounded-xl bg-white shadow-sm border border-slate-100 active:bg-slate-50 transition-all h-10 w-10" 
+              onClick={() => setMobileMenuOpen(true)}
+            >
+              <Menu className="h-5 w-5 text-slate-700" />
+            </Button>
 
-          {/* Title Area (mostly for mobile/tablet where sidebar is hidden) */}
-          <div className="flex-1 min-w-0 md:hidden flex justify-center items-center">
-            <img src="/logo/logo-1.png" alt="Nexus Connect" className="h-7 w-auto max-w-[130px] object-contain" />
+            {/* Title Area (mostly for mobile/tablet where sidebar is hidden) */}
+            <div className="min-w-0 md:hidden flex items-center">
+              <img src="/logo/logo-1.png" alt="Nexus Connect" className="h-7 w-auto max-w-[130px] object-contain" />
+            </div>
           </div>
-          
-          <div className="flex-1 hidden md:block" />
 
-          <div className="flex items-center gap-1 sm:gap-2 md:gap-4 shrink-0">
+          <div className="flex items-center gap-2 md:gap-4 shrink-0">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>

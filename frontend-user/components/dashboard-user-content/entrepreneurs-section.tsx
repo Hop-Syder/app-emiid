@@ -4,7 +4,7 @@ import { motion } from "framer-motion"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
-import { CardPremium } from "@/components/carte-profil/card-premium/card-premium"
+import { NexusProfileCard } from "@/components/carte-profil/nexus-profile-card"
 
 interface EntrepreneursSectionProps {
     entrepreneursList: any[]
@@ -13,6 +13,17 @@ interface EntrepreneursSectionProps {
 
 export function EntrepreneursSection({ entrepreneursList, loading }: EntrepreneursSectionProps) {
     const router = useRouter()
+    const handleCardAction = (type: 'message' | 'follow' | 'view', entrepreneurId?: string) => {
+        if (!entrepreneurId) return
+        if (type === "view") {
+            router.push(`/profil/${entrepreneurId}`)
+            return
+        }
+        if (type === "message") {
+            router.push(`/messages?user=${entrepreneurId}`)
+            return
+        }
+    }
 
     return (
         <section>
@@ -58,7 +69,24 @@ export function EntrepreneursSection({ entrepreneursList, loading }: Entrepreneu
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ duration: 0.3, delay: index * 0.1 }}
                         >
-                            <CardPremium entrepreneur={entrepreneur} />
+                            <NexusProfileCard
+                                user={{
+                                    id: entrepreneur.id,
+                                    name: entrepreneur.name,
+                                    role: entrepreneur.role,
+                                    avatar: entrepreneur.avatar,
+                                    category: entrepreneur.category,
+                                    specialty: entrepreneur.specialty,
+                                    location: entrepreneur.location,
+                                    followers: entrepreneur.followers,
+                                    verified: entrepreneur.verified,
+                                    premium: entrepreneur.premium,
+                                    tags: entrepreneur.tags || [entrepreneur.specialty],
+                                }}
+                                variant="tech"
+                                isFollowed={!!entrepreneur.isFollowed}
+                                onAction={(type) => handleCardAction(type, entrepreneur.id)}
+                            />
                         </motion.div>
                     ))}
                 </div>

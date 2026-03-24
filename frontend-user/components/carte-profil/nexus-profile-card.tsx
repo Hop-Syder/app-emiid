@@ -27,6 +27,7 @@ interface NexusProfileCardProps {
     specialty?: string
     location?: string
     followers?: number | string
+    following?: number | string
     verified?: boolean
     premium?: boolean
     tags?: string[]
@@ -49,6 +50,16 @@ export function NexusProfileCard({
   const role = user.role || "Professionnel"
   const location = user.location || "Afrique"
   const category = user.category || "Nexus"
+  const following = user.following || 0
+  const categoryLabelMap: Record<string, string> = {
+    artisan: "Artisan",
+    freelance: "Freelance",
+    entreprise: "Entreprise",
+    agence: "Agence",
+    startup: "Startup",
+    ong: "ONG",
+  }
+  const displayCategory = categoryLabelMap[category.toLowerCase()] || category
 
   // NEXUS ELITE (Luxury Dark)
   if (variant === "elite") {
@@ -201,19 +212,19 @@ export function NexusProfileCard({
         className
       )}
     >
-      <div className="h-1/3 rounded-[2.2rem] bg-slate-50 relative overflow-hidden m-1.5 flex items-center justify-center">
+      <div className="h-[20%] rounded-[2.2rem] bg-slate-50 relative overflow-visible m-1.5 flex items-center justify-start pl-6">
          <div className="absolute top-0 right-0 w-24 h-24 bg-orange-500/5 -mr-8 -mt-8 rounded-full blur-xl" />
-         <span className="text-4xl font-black text-slate-100 select-none tracking-tighter italic">NEXUS</span>
+         <span className="relative -top-1 text-3xl font-black text-slate-200 select-none tracking-tighter italic">{displayCategory}</span>
          
-         <Avatar className="absolute -bottom-10 h-20 w-20 border-[6px] border-white shadow-lg">
+         <Avatar className="absolute left-6 -bottom-10 z-10 h-20 w-20 border-[6px] border-white shadow-lg">
             <AvatarImage src={user.avatar} className="object-cover" />
             <AvatarFallback className="bg-orange-500 text-white font-black text-xl">{name[0]}</AvatarFallback>
          </Avatar>
       </div>
 
       <div className="flex-1 flex flex-col items-center px-5 pt-8 pb-5">
-         <div className="text-center space-y-1 w-full flex-1 flex flex-col justify-center min-h-[4rem]">
-            <h3 className="text-lg font-black text-slate-800 tracking-tight leading-tight">{name}</h3>
+         <div className="text-center space-y-1 w-full flex-1 flex flex-col justify-center min-h-[3rem]">
+            <h3 className="relative -top-2 text-lg font-black text-slate-800 tracking-tight leading-tight">{name}</h3>
             <p className="text-[11px] sm:text-[10px] font-bold text-orange-500 tracking-[0.1em] uppercase line-clamp-2">{role}</p>
 
             <div className="flex items-center justify-center gap-3 py-4 px-2">
@@ -223,10 +234,11 @@ export function NexusProfileCard({
                </div>
                <div className="h-6 w-px bg-slate-100" />
                <div className="text-center">
-                  <span className="block text-sm font-black text-slate-900">Nex</span>
-                  <span className="text-[8px] font-bold text-slate-400 uppercase tracking-wider">{category}</span>
+                  <span className="block text-sm font-black text-slate-900">{following}</span>
+                  <span className="text-[8px] font-bold text-slate-400 uppercase tracking-wider">Suivis</span>
                </div>
             </div>
+
          </div>
 
          <div className="w-full flex gap-2 mt-auto">
@@ -235,6 +247,13 @@ export function NexusProfileCard({
                className="flex-1 rounded-xl h-11 bg-[#FF4F01] hover:bg-[#FF4F01]/90 shadow-lg shadow-[#FF4F01]/10 font-black text-[10px] uppercase tracking-wider"
             >
                Message
+            </Button>
+            <Button
+              onClick={(e) => { e.stopPropagation(); onAction?.('view') }}
+              variant="outline"
+              className="rounded-xl h-11 border-slate-200 text-slate-700 hover:text-orange-500 hover:bg-orange-50 transition-colors px-4 text-[10px] font-black uppercase tracking-wider"
+            >
+              Voir profil
             </Button>
             <Button 
                onClick={(e) => { e.stopPropagation(); onAction?.('follow') }}

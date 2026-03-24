@@ -19,7 +19,7 @@ interface AnnuaireHeroProps {
 
 export function AnnuaireHero({
     title = "Découvrez les Talents de l'Afrique de l'Ouest",
-    description = "Explorez notre réseau dynamique regroupant artisans, freelances, entreprises et ONG. Trouvez les partenaires et experts dont vous avez besoin pour vos projets."
+    description = "Explorez notre réseau dynamique regroupant artisans, freelances, entreprises, agences, startup et ONG. Trouvez les partenaires et experts dont vous avez besoin pour vos projets."
 }: AnnuaireHeroProps) {
     return (
         <motion.div

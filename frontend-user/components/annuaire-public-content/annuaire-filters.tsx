@@ -84,6 +84,8 @@ export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProp
                                 <SelectItem value="artisan">Artisans</SelectItem>
                                 <SelectItem value="freelance">Freelances</SelectItem>
                                 <SelectItem value="entreprise">Entreprises</SelectItem>
+                                <SelectItem value="agence">Agences</SelectItem>
+                                <SelectItem value="startup">Startup</SelectItem>
                                 <SelectItem value="ong">ONG</SelectItem>
                             </SelectContent>
                         </Select>

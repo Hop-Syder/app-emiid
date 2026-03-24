@@ -366,6 +366,8 @@ const sidebarItems = [
       { title: "Artisans", url: "#" },
       { title: "Freelances", url: "#" },
       { title: "Entreprises", url: "#" },
+      { title: "Agences", url: "#" },
+      { title: "Startup", url: "#" },
       { title: "ONG", url: "#" },
     ],
   },
@@ -444,6 +446,16 @@ const entrepreneurs = [
     verified: false,
     followers: 156,
     projects: 45,
+  },
+  {
+    name: "Nadia Koné",
+    role: "Agence Marketing",
+    location: "Dakar, Sénégal",
+    avatar: "/african-woman-entrepreneur.jpg",
+    specialty: "Communication digitale",
+    verified: true,
+    followers: 512,
+    projects: 22,
   },
 ]
 
@@ -1044,7 +1056,7 @@ export function DesignaliCreative() {
                         <div className="space-y-2">
                           <h2 className="text-3xl font-bold">Annuaire des Acteurs Économiques</h2>
                           <p className="max-w-[600px] text-white/80">
-                            Découvrez des artisans, freelances, entreprises et ONG à travers l'Afrique de l'Ouest.
+                            Découvrez des artisans, freelances, entreprises, agences, startup et ONG à travers l'Afrique de l'Ouest.
                           </p>
                         </div>
                         <div className="relative w-full md:w-auto mt-3 md:mt-0">
@@ -1061,7 +1073,7 @@ export function DesignaliCreative() {
 
                   {/* Sub-tabs for Annuaire */}
                   <Tabs defaultValue="artisans" className="w-full">
-                    <TabsList className="grid w-full max-w-[500px] grid-cols-4 rounded-xl p-1">
+                    <TabsList className="grid w-full max-w-[750px] grid-cols-6 rounded-xl p-1">
                       <TabsTrigger value="artisans" className="rounded-xl">
                         Artisans
                       </TabsTrigger>
@@ -1070,6 +1082,12 @@ export function DesignaliCreative() {
                       </TabsTrigger>
                       <TabsTrigger value="entreprises" className="rounded-xl">
                         Entreprises
+                      </TabsTrigger>
+                      <TabsTrigger value="agence" className="rounded-xl">
+                        Agences
+                      </TabsTrigger>
+                      <TabsTrigger value="startup" className="rounded-xl">
+                        Startup
                       </TabsTrigger>
                       <TabsTrigger value="ong" className="rounded-xl">
                         ONG
@@ -1241,6 +1259,94 @@ export function DesignaliCreative() {
                               <CardFooter>
                                 <Button variant="secondary" className="w-full rounded-xl text-sm">
                                   Voir Entreprise
+                                </Button>
+                              </CardFooter>
+                            </Card>
+                          ))}
+                      </div>
+                    </TabsContent>
+
+                    <TabsContent value="agence" className="space-y-4 mt-6">
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                        {entrepreneurs
+                          .filter((p) => p.role.includes("Agence"))
+                          .map((person) => (
+                            <Card key={person.name} className="rounded-xl">
+                              <CardHeader>
+                                <div className="flex items-center gap-3">
+                                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 text-white">
+                                    <Building2 className="h-6 w-6" />
+                                  </div>
+                                  <div className="flex-1">
+                                    <CardTitle className="text-base">{person.specialty}</CardTitle>
+                                    <CardDescription className="text-xs">Par {person.name}</CardDescription>
+                                  </div>
+                                </div>
+                              </CardHeader>
+                              <CardContent className="space-y-2">
+                                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                  <MapPin className="h-3 w-3" />
+                                  {person.location}
+                                </div>
+                                <div className="flex items-center justify-between text-xs">
+                                  <Badge variant="outline" className="rounded-xl">
+                                    Agence
+                                  </Badge>
+                                  {person.verified && (
+                                    <Badge variant="outline" className="rounded-xl text-blue-600">
+                                      <Shield className="h-3 w-3 mr-1" />
+                                      Vérifiée
+                                    </Badge>
+                                  )}
+                                </div>
+                              </CardContent>
+                              <CardFooter>
+                                <Button variant="secondary" className="w-full rounded-xl text-sm">
+                                  Voir Agence
+                                </Button>
+                              </CardFooter>
+                            </Card>
+                          ))}
+                      </div>
+                    </TabsContent>
+
+                    <TabsContent value="startup" className="space-y-4 mt-6">
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                        {entrepreneurs
+                          .filter((p) => p.role.includes("Startup") || p.role.includes("Fondatrice"))
+                          .map((person) => (
+                            <Card key={person.name} className="rounded-xl">
+                              <CardHeader>
+                                <div className="flex items-center gap-3">
+                                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 text-white">
+                                    <Building2 className="h-6 w-6" />
+                                  </div>
+                                  <div className="flex-1">
+                                    <CardTitle className="text-base">{person.specialty}</CardTitle>
+                                    <CardDescription className="text-xs">Par {person.name}</CardDescription>
+                                  </div>
+                                </div>
+                              </CardHeader>
+                              <CardContent className="space-y-2">
+                                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                  <MapPin className="h-3 w-3" />
+                                  {person.location}
+                                </div>
+                                <div className="flex items-center justify-between text-xs">
+                                  <Badge variant="outline" className="rounded-xl">
+                                    Startup
+                                  </Badge>
+                                  {person.verified && (
+                                    <Badge variant="outline" className="rounded-xl text-blue-600">
+                                      <Shield className="h-3 w-3 mr-1" />
+                                      Vérifiée
+                                    </Badge>
+                                  )}
+                                </div>
+                              </CardContent>
+                              <CardFooter>
+                                <Button variant="secondary" className="w-full rounded-xl text-sm">
+                                  Voir Startup
                                 </Button>
                               </CardFooter>
                             </Card>
