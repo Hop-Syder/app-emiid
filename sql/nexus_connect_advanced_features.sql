@@ -33,7 +33,7 @@ CREATE POLICY "Lecture publique jobs" ON public.jobs FOR SELECT USING (true);
 
 -- Insertion initiale (Seed)
 INSERT INTO public.industries (name) VALUES 
-('Informatique & Tech'), ('Santé'), ('BTP & Construction'), ('Commerce'), ('Education'), ('Agriculture'), ('Artisanat')
+('Informatique & Tech'), ('Santé'), ('BTP & Construction'), ('Commerce'), ('Education'), ('Agriculture'), ('Artisanat'), ('Agences'), ('Startup')
 ON CONFLICT DO NOTHING;
 
 INSERT INTO public.jobs (name) VALUES 

@@ -45,7 +45,9 @@ INSERT INTO public.activity_sectors (name, slug) VALUES
 ('Bâtiment & Travaux Publics', 'btp'),
 ('Transport & Logistique', 'transport'),
 ('Santé & Bien-être', 'sante'),
-('Éducation & Formation', 'education')
+('Éducation & Formation', 'education'),
+('Agences', 'agences'),
+('Startup', 'startup')
 ON CONFLICT (slug) DO NOTHING;
 
 -- On récupère les IDs pour insérer les professions (Exemple simplifié)
