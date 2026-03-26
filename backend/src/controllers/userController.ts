@@ -8,6 +8,7 @@
 import { Request, Response } from 'express';
 import { supabase, supabaseAdmin } from '../config/supabase';
 import bcrypt from 'bcrypt';
+import { logger } from '../utils/logger';
 
 /**
  * Récupère le profil de l'utilisateur actuellement connecté (via Token Relay)
@@ -239,7 +240,7 @@ export const getPublicProfiles = async (req: Request, res: Response) => {
     }
 
     let { data, error } = await query;
-    console.log('Public Profiles query params:', req.query);
+    logger.debug('Public profiles query params', req.query);
     
     // Filtrage manuel pour les Tags (limitation Supabase JS Client simple)
     if (tags && data) {
@@ -253,7 +254,7 @@ export const getPublicProfiles = async (req: Request, res: Response) => {
     const hasAnyFilter = !!(category || search || country || city || tags);
     
     if (!error && (!data || data.length === 0) && !hasAnyFilter) {
-      console.log('FallbackDev: Serving mock/latest profiles (No filters applied)');
+      logger.debug('FallbackDev: serving latest profiles without filters');
       const fallback = await supabaseAdmin
         .from('user_profiles')
         .select(`*, countries(name, iso_code)`)
@@ -264,7 +265,7 @@ export const getPublicProfiles = async (req: Request, res: Response) => {
     }
 
     if (error) {
-       console.error('Error fetching public profiles:', error);
+       logger.error('Error fetching public profiles', error);
        return res.status(400).json({ error: error.message });
     }
     

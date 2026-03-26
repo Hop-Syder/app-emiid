@@ -8,6 +8,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.requireAdmin = exports.requireAuth = void 0;
 const supabase_1 = require("../config/supabase");
+const logger_1 = require("../utils/logger");
 /**
  * Middleware pour sécuriser les routes avec un Access Token Supabase.
  * Attend le token dans le header "Authorization: Bearer <token>".
@@ -35,7 +36,7 @@ const requireAuth = async (req, res, next) => {
         next();
     }
     catch (err) {
-        console.error('Erreur Auth Middleware:', err);
+        logger_1.logger.error('Erreur auth middleware', err);
         return res.status(500).json({ error: 'Erreur interne du serveur lors de l\'authentification' });
     }
 };

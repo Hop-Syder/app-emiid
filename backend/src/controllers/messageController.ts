@@ -7,6 +7,7 @@
 
 import { Response } from 'express';
 import { supabaseAdmin } from '../config/supabase';
+import { logger } from '../utils/logger';
 
 /**
  * Récupère les conversations de l'utilisateur
@@ -193,7 +194,7 @@ export const getAdminDisputes = async (req: any, res: Response) => {
 
         res.json(formatted);
     } catch (err) {
-        console.error("Admin disputes error:", err);
+        logger.error("Admin disputes error", err);
         res.status(500).json({ error: "Erreur lors de la récupération des litiges" });
     }
 };
@@ -278,7 +279,7 @@ export const requestMediation = async (req: any, res: Response) => {
 
         res.json({ success: true, message: "Médiation demandée avec succès" });
     } catch (err) {
-        console.error("Mediation error:", err);
+        logger.error("Mediation error", err);
         res.status(500).json({ error: "Erreur lors de la demande de médiation" });
     }
 };
@@ -320,7 +321,7 @@ export const replyToMediation = async (req: any, res: Response) => {
 
         res.status(201).json(msg);
     } catch (err) {
-        console.error("Admin reply error:", err);
+        logger.error("Admin reply error", err);
         res.status(500).json({ error: "Erreur lors de la réponse admin" });
     }
 };

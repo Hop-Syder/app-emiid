@@ -2,37 +2,32 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Contrôleur pour les données de référence (Secteurs, Professions)
+ * @description Controleur pour les donnees de reference (secteurs, professions, pays)
  * @created 2026-01-05
 */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getCountries = exports.getProfessions = exports.getSectors = void 0;
 const supabase_1 = require("../config/supabase");
-/**
- * Récupère tous les secteurs d'activité
- */
 const getSectors = async (_req, res) => {
     try {
-        const { data, error } = await supabase_1.supabase
+        const { data, error } = await supabase_1.supabaseAdmin
             .from('activity_sectors')
             .select('*')
             .order('name');
-        if (error)
+        if (error) {
             return res.status(400).json({ error: error.message });
-        res.json(data);
+        }
+        return res.json(data);
     }
-    catch (err) {
-        res.status(500).json({ error: "Erreur lors de la récupération des secteurs" });
+    catch {
+        return res.status(500).json({ error: "Erreur lors de la recuperation des secteurs" });
     }
 };
 exports.getSectors = getSectors;
-/**
- * Récupère les professions, optionnellement filtrées par secteur
- */
 const getProfessions = async (req, res) => {
     const { sector_id } = req.query;
     try {
-        let query = supabase_1.supabase
+        let query = supabase_1.supabaseAdmin
             .from('professions')
             .select('*, activity_sectors(name, slug)')
             .order('name');
@@ -40,30 +35,29 @@ const getProfessions = async (req, res) => {
             query = query.eq('sector_id', sector_id);
         }
         const { data, error } = await query;
-        if (error)
+        if (error) {
             return res.status(400).json({ error: error.message });
-        res.json(data);
+        }
+        return res.json(data);
     }
-    catch (err) {
-        res.status(500).json({ error: "Erreur lors de la récupération des professions" });
+    catch {
+        return res.status(500).json({ error: "Erreur lors de la recuperation des professions" });
     }
 };
 exports.getProfessions = getProfessions;
-/**
- * Récupère tous les pays
- */
 const getCountries = async (_req, res) => {
     try {
-        const { data, error } = await supabase_1.supabase
+        const { data, error } = await supabase_1.supabaseAdmin
             .from('countries')
             .select('*')
             .order('name');
-        if (error)
+        if (error) {
             return res.status(400).json({ error: error.message });
-        res.json(data);
+        }
+        return res.json(data);
     }
-    catch (err) {
-        res.status(500).json({ error: "Erreur lors de la récupération des pays" });
+    catch {
+        return res.status(500).json({ error: "Erreur lors de la recuperation des pays" });
     }
 };
 exports.getCountries = getCountries;

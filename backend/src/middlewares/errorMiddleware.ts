@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
 
 export function errorHandler(err: unknown, _req: Request, res: Response, _next: NextFunction) {
-  if (err instanceof Error && err.message === 'Non autorise par CORS') {
+  if (err instanceof Error && err.message === 'CORS_FORBIDDEN') {
     return res.status(403).json({
       error: 'CORS_FORBIDDEN',
       message: "Origine non autorisee par la configuration CORS.",

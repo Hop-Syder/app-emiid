@@ -7,19 +7,25 @@
 
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
+import { logger } from '../utils/logger';
 
 dotenv.config();
 
-const supabaseUrl = (process.env.SUPABASE_URL || '').trim();
-const supabaseAnonKey = (process.env.SUPABASE_ANON_KEY || '').trim();
-const supabaseServiceRoleKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('⚠️ Supabase URL ou Anon Key manquante dans les variables d\'environnement.');
+function requireEnv(name: string): string {
+  const value = (process.env[name] || '').trim();
+  if (!value) {
+    throw new Error(`Variable d'environnement obligatoire manquante: ${name}`);
+  }
+  return value;
 }
 
+const supabaseUrl = requireEnv('SUPABASE_URL');
+const supabaseAnonKey = requireEnv('SUPABASE_ANON_KEY');
+const supabaseServiceRoleKey = requireEnv('SUPABASE_SERVICE_ROLE_KEY');
+
 if (supabaseUrl && !supabaseUrl.startsWith('https://')) {
-  console.error('❌ ERREUR CONFIGURATION : SUPABASE_URL doit commencer par https://. Valeur actuelle détectée :', supabaseUrl);
+  logger.error('Configuration invalide: SUPABASE_URL doit commencer par https://.', supabaseUrl);
+  throw new Error('Configuration Supabase invalide: SUPABASE_URL');
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);

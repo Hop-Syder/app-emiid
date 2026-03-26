@@ -2,14 +2,14 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Contrôleur pour la gestion des annonces (Ads)
+ * @description Controleur pour la gestion des annonces (Ads)
  * @created 2026-01-04
 */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getAllAds = exports.getMyAds = exports.createAd = void 0;
 const supabase_1 = require("../config/supabase");
 /**
- * Créer une nouvelle annonce
+ * Creer une nouvelle annonce
  * POST /api/ads
  */
 const createAd = async (req, res) => {
@@ -27,21 +27,22 @@ const createAd = async (req, res) => {
             category,
             budget_limit,
             status: 'pending',
-            created_at: new Date().toISOString()
+            created_at: new Date().toISOString(),
         })
             .select()
             .single();
-        if (error)
+        if (error) {
             return res.status(400).json({ error: error.message });
-        res.status(201).json(data);
+        }
+        return res.status(201).json(data);
     }
-    catch (err) {
-        res.status(500).json({ error: "Erreur interne lors de la création de l'annonce" });
+    catch {
+        return res.status(500).json({ error: "Erreur interne lors de la creation de l'annonce" });
     }
 };
 exports.createAd = createAd;
 /**
- * Récupérer les annonces de l'utilisateur connecté
+ * Recuperer les annonces de l'utilisateur connecte
  * GET /api/ads/my-ads
  */
 const getMyAds = async (req, res) => {
@@ -52,32 +53,34 @@ const getMyAds = async (req, res) => {
             .select('*')
             .eq('user_id', userId)
             .order('created_at', { ascending: false });
-        if (error)
+        if (error) {
             return res.status(400).json({ error: error.message });
-        res.json(data);
+        }
+        return res.json(data);
     }
-    catch (err) {
-        res.status(500).json({ error: "Erreur interne lors de la récupération des annonces" });
+    catch {
+        return res.status(500).json({ error: "Erreur interne lors de la recuperation des annonces" });
     }
 };
 exports.getMyAds = getMyAds;
 /**
- * Récupérer toutes les annonces actives (Public)
+ * Recuperer toutes les annonces actives
  * GET /api/ads
  */
-const getAllAds = async (req, res) => {
+const getAllAds = async (_req, res) => {
     try {
         const { data, error } = await supabase_1.supabase
             .from('ads')
             .select('*')
             .eq('status', 'active')
             .order('created_at', { ascending: false });
-        if (error)
+        if (error) {
             return res.status(400).json({ error: error.message });
-        res.json(data);
+        }
+        return res.json(data);
     }
-    catch (err) {
-        res.status(500).json({ error: "Erreur interne lors de la récupération des annonces" });
+    catch {
+        return res.status(500).json({ error: "Erreur interne lors de la recuperation des annonces" });
     }
 };
 exports.getAllAds = getAllAds;

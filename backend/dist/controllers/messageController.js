@@ -8,6 +8,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.markAsRead = exports.replyToMediation = exports.requestMediation = exports.getSupportUser = exports.getAdminDisputes = exports.sendMessage = exports.getConversationMessages = exports.getMyConversations = void 0;
 const supabase_1 = require("../config/supabase");
+const logger_1 = require("../utils/logger");
 /**
  * Récupère les conversations de l'utilisateur
  * GET /api/messages/conversations
@@ -182,7 +183,7 @@ const getAdminDisputes = async (req, res) => {
         res.json(formatted);
     }
     catch (err) {
-        console.error("Admin disputes error:", err);
+        logger_1.logger.error("Admin disputes error", err);
         res.status(500).json({ error: "Erreur lors de la récupération des litiges" });
     }
 };
@@ -261,7 +262,7 @@ const requestMediation = async (req, res) => {
         res.json({ success: true, message: "Médiation demandée avec succès" });
     }
     catch (err) {
-        console.error("Mediation error:", err);
+        logger_1.logger.error("Mediation error", err);
         res.status(500).json({ error: "Erreur lors de la demande de médiation" });
     }
 };
@@ -301,7 +302,7 @@ const replyToMediation = async (req, res) => {
         res.status(201).json(msg);
     }
     catch (err) {
-        console.error("Admin reply error:", err);
+        logger_1.logger.error("Admin reply error", err);
         res.status(500).json({ error: "Erreur lors de la réponse admin" });
     }
 };

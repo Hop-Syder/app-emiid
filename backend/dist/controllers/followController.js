@@ -8,6 +8,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateFollowNote = exports.getFollowers = exports.toggleFollowProfile = exports.getFollowedProfiles = void 0;
 const supabase_1 = require("../config/supabase");
+const logger_1 = require("../utils/logger");
 /**
  * Récupère les profils suivis par l'utilisateur connecté
  * GET /api/users/follows
@@ -100,7 +101,7 @@ const toggleFollowProfile = async (req, res) => {
         }
     }
     catch (err) {
-        console.error("Follow error:", err);
+        logger_1.logger.error("Follow error", err);
         res.status(500).json({ error: err.message || "Erreur lors de l'action de suivi" });
     }
 };

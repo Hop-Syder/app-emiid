@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.verifyPin = exports.getPublicProfileById = exports.getPublicProfiles = exports.getAllUsers = exports.updateMyProfile = exports.getMyProfile = void 0;
 const supabase_1 = require("../config/supabase");
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const logger_1 = require("../utils/logger");
 /**
  * Récupère le profil de l'utilisateur actuellement connecté (via Token Relay)
  * GET /api/users/me
@@ -216,7 +217,7 @@ const getPublicProfiles = async (req, res) => {
             query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,bio.ilike.%${search}%,role.ilike.%${search}%,specialty.ilike.%${search}%`);
         }
         let { data, error } = await query;
-        console.log('Public Profiles query params:', req.query);
+        logger_1.logger.debug('Public profiles query params', req.query);
         // Filtrage manuel pour les Tags (limitation Supabase JS Client simple)
         if (tags && data) {
             const tagSearch = tags.toLowerCase();
@@ -225,7 +226,7 @@ const getPublicProfiles = async (req, res) => {
         // FallbackDev (Seulement si aucune data ET ABSOLUMENT AUCUN filtre restrictif)
         const hasAnyFilter = !!(category || search || country || city || tags);
         if (!error && (!data || data.length === 0) && !hasAnyFilter) {
-            console.log('FallbackDev: Serving mock/latest profiles (No filters applied)');
+            logger_1.logger.debug('FallbackDev: serving latest profiles without filters');
             const fallback = await supabase_1.supabaseAdmin
                 .from('user_profiles')
                 .select(`*, countries(name, iso_code)`)
@@ -235,7 +236,7 @@ const getPublicProfiles = async (req, res) => {
             data = fallback.data;
         }
         if (error) {
-            console.error('Error fetching public profiles:', error);
+            logger_1.logger.error('Error fetching public profiles', error);
             return res.status(400).json({ error: error.message });
         }
         // Nettoyage de la structure pour le frontend (aplatir tags)

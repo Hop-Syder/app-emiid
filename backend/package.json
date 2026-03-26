@@ -2,13 +2,18 @@
   "name": "app-nexus-connect-backend",
   "version": "1.0.0",
   "description": "Le cerveau de l'application Nexus Connect",
-  "main": "src/app.ts",
+  "main": "dist/server.js",
   "scripts": {
-    "start": "node dist/app.js",
-    "dev": "npx kill-port 5000 && nodemon src/app.ts",
+    "start": "node dist/server.js",
+    "dev": "npx kill-port 5000 && nodemon --exec ts-node src/server.ts",
     "build": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\" && tsc",
+    "test": "node --test tests/*.test.js",
+    "test:watch": "node --test --watch tests/*.test.js",
     "lint": "eslint src/**/*.ts",
-    "format": "prettier --write \"src/**/*.ts\""
+    "format": "prettier --write \"src/**/*.ts\"",
+    "validate-env": "node scripts/validate-env.js",
+    "predev": "npm run validate-env",
+    "prebuild": "npm run validate-env"
   },
   "author": "@hopsyder",
   "license": "ISC",
@@ -26,7 +31,9 @@
     "@types/express": "^5.0.6",
     "@types/helmet": "^0.0.48",
     "@types/node": "^25.0.3",
+    "@types/supertest": "^6.0.3",
     "nodemon": "^3.1.4",
+    "supertest": "^7.1.4",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   }

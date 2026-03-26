@@ -7,6 +7,7 @@
 
 import { Response } from 'express';
 import { supabase, supabaseAdmin } from '../config/supabase';
+import { logger } from '../utils/logger';
 
 /**
  * Récupère les profils suivis par l'utilisateur connecté
@@ -108,7 +109,7 @@ export const toggleFollowProfile = async (req: any, res: Response) => {
       return res.json({ followed: true });
     }
   } catch (err: any) {
-    console.error("Follow error:", err);
+    logger.error("Follow error", err);
     res.status(500).json({ error: err.message || "Erreur lors de l'action de suivi" });
   }
 };

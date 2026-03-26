@@ -7,6 +7,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { supabase } from '../config/supabase';
+import { logger } from '../utils/logger';
 
 /**
  * Middleware pour sécuriser les routes avec un Access Token Supabase.
@@ -40,7 +41,7 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
     
     next();
   } catch (err) {
-    console.error('Erreur Auth Middleware:', err);
+    logger.error('Erreur auth middleware', err);
     return res.status(500).json({ error: 'Erreur interne du serveur lors de l\'authentification' });
   }
 };
