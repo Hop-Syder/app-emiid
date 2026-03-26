@@ -17,33 +17,33 @@ import { StatsSection } from "./stats-section"
 import { EntrepreneursSection } from "./entrepreneurs-section"
 
 export interface EntrepreneurProfile {
-  id: string;
-  name: string;
-  role: string;
-  location: string;
-  avatar: string;
-  specialty: string;
-  category?: string;
-  verified: boolean;
-  premium: boolean;
-  followers: number;
-  isFollowed?: boolean;
-  tags?: string[];
+    id: string;
+    name: string;
+    role: string;
+    location: string;
+    avatar: string;
+    specialty: string;
+    category?: string;
+    verified: boolean;
+    premium: boolean;
+    followers: number;
+    isFollowed?: boolean;
+    tags?: string[];
 }
 
 export interface EntrepreneurApiResponse {
-  id?: string;
-  user_id?: string;
-  first_name?: string;
-  last_name?: string;
-  role?: string;
-  city?: string;
-  countries?: { name: string };
-  avatar_url?: string;
-  specialty?: string;
-  category?: string;
-  followers_count?: number;
-  tags?: string[];
+    id?: string;
+    user_id?: string;
+    first_name?: string;
+    last_name?: string;
+    role?: string;
+    city?: string;
+    countries?: { name: string };
+    avatar_url?: string;
+    specialty?: string;
+    category?: string;
+    followers_count?: number;
+    tags?: string[];
 }
 
 // Données mock pour le fallback
@@ -89,7 +89,7 @@ export function DashboardPublicContent() {
 
                 if (entRes.ok) {
                     const entData = await entRes.json()
-                    
+
                     // Optionnel: Récupérer les follows si l'utilisateur est connecté
                     let userFollowsIds: string[] = []
                     try {
@@ -99,7 +99,10 @@ export function DashboardPublicContent() {
                             const followsData = await followsRes.json()
                             userFollowsIds = followsData.map((f: { user_id?: string; id?: string }) => f.user_id || f.id)
                         }
-                    } catch (e) {}
+                    } catch (error) {
+                        // Silent failure - follows are optional for public view
+                        console.warn("Failed to load follows for public dashboard")
+                    }
 
                     setEntrepreneursList(
                         entData.map((e: EntrepreneurApiResponse) => {

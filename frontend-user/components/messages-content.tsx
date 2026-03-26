@@ -12,7 +12,8 @@ import { useState, useRef, useEffect, useCallback } from "react"
 import { useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { Label } from "@/components/ui/label"
-import { Loader2, Send, Search, Image, Paperclip, Smile, Mic, Phone, Video, 
+import {
+  Loader2, Send, Search, Image, Paperclip, Smile, Mic, Phone, Video,
   MoreHorizontal, ArrowLeft, Check, CheckCheck, X, Plus,
   Settings, Bell, Pin, Trash2, Archive, Star, Filter, Shield, Gavel, AlertTriangle
 } from "lucide-react"
@@ -54,38 +55,7 @@ import { cn } from "@/lib/utils"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
-
-// Types
-interface UserProfile {
-  id: string
-  name: string
-  avatar: string | null
-  role: string | null
-  isOnline: boolean
-  lastSeen: string | null
-  isTyping?: boolean
-}
-
-interface Message {
-  id: string
-  conversation_id: string
-  sender_id: string
-  content: string
-  created_at: string
-  is_read: boolean
-  type?: "text" | "image" | "file" | "audio"
-  reactions?: string[]
-}
-
-interface Conversation {
-  id: string
-  otherUser: UserProfile
-  lastMessage: string | null
-  lastMessageAt: string | null
-  unreadCount: number
-  isPinned?: boolean
-  isMuted?: boolean
-}
+import type { Conversation, Message, UserProfile } from "@/types"
 
 // Supprimé les mocks et generateMockMessages qui ne sont plus nécessaires
 const supabase = createClient()
@@ -120,10 +90,10 @@ export function MessagesContent() {
   const markMessagesAsRead = useCallback(async (conversationId: string) => {
     try {
       setMessages(prev => prev.map(msg => ({ ...msg, is_read: true })))
-      setConversations(prev => prev.map(conv => 
+      setConversations(prev => prev.map(conv =>
         conv.id === conversationId ? { ...conv, unreadCount: 0 } : conv
       ))
-      
+
       await fetchWithAuth(`/api/messages/read/${conversationId}`, { method: "POST" })
     } catch (err) {
       console.error("Error marking as read:", err)
@@ -139,29 +109,29 @@ export function MessagesContent() {
         if (res.ok) {
           const data = await res.json()
           setConversations(data)
-          
-          const support = data.find((c: any) => c.otherUser.role?.toLowerCase().includes("admin") || c.otherUser.name.toLowerCase().includes("nexus"))
+
+          const support = data.find((c: Conversation) => c.otherUser.role?.toLowerCase().includes("admin") || c.otherUser.name.toLowerCase().includes("nexus"))
           if (support) setSupportId(support.otherUser.id)
 
           if (contactId) {
-            const existing = data.find((c: any) => c.otherUser.id === contactId)
+            const existing = data.find((c: Conversation) => c.otherUser.id === contactId)
             if (existing) {
               setSelectedConv(existing)
               setShowChatMobile(true)
             } else {
               setSelectedConv({
-                 id: `new-conv-${contactId}`,
-                 otherUser: {
-                    id: contactId,
-                    name: "Nouvelle interaction",
-                    avatar: null,
-                    role: null,
-                    isOnline: false,
-                    lastSeen: null
-                 },
-                 lastMessage: "Envoyez le premier message...",
-                 lastMessageAt: new Date().toISOString(),
-                 unreadCount: 0
+                id: `new-conv-${contactId}`,
+                otherUser: {
+                  id: contactId,
+                  name: "Nouvelle interaction",
+                  avatar: null,
+                  role: null,
+                  isOnline: false,
+                  lastSeen: null
+                },
+                lastMessage: "Envoyez le premier message...",
+                lastMessageAt: new Date().toISOString(),
+                unreadCount: 0
               })
               setShowChatMobile(true)
             }
@@ -225,11 +195,11 @@ export function MessagesContent() {
         },
         async (payload) => {
           const newMsg = payload.new as any
-          
+
           // On ne s'intéresse qu'aux messages qu'on reçoit ou qu'on envoie
           // Note : Supabase Realtime ne filtre pas par défaut par RLS sur INSERT pour tout le monde si configuré ainsi
           // On vérifie donc si la conversation appartient à l'utilisateur
-          
+
           const convRes = await fetchWithAuth("/api/messages/conversations")
           if (convRes.ok) {
             const data = await convRes.json()
@@ -276,28 +246,28 @@ export function MessagesContent() {
 
       if (res.ok) {
         const newMsg = await res.json()
-        
+
         // Si c'était une nouvelle conversation support, on rafraîchit
         if (selectedConv.id.startsWith('new-')) {
-            const convRes = await fetchWithAuth("/api/messages/conversations")
-            if (convRes.ok) {
-                const convs = await convRes.json()
-                setConversations(convs)
-                const newRealConv = convs.find((c: any) => c.otherUser.id === selectedConv.otherUser.id)
-                if (newRealConv) {
-                    setSelectedConv(newRealConv)
-                } else {
-                    setSelectedConv({
-                        id: newMsg.conversation_id,
-                        otherUser: selectedConv.otherUser,
-                        lastMessage: newMsg.content,
-                        lastMessageAt: newMsg.created_at,
-                        unreadCount: 0
-                    })
-                }
+          const convRes = await fetchWithAuth("/api/messages/conversations")
+          if (convRes.ok) {
+            const convs = await convRes.json()
+            setConversations(convs)
+            const newRealConv = convs.find((c: Conversation) => c.otherUser.id === selectedConv.otherUser.id)
+            if (newRealConv) {
+              setSelectedConv(newRealConv)
+            } else {
+              setSelectedConv({
+                id: newMsg.conversation_id,
+                otherUser: selectedConv.otherUser,
+                lastMessage: newMsg.content,
+                lastMessageAt: newMsg.created_at,
+                unreadCount: 0
+              })
             }
+          }
         }
-        
+
         setMessages(prev => [...prev, newMsg])
         setMessage("")
       }
@@ -315,14 +285,14 @@ export function MessagesContent() {
     // VALIDATION : Taille Max
     const maxSize = type === "image" ? 5 * 1024 * 1024 : 10 * 1024 * 1024 // 5MB image, 10MB file
     if (file.size > maxSize) {
-       toast.error(`Fichier trop volumineux (Max ${type === "image" ? "5MB" : "10MB"})`)
-       return
+      toast.error(`Fichier trop volumineux (Max ${type === "image" ? "5MB" : "10MB"})`)
+      return
     }
 
     // VALIDATION : Type Fichier
     if (type === "image" && !file.type.startsWith("image/")) {
-        toast.error("Veuillez sélectionner une image valide")
-        return
+      toast.error("Veuillez sélectionner une image valide")
+      return
     }
 
     setIsSending(true)
@@ -350,17 +320,17 @@ export function MessagesContent() {
       if (res.ok) {
         const newMsg = await res.json()
         if (selectedConv.id.startsWith('new-')) {
-            const convRes = await fetchWithAuth("/api/messages/conversations")
-            if (convRes.ok) {
-                const convs = await convRes.json()
-                setConversations(convs)
-                const newRealConv = convs.find((c: any) => c.otherUser.id === selectedConv.otherUser.id)
-                if (newRealConv) setSelectedConv(newRealConv)
-            }
+          const convRes = await fetchWithAuth("/api/messages/conversations")
+          if (convRes.ok) {
+            const convs = await convRes.json()
+            setConversations(convs)
+            const newRealConv = convs.find((c: Conversation) => c.otherUser.id === selectedConv.otherUser.id)
+            if (newRealConv) setSelectedConv(newRealConv)
+          }
         }
         setMessages((prev) => [...prev, newMsg])
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Upload error:", err)
       toast.error("Erreur de partage du fichier")
     } finally {
@@ -376,19 +346,19 @@ export function MessagesContent() {
       if (res.ok) {
         const supportUser = await res.json()
         const existing = conversations.find(c => c.otherUser.id === supportUser.id)
-        
+
         if (existing) {
           setSelectedConv(existing)
         } else {
           setSelectedConv({
             id: 'new-support',
             otherUser: {
-                id: supportUser.id,
-                name: supportUser.name || "Service Client Nexus",
-                avatar: supportUser.avatar || "/nexus-support.png",
-                role: "Support Technique",
-                isOnline: true,
-                lastSeen: null
+              id: supportUser.id,
+              name: supportUser.name || "Service Client Nexus",
+              avatar: supportUser.avatar || "/nexus-support.png",
+              role: "Support Technique",
+              isOnline: true,
+              lastSeen: null
             },
             lastMessage: "",
             lastMessageAt: new Date().toISOString(),
@@ -413,7 +383,7 @@ export function MessagesContent() {
     if (!convToMediate || !mediationReason) return
     setIsSending(true)
     try {
-      const res = await fetchWithAuth(`/api/messages/dispute/${convToMediate}`, { 
+      const res = await fetchWithAuth(`/api/messages/dispute/${convToMediate}`, {
         method: "POST",
         body: JSON.stringify({ reason: mediationReason })
       })
@@ -443,10 +413,10 @@ export function MessagesContent() {
   const filteredConversations = conversations
     .filter(conv => {
       const matchesSearch = conv.otherUser.name.toLowerCase().includes(searchQuery.toLowerCase())
-      const matchesFilter = 
+      const matchesFilter =
         filterType === "all" ? true :
-        filterType === "unread" ? conv.unreadCount > 0 :
-        filterType === "pinned" ? conv.isPinned : true
+          filterType === "unread" ? conv.unreadCount > 0 :
+            filterType === "pinned" ? conv.isPinned : true
       return matchesSearch && matchesFilter
     })
     .sort((a, b) => {
@@ -497,7 +467,7 @@ export function MessagesContent() {
   return (
     <TooltipProvider>
       <div className="h-[calc(100vh-8rem)] flex bg-background rounded-xl border shadow-sm overflow-hidden">
-        
+
         {/* Sidebar - Liste des conversations */}
         <aside className={cn(
           "w-full md:w-[340px] lg:w-[380px] flex flex-col border-r bg-card",
@@ -545,16 +515,16 @@ export function MessagesContent() {
             {/* Recherche */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input 
-                placeholder="Rechercher..." 
+              <Input
+                placeholder="Rechercher..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 h-10 rounded-xl bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary/30" 
+                className="pl-9 h-10 rounded-xl bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary/30"
               />
               {searchQuery && (
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
+                <Button
+                  variant="ghost"
+                  size="icon"
                   className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 rounded-lg"
                   onClick={() => setSearchQuery("")}
                 >
@@ -576,8 +546,8 @@ export function MessagesContent() {
                   size="sm"
                   className={cn(
                     "h-8 px-3 rounded-lg text-xs font-medium transition-all",
-                    filterType === filter.key 
-                      ? "bg-primary text-primary-foreground shadow-sm" 
+                    filterType === filter.key
+                      ? "bg-primary text-primary-foreground shadow-sm"
                       : "bg-transparent border-muted-foreground/20 text-muted-foreground hover:text-foreground"
                   )}
                   onClick={() => setFilterType(filter.key as typeof filterType)}
@@ -608,7 +578,7 @@ export function MessagesContent() {
                   {filteredConversations.map((conv) => {
                     const isSelected = selectedConv?.id === conv.id
                     const isOnline = conv.otherUser.isOnline
-                    
+
                     return (
                       <motion.div
                         key={conv.id}
@@ -620,8 +590,8 @@ export function MessagesContent() {
                         }}
                         className={cn(
                           "relative flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all group",
-                          isSelected 
-                            ? "bg-primary/10 border border-primary/20" 
+                          isSelected
+                            ? "bg-primary/10 border border-primary/20"
                             : "hover:bg-muted/60"
                         )}
                       >
@@ -661,12 +631,12 @@ export function MessagesContent() {
                               {formatTime(conv.lastMessageAt)}
                             </span>
                           </div>
-                          
+
                           <div className="flex items-center justify-between gap-2">
                             <p className={cn(
                               "text-xs truncate",
-                              conv.unreadCount > 0 
-                                ? "text-foreground font-medium" 
+                              conv.unreadCount > 0
+                                ? "text-foreground font-medium"
                                 : "text-muted-foreground"
                             )}>
                               {conv.lastMessage || "Demarrer une conversation"}
@@ -682,9 +652,9 @@ export function MessagesContent() {
                         {/* Menu contextuel */}
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
+                            <Button
+                              variant="ghost"
+                              size="icon"
                               className="h-8 w-8 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
                             >
                               <MoreHorizontal className="h-4 w-4" />
@@ -723,8 +693,8 @@ export function MessagesContent() {
                     Aucune conversation
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {searchQuery 
-                      ? "Aucun resultat pour cette recherche" 
+                    {searchQuery
+                      ? "Aucun resultat pour cette recherche"
                       : "Commencez une nouvelle discussion"}
                   </p>
                 </div>
@@ -743,15 +713,15 @@ export function MessagesContent() {
               {/* Header Chat */}
               <header className="h-[72px] px-4 lg:px-6 flex items-center justify-between border-b bg-card/80 backdrop-blur-sm">
                 <div className="flex items-center gap-3">
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     className="md:hidden h-9 w-9 rounded-xl"
                     onClick={() => setShowChatMobile(false)}
                   >
                     <ArrowLeft className="h-5 w-5" />
                   </Button>
-                  
+
                   <div className="relative">
                     <Avatar className="h-10 w-10 border-2 border-background shadow-sm">
                       <AvatarImage src={selectedConv.otherUser.avatar || undefined} className="object-cover" />
@@ -764,13 +734,13 @@ export function MessagesContent() {
                       selectedConv.otherUser.isOnline ? "bg-emerald-500" : "bg-muted-foreground/40"
                     )} />
                   </div>
-                  
+
                   <div className="min-w-0">
                     <h2 className="font-semibold text-sm text-foreground truncate">
                       {selectedConv.otherUser.name}
                     </h2>
                     <p className="text-xs text-muted-foreground">
-                      {selectedConv.otherUser.isOnline 
+                      {selectedConv.otherUser.isOnline
                         ? <span className="text-emerald-600 font-medium">En ligne</span>
                         : formatLastSeen(selectedConv.otherUser.lastSeen)
                       }
@@ -811,7 +781,7 @@ export function MessagesContent() {
                         Rechercher
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem 
+                      <DropdownMenuItem
                         className="rounded-lg text-amber-600 focus:text-amber-600 font-bold"
                         onClick={() => handleInviteAdmin(selectedConv.id)}
                       >
@@ -842,9 +812,9 @@ export function MessagesContent() {
                       const isOwn = msg.sender_id === currentUserId
                       const showAvatar = index === 0 || messages[index - 1]?.sender_id !== msg.sender_id
                       const isLastInGroup = index === messages.length - 1 || messages[index + 1]?.sender_id !== msg.sender_id
-                      
+
                       const isMediation = msg.content.includes("[MÉDIATION DEMANDÉE]")
-                      
+
                       if (isMediation) {
                         return (
                           <div key={msg.id} className="flex justify-center my-6">
@@ -881,23 +851,23 @@ export function MessagesContent() {
                               )}
                             </div>
                           )}
-                          
+
                           <div className={cn(
                             "max-w-[75%] sm:max-w-[65%]",
                             isOwn ? "items-end" : "items-start"
                           )}>
                             <div className={cn(
                               "px-4 py-2.5 rounded-xl text-sm leading-relaxed",
-                              isOwn 
-                                ? "bg-primary text-primary-foreground rounded-br-md" 
+                              isOwn
+                                ? "bg-primary text-primary-foreground rounded-br-md"
                                 : "bg-card border border-border rounded-bl-md"
                             )}>
                               {msg.content.startsWith('[Image]') ? (
                                 <div className="space-y-2">
-                                  <img 
-                                    src={msg.content.split(' ')[1]} 
-                                    className="rounded-xl max-w-full hover:scale-[1.02] transition-transform cursor-pointer shadow-sm border border-black/5" 
-                                    alt="Shared" 
+                                  <img
+                                    src={msg.content.split(' ')[1]}
+                                    className="rounded-xl max-w-full hover:scale-[1.02] transition-transform cursor-pointer shadow-sm border border-black/5"
+                                    alt="Shared"
                                     onClick={() => window.open(msg.content.split(' ')[1], '_blank')}
                                   />
                                 </div>
@@ -908,9 +878,9 @@ export function MessagesContent() {
                                   </div>
                                   <div className="flex-1 min-w-0">
                                     <p className="font-bold text-xs truncate">{msg.content.split(' - ')[0].replace('[Fichier] ', '')}</p>
-                                    <a 
-                                      href={msg.content.split(' - ')[1]} 
-                                      target="_blank" 
+                                    <a
+                                      href={msg.content.split(' - ')[1]}
+                                      target="_blank"
                                       className="text-[10px] text-primary hover:underline font-semibold"
                                     >
                                       Télécharger le document
@@ -921,7 +891,7 @@ export function MessagesContent() {
                                 msg.content
                               )}
                             </div>
-                            
+
                             {isLastInGroup && (
                               <div className={cn(
                                 "flex items-center gap-1.5 mt-1 px-1",
@@ -963,7 +933,7 @@ export function MessagesContent() {
                       <TooltipContent>Ajouter</TooltipContent>
                     </Tooltip>
                   </div>
-                  
+
                   <div className="flex-1 relative">
                     <Textarea
                       ref={inputRef}
@@ -1001,8 +971,8 @@ export function MessagesContent() {
 
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button 
-                        size="icon" 
+                      <Button
+                        size="icon"
                         className="h-10 w-10 rounded-xl shrink-0 bg-primary hover:bg-primary/90"
                         onClick={handleSendMessage}
                         disabled={!message.trim() || isSending}
@@ -1075,7 +1045,7 @@ export function MessagesContent() {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div className="p-4 bg-blue-50/50 rounded-2xl border border-blue-100 flex gap-3">
                   <AlertTriangle className="h-5 w-5 text-blue-500 shrink-0" />
                   <p className="text-[11px] text-blue-700 font-bold leading-relaxed">
@@ -1086,11 +1056,11 @@ export function MessagesContent() {
 
               <div className="flex gap-3 pt-2">
                 <Button variant="ghost" className="rounded-xl flex-1 h-12 font-bold" onClick={() => setIsMediationDialogOpen(false)}>Annuler</Button>
-                <Button 
+                <Button
                   className={cn(
                     "rounded-xl flex-[2] h-12 font-bold shadow-lg shadow-amber-200 transition-all",
                     mediationReason ? "bg-amber-500 hover:bg-amber-600 text-white" : "bg-slate-100 text-slate-400"
-                  )} 
+                  )}
                   disabled={!mediationReason || isSending}
                   onClick={submitMediation}
                 >

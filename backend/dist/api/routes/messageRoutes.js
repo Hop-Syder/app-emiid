@@ -12,6 +12,15 @@ const authMiddleware_1 = require("../../middlewares/authMiddleware");
 const router = (0, express_1.Router)();
 // Toutes les routes ici nécessitent une authentification
 router.use(authMiddleware_1.requireAuth);
+// @route   GET /api/messages/admin/disputes
+// @desc    Liste des litiges pour l'administration
+router.get('/admin/disputes', authMiddleware_1.requireAdmin, messageController_1.getAdminDisputes);
+// @route   POST /api/messages/admin/reply/:conversationId
+// @desc    Réponse admin dans une médiation
+router.post('/admin/reply/:conversationId', authMiddleware_1.requireAdmin, messageController_1.replyToMediation);
+// @route   POST /api/messages/dispute/:conversationId
+// @desc    Inviter l'Admin pour une médiation
+router.post('/dispute/:conversationId', messageController_1.requestMediation);
 // @route   GET /api/messages/conversations
 // @desc    Récupérer les conversations de l'utilisateur
 router.get('/conversations', messageController_1.getMyConversations);

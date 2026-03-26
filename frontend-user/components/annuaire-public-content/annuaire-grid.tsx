@@ -13,6 +13,7 @@ import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { fetchPublic, fetchWithAuth } from "@/lib/apiClient"
 import { AnnuaireCard } from "./annuaire-card"
+import type { PublicProfile, EntrepreneurStats } from "@/types"
 import { Skeleton } from "@/components/ui/skeleton"
 
 interface AnnuaireGridProps {
@@ -48,13 +49,16 @@ export function AnnuaireGrid({ filters }: AnnuaireGridProps) {
                     const followsRes = await fetchWithAuth("/api/users/follows")
                     if (followsRes.ok) {
                         const followsData = await followsRes.json()
-                        userFollowsIds = followsData.map((f: any) => f.user_id || f.id)
+                        userFollowsIds = followsData.map((f: { user_id?: string; id?: string }) => f.user_id || f.id)
                     }
-                } catch (e) {}
+                } catch (error) {
+                    // Silent failure - follows are optional
+                    console.warn("Failed to load follows in annuaire")
+                }
 
                 if (response.ok) {
                     const data = await response.json()
-                    setProfiles(data.map((e: any) => {
+                    setProfiles(data.map((e: EntrepreneurStats) => {
                         const profileId = e.user_id || e.id
                         return {
                             id: profileId,

@@ -5,9 +5,10 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { NexusProfileCard } from "@/components/carte-profil/nexus-profile-card"
+import type { PublicProfile } from "@/types"
 
 interface EntrepreneursSectionProps {
-    entrepreneursList: any[]
+    entrepreneursList: PublicProfile[]
     loading: boolean
 }
 

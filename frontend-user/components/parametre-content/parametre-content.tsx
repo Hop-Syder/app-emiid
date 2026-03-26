@@ -11,7 +11,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Loader2, User, Shield, Bell, Settings } from "lucide-react"
+import { Loader2, User, Shield, Bell, Settings, Star } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { toast } from "sonner"
@@ -150,8 +150,8 @@ export function ParametresContent() {
                 <div className="space-y-1.5 md:space-y-2">
                     <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-900 flex items-center gap-2">
                         Paramètres du Compte
-                        {profile.is_verified && <Shield className="h-6 w-6 text-primary" title="Compte Vérifié" />}
-                        {profile.is_premium && <Star className="h-6 w-6 text-amber-500 fill-amber-500" title="Membre Premium" />}
+                        {profile.is_verified && <Shield className="h-6 w-6 text-primary" />}
+                        {profile.is_premium && <Star className="h-6 w-6 text-amber-500 fill-amber-500" />}
                     </h1>
                     <p className="text-sm md:text-base text-slate-500 font-medium leading-relaxed">
                         Gérez vos informations personnelles, votre sécurité et vos préférences.
@@ -175,29 +175,29 @@ export function ParametresContent() {
                 <div className="w-full lg:w-[280px] shrink-0 sticky top-24 z-10">
                     <div className="w-full overflow-x-auto pb-4 -mb-4 lg:overflow-visible lg:pb-0 lg:mb-0 scrollbar-hide">
                         <TabsList className="inline-flex lg:flex flex-row lg:flex-col h-auto justify-start items-stretch gap-2 bg-transparent p-0 w-max min-w-full lg:w-full px-1 lg:px-0">
-                            <TabsTrigger 
-                                value="profil" 
+                            <TabsTrigger
+                                value="profil"
                                 className="group justify-start w-full rounded-xl h-12 md:h-14 px-5 text-sm md:text-base font-bold data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 bg-white border border-slate-100/50 text-slate-600 hover:bg-slate-50 transition-all duration-300"
                             >
                                 <User className="mr-3 h-5 w-5 opacity-70 group-data-[state=active]:opacity-100" />
                                 Informations Personnelles
                             </TabsTrigger>
-                            <TabsTrigger 
-                                value="securite" 
+                            <TabsTrigger
+                                value="securite"
                                 className="group justify-start w-full rounded-xl h-12 md:h-14 px-5 text-sm md:text-base font-bold data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 bg-white border border-slate-100/50 text-slate-600 hover:bg-slate-50 transition-all duration-300"
                             >
                                 <Shield className="mr-3 h-5 w-5 opacity-70 group-data-[state=active]:opacity-100" />
                                 Sécurité & Mot de passe
                             </TabsTrigger>
-                            <TabsTrigger 
-                                value="notifications" 
+                            <TabsTrigger
+                                value="notifications"
                                 className="group justify-start w-full rounded-xl h-12 md:h-14 px-5 text-sm md:text-base font-bold data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 bg-white border border-slate-100/50 text-slate-600 hover:bg-slate-50 transition-all duration-300"
                             >
                                 <Bell className="mr-3 h-5 w-5 opacity-70 group-data-[state=active]:opacity-100" />
                                 Notifications
                             </TabsTrigger>
-                            <TabsTrigger 
-                                value="preferences" 
+                            <TabsTrigger
+                                value="preferences"
                                 className="group justify-start w-full rounded-xl h-12 md:h-14 px-5 text-sm md:text-base font-bold data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 bg-white border border-slate-100/50 text-slate-600 hover:bg-slate-50 transition-all duration-300"
                             >
                                 <Settings className="mr-3 h-5 w-5 opacity-70 group-data-[state=active]:opacity-100" />

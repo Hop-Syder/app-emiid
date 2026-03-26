@@ -7,6 +7,9 @@
     "dev": "next dev",
     "lint": "eslint .",
     "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test": "jest",
+    "test:watch": "jest --watch",
     "dev:all": "concurrently \"npm run dev\" \"npm run dev --prefix backend\" \"npm run dev --prefix admin\"",
     "dev:backend": "npm run dev --prefix backend",
     "dev:admin": "npm run dev --prefix admin"
@@ -69,9 +72,17 @@
     "zod": "3.25.76"
   },
   "devDependencies": {
+    "@swc/jest": "^0.2.39",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/jest": "^30.0.0",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^30.3.0",
+    "jest-environment-jsdom": "^30.3.0",
     "postcss": "^8.5",
     "tailwindcss": "^3.4.17",
     "typescript": "^5"

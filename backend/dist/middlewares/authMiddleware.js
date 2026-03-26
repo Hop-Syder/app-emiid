@@ -6,7 +6,7 @@
  * @created 2026-01-04
 */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.requireAuth = void 0;
+exports.requireAdmin = exports.requireAuth = void 0;
 const supabase_1 = require("../config/supabase");
 /**
  * Middleware pour sécuriser les routes avec un Access Token Supabase.
@@ -40,3 +40,22 @@ const requireAuth = async (req, res, next) => {
     }
 };
 exports.requireAuth = requireAuth;
+/**
+ * Middleware pour vérifier si l'utilisateur est un administrateur
+ */
+const requireAdmin = async (req, res, next) => {
+    const user = req.user;
+    if (!user)
+        return res.status(401).json({ error: "Authentification requise" });
+    try {
+        const { data: profile, error } = await supabase_1.supabase.from('user_profiles').select('role').eq('user_id', user.id).single();
+        if (error || !profile || !profile.role?.toLowerCase().includes('admin')) {
+            return res.status(403).json({ error: "Accès refusé. Droits administrateur requis." });
+        }
+        next();
+    }
+    catch (err) {
+        res.status(500).json({ error: "Erreur lors de la vérification des droits" });
+    }
+};
+exports.requireAdmin = requireAdmin;

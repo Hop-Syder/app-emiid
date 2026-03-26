@@ -619,7 +619,7 @@ export function DesignaliCreative() {
                           className="flex items-center justify-between rounded-xl px-3 py-2 text-sm hover:bg-muted"
                         >
                           {subItem.title}
-                          {subItem.badge && (
+                          {'badge' in subItem && subItem.badge && (
                             <Badge variant="outline" className="ml-auto rounded-full px-2 py-0.5 text-xs">
                               {subItem.badge}
                             </Badge>
@@ -718,7 +718,7 @@ export function DesignaliCreative() {
                           className="flex items-center justify-between rounded-xl px-3 py-2 text-sm hover:bg-muted"
                         >
                           {subItem.title}
-                          {subItem.badge && (
+                          {'badge' in subItem && subItem.badge && (
                             <Badge variant="outline" className="ml-auto rounded-full px-2 py-0.5 text-xs">
                               {subItem.badge}
                             </Badge>

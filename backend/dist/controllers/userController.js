@@ -52,7 +52,7 @@ exports.getMyProfile = getMyProfile;
  */
 const updateMyProfile = async (req, res) => {
     const userId = req.user.id;
-    const { first_name, last_name, bio, avatar_url, role, specialty, category, activity_domain, country_id, country_code, country_name, city, job_title, industry, pin_enabled, pin_code, phone, website, is_published, tags } = req.body;
+    const { first_name, last_name, bio, avatar_url, role, specialty, category, activity_domain, country_id, country_code, country_name, city, job_title, industry, pin_enabled, pin_code, phone, website, is_published, tags, card_variant } = req.body;
     try {
         let finalCountryId = country_id;
         // Si on a un code pays mais pas d'ID, on cherche ou on crée
@@ -104,6 +104,7 @@ const updateMyProfile = async (req, res) => {
             phone,
             website,
             is_published,
+            card_variant,
             updated_at: new Date().toISOString()
         };
         // Ajout conditionnel des champs PIN (seulement si présents)

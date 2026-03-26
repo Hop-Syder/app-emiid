@@ -6,7 +6,7 @@
  * @created 2026-01-25
 */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.markAsRead = exports.getSupportUser = exports.sendMessage = exports.getConversationMessages = exports.getMyConversations = void 0;
+exports.markAsRead = exports.replyToMediation = exports.requestMediation = exports.getSupportUser = exports.getAdminDisputes = exports.sendMessage = exports.getConversationMessages = exports.getMyConversations = void 0;
 const supabase_1 = require("../config/supabase");
 /**
  * Récupère les conversations de l'utilisateur
@@ -55,6 +55,16 @@ exports.getMyConversations = getMyConversations;
 const getConversationMessages = async (req, res) => {
     const conversationId = req.params.id;
     try {
+        // 1. Vérifier si l'utilisateur est participant de cette conversation
+        const { data: conv, error: convError } = await supabase_1.supabaseAdmin
+            .from('conversations')
+            .select('id')
+            .eq('id', conversationId)
+            .or(`participant1_id.eq.${req.user.id},participant2_id.eq.${req.user.id}`)
+            .single();
+        if (convError || !conv) {
+            return res.status(403).json({ error: "Accès refusé à cette conversation" });
+        }
         const { data, error } = await supabase_1.supabaseAdmin
             .from('messages')
             .select('*')
@@ -124,6 +134,60 @@ const sendMessage = async (req, res) => {
 };
 exports.sendMessage = sendMessage;
 /**
+ * Récupère TOUTES les conversations avec demande de médiation (ADMIN)
+ * GET /api/messages/admin/disputes
+ */
+const getAdminDisputes = async (req, res) => {
+    try {
+        // 1. Chercher les messages de médiation pour trouver les IDs de conversation
+        const { data: mediationMsgs, error: msgError } = await supabase_1.supabaseAdmin
+            .from('messages')
+            .select('conversation_id')
+            .ilike('content', '%[MÉDIATION DEMANDÉE]%');
+        if (msgError)
+            throw msgError;
+        const uniqueConvIds = Array.from(new Set(mediationMsgs.map(m => m.conversation_id)));
+        if (uniqueConvIds.length === 0)
+            return res.json([]);
+        // 2. Récupérer les détails des conversations
+        const { data: convs, error: convError } = await supabase_1.supabaseAdmin
+            .from('conversations')
+            .select(`
+                *,
+                user1:participant1_id (first_name, last_name, avatar_url, role),
+                user2:participant2_id (first_name, last_name, avatar_url, role)
+            `)
+            .in('id', uniqueConvIds)
+            .order('last_message_at', { ascending: false });
+        if (convError)
+            throw convError;
+        // Formater pour l'admin
+        const formatted = convs.map((conv) => ({
+            id: conv.id,
+            user1: {
+                id: conv.participant1_id,
+                name: `${conv.user1.first_name || ""} ${conv.user1.last_name || ""}`,
+                avatar: conv.user1.avatar_url,
+                role: conv.user1.role
+            },
+            user2: {
+                id: conv.participant2_id,
+                name: `${conv.user2.first_name || ""} ${conv.user2.last_name || ""}`,
+                avatar: conv.user2.avatar_url,
+                role: conv.user2.role
+            },
+            lastMessage: conv.last_message_content,
+            lastMessageAt: conv.last_message_at
+        }));
+        res.json(formatted);
+    }
+    catch (err) {
+        console.error("Admin disputes error:", err);
+        res.status(500).json({ error: "Erreur lors de la récupération des litiges" });
+    }
+};
+exports.getAdminDisputes = getAdminDisputes;
+/**
  * Récupère le compte Service Client / Support
  * GET /api/messages/support
  */
@@ -153,13 +217,115 @@ const getSupportUser = async (req, res) => {
 };
 exports.getSupportUser = getSupportUser;
 /**
+ * Demande une médiation pour une conversation
+ * POST /api/messages/dispute/:conversationId
+ */
+const requestMediation = async (req, res) => {
+    const userId = req.user.id;
+    const { conversationId } = req.params;
+    const { reason } = req.body;
+    try {
+        // 1. Vérifier si l'utilisateur est participant de cette conversation
+        const { data: conv, error: convError } = await supabase_1.supabaseAdmin
+            .from('conversations')
+            .select(`
+              id,
+              participant1_id,
+              participant2_id,
+              user1:participant1_id (first_name),
+              user2:participant2_id (first_name)
+            `)
+            .eq('id', conversationId)
+            .or(`participant1_id.eq.${userId},participant2_id.eq.${userId}`)
+            .single();
+        if (convError || !conv) {
+            return res.status(403).json({ error: "Accès refusé à cette conversation" });
+        }
+        const requesterName = userId === conv.participant1_id ?
+            conv.user1.first_name : conv.user2.first_name;
+        // 2. Envoyer le message système de médiation
+        const { data: msg, error: msgError } = await supabase_1.supabaseAdmin
+            .from('messages')
+            .insert({
+            conversation_id: conversationId,
+            sender_id: userId,
+            content: `⚠️ [MÉDIATION DEMANDÉE] Motif : ${reason || 'Non précisé'}. Demandé par ${requesterName}.`,
+            is_read: false
+        })
+            .select()
+            .single(); // Added .select().single() to match common pattern and get the inserted message
+        if (msgError)
+            throw msgError;
+        // 3. Ici on pourrait envoyer un email à l'admin ou créer un ticket
+        // Pour l'instant, on marque la conversation (facultatif si champ existe)
+        res.json({ success: true, message: "Médiation demandée avec succès" });
+    }
+    catch (err) {
+        console.error("Mediation error:", err);
+        res.status(500).json({ error: "Erreur lors de la demande de médiation" });
+    }
+};
+exports.requestMediation = requestMediation;
+/**
+ * Permet à l'Admin de répondre dans une conversation de médiation
+ * POST /api/messages/admin/reply/:conversationId
+ */
+const replyToMediation = async (req, res) => {
+    const adminId = req.user.id;
+    const { conversationId } = req.params;
+    const { content } = req.body;
+    if (!content)
+        return res.status(400).json({ error: "Contenu requis" });
+    try {
+        // Envoi du message direct dans la conversation
+        const { data: msg, error: msgError } = await supabase_1.supabaseAdmin
+            .from('messages')
+            .insert({
+            conversation_id: conversationId,
+            sender_id: adminId,
+            content: content,
+            is_read: false
+        })
+            .select()
+            .single();
+        if (msgError)
+            throw msgError;
+        // Mise à jour de la date de dernier message
+        await supabase_1.supabaseAdmin
+            .from('conversations')
+            .update({
+            last_message_content: `(Admin): ${content.substring(0, 50)}`,
+            last_message_at: new Date().toISOString()
+        })
+            .eq('id', conversationId);
+        res.status(201).json(msg);
+    }
+    catch (err) {
+        console.error("Admin reply error:", err);
+        res.status(500).json({ error: "Erreur lors de la réponse admin" });
+    }
+};
+exports.replyToMediation = replyToMediation;
+/**
  * Marque les messages d'une conversation comme lus
+...
+...
  * POST /api/messages/read/:conversationId
  */
 const markAsRead = async (req, res) => {
     const userId = req.user.id;
     const { conversationId } = req.params;
     try {
+        // 1. Vérifier participation
+        const { data: conv, error: convError } = await supabase_1.supabaseAdmin
+            .from('conversations')
+            .select('id')
+            .eq('id', conversationId)
+            .or(`participant1_id.eq.${userId},participant2_id.eq.${userId}`)
+            .single();
+        if (convError || !conv) {
+            return res.status(403).json({ error: "Accès refusé" });
+        }
         const { error } = await supabase_1.supabaseAdmin
             .from('messages')
             .update({ is_read: true })

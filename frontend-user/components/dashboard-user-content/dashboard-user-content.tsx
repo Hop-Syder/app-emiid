@@ -42,19 +42,19 @@ export interface ProjectAd {
 
 // Données mock pour le fallback
 const mockEntrepreneurs = [
-    { id: "1", name: "Amara Diallo", role: "Entrepreneur Tech", location: "Dakar, Sénégal", avatar: "/african-woman-entrepreneur.jpg", specialty: "FinTech", verified: true, premium: true, followers: 234 },
-    { id: "2", name: "Kofi Mensah", role: "Développeur Senior", location: "Accra, Ghana", avatar: "/african-man-developer.jpg", specialty: "Intelligence Artificielle", verified: true, premium: true, followers: 189 },
-    { id: "3", name: "Fatou Sow", role: "CEO & Fondatrice", location: "Abidjan, Côte d'Ivoire", avatar: "/african-woman-ceo.jpg", specialty: "E-commerce", verified: true, premium: true, followers: 456 },
-    { id: "4", name: "Kwame Asante", role: "Designer UX/UI", location: "Lagos, Nigeria", avatar: "/african-man-designer.jpg", specialty: "Design Produit", verified: true, premium: false, followers: 178 },
-    { id: "5", name: "Aissatou Barry", role: "Artisan Créatrice", location: "Conakry, Guinée", avatar: "/african-woman-tailor.jpg", specialty: "Mode Éthique", verified: true, premium: true, followers: 312 },
-    { id: "6", name: "Moussa Traoré", role: "Photographe", location: "Bamako, Mali", avatar: "/african-man-photographer.jpg", specialty: "Photographie", verified: true, premium: false, followers: 267 },
+  { id: "1", name: "Amara Diallo", role: "Entrepreneur Tech", location: "Dakar, Sénégal", avatar: "/african-woman-entrepreneur.jpg", specialty: "FinTech", verified: true, premium: true, followers: 234 },
+  { id: "2", name: "Kofi Mensah", role: "Développeur Senior", location: "Accra, Ghana", avatar: "/african-man-developer.jpg", specialty: "Intelligence Artificielle", verified: true, premium: true, followers: 189 },
+  { id: "3", name: "Fatou Sow", role: "CEO & Fondatrice", location: "Abidjan, Côte d'Ivoire", avatar: "/african-woman-ceo.jpg", specialty: "E-commerce", verified: true, premium: true, followers: 456 },
+  { id: "4", name: "Kwame Asante", role: "Designer UX/UI", location: "Lagos, Nigeria", avatar: "/african-man-designer.jpg", specialty: "Design Produit", verified: true, premium: false, followers: 178 },
+  { id: "5", name: "Aissatou Barry", role: "Artisan Créatrice", location: "Conakry, Guinée", avatar: "/african-woman-tailor.jpg", specialty: "Mode Éthique", verified: true, premium: true, followers: 312 },
+  { id: "6", name: "Moussa Traoré", role: "Photographe", location: "Bamako, Mali", avatar: "/african-man-photographer.jpg", specialty: "Photographie", verified: true, premium: false, followers: 267 },
 ]
 
 const mockStats = {
-    totalEntrepreneurs: 1250,
-    activeProjects: 340,
-    countriesCovered: 15,
-    totalFunding: 2500000,
+  totalEntrepreneurs: 1250,
+  activeProjects: 340,
+  countriesCovered: 15,
+  totalFunding: 2500000,
 }
 
 export interface EntrepreneurApiResponse {
@@ -99,7 +99,7 @@ export function DashboardContent() {
 
         if (entRes.ok) {
           const entData = await entRes.json()
-          
+
           let userFollowsIds: string[] = []
           try {
             const followsRes = await fetchWithAuth("/api/users/follows")
@@ -107,7 +107,10 @@ export function DashboardContent() {
               const followsData = await followsRes.json()
               userFollowsIds = followsData.map((f: any) => f.user_id || f.id)
             }
-          } catch (e) {}
+          } catch (error) {
+            // Silent failure - follows are optional
+            console.warn("Failed to load follows, continuing without")
+          }
 
           setEntrepreneursList(
             entData.map((e: EntrepreneurApiResponse) => {

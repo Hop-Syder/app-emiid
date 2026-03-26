@@ -26,6 +26,7 @@ interface AnnuaireFiltersProps {
         status: string
     }
     onFilterChange: (key: string, value: string) => void
+    currentCategory?: string
 }
 
 export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProps) {

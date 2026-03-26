@@ -3,9 +3,8 @@
 import { Filter } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { AnnuaireHero } from "../annuaire-public-content/annuaire-hero"
-import { AnnuaireFilters } from "../annuaire-public-content/annuaire-filters"
-import { AnnuaireGrid } from "./annuaire-grid"
 import { Profile } from "./annuaire-card"
+import { AnnuaireGrid } from "./annuaire-grid"
 
 interface AnnuaireContentProps {
     profiles: Profile[]
@@ -26,9 +25,6 @@ export function AnnuaireContent({ profiles, category }: AnnuaireContentProps) {
         <div className="space-y-6">
             {/* Unified Hero */}
             <AnnuaireHero title={titles[category]} />
-
-            {/* Unified Filters */}
-            <AnnuaireFilters currentCategory={category} />
 
             {/* Results Count */}
             <div className="flex items-center justify-between">
