@@ -30,11 +30,7 @@ Ce document est généré par l'**Agent d'Analyse des Fonctionnalités**. Il syn
 - **Édition de Profil** : Mise à jour des informations personnelles, localisation (Pays/Ville) et spécialités.
 - **Vérification PIN** : Système de sécurisation par code PIN (Backend implémenté).
 
-### 2. Marketplace & Annonces (Ads)
 
-- **Publication** : Création d'annonces avec budget, titre, description et cible.
-- **Cycle de Vie** : États `pending`, `active`, `completed`, `deleted`.
-- **Sécurisation** : Politiques RLS (Row Level Security) garantissant que seul l'auteur peut modifier son annonce.
 
 ### 3. Données de Référence
 
@@ -60,7 +56,7 @@ Ce document est généré par l'**Agent d'Analyse des Fonctionnalités**. Il syn
 | `PUT`      | `/api/users/me`         | Met à jour le profil utilisateur.             |
 | `GET`      | `/api/users`            | Liste tous les profils (pour l'annuaire).     |
 | `POST`     | `/api/users/verify-pin` | Vérification de sécurité.                     |
-| `GET/POST` | `/api/ads`              | Gestion des annonces (Analyse en cours).      |
+
 
 ---
 

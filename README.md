@@ -109,7 +109,7 @@ npm run dev:all
 ## ✨ Fonctionnalités Clés
 
 - **Authentification Sécurisée** : Gestion robuste des sessions avec Supabase SSR.
-- **Marketplace de Projets** : Publication, recherche et candidature sur des projets professionnels.
+
 - **Annuaire de Profils** : Réseau interactif pour découvrir et se connecter à des experts.
 - **Messagerie Temps-Réel** : Centre de discussion intégré pour une collaboration efficace.
 - **Gestion Administrative** : Interface dédiée pour la modération et le suivi de la plateforme.

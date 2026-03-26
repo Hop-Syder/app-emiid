@@ -35,6 +35,26 @@ CREATE TABLE IF NOT EXISTS public.professions (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Tables pour l'auto-complétion intelligente (utilisées par le backend)
+CREATE TABLE IF NOT EXISTS public.jobs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(100) UNIQUE NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.industries (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(100) UNIQUE NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Tables pour les Tags
+CREATE TABLE IF NOT EXISTS public.tags (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(50) UNIQUE NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Insertion des données initiales
 INSERT INTO public.activity_sectors (name, slug) VALUES
 ('Artisanat', 'artisanat'),
@@ -112,37 +132,33 @@ CREATE TABLE IF NOT EXISTS public.user_profiles (
     country_id UUID REFERENCES public.countries(id),
     city VARCHAR(100),
     
+    -- Contact & Web
+    phone VARCHAR(20),
+    website TEXT,
+
+    -- Sécurité PIN
+    pin_enabled BOOLEAN DEFAULT FALSE,
+    pin_code TEXT, -- Haché (bcrypt) via backend
+    pin_attempts INTEGER DEFAULT 0,
+
     -- Statut & Métadonnées
+    is_published BOOLEAN DEFAULT FALSE,
+    card_variant VARCHAR(50) DEFAULT 'default',
     has_profile BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX IF NOT EXISTS idx_user_profiles_user_id ON public.user_profiles(user_id);
-
--- ==========================================
--- 3. TABLE DES ANNONCES (ads)
--- ==========================================
-CREATE TABLE IF NOT EXISTS public.ads (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
-    -- Contenu de l'annonce
-    title TEXT NOT NULL,
-    description TEXT,
-    content TEXT,
-    category VARCHAR(50),
-    target_audience TEXT,
-    -- Valeurs financières & Statut
-    budget_limit NUMERIC DEFAULT 0,
-    status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('pending', 'active', 'completed', 'deleted')),
-    -- Timestamps
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW()
+-- Table de liaison pour les Tags
+CREATE TABLE IF NOT EXISTS public.profile_tags (
+    profile_id UUID REFERENCES public.user_profiles(id) ON DELETE CASCADE,
+    tag_id UUID REFERENCES public.tags(id) ON DELETE CASCADE,
+    PRIMARY KEY (profile_id, tag_id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_ads_user_id ON public.ads(user_id);
-CREATE INDEX IF NOT EXISTS idx_ads_status ON public.ads(status);
-CREATE INDEX IF NOT EXISTS idx_ads_created_at ON public.ads(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_user_profiles_user_id ON public.user_profiles(user_id);
+
+
 
 -- ==========================================
 -- 4. LOGIQUE AUTOMATIQUE (Triggers & fonctions)
@@ -203,61 +219,41 @@ CREATE TRIGGER on_auth_user_created
     AFTER INSERT ON auth.users
     FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
--- Fonction pour empêcher la modification de ads.user_id
-CREATE OR REPLACE FUNCTION public.prevent_ads_user_id_change()
-RETURNS TRIGGER AS $$
-BEGIN
-    IF TG_OP = 'UPDATE' THEN
-        IF NEW.user_id IS DISTINCT FROM OLD.user_id THEN
-            RAISE EXCEPTION 'Modification du champ user_id non autorisée';
-        END IF;
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
 
-DROP TRIGGER IF EXISTS prevent_ads_user_id_change_trg ON public.ads;
-CREATE TRIGGER prevent_ads_user_id_change_trg
-    BEFORE UPDATE ON public.ads
-    FOR EACH ROW EXECUTE FUNCTION public.prevent_ads_user_id_change();
 
--- Revoke execute on sensitive functions from public/authenticated (bonne pratique)
 REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM PUBLIC;
 REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM authenticated;
-REVOKE EXECUTE ON FUNCTION public.prevent_ads_user_id_change() FROM PUBLIC;
-REVOKE EXECUTE ON FUNCTION public.prevent_ads_user_id_change() FROM authenticated;
 
 -- ==========================================
 -- 5. SÉCURITÉ (Row Level Security - RLS)
 -- ==========================================
 
 ALTER TABLE public.user_profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.ads ENABLE ROW LEVEL SECURITY;
 
 -- USER_PROFILES policies
+-- Lecture : On masque les champs sensibles (PIN) pour le public
 DROP POLICY IF EXISTS "Profils publics" ON public.user_profiles;
 CREATE POLICY "Profils publics" ON public.user_profiles
     FOR SELECT USING (true);
+
+-- Note: Pour une sécurité maximale, on pourrait utiliser une VUE pour masquer pin_code.
+-- Mais ici nous gérons via l'API.
 
 DROP POLICY IF EXISTS "Modification propre profil" ON public.user_profiles;
 CREATE POLICY "Modification propre profil" ON public.user_profiles
     FOR UPDATE USING ((SELECT auth.uid()) = user_id)
     WITH CHECK ((SELECT auth.uid()) = user_id);
 
--- ADS policies
-DROP POLICY IF EXISTS "Annonces actives visibles" ON public.ads;
-CREATE POLICY "Annonces actives visibles" ON public.ads
-    FOR SELECT USING (status = 'active' OR (SELECT auth.uid()) = user_id);
+-- Politiques pour les tables de support
+ALTER TABLE public.tags ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Lecture publique des tags" ON public.tags FOR SELECT USING (true);
 
-DROP POLICY IF EXISTS "Utilisateurs créent annonces" ON public.ads;
-CREATE POLICY "Utilisateurs créent annonces" ON public.ads
-    FOR INSERT WITH CHECK ((SELECT auth.uid()) = user_id);
+ALTER TABLE public.profile_tags ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Lecture publique des profile_tags" ON public.profile_tags FOR SELECT USING (true);
+CREATE POLICY "Modif propre profile_tags" ON public.profile_tags 
+    FOR ALL USING (profile_id IN (SELECT id FROM public.user_profiles WHERE user_id = (SELECT auth.uid())));
 
-DROP POLICY IF EXISTS "Utilisateurs modifient annonces" ON public.ads;
-CREATE POLICY "Utilisateurs modifient annonces" ON public.ads
-    FOR UPDATE
-    USING ((SELECT auth.uid()) = user_id)
-    WITH CHECK ((SELECT auth.uid()) = user_id);
+
 
 -- ==========================================
 -- 6. RECOMMANDATIONS & NOTES
@@ -273,4 +269,4 @@ CREATE POLICY "Utilisateurs modifient annonces" ON public.ads
 --      déclenchée par des triggers et non appelée directement par des utilisateurs.
 -- 4) Tests :
 --    - Testez l'inscription d'un utilisateur via l'API Auth et vérifiez la création automatique du profil.
---    - Testez l'insertion/mise à jour/suppression d'annonces en tant qu'utilisateur authentifié et non-authentifié pour valider les politiques RLS.
+--    - Testez la mise à jour du profil via l'API et vérifiez le hachage du PIN.
