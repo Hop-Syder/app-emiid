@@ -107,7 +107,7 @@ export function ProfileCard({ profile, onUnfollow, onViewProfile, onSaveNote, on
                     <Textarea
                         value={localNote}
                         onChange={(e) => setLocalNote(e.target.value)}
-                        placeholder="Points clés du profil, prochaines étapes, opportunités..."
+                        placeholder="Points clés du profil, prochaines étapes, contacts utiles..."
                         className="w-full min-h-[150px] lg:h-full lg:min-h-[200px] text-base md:text-lg resize-none bg-transparent border-0 focus-visible:ring-0 p-0 shadow-none placeholder:opacity-40 placeholder:text-inherit font-medium leading-relaxed"
                     />
                 </div>

@@ -154,9 +154,9 @@ export interface FollowData {
 
 export interface DashboardStats {
     totalEntrepreneurs: number;
-    activeProjects: number;
+    verifiedMembers: number;
     countriesCovered: number;
-    totalFunding: number;
+    premiumMembers: number;
 }
 
 export interface EntrepreneurStats {
@@ -178,19 +178,6 @@ export interface EntrepreneurStats {
     followers_count?: number;
     tags?: string[];
     card_variant?: string;
-}
-
-// ==================== TYPES PROJETS & ANNONCES ====================
-
-export interface ProjectAd {
-    id: string;
-    title: string;
-    description?: string;
-    content?: string;
-    budget_limit?: number;
-    status: string;
-    created_at?: string;
-    updated_at?: string;
 }
 
 // ==================== TYPES NOTIFICATIONS ====================

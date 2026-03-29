@@ -14,37 +14,36 @@ const supabase_1 = require("../config/supabase");
  */
 const getGlobalStats = async (req, res) => {
     try {
-        // 1. Compter les entrepreneurs (user_profiles)
         const { count: userCount, error: userError } = await supabase_1.supabaseAdmin
             .from('user_profiles')
             .select('*', { count: 'exact', head: true })
             .eq('is_published', true);
-        // 2. Compter les projets actifs (ads)
-        const { count: adsCount, error: adsError } = await supabase_1.supabaseAdmin
-            .from('ads')
+        const { count: verifiedCount, error: verifiedError } = await supabase_1.supabaseAdmin
+            .from('user_profiles')
             .select('*', { count: 'exact', head: true })
-            .eq('status', 'active');
-        // 3. Compter les pays couverts (ayant au moins un entrepreneur)
+            .eq('is_published', true)
+            .eq('is_verified', true);
         const { data: countryData, error: countryError } = await supabase_1.supabaseAdmin
             .from('user_profiles')
             .select('country_id')
             .eq('is_published', true)
             .not('country_id', 'is', null);
-        const uniqueCountries = new Set(countryData?.map(u => u.country_id)).size;
-        // 4. Calculer le financement total (somme des budgets des annonces actives)
-        const { data: adsData, error: fundingError } = await supabase_1.supabaseAdmin
-            .from('ads')
-            .select('budget_limit')
-            .eq('status', 'active');
-        const totalFunding = adsData?.reduce((acc, curr) => acc + (Number(curr.budget_limit) || 0), 0) || 0;
-        if (userError || adsError || countryError) {
-            return res.status(400).json({ error: userError?.message || adsError?.message || countryError?.message });
+        const { count: premiumCount, error: premiumError } = await supabase_1.supabaseAdmin
+            .from('user_profiles')
+            .select('*', { count: 'exact', head: true })
+            .eq('is_published', true)
+            .eq('is_premium', true);
+        const uniqueCountries = new Set(countryData?.map((u) => u.country_id)).size;
+        if (userError || verifiedError || countryError || premiumError) {
+            return res.status(400).json({
+                error: userError?.message || verifiedError?.message || countryError?.message || premiumError?.message,
+            });
         }
         res.json({
             totalEntrepreneurs: userCount || 0,
-            activeProjects: adsCount || 0,
+            verifiedMembers: verifiedCount || 0,
             countriesCovered: uniqueCountries > 0 ? uniqueCountries : 15, // Fallback si vide
-            totalFunding: totalFunding
+            premiumMembers: premiumCount || 0,
         });
     }
     catch (err) {

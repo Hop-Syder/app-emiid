@@ -28,7 +28,6 @@ import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { ProjectShowcase } from "./project-showcase"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -52,7 +51,6 @@ const mockProfiles: Record<string, ProfileData> = {
         premium: true,
         followers: 2340,
         following: 180,
-        projects: 12,
         isOnline: true,
         isFollowed: false,
         joinedDate: "Janvier 2023",
@@ -64,11 +62,6 @@ const mockProfiles: Record<string, ProfileData> = {
             { title: "CEO & Fondatrice", company: "PayAfrik", period: "2021 - Present", current: true },
             { title: "Product Manager", company: "Orange Money", period: "2019 - 2021", current: false },
             { title: "Developpeur Full Stack", company: "Sonatel", period: "2017 - 2019", current: false },
-        ],
-        portfolio: [
-            { title: "PayAfrik App", description: "Application de paiement mobile", image: "/project-1.jpg" },
-            { title: "AgriConnect", description: "Plateforme pour agriculteurs", image: "/project-2.jpg" },
-            { title: "EduTech Senegal", description: "E-learning pour etudiants", image: "/project-3.jpg" },
         ]
     },
     "2": {
@@ -85,7 +78,6 @@ const mockProfiles: Record<string, ProfileData> = {
         premium: true,
         followers: 1890,
         following: 245,
-        projects: 28,
         isOnline: false,
         isFollowed: true,
         joinedDate: "Mars 2022",
@@ -95,10 +87,6 @@ const mockProfiles: Record<string, ProfileData> = {
         experiences: [
             { title: "Lead AI Engineer", company: "AfroAI Labs", period: "2022 - Present", current: true },
             { title: "Senior Developer", company: "MTN Ghana", period: "2018 - 2022", current: false },
-        ],
-        portfolio: [
-            { title: "AfroVision AI", description: "Reconnaissance d'images", image: "/project-4.jpg" },
-            { title: "ChatBot Ghana", description: "Assistant virtuel intelligent", image: "/project-5.jpg" },
         ]
     },
     "3": {
@@ -115,7 +103,6 @@ const mockProfiles: Record<string, ProfileData> = {
         premium: true,
         followers: 4560,
         following: 320,
-        projects: 8,
         isOnline: true,
         isFollowed: false,
         joinedDate: "Juin 2022",
@@ -125,9 +112,6 @@ const mockProfiles: Record<string, ProfileData> = {
         experiences: [
             { title: "CEO", company: "AfriMarket", period: "2020 - Present", current: true },
             { title: "Directrice Marketing", company: "Jumia CI", period: "2018 - 2020", current: false },
-        ],
-        portfolio: [
-            { title: "AfriMarket", description: "Marketplace panafricaine", image: "/project-6.jpg" },
         ]
     }
 }
@@ -145,13 +129,11 @@ const defaultProfile: ProfileData = {
     premium: false,
     followers: 0,
     following: 0,
-    projects: 0,
     isOnline: false,
     isFollowed: false,
     joinedDate: "2024",
     skills: [],
-    experiences: [],
-    portfolio: []
+    experiences: []
 }
 
 interface ProfileData {
@@ -168,7 +150,6 @@ interface ProfileData {
     premium: boolean
     followers: number
     following: number
-    projects: number
     isOnline: boolean
     isFollowed: boolean
     joinedDate: string
@@ -177,7 +158,6 @@ interface ProfileData {
     website?: string
     skills: string[]
     experiences: { title: string; company: string; period: string; current: boolean }[]
-    portfolio: { title: string; description: string; image: string }[]
 }
 
 interface ProfileDetailContentProps {
@@ -220,7 +200,6 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                         premium: !!data.is_premium,
                         followers: data.followers_count || 0,
                         following: data.following_count || 0,
-                        projects: data.projects_count || 0,
                         isOnline: false,
                         isFollowed: false, 
                         joinedDate: data.created_at ? new Date(data.created_at).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : "2024",
@@ -228,8 +207,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                         website: data.website,
                         phone: data.phone,
                         skills: data.tags || [],
-                        experiences: [], 
-                        portfolio: [] 
+                        experiences: []
                     }
                     setProfile(mappedProfile)
                     setFollowersCount(mappedProfile.followers)
@@ -458,8 +436,8 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                                     <p className="text-xs sm:text-sm font-bold text-slate-400 uppercase tracking-widest mt-1">Relations</p>
                                 </div>
                                 <div className="text-center group cursor-pointer hover:scale-105 transition-transform">
-                                    <p className="text-2xl sm:text-3xl font-black text-slate-900">{profile.projects}</p>
-                                    <p className="text-xs sm:text-sm font-bold text-slate-400 uppercase tracking-widest mt-1">Projets</p>
+                                    <p className="text-2xl sm:text-3xl font-black text-slate-900">{profile.skills.length}</p>
+                                    <p className="text-xs sm:text-sm font-bold text-slate-400 uppercase tracking-widest mt-1">Compétences</p>
                                 </div>
                             </div>
                         </div>
@@ -527,7 +505,6 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                         <Tabs defaultValue="skills" className="w-full">
                             <TabsList className="bg-transparent border-b border-slate-100 w-full justify-start h-auto p-0 mb-6 gap-8 rounded-none">
                                 <TabsTrigger value="skills" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#CE1126] data-[state=active]:text-[#CE1126] bg-transparent shadow-none px-2 pb-4 font-black transition-all">Compétences</TabsTrigger>
-                                <TabsTrigger value="portfolio" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#CE1126] data-[state=active]:text-[#CE1126] bg-transparent shadow-none px-2 pb-4 font-black transition-all text-slate-400 hover:text-slate-600">Projets & Réalisations</TabsTrigger>
                                 <TabsTrigger value="experience" className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#CE1126] data-[state=active]:text-[#CE1126] bg-transparent shadow-none px-2 pb-4 font-black transition-all text-slate-400 hover:text-slate-600">Parcours</TabsTrigger>
                             </TabsList>
 
@@ -545,10 +522,6 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                                         </div>
                                     )}
                                 </div>
-                            </TabsContent>
-
-                            <TabsContent value="portfolio" className="animate-in fade-in slide-in-from-left-4 duration-500">
-                                <ProjectShowcase userId={profileId} />
                             </TabsContent>
 
                             <TabsContent value="experience" className="animate-in fade-in slide-in-from-left-4 duration-500">

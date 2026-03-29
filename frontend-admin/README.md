@@ -5,7 +5,7 @@ Panneau d'administration pour la plateforme App Nexus Connect. Interface moderne
 ## Fonctionnalites
 
 ### Dashboard (`/`)
-- Statistiques en temps reel (utilisateurs, profils publies, messages, annonces)
+- Statistiques en temps reel (utilisateurs, profils publies, messages)
 - Graphique d'activite hebdomadaire
 - Etat du systeme (API, Base de donnees, Stockage)
 - Liste des nouveaux utilisateurs
@@ -54,10 +54,8 @@ frontend-admin/
 │   ├── users/
 │   │   └── page.tsx                # Page utilisateurs
 │   ├── moderation/
-│   │   ├── galerie/
-│   │   │   └── page.tsx            # Moderation images
-│   │   └── ads/
-│   │       └── page.tsx            # Moderation annonces (desactive)
+│   │   └── galerie/
+│   │       └── page.tsx            # Moderation images
 │   └── settings/
 │       └── page.tsx                # Parametres
 ├── components/
@@ -86,7 +84,6 @@ SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 Le frontend-admin se connecte aux tables suivantes:
 
 - `user_profiles` - Profils utilisateurs
-- `ads` - Annonces
 - `conversations` - Conversations
 - `messages` - Messages
 - `countries` - Pays
@@ -114,8 +111,6 @@ npm start
 | `updateUserProfile(id, data)` | Met a jour un profil utilisateur |
 | `toggleUserPublished(id, published)` | Publie/depublie un profil |
 | `deleteUser(id)` | Supprime un utilisateur |
-| `getAds(params)` | Liste les annonces |
-| `updateAdStatus(id, status)` | Change le statut d'une annonce |
 | `getCountries()` | Liste des pays |
 
 ## Design

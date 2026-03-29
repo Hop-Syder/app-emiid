@@ -29,13 +29,6 @@ test('GET /api/public/stats repond', async () => {
   assert.equal(typeof response.body.totalEntrepreneurs, 'number')
 })
 
-test('GET /api/ads repond', async () => {
-  const response = await request(app).get('/api/ads')
-
-  assert.equal(response.status, 200)
-  assert.ok(Array.isArray(response.body))
-})
-
 test('GET /api/auth/me sans token retourne 401', async () => {
   const response = await request(app).get('/api/auth/me')
 

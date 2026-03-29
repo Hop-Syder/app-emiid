@@ -35,7 +35,7 @@ export function PublicHeader() {
                 <nav className="hidden md:flex items-center gap-8">
                     <Link href="/dashboard-public" className="text-sm font-medium hover:text-primary">Découvrir</Link>
                     <Link href="/annuaire/entreprises" className="text-sm font-medium hover:text-primary">Annuaire</Link>
-                    <Link href="/market" className="text-sm font-medium hover:text-primary">Opportunités</Link>
+                    <Link href="/annuaire" className="text-sm font-medium hover:text-primary">Profils</Link>
                 </nav>
 
                 <div className="flex items-center gap-4">

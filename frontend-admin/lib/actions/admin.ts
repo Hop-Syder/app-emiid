@@ -30,19 +30,6 @@ export interface UserProfile {
   updated_at: string | null
 }
 
-export interface Ad {
-  id: string
-  user_id: string | null
-  title: string | null
-  description: string | null
-  content: string | null
-  category: string | null
-  status: string | null
-  budget_limit: number | null
-  created_at: string
-  updated_at: string | null
-}
-
 export interface Country {
   id: string
   name: string
@@ -54,7 +41,6 @@ export interface DashboardStats {
   totalUsers: number
   publishedProfiles: number
   totalMessages: number
-  totalAds: number
   usersByCountry: { country: string; count: number }[]
   recentUsers: UserProfile[]
   weeklyActivity: { day: string; users: number }[]
@@ -78,11 +64,6 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   // Get total messages count
   const { count: totalMessages } = await supabase
     .from("messages")
-    .select("*", { count: "exact", head: true })
-
-  // Get total ads count
-  const { count: totalAds } = await supabase
-    .from("ads")
     .select("*", { count: "exact", head: true })
 
   // Get users by country
@@ -138,7 +119,6 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     totalUsers: totalUsers || 0,
     publishedProfiles: publishedProfiles || 0,
     totalMessages: totalMessages || 0,
-    totalAds: totalAds || 0,
     usersByCountry,
     recentUsers: (recentUsers as UserProfile[]) || [],
     weeklyActivity,
@@ -232,58 +212,6 @@ export async function deleteUser(
     .from("user_profiles")
     .delete()
     .eq("id", userId)
-
-  if (error) {
-    return { success: false, error: error.message }
-  }
-
-  return { success: true }
-}
-
-// Fetch ads
-export async function getAds(params?: {
-  status?: string
-  category?: string
-  page?: number
-  limit?: number
-}): Promise<{ ads: Ad[]; total: number }> {
-  const supabase = await createAdminClient()
-  const { status, category, page = 1, limit = 10 } = params || {}
-
-  let query = supabase
-    .from("ads")
-    .select("*", { count: "exact" })
-
-  if (status && status !== "all") {
-    query = query.eq("status", status)
-  }
-
-  if (category && category !== "all") {
-    query = query.eq("category", category)
-  }
-
-  const offset = (page - 1) * limit
-  query = query.range(offset, offset + limit - 1).order("created_at", { ascending: false })
-
-  const { data, count } = await query
-
-  return {
-    ads: (data as Ad[]) || [],
-    total: count || 0,
-  }
-}
-
-// Update ad status
-export async function updateAdStatus(
-  adId: string,
-  status: string
-): Promise<{ success: boolean; error?: string }> {
-  const supabase = await createAdminClient()
-
-  const { error } = await supabase
-    .from("ads")
-    .update({ status, updated_at: new Date().toISOString() })
-    .eq("id", adId)
 
   if (error) {
     return { success: false, error: error.message }

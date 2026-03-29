@@ -34,9 +34,9 @@ export function HeroSection() {
                     <div className="flex flex-wrap gap-3">
                         <Button
                             className="rounded-xl bg-white text-primary hover:bg-white/90 px-6 h-11"
-                            onClick={() => router.push("/creer-annonce")}
+                            onClick={() => router.push("/annuaire")}
                         >
-                            Créer une Annonce
+                            Explorer l'Annuaire
                         </Button>
                         <Button
                             variant="outline"

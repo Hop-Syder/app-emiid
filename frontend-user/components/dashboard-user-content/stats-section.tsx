@@ -1,45 +1,45 @@
 "use client"
 
-import { Users, Briefcase, Globe } from "lucide-react"
+import { BadgeCheck, Crown, Globe, Users } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card"
 
 interface StatsSectionProps {
     stats: {
         totalEntrepreneurs: number
-        activeProjects: number
+        verifiedMembers: number
         countriesCovered: number
-        totalFunding: number
+        premiumMembers: number
     }
 }
 
 export function StatsSection({ stats }: StatsSectionProps) {
     const statsItems = [
         {
-            label: "Entrepreneurs Connectés",
+            label: "Professionnels inscrits",
             value: (stats.totalEntrepreneurs || 0).toString(),
-            sub: "Membres Nexus",
+            sub: "Membres actifs du réseau",
             icon: Users,
             color: "text-green-600",
         },
         {
-            label: "Projets Actifs",
-            value: stats.activeProjects.toString(),
-            sub: "Annonces Market",
-            icon: Briefcase,
+            label: "Profils Vérifiés",
+            value: stats.verifiedMembers.toString(),
+            sub: "Expertises validées",
+            icon: BadgeCheck,
             color: "text-amber-500",
         },
         {
-            label: "Pays Couverts",
+            label: "Pays représentés",
             value: stats.countriesCovered.toString(),
-            sub: "Afrique de l'Ouest",
+            sub: "Présence régionale",
             icon: Globe,
             color: "text-red-600",
         },
         {
-            label: "Traffic",
-            value: "0",
-            sub: "Visiteurs (ces 31 derniers jours)",
-            icon: Users,
+            label: "Membres Premium",
+            value: stats.premiumMembers.toString(),
+            sub: "Profils à forte visibilité",
+            icon: Crown,
             color: "text-primary",
         },
     ]

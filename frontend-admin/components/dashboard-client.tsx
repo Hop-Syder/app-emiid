@@ -12,7 +12,6 @@ import { motion } from "framer-motion"
 import {
   Users,
   MessageSquare,
-  FileText,
   TrendingUp,
   Globe,
   Activity,
@@ -59,14 +58,6 @@ export function DashboardClient({ initialStats }: DashboardClientProps) {
       color: "bg-violet-500",
       lightColor: "bg-violet-50",
       textColor: "text-violet-600"
-    },
-    {
-      title: "Annonces",
-      value: stats.totalAds,
-      icon: FileText,
-      color: "bg-amber-500",
-      lightColor: "bg-amber-50",
-      textColor: "text-amber-600"
     }
   ]
 
@@ -85,7 +76,7 @@ export function DashboardClient({ initialStats }: DashboardClientProps) {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {statCards.map((stat, index) => (
           <motion.div
             key={stat.title}

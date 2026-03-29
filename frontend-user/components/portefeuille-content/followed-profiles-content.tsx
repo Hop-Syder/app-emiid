@@ -66,14 +66,6 @@ export function FollowedProfilesContent() {
                 { event: '*', schema: 'public', table: 'user_follows' },
                 () => loadFollows()
             )
-            .on(
-                'postgres_changes',
-                { event: 'INSERT', schema: 'public', table: 'project_gallery' },
-                () => {
-                    toast.info("Un entrepreneur que vous suivez a publié une mise à jour !")
-                    loadFollows()
-                }
-            )
             .subscribe()
 
         return () => {

@@ -31,15 +31,6 @@ export interface EntrepreneurProfile {
   tags?: string[];
 }
 
-export interface ProjectAd {
-  id: string;
-  title: string;
-  description?: string;
-  content?: string;
-  budget_limit?: number;
-  status: string;
-}
-
 // Données mock pour le fallback
 const mockEntrepreneurs = [
   { id: "1", name: "Amara Diallo", role: "Entrepreneur Tech", location: "Dakar, Sénégal", avatar: "/african-woman-entrepreneur.jpg", specialty: "FinTech", verified: true, premium: true, followers: 234 },
@@ -52,9 +43,9 @@ const mockEntrepreneurs = [
 
 const mockStats = {
   totalEntrepreneurs: 1250,
-  activeProjects: 340,
+  verifiedMembers: 860,
   countriesCovered: 15,
-  totalFunding: 2500000,
+  premiumMembers: 275,
 }
 
 export interface EntrepreneurApiResponse {
@@ -78,21 +69,19 @@ export function DashboardContent() {
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState({
     totalEntrepreneurs: 0,
-    activeProjects: 0,
+    verifiedMembers: 0,
     countriesCovered: 15,
-    totalFunding: 0,
+    premiumMembers: 0,
   })
   const [entrepreneursList, setEntrepreneursList] = useState<EntrepreneurProfile[]>([])
-  const [projects, setProjects] = useState<ProjectAd[]>([])
 
 
   useEffect(() => {
     const loadDashboardData = async () => {
       try {
-        const [statsRes, entRes, projRes] = await Promise.all([
+        const [statsRes, entRes] = await Promise.all([
           fetchWithAuth("/api/dashboard-user/stats"),
           fetchWithAuth("/api/dashboard-user/featured-entrepreneurs"),
-          fetchWithAuth("/api/ads"),
         ])
 
         if (statsRes.ok) setStats(await statsRes.json())
@@ -134,13 +123,6 @@ export function DashboardContent() {
         } else {
           console.error("Erreur API entrepreneurs (User):", entRes.status)
         }
-
-        if (projRes.ok) {
-          const adsData = await projRes.json()
-          setProjects(adsData)
-        } else {
-          console.error("Erreur API projets (User):", projRes.status)
-        }
       } catch (error) {
         console.error("Erreur chargement dashboard-user:", error)
         // Utiliser les données mock en cas d'erreur
@@ -163,26 +145,6 @@ export function DashboardContent() {
 
       {/* Entrepreneurs du Réseau */}
       <EntrepreneursSection entrepreneursList={entrepreneursList} loading={loading} />
-
-      {projects.length > 0 && (
-        <section className="space-y-4">
-          <h3 className="text-xl font-bold">Projets actifs</h3>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {projects.slice(0, 3).map((p: ProjectAd) => (
-              <div key={p.id} className="rounded-xl border bg-card p-4 shadow-sm">
-                <h4 className="font-semibold mb-1">{p.title}</h4>
-                <p className="text-sm text-muted-foreground line-clamp-3">
-                  {p.description || p.content}
-                </p>
-                <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
-                  <span>Budget : {p.budget_limit ?? 0}</span>
-                  <span className="capitalize">{p.status}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
     </div>
   )
 }

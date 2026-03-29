@@ -6,7 +6,7 @@
 */
 
 import { Request, Response } from 'express';
-import { supabase, supabaseAdmin } from '../config/supabase';
+import { supabaseAdmin } from '../config/supabase';
 
 /**
  * Récupère les statistiques globales pour le dashboard-user
@@ -14,44 +14,42 @@ import { supabase, supabaseAdmin } from '../config/supabase';
  */
 export const getGlobalStats = async (req: Request, res: Response) => {
   try {
-    // 1. Compter les entrepreneurs (user_profiles)
     const { count: userCount, error: userError } = await supabaseAdmin
       .from('user_profiles')
       .select('*', { count: 'exact', head: true })
       .eq('is_published', true);
 
-    // 2. Compter les projets actifs (ads)
-    const { count: adsCount, error: adsError } = await supabaseAdmin
-      .from('ads')
+    const { count: verifiedCount, error: verifiedError } = await supabaseAdmin
+      .from('user_profiles')
       .select('*', { count: 'exact', head: true })
-      .eq('status', 'active');
+      .eq('is_published', true)
+      .eq('is_verified', true);
 
-    // 3. Compter les pays couverts (ayant au moins un entrepreneur)
     const { data: countryData, error: countryError } = await supabaseAdmin
       .from('user_profiles')
       .select('country_id')
       .eq('is_published', true)
       .not('country_id', 'is', null);
-    
-    const uniqueCountries = new Set(countryData?.map(u => u.country_id)).size;
 
-    // 4. Calculer le financement total (somme des budgets des annonces actives)
-    const { data: adsData, error: fundingError } = await supabaseAdmin
-      .from('ads')
-      .select('budget_limit')
-      .eq('status', 'active');
+    const { count: premiumCount, error: premiumError } = await supabaseAdmin
+      .from('user_profiles')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_published', true)
+      .eq('is_premium', true);
 
-    const totalFunding = adsData?.reduce((acc, curr) => acc + (Number(curr.budget_limit) || 0), 0) || 0;
+    const uniqueCountries = new Set(countryData?.map((u) => u.country_id)).size;
 
-    if (userError || adsError || countryError) {
-      return res.status(400).json({ error: userError?.message || adsError?.message || countryError?.message });
+    if (userError || verifiedError || countryError || premiumError) {
+      return res.status(400).json({
+        error: userError?.message || verifiedError?.message || countryError?.message || premiumError?.message,
+      });
     }
 
     res.json({
       totalEntrepreneurs: userCount || 0,
-      activeProjects: adsCount || 0,
+      verifiedMembers: verifiedCount || 0,
       countriesCovered: uniqueCountries > 0 ? uniqueCountries : 15, // Fallback si vide
-      totalFunding: totalFunding
+      premiumMembers: premiumCount || 0,
     });
   } catch (err) {
     res.status(500).json({ error: "Erreur interne lors de la récupération des stats" });

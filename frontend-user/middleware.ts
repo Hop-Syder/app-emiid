@@ -55,7 +55,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // CAS 2 : L'utilisateur N'EST PAS CONNECTÉ (Inconnu)
-  // S'il essaie d'aller sur une page privée (ex: /dashboard-user, /profil, /market...)
+  // S'il essaie d'aller sur une page privée (ex: /dashboard-user, /messages, /parametres...)
   // -> On le force à aller sur l'Onboarding (/)
   if (!user && !publicRoutes.includes(path) && !isPublicResource) {
     url.pathname = '/' // Ou '/login' selon ta préférence

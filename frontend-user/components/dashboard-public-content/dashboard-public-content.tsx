@@ -58,18 +58,18 @@ const mockEntrepreneurs = [
 
 const mockStats = {
     totalEntrepreneurs: 1250,
-    activeProjects: 340,
+    verifiedMembers: 860,
     countriesCovered: 15,
-    totalFunding: 2500000,
+    premiumMembers: 275,
 }
 
 export function DashboardPublicContent() {
     const [loading, setLoading] = useState(true)
     const [stats, setStats] = useState({
         totalEntrepreneurs: 0,
-        activeProjects: 0,
+        verifiedMembers: 0,
         countriesCovered: 15,
-        totalFunding: 0,
+        premiumMembers: 0,
     })
     const [entrepreneursList, setEntrepreneursList] = useState<EntrepreneurProfile[]>([])
 

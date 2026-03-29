@@ -6,7 +6,7 @@
 
 ## 📌 Préservation & Vision
 
-Ce backend est le moteur "Gendarme" de Nexus Connect. Il assure le relais d'authentification (Token Relay), la gestion des profils d'entrepreneurs, et dynamise le marketplace de projets à travers toute l'Afrique de l'Ouest.
+Ce backend est le moteur "Gendarme" de Nexus Connect. Il assure le relais d'authentification (Token Relay), la gestion des profils d'entrepreneurs, la messagerie et les services centraux de modération de la plateforme.
 
 ---
 
@@ -34,15 +34,9 @@ Ce backend est le moteur "Gendarme" de Nexus Connect. Il assure le relais d'auth
 - **Enrichissement**: Gestion des rôles professionnels, spécialités et catégories (Artisan, Freelance, Entreprise, ONG).
 - **Annuaire Public**: Listing dynamique des profils avec filtrage par catégorie.
 
-### 3. Marketplace (Annonces)
+### 3. dashboard-user & Statistiques
 
-- Création d'annonces (Projets, Investissements, Partenariats).
-- Récupération dynamique des dernières opportunités.
-- Sécurisation RLS (Row Level Security) couplée à la logique Backend.
-
-### 4. dashboard-user & Statistiques
-
-- Calcul en temps réel des statistiques globales (Membres connectés, Projets actifs).
+- Calcul en temps réel des statistiques globales (Membres connectés, profils vérifiés, membres premium).
 - Discovery : Entrepreneurs en vedette et nouveaux arrivants.
 
 ---
@@ -98,8 +92,6 @@ Pour déployer ce backend sur Railway :
 | **GET**  | `/api/users/me`                              | Récupérer mon profil               | 🔒   |
 | **PUT**  | `/api/users/me`                              | Mettre à jour mon profil           | 🔒   |
 | **GET**  | `/api/users`                                 | Lister tous les profils (Annuaire) | 🔒   |
-| **GET**  | `/api/ads`                                   | Lister les annonces (Market)       | 🔒   |
-| **POST** | `/api/ads`                                   | Créer une annonce                  | 🔒   |
 | **GET**  | `/api/dashboard-user/stats`                  | Statistiques globales              | 🔓   |
 | **GET**  | `/api/dashboard-user/featured-entrepreneurs` | Entrepreneurs Discovery            | 🔓   |
 
