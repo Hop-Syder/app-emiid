@@ -50,6 +50,7 @@ export interface EntrepreneurApiResponse {
 export function DashboardPublicContent() {
     const [loading, setLoading] = useState(true)
     const [statsError, setStatsError] = useState<string | null>(null)
+    const [statsLoaded, setStatsLoaded] = useState(false)
     const [stats, setStats] = useState({
         totalEntrepreneurs: 0,
         verifiedMembers: 0,
@@ -63,6 +64,7 @@ export function DashboardPublicContent() {
         const loadPublicDashboardData = async () => {
             try {
                 setStatsError(null)
+                setStatsLoaded(false)
                 const [statsRes, entRes] = await Promise.all([
                     fetchPublic("/api/public/stats"),
                     fetchPublic("/api/public/profiles"),
@@ -71,6 +73,7 @@ export function DashboardPublicContent() {
                 if (statsRes.ok) {
                     const statsData = await statsRes.json()
                     setStats(statsData)
+                    setStatsLoaded(true)
                 } else {
                     setStatsError("Impossible de charger les statistiques pour le moment.")
                 }
@@ -145,7 +148,7 @@ export function DashboardPublicContent() {
             )}
 
             {/* Stats Section */}
-            <StatsSection stats={stats} />
+            {statsLoaded && <StatsSection stats={stats} />}
 
             {/* Entrepreneurs du Réseau */}
             <EntrepreneursSection entrepreneursList={entrepreneursList} loading={loading} />
