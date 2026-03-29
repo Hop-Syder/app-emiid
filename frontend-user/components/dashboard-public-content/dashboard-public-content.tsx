@@ -46,16 +46,6 @@ export interface EntrepreneurApiResponse {
     tags?: string[];
 }
 
-// Données mock pour le fallback
-const mockEntrepreneurs = [
-    { id: "1", name: "Amara Diallo", role: "Entrepreneur Tech", location: "Dakar, Sénégal", avatar: "/african-woman-entrepreneur.jpg", specialty: "FinTech", verified: true, premium: true, followers: 234 },
-    { id: "2", name: "Kofi Mensah", role: "Développeur Senior", location: "Accra, Ghana", avatar: "/african-man-developer.jpg", specialty: "Intelligence Artificielle", verified: true, premium: true, followers: 189 },
-    { id: "3", name: "Fatou Sow", role: "CEO & Fondatrice", location: "Abidjan, Côte d'Ivoire", avatar: "/african-woman-ceo.jpg", specialty: "E-commerce", verified: true, premium: true, followers: 456 },
-    { id: "4", name: "Kwame Asante", role: "Designer UX/UI", location: "Lagos, Nigeria", avatar: "/african-man-designer.jpg", specialty: "Design Produit", verified: true, premium: false, followers: 178 },
-    { id: "5", name: "Aissatou Barry", role: "Artisan Créatrice", location: "Conakry, Guinée", avatar: "/african-woman-tailor.jpg", specialty: "Mode Éthique", verified: true, premium: true, followers: 312 },
-    { id: "6", name: "Moussa Traoré", role: "Photographe", location: "Bamako, Mali", avatar: "/african-man-photographer.jpg", specialty: "Photographie", verified: true, premium: false, followers: 267 },
-]
-
 const mockStats = {
     totalEntrepreneurs: 1250,
     verifiedMembers: 860,
@@ -130,9 +120,9 @@ export function DashboardPublicContent() {
 
             } catch (error) {
                 console.error("Erreur chargement dashboard public data:", error)
-                // Utiliser les données mock en cas d'erreur
+                // Conserver un dashboard cohérent sans injecter de faux profils
                 setStats(mockStats)
-                setEntrepreneursList(mockEntrepreneurs)
+                setEntrepreneursList([])
             } finally {
                 setLoading(false)
             }

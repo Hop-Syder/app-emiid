@@ -8,10 +8,10 @@ import { Card, CardContent } from "@/components/ui/card"
 import { useState } from "react"
 import { toast } from "sonner"
 import Link from "next/link"
-import type { Entrepreneur } from "@/data/mock-data"
+import type { PublicProfile } from "@/types"
 
 interface CardFreeProps {
-    entrepreneur: Entrepreneur
+    entrepreneur: PublicProfile
 }
 
 export function CardFree({ entrepreneur }: CardFreeProps) {
