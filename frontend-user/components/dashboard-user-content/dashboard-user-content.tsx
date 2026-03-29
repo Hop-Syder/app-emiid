@@ -11,6 +11,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { AlertTriangle } from "lucide-react"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { HeroSection } from "./hero-section"
 import { StatsSection } from "./stats-section"
@@ -29,13 +30,6 @@ export interface EntrepreneurProfile {
   followers: number;
   isFollowed?: boolean;
   tags?: string[];
-}
-
-const mockStats = {
-  totalEntrepreneurs: 1250,
-  verifiedMembers: 860,
-  countriesCovered: 15,
-  premiumMembers: 275,
 }
 
 export interface EntrepreneurApiResponse {
@@ -57,10 +51,11 @@ export interface EntrepreneurApiResponse {
 
 export function DashboardContent() {
   const [loading, setLoading] = useState(true)
+  const [statsError, setStatsError] = useState<string | null>(null)
   const [stats, setStats] = useState({
     totalEntrepreneurs: 0,
     verifiedMembers: 0,
-    countriesCovered: 15,
+    countriesCovered: 0,
     premiumMembers: 0,
   })
   const [entrepreneursList, setEntrepreneursList] = useState<EntrepreneurProfile[]>([])
@@ -69,12 +64,17 @@ export function DashboardContent() {
   useEffect(() => {
     const loadDashboardData = async () => {
       try {
+        setStatsError(null)
         const [statsRes, entRes] = await Promise.all([
           fetchWithAuth("/api/dashboard-user/stats"),
           fetchWithAuth("/api/dashboard-user/featured-entrepreneurs"),
         ])
 
-        if (statsRes.ok) setStats(await statsRes.json())
+        if (statsRes.ok) {
+          setStats(await statsRes.json())
+        } else {
+          setStatsError("Impossible de charger les statistiques pour le moment.")
+        }
 
         if (entRes.ok) {
           const entData = await entRes.json()
@@ -115,8 +115,7 @@ export function DashboardContent() {
         }
       } catch (error) {
         console.error("Erreur chargement dashboard-user:", error)
-        // Conserver un dashboard cohérent sans injecter de faux profils
-        setStats(mockStats)
+        setStatsError("Impossible de charger les statistiques pour le moment.")
         setEntrepreneursList([])
       } finally {
         setLoading(false)
@@ -129,6 +128,18 @@ export function DashboardContent() {
     <div className="space-y-8">
       {/* Hero Section */}
       <HeroSection />
+
+      {statsError && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-900">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-600" />
+            <div>
+              <p className="font-semibold">Statistiques indisponibles</p>
+              <p className="text-sm text-amber-800">{statsError}</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Stats Section */}
       <StatsSection stats={stats} />
