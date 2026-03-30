@@ -26,6 +26,7 @@ export function useDashboardStats({
     errorMessage = "Impossible de charger les statistiques pour le moment.",
 }: UseDashboardStatsOptions) {
     const [stats, setStats] = useState<DashboardStats | null>(null)
+    const [statsLoaded, setStatsLoaded] = useState(false)
     const [statsLoading, setStatsLoading] = useState(true)
     const [statsError, setStatsError] = useState<string | null>(null)
     const hasSuccessfulStatsRef = useRef(false)
@@ -52,6 +53,7 @@ export function useDashboardStats({
                 }
 
                 hasSuccessfulStatsRef.current = true
+                setStatsLoaded(true)
                 setStats(data)
                 setStatsError(null)
             } catch (error) {
@@ -89,5 +91,5 @@ export function useDashboardStats({
         }
     }, [endpoint, errorMessage, fetcher, refreshIntervalMs])
 
-    return { stats, statsLoading, statsError }
+    return { stats, statsLoaded, statsLoading, statsError }
 }

@@ -52,7 +52,7 @@ export interface EntrepreneurApiResponse {
 export function DashboardPublicContent() {
     const [loading, setLoading] = useState(true)
     const [entrepreneursList, setEntrepreneursList] = useState<EntrepreneurProfile[]>([])
-    const { stats, statsLoading, statsError } = useDashboardStats({
+    const { stats, statsLoaded, statsLoading, statsError } = useDashboardStats({
         endpoint: "/api/public/stats",
         fetcher: fetchPublic,
         refreshIntervalMs: 30000,
@@ -159,7 +159,7 @@ export function DashboardPublicContent() {
             )}
 
             {/* Stats Section */}
-            {statsLoading ? <DashboardStatsSkeleton /> : stats ? <StatsSection stats={stats} /> : null}
+            {statsLoading ? <DashboardStatsSkeleton /> : statsLoaded && stats ? <StatsSection stats={stats} /> : null}
 
             {/* Entrepreneurs du Réseau */}
             <EntrepreneursSection entrepreneursList={entrepreneursList} loading={loading} />
