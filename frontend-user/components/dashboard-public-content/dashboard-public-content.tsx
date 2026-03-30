@@ -13,6 +13,8 @@
 import { useState, useEffect } from "react"
 import { AlertTriangle } from "lucide-react"
 import { fetchPublic } from "@/lib/apiClient"
+import { useDashboardStats } from "@/hooks/use-dashboard-stats"
+import { DashboardStatsSkeleton } from "@/components/dashboard-stats-skeleton"
 import { HeroSection } from "./hero-section"
 import { StatsSection } from "./stats-section"
 import { EntrepreneursSection } from "./entrepreneurs-section"
@@ -49,31 +51,24 @@ export interface EntrepreneurApiResponse {
 
 export function DashboardPublicContent() {
     const [loading, setLoading] = useState(true)
-    const [statsError, setStatsError] = useState<string | null>(null)
-    const [stats, setStats] = useState({
-        totalEntrepreneurs: 0,
-        verifiedMembers: 0,
-        countriesCovered: 0,
-        premiumMembers: 0,
-    })
     const [entrepreneursList, setEntrepreneursList] = useState<EntrepreneurProfile[]>([])
+    const { stats, statsLoading, statsError } = useDashboardStats({
+        endpoint: "/api/public/stats",
+        fetcher: fetchPublic,
+        refreshIntervalMs: 30000,
+    })
 
 
     useEffect(() => {
-        const loadPublicDashboardData = async () => {
-            try {
-                setStatsError(null)
-                const [statsRes, entRes] = await Promise.all([
-                    fetchPublic("/api/public/stats"),
-                    fetchPublic("/api/public/profiles"),
-                ])
+        let isMounted = true
 
-                if (statsRes.ok) {
-                    const statsData = await statsRes.json()
-                    setStats(statsData)
-                } else {
-                    setStatsError("Impossible de charger les statistiques pour le moment.")
-                }
+        const loadPublicDashboardData = async (showLoading: boolean) => {
+            if (showLoading && isMounted) {
+                setLoading(true)
+            }
+
+            try {
+                const entRes = await fetchPublic("/api/public/profiles")
 
                 if (entRes.ok) {
                     const entData = await entRes.json()
@@ -92,8 +87,7 @@ export function DashboardPublicContent() {
                         console.warn("Failed to load follows for public dashboard")
                     }
 
-                    setEntrepreneursList(
-                        entData.map((e: EntrepreneurApiResponse) => {
+                    const nextEntrepreneurs = entData.map((e: EntrepreneurApiResponse) => {
                             const profileId = e.user_id || e.id || "0"
                             return {
                                 id: profileId,
@@ -109,22 +103,42 @@ export function DashboardPublicContent() {
                                 isFollowed: userFollowsIds.includes(profileId),
                                 tags: e.tags || []
                             }
-                        }),
-                    )
+                        })
+
+                    if (!isMounted) {
+                        return
+                    }
+
+                    setEntrepreneursList(nextEntrepreneurs)
                 } else {
                     console.error("Erreur API entrepreneurs (Public):", entRes.status)
+
+                    if (showLoading && isMounted) {
+                        setEntrepreneursList([])
+                    }
                 }
-
-
             } catch (error) {
-                console.error("Erreur chargement dashboard public data:", error)
-                setStatsError("Impossible de charger les statistiques pour le moment.")
-                setEntrepreneursList([])
+                console.error("Erreur chargement profils publics:", error)
+                if (showLoading && isMounted) {
+                    setEntrepreneursList([])
+                }
             } finally {
-                setLoading(false)
+                if (showLoading && isMounted) {
+                    setLoading(false)
+                }
             }
         }
-        loadPublicDashboardData()
+
+        void loadPublicDashboardData(true)
+
+        const intervalId = window.setInterval(() => {
+            void loadPublicDashboardData(false)
+        }, 30000)
+
+        return () => {
+            isMounted = false
+            window.clearInterval(intervalId)
+        }
     }, [])
 
     return (
@@ -145,7 +159,7 @@ export function DashboardPublicContent() {
             )}
 
             {/* Stats Section */}
-            <StatsSection stats={stats} />
+            {statsLoading ? <DashboardStatsSkeleton /> : stats ? <StatsSection stats={stats} /> : null}
 
             {/* Entrepreneurs du Réseau */}
             <EntrepreneursSection entrepreneursList={entrepreneursList} loading={loading} />
