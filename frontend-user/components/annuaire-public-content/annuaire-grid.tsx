@@ -7,14 +7,14 @@
  * 📧 daoudaabassichristian@gmail.com
 */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { fetchPublic, fetchWithAuth } from "@/lib/apiClient"
 import { AnnuaireCard } from "./annuaire-card"
-import type { PublicProfile, EntrepreneurStats } from "@/types"
-import { Skeleton } from "@/components/ui/skeleton"
+import type { EntrepreneurStats } from "@/types"
 
 interface AnnuaireGridProps {
     filters?: {
@@ -51,7 +51,7 @@ export function AnnuaireGrid({ filters }: AnnuaireGridProps) {
                         const followsData = await followsRes.json()
                         userFollowsIds = followsData.map((f: { user_id?: string; id?: string }) => f.user_id || f.id)
                     }
-                } catch (error) {
+                } catch {
                     // Silent failure - follows are optional
                     console.warn("Failed to load follows in annuaire")
                 }

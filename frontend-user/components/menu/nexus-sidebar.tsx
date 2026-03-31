@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client"
 
 import { useState } from "react"
@@ -5,17 +6,10 @@ import Link from "next/link"
 import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 import {
-
   ChevronDown,
-  Globe,
-  Home,
-  Grid,
-  MessageSquare,
   Search,
   Settings,
-  Wallet,
   X,
-  FileText,
 } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -79,7 +73,7 @@ interface NexusSidebarProps {
   setMobileMenuOpen: (open: boolean) => void
 }
 
-export function NexusSidebar({ sidebarOpen, setSidebarOpen, mobileMenuOpen, setMobileMenuOpen }: NexusSidebarProps) {
+export function NexusSidebar({ sidebarOpen, setSidebarOpen: _setSidebarOpen, mobileMenuOpen, setMobileMenuOpen }: NexusSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const { session, currentUser } = useCurrentUserProfile()
@@ -93,7 +87,7 @@ export function NexusSidebar({ sidebarOpen, setSidebarOpen, mobileMenuOpen, setM
   const userSubtitle = currentUser?.email || "Gérer mon compte"
   const userInitials = `${currentUser?.first_name?.[0] || "U"}${currentUser?.last_name?.[0] || ""}`
 
-  const handleNavClick = (e: React.MouseEvent, item: any) => {
+  const handleNavClick = (e: React.MouseEvent, item: { requiresAuth?: boolean, href?: string }) => {
     if (item.requiresAuth && !session) {
       e.preventDefault()
       router.push("/login")

@@ -88,7 +88,7 @@ export function DashboardContent({ initialStats = null }: DashboardContentProps)
             const followsRes = await fetchWithAuth("/api/users/follows")
             if (followsRes.ok) {
               const followsData = await followsRes.json()
-              userFollowsIds = followsData.map((f: any) => f.user_id || f.id)
+              userFollowsIds = followsData.map((f: { user_id?: string; id?: string }) => f.user_id || f.id)
             } else {
               nextWarning = "Le statut de vos abonnements n’a pas pu être synchronisé sur le dashboard." 
             }

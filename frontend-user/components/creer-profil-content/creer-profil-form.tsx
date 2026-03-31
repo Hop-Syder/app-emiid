@@ -8,6 +8,7 @@
  * 📧 daoudaabassichristian@gmail.com
 */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -20,7 +21,7 @@ import { Save, Eye, EyeOff, X } from "lucide-react"
 import { LocationSelector } from "@/components/LocationSelector"
 import { useState } from "react"
 import { Badge } from "@/components/ui/badge"
-import { motion } from "framer-motion"
+
 import { AvatarUpload } from "@/components/AvatarUpload"
 
 interface CreerProfilFormProps {
@@ -135,7 +136,7 @@ export function CreerProfilForm({
                             <SelectItem value="elite" className="rounded-xl py-3 cursor-pointer">⭐ Nexus Elite (Premium & Gold)</SelectItem>
                         </SelectContent>
                     </Select>
-                    <p className="text-[10px] text-muted-foreground ml-1">Ce design sera visible dans l'annuaire au survol de votre profil.</p>
+                    <p className="text-[10px] text-muted-foreground ml-1">Ce design sera visible dans l&apos;annuaire au survol de votre profil.</p>
                 </div>
 
                 {/* Personal Info */}
@@ -202,7 +203,7 @@ export function CreerProfilForm({
                         </div>
                         
                         <div className="space-y-2">
-                            <Label htmlFor="specialty" className="text-xs font-semibold text-muted-foreground ml-1">Domaine d'expertise précis *</Label>
+                            <Label htmlFor="specialty" className="text-xs font-semibold text-muted-foreground ml-1">Domaine d&apos;expertise précis *</Label>
                             <Input
                                 id="specialty"
                                 placeholder="Ex: Développement Web Fullstack ou Menuiserie d'art"
@@ -234,7 +235,7 @@ export function CreerProfilForm({
                                <span className="text-[10px] font-bold text-primary uppercase tracking-wider">Aperçu du contenu enregistré</span>
                            </div>
                            <p className="text-sm text-slate-600 line-clamp-3 italic leading-relaxed">
-                               "{formData.bio}"
+                               &quot;{formData.bio}&quot;
                            </p>
                         </div>
                     )}
@@ -335,7 +336,7 @@ export function CreerProfilForm({
                             className="rounded-xl flex-1 h-14 bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200 font-bold shadow-sm"
                         >
                             <EyeOff className="mr-2 h-5 w-5" />
-                            Retirer de l'annuaire
+                            Retirer de l&apos;annuaire
                         </Button>
                     )}
                 </div>

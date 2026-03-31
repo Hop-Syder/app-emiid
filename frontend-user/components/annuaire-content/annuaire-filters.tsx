@@ -27,7 +27,7 @@ export function AnnuaireFilters() {
                             <SelectItem value="senegal">Sénégal</SelectItem>
                             <SelectItem value="ghana">Ghana</SelectItem>
                             <SelectItem value="mali">Mali</SelectItem>
-                            <SelectItem value="cote-ivoire">Côte d'Ivoire</SelectItem>
+                            <SelectItem value="cote-ivoire">Côte d&apos;Ivoire</SelectItem>
                         </SelectContent>
                     </Select>
                     <Select>

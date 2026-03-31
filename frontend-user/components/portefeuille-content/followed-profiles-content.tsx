@@ -172,7 +172,7 @@ export function FollowedProfilesContent() {
                 setFollowedProfiles(prev => prev.filter(p => getPortfolioProfileId(p) !== profileId))
                 toast.success("Vous ne suivez plus ce profil")
             }
-        } catch (error) {
+        } catch {
             toast.error("Une erreur est survenue")
         }
     }
@@ -191,7 +191,7 @@ export function FollowedProfilesContent() {
             } else {
                 toast.error("Erreur lors de l'enregistrement de la note")
             }
-        } catch (error) {
+        } catch {
             toast.error("Erreur de connexion")
         }
     }
@@ -257,7 +257,7 @@ export function FollowedProfilesContent() {
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => setSortBy("recent")}>Récents</DropdownMenuItem>
                             <DropdownMenuItem onClick={() => setSortBy("name")}>Nom</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setSortBy("followers")}>Nombre d'abonnés</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setSortBy("followers")}>Nombre d&apos;abonnés</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
@@ -291,7 +291,7 @@ export function FollowedProfilesContent() {
                     ) : (
                         <div className="text-center py-20 bg-muted/20 rounded-xl border-2 border-dashed">
                             {searchQuery ? (
-                                <p className="text-muted-foreground text-lg">Aucun résultat pour "{searchQuery}"</p>
+                                <p className="text-muted-foreground text-lg">Aucun résultat pour &quot;{searchQuery}&quot;</p>
                             ) : (
                                 <>
                                     <p className="text-muted-foreground text-lg">Votre portefeuille est vide.</p>
@@ -327,7 +327,7 @@ export function FollowedProfilesContent() {
                         ))
                     ) : (
                         <div className="text-center py-20 bg-muted/20 rounded-xl border-2 border-dashed">
-                            <p className="text-muted-foreground text-lg">Vous n'avez pas encore d'abonnés.</p>
+                            <p className="text-muted-foreground text-lg">Vous n&apos;avez pas encore d&apos;abonnés.</p>
                             <p className="text-sm text-muted-foreground mt-2">Partagez votre profil pour attirer de nouveaux membres.</p>
                         </div>
                     )}

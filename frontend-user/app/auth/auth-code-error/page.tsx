@@ -30,10 +30,10 @@ export default function AuthCodeErrorPage() {
           
           <div className="space-y-2">
             <h1 className="text-3xl font-black text-slate-900 tracking-tight leading-tight">
-              Erreur d'Authentification
+              Erreur d&apos;Authentification
             </h1>
             <p className="text-slate-500 font-medium leading-relaxed">
-              Le lien de connexion a expiré ou a déjà été utilisé. Par sécurité, vous devez recommencer l'opération.
+              Le lien de connexion a expiré ou a déjà été utilisé. Par sécurité, vous devez recommencer l&apos;opération.
             </p>
           </div>
         </div>
@@ -56,7 +56,7 @@ export default function AuthCodeErrorPage() {
           >
             <Link href="/">
               <ArrowLeft className="h-5 w-5" />
-              Retour à l'accueil
+              Retour à l&apos;accueil
             </Link>
           </Button>
         </div>
@@ -64,7 +64,7 @@ export default function AuthCodeErrorPage() {
         <div className="pt-6">
           <p className="text-xs text-slate-400 font-medium flex items-center justify-center gap-2">
             <MessageSquare className="h-3 w-3" />
-            Besoin d'aide ? Contactez le support Nexus.
+            Besoin d&apos;aide ? Contactez le support Nexus.
           </p>
         </div>
       </motion.div>

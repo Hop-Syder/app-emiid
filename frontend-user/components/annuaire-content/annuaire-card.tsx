@@ -1,14 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { Shield, MapPin, Users, Eye } from "lucide-react"
-import { motion } from "framer-motion"
-import Link from "next/link"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-
 import { fetchWithAuth } from "@/lib/apiClient"
 
 import { NexusProfileCard, NexusCardVariant } from "@/components/carte-profil/nexus-profile-card"

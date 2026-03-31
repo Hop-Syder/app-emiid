@@ -70,8 +70,6 @@ export function ParametresContent() {
     const [preferences, setPreferences] = useState(defaultPreferences)
     const [securitySettings, setSecuritySettings] = useState(defaultSecuritySettings)
 
-    const [sectors, setSectors] = useState<any[]>([])
-    const [professions, setProfessions] = useState<any[]>([])
     const supabase = createClient()
 
     const loadUserProfile = async () => {
@@ -147,13 +145,11 @@ export function ParametresContent() {
     useEffect(() => {
         const loadReferences = async () => {
             try {
-                const [secRes, profRes] = await Promise.all([
+                await Promise.all([
                     fetchWithAuth("/api/reference/sectors"),
                     fetchWithAuth("/api/reference/professions"),
                     getReferenceCountriesCached(),
                 ])
-                if (secRes.ok) setSectors(await secRes.json())
-                if (profRes.ok) setProfessions(await profRes.json())
             } catch (error) {
                 console.error("Erreur chargement références:", error)
             }
@@ -161,6 +157,7 @@ export function ParametresContent() {
 
         loadUserProfile()
         loadReferences()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const handleSave = async () => {
@@ -176,7 +173,7 @@ export function ParametresContent() {
                 const errorData = await response.json().catch(() => null)
                 toast.error(errorData?.error || "Erreur lors de la mise à jour")
             }
-        } catch (error) {
+        } catch {
             toast.error("Erreur réseau")
         } finally {
             setSaving(false)
@@ -220,7 +217,7 @@ export function ParametresContent() {
 
             toast.success(successMessage)
             return true
-        } catch (error) {
+        } catch {
             toast.error("Erreur réseau")
             return false
         } finally {

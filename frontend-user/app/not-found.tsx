@@ -41,7 +41,7 @@ export default function NotFound() {
 
                 <p className="text-gray-500 mb-8 leading-relaxed">
                     Il semble que vous ayez navigué hors de la carte de Nexus Connect.
-                    Cette page n'existe pas ou a été déplacée.
+                    Cette page n&apos;existe pas ou a été déplacée.
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -53,7 +53,7 @@ export default function NotFound() {
                     </Link>
                     <Link href="/annuaire">
                         <Button variant="outline" className="rounded-xl h-12 px-8 bg-white border-gray-200 hover:bg-gray-50 w-full sm:w-auto">
-                            Explorer l'Annuaire
+                            Explorer l&apos;Annuaire
                         </Button>
                     </Link>
                 </div>

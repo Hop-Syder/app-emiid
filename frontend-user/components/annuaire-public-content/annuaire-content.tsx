@@ -2,8 +2,6 @@
 
 import { useState } from "react"
 
-import { Filter } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { AnnuaireFilters } from "./annuaire-filters"
 import { AnnuaireGrid } from "./annuaire-grid"
 import { Profile } from "./annuaire-card"
@@ -13,7 +11,7 @@ interface AnnuaireContentProps {
     category: string
 }
 
-export function AnnuaireContent({ profiles: initialProfiles, category }: AnnuaireContentProps) {
+export function AnnuaireContent({ profiles: _initialProfiles, category }: AnnuaireContentProps) {
     const [filters, setFilters] = useState({
         search: "",
         category: category || "all",

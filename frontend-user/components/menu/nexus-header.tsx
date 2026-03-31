@@ -1,9 +1,9 @@
+/* eslint-disable @next/next/no-img-element */
 "use client"
 
-import { Menu, PanelLeft, Bell, MessageSquare, Search, Home, Users, Wallet, LogOut, LogIn, User, PlusCircle, Settings } from "lucide-react"
+import { Menu, PanelLeft, Bell, MessageSquare, LogOut, LogIn, Settings } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import {
@@ -15,14 +15,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { usePathname, useRouter } from "next/navigation"
-import { useState } from "react"
+
 import { createClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
 import { useNotifications } from "@/hooks/use-notifications"
 import { useCurrentUserProfile } from "@/hooks/use-current-user-profile"
 import { formatDistanceToNow } from "date-fns"
 import { fr } from "date-fns/locale"
-import { motion, useScroll, useMotionValueEvent } from "framer-motion"
+import { useScroll, useMotionValueEvent } from "framer-motion"
 import { Drawer } from "vaul"
 
 interface NexusHeaderProps {
@@ -36,7 +36,6 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
   const pathname = usePathname()
   const router = useRouter()
   const { notifications, unreadCount, markAsRead } = useNotifications()
-  const [hidden, setHidden] = useState(false)
   const { scrollY } = useScroll()
   const supabase = createClient()
   const { session, currentUser } = useCurrentUserProfile()
@@ -45,9 +44,8 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
   const userInitials = `${currentUser?.first_name?.[0] || "U"}${currentUser?.last_name?.[0] || ""}`
   const userEmail = currentUser?.email || session?.user?.email || "Compte non connecté"
 
-  useMotionValueEvent(scrollY, "change", (latest) => {
+  useMotionValueEvent(scrollY, "change", () => {
     // Logic to hide header on scroll disabled to satisfy user request for persistent navigation
-    setHidden(false)
   })
 
   const handleLogout = async () => {
@@ -62,31 +60,6 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
       router.push("/login")
     } else if (targetRoute) {
       router.push(targetRoute)
-    }
-  }
-
-  const getActiveTab = () => {
-    if (pathname === "/dashboard-user" || pathname === "/" || pathname === "/dashboard-public") return "dashboard-user"
-    if (pathname.startsWith("/annuaire")) return "annuaire"
-    if (pathname.startsWith("/portefeuille")) return "portefeuille"
-    if (pathname.startsWith("/creer-profil")) return "creer-profil"
-
-    return "dashboard-user"
-  }
-
-  const handleTabChange = (value: string) => {
-    const routes: Record<string, string> = {
-      "dashboard-user": session ? "/dashboard-user" : "/dashboard-public",
-      annuaire: "/annuaire",
-      portefeuille: "/portefeuille",
-      "creer-profil": "/creer-profil",
-    }
-
-    const restrictedTabs = ["portefeuille", "creer-profil"]
-    if (restrictedTabs.includes(value) && !session) {
-      router.push("/login")
-    } else {
-      router.push(routes[value] || "/dashboard-user")
     }
   }
 

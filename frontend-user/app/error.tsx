@@ -34,7 +34,7 @@ export default function Error({
                     <AlertTriangle className="w-8 h-8" />
                 </div>
 
-                <h2 className="text-xl font-bold text-gray-900 mb-2">Quelque chose s'est mal passé</h2>
+                <h2 className="text-xl font-bold text-gray-900 mb-2">Quelque chose s&apos;est mal passé</h2>
                 <p className="text-gray-500 text-sm mb-6">
                     Une erreur inattendue a empêché le chargement de cette section. Nos ingénieurs ont été notifiés.
                 </p>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * @author @hopsyder
  * @organization Nexus Partners
@@ -262,7 +263,7 @@ export function SecuritySection({
                     <div className="flex items-center justify-between p-4 border rounded-xl">
                         <div>
                             <p className="font-medium text-[#022753]">Verrouillage par Code PIN</p>
-                            <p className="text-sm text-muted-foreground">Sécurisez l'accès au tableau de bord</p>
+                            <p className="text-sm text-muted-foreground">Sécurisez l&apos;accès au tableau de bord</p>
                         </div>
                         <Switch
                             checked={profile.pin_enabled}
@@ -288,7 +289,7 @@ export function SecuritySection({
                     <div className="flex items-center justify-between p-4 border border-red-200 rounded-xl">
                         <div>
                             <p className="font-medium">Désactiver le compte</p>
-                            <p className="text-sm text-muted-foreground">Votre compte sera masqué et l'accès sera bloqué</p>
+                            <p className="text-sm text-muted-foreground">Votre compte sera masqué et l&apos;accès sera bloqué</p>
                         </div>
                         <Button variant="outline" className="rounded-xl border-red-200 text-red-600 bg-transparent" onClick={() => void handleDeactivateAccount()} disabled={accountLoading}>
                             Désactiver

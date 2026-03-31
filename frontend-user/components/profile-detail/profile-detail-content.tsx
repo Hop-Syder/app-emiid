@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client"
 
 import { useState, useEffect } from "react"
@@ -8,9 +9,7 @@ import {
     Users,
     MessageCircle,
     Share2,
-    Globe,
     Mail,
-    Phone,
     Calendar,
     Briefcase,
     Star,
@@ -22,7 +21,6 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Skeleton } from "@/components/ui/skeleton"
 import { fetchPublic, fetchWithAuth } from "@/lib/apiClient"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
@@ -116,10 +114,10 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                         const followRes = await fetchWithAuth("/api/users/follows")
                         if (followRes.ok) {
                             const follows = await followRes.json()
-                            const alreadyFollowed = follows.some((f: any) => f.user_id === mappedProfile.id)
+                            const alreadyFollowed = follows.some((f: { user_id: string }) => f.user_id === mappedProfile.id)
                             setIsFollowed(alreadyFollowed)
                         }
-                    } catch (e) {
+                    } catch {
                         // Pas connecté ou erreur silencieuse
                     }
                 } else if (response.status === 404) {
@@ -149,7 +147,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
             } else {
                 toast.error("Veuillez vous connecter pour suivre ce membre")
             }
-        } catch (e) {
+        } catch {
             toast.error("Erreur de connexion")
         }
     }
@@ -176,11 +174,11 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                 </div>
                 <div className="space-y-2">
                     <h2 className="text-2xl font-black text-slate-900">Profil Introuvable</h2>
-                    <p className="text-slate-500 max-w-xs mx-auto">Ce compte n'existe pas ou a été désactivé par l'administrateur.</p>
+                    <p className="text-slate-500 max-w-xs mx-auto">Ce compte n&apos;existe pas ou a été désactivé par l&apos;administrateur.</p>
                 </div>
                 <Button onClick={() => router.push('/annuaire')} size="lg" className="rounded-2xl gap-2 font-bold bg-[#022753]">
                     <ArrowLeft className="h-5 w-5" />
-                    Retour à l'annuaire
+                    Retour à l&apos;annuaire
                 </Button>
             </div>
         )
@@ -431,7 +429,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                                             <div>
                                                 <h4 className="text-lg font-black text-slate-900">Membre actif du Réseau</h4>
                                                 <p className="text-slate-500 font-bold uppercase text-[10px] tracking-widest mt-1">Nexus Connect</p>
-                                                <p className="text-xs text-slate-400 mt-2">Contribue à l'épanouissement technologique et économique de la sous-région.</p>
+                                                <p className="text-xs text-slate-400 mt-2">Contribue à l&apos;épanouissement technologique et économique de la sous-région.</p>
                                             </div>
                                         </CardContent>
                                     </Card>

@@ -43,7 +43,7 @@ export function PublicHeader() {
                         <Button variant="ghost" className="rounded-xl">Connexion</Button>
                     </Link>
                     <Link href="/login?tab=register">
-                        <Button className="rounded-xl bg-[#022753] hover:bg-[#022753]/90">S'inscrire</Button>
+                        <Button className="rounded-xl bg-[#022753] hover:bg-[#022753]/90">S&apos;inscrire</Button>
                     </Link>
                 </div>
             </div>

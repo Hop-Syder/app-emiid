@@ -80,9 +80,9 @@ export function AvatarUpload({ currentAvatarUrl, onUploadComplete, disabled }: A
             onUploadComplete(publicUrl)
             toast.success("Photo de profil prête !")
 
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Erreur upload:", error)
-            toast.error("Erreur lors de l'upload : " + error.message)
+            toast.error("Erreur lors de l'upload : " + (error as Error).message)
         } finally {
             setUploading(false)
         }

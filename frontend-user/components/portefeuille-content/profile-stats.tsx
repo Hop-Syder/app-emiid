@@ -26,7 +26,7 @@ export function ProfileStats({ total, updates, activeToday }: ProfileStatsProps)
                     </div>
                     <div className="text-center">
                         <div className="text-3xl font-bold text-red-600">{activeToday}</div>
-                        <p className="text-sm text-muted-foreground">Actifs aujourd'hui</p>
+                        <p className="text-sm text-muted-foreground">Actifs aujourd&apos;hui</p>
                     </div>
                 </div>
             </CardContent>

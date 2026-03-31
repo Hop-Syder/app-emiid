@@ -1,3 +1,5 @@
+/* eslint-disable @next/next/no-img-element */
+/* eslint-disable jsx-a11y/alt-text */
 /**
  * @author @hopsyder
  * @organization Nexus Partners
@@ -10,12 +12,12 @@
 
 import { useState, useRef, useEffect, useCallback } from "react"
 import { useSearchParams } from "next/navigation"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion } from "framer-motion"
 import { Label } from "@/components/ui/label"
 import {
-  Loader2, Send, Search, Image, Paperclip, Smile, Mic, Phone, Video,
+  Loader2, Send, Search, Image, Paperclip, Phone, Video,
   MoreHorizontal, ArrowLeft, Check, CheckCheck, X, Plus,
-  Settings, Bell, Pin, Trash2, Archive, Star, Filter, Shield, Gavel, AlertTriangle
+  Settings, Bell, Pin, Trash2, Archive, Star, Shield, Gavel, AlertTriangle
 } from "lucide-react"
 import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -26,10 +28,8 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogFooter,
 } from "@/components/ui/dialog"
 import {
   Select,
@@ -55,7 +55,7 @@ import { cn } from "@/lib/utils"
 import { fetchWithAuth, readApiError } from "@/lib/apiClient"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
-import type { Conversation, Message, UserProfile } from "@/types"
+import type { Conversation, Message } from "@/types"
 
 // Supprimé les mocks et generateMockMessages qui ne sont plus nécessaires
 const supabase = createClient()
@@ -71,7 +71,6 @@ export function MessagesContent() {
   const [loadingConv, setLoadingConv] = useState(true)
   const [loadingMsgs, setLoadingMsgs] = useState(false)
   const [isSending, setIsSending] = useState(false)
-  const [supportId, setSupportId] = useState<string | null>(null)
   const [showChatMobile, setShowChatMobile] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [filterType, setFilterType] = useState<"all" | "unread" | "pinned">("all")
@@ -122,8 +121,7 @@ export function MessagesContent() {
           const data = await res.json()
           setConversations(data)
 
-          const support = data.find((c: Conversation) => c.otherUser.role?.toLowerCase().includes("admin") || c.otherUser.name.toLowerCase().includes("nexus"))
-          if (support) setSupportId(support.otherUser.id)
+
 
           if (contactId) {
             const existing = data.find((c: Conversation) => c.otherUser.id === contactId)
@@ -169,6 +167,7 @@ export function MessagesContent() {
         setCurrentUserId(user.id)
       }
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // 2. Charger les messages
@@ -534,7 +533,7 @@ export function MessagesContent() {
       } else {
         toast.error(await readApiError(res, "Impossible d'inviter l'admin"))
       }
-    } catch (err) {
+    } catch {
       toast.error("Erreur de connexion")
     } finally {
       setIsSending(false)
@@ -1217,7 +1216,7 @@ export function MessagesContent() {
                 <div className="p-4 bg-blue-50/50 rounded-2xl border border-blue-100 flex gap-3">
                   <AlertTriangle className="h-5 w-5 text-blue-500 shrink-0" />
                   <p className="text-[11px] text-blue-700 font-bold leading-relaxed">
-                    Note : L'administrateur aura accès à l'historique complet de cette discussion pour mener à bien sa médiation.
+                    Note : L&apos;administrateur aura accès à l&apos;historique complet de cette discussion pour mener à bien sa médiation.
                   </p>
                 </div>
               </div>

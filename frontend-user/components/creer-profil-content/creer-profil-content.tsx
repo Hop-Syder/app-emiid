@@ -8,6 +8,7 @@
  * 📧 daoudaabassichristian@gmail.com
 */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import { useState, useEffect } from "react"
@@ -307,7 +308,7 @@ export function CreerProfilContent() {
                 <div className="flex items-center justify-between mb-6">
                     <div>
                         <h1 className="text-3xl font-bold">Publier une Carte de Profil</h1>
-                        <p className="text-muted-foreground">Remplissez ce formulaire pour créer et publier votre carte dans l'annuaire</p>
+                        <p className="text-muted-foreground">Remplissez ce formulaire pour créer et publier votre carte dans l&apos;annuaire</p>
                     </div>
                     <Badge variant={isPublished ? "default" : "secondary"} className="rounded-xl">
                         {isPublished ? "Publié" : "Brouillon"}

@@ -8,16 +8,14 @@
 "use client"
 
 import * as React from "react"
-import { Check, ChevronsUpDown, Plus, Loader2 } from "lucide-react"
+import { Check, Plus, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import {
     Command,
-    CommandEmpty,
     CommandGroup,
     CommandInput,
     CommandItem,
     CommandList,
-    CommandSeparator,
 } from "@/components/ui/command"
 import { createClient } from "@/lib/supabase/client"
 
@@ -49,7 +47,7 @@ export function SmartSelect({ table, label, value, onChange, placeholder }: Smar
                 .order("name")
 
             if (data) {
-                setOptions(data.map((item: any) => item.name))
+                setOptions(data.map((item: { name: string }) => item.name))
             }
             setLoading(false)
         }
@@ -140,7 +138,7 @@ export function SmartSelect({ table, label, value, onChange, placeholder }: Smar
                                             className="cursor-pointer bg-amber-50 text-amber-900 border border-amber-200 rounded-lg m-1"
                                         >
                                             <Plus className="mr-2 h-4 w-4 text-amber-600" />
-                                            Créer "<span className="font-bold">{inputValue}</span>"
+                                            Créer &quot;<span className="font-bold">{inputValue}</span>&quot;
                                         </CommandItem>
                                     </CommandGroup>
                                 )}

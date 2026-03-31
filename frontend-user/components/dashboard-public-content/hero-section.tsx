@@ -28,8 +28,8 @@ export function HeroSection() {
                     <Badge className="bg-white/20 text-white hover:bg-white/30 rounded-xl">Réseau Pan-Africain</Badge>
                     <h2 className="text-4xl font-bold">Bienvenue sur Nexus Connect</h2>
                     <p className="max-w-[600px] text-white/90 text-lg">
-                        Cartographier et propulser 100 000 acteurs économiques ouest-africains d'ici 2027. Connectez-vous avec des
-                        entrepreneurs, artisans et institutions à travers l'Afrique de l'Ouest.
+                        Cartographier et propulser 100 000 acteurs économiques ouest-africains d&apos;ici 2027. Connectez-vous avec des
+                        entrepreneurs, artisans et institutions à travers l&apos;Afrique de l&apos;Ouest.
                     </p>
                     <div className="flex flex-wrap gap-3">
                         <Button

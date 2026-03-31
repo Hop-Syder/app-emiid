@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client"
 
 import type React from "react"
@@ -7,7 +8,7 @@ import { motion } from "framer-motion"
 import { NexusSidebar } from "./nexus-sidebar"
 import { NexusHeader } from "./nexus-header"
 import { cn } from "@/lib/utils"
-import { Plus, MessageSquare, Camera, Home, Grid, Wallet, FileText, Settings, X, LayoutGrid } from "lucide-react"
+
 import { Button } from "@/components/ui/button"
 import { usePathname, useRouter } from "next/navigation"
 import { AnimatePresence } from "framer-motion"

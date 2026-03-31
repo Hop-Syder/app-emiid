@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * @author @hopsyder
  * @organization Nexus Partners
@@ -33,37 +34,37 @@ class Logger {
         return false
     }
 
-    private formatMessage(message: any, ...args: any[]): string {
+    private formatMessage(message: unknown): string {
         const prefix = this.config.prefix ? `[${this.config.prefix}] ` : ''
         const timestamp = new Date().toISOString()
         return `${prefix}${timestamp} - ${message}`
     }
 
-    log(message: any, ...args: any[]): void {
+    log(message: unknown, ...args: unknown[]): void {
         if (this.shouldLog('log')) {
             console.log(this.formatMessage(message), ...args)
         }
     }
 
-    error(message: any, ...args: any[]): void {
+    error(message: unknown, ...args: unknown[]): void {
         if (this.shouldLog('error')) {
             console.error(this.formatMessage(message), ...args)
         }
     }
 
-    warn(message: any, ...args: any[]): void {
+    warn(message: unknown, ...args: unknown[]): void {
         if (this.shouldLog('warn')) {
             console.warn(this.formatMessage(message), ...args)
         }
     }
 
-    info(message: any, ...args: any[]): void {
+    info(message: unknown, ...args: unknown[]): void {
         if (this.shouldLog('info')) {
             console.info(this.formatMessage(message), ...args)
         }
     }
 
-    debug(message: any, ...args: any[]): void {
+    debug(message: unknown, ...args: unknown[]): void {
         if (isDev && this.shouldLog('debug')) {
             console.debug(this.formatMessage(message), ...args)
         }

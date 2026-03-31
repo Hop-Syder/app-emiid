@@ -2,10 +2,9 @@
 
 import React, { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
-import Image from "next/image"
 import useEmblaCarousel from "embla-carousel-react"
-import { motion, AnimatePresence } from "framer-motion"
-import { ArrowRight, ChevronRight, Briefcase, Users, Globe, BadgeCheck } from "lucide-react"
+import { motion } from "framer-motion"
+import { ArrowRight, ChevronRight, Users, Globe, BadgeCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -54,10 +53,7 @@ export function OnboardingCarousel() {
         }
     }, [emblaApi, onSelect])
 
-    const scrollTo = useCallback(
-        (index: number) => emblaApi && emblaApi.scrollTo(index),
-        [emblaApi]
-    )
+
 
     const handleNext = () => {
         if (emblaApi) emblaApi.scrollNext()
@@ -167,7 +163,7 @@ export function OnboardingCarousel() {
                                     size="lg"
                                     className="w-full h-16 text-lg bg-primary hover:bg-primary/90 rounded-xl shadow-xl shadow-primary/20 font-bold"
                                 >
-                                    Commencer l'aventure <ArrowRight className="ml-2 w-5 h-5" />
+                                    Commencer l&apos;aventure <ArrowRight className="ml-2 w-5 h-5" />
                                 </Button>
                             </Link>
                             <div className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest text-zinc-400">

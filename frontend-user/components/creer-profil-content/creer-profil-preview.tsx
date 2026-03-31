@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * @author @hopsyder
  * @organization Nexus Partners
@@ -41,7 +42,7 @@ export function CreerProfilPreview({ formData }: CreerProfilPreviewProps) {
             />
 
             <p className="text-[10px] text-center text-slate-400 font-medium px-8 italic">
-                Ceci est un aperçu de votre carte telle qu'elle apparaîtra dans l'annuaire Nexus Connect.
+                Ceci est un aperçu de votre carte telle qu&apos;elle apparaîtra dans l&apos;annuaire Nexus Connect.
             </p>
         </div>
     )

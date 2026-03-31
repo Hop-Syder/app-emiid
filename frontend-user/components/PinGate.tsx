@@ -37,8 +37,8 @@ export function PinGate({ children }: { children: React.ReactNode }) {
                     setLocked(false)
                 }
             }
-        } catch (e) {
-            console.error("Erreur vérification PIN:", e)
+        } catch (error) {
+            console.error("Erreur vérification PIN:", error)
         } finally {
             setLoading(false)
         }
@@ -68,7 +68,7 @@ export function PinGate({ children }: { children: React.ReactNode }) {
                 setError(data.error || "Code incorrect")
                 setPin("")
             }
-        } catch (e) {
+        } catch {
             setError("Erreur de connexion")
         }
     }
@@ -124,7 +124,7 @@ export function PinGate({ children }: { children: React.ReactNode }) {
                             router.push('/')
                         }}
                     >
-                        Retour à l'accueil
+                        Retour à l&apos;accueil
                     </Button>
                 </div>
             </div>
