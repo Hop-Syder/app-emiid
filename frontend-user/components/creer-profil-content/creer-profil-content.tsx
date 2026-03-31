@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge"
 import { CreerProfilForm } from "./creer-profil-form"
 import { CreerProfilPreview } from "./creer-profil-preview"
 import { fetchWithAuth } from "@/lib/apiClient"
+import { getReferenceCountriesCached, type ReferenceCountry } from "@/lib/location-cache"
 import { toast } from "sonner"
 
 interface CreateProfileFormData {
@@ -126,7 +127,7 @@ const validateProfileForm = (formData: CreateProfileFormData, mode: "draft" | "p
 
 export function CreerProfilContent() {
     const [isPublished, setIsPublished] = useState(false)
-    const [countries, setCountries] = useState<any[]>([])
+    const [countries, setCountries] = useState<ReferenceCountry[]>([])
     const [validationErrors, setValidationErrors] = useState<string[]>([])
     const [formData, setFormData] = useState<CreateProfileFormData>({
         name: "",
@@ -150,16 +151,12 @@ export function CreerProfilContent() {
         const loadInitialData = async () => {
             try {
                 // Chargement des référentiels
-                const [countryRes, profileRes] = await Promise.all([
-                    fetchWithAuth("/api/reference/countries"),
+                const [countriesList, profileRes] = await Promise.all([
+                    getReferenceCountriesCached(),
                     fetchWithAuth("/api/users/me"),
                 ])
 
-                let countriesList: any[] = []
-                if (countryRes.ok) {
-                    countriesList = await countryRes.json()
-                    setCountries(countriesList)
-                }
+                setCountries(countriesList)
 
                 // Initialisation : Hydratation du formulaire
                 if (profileRes.ok) {
@@ -175,7 +172,7 @@ export function CreerProfilContent() {
                             resolvedCountryCode = data.countries.iso_code
                             resolvedCountryName = data.countries.name
                         } else if (data.country_id) {
-                            const found = countriesList.find((c: any) => c.id === data.country_id)
+                            const found = countriesList.find((country) => country.id === data.country_id)
                             if (found) {
                                 resolvedCountryCode = found.iso_code
                                 resolvedCountryName = found.name

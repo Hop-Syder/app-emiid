@@ -16,6 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
+import { getReferenceCountriesCached } from "@/lib/location-cache"
 
 const defaultNotificationSettings = {
     messages: true,
@@ -71,7 +72,6 @@ export function ParametresContent() {
 
     const [sectors, setSectors] = useState<any[]>([])
     const [professions, setProfessions] = useState<any[]>([])
-    const [countries, setCountries] = useState<any[]>([])
     const supabase = createClient()
 
     const loadUserProfile = async () => {
@@ -147,14 +147,13 @@ export function ParametresContent() {
     useEffect(() => {
         const loadReferences = async () => {
             try {
-                const [secRes, profRes, countryRes] = await Promise.all([
+                const [secRes, profRes] = await Promise.all([
                     fetchWithAuth("/api/reference/sectors"),
                     fetchWithAuth("/api/reference/professions"),
-                    fetchWithAuth("/api/reference/countries")
+                    getReferenceCountriesCached(),
                 ])
                 if (secRes.ok) setSectors(await secRes.json())
                 if (profRes.ok) setProfessions(await profRes.json())
-                if (countryRes.ok) setCountries(await countryRes.json())
             } catch (error) {
                 console.error("Erreur chargement références:", error)
             }
