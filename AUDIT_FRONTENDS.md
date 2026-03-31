@@ -167,7 +167,7 @@ Le point le plus critique observé est le suivant:
 
 ### État
 
-- **OK / Partiel**
+- **Partiel**
 
 ### Ce qui fonctionne
 
@@ -176,23 +176,22 @@ Le point le plus critique observé est le suivant:
 - unfollow
 - note privée sur un profil suivi
 - ouverture rapide du profil ou de la messagerie
-- abonnement realtime désormais filtré par utilisateur connecté
-- activité calculée depuis des données backend stables (`followed_at`, `updated_at`, `created_at`)
-- badge de vérification relié à `is_verified`
 
 ### Ce qui ne fonctionne pas ou reste incomplet
 
-- le module ne dispose toujours pas d’un vrai flux de mises à jour métier détaillées côté backend
+- abonnement realtime branché sur toute la table `user_follows` sans filtre utilisateur
+- certains champs d’activité affichés (`new_updates`, `is_active_today`, `last_update_title`) semblent supposés mais non garantis par le backend actuel
+- les cartes followers sont rendues avec `verified: true` en dur, ce qui est incorrect fonctionnellement
 
 ### Impact
 
-- module désormais cohérent avec la vérité backend actuelle
+- module utile mais encore approximatif dans sa vérité métier
 
-## 7. Paramètres utilisateur
+## 7. Paramètres utilisateur ??/
 
 ### État
 
-- **OK / Partiel**
+- **Partiel / KO selon sous-module**
 
 ### Profil
 
@@ -202,52 +201,49 @@ Le point le plus critique observé est le suivant:
 
 ### Sécurité
 
-- **OK / Partiel**
+- **Partiel**
 - PIN fonctionnel: activation, désactivation, vérification, verrouillage d’accès au dashboard
-- changement de mot de passe branché via session Supabase
-- préférence 2FA persistée dans les métadonnées utilisateur
-- désactivation de compte branchée avec blocage d’accès et dépublication
-- suppression définitive du compte branchée côté backend
+- changement de mot de passe: **UI seule**, non branchée
+- 2FA applicative: **UI seule**, non branchée
+- désactivation/suppression de compte: **UI seule**, non branchée
 
 ### Notifications
 
-- **OK**
-- préférences persistées dans les métadonnées auth utilisateur
-- sauvegarde branchée depuis l’écran paramètres
+- **KO fonctionnel**
+- écran visuel uniquement
+- pas de persistance utilisateur observée
 
 ### Préférences générales
 
-- **OK / Partiel**
-- persistance observée pour langue, devise, fuseau, thème et visibilité publique
-- synchronisation du thème côté frontend
-- la visibilité publique pilote aussi `is_published`
+- **KO fonctionnel**
+- écran visuel uniquement
+- pas de persistance observée pour langue, devise, fuseau, mode sombre, visibilité
 
 ### Impact
 
-- la zone paramètres pilote désormais plusieurs comportements métier réels
-- la 2FA reste encore dépendante d’une activation MFA complète côté Supabase pour une protection forte
+- seule la partie profil et PIN est réellement exploitable
+- le reste donne l’impression d’être prêt mais ne pilote encore rien côté métier
 
 ## 8. Notifications temps réel
 
 ### État
 
-- **OK / Partiel**
+- **Partiel**
 
 ### Ce qui fonctionne
 
 - hook dédié de lecture des notifications
 - calcul du nombre de non lues
 - marquage comme lu
-- abonnement realtime initialisé seulement après résolution du `userId`
-- tests unitaires repassés au vert
 
 ### Ce qui ne fonctionne pas ou reste fragile
 
-- la robustesse dépend toujours de la disponibilité Supabase realtime
+- abonnement realtime initialisé avant que `userId` soit garanti
+- tests unitaires existants mais actuellement cassés
 
 ### Impact
 
-- fonctionnalité désormais fiable dans son implémentation frontend actuelle
+- fonctionnalité potentiellement utile mais pas encore fiabilisée
 
 ## Audit du frontend admin
 
@@ -255,7 +251,7 @@ Le point le plus critique observé est le suivant:
 
 ### État
 
-- **OK**
+- **OK / Partiel**
 
 ### Ce qui fonctionne
 
@@ -263,10 +259,10 @@ Le point le plus critique observé est le suivant:
 - activité hebdomadaire
 - utilisateurs récents
 - répartition géographique
-- état système relié à l’endpoint backend `/health`
 
 ### Ce qui ne fonctionne pas ou reste incomplet
 
+- état système affiché de façon essentiellement statique côté UI
 - pas de monitoring métier profond
 
 ### Impact
@@ -289,10 +285,11 @@ Le point le plus critique observé est le suivant:
 - bascule publication
 - bascule vérification
 - bascule premium
-- suppression complète du compte via `auth.users` avec cascade profil
+- suppression du profil
 
 ### Ce qui ne fonctionne pas ou reste incomplet
 
+- la suppression observée porte sur `user_profiles` mais pas sur le compte auth Supabase lui-même
 - pas de workflow d’édition avancée du profil admin
 - pas de journal d’actions admin
 - pas de modération des tags, avatar, bio, pièces jointes ou documents utilisateur
@@ -315,11 +312,10 @@ Le point le plus critique observé est le suivant:
 - marquage comme lu côté admin
 - réponse admin dans la conversation
 - temps réel sur la table `messages`
-- gestion de statut de médiation (`pending`, `in_progress`, `resolved`)
-- badge de statut visible dans la liste et l’en-tête de médiation
 
 ### Ce qui ne fonctionne pas ou reste incomplet
 
+- pas de gestion de statut du litige
 - pas d’assignation à un agent ou admin
 - pas d’historique de traitement
 - pas de priorisation, catégorisation, SLA, notes internes
@@ -333,19 +329,20 @@ Le point le plus critique observé est le suivant:
 
 ### État
 
-- **OK / Partiel**
+- **KO fonctionnel**
 
 ### Ce qui fonctionne
 
-- chargement réel des éléments depuis `project_gallery`
-- filtres de recherche et statut
-- action de validation avec notification à l’auteur
-- action de retrait avec suppression réelle de l’élément
+- écran visuel soigné
+- filtres locaux
+- vue grille/liste
+- aperçu modal
 
 ### Ce qui ne fonctionne pas
 
-- il n’existe pas encore de statut de modération persistant dans le schéma galerie
-- pas de workflow avancé de signalement / motif / traçabilité
+- toutes les données sont statiques
+- `handleApprove` et `handleReject` ne font qu’un `console.log`
+- aucune connexion backend réelle
 
 ### Impact
 
@@ -356,17 +353,19 @@ Le point le plus critique observé est le suivant:
 
 ### État
 
-- **OK / Partiel**
+- **KO fonctionnel**
 
 ### Ce qui fonctionne
 
-- chargement du profil admin réel
-- persistance des préférences notifications et sécurité dans les métadonnées auth
-- affichage des statistiques système depuis le backend
+- navigation par onglets
+- état local de formulaire
+- rendu visuel complet
 
 ### Ce qui ne fonctionne pas
 
-- pas encore de paramètres plateforme globaux mutualisés pour tous les admins
+- sauvegarde simulée via timeout
+- aucune persistance réelle observée
+- statistiques système affichées en dur
 
 ### Impact
 
@@ -376,18 +375,18 @@ Le point le plus critique observé est le suivant:
 
 ### État
 
-- **OK / Partiel**
+- **KO critique**
 
 ### Constats
 
-- le layout admin vérifie désormais la session et le rôle avant rendu
-- les Server Actions refusent désormais l’exécution sans session admin valide
-- le client `service_role` n’est plus utilisé sans garde d’accès préalable
+- le layout admin n’impose pas de garde d’accès explicite côté app avant rendu
+- les Server Actions s’appuient sur un client utilisant `SUPABASE_SERVICE_ROLE_KEY`
+- aucune couche visible de vérification de rôle admin n’est imposée avant utilisation de ces actions
 
 ### Impact
 
-- le risque critique initial est fortement réduit
-- une couche RBAC plus fine et un audit log restent souhaitables
+- c’est le risque le plus grave de tout l’audit
+- une administration ne doit pas reposer sur la simple discrétion d’URL ou sur un contrôle implicite
 
 ## Ce que le frontend admin doit avoir pour piloter le frontend user
 
@@ -474,38 +473,50 @@ Pour piloter réellement le frontend user, le frontend admin doit couvrir au min
 
 ## Frontend user
 
+- notifications de préférences non persistées
+- préférences générales non persistées
+- changement mot de passe non branché
+- 2FA non branchée
+- désactivation / suppression de compte non branchées
 - cohérence follow initiale de l’annuaire non fiable
-- la 2FA complète reste dépendante d’une configuration MFA Supabase plus poussée
+- notification realtime encore fragile
+- build production non validé
+- tests notifications cassés
 
 ## Frontend admin
 
+- absence de garde d’accès admin robuste en façade
+- modération galerie non branchée
+- paramètres admin simulés
+- suppression utilisateur incomplète au niveau compte auth
 - absence de gestion des référentiels du frontend user
 - absence de notifications système pilotées par admin
-- absence de workflow de modération complet avec audit log, assignation et notes internes
+- absence de workflow de modération complet
 
 ## Validation technique réalisée pendant l’audit
 
 ## frontend-user
 
 - `typecheck`: OK
-- `test`: OK
+- `test`: KO
 - `lint`: KO
-- `build`: OK
+- `build`: KO
 
 ### Détails observés
 
+- les tests `useNotifications` échouent à cause du mock `createClient`
 - la configuration ESLint est rejetée par l’outil disponible dans l’environnement
-- le flux build est désormais validé localement
+- le build échoue avec une erreur webpack non détaillée dans cette session
 
 ## frontend-admin
 
-- `lint`: OK avec warnings restants
-- `build`: OK
+- `lint`: KO
+- `build`: KO dans cet environnement
 
 ### Détails observés
 
-- le build passe en forçant `webpack` dans cet environnement
-- des warnings lint non bloquants subsistent sur certains composants hérités
+- le build dépend des Google Fonts et échoue sans accès réseau adéquat
+- plusieurs erreurs lint réelles subsistent
 
 ## backend
 
