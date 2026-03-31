@@ -9,7 +9,7 @@
 
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 
 export interface Notification {
@@ -25,15 +25,26 @@ export interface Notification {
 export function useNotifications() {
     const [notifications, setNotifications] = useState<Notification[]>([])
     const [unreadCount, setUnreadCount] = useState(0)
-    const supabase = createClient()
+    const [userId, setUserId] = useState<string | null>(null)
+    const supabase = useMemo(() => createClient(), [])
 
     useEffect(() => {
-        let userId: string | null = null
+        let isMounted = true
 
         const loadNotifications = async () => {
             const { data: { user } } = await supabase.auth.getUser()
-            if (!user) return
-            userId = user.id
+            if (!isMounted) {
+                return
+            }
+
+            if (!user) {
+                setUserId(null)
+                setNotifications([])
+                setUnreadCount(0)
+                return
+            }
+
+            setUserId(user.id)
 
             const { data, error } = await supabase
                 .from('notifications')
@@ -42,15 +53,28 @@ export function useNotifications() {
                 .order('created_at', { ascending: false })
                 .limit(20)
 
+            if (!isMounted) {
+                return
+            }
+
             if (!error && data) {
                 setNotifications(data)
-                setUnreadCount(data.filter(n => !n.is_read).length)
+                setUnreadCount(data.filter((notification) => !notification.is_read).length)
             }
         }
 
-        loadNotifications()
+        void loadNotifications()
 
-        // Realtime subscription
+        return () => {
+            isMounted = false
+        }
+    }, [supabase])
+
+    useEffect(() => {
+        if (!userId) {
+            return
+        }
+
         const channel = supabase
             .channel(`notifications-${userId}`)
             .on(
@@ -59,12 +83,12 @@ export function useNotifications() {
                     event: 'INSERT',
                     schema: 'public',
                     table: 'notifications',
-                    filter: userId ? `user_id=eq.${userId}` : undefined
+                    filter: `user_id=eq.${userId}`,
                 },
                 (payload) => {
                     const newNotif = payload.new as Notification
-                    setNotifications(prev => [newNotif, ...prev])
-                    setUnreadCount(prev => prev + 1)
+                    setNotifications((prev) => [newNotif, ...prev])
+                    setUnreadCount((prev) => prev + (newNotif.is_read ? 0 : 1))
                 }
             )
             .subscribe()
@@ -72,7 +96,7 @@ export function useNotifications() {
         return () => {
             supabase.removeChannel(channel)
         }
-    }, [supabase])
+    }, [supabase, userId])
 
     const markAsRead = async (id: string) => {
         const { error } = await supabase
@@ -81,8 +105,10 @@ export function useNotifications() {
             .eq('id', id)
 
         if (!error) {
-            setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n))
-            setUnreadCount(prev => Math.max(0, prev - 1))
+            setNotifications((prev) => prev.map((notification) =>
+                notification.id === id ? { ...notification, is_read: true } : notification
+            ))
+            setUnreadCount((prev) => Math.max(0, prev - 1))
         }
     }
 

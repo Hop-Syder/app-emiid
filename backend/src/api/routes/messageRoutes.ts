@@ -17,6 +17,7 @@ import {
   requestMediation,
   getAdminDisputes,
   replyToMediation,
+  updateMediationStatus,
 } from '../../controllers/messageController';
 import { requireAuth, requireAdmin } from '../../middlewares/authMiddleware';
 
@@ -32,6 +33,10 @@ router.get('/admin/disputes', requireAdmin, getAdminDisputes);
 // @route   POST /api/messages/admin/reply/:conversationId
 // @desc    Réponse admin dans une médiation
 router.post('/admin/reply/:conversationId', requireAdmin, replyToMediation);
+
+// @route   POST /api/messages/admin/status/:conversationId
+// @desc    Mettre à jour le statut d'une médiation
+router.post('/admin/status/:conversationId', requireAdmin, updateMediationStatus);
 
 // @route   GET /api/messages/admin/conversation/:id
 // @desc    Récupérer les messages d'une conversation de médiation côté admin

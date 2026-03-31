@@ -15,6 +15,26 @@ import { Loader2, User, Shield, Bell, Settings, Star } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { toast } from "sonner"
+import { createClient } from "@/lib/supabase/client"
+
+const defaultNotificationSettings = {
+    messages: true,
+    network_activity: true,
+    newsletter: false,
+    push: true,
+}
+
+const defaultPreferences = {
+    language: "fr",
+    currency: "xof",
+    timezone: "gmt",
+    theme: "light",
+    public_profile: false,
+}
+
+const defaultSecuritySettings = {
+    two_factor_enabled: false,
+}
 
 // Modular Sections
 import { ProfileSection } from "./profile-section"
@@ -41,26 +61,42 @@ export function ParametresContent() {
         city: "",
         pin_enabled: false,
         phone: "",
+        is_published: false,
         is_verified: false,
         is_premium: false
     })
+    const [notificationSettings, setNotificationSettings] = useState(defaultNotificationSettings)
+    const [preferences, setPreferences] = useState(defaultPreferences)
+    const [securitySettings, setSecuritySettings] = useState(defaultSecuritySettings)
 
     const [sectors, setSectors] = useState<any[]>([])
     const [professions, setProfessions] = useState<any[]>([])
     const [countries, setCountries] = useState<any[]>([])
+    const supabase = createClient()
 
     const loadUserProfile = async () => {
         try {
             setLoading(true)
-            const response = await fetchWithAuth("/api/users/me")
+            const [response, authUserResponse] = await Promise.all([
+                fetchWithAuth("/api/users/me"),
+                supabase.auth.getUser(),
+            ])
+            const authUser = authUserResponse.data.user
+
             if (response.ok) {
                 const data = await response.json()
+                const fallbackFirstName = authUser?.user_metadata?.first_name || authUser?.user_metadata?.given_name || ""
+                const fallbackLastName = authUser?.user_metadata?.last_name || authUser?.user_metadata?.family_name || ""
+                const fallbackPhone = authUser?.phone || ""
+                const fallbackEmail = authUser?.email || ""
+                const fallbackAvatar = authUser?.user_metadata?.avatar_url || ""
+
                 setProfile({
-                    first_name: data.first_name || "",
-                    last_name: data.last_name || "",
-                    email: data.email || "",
+                    first_name: data.first_name || fallbackFirstName,
+                    last_name: data.last_name || fallbackLastName,
+                    email: data.email || fallbackEmail,
                     bio: data.bio || "",
-                    avatar_url: data.avatar_url || "",
+                    avatar_url: data.avatar_url || fallbackAvatar,
                     category: data.category || "Artisan",
                     role: data.role || "",
                     specialty: data.specialty || "",
@@ -70,10 +106,35 @@ export function ParametresContent() {
                     country_name: data.country_name || "",
                     city: data.city || "",
                     pin_enabled: data.pin_enabled || false,
-                    phone: data.phone || "",
+                    phone: data.phone || fallbackPhone,
+                    is_published: data.is_published || false,
                     is_verified: data.is_verified || false,
                     is_premium: data.is_premium || false
                 })
+                setNotificationSettings({
+                    ...defaultNotificationSettings,
+                    ...(data.notification_preferences || {}),
+                })
+                setPreferences({
+                    ...defaultPreferences,
+                    ...(data.app_preferences || {}),
+                    public_profile: typeof data.app_preferences?.public_profile === "boolean"
+                        ? data.app_preferences.public_profile
+                        : !!data.is_published,
+                })
+                setSecuritySettings({
+                    ...defaultSecuritySettings,
+                    ...(data.security_preferences || {}),
+                })
+            } else if (authUser) {
+                setProfile((prev) => ({
+                    ...prev,
+                    first_name: authUser.user_metadata?.first_name || authUser.user_metadata?.given_name || prev.first_name,
+                    last_name: authUser.user_metadata?.last_name || authUser.user_metadata?.family_name || prev.last_name,
+                    email: authUser.email || prev.email,
+                    phone: authUser.phone || prev.phone,
+                    avatar_url: authUser.user_metadata?.avatar_url || prev.avatar_url,
+                }))
             }
         } catch (error) {
             console.error("Erreur chargement profil:", error)
@@ -126,6 +187,46 @@ export function ParametresContent() {
     const handleCancel = () => {
         loadUserProfile()
         toast.info("Modifications annulées")
+    }
+
+    const saveSettings = async (payload: {
+        notification_preferences?: typeof defaultNotificationSettings
+        app_preferences?: typeof defaultPreferences
+        security_preferences?: typeof defaultSecuritySettings
+    }, successMessage: string) => {
+        setSaving(true)
+        try {
+            const response = await fetchWithAuth("/api/users/settings", {
+                method: "PUT",
+                body: JSON.stringify(payload)
+            })
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => null)
+                toast.error(errorData?.error || "Erreur lors de la sauvegarde")
+                return false
+            }
+
+            const data = await response.json()
+            if (data.notification_preferences) {
+                setNotificationSettings({ ...defaultNotificationSettings, ...data.notification_preferences })
+            }
+            if (data.app_preferences) {
+                setPreferences({ ...defaultPreferences, ...data.app_preferences })
+                setProfile((prev) => ({ ...prev, is_published: !!data.app_preferences.public_profile }))
+            }
+            if (data.security_preferences) {
+                setSecuritySettings({ ...defaultSecuritySettings, ...data.security_preferences })
+            }
+
+            toast.success(successMessage)
+            return true
+        } catch (error) {
+            toast.error("Erreur réseau")
+            return false
+        } finally {
+            setSaving(false)
+        }
     }
 
     if (loading) {
@@ -223,15 +324,28 @@ export function ParametresContent() {
                         <SecuritySection
                             profile={profile}
                             setProfile={setProfile}
+                            securitySettings={securitySettings}
+                            setSecuritySettings={setSecuritySettings}
+                            saveSettings={saveSettings}
                         />
                     </TabsContent>
 
                     <TabsContent value="notifications" className="mt-0 focus-visible:outline-none data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in data-[state=active]:slide-in-from-bottom-4 data-[state=active]:duration-500">
-                        <NotificationsSection />
+                        <NotificationsSection
+                            settings={notificationSettings}
+                            setSettings={setNotificationSettings}
+                            onSave={() => saveSettings({ notification_preferences: notificationSettings }, "Préférences de notifications mises à jour")}
+                            saving={saving}
+                        />
                     </TabsContent>
 
                     <TabsContent value="preferences" className="mt-0 focus-visible:outline-none data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in data-[state=active]:slide-in-from-bottom-4 data-[state=active]:duration-500">
-                        <PreferencesSection />
+                        <PreferencesSection
+                            settings={preferences}
+                            setSettings={setPreferences}
+                            onSave={() => saveSettings({ app_preferences: preferences }, "Préférences générales mises à jour")}
+                            saving={saving}
+                        />
                     </TabsContent>
                 </div>
             </Tabs>

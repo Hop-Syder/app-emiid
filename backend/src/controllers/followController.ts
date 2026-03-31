@@ -9,6 +9,33 @@ import { Response } from 'express';
 import { supabase, supabaseAdmin } from '../config/supabase';
 import { logger } from '../utils/logger';
 
+const formatRelativeActivity = (dateValue?: string | null) => {
+  if (!dateValue) {
+    return 'Activité récente indisponible';
+  }
+
+  const date = new Date(dateValue);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMinutes = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+
+  if (diffMinutes < 60) {
+    return diffMinutes <= 1 ? 'Actif à l’instant' : `Actif il y a ${diffMinutes} min`;
+  }
+
+  if (diffHours < 24) {
+    return `Actif il y a ${diffHours} h`;
+  }
+
+  if (diffDays < 7) {
+    return `Actif il y a ${diffDays} j`;
+  }
+
+  return `Actif le ${date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}`;
+};
+
 /**
  * Récupère les profils suivis par l'utilisateur connecté
  * GET /api/users/follows
@@ -19,7 +46,7 @@ export const getFollowedProfiles = async (req: any, res: Response) => {
   try {
     const { data: follows, error: followsError } = await supabaseAdmin
       .from('user_follows')
-      .select('following_id, notes')
+      .select('following_id, notes, created_at')
       .eq('follower_id', userId);
 
     if (followsError) return res.status(400).json({ error: followsError.message });
@@ -42,6 +69,11 @@ export const getFollowedProfiles = async (req: any, res: Response) => {
           category,
           specialty,
           followers_count,
+          is_verified,
+          is_premium,
+          card_variant,
+          created_at,
+          updated_at,
           countries(name)
       `)
       .in('user_id', followingIds);
@@ -56,7 +88,10 @@ export const getFollowedProfiles = async (req: any, res: Response) => {
             name: `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Membre',
             location: p.city || "Afrique de l'Ouest",
             followers: p.followers_count || 0,
-            notes: followInfo?.notes || null
+            notes: followInfo?.notes || null,
+            followed_at: followInfo?.created_at || null,
+            last_active_at: p.updated_at || p.created_at || null,
+            last_active_label: formatRelativeActivity(p.updated_at || p.created_at),
         };
     });
 
@@ -124,7 +159,7 @@ export const getFollowers = async (req: any, res: Response) => {
   try {
     const { data: follows, error: followsError } = await supabaseAdmin
       .from('user_follows')
-      .select('follower_id')
+      .select('follower_id, created_at')
       .eq('following_id', userId);
 
     if (followsError) return res.status(400).json({ error: followsError.message });
@@ -147,18 +182,30 @@ export const getFollowers = async (req: any, res: Response) => {
           category,
           specialty,
           followers_count,
+          is_verified,
+          is_premium,
+          card_variant,
+          created_at,
+          updated_at,
           countries(name)
       `)
       .in('user_id', followerIds);
 
     if (profilesError) return res.status(400).json({ error: profilesError.message });
 
-    const profiles = profilesData.map((p: any) => ({
-        ...p,
-        name: `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Membre',
-        location: p.city || "Afrique de l'Ouest",
-        followers: p.followers_count || 0
-    }));
+    const profiles = profilesData.map((p: any) => {
+        const followInfo = follows.find(f => f.follower_id === p.user_id);
+
+        return {
+            ...p,
+            name: `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Membre',
+            location: p.city || "Afrique de l'Ouest",
+            followers: p.followers_count || 0,
+            followed_at: followInfo?.created_at || null,
+            last_active_at: p.updated_at || p.created_at || null,
+            last_active_label: formatRelativeActivity(p.updated_at || p.created_at),
+        };
+    });
 
     res.json(profiles);
   } catch (err) {

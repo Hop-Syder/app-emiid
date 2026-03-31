@@ -18,6 +18,9 @@ router.get('/admin/disputes', authMiddleware_1.requireAdmin, messageController_1
 // @route   POST /api/messages/admin/reply/:conversationId
 // @desc    Réponse admin dans une médiation
 router.post('/admin/reply/:conversationId', authMiddleware_1.requireAdmin, messageController_1.replyToMediation);
+// @route   POST /api/messages/admin/status/:conversationId
+// @desc    Mettre à jour le statut d'une médiation
+router.post('/admin/status/:conversationId', authMiddleware_1.requireAdmin, messageController_1.updateMediationStatus);
 // @route   GET /api/messages/admin/conversation/:id
 // @desc    Récupérer les messages d'une conversation de médiation côté admin
 router.get('/admin/conversation/:id', authMiddleware_1.requireAdmin, messageController_1.getAdminConversationMessages);

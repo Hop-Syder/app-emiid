@@ -43,6 +43,12 @@ const requireAuth = async (req, res, next) => {
                 message: 'Le token est expiré ou corrompu.'
             });
         }
+        if (user.user_metadata?.account_disabled) {
+            return res.status(403).json({
+                error: 'Compte désactivé',
+                message: 'Votre compte a été désactivé. Contactez le support pour le réactiver.',
+            });
+        }
         // Injection de l'utilisateur dans l'objet Request pour les controllers suivants
         req.user = user;
         next();

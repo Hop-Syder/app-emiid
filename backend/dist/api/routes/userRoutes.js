@@ -19,6 +19,15 @@ router.get('/me', userController_1.getMyProfile);
 // @route   PUT /api/users/me
 // @desc    Mettre à jour le profil connecté
 router.put('/me', userController_1.updateMyProfile);
+// @route   PUT /api/users/settings
+// @desc    Mettre à jour les paramètres du compte connecté
+router.put('/settings', userController_1.updateMySettings);
+// @route   POST /api/users/account/deactivate
+// @desc    Désactiver temporairement le compte connecté
+router.post('/account/deactivate', userController_1.deactivateMyAccount);
+// @route   DELETE /api/users/account
+// @desc    Supprimer définitivement le compte connecté
+router.delete('/account', userController_1.deleteMyAccount);
 // @route   POST /api/users/verify-pin
 // @desc    Vérifier le code PIN
 router.post('/verify-pin', userController_1.verifyPin);

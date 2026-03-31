@@ -10,12 +10,62 @@ import { supabase, supabaseAdmin } from '../config/supabase';
 import bcrypt from 'bcrypt';
 import { logger } from '../utils/logger';
 
+const DEFAULT_NOTIFICATION_PREFERENCES = {
+  messages: true,
+  network_activity: true,
+  newsletter: false,
+  push: true,
+};
+
+const DEFAULT_APP_PREFERENCES = {
+  language: 'fr',
+  currency: 'xof',
+  timezone: 'gmt',
+  theme: 'light',
+  public_profile: false,
+};
+
+const DEFAULT_SECURITY_PREFERENCES = {
+  two_factor_enabled: false,
+};
+
+const buildUserSettings = (authUser: any, isPublished = false) => {
+  const metadata = authUser?.user_metadata || {};
+
+  return {
+    notification_preferences: {
+      ...DEFAULT_NOTIFICATION_PREFERENCES,
+      ...(metadata.notification_preferences || {}),
+    },
+    app_preferences: {
+      ...DEFAULT_APP_PREFERENCES,
+      ...(metadata.app_preferences || {}),
+      public_profile: typeof metadata.app_preferences?.public_profile === 'boolean'
+        ? metadata.app_preferences.public_profile
+        : isPublished,
+    },
+    security_preferences: {
+      ...DEFAULT_SECURITY_PREFERENCES,
+      ...(metadata.security_preferences || {}),
+    },
+    account_disabled: !!metadata.account_disabled,
+  };
+};
+
 /**
  * Récupère le profil de l'utilisateur actuellement connecté (via Token Relay)
  * GET /api/users/me
  */
 export const getMyProfile = async (req: any, res: Response) => {
   const userId = req.user.id;
+  const authUser = req.user;
+  const authFallback = {
+    first_name: authUser.user_metadata?.first_name || authUser.user_metadata?.given_name || null,
+    last_name: authUser.user_metadata?.last_name || authUser.user_metadata?.family_name || null,
+    email: authUser.email || null,
+    phone: authUser.phone || null,
+    avatar_url: authUser.user_metadata?.avatar_url || null,
+  };
 
   try {
     const { data, error } = await supabase
@@ -27,9 +77,11 @@ export const getMyProfile = async (req: any, res: Response) => {
     if (error) {
       // Si le profil n'existe pas encore, on pourrait renvoyer les infos de base de l'auth
       if (error.code === 'PGRST116') {
+         const settings = buildUserSettings(authUser, false);
          return res.json({ 
            id: userId, 
-           email: req.user.email,
+           ...authFallback,
+           ...settings,
            message: "Profil à compléter" 
          });
       }
@@ -39,6 +91,12 @@ export const getMyProfile = async (req: any, res: Response) => {
     if (data) {
         data.tags = data.profile_tags?.map((pt: any) => pt.tags?.name).filter(Boolean) || [];
         delete data.profile_tags;
+        data.first_name = data.first_name || authFallback.first_name;
+        data.last_name = data.last_name || authFallback.last_name;
+        data.email = data.email || authFallback.email;
+        data.phone = data.phone || authFallback.phone;
+        data.avatar_url = data.avatar_url || authFallback.avatar_url;
+        Object.assign(data, buildUserSettings(authUser, !!data.is_published));
     }
 
     res.json(data);
@@ -158,6 +216,139 @@ export const updateMyProfile = async (req: any, res: Response) => {
     res.json(data);
   } catch (err) {
     res.status(500).json({ error: "Erreur interne lors de la mise à jour du profil" });
+  }
+};
+
+/**
+ * Met à jour les paramètres de l'utilisateur connecté dans les metadata auth.
+ * PUT /api/users/settings
+ */
+export const updateMySettings = async (req: any, res: Response) => {
+  const userId = req.user.id;
+  const authUser = req.user;
+  const {
+    notification_preferences,
+    app_preferences,
+    security_preferences,
+  } = req.body || {};
+
+  try {
+    const currentMetadata = authUser.user_metadata || {};
+    const mergedAppPreferences = {
+      ...DEFAULT_APP_PREFERENCES,
+      ...(currentMetadata.app_preferences || {}),
+      ...(app_preferences || {}),
+    };
+
+    const mergedMetadata = {
+      ...currentMetadata,
+      notification_preferences: {
+        ...DEFAULT_NOTIFICATION_PREFERENCES,
+        ...(currentMetadata.notification_preferences || {}),
+        ...(notification_preferences || {}),
+      },
+      app_preferences: mergedAppPreferences,
+      security_preferences: {
+        ...DEFAULT_SECURITY_PREFERENCES,
+        ...(currentMetadata.security_preferences || {}),
+        ...(security_preferences || {}),
+      },
+    };
+
+    const { error } = await supabaseAdmin.auth.admin.updateUserById(userId, {
+      user_metadata: mergedMetadata,
+    });
+
+    if (error) {
+      return res.status(400).json({ error: error.message });
+    }
+
+    if (typeof mergedAppPreferences.public_profile === 'boolean') {
+      const { error: profileError } = await supabaseAdmin
+        .from('user_profiles')
+        .upsert(
+          {
+            user_id: userId,
+            is_published: mergedAppPreferences.public_profile,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: 'user_id' },
+        );
+
+      if (profileError) {
+        return res.status(400).json({ error: profileError.message });
+      }
+    }
+
+    return res.json(buildUserSettings({ user_metadata: mergedMetadata }, !!mergedAppPreferences.public_profile));
+  } catch (err) {
+    logger.error('Erreur updateMySettings', err);
+    return res.status(500).json({ error: "Erreur lors de la mise à jour des paramètres" });
+  }
+};
+
+/**
+ * Désactive le compte courant.
+ * POST /api/users/account/deactivate
+ */
+export const deactivateMyAccount = async (req: any, res: Response) => {
+  const userId = req.user.id;
+  const authUser = req.user;
+
+  try {
+    const currentMetadata = authUser.user_metadata || {};
+    const mergedMetadata = {
+      ...currentMetadata,
+      account_disabled: true,
+      app_preferences: {
+        ...DEFAULT_APP_PREFERENCES,
+        ...(currentMetadata.app_preferences || {}),
+        public_profile: false,
+      },
+    };
+
+    const { error: authError } = await supabaseAdmin.auth.admin.updateUserById(userId, {
+      user_metadata: mergedMetadata,
+    });
+
+    if (authError) {
+      return res.status(400).json({ error: authError.message });
+    }
+
+    const { error: profileError } = await supabaseAdmin
+      .from('user_profiles')
+      .update({ is_published: false, updated_at: new Date().toISOString() })
+      .eq('user_id', userId);
+
+    if (profileError) {
+      return res.status(400).json({ error: profileError.message });
+    }
+
+    return res.json({ success: true });
+  } catch (err) {
+    logger.error('Erreur deactivateMyAccount', err);
+    return res.status(500).json({ error: 'Erreur lors de la désactivation du compte' });
+  }
+};
+
+/**
+ * Supprime définitivement le compte courant.
+ * DELETE /api/users/account
+ */
+export const deleteMyAccount = async (req: any, res: Response) => {
+  const userId = req.user.id;
+
+  try {
+    const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
+
+    if (error) {
+      return res.status(400).json({ error: error.message });
+    }
+
+    return res.json({ success: true });
+  } catch (err) {
+    logger.error('Erreur deleteMyAccount', err);
+    return res.status(500).json({ error: 'Erreur lors de la suppression du compte' });
   }
 };
 

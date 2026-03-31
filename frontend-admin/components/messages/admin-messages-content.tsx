@@ -49,6 +49,7 @@ interface AdminConversation {
   user2: { id: string; name: string; avatar: string; role: string }
   lastMessage: string
   lastMessageAt: string
+  status: "pending" | "in_progress" | "resolved"
 }
 
 interface Message {
@@ -70,6 +71,7 @@ export default function AdminMessagesContent() {
   const [isSending, setIsSending] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [currentAdminId, setCurrentAdminId] = useState<string | null>(null)
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -194,6 +196,32 @@ export default function AdminMessagesContent() {
     conv.lastMessage?.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
+  const handleUpdateStatus = async (status: AdminConversation["status"]) => {
+    if (!selectedConv) return
+
+    setIsUpdatingStatus(true)
+    try {
+      const res = await fetchWithAuth(`/api/messages/admin/status/${selectedConv.id}`, {
+        method: "POST",
+        body: JSON.stringify({ status })
+      })
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ error: "Erreur de mise à jour du statut" }))
+        toast.error(errorData.error || "Erreur de mise à jour du statut")
+        return
+      }
+
+      setConversations(prev => prev.map((conv) => conv.id === selectedConv.id ? { ...conv, status } : conv))
+      setSelectedConv((prev) => prev ? { ...prev, status } : null)
+      toast.success("Statut de médiation mis à jour")
+    } catch {
+      toast.error("Erreur de connexion")
+    } finally {
+      setIsUpdatingStatus(false)
+    }
+  }
+
   return (
     <TooltipProvider>
       <div className="flex h-full bg-slate-50">
@@ -262,6 +290,16 @@ export default function AdminMessagesContent() {
                           )}>
                             {conv.user1.name} vs {conv.user2.name}
                           </h3>
+                          <span className={cn(
+                            "text-[10px] px-2 py-1 rounded-full font-semibold uppercase",
+                            conv.status === "resolved"
+                              ? "bg-emerald-100 text-emerald-700"
+                              : conv.status === "in_progress"
+                                ? "bg-blue-100 text-blue-700"
+                                : "bg-amber-100 text-amber-700"
+                          )}>
+                            {conv.status === "resolved" ? "Résolu" : conv.status === "in_progress" ? "En cours" : "Ouvert"}
+                          </span>
                         </div>
                         <p className={cn(
                           "text-xs mt-0.5 truncate leading-relaxed opacity-80",
@@ -316,8 +354,15 @@ export default function AdminMessagesContent() {
                         <Shield className="h-4 w-4 text-amber-500" />
                       </h2>
                       <p className="text-xs font-bold text-amber-600 uppercase tracking-widest flex items-center gap-1.5 mt-0.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                        Médiation ACTIVE
+                        <span className={cn(
+                          "w-1.5 h-1.5 rounded-full",
+                          selectedConv.status === "resolved"
+                            ? "bg-emerald-500"
+                            : selectedConv.status === "in_progress"
+                              ? "bg-blue-500 animate-pulse"
+                              : "bg-amber-500 animate-pulse"
+                        )} />
+                        {selectedConv.status === "resolved" ? "Médiation résolue" : selectedConv.status === "in_progress" ? "Médiation en cours" : "Médiation ouverte"}
                       </p>
                     </div>
                   </div>
@@ -327,9 +372,19 @@ export default function AdminMessagesContent() {
                   <Button variant="ghost" size="icon" className="rounded-xl h-10 w-10 hover:bg-slate-100">
                     <User className="h-5 w-5 text-slate-400" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="rounded-xl h-10 w-10 hover:bg-slate-100">
-                    <MoreHorizontal className="h-5 w-5 text-slate-400" />
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="rounded-xl h-10 w-10 hover:bg-slate-100">
+                        <MoreHorizontal className="h-5 w-5 text-slate-400" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => void handleUpdateStatus("pending")} disabled={isUpdatingStatus}>Marquer ouvert</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => void handleUpdateStatus("in_progress")} disabled={isUpdatingStatus}>Marquer en cours</DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => void handleUpdateStatus("resolved")} disabled={isUpdatingStatus}>Marquer résolu</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </header>
 
@@ -348,6 +403,7 @@ export default function AdminMessagesContent() {
                                      { name: "Nexus Admin", avatar: "", role: "admin" }
 
                       const isMediation = msg.content.includes("[MÉDIATION DEMANDÉE]")
+                      const isStatusUpdate = msg.content.includes("[MÉDIATION STATUT]")
                       
                       if (isMediation) {
                         return (
@@ -360,6 +416,22 @@ export default function AdminMessagesContent() {
                                   {msg.content.replace(/⚠️ \[MÉDIATION DEMANDÉE\] Motif : .*?\. /, "")}
                                 </p>
                               </div>
+                            </div>
+                          </div>
+                        )
+                      }
+
+                      if (isStatusUpdate) {
+                        const statusLabel = msg.content.toLowerCase().includes("resolved")
+                          ? "Médiation marquée comme résolue"
+                          : msg.content.toLowerCase().includes("in_progress")
+                            ? "Médiation prise en charge"
+                            : "Médiation rouverte"
+
+                        return (
+                          <div key={msg.id} className="flex justify-center my-6">
+                            <div className="bg-blue-50 border border-blue-200 rounded-3xl px-6 py-3 text-sm font-semibold text-blue-800 shadow-sm">
+                              {statusLabel}
                             </div>
                           </div>
                         )
@@ -459,7 +531,7 @@ export default function AdminMessagesContent() {
                <div className="space-y-2 max-w-sm">
                  <h2 className="text-2xl font-black text-slate-900 italic tracking-tight uppercase">Centre de Médiation</h2>
                  <p className="text-sm font-bold text-slate-400 leading-relaxed">
-                   Sélectionnez un litige dans la liste latérale pour analyser les échanges et rétablir l'ordre sur la plateforme.
+                   Sélectionnez un litige dans la liste latérale pour analyser les échanges et rétablir l’ordre sur la plateforme.
                  </p>
                </div>
                <Button variant="outline" className="rounded-2xl border-2 border-slate-200 h-12 px-8 font-black text-slate-900 group" onClick={loadConversations}>

@@ -25,16 +25,34 @@ import {
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { createClient } from "@/lib/supabase/client"
+import type { AdminSessionProfile } from "@/lib/supabase/server"
 
 interface AdminLayoutProps {
     children: React.ReactNode
+    adminProfile: AdminSessionProfile
 }
 
-export function AdminLayout({ children }: AdminLayoutProps) {
+export function AdminLayout({ children, adminProfile }: AdminLayoutProps) {
     const [sidebarOpen, setSidebarOpen] = useState(true)
     const pathname = usePathname()
+    const router = useRouter()
+    const supabase = createClient()
+
+    const adminName = [adminProfile.firstName, adminProfile.lastName].filter(Boolean).join(" ") || "Admin Nexus"
+    const adminInitials = adminName
+        .split(" ")
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part[0]?.toUpperCase() || "")
+        .join("") || "AD"
+
+    const handleLogout = async () => {
+        await supabase.auth.signOut()
+        router.refresh()
+    }
 
     const menuItems = [
         { title: "Dashboard", icon: LayoutDashboard, href: "/" },
@@ -97,7 +115,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 </nav>
 
                 <div className="p-4 border-t border-slate-100">
-                    <button className="flex items-center gap-3 w-full px-4 py-3 text-red-500 hover:bg-red-50 rounded-2xl transition-colors font-medium text-sm">
+                    <button className="flex items-center gap-3 w-full px-4 py-3 text-red-500 hover:bg-red-50 rounded-2xl transition-colors font-medium text-sm" onClick={() => void handleLogout()}>
                         <LogOut className="h-5 w-5" />
                         {sidebarOpen && <span>Déconnexion</span>}
                     </button>
@@ -130,11 +148,11 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                         <div className="h-8 w-px bg-slate-200 mx-1"></div>
                         <div className="flex items-center gap-3">
                             <div className="text-right hidden sm:block">
-                                <p className="text-sm font-bold">Admin Nexus</p>
-                                <p className="text-[10px] text-slate-500 font-medium">Super Admin</p>
+                                <p className="text-sm font-bold">{adminName}</p>
+                                <p className="text-[10px] text-slate-500 font-medium">{adminProfile.role || "Administrateur"}</p>
                             </div>
                             <div className="w-10 h-10 bg-gradient-to-tr from-slate-200 to-slate-100 rounded-xl border border-slate-200 flex items-center justify-center font-bold text-slate-600 shadow-sm">
-                                AD
+                                {adminInitials}
                             </div>
                         </div>
                     </div>

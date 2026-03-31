@@ -38,6 +38,14 @@ export async function middleware(request: NextRequest) {
     return response
   }
 
+  if (user?.user_metadata?.account_disabled) {
+    if (path !== '/' && path !== '/login') {
+      await supabase.auth.signOut()
+      url.pathname = '/'
+      return NextResponse.redirect(url)
+    }
+  }
+
   // --- CONFIGURATION DES ROUTES ---
 
   // Routes accessibles à TOUT LE MONDE (même non connecté)

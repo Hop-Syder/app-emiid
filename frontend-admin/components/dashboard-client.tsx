@@ -19,9 +19,6 @@ import {
   Database,
   HardDrive,
   CheckCircle2,
-  Clock,
-  AlertTriangle,
-  Eye,
   UserPlus,
   BarChart3
 } from "lucide-react"
@@ -62,6 +59,7 @@ export function DashboardClient({ initialStats }: DashboardClientProps) {
   ]
 
   const maxWeeklyUsers = Math.max(...stats.weeklyActivity.map(d => d.users), 1)
+  const systemIcons = [Server, Database, HardDrive]
 
   return (
     <div className="space-y-6">
@@ -71,7 +69,7 @@ export function DashboardClient({ initialStats }: DashboardClientProps) {
           Tableau de Bord
         </h1>
         <p className="text-slate-500 text-sm mt-1">
-          Vue d'ensemble de la plateforme Nexus
+          Vue d’ensemble de la plateforme Nexus
         </p>
       </div>
 
@@ -147,33 +145,37 @@ export function DashboardClient({ initialStats }: DashboardClientProps) {
           </div>
 
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-3 bg-emerald-50 rounded-xl">
-              <div className="flex items-center gap-3">
-                <Server className="h-5 w-5 text-emerald-600" />
-                <span className="text-sm font-medium text-slate-700">API Serveur</span>
-              </div>
-              <span className="text-xs font-semibold text-emerald-600 bg-emerald-100 px-2 py-1 rounded-lg">
-                En ligne
-              </span>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-emerald-50 rounded-xl">
-              <div className="flex items-center gap-3">
-                <Database className="h-5 w-5 text-emerald-600" />
-                <span className="text-sm font-medium text-slate-700">Base de donnees</span>
-              </div>
-              <span className="text-xs font-semibold text-emerald-600 bg-emerald-100 px-2 py-1 rounded-lg">
-                Connectee
-              </span>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-emerald-50 rounded-xl">
-              <div className="flex items-center gap-3">
-                <HardDrive className="h-5 w-5 text-emerald-600" />
-                <span className="text-sm font-medium text-slate-700">Stockage</span>
-              </div>
-              <span className="text-xs font-semibold text-emerald-600 bg-emerald-100 px-2 py-1 rounded-lg">
-                OK
-              </span>
-            </div>
+            {stats.systemChecks.map((check, index) => {
+              const Icon = systemIcons[index] || Activity
+              const isUp = check.status === "up"
+              const isDown = check.status === "down"
+
+              return (
+                <div
+                  key={check.label}
+                  className={`flex items-center justify-between p-3 rounded-xl ${
+                    isUp ? "bg-emerald-50" : isDown ? "bg-rose-50" : "bg-slate-100"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Icon className={`h-5 w-5 ${isUp ? "text-emerald-600" : isDown ? "text-rose-600" : "text-slate-500"}`} />
+                    <div>
+                      <span className="text-sm font-medium text-slate-700 block">{check.label}</span>
+                      <span className="text-[11px] text-slate-500">{check.detail}</span>
+                    </div>
+                  </div>
+                  <span className={`text-xs font-semibold px-2 py-1 rounded-lg ${
+                    isUp
+                      ? "text-emerald-600 bg-emerald-100"
+                      : isDown
+                        ? "text-rose-600 bg-rose-100"
+                        : "text-slate-600 bg-slate-200"
+                  }`}>
+                    {isUp ? "En ligne" : isDown ? "Incident" : "Inconnu"}
+                  </span>
+                </div>
+              )
+            })}
           </div>
         </motion.div>
       </div>

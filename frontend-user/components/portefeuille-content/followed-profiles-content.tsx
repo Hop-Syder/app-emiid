@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { ProfileStats } from "./profile-stats"
 import { ProfileCard } from "./profile-card"
@@ -20,16 +20,67 @@ import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/client"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
+interface PortfolioProfile {
+    id?: string
+    user_id?: string
+    name: string
+    role?: string
+    location?: string
+    avatar_url?: string
+    specialty?: string
+    followers?: number
+    followers_count?: number
+    is_premium?: boolean
+    is_verified?: boolean
+    card_variant?: string
+    notes?: string | null
+    followed_at?: string | null
+    last_active_at?: string | null
+    last_active_label?: string | null
+}
+
+const getPortfolioProfileId = (profile: PortfolioProfile) => profile.user_id || profile.id || ""
+
+const getProfileLastActive = (profile: PortfolioProfile) => profile.last_active_label || "Activité récente"
+
+const isActiveToday = (profile: PortfolioProfile) => {
+    if (!profile.last_active_at) {
+        return false
+    }
+
+    const lastActive = new Date(profile.last_active_at)
+    return Date.now() - lastActive.getTime() < 24 * 60 * 60 * 1000
+}
+
+const getProfileLastUpdate = (profile: PortfolioProfile, mode: "following" | "followers") => {
+    if (mode === "followers") {
+        return profile.followed_at
+            ? `Abonné depuis le ${new Date(profile.followed_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}`
+            : "S'est abonné à votre profil"
+    }
+
+    if (profile.specialty) {
+        return profile.specialty
+    }
+
+    if (profile.last_active_at) {
+        return `Dernière activité le ${new Date(profile.last_active_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}`
+    }
+
+    return "Profil synchronisé"
+}
+
 export function FollowedProfilesContent() {
-    const [followedProfiles, setFollowedProfiles] = useState<any[]>([])
-    const [followers, setFollowers] = useState<any[]>([])
-    const [filteredProfiles, setFilteredProfiles] = useState<any[]>([])
+    const [followedProfiles, setFollowedProfiles] = useState<PortfolioProfile[]>([])
+    const [followers, setFollowers] = useState<PortfolioProfile[]>([])
+    const [filteredProfiles, setFilteredProfiles] = useState<PortfolioProfile[]>([])
     const [loading, setLoading] = useState(true)
     const [searchQuery, setSearchQuery] = useState("")
     const [sortBy, setSortBy] = useState<"name" | "recent" | "followers">("recent")
     const [activeTab, setActiveTab] = useState("following")
+    const [currentUserId, setCurrentUserId] = useState<string | null>(null)
     const router = useRouter()
-    const supabase = createClient()
+    const supabase = useMemo(() => createClient(), [])
 
     const loadFollows = async () => {
         try {
@@ -39,12 +90,12 @@ export function FollowedProfilesContent() {
             ])
 
             if (followingRes.ok) {
-                const data = await followingRes.json()
+                const data = await followingRes.json() as PortfolioProfile[]
                 setFollowedProfiles(data)
             }
 
             if (followersRes.ok) {
-                const data = await followersRes.json()
+                const data = await followersRes.json() as PortfolioProfile[]
                 setFollowers(data)
             }
         } catch (error) {
@@ -56,26 +107,43 @@ export function FollowedProfilesContent() {
     }
 
     useEffect(() => {
-        loadFollows()
+        void supabase.auth.getUser().then(({ data: { user } }) => {
+            setCurrentUserId(user?.id || null)
+        })
 
-        // Realtime subscription to follow changes
-        const channel = supabase
-            .channel('portfolio-changes')
+        void loadFollows()
+
+        if (!currentUserId) {
+            return
+        }
+
+        const followingChannel = supabase
+            .channel(`portfolio-following-${currentUserId}`)
             .on(
                 'postgres_changes',
-                { event: '*', schema: 'public', table: 'user_follows' },
-                () => loadFollows()
+                { event: '*', schema: 'public', table: 'user_follows', filter: `follower_id=eq.${currentUserId}` },
+                () => { void loadFollows() }
+            )
+            .subscribe()
+
+        const followersChannel = supabase
+            .channel(`portfolio-followers-${currentUserId}`)
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'user_follows', filter: `following_id=eq.${currentUserId}` },
+                () => { void loadFollows() }
             )
             .subscribe()
 
         return () => {
-            supabase.removeChannel(channel)
+            supabase.removeChannel(followingChannel)
+            supabase.removeChannel(followersChannel)
         }
-    }, [])
+    }, [currentUserId, supabase])
 
     // Filtering and Sorting
     useEffect(() => {
-        let source = activeTab === "following" ? followedProfiles : followers
+        const source = activeTab === "following" ? followedProfiles : followers
         let result = [...source]
 
         if (searchQuery) {
@@ -89,7 +157,7 @@ export function FollowedProfilesContent() {
         result.sort((a, b) => {
             if (sortBy === "name") return a.name.localeCompare(b.name)
             if (sortBy === "followers") return (b.followers_count || 0) - (a.followers_count || 0)
-            return new Date(b.created_at || Date.now()).getTime() - new Date(a.created_at || Date.now()).getTime()
+            return new Date(b.last_active_at || b.followed_at || Date.now()).getTime() - new Date(a.last_active_at || a.followed_at || Date.now()).getTime()
         })
 
         setFilteredProfiles(result)
@@ -101,7 +169,7 @@ export function FollowedProfilesContent() {
                 method: "POST"
             })
             if (res.ok) {
-                setFollowedProfiles(prev => prev.filter(p => (p.id !== profileId && p.user_id !== profileId)))
+                setFollowedProfiles(prev => prev.filter(p => getPortfolioProfileId(p) !== profileId))
                 toast.success("Vous ne suivez plus ce profil")
             }
         } catch (error) {
@@ -117,7 +185,7 @@ export function FollowedProfilesContent() {
             })
             if (res.ok) {
                 setFollowedProfiles(prev => prev.map(p =>
-                    (p.id === profileId || p.user_id === profileId) ? { ...p, notes: note } : p
+                    getPortfolioProfileId(p) === profileId ? { ...p, notes: note } : p
                 ))
                 toast.success("Note enregistrée avec succès")
             } else {
@@ -145,8 +213,8 @@ export function FollowedProfilesContent() {
         )
     }
 
-    const totalUpdates = followedProfiles.reduce((acc, p) => acc + (p.new_updates || 0), 0)
-    const activeToday = followedProfiles.filter(p => p.is_active_today).length
+    const totalUpdates = 0
+    const activeToday = followedProfiles.filter(isActiveToday).length
 
     return (
         <div className="space-y-6">
@@ -200,19 +268,19 @@ export function FollowedProfilesContent() {
                             <ProfileCard
                                 key={profile.user_id || profile.id}
                                 profile={{
-                                    id: profile.user_id || profile.id,
+                                    id: getPortfolioProfileId(profile),
                                     name: profile.name,
                                     role: profile.role || "Membre",
-                                    location: profile.location,
+                                    location: profile.location || "Non renseigné",
                                     avatar: profile.avatar_url || "/profil/avatar.jpg",
-                                    lastActive: profile.is_active_today ? "Actif aujourd'hui" : "Actif récemment",
-                                    newUpdates: profile.new_updates || 0,
-                                    lastUpdate: profile.last_update_title || profile.specialty || "Aucune mise à jour récente",
+                                    lastActive: getProfileLastActive(profile),
+                                    newUpdates: 0,
+                                    lastUpdate: getProfileLastUpdate(profile, "following"),
                                     followers: profile.followers || profile.followers_count || 0,
                                     premium: !!profile.is_premium,
                                     card_variant: profile.card_variant,
-                                    verified: true,
-                                    notes: profile.notes
+                                    verified: !!profile.is_verified,
+                                    notes: profile.notes || undefined
                                 }}
                                 onUnfollow={handleUnfollow}
                                 onViewProfile={handleViewProfile}
@@ -240,18 +308,18 @@ export function FollowedProfilesContent() {
                             <ProfileCard
                                 key={profile.user_id || profile.id || `follower-${profile.name}`}
                                 profile={{
-                                    id: profile.user_id || profile.id,
+                                    id: getPortfolioProfileId(profile),
                                     name: profile.name,
                                     role: profile.role || "Abonné",
                                     location: profile.location || "N/A",
                                     avatar: profile.avatar_url || "/profil/avatar.jpg",
-                                    lastActive: profile.is_active_today ? "Actif aujourd'hui" : "Actif récemment",
+                                    lastActive: getProfileLastActive(profile),
                                     newUpdates: 0,
-                                    lastUpdate: "S'est abonné à votre profil",
+                                    lastUpdate: getProfileLastUpdate(profile, "followers"),
                                     followers: profile.followers || profile.followers_count || 0,
                                     premium: !!profile.is_premium,
                                     card_variant: profile.card_variant,
-                                    verified: true
+                                    verified: !!profile.is_verified
                                 }}
                                 onViewProfile={handleViewProfile}
                                 onMessage={handleMessage}

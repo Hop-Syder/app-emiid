@@ -6,7 +6,15 @@
 */
 
 import { Router } from 'express';
-import { getMyProfile, updateMyProfile, getAllUsers, verifyPin } from '../../controllers/userController';
+import {
+  getMyProfile,
+  updateMyProfile,
+  updateMySettings,
+  deactivateMyAccount,
+  deleteMyAccount,
+  getAllUsers,
+  verifyPin,
+} from '../../controllers/userController';
 import { getFollowedProfiles, toggleFollowProfile, getFollowers, updateFollowNote } from '../../controllers/followController';
 import { requireAuth } from '../../middlewares/authMiddleware';
 
@@ -22,6 +30,18 @@ router.get('/me', getMyProfile);
 // @route   PUT /api/users/me
 // @desc    Mettre à jour le profil connecté
 router.put('/me', updateMyProfile);
+
+// @route   PUT /api/users/settings
+// @desc    Mettre à jour les paramètres du compte connecté
+router.put('/settings', updateMySettings);
+
+// @route   POST /api/users/account/deactivate
+// @desc    Désactiver temporairement le compte connecté
+router.post('/account/deactivate', deactivateMyAccount);
+
+// @route   DELETE /api/users/account
+// @desc    Supprimer définitivement le compte connecté
+router.delete('/account', deleteMyAccount);
 
 // @route   POST /api/users/verify-pin
 // @desc    Vérifier le code PIN

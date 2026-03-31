@@ -8,13 +8,42 @@
  * 📧 daoudaabassichristian@gmail.com
 */
 
+"use client"
+
+import { useEffect } from "react"
+import { useTheme } from "next-themes"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 
-export function PreferencesSection() {
+interface PreferenceSettings {
+    language: string
+    currency: string
+    timezone: string
+    theme: string
+    public_profile: boolean
+}
+
+interface PreferencesSectionProps {
+    settings: PreferenceSettings
+    setSettings: (settings: PreferenceSettings) => void
+    onSave: () => Promise<boolean>
+    saving: boolean
+}
+
+export function PreferencesSection({ settings, setSettings, onSave, saving }: PreferencesSectionProps) {
+    const { setTheme } = useTheme()
+
+    useEffect(() => {
+        setTheme(settings.theme === "dark" ? "dark" : "light")
+    }, [settings.theme, setTheme])
+
+    const updateSetting = <K extends keyof PreferenceSettings>(key: K, value: PreferenceSettings[K]) => {
+        setSettings({ ...settings, [key]: value })
+    }
+
     return (
         <Card className="rounded-xl">
             <CardHeader>
@@ -24,7 +53,7 @@ export function PreferencesSection() {
             <CardContent className="space-y-4">
                 <div className="space-y-2">
                     <Label htmlFor="langue">Langue</Label>
-                    <Select defaultValue="fr">
+                    <Select value={settings.language} onValueChange={(value) => updateSetting("language", value)}>
                         <SelectTrigger className="rounded-xl">
                             <SelectValue />
                         </SelectTrigger>
@@ -38,7 +67,7 @@ export function PreferencesSection() {
 
                 <div className="space-y-2">
                     <Label htmlFor="devise">Devise</Label>
-                    <Select defaultValue="eur">
+                    <Select value={settings.currency} onValueChange={(value) => updateSetting("currency", value)}>
                         <SelectTrigger className="rounded-xl">
                             <SelectValue />
                         </SelectTrigger>
@@ -52,7 +81,7 @@ export function PreferencesSection() {
 
                 <div className="space-y-2">
                     <Label htmlFor="fuseau">Fuseau horaire</Label>
-                    <Select defaultValue="gmt">
+                    <Select value={settings.timezone} onValueChange={(value) => updateSetting("timezone", value)}>
                         <SelectTrigger className="rounded-xl">
                             <SelectValue />
                         </SelectTrigger>
@@ -68,7 +97,7 @@ export function PreferencesSection() {
                         <p className="font-medium">Mode sombre</p>
                         <p className="text-sm text-muted-foreground">Activer le thème sombre</p>
                     </div>
-                    <Switch />
+                    <Switch checked={settings.theme === "dark"} onCheckedChange={(checked) => updateSetting("theme", checked ? "dark" : "light")} />
                 </div>
 
                 <div className="flex items-center justify-between p-4 border rounded-xl">
@@ -76,10 +105,12 @@ export function PreferencesSection() {
                         <p className="font-medium">Profil public</p>
                         <p className="text-sm text-muted-foreground">Visible dans les recherches</p>
                     </div>
-                    <Switch defaultChecked />
+                    <Switch checked={settings.public_profile} onCheckedChange={(checked) => updateSetting("public_profile", checked)} />
                 </div>
 
-                <Button className="rounded-xl">Enregistrer les préférences</Button>
+                <Button className="rounded-xl" onClick={() => void onSave()} disabled={saving}>
+                    {saving ? "Enregistrement..." : "Enregistrer les préférences"}
+                </Button>
             </CardContent>
         </Card>
     )

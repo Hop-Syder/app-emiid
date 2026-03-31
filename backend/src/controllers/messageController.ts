@@ -9,6 +9,9 @@ import { Response } from 'express';
 import { supabaseAdmin } from '../config/supabase';
 import { logger } from '../utils/logger';
 
+const MEDIATION_REQUEST_MARKER = '[MÉDIATION DEMANDÉE]';
+const MEDIATION_STATUS_MARKER = '[MÉDIATION STATUT]';
+
 const formatParticipantName = (profile: any) => {
   if (!profile) {
     return 'Utilisateur Nexus';
@@ -61,13 +64,28 @@ const isConversationInMediation = async (conversationId: string) => {
     .from('messages')
     .select('id', { count: 'exact', head: true })
     .eq('conversation_id', conversationId)
-    .ilike('content', '%[MÉDIATION DEMANDÉE]%');
+    .ilike('content', `%${MEDIATION_REQUEST_MARKER}%`);
 
   if (error) {
     throw error;
   }
 
   return (count || 0) > 0;
+};
+
+const extractMediationStatus = (messages: Array<{ content: string }>) => {
+  const statusMessages = messages.filter((message) => message.content.includes(MEDIATION_STATUS_MARKER));
+  const latestStatus = statusMessages.length > 0 ? statusMessages[statusMessages.length - 1].content : '';
+
+  if (latestStatus.toLowerCase().includes('resolved')) {
+    return 'resolved';
+  }
+
+  if (latestStatus.toLowerCase().includes('in_progress')) {
+    return 'in_progress';
+  }
+
+  return 'pending';
 };
 
 const formatConversation = (
@@ -298,8 +316,8 @@ export const getAdminDisputes = async (req: any, res: Response) => {
         // 1. Chercher les messages de médiation pour trouver les IDs de conversation
         const { data: mediationMsgs, error: msgError } = await supabaseAdmin
             .from('messages')
-            .select('conversation_id')
-            .ilike('content', '%[MÉDIATION DEMANDÉE]%');
+            .select('conversation_id, content')
+            .or(`content.ilike.%${MEDIATION_REQUEST_MARKER}%,content.ilike.%${MEDIATION_STATUS_MARKER}%`);
 
         if (msgError) throw msgError;
 
@@ -320,6 +338,12 @@ export const getAdminDisputes = async (req: any, res: Response) => {
             convs.flatMap((conv: any) => [conv.participant1_id, conv.participant2_id]),
         );
 
+        const messagesByConversation = mediationMsgs.reduce<Record<string, Array<{ content: string }>>>((acc, message: any) => {
+            acc[message.conversation_id] = acc[message.conversation_id] || [];
+            acc[message.conversation_id].push({ content: message.content || '' });
+            return acc;
+        }, {});
+
         // Formater pour l'admin
         const formatted = convs.map((conv: any) => ({
             id: conv.id,
@@ -336,7 +360,8 @@ export const getAdminDisputes = async (req: any, res: Response) => {
                 role: profileLookup[conv.participant2_id]?.role || null
             },
             lastMessage: conv.last_message_content,
-            lastMessageAt: conv.last_message_at
+            lastMessageAt: conv.last_message_at,
+            status: extractMediationStatus(messagesByConversation[conv.id] || []),
         }));
 
         res.json(formatted);
@@ -473,6 +498,58 @@ export const replyToMediation = async (req: any, res: Response) => {
     } catch (err) {
         logger.error("Admin reply error", err);
         res.status(500).json({ error: "Erreur lors de la réponse admin" });
+    }
+};
+
+/**
+ * Met à jour le statut d'une médiation.
+ * POST /api/messages/admin/status/:conversationId
+ */
+export const updateMediationStatus = async (req: any, res: Response) => {
+    const adminId = req.user.id;
+    const { conversationId } = req.params;
+    const { status } = req.body;
+
+    if (!['pending', 'in_progress', 'resolved'].includes(status)) {
+        return res.status(400).json({ error: 'Statut de médiation invalide' });
+    }
+
+    try {
+        const hasMediation = await isConversationInMediation(conversationId);
+
+        if (!hasMediation) {
+            return res.status(404).json({ error: 'Aucune médiation active pour cette conversation' });
+        }
+
+        const content = `⚖️ ${MEDIATION_STATUS_MARKER} ${status}`;
+
+        const { data: msg, error: msgError } = await supabaseAdmin
+            .from('messages')
+            .insert({
+                conversation_id: conversationId,
+                sender_id: adminId,
+                content,
+                is_read: false,
+            })
+            .select()
+            .single();
+
+        if (msgError) {
+            return res.status(400).json({ error: msgError.message });
+        }
+
+        await supabaseAdmin
+            .from('conversations')
+            .update({
+                last_message_content: `(Statut médiation): ${status}`,
+                last_message_at: new Date().toISOString(),
+            })
+            .eq('id', conversationId);
+
+        return res.json({ success: true, message: msg });
+    } catch (err) {
+        logger.error('Admin mediation status error', err);
+        return res.status(500).json({ error: 'Erreur lors de la mise à jour du statut de médiation' });
     }
 };
 
