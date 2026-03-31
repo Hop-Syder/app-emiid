@@ -19,7 +19,7 @@ export function CreerProfilPreview({ formData }: CreerProfilPreviewProps) {
         id: "preview",
         name: formData.name || "Votre Nom",
         role: formData.role || "Votre Rôle",
-        avatar: formData.avatar_url || formData.avatar || "/african-user.jpg",
+        avatar: formData.avatar_url || formData.avatar || "/profil/avatar.jpg",
         category: formData.category || "Catégorie",
         specialty: formData.specialty || "Spécialité",
         location: formData.city ? `${formData.city}, ${formData.country_name || ""}` : (formData.country_name || "Zone"),
@@ -34,12 +34,12 @@ export function CreerProfilPreview({ formData }: CreerProfilPreviewProps) {
             <div className="px-4 py-2 bg-primary/5 rounded-2xl border border-primary/10">
                 <p className="text-[10px] font-black text-primary uppercase tracking-widest text-center">Aperçu en temps réel</p>
             </div>
-            
-            <NexusProfileCard 
-                user={previewUser} 
-                variant={(formData.card_variant as NexusCardVariant) || "tech"} 
+
+            <NexusProfileCard
+                user={previewUser}
+                variant={(formData.card_variant as NexusCardVariant) || "tech"}
             />
-            
+
             <p className="text-[10px] text-center text-slate-400 font-medium px-8 italic">
                 Ceci est un aperçu de votre carte telle qu'elle apparaîtra dans l'annuaire Nexus Connect.
             </p>

@@ -37,7 +37,7 @@ export function CreerProfilContent() {
         phone: "",
         email: "",
         website: "",
-        avatar: "/african-user.jpg",
+        avatar: "/profil/avatar.jpg",
         tags: [] as string[]
     })
 

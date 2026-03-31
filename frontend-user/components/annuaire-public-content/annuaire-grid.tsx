@@ -65,7 +65,7 @@ export function AnnuaireGrid({ filters }: AnnuaireGridProps) {
                             name: `${e.first_name || ''} ${e.last_name || ''}`.trim() || 'Utilisateur Nexus',
                             role: e.role || "Membre Nexus",
                             location: e.city ? `${e.city}, ${e.countries?.name || ''}` : (e.countries?.name || "Afrique"),
-                            avatar: e.avatar_url || "/african-user.jpg",
+                            avatar: e.avatar_url || "/profil/avatar.jpg",
                             specialty: e.specialty || "Expertise",
                             category: e.category || "",
                             verified: !!e.is_verified,

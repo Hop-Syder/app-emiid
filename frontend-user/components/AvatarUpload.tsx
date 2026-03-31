@@ -92,7 +92,7 @@ export function AvatarUpload({ currentAvatarUrl, onUploadComplete, disabled }: A
         <div className="flex items-center gap-6">
             <div className="relative group">
                 <Avatar className="h-24 w-24 border-2 border-white shadow-md transition-all group-hover:ring-4 group-hover:ring-primary/20">
-                    <AvatarImage src={preview || "/african-user.jpg"} className="object-cover" />
+                    <AvatarImage src={preview || "/profil/avatar.jpg"} className="object-cover" />
                     <AvatarFallback className="bg-amber-100 text-amber-900">
                         <User className="h-10 w-10" />
                     </AvatarFallback>

@@ -157,10 +157,10 @@ export function NexusSidebar({ sidebarOpen, setSidebarOpen, mobileMenuOpen, setM
       <div className={cn("py-3", isMobile ? "px-5" : "px-4")}>
         <div className="relative group rounded-xl bg-white border border-slate-100 shadow-inner">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
-          <Input 
-            type="search" 
-            placeholder="Recherche rapide..." 
-            className="w-full rounded-xl bg-transparent border-transparent hover:bg-slate-50 focus:bg-white focus:border-primary/30 focus:ring-4 focus:ring-primary/5 pl-10 pr-4 py-2.5 h-11 text-sm font-medium transition-all duration-300" 
+          <Input
+            type="search"
+            placeholder="Recherche rapide..."
+            className="w-full rounded-xl bg-transparent border-transparent hover:bg-slate-50 focus:bg-white focus:border-primary/30 focus:ring-4 focus:ring-primary/5 pl-10 pr-4 py-2.5 h-11 text-sm font-medium transition-all duration-300"
           />
         </div>
       </div>
@@ -169,7 +169,7 @@ export function NexusSidebar({ sidebarOpen, setSidebarOpen, mobileMenuOpen, setM
       <ScrollArea className="flex-1 px-3 py-2">
         <div className="space-y-1.5 px-2">
           <p className="px-4 pb-2 pt-4 text-xs font-bold uppercase tracking-wider text-slate-400">Menu Principal</p>
-          
+
           {sidebarItems.map((item) => {
             const active = isActive(item.href || "");
             const parentActive = isParentActive(item.items);
@@ -179,41 +179,41 @@ export function NexusSidebar({ sidebarOpen, setSidebarOpen, mobileMenuOpen, setM
               <div key={item.title} className="mb-0.5">
                 <div className="flex items-center">
                   {item.href ? (
-                  <Link
-                    href={item.href}
-                    className={cn(
-                      "group flex flex-1 items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 relative overflow-hidden",
-                      active 
-                        ? "bg-primary/90 text-white shadow-md shadow-primary/25" 
-                        : "text-slate-600 hover:bg-white hover:text-slate-900"
-                    )}
-                    onClick={(e) => {
-                      handleNavClick(e, item)
-                      if (!item.requiresAuth || session) setMobileMenuOpen(false)
-                    }}
-                  >
-                    {active && (
-                      <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-white/90 rounded-r-full" />
-                    )}
-                    
-                    <div className="flex items-center gap-3.5 relative z-10">
-                      <div className={cn(
-                        "flex items-center justify-center transition-colors",
-                        active ? "text-white opacity-100" : "text-slate-400 group-hover:text-primary opacity-80"
-                      )}>
-                        {typeof item.icon === "string" ? (
-                          <img 
-                            src={item.icon} 
-                            alt={item.title} 
-                            className={cn("h-5 w-5 object-contain transition-all duration-300 opacity-70 group-hover:opacity-100", active && "brightness-0 invert opacity-100")} 
-                          />
-                        ) : (
-                          item.icon
+                    <Link
+                      href={item.href}
+                      className={cn(
+                        "group flex flex-1 items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 relative overflow-hidden",
+                        active
+                          ? "bg-primary/90 text-white shadow-md shadow-primary/25"
+                          : "text-slate-600 hover:bg-white hover:text-slate-900"
+                      )}
+                      onClick={(e) => {
+                        handleNavClick(e, item)
+                        if (!item.requiresAuth || session) setMobileMenuOpen(false)
+                      }}
+                    >
+                      {active && (
+                        <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-white/90 rounded-r-full" />
+                      )}
+
+                      <div className="flex items-center gap-3.5 relative z-10">
+                        <div className={cn(
+                          "flex items-center justify-center transition-colors",
+                          active ? "text-white opacity-100" : "text-slate-400 group-hover:text-primary opacity-80"
+                        )}>
+                          {typeof item.icon === "string" ? (
+                            <img
+                              src={item.icon}
+                              alt={item.title}
+                              className={cn("h-5 w-5 object-contain transition-all duration-300 opacity-70 group-hover:opacity-100", active && "brightness-0 invert opacity-100")}
+                            />
+                          ) : (
+                            item.icon
                           )}
                         </div>
                         <span className="tracking-tight">{item.title}</span>
                       </div>
-                      
+
                       {item.badge && (
                         <Badge variant="outline" className={cn(
                           "ml-auto rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider z-10",
@@ -280,8 +280,8 @@ export function NexusSidebar({ sidebarOpen, setSidebarOpen, mobileMenuOpen, setM
                               href={subItem.href}
                               className={cn(
                                 "flex items-center justify-between rounded-xl px-3 py-2.5 text-sm transition-all duration-200 relative",
-                                subActive 
-                                  ? "text-primary font-bold bg-primary/5" 
+                                subActive
+                                  ? "text-primary font-bold bg-primary/5"
                                   : "text-slate-500 font-medium hover:text-slate-900 hover:bg-slate-50"
                               )}
                               onClick={(e) => {
@@ -319,7 +319,7 @@ export function NexusSidebar({ sidebarOpen, setSidebarOpen, mobileMenuOpen, setM
           <div className="flex items-center gap-3">
             <div className="relative">
               <Avatar className="h-10 w-10 border-2 border-white shadow-sm transition-transform group-hover:scale-105">
-                <AvatarImage src={session?.user?.user_metadata?.avatar_url || "/african-user.jpg"} alt="User" className="object-cover" />
+                <AvatarImage src={session?.user?.user_metadata?.avatar_url || "/profil/avatar.jpg"} alt="User" className="object-cover" />
                 <AvatarFallback className="bg-primary/10 text-primary font-bold">MO</AvatarFallback>
               </Avatar>
               <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-white" />
@@ -339,9 +339,9 @@ export function NexusSidebar({ sidebarOpen, setSidebarOpen, mobileMenuOpen, setM
     <>
       {/* Mobile menu overlay */}
       {mobileMenuOpen && (
-        <div 
-          className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm transition-opacity duration-300 md:hidden" 
-          onClick={() => setMobileMenuOpen(false)} 
+        <div
+          className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm transition-opacity duration-300 md:hidden"
+          onClick={() => setMobileMenuOpen(false)}
         />
       )}
 

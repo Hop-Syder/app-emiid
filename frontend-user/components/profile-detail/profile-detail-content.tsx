@@ -1,13 +1,13 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { 
-    ArrowLeft, 
-    Shield, 
-    MapPin, 
-    Users, 
-    MessageCircle, 
-    Share2, 
+import {
+    ArrowLeft,
+    Shield,
+    MapPin,
+    Users,
+    MessageCircle,
+    Share2,
     Globe,
     Mail,
     Phone,
@@ -91,7 +91,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                         role: data.role || "Membre Nexus",
                         bio: data.bio || "Ce membre n'a pas encore rédigé sa biographie professionnelle.",
                         location: data.city ? `${data.city}, ${data.countries?.name || ""}` : (data.countries?.name || "Afrique"),
-                        avatar: data.avatar_url || "/african-user.jpg",
+                        avatar: data.avatar_url || "/profil/avatar.jpg",
                         coverImage: data.cover_url || undefined,
                         specialty: data.specialty || "Expertise",
                         category: data.category || "",
@@ -100,7 +100,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                         followers: data.followers_count || 0,
                         following: data.following_count || 0,
                         isOnline: false,
-                        isFollowed: false, 
+                        isFollowed: false,
                         joinedDate: data.created_at ? new Date(data.created_at).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : "2024",
                         email: data.email,
                         website: data.website,
@@ -136,7 +136,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
 
     const handleFollow = async () => {
         if (!profile) return
-        
+
         try {
             const res = await fetchWithAuth(`/api/users/follow/${profile.id}`, {
                 method: "POST"
@@ -194,9 +194,9 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                 scrolled ? "bg-white/90 backdrop-blur-xl shadow-lg shadow-slate-200/40 py-2" : "bg-transparent border-transparent py-4"
             )}>
                 <div className="container max-w-5xl mx-auto px-4 flex items-center justify-between">
-                    <Button 
-                        variant="ghost" 
-                        size="sm" 
+                    <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => router.back()}
                         className="gap-2 rounded-xl bg-white/50 hover:bg-white shadow-sm border border-slate-100"
                     >
@@ -258,7 +258,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                                         profile.premium ? "from-amber-400 to-yellow-500" : "from-primary to-accent"
                                     )} />
                                     <Avatar className="h-32 w-32 sm:h-40 sm:w-40 ring-4 ring-white shadow-2xl relative">
-                                        <AvatarImage src={profile.avatar || "/african-user.jpg"} alt={profile.name} className="object-cover" />
+                                        <AvatarImage src={profile.avatar || "/profil/avatar.jpg"} alt={profile.name} className="object-cover" />
                                         <AvatarFallback className="bg-slate-100 text-slate-400 text-4xl font-black">
                                             {initials}
                                         </AvatarFallback>
@@ -295,7 +295,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
 
                                     {/* Quick Actions Profile Page */}
                                     <div className="flex flex-wrap items-center gap-4 justify-center md:justify-start pt-2">
-                                        <Button 
+                                        <Button
                                             size="lg"
                                             className="rounded-2xl px-8 h-12 gap-3 font-bold bg-[#022753] hover:bg-[#022753]/90 shadow-xl shadow-[#022753]/20 transition-all hover:-translate-y-1 active:scale-95"
                                             onClick={handleFollow}
@@ -309,8 +309,8 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                                                 </>
                                             )}
                                         </Button>
-                                        <Button 
-                                            variant="outline" 
+                                        <Button
+                                            variant="outline"
                                             size="lg"
                                             className="rounded-2xl h-12 px-8 gap-3 font-bold border-slate-200 hover:bg-slate-50 shadow-lg shadow-slate-200/50 transition-all hover:border-slate-300"
                                             asChild
