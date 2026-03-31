@@ -9,6 +9,9 @@ import { createClient } from './supabase/client';
 
 const supabase = createClient();
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5000';
+const DEV_AUTH_BYPASS = process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS === 'true';
+const DEV_AUTH_BYPASS_USER_ID = process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS_USER_ID;
+const DEV_AUTH_BYPASS_USER_EMAIL = process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS_USER_EMAIL;
 
 const buildTargetUrl = (endpoint: string) => {
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
@@ -33,12 +36,17 @@ const buildTargetUrl = (endpoint: string) => {
 export const fetchWithAuth = async (endpoint: string, options: RequestInit = {}) => {
   // 1. Récupérer la session active via le client Supabase
   const { data: { session } } = await supabase.auth.getSession();
+  const useDevBypass = !session?.access_token && DEV_AUTH_BYPASS && DEV_AUTH_BYPASS_USER_ID;
   
   // 2. Préparer les headers avec le token
   const headers = {
     'Content-Type': 'application/json',
     ...options.headers,
     ...(session?.access_token ? { 'Authorization': `Bearer ${session.access_token}` } : {}),
+    ...(useDevBypass ? {
+      'x-dev-user-id': DEV_AUTH_BYPASS_USER_ID,
+      'x-dev-user-email': DEV_AUTH_BYPASS_USER_EMAIL || `${DEV_AUTH_BYPASS_USER_ID}@dev.local`,
+    } : {}),
   };
 
   // 3. Exécuter la requête vers l'URL du Backend

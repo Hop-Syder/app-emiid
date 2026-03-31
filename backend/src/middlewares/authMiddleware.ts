@@ -14,6 +14,21 @@ import { logger } from '../utils/logger';
  * Attend le token dans le header "Authorization: Bearer <token>".
  */
 export const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
+  const devBypassEnabled = process.env.DEV_AUTH_BYPASS === 'true' && process.env.NODE_ENV !== 'production';
+  const devUserIdHeader = req.headers['x-dev-user-id'];
+  const devUserEmailHeader = req.headers['x-dev-user-email'];
+
+  if (devBypassEnabled && typeof devUserIdHeader === 'string' && devUserIdHeader.trim()) {
+    (req as any).user = {
+      id: devUserIdHeader,
+      email: typeof devUserEmailHeader === 'string' && devUserEmailHeader.trim()
+        ? devUserEmailHeader
+        : `${devUserIdHeader}@dev.local`,
+    };
+
+    return next();
+  }
+
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {

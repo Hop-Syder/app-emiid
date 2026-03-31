@@ -133,7 +133,7 @@ export function FollowedProfilesContent() {
     }
 
     const handleMessage = (profileId: string) => {
-        router.push(`/messages?user=${profileId}`)
+        router.push(`/messages?contact=${profileId}`)
     }
 
     if (loading) {

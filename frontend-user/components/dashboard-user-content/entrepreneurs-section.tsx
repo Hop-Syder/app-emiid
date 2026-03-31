@@ -21,7 +21,7 @@ export function EntrepreneursSection({ entrepreneursList, loading }: Entrepreneu
             return
         }
         if (type === "message") {
-            router.push(`/messages?user=${entrepreneurId}`)
+            router.push(`/messages?contact=${entrepreneurId}`)
             return
         }
     }

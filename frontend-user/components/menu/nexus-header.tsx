@@ -32,6 +32,7 @@ interface NexusHeaderProps {
 }
 
 export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: NexusHeaderProps) {
+  const messagingDevBypassEnabled = process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS === "true"
   const pathname = usePathname()
   const router = useRouter()
   const { notifications, unreadCount, markAsRead } = useNotifications()
@@ -56,7 +57,7 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
   }
 
   const handleRestrictedAction = (e: React.MouseEvent, targetRoute?: string) => {
-    if (!session) {
+    if (!session && !(messagingDevBypassEnabled && targetRoute?.startsWith("/messages"))) {
       e.preventDefault()
       router.push("/login")
     } else if (targetRoute) {

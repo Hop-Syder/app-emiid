@@ -47,7 +47,7 @@ export function AnnuaireCard({ profile }: AnnuaireCardProps) {
         }
 
         if (type === 'message') {
-            router.push(`/messages?user=${profile.id}`)
+            router.push(`/messages?contact=${profile.id}`)
             return
         }
 

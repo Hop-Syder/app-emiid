@@ -59,10 +59,12 @@ import type { Conversation, Message, UserProfile } from "@/types"
 
 // Supprimé les mocks et generateMockMessages qui ne sont plus nécessaires
 const supabase = createClient()
+const DEV_AUTH_BYPASS = process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS === "true"
+const DEV_AUTH_BYPASS_USER_ID = process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS_USER_ID || null
 
 export function MessagesContent() {
   const searchParams = useSearchParams()
-  const contactId = searchParams.get("contact")
+  const contactId = searchParams.get("contact") || searchParams.get("user")
 
   const [message, setMessage] = useState("")
   const [conversations, setConversations] = useState<Conversation[]>([])
@@ -76,6 +78,7 @@ export function MessagesContent() {
   const [searchQuery, setSearchQuery] = useState("")
   const [filterType, setFilterType] = useState<"all" | "unread" | "pinned">("all")
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+  const [realtimeConnected, setRealtimeConnected] = useState(false)
 
   const [isMediationDialogOpen, setIsMediationDialogOpen] = useState(false)
   const [mediationReason, setMediationReason] = useState("")
@@ -85,6 +88,13 @@ export function MessagesContent() {
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const imageInputRef = useRef<HTMLInputElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const upsertConversation = useCallback((conversation: Conversation) => {
+    setConversations(prev => {
+      const next = prev.filter(conv => conv.id !== conversation.id)
+      return [conversation, ...next]
+    })
+  }, [])
 
   // Marquer comme lu
   const markMessagesAsRead = useCallback(async (conversationId: string) => {
@@ -138,9 +148,12 @@ export function MessagesContent() {
           } else if (!selectedConv && data.length > 0) {
             setSelectedConv(data[0])
           }
+        } else if (res.status === 401) {
+          toast.error("Session expirée. Reconnectez-vous pour accéder à vos messages.")
         }
       } catch (err) {
         console.error("Error loading convs:", err)
+        toast.error("Impossible de charger les conversations")
       } finally {
         setLoadingConv(false)
       }
@@ -148,7 +161,14 @@ export function MessagesContent() {
     loadConversations()
 
     supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) setCurrentUserId(user.id)
+      if (user) {
+        setCurrentUserId(user.id)
+        return
+      }
+
+      if (DEV_AUTH_BYPASS && DEV_AUTH_BYPASS_USER_ID) {
+        setCurrentUserId(DEV_AUTH_BYPASS_USER_ID)
+      }
     })
   }, [])
 
@@ -169,9 +189,12 @@ export function MessagesContent() {
           const data = await res.json()
           setMessages(data)
           markMessagesAsRead(selectedConv.id)
+        } else if (res.status === 403) {
+          toast.error("Accès refusé à cette conversation")
         }
       } catch (err) {
         console.error("Error loading msgs:", err)
+        toast.error("Impossible de charger les messages")
       } finally {
         setLoadingMsgs(false)
       }
@@ -194,7 +217,7 @@ export function MessagesContent() {
           table: 'messages'
         },
         async (payload) => {
-          const newMsg = payload.new as any
+          const newMsg = payload.new as Message
 
           // On ne s'intéresse qu'aux messages qu'on reçoit ou qu'on envoie
           // Note : Supabase Realtime ne filtre pas par défaut par RLS sur INSERT pour tout le monde si configuré ainsi
@@ -218,12 +241,77 @@ export function MessagesContent() {
           }
         }
       )
-      .subscribe()
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          setRealtimeConnected(true)
+          return
+        }
+
+        if (status === 'TIMED_OUT' || status === 'CHANNEL_ERROR' || status === 'CLOSED') {
+          setRealtimeConnected(false)
+        }
+      })
 
     return () => {
+      setRealtimeConnected(false)
       supabase.removeChannel(globalChannel)
     }
   }, [currentUserId, selectedConv, markMessagesAsRead])
+
+  useEffect(() => {
+    if (!currentUserId || realtimeConnected) return
+
+    const intervalId = window.setInterval(async () => {
+      try {
+        const convRes = await fetchWithAuth("/api/messages/conversations")
+        if (convRes.ok) {
+          const data = await convRes.json()
+          setConversations(data)
+
+          if (selectedConv) {
+            const refreshedConversation = data.find((conversation: Conversation) =>
+              conversation.id === selectedConv.id || conversation.otherUser.id === selectedConv.otherUser.id,
+            )
+
+            if (refreshedConversation && refreshedConversation.id !== selectedConv.id) {
+              setSelectedConv(refreshedConversation)
+            }
+          }
+        }
+
+        if (!selectedConv || selectedConv.id.startsWith('new-')) {
+          return
+        }
+
+        const msgRes = await fetchWithAuth(`/api/messages/conversation/${selectedConv.id}`)
+        if (!msgRes.ok) {
+          return
+        }
+
+        const data = await msgRes.json()
+        setMessages(prev => {
+          const previousLastId = prev[prev.length - 1]?.id
+          const nextLastId = data[data.length - 1]?.id
+
+          if (prev.length === data.length && previousLastId === nextLastId) {
+            return prev
+          }
+
+          return data
+        })
+
+        if (data.some((msg: Message) => !msg.is_read && msg.sender_id !== currentUserId)) {
+          void markMessagesAsRead(selectedConv.id)
+        }
+      } catch (error) {
+        console.error("Realtime fallback refresh error:", error)
+      }
+    }, 3000)
+
+    return () => {
+      window.clearInterval(intervalId)
+    }
+  }, [currentUserId, realtimeConnected, selectedConv, markMessagesAsRead])
 
   // 4. Scroll vers le bas
   useEffect(() => {
@@ -236,11 +324,12 @@ export function MessagesContent() {
 
     setIsSending(true)
     try {
+      const content = message.trim()
       const res = await fetchWithAuth("/api/messages/send", {
         method: "POST",
         body: JSON.stringify({
           receiverId: selectedConv.otherUser.id,
-          content: message.trim()
+          content
         })
       })
 
@@ -256,20 +345,42 @@ export function MessagesContent() {
             const newRealConv = convs.find((c: Conversation) => c.otherUser.id === selectedConv.otherUser.id)
             if (newRealConv) {
               setSelectedConv(newRealConv)
+              upsertConversation({
+                ...newRealConv,
+                lastMessage: newMsg.content,
+                lastMessageAt: newMsg.created_at,
+                unreadCount: 0,
+              })
             } else {
-              setSelectedConv({
+              const fallbackConversation = {
                 id: newMsg.conversation_id,
                 otherUser: selectedConv.otherUser,
                 lastMessage: newMsg.content,
                 lastMessageAt: newMsg.created_at,
                 unreadCount: 0
-              })
+              }
+
+              setSelectedConv(fallbackConversation)
+              upsertConversation(fallbackConversation)
             }
           }
+        } else {
+          const updatedConversation = {
+            ...selectedConv,
+            lastMessage: newMsg.content,
+            lastMessageAt: newMsg.created_at,
+            unreadCount: 0,
+          }
+
+          setSelectedConv(updatedConversation)
+          upsertConversation(updatedConversation)
         }
 
-        setMessages(prev => [...prev, newMsg])
+        setMessages(prev => prev.some(existingMessage => existingMessage.id === newMsg.id) ? prev : [...prev, newMsg])
         setMessage("")
+      } else {
+        const errorData = await res.json().catch(() => ({ error: "Erreur lors de l'envoi" }))
+        toast.error(errorData.error || "Erreur lors de l'envoi")
       }
     } catch (err) {
       console.error("Send error:", err)
@@ -325,10 +436,31 @@ export function MessagesContent() {
             const convs = await convRes.json()
             setConversations(convs)
             const newRealConv = convs.find((c: Conversation) => c.otherUser.id === selectedConv.otherUser.id)
-            if (newRealConv) setSelectedConv(newRealConv)
+            if (newRealConv) {
+              setSelectedConv(newRealConv)
+              upsertConversation({
+                ...newRealConv,
+                lastMessage: newMsg.content,
+                lastMessageAt: newMsg.created_at,
+                unreadCount: 0,
+              })
+            }
           }
+        } else {
+          const updatedConversation = {
+            ...selectedConv,
+            lastMessage: newMsg.content,
+            lastMessageAt: newMsg.created_at,
+            unreadCount: 0,
+          }
+
+          setSelectedConv(updatedConversation)
+          upsertConversation(updatedConversation)
         }
-        setMessages((prev) => [...prev, newMsg])
+        setMessages((prev) => prev.some(existingMessage => existingMessage.id === newMsg.id) ? prev : [...prev, newMsg])
+      } else {
+        const errorData = await res.json().catch(() => ({ error: "Erreur de partage du fichier" }))
+        toast.error(errorData.error || "Erreur de partage du fichier")
       }
     } catch (err: unknown) {
       console.error("Upload error:", err)

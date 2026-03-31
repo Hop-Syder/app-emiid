@@ -9,6 +9,64 @@ import { Response } from 'express';
 import { supabaseAdmin } from '../config/supabase';
 import { logger } from '../utils/logger';
 
+const formatParticipantName = (profile: any) => {
+  if (!profile) {
+    return 'Utilisateur Nexus';
+  }
+
+  const fullName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim();
+  return fullName || 'Utilisateur Nexus';
+};
+
+const buildProfileLookup = (profiles: any[] = []) =>
+  profiles.reduce<Record<string, any>>((acc, profile) => {
+    acc[profile.user_id] = profile;
+    return acc;
+  }, {});
+
+const getProfilesByUserIds = async (userIds: string[]) => {
+  if (userIds.length === 0) {
+    return {} as Record<string, any>;
+  }
+
+  const uniqueUserIds = Array.from(new Set(userIds));
+  const { data, error } = await supabaseAdmin
+    .from('user_profiles')
+    .select('user_id, first_name, last_name, avatar_url, role')
+    .in('user_id', uniqueUserIds);
+
+  if (error) {
+    throw error;
+  }
+
+  return buildProfileLookup(data || []);
+};
+
+const formatConversation = (
+  conv: any,
+  userId: string,
+  unreadCount: number,
+  profileLookup: Record<string, any>,
+) => {
+  const otherUserId = conv.participant1_id === userId ? conv.participant2_id : conv.participant1_id;
+  const otherUser = profileLookup[otherUserId];
+
+  return {
+    id: conv.id,
+    otherUser: {
+      id: otherUserId,
+      name: formatParticipantName(otherUser),
+      avatar: otherUser?.avatar_url || null,
+      role: otherUser?.role || null,
+      isOnline: false,
+      lastSeen: null,
+    },
+    lastMessage: conv.last_message_content || null,
+    lastMessageAt: conv.last_message_at || null,
+    unreadCount,
+  };
+};
+
 /**
  * Récupère les conversations de l'utilisateur
  * GET /api/messages/conversations
@@ -19,31 +77,39 @@ export const getMyConversations = async (req: any, res: Response) => {
   try {
     const { data, error } = await supabaseAdmin
       .from('conversations')
-      .select(`
-        *,
-        user1:participant1_id (first_name, last_name, avatar_url, role),
-        user2:participant2_id (first_name, last_name, avatar_url, role)
-      `)
+      .select('*')
       .or(`participant1_id.eq.${userId},participant2_id.eq.${userId}`)
       .order('last_message_at', { ascending: false });
 
     if (error) return res.status(400).json({ error: error.message });
 
-    // Nettoyer les données pour renvoyer l'interlocuteur
-    const conversations = data.map((conv: any) => {
-      const otherUser = conv.participant1_id === userId ? conv.user2 : conv.user1;
-      return {
-        id: conv.id,
-        otherUser: {
-          id: conv.participant1_id === userId ? conv.participant2_id : conv.participant1_id,
-          name: `${otherUser.first_name} ${otherUser.last_name}`,
-          avatar: otherUser.avatar_url,
-          role: otherUser.role
-        },
-        lastMessage: conv.last_message_content,
-        lastMessageAt: conv.last_message_at
-      };
-    });
+    if (!data || data.length === 0) {
+      return res.json([]);
+    }
+
+    const conversationIds = data.map((conv: any) => conv.id);
+    const profileLookup = await getProfilesByUserIds(
+      data.flatMap((conv: any) => [conv.participant1_id, conv.participant2_id]),
+    );
+    const { data: unreadMessages, error: unreadError } = await supabaseAdmin
+      .from('messages')
+      .select('conversation_id')
+      .in('conversation_id', conversationIds)
+      .neq('sender_id', userId)
+      .eq('is_read', false);
+
+    if (unreadError) {
+      return res.status(400).json({ error: unreadError.message });
+    }
+
+    const unreadCountByConversation = (unreadMessages || []).reduce<Record<string, number>>((acc, message: any) => {
+      acc[message.conversation_id] = (acc[message.conversation_id] || 0) + 1;
+      return acc;
+    }, {});
+
+    const conversations = data.map((conv: any) =>
+      formatConversation(conv, userId, unreadCountByConversation[conv.id] || 0, profileLookup),
+    );
 
     res.json(conversations);
   } catch (err) {
@@ -92,10 +158,23 @@ export const getConversationMessages = async (req: any, res: Response) => {
 export const sendMessage = async (req: any, res: Response) => {
     const senderId = req.user.id;
     const { receiverId, content } = req.body;
+    const trimmedContent = typeof content === 'string' ? content.trim() : '';
 
-    if (!content || !receiverId) return res.status(400).json({ error: "Destinataire et contenu requis" });
+    if (!trimmedContent || !receiverId) {
+        return res.status(400).json({ error: "Destinataire et contenu requis" });
+    }
+
+    if (receiverId === senderId) {
+        return res.status(400).json({ error: "Vous ne pouvez pas vous envoyer un message à vous-même" });
+    }
 
     try {
+        const { data: receiverData, error: receiverError } = await supabaseAdmin.auth.admin.getUserById(receiverId);
+
+        if (receiverError || !receiverData.user) {
+            return res.status(404).json({ error: "Destinataire introuvable" });
+        }
+
         // 1. Chercher ou créer la conversation
         const p1 = senderId < receiverId ? senderId : receiverId;
         const p2 = senderId < receiverId ? receiverId : senderId;
@@ -107,13 +186,17 @@ export const sendMessage = async (req: any, res: Response) => {
             .eq('participant2_id', p2)
             .single();
 
+        if (convError && convError.code !== 'PGRST116') {
+            return res.status(400).json({ error: convError.message });
+        }
+
         if (!conv) {
              const { data: newConv, error: createError } = await supabaseAdmin
                 .from('conversations')
                 .insert({ participant1_id: p1, participant2_id: p2 })
                 .select('id')
                 .single();
-             if (createError) return res.status(400).json({ error: "Erreur création conversation" });
+             if (createError) return res.status(400).json({ error: createError.message || "Erreur création conversation" });
              conv = newConv;
         }
 
@@ -123,16 +206,21 @@ export const sendMessage = async (req: any, res: Response) => {
             .insert({
                 conversation_id: conv.id,
                 sender_id: senderId,
-                content: content
+                content: trimmedContent,
+                is_read: false,
             })
             .select()
             .single();
+
+        if (msgError || !msg) {
+            return res.status(400).json({ error: msgError?.message || "Erreur lors de l'envoi du message" });
+        }
 
         // 3. Mettre à jour la conversation
         await supabaseAdmin
             .from('conversations')
             .update({
-                last_message_content: content,
+                last_message_content: trimmedContent,
                 last_message_at: new Date().toISOString()
             })
             .eq('id', conv.id);
@@ -163,30 +251,30 @@ export const getAdminDisputes = async (req: any, res: Response) => {
         // 2. Récupérer les détails des conversations
         const { data: convs, error: convError } = await supabaseAdmin
             .from('conversations')
-            .select(`
-                *,
-                user1:participant1_id (first_name, last_name, avatar_url, role),
-                user2:participant2_id (first_name, last_name, avatar_url, role)
-            `)
+            .select('*')
             .in('id', uniqueConvIds)
             .order('last_message_at', { ascending: false });
 
         if (convError) throw convError;
+
+        const profileLookup = await getProfilesByUserIds(
+            convs.flatMap((conv: any) => [conv.participant1_id, conv.participant2_id]),
+        );
 
         // Formater pour l'admin
         const formatted = convs.map((conv: any) => ({
             id: conv.id,
             user1: {
                 id: conv.participant1_id,
-                name: `${conv.user1.first_name || ""} ${conv.user1.last_name || ""}`,
-                avatar: conv.user1.avatar_url,
-                role: conv.user1.role
+                name: formatParticipantName(profileLookup[conv.participant1_id]),
+                avatar: profileLookup[conv.participant1_id]?.avatar_url || null,
+                role: profileLookup[conv.participant1_id]?.role || null
             },
             user2: {
                 id: conv.participant2_id,
-                name: `${conv.user2.first_name || ""} ${conv.user2.last_name || ""}`,
-                avatar: conv.user2.avatar_url,
-                role: conv.user2.role
+                name: formatParticipantName(profileLookup[conv.participant2_id]),
+                avatar: profileLookup[conv.participant2_id]?.avatar_url || null,
+                role: profileLookup[conv.participant2_id]?.role || null
             },
             lastMessage: conv.last_message_content,
             lastMessageAt: conv.last_message_at
@@ -242,13 +330,7 @@ export const requestMediation = async (req: any, res: Response) => {
         // 1. Vérifier si l'utilisateur est participant de cette conversation
         const { data: conv, error: convError } = await supabaseAdmin
             .from('conversations')
-            .select(`
-              id,
-              participant1_id,
-              participant2_id,
-              user1:participant1_id (first_name),
-              user2:participant2_id (first_name)
-            `)
+            .select('id, participant1_id, participant2_id')
             .eq('id', conversationId)
             .or(`participant1_id.eq.${userId},participant2_id.eq.${userId}`)
             .single();
@@ -257,8 +339,11 @@ export const requestMediation = async (req: any, res: Response) => {
             return res.status(403).json({ error: "Accès refusé à cette conversation" });
         }
 
-        const requesterName = userId === conv.participant1_id ?
-            (conv.user1 as any).first_name : (conv.user2 as any).first_name;
+        const profileLookup = await getProfilesByUserIds([conv.participant1_id, conv.participant2_id]);
+        const requesterProfile = userId === conv.participant1_id
+            ? profileLookup[conv.participant1_id]
+            : profileLookup[conv.participant2_id];
+        const requesterName = requesterProfile?.first_name || formatParticipantName(requesterProfile);
 
         // 2. Envoyer le message système de médiation
         const { data: msg, error: msgError } = await supabaseAdmin
