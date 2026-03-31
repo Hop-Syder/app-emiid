@@ -46,6 +46,8 @@ export interface EntrepreneurApiResponse {
     avatar_url?: string;
     specialty?: string;
     category?: string;
+    is_verified?: boolean;
+    is_premium?: boolean;
     followers_count?: number;
     tags?: string[];
 }
@@ -57,6 +59,7 @@ interface DashboardPublicContentProps {
 export function DashboardPublicContent({ initialStats = null }: DashboardPublicContentProps) {
     const [loading, setLoading] = useState(true)
     const [entrepreneursList, setEntrepreneursList] = useState<EntrepreneurProfile[]>([])
+    const [profilesWarning, setProfilesWarning] = useState<string | null>(null)
     const { stats, statsLoading, statsError } = useDashboardStats({
         endpoint: "/api/public/stats",
         fetcher: fetchPublic,
@@ -75,6 +78,7 @@ export function DashboardPublicContent({ initialStats = null }: DashboardPublicC
 
             try {
                 const entRes = await fetchPublic("/api/public/profiles")
+                let nextWarning: string | null = null
 
                 if (entRes.ok) {
                     const entData = await entRes.json()
@@ -87,10 +91,12 @@ export function DashboardPublicContent({ initialStats = null }: DashboardPublicC
                         if (followsRes.ok) {
                             const followsData = await followsRes.json()
                             userFollowsIds = followsData.map((f: { user_id?: string; id?: string }) => f.user_id || f.id)
+                        } else if (followsRes.status !== 401 && followsRes.status !== 403) {
+                            nextWarning = "Le statut de vos abonnements n’a pas pu être synchronisé sur cette vue."
                         }
                     } catch (error) {
-                        // Silent failure - follows are optional for public view
-                        console.warn("Failed to load follows for public dashboard")
+                        console.error("Failed to load follows for public dashboard", error)
+                        nextWarning = "Le statut de vos abonnements n’a pas pu être synchronisé sur cette vue."
                     }
 
                     const nextEntrepreneurs = entData.map((e: EntrepreneurApiResponse) => {
@@ -103,8 +109,8 @@ export function DashboardPublicContent({ initialStats = null }: DashboardPublicC
                             avatar: e.avatar_url || "/profil/avatar.jpg",
                             specialty: e.specialty || "Expertise",
                             category: e.category || "",
-                            verified: true,
-                            premium: e.category?.toLowerCase() === 'entreprise',
+                            verified: !!e.is_verified,
+                            premium: !!e.is_premium,
                             followers: e.followers_count || 0,
                             isFollowed: userFollowsIds.includes(profileId),
                             tags: e.tags || []
@@ -116,17 +122,26 @@ export function DashboardPublicContent({ initialStats = null }: DashboardPublicC
                     }
 
                     setEntrepreneursList(nextEntrepreneurs)
+                    setProfilesWarning(nextWarning)
                 } else {
                     console.error("Erreur API entrepreneurs (Public):", entRes.status)
 
                     if (showLoading && isMounted) {
                         setEntrepreneursList([])
                     }
+
+                    if (isMounted) {
+                        setProfilesWarning("Les profils en vedette n’ont pas pu être chargés pour le moment.")
+                    }
                 }
             } catch (error) {
                 console.error("Erreur chargement profils publics:", error)
                 if (showLoading && isMounted) {
                     setEntrepreneursList([])
+                }
+
+                if (isMounted) {
+                    setProfilesWarning("Les profils en vedette n’ont pas pu être chargés pour le moment.")
                 }
             } finally {
                 if (showLoading && isMounted) {
@@ -166,6 +181,18 @@ export function DashboardPublicContent({ initialStats = null }: DashboardPublicC
 
             {/* Stats Section */}
             {stats ? <StatsSection stats={stats} /> : statsLoading ? <DashboardStatsSkeleton /> : null}
+
+            {profilesWarning && (
+                <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-900">
+                    <div className="flex items-start gap-3">
+                        <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-600" />
+                        <div>
+                            <p className="font-semibold">Synchronisation partielle</p>
+                            <p className="text-sm text-amber-800">{profilesWarning}</p>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Entrepreneurs du Réseau */}
             <EntrepreneursSection entrepreneursList={entrepreneursList} loading={loading} />

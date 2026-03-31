@@ -297,6 +297,7 @@ export const getPublicProfileById = async (req: Request, res: Response) => {
         profile_tags(tags(name))
       `)
       .eq('user_id', id)
+      .eq('is_published', true)
       .single();
 
     if (error) {

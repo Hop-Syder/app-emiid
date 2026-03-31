@@ -19,6 +19,7 @@ export interface Profile {
     premium?: boolean
     id?: string
     card_variant?: string
+    isFollowed?: boolean
 }
 
 interface AnnuaireCardProps {
@@ -28,7 +29,7 @@ interface AnnuaireCardProps {
 export function AnnuaireCard({ profile }: AnnuaireCardProps) {
     const router = useRouter()
     const { session } = useCurrentUserProfile()
-    const [isFollowed, setIsFollowed] = useState(false)
+    const [isFollowed, setIsFollowed] = useState(!!profile.isFollowed)
     const [followersCount, setFollowersCount] = useState(profile.followers)
 
     const handleAction = async (type: 'message' | 'follow' | 'view') => {

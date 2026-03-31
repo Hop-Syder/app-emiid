@@ -94,6 +94,9 @@ export default function AdminMessagesContent() {
       if (res.ok) {
         const data = await res.json()
         setConversations(data)
+      } else {
+        const errorData = await res.json().catch(() => ({ error: "Erreur de chargement des litiges" }))
+        toast.error(errorData.error || "Erreur de chargement des litiges")
       }
     } catch (err) {
       toast.error("Erreur de chargement des litiges")
@@ -109,12 +112,15 @@ export default function AdminMessagesContent() {
     const loadMessages = async () => {
       setIsMessagesLoading(true)
       try {
-        const res = await fetchWithAuth(`/api/messages/conversation/${selectedConv.id}`)
+        const res = await fetchWithAuth(`/api/messages/admin/conversation/${selectedConv.id}`)
         if (res.ok) {
           const data = await res.json()
           setMessages(data)
           // Mark as read (Admin view)
-          fetchWithAuth(`/api/messages/read/${selectedConv.id}`, { method: "POST" })
+          void fetchWithAuth(`/api/messages/admin/read/${selectedConv.id}`, { method: "POST" })
+        } else {
+          const errorData = await res.json().catch(() => ({ error: "Erreur de chargement des messages" }))
+          toast.error(errorData.error || "Erreur de chargement des messages")
         }
       } catch (err) {
         toast.error("Erreur de chargement des messages")
@@ -161,10 +167,18 @@ export default function AdminMessagesContent() {
       })
 
       if (res.ok) {
+        const sentMessage = await res.json()
+        setMessages(prev => prev.some(existingMessage => existingMessage.id === sentMessage.id) ? prev : [...prev, sentMessage])
+        setConversations(prev => prev.map(conv =>
+          conv.id === selectedConv.id
+            ? { ...conv, lastMessage: sentMessage.content, lastMessageAt: sentMessage.created_at }
+            : conv,
+        ))
         setMessage("")
         inputRef.current?.focus()
       } else {
-        toast.error("Erreur lors de l'envoi")
+        const errorData = await res.json().catch(() => ({ error: "Erreur lors de l'envoi" }))
+        toast.error(errorData.error || "Erreur lors de l'envoi")
       }
     } catch (err) {
       toast.error("Erreur de connexion")

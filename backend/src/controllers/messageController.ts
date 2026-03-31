@@ -42,6 +42,34 @@ const getProfilesByUserIds = async (userIds: string[]) => {
   return buildProfileLookup(data || []);
 };
 
+const isAdminUser = async (userId: string) => {
+  const { data, error } = await supabaseAdmin
+    .from('user_profiles')
+    .select('role')
+    .eq('user_id', userId)
+    .single();
+
+  if (error || !data?.role) {
+    return false;
+  }
+
+  return data.role.toLowerCase().includes('admin');
+};
+
+const isConversationInMediation = async (conversationId: string) => {
+  const { count, error } = await supabaseAdmin
+    .from('messages')
+    .select('id', { count: 'exact', head: true })
+    .eq('conversation_id', conversationId)
+    .ilike('content', '%[MÉDIATION DEMANDÉE]%');
+
+  if (error) {
+    throw error;
+  }
+
+  return (count || 0) > 0;
+};
+
 const formatConversation = (
   conv: any,
   userId: string,
@@ -148,6 +176,37 @@ export const getConversationMessages = async (req: any, res: Response) => {
         res.json(data);
     } catch (err) {
         res.status(500).json({ error: "Erreur lors du chargement des messages" });
+    }
+};
+
+/**
+ * Récupère les messages d'une conversation de médiation pour l'admin
+ * GET /api/messages/admin/conversation/:id
+ */
+export const getAdminConversationMessages = async (req: any, res: Response) => {
+    const conversationId = req.params.id;
+
+    try {
+        const hasMediation = await isConversationInMediation(conversationId);
+
+        if (!hasMediation) {
+            return res.status(404).json({ error: "Aucune médiation trouvée pour cette conversation" });
+        }
+
+        const { data, error } = await supabaseAdmin
+            .from('messages')
+            .select('*')
+            .eq('conversation_id', conversationId)
+            .order('created_at', { ascending: true });
+
+        if (error) {
+            return res.status(400).json({ error: error.message });
+        }
+
+        res.json(data);
+    } catch (err) {
+        logger.error("Admin conversation load error", err);
+        res.status(500).json({ error: "Erreur lors du chargement des messages admin" });
     }
 };
 
@@ -381,6 +440,12 @@ export const replyToMediation = async (req: any, res: Response) => {
     if (!content) return res.status(400).json({ error: "Contenu requis" });
 
     try {
+        const hasMediation = await isConversationInMediation(conversationId);
+
+        if (!hasMediation) {
+            return res.status(404).json({ error: "Aucune médiation active pour cette conversation" });
+        }
+
         // Envoi du message direct dans la conversation
         const { data: msg, error: msgError } = await supabaseAdmin
             .from('messages')
@@ -445,5 +510,41 @@ export const markAsRead = async (req: any, res: Response) => {
         res.json({ success: true });
     } catch (err) {
         res.status(500).json({ error: "Erreur lors du marquage comme lu" });
+    }
+};
+
+/**
+ * Marque les messages d'une conversation de médiation comme lus pour l'admin
+ * POST /api/messages/admin/read/:conversationId
+ */
+export const markAdminAsRead = async (req: any, res: Response) => {
+    const adminId = req.user.id;
+    const { conversationId } = req.params;
+
+    try {
+        const isAdmin = await isAdminUser(adminId);
+        if (!isAdmin) {
+            return res.status(403).json({ error: "Accès refusé. Droits administrateur requis." });
+        }
+
+        const hasMediation = await isConversationInMediation(conversationId);
+        if (!hasMediation) {
+            return res.status(404).json({ error: "Aucune médiation trouvée pour cette conversation" });
+        }
+
+        const { error } = await supabaseAdmin
+            .from('messages')
+            .update({ is_read: true })
+            .eq('conversation_id', conversationId)
+            .neq('sender_id', adminId);
+
+        if (error) {
+            return res.status(400).json({ error: error.message });
+        }
+
+        res.json({ success: true });
+    } catch (err) {
+        logger.error("Admin mark as read error", err);
+        res.status(500).json({ error: "Erreur lors du marquage admin comme lu" });
     }
 };

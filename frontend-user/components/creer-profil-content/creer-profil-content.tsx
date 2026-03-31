@@ -17,17 +17,122 @@ import { CreerProfilForm } from "./creer-profil-form"
 import { CreerProfilPreview } from "./creer-profil-preview"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { toast } from "sonner"
-import { createClient } from "@/lib/supabase/client"
 
-const supabase = createClient()
+interface CreateProfileFormData {
+    name: string
+    role: string
+    category: string
+    card_variant: string
+    country_id: string
+    country_code: string
+    country_name: string
+    city: string
+    specialty: string
+    bio: string
+    phone: string
+    email: string
+    website: string
+    avatar: string
+    tags: string[]
+}
+
+const buildProfilePayload = (formData: CreateProfileFormData, isPublished: boolean) => {
+    const trimmedName = formData.name.trim()
+    const nameParts = trimmedName.split(/\s+/).filter(Boolean)
+
+    return {
+        first_name: nameParts[0] || "",
+        last_name: nameParts.slice(1).join(" ") || "",
+        role: formData.role.trim(),
+        category: formData.category,
+        specialty: formData.specialty.trim(),
+        bio: formData.bio.trim(),
+        phone: formData.phone.trim(),
+        website: formData.website.trim(),
+        avatar_url: formData.avatar || null,
+        card_variant: formData.card_variant,
+        country_id: formData.country_id || null,
+        country_code: formData.country_code || null,
+        country_name: formData.country_name || null,
+        city: formData.city.trim(),
+        tags: formData.tags,
+        is_published: isPublished,
+    }
+}
+
+const validateProfileForm = (formData: CreateProfileFormData, mode: "draft" | "publish") => {
+    const errors: string[] = []
+    const trimmedName = formData.name.trim()
+    const trimmedRole = formData.role.trim()
+    const trimmedSpecialty = formData.specialty.trim()
+    const trimmedBio = formData.bio.trim()
+    const trimmedWebsite = formData.website.trim()
+
+    if (trimmedWebsite) {
+        try {
+            const parsedUrl = new URL(trimmedWebsite)
+            if (!["http:", "https:"].includes(parsedUrl.protocol)) {
+                errors.push("Le site web doit commencer par http:// ou https://")
+            }
+        } catch {
+            errors.push("Le site web saisi n’est pas valide")
+        }
+    }
+
+    if (trimmedBio.length > 1200) {
+        errors.push("La bio ne doit pas dépasser 1200 caractères")
+    }
+
+    if (formData.tags.length > 12) {
+        errors.push("Vous pouvez ajouter au maximum 12 tags")
+    }
+
+    if (mode === "publish") {
+        if (!trimmedName) {
+            errors.push("Veuillez renseigner votre nom avant de publier")
+        }
+
+        if (trimmedName.split(/\s+/).filter(Boolean).length < 2) {
+            errors.push("Veuillez renseigner au moins un prénom et un nom")
+        }
+
+        if (!formData.category) {
+            errors.push("Veuillez choisir une catégorie de compte")
+        }
+
+        if (!formData.card_variant) {
+            errors.push("Veuillez choisir un design de carte Nexus")
+        }
+
+        if (!trimmedRole) {
+            errors.push("Veuillez renseigner votre rôle principal")
+        }
+
+        if (!trimmedSpecialty) {
+            errors.push("Veuillez renseigner votre domaine d’expertise")
+        }
+
+        if (!formData.country_id && !formData.country_code) {
+            errors.push("Veuillez sélectionner votre pays")
+        }
+
+        if (!formData.city.trim()) {
+            errors.push("Veuillez renseigner votre ville")
+        }
+    }
+
+    return errors
+}
 
 export function CreerProfilContent() {
     const [isPublished, setIsPublished] = useState(false)
     const [countries, setCountries] = useState<any[]>([])
-    const [formData, setFormData] = useState({
+    const [validationErrors, setValidationErrors] = useState<string[]>([])
+    const [formData, setFormData] = useState<CreateProfileFormData>({
         name: "",
         role: "",
         category: "",
+        card_variant: "tech",
         country_id: "",
         country_code: "",
         country_name: "",
@@ -82,6 +187,7 @@ export function CreerProfilContent() {
                             name: name || prev.name,
                             role: data.role || data.job_title || prev.role,
                             category: data.category || prev.category,
+                            card_variant: data.card_variant || prev.card_variant,
                             specialty: data.specialty || prev.specialty,
                             bio: data.bio || prev.bio,
                             phone: data.phone || prev.phone,
@@ -106,34 +212,25 @@ export function CreerProfilContent() {
         loadInitialData()
     }, [])
 
-    const handleInputChange = (field: string, value: string) => {
+    const handleInputChange = (field: string, value: any) => {
+        if (validationErrors.length > 0) {
+            setValidationErrors([])
+        }
+
         setFormData((prev) => ({ ...prev, [field]: value }))
     }
 
     // 2. Mutation & Persistance (Draft)
     const handleSave = async () => {
         try {
-            const trimmedName = formData.name.trim()
-            const nameParts = trimmedName.split(" ")
-            const firstName = nameParts[0] || ""
-            const lastName = nameParts.slice(1).join(" ") || ""
-
-            const payload = {
-                first_name: firstName,
-                last_name: lastName,
-                role: formData.role,
-                category: formData.category,
-                specialty: formData.specialty,
-                bio: formData.bio,
-                phone: formData.phone,
-                website: formData.website,
-                country_id: formData.country_id || null,
-                city: formData.city,
-                tags: formData.tags,
-                is_published: isPublished,
+            const errors = validateProfileForm(formData, "draft")
+            if (errors.length > 0) {
+                setValidationErrors(errors)
+                toast.error(errors[0])
+                return
             }
 
-            console.log("Saving Draft:", payload)
+            const payload = buildProfilePayload(formData, isPublished)
 
             const response = await fetchWithAuth("/api/users/me", {
                 method: "PUT",
@@ -146,9 +243,10 @@ export function CreerProfilContent() {
             }
 
             toast.success("Brouillon sauvegardé avec succès")
-        } catch (error: any) {
+            setValidationErrors([])
+        } catch (error: unknown) {
             console.error("Erreur save:", error)
-            toast.error(`Erreur: ${error.message}`)
+            toast.error(`Erreur: ${error instanceof Error ? error.message : "Erreur inconnue"}`)
         }
     }
 
@@ -159,32 +257,15 @@ export function CreerProfilContent() {
             return
         }
 
-        const trimmedName = formData.name.trim()
-        if (!trimmedName) {
-            toast.error("Veuillez renseigner votre nom avant de publier")
-            return
-        }
-        if (!formData.specialty || !formData.category) {
-            toast.error("Veuillez remplir votre Spécialité et Catégorie pour publier")
+        const errors = validateProfileForm(formData, "publish")
+        if (errors.length > 0) {
+            setValidationErrors(errors)
+            toast.error(errors[0])
             return
         }
 
         try {
-            const nameParts = trimmedName.split(" ")
-            const payload = {
-                first_name: nameParts[0] || "",
-                last_name: nameParts.slice(1).join(" ") || "",
-                role: formData.role,
-                category: formData.category,
-                specialty: formData.specialty,
-                bio: formData.bio,
-                phone: formData.phone,
-                website: formData.website,
-                country_id: formData.country_id || null,
-                city: formData.city,
-                tags: formData.tags,
-                is_published: true, // FORCE ON
-            }
+            const payload = buildProfilePayload(formData, true)
 
             const response = await fetchWithAuth("/api/users/me", {
                 method: "PUT",
@@ -194,9 +275,10 @@ export function CreerProfilContent() {
             if (!response.ok) throw new Error("Erreur lors de la publication")
 
             setIsPublished(true)
+            setValidationErrors([])
             toast.success("Félicitations ! Votre profil est maintenant EN LIGNE.")
-        } catch (error: any) {
-            toast.error(`Erreur: ${error.message}`)
+        } catch (error: unknown) {
+            toast.error(`Erreur: ${error instanceof Error ? error.message : "Erreur inconnue"}`)
         }
     }
 
@@ -205,22 +287,7 @@ export function CreerProfilContent() {
         if (!isPublished) return
 
         try {
-            const trimmedName = formData.name.trim()
-            const nameParts = trimmedName.split(" ")
-
-            const payload = {
-                first_name: nameParts[0] || "",
-                last_name: nameParts.slice(1).join(" ") || "",
-                role: formData.role,
-                category: formData.category,
-                specialty: formData.specialty,
-                bio: formData.bio,
-                phone: formData.phone,
-                website: formData.website,
-                country_id: formData.country_id || null,
-                city: formData.city,
-                is_published: false, // FORCE OFF
-            }
+            const payload = buildProfilePayload(formData, false)
 
             const response = await fetchWithAuth("/api/users/me", {
                 method: "PUT",
@@ -230,9 +297,10 @@ export function CreerProfilContent() {
             if (!response.ok) throw new Error("Erreur dépublication")
 
             setIsPublished(false)
+            setValidationErrors([])
             toast.success("Votre profil est masqué (mode Brouillon).")
-        } catch (error: any) {
-            toast.error(`Erreur: ${error.message}`)
+        } catch (error: unknown) {
+            toast.error(`Erreur: ${error instanceof Error ? error.message : "Erreur inconnue"}`)
         }
     }
 
@@ -250,17 +318,18 @@ export function CreerProfilContent() {
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <CreerProfilForm
-                        formData={formData}
-                        setFormData={setFormData}
-                        handleInputChange={handleInputChange}
-                        handleSave={handleSave}
-                        handlePublish={handlePublish}
-                        handleUnpublish={handleUnpublish}
-                        isPublished={isPublished}
-                        countries={countries}
-                        tags={formData.tags}
-                    />
+                <CreerProfilForm
+                    formData={formData}
+                    setFormData={setFormData}
+                    handleInputChange={handleInputChange}
+                    handleSave={handleSave}
+                    handlePublish={handlePublish}
+                    handleUnpublish={handleUnpublish}
+                    isPublished={isPublished}
+                    countries={countries}
+                    tags={formData.tags}
+                    validationErrors={validationErrors}
+                />
                     <CreerProfilPreview formData={formData} />
                 </div>
             </motion.div>

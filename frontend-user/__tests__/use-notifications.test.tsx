@@ -7,7 +7,9 @@ import { useNotifications } from '@/hooks/use-notifications'
 import { createClient } from '@/lib/supabase/client'
 
 // Mock Supabase client
-jest.mock('@/lib/supabase/client')
+jest.mock('@/lib/supabase/client', () => ({
+    createClient: jest.fn(),
+}))
 
 describe('useNotifications', () => {
     const mockUser = { id: 'user-123', email: 'test@example.com' }
@@ -122,8 +124,7 @@ describe('useNotifications', () => {
     })
 
     it('should mark notification as read', async () => {
-        // Setup: Load with unread notification
-        mockSupabaseInstance.from = jest.fn().mockReturnValue({
+        const loadQuery = {
             select: jest.fn().mockReturnThis(),
             eq: jest.fn().mockReturnThis(),
             order: jest.fn().mockReturnThis(),
@@ -131,13 +132,16 @@ describe('useNotifications', () => {
                 data: [mockNotifications[0]],
                 error: null
             }),
-        })
+        }
 
-        // Mock update success
-        mockSupabaseInstance.from = jest.fn().mockReturnValue({
+        const updateQuery = {
             update: jest.fn().mockReturnThis(),
             eq: jest.fn().mockResolvedValue({ error: null }),
-        })
+        }
+
+        mockSupabaseInstance.from = jest.fn()
+            .mockReturnValueOnce(loadQuery)
+            .mockReturnValueOnce(updateQuery)
 
         const { result } = renderHook(() => useNotifications())
 

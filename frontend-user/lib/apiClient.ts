@@ -7,11 +7,12 @@
 
 import { createClient } from './supabase/client';
 
-const supabase = createClient();
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5000';
 const DEV_AUTH_BYPASS = process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS === 'true';
 const DEV_AUTH_BYPASS_USER_ID = process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS_USER_ID;
 const DEV_AUTH_BYPASS_USER_EMAIL = process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS_USER_EMAIL;
+
+const getSupabaseClient = () => createClient();
 
 const buildTargetUrl = (endpoint: string) => {
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
@@ -34,6 +35,7 @@ const buildTargetUrl = (endpoint: string) => {
  * @param options - Options standards de fetch
  */
 export const fetchWithAuth = async (endpoint: string, options: RequestInit = {}) => {
+  const supabase = getSupabaseClient();
   // 1. Récupérer la session active via le client Supabase
   const { data: { session } } = await supabase.auth.getSession();
   const useDevBypass = !session?.access_token && DEV_AUTH_BYPASS && DEV_AUTH_BYPASS_USER_ID;
@@ -73,4 +75,22 @@ export const fetchPublic = async (endpoint: string, options: RequestInit = {}) =
     ...options,
     headers,
   });
+};
+
+export const readApiError = async (response: Response, fallbackMessage: string) => {
+  try {
+    const data = await response.json();
+
+    if (typeof data?.error === 'string' && data.error.trim()) {
+      return data.error;
+    }
+
+    if (typeof data?.message === 'string' && data.message.trim()) {
+      return data.message;
+    }
+  } catch {
+    return fallbackMessage;
+  }
+
+  return fallbackMessage;
 };

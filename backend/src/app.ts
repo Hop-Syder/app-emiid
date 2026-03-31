@@ -16,6 +16,8 @@ dotenv.config()
 
 const defaultOrigins = [
   'http://localhost:3000',
+  'http://localhost:3001',
+  'http://127.0.0.1:3001',
   'https://app-nexus-connect.vercel.app',
   'https://app-nexus-connect-frontend.vercel.app',
 ]

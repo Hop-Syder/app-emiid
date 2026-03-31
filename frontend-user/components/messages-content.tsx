@@ -52,15 +52,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
-import { fetchWithAuth } from "@/lib/apiClient"
+import { fetchWithAuth, readApiError } from "@/lib/apiClient"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 import type { Conversation, Message, UserProfile } from "@/types"
 
 // Supprimé les mocks et generateMockMessages qui ne sont plus nécessaires
 const supabase = createClient()
-const DEV_AUTH_BYPASS = process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS === "true"
-const DEV_AUTH_BYPASS_USER_ID = process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS_USER_ID || null
 
 export function MessagesContent() {
   const searchParams = useSearchParams()
@@ -79,6 +77,8 @@ export function MessagesContent() {
   const [filterType, setFilterType] = useState<"all" | "unread" | "pinned">("all")
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const [realtimeConnected, setRealtimeConnected] = useState(false)
+  const [connectionNotice, setConnectionNotice] = useState<string | null>(null)
+  const [syncError, setSyncError] = useState<string | null>(null)
 
   const [isMediationDialogOpen, setIsMediationDialogOpen] = useState(false)
   const [mediationReason, setMediationReason] = useState("")
@@ -88,6 +88,8 @@ export function MessagesContent() {
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const imageInputRef = useRef<HTMLInputElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const mediationActive = messages.some((msg) => msg.content.startsWith("⚠️ [MÉDIATION DEMANDÉE]"))
 
   const upsertConversation = useCallback((conversation: Conversation) => {
     setConversations(prev => {
@@ -150,6 +152,8 @@ export function MessagesContent() {
           }
         } else if (res.status === 401) {
           toast.error("Session expirée. Reconnectez-vous pour accéder à vos messages.")
+        } else {
+          toast.error(await readApiError(res, "Impossible de charger les conversations"))
         }
       } catch (err) {
         console.error("Error loading convs:", err)
@@ -163,11 +167,6 @@ export function MessagesContent() {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) {
         setCurrentUserId(user.id)
-        return
-      }
-
-      if (DEV_AUTH_BYPASS && DEV_AUTH_BYPASS_USER_ID) {
-        setCurrentUserId(DEV_AUTH_BYPASS_USER_ID)
       }
     })
   }, [])
@@ -188,9 +187,12 @@ export function MessagesContent() {
         if (res.ok) {
           const data = await res.json()
           setMessages(data)
+          setSyncError(null)
           markMessagesAsRead(selectedConv.id)
         } else if (res.status === 403) {
-          toast.error("Accès refusé à cette conversation")
+          toast.error(await readApiError(res, "Accès refusé à cette conversation"))
+        } else {
+          toast.error(await readApiError(res, "Impossible de charger les messages"))
         }
       } catch (err) {
         console.error("Error loading msgs:", err)
@@ -244,11 +246,13 @@ export function MessagesContent() {
       .subscribe((status) => {
         if (status === 'SUBSCRIBED') {
           setRealtimeConnected(true)
+          setConnectionNotice(null)
           return
         }
 
         if (status === 'TIMED_OUT' || status === 'CHANNEL_ERROR' || status === 'CLOSED') {
           setRealtimeConnected(false)
+          setConnectionNotice("Temps réel indisponible. La messagerie passe en synchronisation automatique.")
         }
       })
 
@@ -289,6 +293,7 @@ export function MessagesContent() {
         }
 
         const data = await msgRes.json()
+        setSyncError(null)
         setMessages(prev => {
           const previousLastId = prev[prev.length - 1]?.id
           const nextLastId = data[data.length - 1]?.id
@@ -305,6 +310,7 @@ export function MessagesContent() {
         }
       } catch (error) {
         console.error("Realtime fallback refresh error:", error)
+        setSyncError("Impossible de synchroniser les nouveaux messages pour le moment.")
       }
     }, 3000)
 
@@ -335,6 +341,7 @@ export function MessagesContent() {
 
       if (res.ok) {
         const newMsg = await res.json()
+        setSyncError(null)
 
         // Si c'était une nouvelle conversation support, on rafraîchit
         if (selectedConv.id.startsWith('new-')) {
@@ -379,8 +386,7 @@ export function MessagesContent() {
         setMessages(prev => prev.some(existingMessage => existingMessage.id === newMsg.id) ? prev : [...prev, newMsg])
         setMessage("")
       } else {
-        const errorData = await res.json().catch(() => ({ error: "Erreur lors de l'envoi" }))
-        toast.error(errorData.error || "Erreur lors de l'envoi")
+        toast.error(await readApiError(res, "Erreur lors de l'envoi"))
       }
     } catch (err) {
       console.error("Send error:", err)
@@ -430,6 +436,7 @@ export function MessagesContent() {
 
       if (res.ok) {
         const newMsg = await res.json()
+        setSyncError(null)
         if (selectedConv.id.startsWith('new-')) {
           const convRes = await fetchWithAuth("/api/messages/conversations")
           if (convRes.ok) {
@@ -459,8 +466,7 @@ export function MessagesContent() {
         }
         setMessages((prev) => prev.some(existingMessage => existingMessage.id === newMsg.id) ? prev : [...prev, newMsg])
       } else {
-        const errorData = await res.json().catch(() => ({ error: "Erreur de partage du fichier" }))
-        toast.error(errorData.error || "Erreur de partage du fichier")
+        toast.error(await readApiError(res, "Erreur de partage du fichier"))
       }
     } catch (err: unknown) {
       console.error("Upload error:", err)
@@ -499,6 +505,8 @@ export function MessagesContent() {
           setMessages([])
         }
         setShowChatMobile(true)
+      } else {
+        toast.error(await readApiError(res, "Support indisponible"))
       }
     } catch (err) {
       console.error("Support error:", err)
@@ -524,8 +532,7 @@ export function MessagesContent() {
         setIsMediationDialogOpen(false)
         setMediationReason("")
       } else {
-        const err = await res.json()
-        toast.error(err.error || "Impossible d'inviter l'admin")
+        toast.error(await readApiError(res, "Impossible d'inviter l'admin"))
       }
     } catch (err) {
       toast.error("Erreur de connexion")
@@ -868,9 +875,16 @@ export function MessagesContent() {
                   </div>
 
                   <div className="min-w-0">
-                    <h2 className="font-semibold text-sm text-foreground truncate">
-                      {selectedConv.otherUser.name}
-                    </h2>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <h2 className="font-semibold text-sm text-foreground truncate">
+                        {selectedConv.otherUser.name}
+                      </h2>
+                      {mediationActive && (
+                        <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100 border-none">
+                          Médiation active
+                        </Badge>
+                      )}
+                    </div>
                     <p className="text-xs text-muted-foreground">
                       {selectedConv.otherUser.isOnline
                         ? <span className="text-emerald-600 font-medium">En ligne</span>
@@ -928,6 +942,28 @@ export function MessagesContent() {
                   </DropdownMenu>
                 </div>
               </header>
+
+              {(connectionNotice || syncError || mediationActive) && (
+                <div className="border-b bg-card px-4 py-3 lg:px-6">
+                  <div className="space-y-2">
+                    {connectionNotice && (
+                      <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                        {connectionNotice}
+                      </div>
+                    )}
+                    {syncError && (
+                      <div className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-900">
+                        {syncError}
+                      </div>
+                    )}
+                    {mediationActive && (
+                      <div className="rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-900">
+                        Une médiation est en cours sur cette conversation. Les échanges restent visibles et un administrateur peut intervenir.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* Messages */}
               <ScrollArea className="flex-1 px-4 lg:px-6 py-4">

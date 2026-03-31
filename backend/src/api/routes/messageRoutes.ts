@@ -6,7 +6,18 @@
 */
 
 import { Router } from 'express';
-import { getMyConversations, getConversationMessages, sendMessage, getSupportUser, markAsRead, requestMediation, getAdminDisputes, replyToMediation } from '../../controllers/messageController';
+import {
+  getMyConversations,
+  getConversationMessages,
+  getAdminConversationMessages,
+  sendMessage,
+  getSupportUser,
+  markAsRead,
+  markAdminAsRead,
+  requestMediation,
+  getAdminDisputes,
+  replyToMediation,
+} from '../../controllers/messageController';
 import { requireAuth, requireAdmin } from '../../middlewares/authMiddleware';
 
 const router = Router();
@@ -21,6 +32,14 @@ router.get('/admin/disputes', requireAdmin, getAdminDisputes);
 // @route   POST /api/messages/admin/reply/:conversationId
 // @desc    Réponse admin dans une médiation
 router.post('/admin/reply/:conversationId', requireAdmin, replyToMediation);
+
+// @route   GET /api/messages/admin/conversation/:id
+// @desc    Récupérer les messages d'une conversation de médiation côté admin
+router.get('/admin/conversation/:id', requireAdmin, getAdminConversationMessages);
+
+// @route   POST /api/messages/admin/read/:conversationId
+// @desc    Marquer les messages d'une conversation de médiation comme lus côté admin
+router.post('/admin/read/:conversationId', requireAdmin, markAdminAsRead);
 
 // @route   POST /api/messages/dispute/:conversationId
 // @desc    Inviter l'Admin pour une médiation

@@ -2,9 +2,13 @@
 
 import { motion } from "framer-motion"
 import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { NexusProfileCard } from "@/components/carte-profil/nexus-profile-card"
+import { fetchWithAuth } from "@/lib/apiClient"
+import { toast } from "sonner"
+import { useCurrentUserProfile } from "@/hooks/use-current-user-profile"
 import type { PublicProfile } from "@/types"
 
 interface EntrepreneursSectionProps {
@@ -14,10 +18,54 @@ interface EntrepreneursSectionProps {
 
 export function EntrepreneursSection({ entrepreneursList, loading }: EntrepreneursSectionProps) {
     const router = useRouter()
-    const handleCardAction = (type: 'message' | 'follow' | 'view', entrepreneurId?: string) => {
+    const { session } = useCurrentUserProfile()
+    const [profiles, setProfiles] = useState(entrepreneursList)
+
+    useEffect(() => {
+        setProfiles(entrepreneursList)
+    }, [entrepreneursList])
+
+    const handleCardAction = async (type: 'message' | 'follow' | 'view', entrepreneurId?: string) => {
         if (!entrepreneurId) return
         if (type === "view") {
             router.push(`/profil/${entrepreneurId}`)
+            return
+        }
+        if (type === "follow") {
+            if (!session) {
+                toast.info("Veuillez vous connecter pour interagir avec ce membre", {
+                    action: {
+                        label: "Connexion",
+                        onClick: () => router.push("/login")
+                    }
+                })
+                return
+            }
+
+            try {
+                const res = await fetchWithAuth(`/api/users/follow/${entrepreneurId}`, { method: "POST" })
+                if (res.ok) {
+                    const data = await res.json()
+                    setProfiles((prev) => prev.map((profile) => {
+                        if (profile.id !== entrepreneurId) {
+                            return profile
+                        }
+
+                        return {
+                            ...profile,
+                            isFollowed: data.followed,
+                            followers: data.followed ? profile.followers + 1 : Math.max(0, profile.followers - 1),
+                        }
+                    }))
+                    toast.success(data.followed ? "Abonnement effectué" : "Désabonné avec succès")
+                } else {
+                    toast.error("Impossible de suivre ce membre pour le moment")
+                }
+            } catch (error) {
+                console.error("Follow error:", error)
+                toast.error("Erreur de connexion")
+            }
+
             return
         }
         if (type === "message") {
@@ -61,9 +109,9 @@ export function EntrepreneursSection({ entrepreneursList, loading }: Entrepreneu
                         </div>
                     ))}
                 </div>
-            ) : entrepreneursList.length > 0 ? (
+            ) : profiles.length > 0 ? (
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {entrepreneursList.map((entrepreneur, index) => (
+                    {profiles.map((entrepreneur, index) => (
                         <motion.div
                             key={entrepreneur.id}
                             initial={{ opacity: 0, scale: 0.95 }}

@@ -14,6 +14,18 @@ const logger_1 = require("../utils/logger");
  * Attend le token dans le header "Authorization: Bearer <token>".
  */
 const requireAuth = async (req, res, next) => {
+    const devBypassEnabled = process.env.DEV_AUTH_BYPASS === 'true' && process.env.NODE_ENV !== 'production';
+    const devUserIdHeader = req.headers['x-dev-user-id'];
+    const devUserEmailHeader = req.headers['x-dev-user-email'];
+    if (devBypassEnabled && typeof devUserIdHeader === 'string' && devUserIdHeader.trim()) {
+        req.user = {
+            id: devUserIdHeader,
+            email: typeof devUserEmailHeader === 'string' && devUserEmailHeader.trim()
+                ? devUserEmailHeader
+                : `${devUserIdHeader}@dev.local`,
+        };
+        return next();
+    }
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.status(401).json({
@@ -49,7 +61,11 @@ const requireAdmin = async (req, res, next) => {
     if (!user)
         return res.status(401).json({ error: "Authentification requise" });
     try {
-        const { data: profile, error } = await supabase_1.supabase.from('user_profiles').select('role').eq('user_id', user.id).single();
+        const { data: profile, error } = await supabase_1.supabaseAdmin
+            .from('user_profiles')
+            .select('role')
+            .eq('user_id', user.id)
+            .single();
         if (error || !profile || !profile.role?.toLowerCase().includes('admin')) {
             return res.status(403).json({ error: "Accès refusé. Droits administrateur requis." });
         }

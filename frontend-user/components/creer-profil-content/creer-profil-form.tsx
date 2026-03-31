@@ -21,17 +21,19 @@ import { LocationSelector } from "@/components/LocationSelector"
 import { useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { motion } from "framer-motion"
+import { AvatarUpload } from "@/components/AvatarUpload"
 
 interface CreerProfilFormProps {
     formData: any
     setFormData: any
-    handleInputChange: (field: string, value: string) => void
+    handleInputChange: (field: string, value: any) => void
     handleSave: () => void
     handlePublish: () => void
     handleUnpublish: () => void
     isPublished: boolean
     countries: any[]
     tags: string[]
+    validationErrors: string[]
 }
 
 export function CreerProfilForm({
@@ -43,7 +45,8 @@ export function CreerProfilForm({
     handleUnpublish,
     isPublished,
     countries,
-    tags
+    tags,
+    validationErrors
 }: CreerProfilFormProps) {
     const [tagInput, setTagInput] = useState("")
 
@@ -71,6 +74,30 @@ export function CreerProfilForm({
                 </div>
             </CardHeader>
             <CardContent className="space-y-8 p-6 lg:p-8">
+                <div className="space-y-3">
+                    <Label className="text-sm font-bold flex items-center gap-2">
+                        <Badge variant="outline" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-[10px] border-primary text-primary">0</Badge>
+                        Photo de profil
+                    </Label>
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-5">
+                        <AvatarUpload
+                            currentAvatarUrl={formData.avatar || null}
+                            onUploadComplete={(newUrl: string) => handleInputChange("avatar", newUrl)}
+                        />
+                    </div>
+                </div>
+
+                {validationErrors.length > 0 && (
+                    <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-4 text-rose-900">
+                        <p className="text-sm font-bold">Le profil doit être corrigé avant la publication</p>
+                        <ul className="mt-2 space-y-1 text-sm text-rose-800">
+                            {validationErrors.map((error) => (
+                                <li key={error}>• {error}</li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+
                 {/* Category Selection */}
                 <div className="space-y-3">
                     <Label htmlFor="category" className="text-sm font-bold flex items-center gap-2">

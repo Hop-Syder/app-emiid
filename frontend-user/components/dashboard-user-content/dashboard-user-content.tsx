@@ -59,6 +59,7 @@ interface DashboardContentProps {
 export function DashboardContent({ initialStats = null }: DashboardContentProps) {
   const [loading, setLoading] = useState(true)
   const [entrepreneursList, setEntrepreneursList] = useState<EntrepreneurProfile[]>([])
+  const [profilesWarning, setProfilesWarning] = useState<string | null>(null)
   const { stats, statsLoading, statsError } = useDashboardStats({
     endpoint: "/api/dashboard-user/stats",
     fetcher: fetchWithAuth,
@@ -77,6 +78,7 @@ export function DashboardContent({ initialStats = null }: DashboardContentProps)
 
       try {
         const entRes = await fetchWithAuth("/api/dashboard-user/featured-entrepreneurs")
+        let nextWarning: string | null = null
 
         if (entRes.ok) {
           const entData = await entRes.json()
@@ -87,10 +89,12 @@ export function DashboardContent({ initialStats = null }: DashboardContentProps)
             if (followsRes.ok) {
               const followsData = await followsRes.json()
               userFollowsIds = followsData.map((f: any) => f.user_id || f.id)
+            } else {
+              nextWarning = "Le statut de vos abonnements n’a pas pu être synchronisé sur le dashboard." 
             }
           } catch (error) {
-            // Silent failure - follows are optional
-            console.warn("Failed to load follows, continuing without")
+            console.error("Failed to load follows, continuing without", error)
+            nextWarning = "Le statut de vos abonnements n’a pas pu être synchronisé sur le dashboard."
           }
 
           const nextEntrepreneurs = entData.map((e: EntrepreneurApiResponse) => {
@@ -116,17 +120,26 @@ export function DashboardContent({ initialStats = null }: DashboardContentProps)
           }
 
           setEntrepreneursList(nextEntrepreneurs)
+          setProfilesWarning(nextWarning)
         } else {
           console.error("Erreur API entrepreneurs (User):", entRes.status)
 
           if (showLoading && isMounted) {
             setEntrepreneursList([])
           }
+
+          if (isMounted) {
+            setProfilesWarning("Les profils mis en avant n’ont pas pu être chargés pour le moment.")
+          }
         }
       } catch (error) {
         console.error("Erreur chargement profils dashboard-user:", error)
         if (showLoading && isMounted) {
           setEntrepreneursList([])
+        }
+
+        if (isMounted) {
+          setProfilesWarning("Les profils mis en avant n’ont pas pu être chargés pour le moment.")
         }
       } finally {
         if (showLoading && isMounted) {
@@ -166,6 +179,18 @@ export function DashboardContent({ initialStats = null }: DashboardContentProps)
 
       {/* Stats Section */}
       {stats ? <StatsSection stats={stats} /> : statsLoading ? <DashboardStatsSkeleton /> : null}
+
+      {profilesWarning && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-900">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-600" />
+            <div>
+              <p className="font-semibold">Synchronisation partielle</p>
+              <p className="text-sm text-amber-800">{profilesWarning}</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Entrepreneurs du Réseau */}
       <EntrepreneursSection entrepreneursList={entrepreneursList} loading={loading} />

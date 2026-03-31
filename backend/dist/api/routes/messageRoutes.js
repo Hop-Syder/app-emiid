@@ -18,6 +18,12 @@ router.get('/admin/disputes', authMiddleware_1.requireAdmin, messageController_1
 // @route   POST /api/messages/admin/reply/:conversationId
 // @desc    Réponse admin dans une médiation
 router.post('/admin/reply/:conversationId', authMiddleware_1.requireAdmin, messageController_1.replyToMediation);
+// @route   GET /api/messages/admin/conversation/:id
+// @desc    Récupérer les messages d'une conversation de médiation côté admin
+router.get('/admin/conversation/:id', authMiddleware_1.requireAdmin, messageController_1.getAdminConversationMessages);
+// @route   POST /api/messages/admin/read/:conversationId
+// @desc    Marquer les messages d'une conversation de médiation comme lus côté admin
+router.post('/admin/read/:conversationId', authMiddleware_1.requireAdmin, messageController_1.markAdminAsRead);
 // @route   POST /api/messages/dispute/:conversationId
 // @desc    Inviter l'Admin pour une médiation
 router.post('/dispute/:conversationId', messageController_1.requestMediation);

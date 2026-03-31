@@ -6,7 +6,7 @@
 */
 
 import { Request, Response, NextFunction } from 'express';
-import { supabase } from '../config/supabase';
+import { supabase, supabaseAdmin } from '../config/supabase';
 import { logger } from '../utils/logger';
 
 /**
@@ -69,10 +69,16 @@ export const requireAdmin = async (req: Request, res: Response, next: NextFuncti
   if (!user) return res.status(401).json({ error: "Authentification requise" });
 
   try {
-    const { data: profile, error } = await supabase.from('user_profiles').select('role').eq('user_id', user.id).single();
+    const { data: profile, error } = await supabaseAdmin
+      .from('user_profiles')
+      .select('role')
+      .eq('user_id', user.id)
+      .single();
+
     if (error || !profile || !profile.role?.toLowerCase().includes('admin')) {
       return res.status(403).json({ error: "Accès refusé. Droits administrateur requis." });
     }
+
     next();
   } catch (err) {
     res.status(500).json({ error: "Erreur lors de la vérification des droits" });
