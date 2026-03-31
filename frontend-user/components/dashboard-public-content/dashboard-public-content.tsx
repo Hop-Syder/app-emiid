@@ -15,6 +15,7 @@ import { AlertTriangle } from "lucide-react"
 import { fetchPublic } from "@/lib/apiClient"
 import { useDashboardStats } from "@/hooks/use-dashboard-stats"
 import { DashboardStatsSkeleton } from "@/components/dashboard-stats-skeleton"
+import type { DashboardStats } from "@/types"
 import { HeroSection } from "./hero-section"
 import { StatsSection } from "./stats-section"
 import { EntrepreneursSection } from "./entrepreneurs-section"
@@ -49,13 +50,18 @@ export interface EntrepreneurApiResponse {
     tags?: string[];
 }
 
-export function DashboardPublicContent() {
+interface DashboardPublicContentProps {
+    initialStats?: DashboardStats | null
+}
+
+export function DashboardPublicContent({ initialStats = null }: DashboardPublicContentProps) {
     const [loading, setLoading] = useState(true)
     const [entrepreneursList, setEntrepreneursList] = useState<EntrepreneurProfile[]>([])
-    const { stats, statsLoaded, statsLoading, statsError } = useDashboardStats({
+    const { stats, statsLoading, statsError } = useDashboardStats({
         endpoint: "/api/public/stats",
         fetcher: fetchPublic,
         refreshIntervalMs: 30000,
+        initialData: initialStats,
     })
 
 
@@ -159,7 +165,7 @@ export function DashboardPublicContent() {
             )}
 
             {/* Stats Section */}
-            {statsLoading ? <DashboardStatsSkeleton /> : statsLoaded && stats ? <StatsSection stats={stats} /> : null}
+            {stats ? <StatsSection stats={stats} /> : statsLoading ? <DashboardStatsSkeleton /> : null}
 
             {/* Entrepreneurs du Réseau */}
             <EntrepreneursSection entrepreneursList={entrepreneursList} loading={loading} />

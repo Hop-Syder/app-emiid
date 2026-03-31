@@ -10,6 +10,21 @@ import { createClient } from './supabase/client';
 const supabase = createClient();
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5000';
 
+const buildTargetUrl = (endpoint: string) => {
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+
+  if (endpoint.startsWith('http')) {
+    return endpoint;
+  }
+
+  if (typeof window !== 'undefined') {
+    return `/api/proxy${cleanEndpoint}`;
+  }
+
+  const cleanBase = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
+  return `${cleanBase}${cleanEndpoint}`;
+};
+
 /**
  * Wrapper autour de fetch qui injecte automatiquement le token d'accès Supabase.
  * @param endpoint - Le chemin de l'API (ex: '/api/auth/me')
@@ -27,9 +42,7 @@ export const fetchWithAuth = async (endpoint: string, options: RequestInit = {})
   };
 
   // 3. Exécuter la requête vers l'URL du Backend
-  const cleanBase = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
-  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-  const url = endpoint.startsWith('http') ? endpoint : `${cleanBase}${cleanEndpoint}`;
+  const url = buildTargetUrl(endpoint);
   
   return fetch(url, {
     ...options,
@@ -46,9 +59,7 @@ export const fetchPublic = async (endpoint: string, options: RequestInit = {}) =
     ...options.headers,
   };
 
-  const cleanBase = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
-  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-  const url = endpoint.startsWith('http') ? endpoint : `${cleanBase}${cleanEndpoint}`;
+  const url = buildTargetUrl(endpoint);
   
   return fetch(url, {
     ...options,

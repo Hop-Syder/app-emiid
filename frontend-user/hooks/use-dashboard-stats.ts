@@ -17,6 +17,7 @@ interface UseDashboardStatsOptions {
     fetcher: (endpoint: string) => Promise<Response>
     refreshIntervalMs?: number
     errorMessage?: string
+    initialData?: DashboardStats | null
 }
 
 export function useDashboardStats({
@@ -24,12 +25,13 @@ export function useDashboardStats({
     fetcher,
     refreshIntervalMs = 30000,
     errorMessage = "Impossible de charger les statistiques pour le moment.",
+    initialData = null,
 }: UseDashboardStatsOptions) {
-    const [stats, setStats] = useState<DashboardStats | null>(null)
-    const [statsLoaded, setStatsLoaded] = useState(false)
-    const [statsLoading, setStatsLoading] = useState(true)
+    const [stats, setStats] = useState<DashboardStats | null>(initialData)
+    const [statsLoaded, setStatsLoaded] = useState(Boolean(initialData))
+    const [statsLoading, setStatsLoading] = useState(!initialData)
     const [statsError, setStatsError] = useState<string | null>(null)
-    const hasSuccessfulStatsRef = useRef(false)
+    const hasSuccessfulStatsRef = useRef(Boolean(initialData))
 
     useEffect(() => {
         let isMounted = true

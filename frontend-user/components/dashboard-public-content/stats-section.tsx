@@ -61,7 +61,7 @@ export function StatsSection({ stats }: StatsSectionProps) {
                     />
                     <CardHeader className="pb-2 relative z-10">
                         <div className="flex items-center justify-between">
-                            <CardDescription className="hidden md:block font-medium">{stat.label}</CardDescription>
+                            <CardDescription className="font-medium">{stat.label}</CardDescription>
                             <stat.icon className={`h-5 w-5 ${stat.color}`} />
                         </div>
                     </CardHeader>

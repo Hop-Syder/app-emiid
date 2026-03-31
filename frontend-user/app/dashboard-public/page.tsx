@@ -6,15 +6,16 @@
  * 🌐 ceo.nexuspartners.xyz
  */
 
-"use client"
-
 import { NexusLayout } from "@/components/menu/nexus-layout"
 import { DashboardPublicContent } from "@/components/dashboard-public-content/dashboard-public-content"
+import { fetchInitialDashboardStats } from "@/lib/dashboard-stats"
 
-export default function DashboardPublicPage() {
+export default async function DashboardPublicPage() {
+    const initialStats = await fetchInitialDashboardStats("/api/public/stats")
+
     return (
         <NexusLayout>
-            <DashboardPublicContent />
+            <DashboardPublicContent initialStats={initialStats} />
         </NexusLayout>
     )
 }

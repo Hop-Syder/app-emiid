@@ -34,6 +34,10 @@ export async function middleware(request: NextRequest) {
   const url = request.nextUrl.clone()
   const path = url.pathname
 
+  if (path.startsWith('/api')) {
+    return response
+  }
+
   // --- CONFIGURATION DES ROUTES ---
 
   // Routes accessibles à TOUT LE MONDE (même non connecté)
@@ -69,6 +73,6 @@ export async function middleware(request: NextRequest) {
 // Configuration : On exclut les fichiers statiques (images, CSS, JS) du middleware
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
