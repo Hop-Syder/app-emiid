@@ -24,8 +24,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
-import { createClient } from "@/lib/supabase/client"
-import { useEffect } from "react"
+import { useCurrentUserProfile } from "@/hooks/use-current-user-profile"
 
 interface SidebarItem {
   title: string
@@ -83,25 +82,16 @@ interface NexusSidebarProps {
 export function NexusSidebar({ sidebarOpen, setSidebarOpen, mobileMenuOpen, setMobileMenuOpen }: NexusSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
-  const supabase = createClient()
-  const [session, setSession] = useState<any>(null)
+  const { session, currentUser } = useCurrentUserProfile()
 
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({
     Annuaire: true,
     Portefeuille: true,
   })
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-    })
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-    })
-
-    return () => subscription.unsubscribe()
-  }, [])
+  const userDisplayName = `${currentUser?.first_name || ""} ${currentUser?.last_name || ""}`.trim() || "Mon Profil"
+  const userSubtitle = currentUser?.email || "Gérer mon compte"
+  const userInitials = `${currentUser?.first_name?.[0] || "U"}${currentUser?.last_name?.[0] || ""}`
 
   const handleNavClick = (e: React.MouseEvent, item: any) => {
     if (item.requiresAuth && !session) {
@@ -128,22 +118,32 @@ export function NexusSidebar({ sidebarOpen, setSidebarOpen, mobileMenuOpen, setM
     return items.some((item) => pathname.startsWith(item.href))
   }
 
-  const SidebarContent = ({ isMobile = false }: { isMobile?: boolean }) => (
+  const SidebarContent = ({ isMobile = false }: { isMobile?: boolean }) => {
+    const isCompactDesktop = !isMobile && !sidebarOpen
+
+    return (
     <div className="flex h-full flex-col bg-white">
       {/* Logo Area */}
       <div
         className={cn(
           "flex items-center justify-between",
-          isMobile ? "p-6 pb-4" : "mx-4 mt-4 rounded-2xl bg-white/80 border border-white/60 shadow-sm px-4 py-3"
+          isMobile
+            ? "p-6 pb-4"
+            : isCompactDesktop
+              ? "mx-3 mt-4 rounded-2xl bg-white/80 border border-white/60 shadow-sm px-3 py-3 justify-center"
+              : "mx-4 mt-4 rounded-2xl bg-white/80 border border-white/60 shadow-sm px-4 py-3"
         )}
       >
-        <div className="flex items-center gap-3">
+        <div className={cn("flex items-center gap-3", isCompactDesktop && "justify-center") }>
           <Image
             src="/logo/logo-1.png"
             alt="Nexus Connect Logo"
             width={160}
             height={45}
-            className="h-auto w-auto object-contain transition-transform duration-300 hover:scale-105"
+            className={cn(
+              "h-auto w-auto object-contain transition-transform duration-300 hover:scale-105",
+              isCompactDesktop && "max-w-[42px]"
+            )}
           />
         </div>
         {isMobile && (
@@ -154,21 +154,34 @@ export function NexusSidebar({ sidebarOpen, setSidebarOpen, mobileMenuOpen, setM
       </div>
 
       {/* Search Area */}
-      <div className={cn("py-3", isMobile ? "px-5" : "px-4")}>
-        <div className="relative group rounded-xl bg-white border border-slate-100 shadow-inner">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
-          <Input
-            type="search"
-            placeholder="Recherche rapide..."
-            className="w-full rounded-xl bg-transparent border-transparent hover:bg-slate-50 focus:bg-white focus:border-primary/30 focus:ring-4 focus:ring-primary/5 pl-10 pr-4 py-2.5 h-11 text-sm font-medium transition-all duration-300"
-          />
-        </div>
+      <div className={cn("py-3", isMobile ? "px-5" : isCompactDesktop ? "px-3" : "px-4")}>
+        {isCompactDesktop ? (
+          <button
+            type="button"
+            title="Recherche rapide"
+            aria-label="Recherche rapide"
+            className="flex h-11 w-full items-center justify-center rounded-xl border border-slate-100 bg-white text-slate-400 shadow-inner transition-all duration-300 hover:bg-slate-50 hover:text-primary"
+          >
+            <Search className="h-4 w-4" />
+          </button>
+        ) : (
+          <div className="relative group rounded-xl bg-white border border-slate-100 shadow-inner">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
+            <Input
+              type="search"
+              placeholder="Recherche rapide..."
+              className="w-full rounded-xl bg-transparent border-transparent hover:bg-slate-50 focus:bg-white focus:border-primary/30 focus:ring-4 focus:ring-primary/5 pl-10 pr-4 py-2.5 h-11 text-sm font-medium transition-all duration-300"
+            />
+          </div>
+        )}
       </div>
 
       {/* Navigation Area */}
-      <ScrollArea className="flex-1 px-3 py-2">
-        <div className="space-y-1.5 px-2">
-          <p className="px-4 pb-2 pt-4 text-xs font-bold uppercase tracking-wider text-slate-400">Menu Principal</p>
+      <ScrollArea className={cn("flex-1 py-2", isCompactDesktop ? "px-2" : "px-3")}>
+        <div className={cn("space-y-1.5", isCompactDesktop ? "px-1" : "px-2")}>
+          {!isCompactDesktop && (
+            <p className="px-4 pb-2 pt-4 text-xs font-bold uppercase tracking-wider text-slate-400">Menu Principal</p>
+          )}
 
           {sidebarItems.map((item) => {
             const active = isActive(item.href || "");
@@ -181,8 +194,10 @@ export function NexusSidebar({ sidebarOpen, setSidebarOpen, mobileMenuOpen, setM
                   {item.href ? (
                     <Link
                       href={item.href}
+                      title={isCompactDesktop ? item.title : undefined}
                       className={cn(
-                        "group flex flex-1 items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 relative overflow-hidden",
+                        "group flex flex-1 items-center rounded-xl text-sm font-semibold transition-all duration-200 relative overflow-hidden",
+                        isCompactDesktop ? "justify-center px-0 py-3.5" : "justify-between px-4 py-3",
                         active
                           ? "bg-primary/90 text-white shadow-md shadow-primary/25"
                           : "text-slate-600 hover:bg-white hover:text-slate-900"
@@ -196,7 +211,7 @@ export function NexusSidebar({ sidebarOpen, setSidebarOpen, mobileMenuOpen, setM
                         <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-white/90 rounded-r-full" />
                       )}
 
-                      <div className="flex items-center gap-3.5 relative z-10">
+                      <div className={cn("flex items-center relative z-10", isCompactDesktop ? "justify-center" : "gap-3.5")}>
                         <div className={cn(
                           "flex items-center justify-center transition-colors",
                           active ? "text-white opacity-100" : "text-slate-400 group-hover:text-primary opacity-80"
@@ -211,10 +226,10 @@ export function NexusSidebar({ sidebarOpen, setSidebarOpen, mobileMenuOpen, setM
                             item.icon
                           )}
                         </div>
-                        <span className="tracking-tight">{item.title}</span>
+                        {!isCompactDesktop && <span className="tracking-tight">{item.title}</span>}
                       </div>
 
-                      {item.badge && (
+                      {!isCompactDesktop && item.badge && (
                         <Badge variant="outline" className={cn(
                           "ml-auto rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider z-10",
                           active ? "border-white/30 bg-white/10 text-white" : "border-primary/20 bg-primary/5 text-primary"
@@ -225,8 +240,10 @@ export function NexusSidebar({ sidebarOpen, setSidebarOpen, mobileMenuOpen, setM
                     </Link>
                   ) : (
                     <button
+                      title={isCompactDesktop ? item.title : undefined}
                       className={cn(
-                        "group flex flex-1 items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300 relative",
+                        "group flex flex-1 items-center rounded-xl text-sm font-semibold transition-all duration-300 relative",
+                        isCompactDesktop ? "justify-center px-0 py-3.5" : "justify-between px-4 py-3",
                         parentActive ? "bg-slate-50 text-primary" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                       )}
                       onClick={() => toggleExpanded(item.title)}
@@ -234,7 +251,7 @@ export function NexusSidebar({ sidebarOpen, setSidebarOpen, mobileMenuOpen, setM
                       {parentActive && (
                         <div className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-1 bg-primary rounded-r-full" />
                       )}
-                      <div className="flex items-center gap-3.5">
+                      <div className={cn("flex items-center", isCompactDesktop ? "justify-center" : "gap-3.5")}>
                         <div className={cn(
                           "flex items-center justify-center transition-colors",
                           parentActive ? "text-primary opacity-100" : "text-slate-400 group-hover:text-primary opacity-80"
@@ -245,12 +262,12 @@ export function NexusSidebar({ sidebarOpen, setSidebarOpen, mobileMenuOpen, setM
                             item.icon
                           )}
                         </div>
-                        <span className="tracking-tight">{item.title}</span>
+                        {!isCompactDesktop && <span className="tracking-tight">{item.title}</span>}
                       </div>
                     </button>
                   )}
 
-                  {item.items && (
+                  {item.items && !isCompactDesktop && (
                     <button
                       onClick={(e) => { e.stopPropagation(); toggleExpanded(item.title); }}
                       className={cn(
@@ -265,7 +282,7 @@ export function NexusSidebar({ sidebarOpen, setSidebarOpen, mobileMenuOpen, setM
                   )}
                 </div>
 
-                {item.items && (
+                {item.items && !isCompactDesktop && (
                   <div className={cn(
                     "grid transition-all duration-300 ease-in-out",
                     isExpanded ? "grid-rows-[1fr] opacity-100 mt-1" : "grid-rows-[0fr] opacity-0"
@@ -310,30 +327,37 @@ export function NexusSidebar({ sidebarOpen, setSidebarOpen, mobileMenuOpen, setM
       </ScrollArea>
 
       {/* User Profile Footer */}
-      <div className="p-4 mt-auto">
+      <div className={cn("mt-auto", isCompactDesktop ? "p-3" : "p-4")}>
         <Link
           href="/parametres"
-          className="flex w-full items-center justify-between rounded-xl p-3 transition-all duration-300 bg-slate-50 hover:bg-slate-100 border border-slate-100 hover:shadow-md hover:-translate-y-0.5 group"
+          title={isCompactDesktop ? "Mon Profil" : undefined}
+          className={cn(
+            "flex w-full items-center rounded-xl transition-all duration-300 bg-slate-50 hover:bg-slate-100 border border-slate-100 hover:shadow-md hover:-translate-y-0.5 group",
+            isCompactDesktop ? "justify-center p-3" : "justify-between p-3"
+          )}
           onClick={(e) => handleNavClick(e, { requiresAuth: true })}
         >
-          <div className="flex items-center gap-3">
+          <div className={cn("flex items-center", isCompactDesktop ? "justify-center" : "gap-3")}>
             <div className="relative">
               <Avatar className="h-10 w-10 border-2 border-white shadow-sm transition-transform group-hover:scale-105">
-                <AvatarImage src={session?.user?.user_metadata?.avatar_url || "/profil/avatar.jpg"} alt="User" className="object-cover" />
-                <AvatarFallback className="bg-primary/10 text-primary font-bold">MO</AvatarFallback>
+                <AvatarImage src={currentUser?.avatar_url || "/profil/avatar.jpg"} alt="User" className="object-cover" />
+                <AvatarFallback className="bg-primary/10 text-primary font-bold">{userInitials}</AvatarFallback>
               </Avatar>
               <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-white" />
             </div>
-            <div className="flex flex-col">
-              <span className="text-sm font-bold text-slate-900 line-clamp-1">Mon Profil</span>
-              <span className="text-xs font-medium text-slate-500">Gérer mon compte</span>
-            </div>
+            {!isCompactDesktop && (
+              <div className="flex flex-col">
+                <span className="text-sm font-bold text-slate-900 line-clamp-1">{userDisplayName}</span>
+                <span className="text-xs font-medium text-slate-500 line-clamp-1">{userSubtitle}</span>
+              </div>
+            )}
           </div>
-          <Settings className="h-5 w-5 text-slate-400 group-hover:text-primary transition-colors group-hover:rotate-45 duration-500" />
+          {!isCompactDesktop && <Settings className="h-5 w-5 text-slate-400 group-hover:text-primary transition-colors group-hover:rotate-45 duration-500" />}
         </Link>
       </div>
     </div>
-  )
+    )
+  }
 
   return (
     <>
@@ -358,8 +382,8 @@ export function NexusSidebar({ sidebarOpen, setSidebarOpen, mobileMenuOpen, setM
       {/* Sidebar - Desktop */}
       <div
         className={cn(
-          "fixed inset-y-0 left-0 z-30 hidden w-[260px] transform border-r border-slate-100 bg-white shadow-sm transition-transform duration-300 ease-in-out md:block",
-          sidebarOpen ? "translate-x-0" : "-translate-x-full",
+          "fixed inset-y-0 left-0 z-30 hidden border-r border-slate-100 bg-white shadow-sm transition-all duration-300 ease-in-out md:block",
+          sidebarOpen ? "w-[260px] translate-x-0" : "w-24 translate-x-0",
         )}
       >
         <SidebarContent />

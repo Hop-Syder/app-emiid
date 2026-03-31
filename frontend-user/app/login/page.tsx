@@ -80,7 +80,7 @@ export default function LoginPage() {
         {/* Background Image with Overlay */}
         <div
           className="absolute inset-0 bg-cover bg-center brightness-[0.7] saturate-[0.8]"
-          style={{ backgroundImage: "url('/connexion/background.jpg')" }}
+          style={{ backgroundImage: "url('/login/background.avif')" }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-primary/20" />
         <div className="absolute inset-0 backdrop-blur-[2px]" />

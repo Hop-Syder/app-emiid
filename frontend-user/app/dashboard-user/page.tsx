@@ -10,14 +10,11 @@
 
 import { NexusLayout } from "@/components/menu/nexus-layout"
 import { DashboardContent } from "@/components/dashboard-user-content/dashboard-user-content"
-import { fetchInitialDashboardStats } from "@/lib/dashboard-stats"
 
-export default async function DashboardPage() {
-    const initialStats = await fetchInitialDashboardStats("/api/dashboard-user/stats")
-
+export default function DashboardPage() {
     return (
         <NexusLayout>
-            <DashboardContent initialStats={initialStats} />
+            <DashboardContent />
         </NexusLayout>
     )
 }
