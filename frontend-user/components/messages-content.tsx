@@ -1089,7 +1089,7 @@ export function MessagesContent() {
 
               {/* Input */}
               <footer className="p-2 sm:p-4 lg:px-6 pb-[max(0.5rem,env(safe-area-inset-bottom))] border-t bg-card/95 backdrop-blur-md">
-                <div className="flex items-end gap-1.5 sm:gap-2 max-w-3xl mx-auto">
+                <div className="flex items-end gap-1.5 sm:gap-2 w-full max-w-3xl mx-auto">
                   <div className="flex gap-1 shrink-0">
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -1101,7 +1101,7 @@ export function MessagesContent() {
                     </Tooltip>
                   </div>
 
-                  <div className="flex-1 relative">
+                  <div className="flex-1 min-w-0 relative">
                     <Textarea
                       ref={inputRef}
                       placeholder="Ecrivez votre message..."
@@ -1113,22 +1113,22 @@ export function MessagesContent() {
                           handleSendMessage()
                         }
                       }}
-                      className="min-h-[40px] sm:min-h-[44px] max-h-[120px] py-2.5 sm:py-3 pl-3 sm:pl-4 pr-16 sm:pr-20 resize-none rounded-2xl bg-slate-100 border-0 text-[15px] sm:text-sm focus-visible:ring-1 focus-visible:ring-primary/30"
+                      className="min-h-[40px] sm:min-h-[44px] max-h-[120px] py-2.5 sm:py-3 pl-3 sm:pl-4 pr-16 sm:pr-20 resize-none rounded-2xl bg-slate-100 border-0 text-[15px] sm:text-sm w-full focus-visible:ring-1 focus-visible:ring-primary/30"
                       rows={1}
                     />
-                    <div className="absolute right-2 bottom-2 flex items-center gap-0.5">
+                    <div className="absolute right-1 sm:right-2 bottom-1.5 sm:bottom-2 flex items-center gap-0.5">
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => imageInputRef.current?.click()}>
-                            <Image className="h-4 w-4 text-muted-foreground" />
+                          <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg" onClick={() => imageInputRef.current?.click()}>
+                            <Image className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent>Image</TooltipContent>
                       </Tooltip>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => fileInputRef.current?.click()}>
-                            <Paperclip className="h-4 w-4 text-muted-foreground" />
+                          <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg" onClick={() => fileInputRef.current?.click()}>
+                            <Paperclip className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent>Fichier</TooltipContent>
@@ -1139,7 +1139,8 @@ export function MessagesContent() {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
-                        className="h-9 w-9 sm:h-10 sm:w-10 rounded-full sm:rounded-xl shrink-0 bg-primary hover:bg-primary/90 shadow-md transition-transform active:scale-95"
+                        size="icon"
+                        className="h-9 w-9 sm:h-10 sm:w-10 rounded-full sm:rounded-xl shrink-0 bg-primary hover:bg-primary/90 shadow-md transition-transform active:scale-95 flex items-center justify-center p-0"
                         onClick={handleSendMessage}
                         disabled={!message.trim() || isSending}
                       >
