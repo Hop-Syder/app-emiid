@@ -879,8 +879,9 @@ export function MessagesContent() {
                         {selectedConv.otherUser.name}
                       </h2>
                       {mediationActive && (
-                        <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100 border-none">
-                          Médiation active
+                        <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-none shadow-sm shadow-orange-500/20 px-2.5 py-0.5 hidden sm:inline-flex animate-pulse items-center">
+                          <Shield className="w-3 h-3 mr-1" />
+                          Médiation
                         </Badge>
                       )}
                     </div>
@@ -956,8 +957,21 @@ export function MessagesContent() {
                       </div>
                     )}
                     {mediationActive && (
-                      <div className="rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-900">
-                        Une médiation est en cours sur cette conversation. Les échanges restent visibles et un administrateur peut intervenir.
+                      <div className="relative overflow-hidden rounded-2xl border border-amber-500/20 bg-gradient-to-r from-amber-50 to-orange-50 p-3 sm:p-4 shadow-sm">
+                        <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-amber-400 to-orange-500" />
+                        <div className="flex items-start sm:items-center gap-3 sm:gap-4">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-amber-600 shadow-sm border border-amber-200">
+                            <Shield className="h-5 w-5" />
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="text-sm font-bold text-amber-950">
+                              Médiation Nexus en cours
+                            </h4>
+                            <p className="text-[11px] sm:text-xs font-medium text-amber-900/70 mt-0.5 leading-relaxed">
+                              Un administrateur accompagne cette conversation afin de garantir la sécurité et la sérénité de vos échanges.
+                            </p>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -984,12 +998,17 @@ export function MessagesContent() {
 
                       if (isMediation) {
                         return (
-                          <div key={msg.id} className="flex justify-center my-6">
-                            <div className="bg-amber-50 border border-amber-200 rounded-2xl px-6 py-3 flex items-center gap-3 max-w-md shadow-sm">
-                              <Shield className="h-5 w-5 text-amber-600 shrink-0" />
-                              <p className="text-xs font-bold text-amber-800 leading-normal">
-                                {msg.content.replace("⚠️ [MÉDIATION DEMANDÉE] ", "")}
-                              </p>
+                          <div key={msg.id} className="flex justify-center my-6 sm:my-8 px-4">
+                            <div className="relative group w-full max-w-sm">
+                              <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-400 to-orange-500 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-500"></div>
+                              <div className="relative bg-white/95 backdrop-blur-sm border border-amber-200/50 rounded-2xl px-4 sm:px-5 py-3.5 flex items-center gap-3 sm:gap-4 shadow-sm">
+                                <div className="flex bg-amber-50 border border-amber-100 p-2 sm:p-2.5 rounded-full shrink-0">
+                                  <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600" />
+                                </div>
+                                <p className="text-[11px] sm:text-xs font-bold text-amber-950 leading-snug">
+                                  {msg.content.replace("⚠️ [MÉDIATION DEMANDÉE] ", "")}
+                                </p>
+                              </div>
                             </div>
                           </div>
                         )
