@@ -604,11 +604,11 @@ export function MessagesContent() {
 
   return (
     <TooltipProvider>
-      <div className="h-[calc(100dvh-5rem)] md:h-[calc(100vh-8rem)] flex bg-background md:rounded-2xl border-y md:border shadow-sm overflow-hidden -mx-4 -mt-4 mb-[-1rem] md:m-0">
+      <div className="fixed inset-0 top-[4rem] z-40 flex bg-background md:relative md:top-auto md:z-auto md:h-[calc(100vh-8rem)] md:rounded-2xl md:border shadow-sm overflow-hidden">
 
         {/* Sidebar - Liste des conversations */}
         <aside className={cn(
-          "w-full md:w-[340px] lg:w-[380px] flex flex-col border-r bg-card",
+          "w-full md:w-[340px] lg:w-[380px] flex flex-col border-r bg-card shrink-0",
           showChatMobile && "hidden md:flex"
         )}>
           {/* Header Sidebar */}
@@ -843,7 +843,7 @@ export function MessagesContent() {
 
         {/* Zone de chat */}
         <main className={cn(
-          "flex-1 flex flex-col bg-muted/20 pb-[env(safe-area-inset-bottom)] md:pb-0",
+          "flex-1 w-full min-w-0 flex flex-col bg-muted/20 pb-[env(safe-area-inset-bottom)] md:pb-0 relative",
           !showChatMobile && "hidden md:flex"
         )}>
           {selectedConv ? (
