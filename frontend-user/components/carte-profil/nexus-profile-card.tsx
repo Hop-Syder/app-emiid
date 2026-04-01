@@ -67,7 +67,7 @@ export function NexusProfileCard({
         whileHover={{ y: -6, transition: { duration: 0.3 } }}
         onClick={() => onAction?.('view')}
         className={cn(
-          "relative w-full max-w-[320px] sm:max-w-[280px] lg:max-w-[300px] aspect-[1/1.4] mx-auto rounded-[2.5rem] overflow-hidden bg-[#050505] border border-amber-500/30 group shadow-2xl cursor-pointer",
+          "relative w-full max-w-[320px] sm:max-w-[280px] lg:max-w-[300px] aspect-[1/1.4] mx-auto rounded-3xl overflow-hidden bg-[#050505] border border-amber-500/30 group shadow-2xl cursor-pointer",
           className
         )}
       >
@@ -146,7 +146,7 @@ export function NexusProfileCard({
         whileHover={{ y: -6 }}
         onClick={() => onAction?.('view')}
         className={cn(
-          "relative w-full max-w-[320px] sm:max-w-[280px] lg:max-w-[300px] aspect-[1/1.4] mx-auto rounded-[2.5rem] overflow-hidden bg-gradient-to-br from-blue-600/10 to-indigo-950/30 border border-white/20 backdrop-blur-xl shadow-xl hover:shadow-blue-500/20 cursor-pointer group",
+          "relative w-full max-w-[320px] sm:max-w-[280px] lg:max-w-[300px] aspect-[1/1.4] mx-auto rounded-3xl overflow-hidden bg-gradient-to-br from-blue-600/10 to-indigo-950/30 border border-white/20 backdrop-blur-xl shadow-xl hover:shadow-blue-500/20 cursor-pointer group",
           className
         )}
       >
@@ -207,11 +207,11 @@ export function NexusProfileCard({
       whileHover={{ y: -6 }}
       onClick={() => onAction?.('view')}
       className={cn(
-        "relative w-full max-w-[320px] sm:max-w-[280px] lg:max-w-[300px] aspect-[1/1.4] mx-auto rounded-[2.5rem] bg-white border border-slate-100 shadow-xl hover:shadow-2xl hover:shadow-slate-200/60 p-1 flex flex-col cursor-pointer group",
+        "relative w-full max-w-[320px] sm:max-w-[280px] lg:max-w-[300px] aspect-[1/1.4] mx-auto rounded-3xl bg-white border border-slate-100 shadow-xl hover:shadow-2xl hover:shadow-slate-200/60 p-1 flex flex-col cursor-pointer group",
         className
       )}
     >
-      <div className="h-[20%] rounded-[2.2rem] bg-slate-50 relative overflow-visible m-1.5 flex items-center justify-start pl-6">
+      <div className="h-[20%] rounded-[1.5rem] bg-slate-50 relative overflow-visible m-1.5 flex items-center justify-start pl-6">
          <div className="absolute top-0 right-0 w-24 h-24 bg-orange-500/5 -mr-8 -mt-8 rounded-full blur-xl" />
          <span className="relative -top-1 text-3xl font-black text-slate-200 select-none tracking-tighter italic">{displayCategory}</span>
          

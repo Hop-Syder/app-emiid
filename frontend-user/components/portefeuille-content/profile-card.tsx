@@ -90,7 +90,7 @@ export function ProfileCard({ profile, onUnfollow, onViewProfile, onSaveNote, on
 
             {/* Note CRM Strategique */}
             <Card className={cn(
-                "flex-1 w-full h-full lg:min-h-[380px] p-8 rounded-[2.5rem] border-2 shadow-sm overflow-hidden flex flex-col transition-all duration-300",
+                "flex-1 w-full h-full lg:min-h-[380px] p-8 rounded-3xl border-2 shadow-sm overflow-hidden flex flex-col transition-all duration-300",
                 noteTheme
             )}>
                 <div className="flex items-center justify-between mb-6">
