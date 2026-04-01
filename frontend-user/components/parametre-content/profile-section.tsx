@@ -9,9 +9,10 @@
  * 📧 daoudaabassichristian@gmail.com
 */
 
+import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { AvatarUpload } from "@/components/AvatarUpload"
-import { Mail, Smartphone, User, Shield } from "lucide-react"
+import { Mail, Smartphone, User, Shield, MessageCircle, MessageSquare, CheckCircle2, ChevronRight, AlertCircle } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -32,6 +33,26 @@ export function ProfileSection({
   handleSave,
   handleCancel
 }: ProfileSectionProps) {
+  const [verifyMethod, setVerifyMethod] = useState<"whatsapp" | "sms" | null>(null)
+  const [otpCode, setOtpCode] = useState("")
+  const [verifying, setVerifying] = useState(false)
+
+  const handleVerifyRequest = (method: "whatsapp" | "sms") => {
+    setVerifyMethod(method)
+    // Ici on déclencherait l'API pour envoyer le code
+  }
+
+  const handleVerifySubmit = () => {
+    setVerifying(true)
+    // Mock API
+    setTimeout(() => {
+      setVerifying(false)
+      setProfile({ ...profile, phone_verified: true })
+      setVerifyMethod(null)
+      setOtpCode("")
+    }, 1500)
+  }
+
   return (
     <div className="space-y-6 md:space-y-8 animate-in fade-in duration-500">
       <Card className="rounded-xl md:rounded-xl border-none shadow-2xl shadow-slate-200/50 bg-white/80 backdrop-blur-xl overflow-hidden relative">
@@ -113,6 +134,90 @@ export function ProfileSection({
                         placeholder="Ex: +229 XXXXXXXXXX"
                     />
                 </div>
+
+                {/* Bloc de vérification de téléphone */}
+                {profile.phone && profile.phone.length > 5 && (
+                  <div className="mt-4">
+                    {profile.phone_verified ? (
+                      <div className="flex items-center gap-2 text-emerald-700 bg-emerald-50/80 w-fit px-3 sm:px-4 py-2 rounded-xl border border-emerald-200 shadow-sm animate-in fade-in zoom-in">
+                        <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5" />
+                        <span className="text-xs sm:text-sm font-bold">Numéro certifié</span>
+                      </div>
+                    ) : (
+                      <div className="space-y-4 animate-in fade-in">
+                        {!verifyMethod ? (
+                          <div className="p-4 sm:p-5 rounded-2xl border border-rose-200 bg-rose-50/50 shadow-sm">
+                            <div className="flex items-center gap-2 mb-2">
+                              <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-rose-600" />
+                              <span className="text-sm font-bold text-rose-800">Numéro non vérifié</span>
+                            </div>
+                            <p className="text-xs sm:text-sm text-rose-700/80 mb-4 font-medium">Veuillez sécuriser votre compte en confirmant ce numéro pour accéder à toutes les fonctionnalités Nexus.</p>
+                            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                              <Button 
+                                type="button"
+                                variant="outline" 
+                                className="flex-1 h-11 sm:h-12 border-emerald-200 text-emerald-800 bg-emerald-50 hover:bg-emerald-100 hover:text-emerald-900 rounded-xl justify-start shadow-sm transition-transform active:scale-95"
+                                onClick={() => handleVerifyRequest("whatsapp")}
+                              >
+                                <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5 mr-3 text-emerald-600" /> 
+                                <span className="font-bold">WhatsApp</span>
+                                <ChevronRight className="h-4 w-4 ml-auto opacity-40" />
+                              </Button>
+                              <Button 
+                                type="button"
+                                variant="outline" 
+                                className="flex-1 h-11 sm:h-12 border-blue-200 text-blue-800 bg-blue-50 hover:bg-blue-100 hover:text-blue-900 rounded-xl justify-start shadow-sm transition-transform active:scale-95"
+                                onClick={() => handleVerifyRequest("sms")}
+                              >
+                                <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5 mr-3 text-blue-600" /> 
+                                <span className="font-bold">SMS</span>
+                                <ChevronRight className="h-4 w-4 ml-auto opacity-40" />
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="p-4 sm:p-5 rounded-2xl border border-indigo-200 bg-indigo-50/50 shadow-md animate-in fade-in slide-in-from-top-4">
+                            <div className="flex items-center gap-2 mb-2 text-indigo-900">
+                              {verifyMethod === 'whatsapp' ? <MessageCircle className="h-5 w-5 text-emerald-600" /> : <MessageSquare className="h-5 w-5 text-blue-600" />}
+                              <span className="text-sm font-bold">Code de vérification envoyé</span>
+                            </div>
+                            <p className="text-xs sm:text-sm text-indigo-700/80 mb-5 font-medium leading-relaxed">
+                              Veuillez entrer le code à 6 chiffres que vous venez de recevoir sur <strong className="text-indigo-950 px-1 py-0.5 bg-indigo-100 rounded">{profile.phone}</strong>.
+                            </p>
+                            
+                            <div className="flex flex-col gap-4">
+                              <Input 
+                                value={otpCode}
+                                onChange={(e) => setOtpCode(e.target.value.replace(/[^0-9]/g, ''))}
+                                placeholder="0 0 0 0 0 0"
+                                maxLength={6}
+                                className="h-14 sm:h-16 text-center text-2xl sm:text-3xl tracking-[0.5em] sm:tracking-[0.7em] font-black rounded-xl border-indigo-200 focus:ring-indigo-500 bg-white placeholder:text-slate-200 shadow-sm"
+                              />
+                              <div className="flex gap-2 sm:gap-3">
+                                <Button 
+                                  type="button"
+                                  variant="ghost" 
+                                  className="h-11 sm:h-12 px-4 sm:px-6 text-slate-500 hover:bg-slate-100 rounded-xl font-bold"
+                                  onClick={() => { setVerifyMethod(null); setOtpCode(""); }}
+                                >
+                                  Annuler
+                                </Button>
+                                <Button 
+                                  type="button"
+                                  className="flex-1 h-11 sm:h-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-600/20 font-black tracking-wide transition-all active:scale-95 disabled:opacity-50"
+                                  onClick={handleVerifySubmit}
+                                  disabled={otpCode.length < 6 || verifying}
+                                >
+                                  {verifying ? "Vérification..." : "Confirmer le code"}
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
           </div>
 
