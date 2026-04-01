@@ -604,7 +604,7 @@ export function MessagesContent() {
 
   return (
     <TooltipProvider>
-      <div className="h-[calc(100vh-8rem)] flex bg-background rounded-xl border shadow-sm overflow-hidden">
+      <div className="h-[calc(100dvh-8rem)] md:h-[calc(100vh-8rem)] flex bg-background rounded-xl border shadow-sm overflow-hidden">
 
         {/* Sidebar - Liste des conversations */}
         <aside className={cn(
@@ -843,7 +843,7 @@ export function MessagesContent() {
 
         {/* Zone de chat */}
         <main className={cn(
-          "flex-1 flex flex-col bg-muted/20",
+          "flex-1 flex flex-col bg-muted/20 pb-[env(safe-area-inset-bottom)] md:pb-0",
           !showChatMobile && "hidden md:flex"
         )}>
           {selectedConv ? (
@@ -1088,7 +1088,7 @@ export function MessagesContent() {
               </ScrollArea>
 
               {/* Input */}
-              <footer className="p-4 lg:px-6 border-t bg-card/80 backdrop-blur-sm">
+              <footer className="p-4 lg:px-6 pb-[max(1rem,env(safe-area-inset-bottom))] border-t bg-card/80 backdrop-blur-sm">
                 <div className="flex items-end gap-2 max-w-3xl mx-auto">
                   <div className="flex gap-1">
                     <Tooltip>
