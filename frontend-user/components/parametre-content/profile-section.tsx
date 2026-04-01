@@ -11,7 +11,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { AvatarUpload } from "@/components/AvatarUpload"
-import { Mail, Smartphone, User, Shield, Briefcase, Info } from "lucide-react"
+import { Mail, Smartphone, User, Shield } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -84,37 +84,6 @@ export function ProfileSection({
             </div>
           </div>
 
-          <div className="space-y-2 md:space-y-3">
-            <Label htmlFor="role" className="text-sm font-bold flex items-center gap-2">
-              <div className="p-1.5 bg-primary/10 rounded-lg shrink-0">
-                  <Briefcase className="h-4 w-4 text-primary" />
-              </div>
-              Titre de profession / Fonction principale
-            </Label>
-            <Input
-              id="role"
-              value={profile.role || ""}
-              onChange={(e) => setProfile({ ...profile, role: e.target.value })}
-              placeholder="Ex: Architecte d'intérieur, Développeur Fullstack..."
-              className="h-12 md:h-14 rounded-xl bg-slate-50 border-slate-200 focus:ring-primary/20 transition-all font-medium text-slate-900"
-            />
-          </div>
-
-          <div className="space-y-2 md:space-y-3">
-            <Label htmlFor="specialty" className="text-sm font-bold flex items-center gap-2">
-              <div className="p-1.5 bg-primary/10 rounded-lg shrink-0">
-                  <Info className="h-4 w-4 text-primary" />
-              </div>
-              Spécialité / Courte description
-            </Label>
-            <Input
-              id="specialty"
-              value={profile.specialty || ""}
-              onChange={(e) => setProfile({ ...profile, specialty: e.target.value })}
-              placeholder="Ex: Spécialiste en aménagement d'espaces minimalistes..."
-              className="h-12 md:h-14 rounded-xl bg-slate-50 border-slate-200 focus:ring-primary/20 transition-all font-medium text-slate-900"
-            />
-          </div>
 
           <div className="grid gap-4 md:gap-6 md:grid-cols-2 pt-4 md:pt-6 border-t border-slate-100">
               <div className="space-y-2 md:space-y-3">
@@ -138,10 +107,10 @@ export function ProfileSection({
                     <Input 
                         id="telephone" 
                         type="tel" 
-                        value={profile.phone || "+223 70 12 34 56"} 
+                        value={profile.phone || ""} 
                         onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
                         className="h-12 md:h-14 pl-12 rounded-xl bg-slate-50 border-slate-200 focus:ring-primary/20 transition-all font-medium text-slate-900" 
-                        placeholder="+000 00 00 00 00"
+                        placeholder="Ex: +229 XXXXXXXXXX"
                     />
                 </div>
               </div>
