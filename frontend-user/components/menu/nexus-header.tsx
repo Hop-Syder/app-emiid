@@ -14,7 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { usePathname, useRouter } from "next/navigation"
+import { useRouter } from "next/navigation"
 
 import { createClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
@@ -33,7 +33,6 @@ interface NexusHeaderProps {
 
 export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: NexusHeaderProps) {
   const messagingDevBypassEnabled = process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS === "true"
-  const pathname = usePathname()
   const router = useRouter()
   const { notifications, unreadCount, markAsRead } = useNotifications()
   const { scrollY } = useScroll()

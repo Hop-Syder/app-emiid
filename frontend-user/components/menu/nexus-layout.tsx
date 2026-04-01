@@ -9,8 +9,6 @@ import { NexusSidebar } from "./nexus-sidebar"
 import { NexusHeader } from "./nexus-header"
 import { cn } from "@/lib/utils"
 
-import { usePathname } from "next/navigation"
-
 interface NexusLayoutProps {
   children: React.ReactNode
 }
@@ -18,7 +16,6 @@ interface NexusLayoutProps {
 export function NexusLayout({ children }: NexusLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const pathname = usePathname()
 
   return (
     <div className="relative min-h-screen bg-amber-50/30 font-sans">

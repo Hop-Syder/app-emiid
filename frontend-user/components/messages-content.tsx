@@ -604,7 +604,7 @@ export function MessagesContent() {
 
   return (
     <TooltipProvider>
-      <div className="h-[calc(100dvh-8rem)] md:h-[calc(100vh-8rem)] flex bg-background rounded-xl border shadow-sm overflow-hidden">
+      <div className="h-[calc(100dvh-5rem)] md:h-[calc(100vh-8rem)] flex bg-background md:rounded-2xl border-y md:border shadow-sm overflow-hidden -mx-4 -mt-4 mb-[-1rem] md:m-0">
 
         {/* Sidebar - Liste des conversations */}
         <aside className={cn(
@@ -1088,13 +1088,13 @@ export function MessagesContent() {
               </ScrollArea>
 
               {/* Input */}
-              <footer className="p-4 lg:px-6 pb-[max(1rem,env(safe-area-inset-bottom))] border-t bg-card/80 backdrop-blur-sm">
-                <div className="flex items-end gap-2 max-w-3xl mx-auto">
-                  <div className="flex gap-1">
+              <footer className="p-2 sm:p-4 lg:px-6 pb-[max(0.5rem,env(safe-area-inset-bottom))] border-t bg-card/95 backdrop-blur-md">
+                <div className="flex items-end gap-1.5 sm:gap-2 max-w-3xl mx-auto">
+                  <div className="flex gap-1 shrink-0">
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl shrink-0">
-                          <Plus className="h-5 w-5 text-muted-foreground" />
+                        <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10 rounded-full sm:rounded-xl shrink-0 text-slate-500 hover:bg-slate-100">
+                          <Plus className="h-5 w-5" />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>Ajouter</TooltipContent>
@@ -1113,7 +1113,7 @@ export function MessagesContent() {
                           handleSendMessage()
                         }
                       }}
-                      className="min-h-[44px] max-h-[120px] py-3 px-4 pr-24 resize-none rounded-xl bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary/30"
+                      className="min-h-[40px] sm:min-h-[44px] max-h-[120px] py-2.5 sm:py-3 pl-3 sm:pl-4 pr-16 sm:pr-20 resize-none rounded-2xl bg-slate-100 border-0 text-[15px] sm:text-sm focus-visible:ring-1 focus-visible:ring-primary/30"
                       rows={1}
                     />
                     <div className="absolute right-2 bottom-2 flex items-center gap-0.5">
@@ -1139,8 +1139,7 @@ export function MessagesContent() {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
-                        size="icon"
-                        className="h-10 w-10 rounded-xl shrink-0 bg-primary hover:bg-primary/90"
+                        className="h-9 w-9 sm:h-10 sm:w-10 rounded-full sm:rounded-xl shrink-0 bg-primary hover:bg-primary/90 shadow-md transition-transform active:scale-95"
                         onClick={handleSendMessage}
                         disabled={!message.trim() || isSending}
                       >
