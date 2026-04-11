@@ -1,9 +1,9 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Wrapper principal pour le contenu de création de profil
+ * @description Wrapper principal pour le contenu de création de profil avec hydratation robuste
  * @created 2026-01-16
- * @updated 2026-01-25
+ * @updated 2026-04-11
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
 */
@@ -11,9 +11,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
-import { useState, useEffect } from "react"
-import { motion } from "framer-motion"
+import { useState, useEffect, useCallback } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import { Badge } from "@/components/ui/badge"
+import { Loader2, AlertCircle } from "lucide-react"
 import { CreerProfilForm } from "./creer-profil-form"
 import { CreerProfilPreview } from "./creer-profil-preview"
 import { fetchWithAuth } from "@/lib/apiClient"
@@ -127,6 +128,7 @@ const validateProfileForm = (formData: CreateProfileFormData, mode: "draft" | "p
 }
 
 export function CreerProfilContent() {
+    const [isLoading, setIsLoading] = useState(true)
     const [isPublished, setIsPublished] = useState(false)
     const [countries, setCountries] = useState<ReferenceCountry[]>([])
     const [validationErrors, setValidationErrors] = useState<string[]>([])
@@ -148,77 +150,81 @@ export function CreerProfilContent() {
         tags: [] as string[]
     })
 
-    useEffect(() => {
-        const loadInitialData = async () => {
-            try {
-                // Chargement des référentiels
-                const [countriesList, profileRes] = await Promise.all([
-                    getReferenceCountriesCached(),
-                    fetchWithAuth("/api/users/me"),
-                ])
+    const loadInitialData = useCallback(async () => {
+        setIsLoading(true)
+        try {
+            // Chargement parallèle des référentiels et du profil
+            const [countriesList, profileRes] = await Promise.all([
+                getReferenceCountriesCached(),
+                fetchWithAuth("/api/users/me"),
+            ])
 
-                setCountries(countriesList)
+            setCountries(countriesList)
 
-                // Initialisation : Hydratation du formulaire
-                if (profileRes.ok) {
-                    const data = await profileRes.json()
-                    // PGRST116: Si pas de profil, l'API peut renvoyer une erreur standard ou un objet partiel
-                    if (data && !data.error && !data.message) {
-                        const name = `${data.first_name || ""} ${data.last_name || ""}`.trim()
-
-                        // Résolution du code pays pour le sélecteur
-                        let resolvedCountryCode = ""
-                        let resolvedCountryName = ""
-                        if (data.countries && data.countries.iso_code) {
-                            resolvedCountryCode = data.countries.iso_code
-                            resolvedCountryName = data.countries.name
-                        } else if (data.country_id) {
-                            const found = countriesList.find((country) => country.id === data.country_id)
-                            if (found) {
-                                resolvedCountryCode = found.iso_code
-                                resolvedCountryName = found.name
-                            }
-                        }
-
-                        setFormData((prev) => ({
-                            ...prev,
-                            name: name || prev.name,
-                            role: data.role || data.job_title || prev.role,
-                            category: data.category || prev.category,
-                            card_variant: data.card_variant || prev.card_variant,
-                            specialty: data.specialty || prev.specialty,
-                            bio: data.bio || prev.bio,
-                            phone: data.phone || prev.phone,
-                            email: data.email || prev.email,
-                            website: data.website || prev.website,
-                            country_id: data.country_id || prev.country_id,
-                            country_code: resolvedCountryCode || prev.country_code,
-                            country_name: resolvedCountryName || prev.country_name,
-                            city: data.city || prev.city,
-                            avatar: data.avatar_url || prev.avatar,
-                            tags: data.tags || prev.tags,
-                        }))
-                        if (typeof data.is_published === "boolean") {
-                            setIsPublished(data.is_published)
+            if (profileRes.ok) {
+                const data = await profileRes.json()
+                
+                // Si l'objet data contient un ID (issu du profil ou de l'auth fallback)
+                if (data && (data.id || data.user_id)) {
+                    const fullName = `${data.first_name || ""} ${data.last_name || ""}`.trim()
+                    
+                    // Résolution précise de la localisation
+                    let resolvedCountryCode = data.country_code || ""
+                    let resolvedCountryName = data.country_name || ""
+                    
+                    if (data.countries) {
+                        resolvedCountryCode = data.countries.iso_code || resolvedCountryCode
+                        resolvedCountryName = data.countries.name || resolvedCountryName
+                    } else if (data.country_id) {
+                        const found = countriesList.find((c) => c.id === data.country_id)
+                        if (found) {
+                            resolvedCountryCode = found.iso_code
+                            resolvedCountryName = found.name
                         }
                     }
+
+                    // Hydratation complète avec valeurs par défaut de sauvegarde
+                    setFormData(prev => ({
+                        ...prev,
+                        name: fullName || prev.name,
+                        role: data.role || data.job_title || "",
+                        category: data.category || "",
+                        card_variant: data.card_variant || "tech",
+                        specialty: data.specialty || "",
+                        bio: data.bio || "",
+                        phone: data.phone || "",
+                        email: data.email || "",
+                        website: data.website || "",
+                        country_id: data.country_id || "",
+                        country_code: resolvedCountryCode,
+                        country_name: resolvedCountryName,
+                        city: data.city || "",
+                        avatar: data.avatar_url || prev.avatar,
+                        tags: Array.isArray(data.tags) ? data.tags : [],
+                    }))
+
+                    if (typeof data.is_published === "boolean") {
+                        setIsPublished(data.is_published)
+                    }
                 }
-            } catch (error) {
-                console.error("Erreur chargement données:", error)
             }
+        } catch (error) {
+            console.error("Hydration error:", error)
+            toast.error("Impossible de charger les données existantes")
+        } finally {
+            setIsLoading(false)
         }
+    }, [countries.length === 0]) // Dépendance sur countries seulement s'ils ne sont pas chargés
+
+    useEffect(() => {
         loadInitialData()
-    }, [])
+    }, [loadInitialData])
 
     const handleInputChange = (field: string, value: any) => {
-        if (validationErrors.length > 0) {
-            setValidationErrors([])
-        }
-
+        if (validationErrors.length > 0) setValidationErrors([])
         setFormData((prev) => ({ ...prev, [field]: value }))
     }
 
-    // 2. Mutation & Persistance (Draft)
     const handleSave = async () => {
         try {
             const errors = validateProfileForm(formData, "draft")
@@ -229,7 +235,6 @@ export function CreerProfilContent() {
             }
 
             const payload = buildProfilePayload(formData, isPublished)
-
             const response = await fetchWithAuth("/api/users/me", {
                 method: "PUT",
                 body: JSON.stringify(payload)
@@ -240,21 +245,14 @@ export function CreerProfilContent() {
                 throw new Error(errorData?.error || "Erreur lors de la sauvegarde")
             }
 
-            toast.success("Brouillon sauvegardé avec succès")
+            toast.success("Votre profil a été mis à jour avec succès")
             setValidationErrors([])
-        } catch (error: unknown) {
-            console.error("Erreur save:", error)
-            toast.error(`Erreur: ${error instanceof Error ? error.message : "Erreur inconnue"}`)
+        } catch (error: any) {
+            toast.error(`Échec: ${error.message}`)
         }
     }
 
-    // 3. Publication (Visibility ON)
     const handlePublish = async () => {
-        if (isPublished) {
-            toast.info("Votre profil est déjà publié. Cliquez sur Enregistrer pour mettre à jour.")
-            return
-        }
-
         const errors = validateProfileForm(formData, "publish")
         if (errors.length > 0) {
             setValidationErrors(errors)
@@ -264,70 +262,86 @@ export function CreerProfilContent() {
 
         try {
             const payload = buildProfilePayload(formData, true)
-
             const response = await fetchWithAuth("/api/users/me", {
                 method: "PUT",
                 body: JSON.stringify(payload)
             })
 
-            if (!response.ok) throw new Error("Erreur lors de la publication")
+            if (!response.ok) throw new Error("Échec de mise en ligne")
 
             setIsPublished(true)
-            setValidationErrors([])
-            toast.success("Félicitations ! Votre profil est maintenant EN LIGNE.")
-        } catch (error: unknown) {
-            toast.error(`Erreur: ${error instanceof Error ? error.message : "Erreur inconnue"}`)
+            toast.success("Votre carte est maintenant visible dans l'annuaire !")
+        } catch (error: any) {
+            toast.error(error.message)
         }
     }
 
-    // 4. Dépublication (Visibility OFF)
     const handleUnpublish = async () => {
-        if (!isPublished) return
-
         try {
             const payload = buildProfilePayload(formData, false)
-
             const response = await fetchWithAuth("/api/users/me", {
                 method: "PUT",
                 body: JSON.stringify(payload)
             })
 
-            if (!response.ok) throw new Error("Erreur dépublication")
+            if (!response.ok) throw new Error("Échec retrait")
 
             setIsPublished(false)
-            setValidationErrors([])
-            toast.success("Votre profil est masqué (mode Brouillon).")
-        } catch (error: unknown) {
-            toast.error(`Erreur: ${error instanceof Error ? error.message : "Erreur inconnue"}`)
+            toast.success("Profil masqué avec succès.")
+        } catch (error: any) {
+            toast.error(error.message)
         }
+    }
+
+    if (isLoading) {
+        return (
+            <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
+                <Loader2 className="h-10 w-10 text-primary animate-spin" />
+                <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest animate-pulse">Initialisation de votre profil Nexus...</p>
+            </div>
+        )
     }
 
     return (
         <div className="space-y-6">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-                <div className="flex items-center justify-between mb-6">
+                <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold">Publier une Carte de Profil</h1>
-                        <p className="text-muted-foreground">Remplissez ce formulaire pour créer et publier votre carte dans l&apos;annuaire</p>
+                        <h1 className="text-4xl font-black tracking-tighter text-slate-900">Configurez votre Identité</h1>
+                        <p className="text-muted-foreground font-medium">Votre carte est votre premier contact avec le réseau.</p>
                     </div>
-                    <Badge variant={isPublished ? "default" : "secondary"} className="rounded-xl">
-                        {isPublished ? "Publié" : "Brouillon"}
-                    </Badge>
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={isPublished ? "pub" : "draft"}
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.8 }}
+                        >
+                            <Badge 
+                                variant={isPublished ? "default" : "secondary"} 
+                                className={`rounded-xl px-4 py-1.5 text-xs font-black uppercase tracking-widest shadow-lg ${
+                                    isPublished ? "bg-gradient-to-r from-emerald-600 to-teal-500 border-none" : ""
+                                }`}
+                            >
+                                {isPublished ? "Mode Public" : "Mode Brouillon"}
+                            </Badge>
+                        </motion.div>
+                    </AnimatePresence>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <CreerProfilForm
-                    formData={formData}
-                    setFormData={setFormData}
-                    handleInputChange={handleInputChange}
-                    handleSave={handleSave}
-                    handlePublish={handlePublish}
-                    handleUnpublish={handleUnpublish}
-                    isPublished={isPublished}
-                    countries={countries}
-                    tags={formData.tags}
-                    validationErrors={validationErrors}
-                />
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <CreerProfilForm
+                        formData={formData}
+                        setFormData={setFormData}
+                        handleInputChange={handleInputChange}
+                        handleSave={handleSave}
+                        handlePublish={handlePublish}
+                        handleUnpublish={handleUnpublish}
+                        isPublished={isPublished}
+                        countries={countries}
+                        tags={formData.tags}
+                        validationErrors={validationErrors}
+                    />
                     <CreerProfilPreview formData={formData} />
                 </div>
             </motion.div>
