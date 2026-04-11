@@ -215,7 +215,7 @@ export function CreerProfilContent() {
             setIsLoading(false)
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [countries.length === 0]) // Dépendance sur countries seulement s'ils ne sont pas chargés
+    }, []) // Dependency array empty ensures it runs once on mount properly
 
     useEffect(() => {
         loadInitialData()

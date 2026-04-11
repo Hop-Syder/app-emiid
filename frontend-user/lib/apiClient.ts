@@ -54,10 +54,18 @@ export const fetchWithAuth = async (endpoint: string, options: RequestInit = {})
   // 3. Exécuter la requête vers l'URL du Backend
   const url = buildTargetUrl(endpoint);
   
-  return fetch(url, {
+  const finalOptions: RequestInit = {
+    cache: 'no-store', // Évite la mise en cache agressive du navigateur
     ...options,
-    headers,
-  });
+    headers: {
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0',
+      ...headers,
+    },
+  };
+
+  return fetch(url, finalOptions);
 };
 
 /**
@@ -71,10 +79,18 @@ export const fetchPublic = async (endpoint: string, options: RequestInit = {}) =
 
   const url = buildTargetUrl(endpoint);
   
-  return fetch(url, {
+  const finalOptions: RequestInit = {
+    cache: 'no-store', // Évite la mise en cache agressive du navigateur
     ...options,
-    headers,
-  });
+    headers: {
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0',
+      ...headers,
+    },
+  };
+
+  return fetch(url, finalOptions);
 };
 
 export const readApiError = async (response: Response, fallbackMessage: string) => {
