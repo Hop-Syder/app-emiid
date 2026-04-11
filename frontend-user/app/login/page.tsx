@@ -13,10 +13,10 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Loader2, ShieldCheck, Sparkles, ArrowRight } from "lucide-react"
+import { Loader2, ShieldCheck, Sparkles } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 
 type Provider = "google" | "linkedin" | "apple"
@@ -116,7 +116,7 @@ export default function LoginPage() {
                 Bienvenue au Sommet
               </h1>
               <p className="text-zinc-400 font-medium text-sm tracking-wide">
-                Connect & Lead. L'élite vous attend.
+                Connect & Lead. L&apos;élite vous attend.
               </p>
             </div>
           </div>
@@ -206,7 +206,7 @@ export default function LoginPage() {
           transition={{ delay: 1.2 }}
           className="mt-8 text-center text-zinc-500 text-xs font-medium"
         >
-          Besoin d'aide ? <Link href="#" className="text-white hover:underline">Contactez le support</Link>
+          Besoin d&apos;aide ? <Link href="#" className="text-white hover:underline">Contactez le support</Link>
         </motion.p>
       </motion.div>
 
