@@ -48,7 +48,8 @@ export function AnnuaireGrid({ filters }: AnnuaireGridProps) {
                 if (filters?.city) query = query.ilike('city', `%${filters.city}%`)
                 if (filters?.search) query = query.or(`first_name.ilike.%${filters.search}%,last_name.ilike.%${filters.search}%,bio.ilike.%${filters.search}%,role.ilike.%${filters.search}%,specialty.ilike.%${filters.search}%`)
 
-                let { data: profilesData, error: profilesError } = await query
+                const { data, error: profilesError } = await query
+                let profilesData = data
 
                 if (filters?.tags && profilesData) {
                     const tagSearch = filters.tags.toLowerCase()

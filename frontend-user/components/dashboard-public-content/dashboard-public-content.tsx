@@ -13,6 +13,7 @@
 import { useState, useEffect } from "react"
 import { AlertTriangle } from "lucide-react"
 import { fetchPublic } from "@/lib/apiClient"
+import { createClient } from "@/lib/supabase/client"
 import { useDashboardStats } from "@/hooks/use-dashboard-stats"
 import { DashboardStatsSkeleton } from "@/components/dashboard-stats-skeleton"
 import type { DashboardStats } from "@/types"
@@ -77,12 +78,17 @@ export function DashboardPublicContent({ initialStats = null }: DashboardPublicC
             }
 
             try {
-                const entRes = await fetchPublic("/api/public/profiles")
+                const supabase = createClient()
                 let nextWarning: string | null = null
 
-                if (entRes.ok) {
-                    const entData = await entRes.json()
+                const { data: entData, error: entError } = await supabase
+                    .from('user_profiles')
+                    .select(`*, countries(name, iso_code), profile_tags(tags(name))`)
+                    .eq('is_published', true)
+                    .order('created_at', { ascending: false })
+                    .limit(6)
 
+                if (!entError && entData) {
                     // Optionnel: Récupérer les follows si l'utilisateur est connecté
                     let userFollowsIds: string[] = []
                     try {
@@ -99,7 +105,7 @@ export function DashboardPublicContent({ initialStats = null }: DashboardPublicC
                         nextWarning = "Le statut de vos abonnements n’a pas pu être synchronisé sur cette vue."
                     }
 
-                    const nextEntrepreneurs = entData.map((e: EntrepreneurApiResponse) => {
+                    const nextEntrepreneurs = entData.map((e: any) => {
                         const profileId = e.user_id || e.id || "0"
                         return {
                             id: profileId,
@@ -113,7 +119,7 @@ export function DashboardPublicContent({ initialStats = null }: DashboardPublicC
                             premium: !!e.is_premium,
                             followers: e.followers_count || 0,
                             isFollowed: userFollowsIds.includes(profileId),
-                            tags: e.tags || []
+                            tags: e.profile_tags?.map((pt: any) => pt.tags?.name) || []
                         }
                     })
 
@@ -124,7 +130,7 @@ export function DashboardPublicContent({ initialStats = null }: DashboardPublicC
                     setEntrepreneursList(nextEntrepreneurs)
                     setProfilesWarning(nextWarning)
                 } else {
-                    console.error("Erreur API entrepreneurs (Public):", entRes.status)
+                    console.error("Erreur API entrepreneurs (Supabase):", entError)
 
                     if (showLoading && isMounted) {
                         setEntrepreneursList([])

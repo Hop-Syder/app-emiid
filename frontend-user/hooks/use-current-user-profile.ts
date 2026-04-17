@@ -45,26 +45,28 @@ export function useCurrentUserProfile() {
             setCurrentUser(fallbackProfile)
 
             try {
-                const response = await fetchWithAuth("/api/users/me")
+                const { data, error } = await supabase
+                    .from('user_profiles')
+                    .select('*')
+                    .eq('user_id', nextSession.user.id)
+                    .single()
 
-                if (!response.ok) {
-                    throw new Error(`Erreur HTTP ${response.status}`)
+                if (error) {
+                    throw error
                 }
-
-                const data = await response.json()
 
                 if (!isMounted) {
                     return
                 }
 
                 setCurrentUser({
-                    first_name: data.first_name || fallbackProfile.first_name,
-                    last_name: data.last_name || fallbackProfile.last_name,
-                    email: data.email || fallbackProfile.email,
-                    avatar_url: data.avatar_url || fallbackProfile.avatar_url,
+                    first_name: data?.first_name || fallbackProfile.first_name,
+                    last_name: data?.last_name || fallbackProfile.last_name,
+                    email: data?.email || fallbackProfile.email,
+                    avatar_url: data?.avatar_url || fallbackProfile.avatar_url,
                 })
             } catch (error) {
-                console.error("Erreur chargement profil connecté:", error)
+                console.error("Erreur chargement profil connecté (Supabase):", error)
 
                 if (isMounted) {
                     setCurrentUser(fallbackProfile)

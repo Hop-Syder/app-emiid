@@ -21,7 +21,8 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { fetchPublic, fetchWithAuth } from "@/lib/apiClient"
+import { fetchWithAuth } from "@/lib/apiClient"
+import { createClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 import Link from "next/link"
@@ -80,9 +81,14 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
             if (!profileId) return
             setLoading(true)
             try {
-                const response = await fetchPublic(`/api/public/profiles/${profileId}`)
-                if (response.ok) {
-                    const data = await response.json()
+                const supabase = createClient()
+                const { data, error } = await supabase
+                    .from('user_profiles')
+                    .select(`*, countries(name), profile_tags(tags(name))`)
+                    .eq('user_id', profileId)
+                    .single()
+                    
+                if (data && !error) {
                     const mappedProfile: ProfileData = {
                         id: data.user_id || data.id,
                         name: `${data.first_name || ""} ${data.last_name || ""}`.trim() || "Utilisateur Nexus",
@@ -103,7 +109,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                         email: data.email,
                         website: data.website,
                         phone: data.phone,
-                        skills: data.tags || [],
+                        skills: data.profile_tags?.map((pt: any) => pt.tags?.name) || [],
                         experiences: []
                     }
                     setProfile(mappedProfile)
@@ -120,7 +126,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                     } catch {
                         // Pas connecté ou erreur silencieuse
                     }
-                } else if (response.status === 404) {
+                } else if (error && error.code === 'PGRST116') {
                     setProfile(null)
                 }
             } catch (error) {

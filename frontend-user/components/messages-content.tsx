@@ -138,11 +138,11 @@ export function MessagesContent() {
 
         const userIds = convData.flatMap(c => [c.participant1_id, c.participant2_id]);
         const { data: profiles } = await supabase.from('user_profiles').select('user_id, first_name, last_name, avatar_url, role').in('user_id', userIds);
-        const profileLookup = (profiles || []).reduce((acc: any, p: any) => { acc[p.user_id] = p; return acc; }, {});
+        const profileLookup = (profiles || []).reduce((acc: Record<string, any>, p: any) => { acc[p.user_id] = p; return acc; }, {});
 
         const convIds = convData.map(c => c.id);
         const { data: unreadData } = await supabase.from('messages').select('conversation_id').in('conversation_id', convIds).neq('sender_id', currentUserId).eq('is_read', false);
-        const unreadCount = (unreadData || []).reduce((acc: any, m: any) => { acc[m.conversation_id] = (acc[m.conversation_id] || 0) + 1; return acc; }, {});
+        const unreadCount = (unreadData || []).reduce((acc: Record<string, number>, m: any) => { acc[m.conversation_id] = (acc[m.conversation_id] || 0) + 1; return acc; }, {});
 
         const formatted = convData.map(conv => {
            const otherId = conv.participant1_id === currentUserId ? conv.participant2_id : conv.participant1_id;
@@ -371,7 +371,7 @@ export function MessagesContent() {
          const p1 = currentUserId < receiverId ? currentUserId : receiverId;
          const p2 = currentUserId < receiverId ? receiverId : currentUserId;
 
-         let { data: existingConv } = await supabase
+         const { data: existingConv } = await supabase
             .from('conversations')
             .select('id')
             .eq('participant1_id', p1)
