@@ -56,6 +56,7 @@ interface ProfileData {
     coverImage?: string
     specialty: string
     category?: string
+    slug?: string
     verified: boolean
     premium: boolean
     followers: number
@@ -120,6 +121,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                         coverImage: data.cover_url || undefined,
                         specialty: data.specialty || "Expertise",
                         category: data.category || "",
+                        slug: data.slug || undefined,
                         verified: !!data.is_verified,
                         premium: !!data.is_premium,
                         followers: data.followers_count || 0,
@@ -500,23 +502,47 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                     </DialogHeader>
                     
                     <div className="space-y-6 py-4">
+                        {profile?.slug && (
+                            <div className="space-y-2">
+                                <span className="text-sm font-semibold text-primary flex items-center gap-2">
+                                    <Badge variant="outline" className="border-primary text-primary text-[10px]">Recommandé</Badge>
+                                    Lien personnalisé du profil
+                                </span>
+                                <div className="flex items-center gap-2">
+                                    <Input 
+                                        readOnly 
+                                        value={typeof window !== 'undefined' ? `${window.location.origin}/profil/${profile.slug}` : ''} 
+                                        className="h-12 bg-slate-50 border-slate-200 text-slate-600 font-medium font-mono text-xs focus-visible:ring-0"
+                                    />
+                                    <Button 
+                                        size="icon" 
+                                        variant="outline" 
+                                        className="h-12 w-12 rounded-xl shrink-0"
+                                        onClick={() => copyToClipboard(typeof window !== 'undefined' ? `${window.location.origin}/profil/${profile.slug}` : '')}
+                                    >
+                                        {copiedLink === (typeof window !== 'undefined' ? `${window.location.origin}/profil/${profile.slug}` : '') ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
+
                         <div className="space-y-2">
                             <span className="text-sm font-semibold text-slate-500">
-                                Lien vers ce profil
+                                Lien technique (ID) {profile?.slug && "(Alternatif)"}
                             </span>
                             <div className="flex items-center gap-2">
                                 <Input 
                                     readOnly 
-                                    value={typeof window !== 'undefined' ? window.location.href : ''} 
-                                    className="h-12 bg-slate-50 border-slate-200 text-slate-600 font-medium font-mono text-xs focus-visible:ring-0"
+                                    value={typeof window !== 'undefined' ? `${window.location.origin}/profil/${profile?.id}` : ''} 
+                                    className="h-12 bg-slate-50 border-slate-200 text-slate-400 font-mono text-xs focus-visible:ring-0"
                                 />
                                 <Button 
                                     size="icon" 
                                     variant="outline" 
-                                    className="h-12 w-12 rounded-xl shrink-0"
-                                    onClick={() => copyToClipboard(window.location.href)}
+                                    className="h-12 w-12 rounded-xl shrink-0 border-slate-200"
+                                    onClick={() => copyToClipboard(typeof window !== 'undefined' ? `${window.location.origin}/profil/${profile?.id}` : '')}
                                 >
-                                    {copiedLink === window.location.href ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                                    {copiedLink === (typeof window !== 'undefined' ? `${window.location.origin}/profil/${profile?.id}` : '') ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4 text-slate-400" />}
                                 </Button>
                             </div>
                         </div>
@@ -527,7 +553,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                                 <Button 
                                     variant="outline" 
                                     className="h-12 rounded-xl border-[#25D366] text-[#25D366] hover:bg-[#25D366]/10 flex gap-2"
-                                    onClick={() => shareToWhatsApp(window.location.href)}
+                                    onClick={() => shareToWhatsApp(typeof window !== 'undefined' ? `${window.location.origin}/profil/${profile?.slug || profile?.id}` : '')}
                                 >
                                     <MessageCircle className="h-4 w-4" />
                                     WhatsApp
@@ -535,7 +561,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                                 <Button 
                                     variant="outline" 
                                     className="h-12 rounded-xl border-[#0A66C2] text-[#0A66C2] hover:bg-[#0A66C2]/10 flex gap-2"
-                                    onClick={() => shareToLinkedIn(window.location.href)}
+                                    onClick={() => shareToLinkedIn(typeof window !== 'undefined' ? `${window.location.origin}/profil/${profile?.slug || profile?.id}` : '')}
                                 >
                                     <Linkedin className="h-4 w-4" />
                                     LinkedIn
@@ -543,7 +569,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                                 <Button 
                                     variant="outline" 
                                     className="h-12 rounded-xl border-slate-900 text-slate-900 hover:bg-slate-100 flex gap-2"
-                                    onClick={() => shareToTwitter(window.location.href)}
+                                    onClick={() => shareToTwitter(typeof window !== 'undefined' ? `${window.location.origin}/profil/${profile?.slug || profile?.id}` : '')}
                                 >
                                     <Twitter className="h-4 w-4" />
                                     X

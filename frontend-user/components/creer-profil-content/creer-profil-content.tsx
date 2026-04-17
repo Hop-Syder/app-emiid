@@ -186,10 +186,9 @@ export function CreerProfilContent() {
                         }
                     }
 
-                    // Hydratation complète avec valeurs par défaut de sauvegarde
-                    setFormData(prev => ({
-                        ...prev,
-                        name: fullName || prev.name,
+                    // Hydratation complète avec valeurs de la base de données
+                    setFormData({
+                        name: fullName || "",
                         role: data.role || data.job_title || "",
                         category: data.category || "",
                         card_variant: data.card_variant || "tech",
@@ -202,10 +201,10 @@ export function CreerProfilContent() {
                         country_code: resolvedCountryCode,
                         country_name: resolvedCountryName,
                         city: data.city || "",
-                        avatar: data.avatar_url || prev.avatar,
+                        avatar: data.avatar_url || "/profil/avatar.jpg",
                         tags: Array.isArray(data.tags) ? data.tags : [],
-                        slug: data.slug || prev.slug,
-                    }))
+                        slug: data.slug || "",
+                    })
 
                     if (typeof data.is_published === "boolean") {
                         setIsPublished(data.is_published)

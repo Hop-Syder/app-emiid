@@ -192,9 +192,8 @@ export const updateMyProfile = async (req: any, res: Response) => {
         updated_at: new Date().toISOString()
     };
     
-    if (finalSlug) {
-      updates.slug = finalSlug;
-    }
+    // On autorise la suppression du slug si finalSlug est null
+    updates.slug = finalSlug;
 
     // Ajout conditionnel des champs PIN (seulement si présents)
     if (pin_enabled !== undefined) updates.pin_enabled = pin_enabled;
