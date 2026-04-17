@@ -10,7 +10,7 @@
 
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { AlertTriangle } from "lucide-react"
 import { fetchPublic } from "@/lib/apiClient"
 import { createClient } from "@/lib/supabase/client"
@@ -69,6 +69,8 @@ export function DashboardPublicContent({ initialStats = null }: DashboardPublicC
     })
 
 
+    const supabase = useMemo(() => createClient(), [])
+
     useEffect(() => {
         let isMounted = true
 
@@ -78,7 +80,6 @@ export function DashboardPublicContent({ initialStats = null }: DashboardPublicC
             }
 
             try {
-                const supabase = createClient()
                 let nextWarning: string | null = null
 
                 const { data: entData, error: entError } = await supabase
