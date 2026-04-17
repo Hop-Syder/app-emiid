@@ -21,7 +21,7 @@ export async function GET(request: Request) {
     const { data: profile } = await supabase
       .from('user_profiles')
       .select('first_name, last_name, role, specialty, avatar_url, city')
-      .eq('id', id)
+      .or(`slug.eq.${id},user_id.eq.${id}`)
       .eq('is_published', true)
       .single()
 

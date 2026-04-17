@@ -10,6 +10,7 @@ interface CurrentUserProfile {
     last_name: string
     email?: string
     avatar_url?: string
+    slug?: string
 }
 
 function getSessionFallback(session: Session): CurrentUserProfile {
@@ -70,6 +71,7 @@ export function useCurrentUserProfile() {
                     last_name: data?.last_name || fallbackProfile.last_name,
                     email: data?.email || fallbackProfile.email,
                     avatar_url: finalAvatar,
+                    slug: data?.slug,
                 })
             } catch (error) {
                 console.error("Erreur chargement profil connecté (Supabase):", error)

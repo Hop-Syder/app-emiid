@@ -106,7 +106,7 @@ exports.getMyProfile = getMyProfile;
  */
 const updateMyProfile = async (req, res) => {
     const userId = req.user.id;
-    const { first_name, last_name, bio, avatar_url, role, specialty, category, activity_domain, country_id, country_code, country_name, city, job_title, industry, pin_enabled, pin_code, phone, website, is_published, tags, card_variant } = req.body;
+    const { first_name, last_name, bio, avatar_url, role, specialty, category, activity_domain, country_id, country_code, country_name, city, job_title, industry, pin_enabled, pin_code, phone, website, is_published, tags, card_variant, slug } = req.body;
     try {
         let finalCountryId = country_id;
         // Si on a un code pays mais pas d'ID, on cherche ou on crée
@@ -128,6 +128,19 @@ const updateMyProfile = async (req, res) => {
                     .single();
                 if (newCountry)
                     finalCountryId = newCountry.id;
+            }
+        }
+        // --- SLUG VALIDATION LOGIC ---
+        let finalSlug = slug ? slug.toLowerCase().replace(/[^a-z0-9-]/g, "") : null;
+        if (finalSlug) {
+            const { data: existingSlugProfile } = await supabase_1.supabaseAdmin
+                .from('user_profiles')
+                .select('user_id')
+                .eq('slug', finalSlug)
+                .neq('user_id', userId)
+                .single();
+            if (existingSlugProfile) {
+                return res.status(400).json({ error: "Ce lien personnalisé est déjà utilisé par un autre utilisateur." });
             }
         }
         // --- SMART AUTOCOMPLETE LOGIC ---
@@ -161,6 +174,9 @@ const updateMyProfile = async (req, res) => {
             card_variant,
             updated_at: new Date().toISOString()
         };
+        if (finalSlug) {
+            updates.slug = finalSlug;
+        }
         // Ajout conditionnel des champs PIN (seulement si présents)
         if (pin_enabled !== undefined)
             updates.pin_enabled = pin_enabled;

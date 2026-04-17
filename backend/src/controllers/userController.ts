@@ -116,7 +116,7 @@ export const updateMyProfile = async (req: any, res: Response) => {
     role, specialty, category, activity_domain,
     country_id, country_code, country_name, city,
     job_title, industry, pin_enabled, pin_code,
-    phone, website, is_published, tags, card_variant
+    phone, website, is_published, tags, card_variant, slug
   } = req.body;
 
   try {
@@ -141,6 +141,21 @@ export const updateMyProfile = async (req: any, res: Response) => {
           .single();
         
         if (newCountry) finalCountryId = newCountry.id;
+      }
+    }
+
+    // --- SLUG VALIDATION LOGIC ---
+    let finalSlug = slug ? slug.toLowerCase().replace(/[^a-z0-9-]/g, "") : null;
+    if (finalSlug) {
+      const { data: existingSlugProfile } = await supabaseAdmin
+        .from('user_profiles')
+        .select('user_id')
+        .eq('slug', finalSlug)
+        .neq('user_id', userId)
+        .single();
+      
+      if (existingSlugProfile) {
+        return res.status(400).json({ error: "Ce lien personnalisé est déjà utilisé par un autre utilisateur." });
       }
     }
 
@@ -177,6 +192,10 @@ export const updateMyProfile = async (req: any, res: Response) => {
         updated_at: new Date().toISOString()
     };
     
+    if (finalSlug) {
+      updates.slug = finalSlug;
+    }
+
     // Ajout conditionnel des champs PIN (seulement si présents)
     if (pin_enabled !== undefined) updates.pin_enabled = pin_enabled;
 

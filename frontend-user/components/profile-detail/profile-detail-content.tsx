@@ -85,7 +85,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                 const { data, error } = await supabase
                     .from('user_profiles')
                     .select(`*, countries(name), profile_tags(tags(name))`)
-                    .eq('user_id', profileId)
+                    .or(`slug.eq.${profileId},user_id.eq.${profileId}`)
                     .single()
                     
                 if (data && !error) {

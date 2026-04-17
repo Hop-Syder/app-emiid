@@ -169,6 +169,30 @@ export function CreerProfilForm({
                     </div>
                 </div>
 
+                {/* Lien Personnalisé (Slug) */}
+                <div className="space-y-3 pt-2">
+                    <Label className="text-sm font-bold flex items-center gap-2">
+                        <Badge variant="outline" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-[10px] border-primary text-primary">🔗</Badge>
+                        Lien personnalisé (URL de votre profil)
+                    </Label>
+                    <div className="flex items-center rounded-xl bg-slate-50 border border-slate-200 overflow-hidden focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+                        <div className="bg-slate-100 px-4 py-4 text-slate-500 font-medium text-sm border-r border-slate-200 flex items-center whitespace-nowrap">
+                            nexusconnect.com/profil/
+                        </div>
+                        <Input
+                            id="slug"
+                            placeholder="mon-prenom-nom"
+                            className="h-14 border-none bg-transparent shadow-none focus-visible:ring-0 px-4 font-bold text-slate-800 lowercase w-full"
+                            value={formData.slug || ""}
+                            onChange={(e) => {
+                                const val = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "");
+                                handleInputChange("slug", val);
+                            }}
+                        />
+                    </div>
+                    <p className="text-[10px] text-muted-foreground ml-1">Ce lien cachera votre identifiant interne. Utilisez un format simple comme &quot;daouda-abassi&quot;.</p>
+                </div>
+
                 {/* Localisation */}
                 <div className="space-y-3">
                     <Label className="text-sm font-bold flex items-center gap-2">

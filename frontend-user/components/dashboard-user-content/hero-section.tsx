@@ -18,7 +18,8 @@ export function HeroSection() {
             return
         }
         
-        const profileUrl = `${window.location.origin}/profil/${session.user.id}`
+        const profileSlugOrId = currentUser?.slug || session.user.id;
+        const profileUrl = `${window.location.origin}/profil/${profileSlugOrId}`
         const text = "Je viens de rejoindre l'élite sur Nexus Connect ! Découvrez mon expertise et connectons-nous :"
         
         if (navigator.share) {

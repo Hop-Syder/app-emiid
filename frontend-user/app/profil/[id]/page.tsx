@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
                 bio,
                 profile_tags(tags(name))
             `)
-            .eq('id', id)
+            .or(`slug.eq.${id},user_id.eq.${id}`)
             .eq('is_published', true)
             .single()
 
@@ -91,7 +91,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     const { data } = await supabase
         .from('user_profiles')
         .select(`first_name, last_name, specialty, role, city, bio`)
-        .eq('id', id)
+        .or(`slug.eq.${id},user_id.eq.${id}`)
         .eq('is_published', true)
         .single()
 
