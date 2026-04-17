@@ -10,10 +10,10 @@ import { toast } from "sonner"
 
 export function HeroSection() {
     const router = useRouter()
-    const { session, profileExists } = useCurrentUserProfile()
+    const { session, currentUser } = useCurrentUserProfile()
 
     const handleShareProfile = () => {
-        if (!session?.user?.id || !profileExists) {
+        if (!session?.user?.id) {
             toast.error("Profil incomplet", { description: "Vous devez publier votre profil d'abord pour le partager." })
             return
         }
