@@ -11,10 +11,8 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const helmet_1 = __importDefault(require("helmet"));
 const auth_1 = __importDefault(require("./api/routes/auth"));
 const userRoutes_1 = __importDefault(require("./api/routes/userRoutes"));
-const dashboardRoutes_1 = __importDefault(require("./api/routes/dashboardRoutes"));
-const referenceRoutes_1 = __importDefault(require("./api/routes/referenceRoutes"));
-const publicRoutes_1 = __importDefault(require("./api/routes/publicRoutes"));
 const messageRoutes_1 = __importDefault(require("./api/routes/messageRoutes"));
+const webhookRoutes_1 = __importDefault(require("./api/routes/webhookRoutes"));
 const errorMiddleware_1 = require("./middlewares/errorMiddleware");
 const logger_1 = require("./utils/logger");
 const supabase_1 = require("./config/supabase");
@@ -98,10 +96,8 @@ function createApp() {
     });
     app.use('/api/auth', auth_1.default);
     app.use('/api/users', userRoutes_1.default);
-    app.use('/api/dashboard-user', dashboardRoutes_1.default);
-    app.use('/api/reference', referenceRoutes_1.default);
-    app.use('/api/public', publicRoutes_1.default);
     app.use('/api/messages', messageRoutes_1.default);
+    app.use('/api/webhooks', webhookRoutes_1.default);
     app.use(errorMiddleware_1.errorHandler);
     return app;
 }

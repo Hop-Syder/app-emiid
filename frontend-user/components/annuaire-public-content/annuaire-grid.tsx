@@ -12,7 +12,8 @@
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { fetchPublic, fetchWithAuth } from "@/lib/apiClient"
+import { fetchWithAuth } from "@/lib/apiClient"
+import { createClient } from "@/lib/supabase/client"
 import { AnnuaireCard } from "./annuaire-card"
 import type { EntrepreneurStats } from "@/types"
 
@@ -35,14 +36,26 @@ export function AnnuaireGrid({ filters }: AnnuaireGridProps) {
         const loadProfiles = async () => {
             setLoading(true)
             try {
-                const params = new URLSearchParams()
-                if (filters?.search) params.append("search", filters.search)
-                if (filters?.category && filters.category !== "all") params.append("category", filters.category)
-                if (filters?.country && filters.country !== "all") params.append("country", filters.country)
-                if (filters?.city) params.append("city", filters.city)
-                if (filters?.tags) params.append("tags", filters.tags)
+                const supabase = createClient()
+                let query = supabase
+                    .from('user_profiles')
+                    .select(`*, countries(name, iso_code), profile_tags(tags(name))`)
+                    .eq('is_published', true)
+                    .order('updated_at', { ascending: false })
 
-                const response = await fetchPublic(`/api/public/profiles?${params.toString()}`)
+                if (filters?.category && filters.category !== "all") query = query.ilike('category', filters.category)
+                if (filters?.country && filters.country !== "all") query = query.eq('countries.iso_code', filters.country)
+                if (filters?.city) query = query.ilike('city', `%${filters.city}%`)
+                if (filters?.search) query = query.or(`first_name.ilike.%${filters.search}%,last_name.ilike.%${filters.search}%,bio.ilike.%${filters.search}%,role.ilike.%${filters.search}%,specialty.ilike.%${filters.search}%`)
+
+                let { data: profilesData, error: profilesError } = await query
+
+                if (filters?.tags && profilesData) {
+                    const tagSearch = filters.tags.toLowerCase()
+                    profilesData = profilesData.filter((profile: any) => 
+                        profile.profile_tags?.some((pt: any) => pt.tags?.name?.toLowerCase().includes(tagSearch))
+                    )
+                }
 
                 let userFollowsIds: string[] = []
                 try {
@@ -56,8 +69,12 @@ export function AnnuaireGrid({ filters }: AnnuaireGridProps) {
                     console.warn("Failed to load follows in annuaire")
                 }
 
-                if (response.ok) {
-                    const data = await response.json()
+                if (!profilesError && profilesData) {
+                    // Nettoyage de la structure pour correspondre à l'ancienne API
+                    const data = profilesData.map((p: any) => ({
+                        ...p,
+                        tags: p.profile_tags?.map((pt: any) => pt.tags?.name) || []
+                    }))
                     setProfiles(data.map((e: EntrepreneurStats) => {
                         const profileId = e.user_id || e.id
                         return {

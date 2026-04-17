@@ -4,10 +4,8 @@ import dotenv from 'dotenv'
 import helmet from 'helmet'
 import authRoutes from './api/routes/auth'
 import userRoutes from './api/routes/userRoutes'
-import dashboardRoutes from './api/routes/dashboardRoutes'
-import referenceRoutes from './api/routes/referenceRoutes'
-import publicRoutes from './api/routes/publicRoutes'
 import messageRoutes from './api/routes/messageRoutes'
+import webhookRoutes from './api/routes/webhookRoutes'
 import { errorHandler } from './middlewares/errorMiddleware'
 import { logger } from './utils/logger'
 import { supabaseAdmin } from './config/supabase'
@@ -100,10 +98,8 @@ export function createApp(): Application {
 
   app.use('/api/auth', authRoutes)
   app.use('/api/users', userRoutes)
-  app.use('/api/dashboard-user', dashboardRoutes)
-  app.use('/api/reference', referenceRoutes)
-  app.use('/api/public', publicRoutes)
   app.use('/api/messages', messageRoutes)
+  app.use('/api/webhooks', webhookRoutes)
 
   app.use(errorHandler)
 

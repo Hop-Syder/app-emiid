@@ -12,7 +12,6 @@ import {
   updateMySettings,
   deactivateMyAccount,
   deleteMyAccount,
-  getAllUsers,
   verifyPin,
 } from '../../controllers/userController';
 import { getFollowedProfiles, toggleFollowProfile, getFollowers, updateFollowNote } from '../../controllers/followController';
@@ -46,10 +45,6 @@ router.delete('/account', deleteMyAccount);
 // @route   POST /api/users/verify-pin
 // @desc    Vérifier le code PIN
 router.post('/verify-pin', verifyPin);
-
-// @route   GET /api/users
-// @desc    Récupérer tous les profils (Artisans, Freelances, etc)
-router.get('/', getAllUsers);
 
 // @route   GET /api/users/follows
 // @desc    Récupérer les profils suivis

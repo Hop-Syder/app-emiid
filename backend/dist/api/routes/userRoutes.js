@@ -31,9 +31,6 @@ router.delete('/account', userController_1.deleteMyAccount);
 // @route   POST /api/users/verify-pin
 // @desc    Vérifier le code PIN
 router.post('/verify-pin', userController_1.verifyPin);
-// @route   GET /api/users
-// @desc    Récupérer tous les profils (Artisans, Freelances, etc)
-router.get('/', userController_1.getAllUsers);
 // @route   GET /api/users/follows
 // @desc    Récupérer les profils suivis
 router.get('/follows', followController_1.getFollowedProfiles);

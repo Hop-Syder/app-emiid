@@ -6,3 +6,5 @@ node_modules
 .agents
 .codex
 .agent-saas
+.cursorrules
+.cursor

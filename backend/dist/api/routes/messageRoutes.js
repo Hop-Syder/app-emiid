@@ -30,19 +30,7 @@ router.post('/admin/read/:conversationId', authMiddleware_1.requireAdmin, messag
 // @route   POST /api/messages/dispute/:conversationId
 // @desc    Inviter l'Admin pour une médiation
 router.post('/dispute/:conversationId', messageController_1.requestMediation);
-// @route   GET /api/messages/conversations
-// @desc    Récupérer les conversations de l'utilisateur
-router.get('/conversations', messageController_1.getMyConversations);
-// @route   GET /api/messages/conversation/:id
-// @desc    Récupérer les messages d'une conversation
-router.get('/conversation/:id', messageController_1.getConversationMessages);
-// @route   POST /api/messages/send
-// @desc    Envoyer un message
-router.post('/send', messageController_1.sendMessage);
 // @route   GET /api/messages/support
 // @desc    Récupérer le service client
 router.get('/support', messageController_1.getSupportUser);
-// @route   POST /api/messages/read/:conversationId
-// @desc    Marquer les messages comme lus
-router.post('/read/:conversationId', messageController_1.markAsRead);
 exports.default = router;

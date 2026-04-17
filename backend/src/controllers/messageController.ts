@@ -113,89 +113,9 @@ const formatConversation = (
   };
 };
 
-/**
- * Récupère les conversations de l'utilisateur
- * GET /api/messages/conversations
- */
-export const getMyConversations = async (req: any, res: Response) => {
-  const userId = req.user.id;
 
-  try {
-    const { data, error } = await supabaseAdmin
-      .from('conversations')
-      .select('*')
-      .or(`participant1_id.eq.${userId},participant2_id.eq.${userId}`)
-      .order('last_message_at', { ascending: false });
 
-    if (error) return res.status(400).json({ error: error.message });
 
-    if (!data || data.length === 0) {
-      return res.json([]);
-    }
-
-    const conversationIds = data.map((conv: any) => conv.id);
-    const profileLookup = await getProfilesByUserIds(
-      data.flatMap((conv: any) => [conv.participant1_id, conv.participant2_id]),
-    );
-    const { data: unreadMessages, error: unreadError } = await supabaseAdmin
-      .from('messages')
-      .select('conversation_id')
-      .in('conversation_id', conversationIds)
-      .neq('sender_id', userId)
-      .eq('is_read', false);
-
-    if (unreadError) {
-      return res.status(400).json({ error: unreadError.message });
-    }
-
-    const unreadCountByConversation = (unreadMessages || []).reduce<Record<string, number>>((acc, message: any) => {
-      acc[message.conversation_id] = (acc[message.conversation_id] || 0) + 1;
-      return acc;
-    }, {});
-
-    const conversations = data.map((conv: any) =>
-      formatConversation(conv, userId, unreadCountByConversation[conv.id] || 0, profileLookup),
-    );
-
-    res.json(conversations);
-  } catch (err) {
-    res.status(500).json({ error: "Erreur lors du chargement des conversations" });
-  }
-};
-
-/**
- * Récupère les messages d'une conversation
- * GET /api/messages/conversation/:id
- */
-export const getConversationMessages = async (req: any, res: Response) => {
-    const conversationId = req.params.id;
-
-    try {
-        // 1. Vérifier si l'utilisateur est participant de cette conversation
-        const { data: conv, error: convError } = await supabaseAdmin
-            .from('conversations')
-            .select('id')
-            .eq('id', conversationId)
-            .or(`participant1_id.eq.${req.user.id},participant2_id.eq.${req.user.id}`)
-            .single();
-
-        if (convError || !conv) {
-            return res.status(403).json({ error: "Accès refusé à cette conversation" });
-        }
-
-        const { data, error } = await supabaseAdmin
-            .from('messages')
-            .select('*')
-            .eq('conversation_id', conversationId)
-            .order('created_at', { ascending: true });
-
-        if (error) return res.status(400).json({ error: error.message });
-
-        res.json(data);
-    } catch (err) {
-        res.status(500).json({ error: "Erreur lors du chargement des messages" });
-    }
-};
 
 /**
  * Récupère les messages d'une conversation de médiation pour l'admin
@@ -228,85 +148,7 @@ export const getAdminConversationMessages = async (req: any, res: Response) => {
     }
 };
 
-/**
- * Envoie un message
- * POST /api/messages/send
- */
-export const sendMessage = async (req: any, res: Response) => {
-    const senderId = req.user.id;
-    const { receiverId, content } = req.body;
-    const trimmedContent = typeof content === 'string' ? content.trim() : '';
 
-    if (!trimmedContent || !receiverId) {
-        return res.status(400).json({ error: "Destinataire et contenu requis" });
-    }
-
-    if (receiverId === senderId) {
-        return res.status(400).json({ error: "Vous ne pouvez pas vous envoyer un message à vous-même" });
-    }
-
-    try {
-        const { data: receiverData, error: receiverError } = await supabaseAdmin.auth.admin.getUserById(receiverId);
-
-        if (receiverError || !receiverData.user) {
-            return res.status(404).json({ error: "Destinataire introuvable" });
-        }
-
-        // 1. Chercher ou créer la conversation
-        const p1 = senderId < receiverId ? senderId : receiverId;
-        const p2 = senderId < receiverId ? receiverId : senderId;
-
-        let { data: conv, error: convError } = await supabaseAdmin
-            .from('conversations')
-            .select('id')
-            .eq('participant1_id', p1)
-            .eq('participant2_id', p2)
-            .single();
-
-        if (convError && convError.code !== 'PGRST116') {
-            return res.status(400).json({ error: convError.message });
-        }
-
-        if (!conv) {
-             const { data: newConv, error: createError } = await supabaseAdmin
-                .from('conversations')
-                .insert({ participant1_id: p1, participant2_id: p2 })
-                .select('id')
-                .single();
-             if (createError) return res.status(400).json({ error: createError.message || "Erreur création conversation" });
-             conv = newConv;
-        }
-
-        // 2. Envoyer le message
-        const { data: msg, error: msgError } = await supabaseAdmin
-            .from('messages')
-            .insert({
-                conversation_id: conv.id,
-                sender_id: senderId,
-                content: trimmedContent,
-                is_read: false,
-            })
-            .select()
-            .single();
-
-        if (msgError || !msg) {
-            return res.status(400).json({ error: msgError?.message || "Erreur lors de l'envoi du message" });
-        }
-
-        // 3. Mettre à jour la conversation
-        await supabaseAdmin
-            .from('conversations')
-            .update({
-                last_message_content: trimmedContent,
-                last_message_at: new Date().toISOString()
-            })
-            .eq('id', conv.id);
-
-        res.status(201).json(msg);
-    } catch (err) {
-        res.status(500).json({ error: "Erreur lors de l'envoi du message" });
-    }
-};
 /**
  * Récupère TOUTES les conversations avec demande de médiation (ADMIN)
  * GET /api/messages/admin/disputes
@@ -553,42 +395,7 @@ export const updateMediationStatus = async (req: any, res: Response) => {
     }
 };
 
-/**
- * Marque les messages d'une conversation comme lus
-...
-...
- * POST /api/messages/read/:conversationId
- */
-export const markAsRead = async (req: any, res: Response) => {
-    const userId = req.user.id;
-    const { conversationId } = req.params;
 
-    try {
-        // 1. Vérifier participation
-        const { data: conv, error: convError } = await supabaseAdmin
-            .from('conversations')
-            .select('id')
-            .eq('id', conversationId)
-            .or(`participant1_id.eq.${userId},participant2_id.eq.${userId}`)
-            .single();
-
-        if (convError || !conv) {
-            return res.status(403).json({ error: "Accès refusé" });
-        }
-
-        const { error } = await supabaseAdmin
-            .from('messages')
-            .update({ is_read: true })
-            .eq('conversation_id', conversationId)
-            .neq('sender_id', userId);
-
-        if (error) return res.status(400).json({ error: error.message });
-
-        res.json({ success: true });
-    } catch (err) {
-        res.status(500).json({ error: "Erreur lors du marquage comme lu" });
-    }
-};
 
 /**
  * Marque les messages d'une conversation de médiation comme lus pour l'admin
