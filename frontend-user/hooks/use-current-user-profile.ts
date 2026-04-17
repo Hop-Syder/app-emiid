@@ -13,11 +13,12 @@ interface CurrentUserProfile {
 }
 
 function getSessionFallback(session: Session): CurrentUserProfile {
+    const meta = session.user.user_metadata || {};
     return {
-        first_name: session.user.user_metadata?.first_name || "",
-        last_name: session.user.user_metadata?.last_name || "",
+        first_name: meta.first_name || meta.full_name?.split(' ')[0] || "",
+        last_name: meta.last_name || meta.full_name?.split(' ').slice(1).join(' ') || "",
         email: session.user.email,
-        avatar_url: session.user.user_metadata?.avatar_url || undefined,
+        avatar_url: meta.avatar_url || meta.picture || undefined,
     }
 }
 
@@ -59,11 +60,16 @@ export function useCurrentUserProfile() {
                     return
                 }
 
+                const dbAvatar = data?.avatar_url;
+                const finalAvatar = (dbAvatar && dbAvatar !== "/profil/avatar.jpg") 
+                    ? dbAvatar 
+                    : fallbackProfile.avatar_url;
+
                 setCurrentUser({
                     first_name: data?.first_name || fallbackProfile.first_name,
                     last_name: data?.last_name || fallbackProfile.last_name,
                     email: data?.email || fallbackProfile.email,
-                    avatar_url: data?.avatar_url || fallbackProfile.avatar_url,
+                    avatar_url: finalAvatar,
                 })
             } catch (error) {
                 console.error("Erreur chargement profil connecté (Supabase):", error)
