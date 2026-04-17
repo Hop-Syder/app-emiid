@@ -270,6 +270,7 @@ WHERE is_published = TRUE;
 -- ==========================================
 REVOKE ALL ON public.user_profiles FROM PUBLIC, authenticated, anon;
 GRANT SELECT, INSERT, UPDATE ON public.user_profiles TO authenticated;
+GRANT SELECT ON public.user_profiles TO anon;
 GRANT SELECT ON public.public_profiles TO anon, authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.user_follows TO authenticated;
 GRANT SELECT, INSERT, UPDATE ON public.conversations TO authenticated;

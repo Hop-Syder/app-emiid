@@ -1,10 +1,12 @@
-/**
- * @author @hopsyder
- * @organization Nexus Partners
- * @description Arborescence logicielle complète de l'écosystème Nexus Connect
- * @created 2026-03-24
- * @updated 2026-03-24
-*/──────────────────────────────────
+/\*\*
+
+- @author @hopsyder
+- @organization Nexus Partners
+- @description Arborescence logicielle complète de l'écosystème Nexus Connect
+- @created 2026-03-24
+- @updated 2026-03-24
+- 🌐 ceo.nexuspartners.xyz
+  \*/──────────────────────────────────
 
 # 📂 Arborescence Complète - Nexus Connect
 
@@ -73,6 +75,7 @@ Ce document détaille la structure organisationnelle du projet Nexus Connect pou
 ```
 
 ## 🔐 Fichiers de Configuration Sensibles (À recréer)
+
 - `backend/.env`
 - `frontend-user/.env.local`
 - `admin/.env.local`
