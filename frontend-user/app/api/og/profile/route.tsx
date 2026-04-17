@@ -22,6 +22,7 @@ export async function GET(request: Request) {
       .from('user_profiles')
       .select('first_name, last_name, role, specialty, avatar_url, city')
       .eq('id', id)
+      .eq('is_published', true)
       .single()
 
     if (!profile) {

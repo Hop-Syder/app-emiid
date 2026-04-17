@@ -16,14 +16,15 @@ import { AnnuaireGrid } from "./annuaire-grid"
 
 interface AnnuairePublicContentProps {
     initialCategory?: string
+    initialCity?: string
 }
 
-export function AnnuairePublicContent({ initialCategory = "all" }: AnnuairePublicContentProps) {
+export function AnnuairePublicContent({ initialCategory = "all", initialCity = "" }: AnnuairePublicContentProps) {
     const [filters, setFilters] = useState({
         search: "",
         category: initialCategory,
         country: "all",
-        city: "",
+        city: initialCity,
         tags: "",
         status: "all"
     })

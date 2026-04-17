@@ -22,6 +22,7 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
                 profile_tags(tags(name))
             `)
             .eq('id', id)
+            .eq('is_published', true)
             .single()
 
         if (!data) {
@@ -91,6 +92,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
         .from('user_profiles')
         .select(`first_name, last_name, specialty, role, city, bio`)
         .eq('id', id)
+        .eq('is_published', true)
         .single()
 
     const jsonLd = data ? {
