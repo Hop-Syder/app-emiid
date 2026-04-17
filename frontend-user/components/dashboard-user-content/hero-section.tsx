@@ -4,9 +4,37 @@ import { motion } from "framer-motion"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
+import { Share2 } from "lucide-react"
+import { useCurrentUserProfile } from "@/hooks/use-current-user-profile"
+import { toast } from "sonner"
 
 export function HeroSection() {
     const router = useRouter()
+    const { session, profileExists } = useCurrentUserProfile()
+
+    const handleShareProfile = () => {
+        if (!session?.user?.id || !profileExists) {
+            toast.error("Profil incomplet", { description: "Vous devez publier votre profil d'abord pour le partager." })
+            return
+        }
+        
+        const profileUrl = `${window.location.origin}/profil/${session.user.id}`
+        const text = "Je viens de rejoindre l'élite sur Nexus Connect ! Découvrez mon expertise et connectons-nous :"
+        
+        if (navigator.share) {
+            navigator.share({
+                title: "Mon profil Nexus Connect",
+                text: text,
+                url: profileUrl
+            }).catch(() => {
+                navigator.clipboard.writeText(`${text} ${profileUrl}`)
+                toast.success("Lien copié !", { description: "Prêt à être collé sur WhatsApp ou LinkedIn !" })
+            })
+        } else {
+            navigator.clipboard.writeText(`${text} ${profileUrl}`)
+            toast.success("Lien copié !", { description: "Prêt à être collé sur WhatsApp ou LinkedIn !" })
+        }
+    }
 
     return (
         <motion.div
@@ -31,9 +59,9 @@ export function HeroSection() {
                         Cartographier et propulser 100 000 acteurs économiques ouest-africains d&apos;ici 2027. Connectez-vous avec des
                         entrepreneurs, artisans et institutions à travers l&apos;Afrique de l&apos;Ouest.
                     </p>
-                    <div className="flex flex-wrap gap-3">
+                    <div className="flex flex-wrap gap-3 pt-2">
                         <Button
-                            className="rounded-xl bg-white text-primary hover:bg-white/90 px-6 h-11"
+                            className="rounded-xl bg-white text-primary hover:bg-white/90 px-6 h-11 shadow-lg shadow-white/20"
                             onClick={() => router.push("/annuaire")}
                         >
                             Explorer l&apos;Annuaire
@@ -43,7 +71,15 @@ export function HeroSection() {
                             className="rounded-xl bg-transparent border-white text-white hover:bg-white/10 px-6 h-11"
                             onClick={() => router.push("/creer-profil")}
                         >
-                            Créer mon Profil
+                            Mon Profil
+                        </Button>
+                        <Button
+                            variant="default"
+                            className="rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 border-none text-white hover:from-emerald-600 hover:to-green-700 px-6 h-11 font-black shadow-lg shadow-emerald-500/30 flex items-center gap-2"
+                            onClick={handleShareProfile}
+                        >
+                            <Share2 className="h-4 w-4" />
+                            Boost (Partager)
                         </Button>
                     </div>
                 </div>
