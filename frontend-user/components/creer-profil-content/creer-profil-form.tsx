@@ -157,10 +157,10 @@ export function CreerProfilForm({
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="role" className="text-xs font-semibold text-muted-foreground ml-1">Rôle Principal *</Label>
+                            <Label htmlFor="role" className="text-xs font-semibold text-muted-foreground ml-1">Poste actuel ou Entreprise *</Label>
                             <Input
                                 id="role"
-                                placeholder="Ex: Directeur Créatif"
+                                placeholder="Ex: Directeur Créatif ou Nom de l'agence"
                                 className="h-14 rounded-xl bg-slate-50 border-slate-200 focus:ring-primary/20"
                                 value={formData.role || ""}
                                 onChange={(e) => handleInputChange("role", e.target.value)}
@@ -315,9 +315,9 @@ export function CreerProfilForm({
                     <Button
                         onClick={handleSave}
                         variant="outline"
-                        className="rounded-xl flex-1 h-14 border-slate-200 text-slate-600 font-bold hover:bg-slate-50 group transition-all"
+                        className="rounded-xl flex-1 h-14 border-slate-200 text-slate-600 font-bold hover:bg-green-500 hover:text-white hover:border-green-500 group transition-all"
                     >
-                        <Save className="mr-2 h-5 w-5 text-slate-400 group-hover:text-primary transition-colors" />
+                        <Save className="mr-2 h-5 w-5 text-slate-400 group-hover:text-white transition-colors" />
                         Sauvegarder
                     </Button>
 

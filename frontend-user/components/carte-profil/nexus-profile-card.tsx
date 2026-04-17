@@ -103,6 +103,16 @@ export function NexusProfileCard({
               <p className="text-[10px] sm:text-[10px] font-medium text-amber-500/60 tracking-wider">
                 {role}
               </p>
+              
+              {user.tags && user.tags.length > 0 && (
+                <div className="flex flex-wrap justify-center gap-1 mt-2 w-full px-1">
+                   {user.tags.slice(0, 4).map((tag, i) => (
+                      <span key={i} className="text-[8px] font-bold text-amber-400/80 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full max-w-full truncate">
+                         {tag}
+                      </span>
+                   ))}
+                </div>
+              )}
            </div>
 
            <div className="grid grid-cols-2 gap-2 py-2 border-y border-amber-500/10 mb-2 bg-white/5 rounded-xl">
@@ -169,6 +179,16 @@ export function NexusProfileCard({
              <div className="mt-3 text-center min-h-[3rem] flex flex-col justify-center">
                 <h3 className="text-lg font-black tracking-tight leading-tight">{name}</h3>
                 <p className="text-[10px] sm:text-[9px] font-bold text-blue-400 uppercase tracking-widest mt-0.5 line-clamp-2">{category}</p>
+                
+                {user.tags && user.tags.length > 0 && (
+                  <div className="flex flex-wrap justify-center gap-1 mt-2 w-full px-1">
+                     {user.tags.slice(0, 4).map((tag, i) => (
+                         <span key={i} className="text-[8px] font-bold text-blue-200 bg-blue-500/20 border border-blue-400/20 px-2 py-0.5 rounded-full max-w-full truncate">
+                            {tag}
+                         </span>
+                     ))}
+                  </div>
+                )}
              </div>
           </div>
 
@@ -225,6 +245,16 @@ export function NexusProfileCard({
          <div className="text-center space-y-1 w-full flex-1 flex flex-col justify-center min-h-[3rem]">
             <h3 className="relative -top-2 text-lg font-black text-slate-800 tracking-tight leading-tight">{name}</h3>
             <p className="text-[11px] sm:text-[10px] font-bold text-orange-500 tracking-[0.1em] uppercase line-clamp-2">{role}</p>
+
+            {user.tags && user.tags.length > 0 && (
+               <div className="flex flex-wrap justify-center gap-1 mt-2 w-full px-2">
+                  {user.tags.slice(0, 4).map((tag, i) => (
+                     <span key={i} className="text-[9px] font-bold text-orange-600 bg-orange-50 border border-orange-100 px-2 py-0.5 rounded-full max-w-full truncate">
+                        {tag}
+                     </span>
+                  ))}
+               </div>
+            )}
 
             <div className="flex items-center justify-center gap-3 py-4 px-2">
                <div className="text-center">
