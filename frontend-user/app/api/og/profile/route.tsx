@@ -18,12 +18,19 @@ export async function GET(request: Request) {
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-    const { data: profile } = await supabase
-      .from('user_profiles')
-      .select('first_name, last_name, role, specialty, avatar_url, city')
-      .or(`slug.eq.${id},user_id.eq.${id}`)
-      .eq('is_published', true)
-      .single()
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
+    let query = supabase
+        .from('user_profiles')
+        .select('first_name, last_name, specialty, role, avatar_url, bio, city')
+        .eq('is_published', true)
+
+    if (isUUID) {
+        query = query.or(`slug.eq.${id},user_id.eq.${id}`)
+    } else {
+        query = query.eq('slug', id)
+    }
+
+    const { data: profile, error } = await query.single()
 
     if (!profile) {
       return new Response('Profile not found', { status: 404 })

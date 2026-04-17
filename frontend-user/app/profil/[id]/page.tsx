@@ -11,7 +11,8 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
     const supabase = await createClient()
 
     try {
-        const { data } = await supabase
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
+        let query = supabase
             .from('user_profiles')
             .select(`
                 first_name, 
@@ -21,9 +22,15 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
                 bio,
                 profile_tags(tags(name))
             `)
-            .or(`slug.eq.${id},user_id.eq.${id}`)
             .eq('is_published', true)
-            .single()
+
+        if (isUUID) {
+            query = query.or(`slug.eq.${id},user_id.eq.${id}`)
+        } else {
+            query = query.eq('slug', id)
+        }
+
+        const { data } = await query.single()
 
         if (!data) {
             return {
@@ -88,12 +95,19 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     const supabase = await createClient()
     
     // Fetch base info for JSON-LD (deduped by Next.js/Supabase SSR)
-    const { data } = await supabase
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
+    let query = supabase
         .from('user_profiles')
         .select(`first_name, last_name, specialty, role, city, bio`)
-        .or(`slug.eq.${id},user_id.eq.${id}`)
         .eq('is_published', true)
-        .single()
+
+    if (isUUID) {
+        query = query.or(`slug.eq.${id},user_id.eq.${id}`)
+    } else {
+        query = query.eq('slug', id)
+    }
+
+    const { data } = await query.single()
 
     const jsonLd = data ? {
         '@context': 'https://schema.org',

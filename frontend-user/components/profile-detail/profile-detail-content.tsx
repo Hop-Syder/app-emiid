@@ -14,7 +14,11 @@ import {
     Briefcase,
     Star,
     ExternalLink,
-    MoreHorizontal
+    MoreHorizontal,
+    Copy,
+    Check,
+    Linkedin,
+    Twitter
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -33,6 +37,14 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
 
 interface ProfileData {
     id: string
@@ -82,11 +94,20 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
             setLoading(true)
             try {
                 const supabase = createClient()
-                const { data, error } = await supabase
+                
+                const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(profileId);
+                
+                let query = supabase
                     .from('user_profiles')
                     .select(`*, countries(name), profile_tags(tags(name))`)
-                    .or(`slug.eq.${profileId},user_id.eq.${profileId}`)
-                    .single()
+                    
+                if (isUUID) {
+                    query = query.or(`slug.eq.${profileId},user_id.eq.${profileId}`)
+                } else {
+                    query = query.eq('slug', profileId)
+                }
+                
+                const { data, error } = await query.single()
                     
                 if (data && !error) {
                     const mappedProfile: ProfileData = {
@@ -158,9 +179,32 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
         }
     }
 
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false)
+    const [copiedLink, setCopiedLink] = useState<string | null>(null)
+
     const handleShare = () => {
-        navigator.clipboard.writeText(window.location.href)
-        toast.success("Lien copié !", { description: "Le lien du profil est dans votre presse-papiers." })
+        setIsShareModalOpen(true)
+    }
+
+    const copyToClipboard = (url: string) => {
+        navigator.clipboard.writeText(url)
+        setCopiedLink(url)
+        toast.success("Lien copié !", { description: "Prêt à être collé sur vos réseaux." })
+        setTimeout(() => setCopiedLink(null), 2000)
+    }
+
+    const shareToWhatsApp = (url: string) => {
+        const text = `Découvrez le profil de ${profile?.name} sur Nexus Connect :`
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text + " " + url)}`, '_blank')
+    }
+
+    const shareToLinkedIn = (url: string) => {
+        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank')
+    }
+
+    const shareToTwitter = (url: string) => {
+        const text = `Découvrez le profil de ${profile?.name} sur Nexus Connect :`
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank')
     }
 
     const initials = profile?.name
@@ -445,6 +489,70 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                     </div>
                 </div>
             </main>
+
+            <Dialog open={isShareModalOpen} onOpenChange={setIsShareModalOpen}>
+                <DialogContent className="sm:max-w-md rounded-2xl">
+                    <DialogHeader>
+                        <DialogTitle className="text-xl font-bold">Partager ce profil 🚀</DialogTitle>
+                        <DialogDescription>
+                            Faites découvrir le profil de {profile?.name} à votre réseau.
+                        </DialogDescription>
+                    </DialogHeader>
+                    
+                    <div className="space-y-6 py-4">
+                        <div className="space-y-2">
+                            <span className="text-sm font-semibold text-slate-500">
+                                Lien vers ce profil
+                            </span>
+                            <div className="flex items-center gap-2">
+                                <Input 
+                                    readOnly 
+                                    value={typeof window !== 'undefined' ? window.location.href : ''} 
+                                    className="h-12 bg-slate-50 border-slate-200 text-slate-600 font-medium font-mono text-xs focus-visible:ring-0"
+                                />
+                                <Button 
+                                    size="icon" 
+                                    variant="outline" 
+                                    className="h-12 w-12 rounded-xl shrink-0"
+                                    onClick={() => copyToClipboard(window.location.href)}
+                                >
+                                    {copiedLink === window.location.href ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                                </Button>
+                            </div>
+                        </div>
+
+                        <div className="pt-4 border-t border-slate-100">
+                            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-3">Partage rapide</span>
+                            <div className="grid grid-cols-3 gap-3">
+                                <Button 
+                                    variant="outline" 
+                                    className="h-12 rounded-xl border-[#25D366] text-[#25D366] hover:bg-[#25D366]/10 flex gap-2"
+                                    onClick={() => shareToWhatsApp(window.location.href)}
+                                >
+                                    <MessageCircle className="h-4 w-4" />
+                                    WhatsApp
+                                </Button>
+                                <Button 
+                                    variant="outline" 
+                                    className="h-12 rounded-xl border-[#0A66C2] text-[#0A66C2] hover:bg-[#0A66C2]/10 flex gap-2"
+                                    onClick={() => shareToLinkedIn(window.location.href)}
+                                >
+                                    <Linkedin className="h-4 w-4" />
+                                    LinkedIn
+                                </Button>
+                                <Button 
+                                    variant="outline" 
+                                    className="h-12 rounded-xl border-slate-900 text-slate-900 hover:bg-slate-100 flex gap-2"
+                                    onClick={() => shareToTwitter(window.location.href)}
+                                >
+                                    <Twitter className="h-4 w-4" />
+                                    X
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }
