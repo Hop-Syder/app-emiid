@@ -37,6 +37,7 @@ interface CreateProfileFormData {
     website: string
     avatar: string
     tags: string[]
+    slug: string
 }
 
 const buildProfilePayload = (formData: CreateProfileFormData, isPublished: boolean) => {
@@ -59,6 +60,7 @@ const buildProfilePayload = (formData: CreateProfileFormData, isPublished: boole
         country_name: formData.country_name || null,
         city: formData.city.trim(),
         tags: formData.tags,
+        slug: formData.slug || null,
         is_published: isPublished,
     }
 }
@@ -147,7 +149,8 @@ export function CreerProfilContent() {
         email: "",
         website: "",
         avatar: "/profil/avatar.jpg",
-        tags: [] as string[]
+        tags: [] as string[],
+        slug: "",
     })
 
     const loadInitialData = useCallback(async () => {
@@ -201,6 +204,7 @@ export function CreerProfilContent() {
                         city: data.city || "",
                         avatar: data.avatar_url || prev.avatar,
                         tags: Array.isArray(data.tags) ? data.tags : [],
+                        slug: data.slug || prev.slug,
                     }))
 
                     if (typeof data.is_published === "boolean") {

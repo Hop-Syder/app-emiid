@@ -13,8 +13,8 @@ export function HeroSection() {
     const { session, currentUser } = useCurrentUserProfile()
 
     const handleShareProfile = () => {
-        if (!session?.user?.id) {
-            toast.error("Profil incomplet", { description: "Vous devez publier votre profil d'abord pour le partager." })
+        if (!session?.user?.id || !currentUser?.is_published) {
+            toast.error("Profil non publié", { description: "Vous devez d'abord publier votre profil dans la section Édition pour le partager." })
             return
         }
         

@@ -11,6 +11,7 @@ interface CurrentUserProfile {
     email?: string
     avatar_url?: string
     slug?: string
+    is_published?: boolean
 }
 
 function getSessionFallback(session: Session): CurrentUserProfile {
@@ -72,6 +73,7 @@ export function useCurrentUserProfile() {
                     email: data?.email || fallbackProfile.email,
                     avatar_url: finalAvatar,
                     slug: data?.slug,
+                    is_published: data?.is_published,
                 })
             } catch (error) {
                 console.error("Erreur chargement profil connecté (Supabase):", error)
