@@ -1,7 +1,7 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Carte de profil premium (Elite, Glass, Tech) - Version Optimisée & Responsive
+ * @description Carte de profil premium (Elite, Glass, Tech) - Nukun
  * @created 2026-03-23
  * @updated 2026-03-23
 */
