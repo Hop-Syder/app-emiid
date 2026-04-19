@@ -19,20 +19,17 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
+import type { UserProfile as GlobalUserProfile } from "@/types"
 
-interface UserProfile {
-  id: string;
-  avatar_url?: string;
-  first_name?: string;
-  last_name?: string;
-  email?: string;
-  phone?: string;
+interface UserProfile extends GlobalUserProfile {
   phone_verified?: boolean;
+  country_code?: string;
+  country_name?: string;
 }
 
 interface ProfileSectionProps {
-  profile: UserProfile;
-  setProfile: (profile: UserProfile) => void;
+  profile: any;
+  setProfile: any;
   saving: boolean;
   handleSave: () => void;
   handleCancel: () => void;

@@ -15,7 +15,7 @@ export interface Profile {
     specialty: string
     verified: boolean
     followers: number
-    projects: number
+    projects?: number
     premium?: boolean
     id?: string
     card_variant?: string

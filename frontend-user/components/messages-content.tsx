@@ -78,6 +78,7 @@ export function MessagesContent() {
   const [realtimeConnected, setRealtimeConnected] = useState(false)
   const [connectionNotice, setConnectionNotice] = useState<string | null>(null)
   const [syncError, setSyncError] = useState<string | null>(null)
+  const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set())
 
   const [isMediationDialogOpen, setIsMediationDialogOpen] = useState(false)
   const [mediationReason, setMediationReason] = useState("")
@@ -113,6 +114,7 @@ export function MessagesContent() {
         .neq('sender_id', currentUserId);
     } catch (err) {
       console.error("Error marking as read:", err)
+      setSyncError("Échec de la synchronisation lecture")
     }
   }, [currentUserId])
 
@@ -158,6 +160,7 @@ export function MessagesContent() {
       } catch (err) {
         console.error("Error loading convs:", err)
         toast.error("Impossible de charger les conversations")
+        setSyncError("Erreur de chargement des conversations")
       } finally {
         setLoadingConv(false)
       }

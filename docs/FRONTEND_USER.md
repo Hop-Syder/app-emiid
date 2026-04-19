@@ -1,12 +1,13 @@
-/**
- * @author @hopsyder
- * @organization Nexus Partners
- * @description FRONTEND USER DOCUMENTATION - App Nukun
- * @created 2026-04-18
- * @updated 2026-04-19
- * 🌐 ceo.nexuspartners.xyz
- * 📧 daoudaabassichristian@gmail.com
- */
+/\*\*
+
+- @author @hopsyder
+- @organization Nexus Partners
+- @description FRONTEND USER DOCUMENTATION - App Nukun
+- @created 2026-04-18
+- @updated 2026-04-19
+- 🌐 ceo.nexuspartners.xyz
+- 📧 daoudaabassichristian@gmail.com
+  \*/
 
 # 📱 Frontend User — Nukun
 

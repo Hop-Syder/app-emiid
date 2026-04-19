@@ -33,8 +33,8 @@ interface UserProfile {
 }
 
 interface SecuritySectionProps {
-    profile: UserProfile
-    setProfile: (profile: UserProfile) => void
+    profile: any
+    setProfile: any
     securitySettings: {
         two_factor_enabled: boolean
     }

@@ -47,6 +47,7 @@ export function ParametresContent() {
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
     const [profile, setProfile] = useState({
+        id: "",
         first_name: "",
         last_name: "",
         email: "",
@@ -90,6 +91,7 @@ export function ParametresContent() {
                 const fallbackAvatar = authUser?.user_metadata?.avatar_url || ""
 
                 setProfile({
+                    id: data.id || authUser?.id || "",
                     first_name: data.first_name || fallbackFirstName,
                     last_name: data.last_name || fallbackLastName,
                     email: data.email || fallbackEmail,
