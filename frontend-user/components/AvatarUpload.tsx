@@ -7,7 +7,7 @@
 
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Camera, Loader2, User } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -25,6 +25,11 @@ interface AvatarUploadProps {
 export function AvatarUpload({ currentAvatarUrl, onUploadComplete, disabled }: AvatarUploadProps) {
     const [uploading, setUploading] = useState(false)
     const [preview, setPreview] = useState<string | null>(currentAvatarUrl)
+
+    // Synchronisation de la prévisualisation quand l'URL parente change
+    useEffect(() => {
+        setPreview(currentAvatarUrl)
+    }, [currentAvatarUrl])
 
     const supabase = createClient()
 

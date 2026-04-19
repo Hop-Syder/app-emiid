@@ -11,13 +11,14 @@
 "use client"
 
 import { useState, useRef, useEffect, useCallback } from "react"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { Label } from "@/components/ui/label"
 import {
-  Loader2, Send, Search, Image, Paperclip, Phone, Video,
+  Loader2, Send, Search, Image, Paperclip, 
   MoreHorizontal, ArrowLeft, Check, CheckCheck, X, Plus,
-  Settings, Bell, Pin, Trash2, Archive, Star, Shield, Gavel, AlertTriangle
+  Settings, Bell, Pin, Trash2, Archive, Star, Shield, Gavel, AlertTriangle,
+  Camera, FileText, Smile, MessageSquare, User
 } from "lucide-react"
 import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -62,6 +63,7 @@ const supabase = createClient()
 
 export function MessagesContent() {
   const searchParams = useSearchParams()
+  const router = useRouter()
   const contactId = searchParams.get("contact") || searchParams.get("user")
 
   const [message, setMessage] = useState("")
@@ -93,8 +95,9 @@ export function MessagesContent() {
 
   const upsertConversation = useCallback((conversation: Conversation) => {
     setConversations(prev => {
+      const isPinned = prev.find(c => c.id === conversation.id)?.isPinned || false;
       const next = prev.filter(conv => conv.id !== conversation.id)
-      return [conversation, ...next]
+      return [{ ...conversation, isPinned }, ...next]
     })
   }, [])
 
@@ -127,7 +130,13 @@ export function MessagesContent() {
         const res = await fetchWithAuth("/api/messages/conversations")
         if (!res.ok) throw new Error("Erreur backend")
         
-        const formatted = await res.json()
+        const data = await res.json()
+        const pinnedIds = JSON.parse(localStorage.getItem(`nukun_pinned_convs_${currentUserId}`) || "[]")
+        const formatted = data.map((c: Conversation) => ({
+          ...c,
+          isPinned: pinnedIds.includes(c.id)
+        }))
+        
         setConversations(formatted);
 
         if (contactId) {
@@ -149,7 +158,8 @@ export function MessagesContent() {
                 },
                 lastMessage: "Envoyez le premier message...",
                 lastMessageAt: new Date().toISOString(),
-                unreadCount: 0
+                unreadCount: 0,
+                isPinned: false
               })
               setShowChatMobile(true)
             }
@@ -302,10 +312,15 @@ export function MessagesContent() {
         const convRes = await fetchWithAuth("/api/messages/conversations")
         if (convRes.ok) {
           const data = await convRes.json()
-          setConversations(data)
+          const pinnedIds = JSON.parse(localStorage.getItem(`nukun_pinned_convs_${currentUserId}`) || "[]")
+          const enrichedData = data.map((c: any) => ({
+            ...c,
+            isPinned: pinnedIds.includes(c.id)
+          }))
+          setConversations(enrichedData)
 
           if (selectedConv) {
-            const refreshedConversation = data.find((conversation: Conversation) =>
+            const refreshedConversation = enrichedData.find((conversation: Conversation) =>
               conversation.id === selectedConv.id || conversation.otherUser.id === selectedConv.otherUser.id,
             )
 
@@ -457,20 +472,36 @@ export function MessagesContent() {
     }
 
     setIsSending(true)
+    const uploadToastId = toast.loading(`Envoi de l'${type === "image" ? "image" : "fichier"}...`)
+    
     try {
       const extension = file.name.split(".").pop()
       const convFolder = selectedConv.id.startsWith('new-') ? `initial-${selectedConv.otherUser.id}` : `conversation-${selectedConv.id}`
       const filePath = `${convFolder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${extension}`
 
-      const { error } = await supabase.storage.from("messages").upload(filePath, file)
-      if (error) throw error
+      // Tentative d'upload
+      const { data: uploadData, error: uploadError } = await supabase.storage.from("messages").upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false
+      })
+      
+      if (uploadError) {
+        console.error("Supabase Storage Error:", uploadError)
+        throw new Error(`Erreur de stockage: ${uploadError.message}`)
+      }
 
+      // Récupération de l'URL publique
       const { data: publicUrlData } = supabase.storage.from("messages").getPublicUrl(filePath)
-      const publicUrl = publicUrlData.publicUrl
+      
+      if (!publicUrlData || !publicUrlData.publicUrl) {
+        throw new Error("Impossible de générer l'URL du fichier")
+      }
 
+      const publicUrl = publicUrlData.publicUrl
       const content = type === "image" ? `[Image] ${publicUrl}` : `[Fichier] ${file.name} - ${publicUrl}`
 
-      const newMsg = await sendMessageToDB(content, selectedConv.otherUser.id);
+      // Enregistrement dans la DB
+      const newMsg = await sendMessageToDB(content, selectedConv.otherUser.id)
       
       setSyncError(null)
 
@@ -486,9 +517,10 @@ export function MessagesContent() {
       upsertConversation(updatedConversation)
 
       setMessages((prev) => prev.some(existingMessage => existingMessage.id === newMsg.id) ? prev : [...prev, newMsg])
-    } catch (err: unknown) {
-      console.error("Upload error:", err)
-      toast.error("Erreur de partage du fichier")
+      toast.success(`${type === "image" ? "Image envoyée" : "Fichier envoyé"}`, { id: uploadToastId })
+    } catch (err: any) {
+      console.error("Detailed Upload error:", err)
+      toast.error(err.message || "Erreur de partage du fichier", { id: uploadToastId })
     } finally {
       setIsSending(false)
       if (imageInputRef.current) imageInputRef.current.value = ""
@@ -582,11 +614,21 @@ export function MessagesContent() {
     }
   }
 
-  // Toggle pin
+  // Toggle pin with persistence
   const togglePin = (convId: string) => {
-    setConversations(prev => prev.map(conv =>
-      conv.id === convId ? { ...conv, isPinned: !conv.isPinned } : conv
-    ))
+    if (!currentUserId) return;
+    
+    setConversations(prev => {
+      const next = prev.map(conv =>
+        conv.id === convId ? { ...conv, isPinned: !conv.isPinned } : conv
+      );
+      
+      // Persister dans localStorage
+      const pinnedIds = next.filter(c => c.isPinned).map(c => c.id);
+      localStorage.setItem(`nukun_pinned_convs_${currentUserId}`, JSON.stringify(pinnedIds));
+      
+      return next;
+    })
   }
 
   // Filtrer les conversations
@@ -654,12 +696,15 @@ export function MessagesContent() {
           showChatMobile && "hidden md:flex"
         )}>
           {/* Header Sidebar */}
-          <header className="p-4 lg:p-5 border-b space-y-4">
+          <header className="p-4 lg:p-6 border-b bg-white/50 backdrop-blur-md space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <h1 className="text-xl font-bold text-foreground">Messages</h1>
+                <div className="p-2 bg-primary/10 rounded-xl">
+                  <MessageSquare className="h-5 w-5 text-primary" />
+                </div>
+                <h1 className="text-xl font-black text-slate-900 tracking-tight">Messages</h1>
                 {totalUnread > 0 && (
-                  <Badge className="h-6 px-2.5 rounded-full bg-primary text-primary-foreground text-xs font-semibold">
+                  <Badge className="h-6 px-2 rounded-full bg-primary text-white text-[10px] font-black border-none">
                     {totalUnread}
                   </Badge>
                 )}
@@ -667,68 +712,68 @@ export function MessagesContent() {
               <div className="flex items-center gap-1">
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl">
-                      <Settings className="h-4 w-4 text-muted-foreground" />
+                    <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-slate-100 transition-colors">
+                      <Settings className="h-4 w-4 text-slate-400" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>Parametres</TooltipContent>
+                  <TooltipContent>Paramètres</TooltipContent>
                 </Tooltip>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl" onClick={handleContactSupport}>
-                      <Plus className="h-4 w-4 text-muted-foreground" />
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-9 w-9 rounded-xl bg-slate-100 text-slate-600 hover:bg-primary hover:text-white transition-all shadow-sm"
+                      onClick={handleContactSupport}
+                    >
+                      <Plus className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>Nouvelle conversation</TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl" onClick={handleContactSupport}>
-                      <Phone className="h-4 w-4 text-muted-foreground" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Support Nukun</TooltipContent>
+                  <TooltipContent>Nouveau message</TooltipContent>
                 </Tooltip>
               </div>
             </div>
 
             {/* Recherche */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Rechercher..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 h-10 rounded-xl bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary/30"
-              />
-              {searchQuery && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 rounded-lg"
-                  onClick={() => setSearchQuery("")}
-                >
-                  <X className="h-3.5 w-3.5" />
-                </Button>
-              )}
+            <div className="relative group">
+              <div className="absolute inset-0 bg-primary/5 rounded-2xl blur-md opacity-0 group-focus-within:opacity-100 transition-opacity" />
+              <div className="relative">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Input
+                  placeholder="Rechercher une discussion..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 h-11 rounded-2xl bg-slate-100/50 border-slate-100 focus-visible:ring-primary/20 transition-all font-medium text-sm"
+                />
+                {searchQuery && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 rounded-xl"
+                    onClick={() => setSearchQuery("")}
+                  >
+                    <X className="h-4 w-4 text-slate-400" />
+                  </Button>
+                )}
+              </div>
             </div>
 
             {/* Filtres */}
-            <div className="flex gap-2">
+            <div className="flex gap-2 pb-1 overflow-x-auto no-scrollbar">
               {[
                 { key: "all", label: "Tous" },
                 { key: "unread", label: "Non lus" },
-                { key: "pinned", label: "Epingles" },
+                { key: "pinned", label: "Épinglés" },
               ].map((filter) => (
                 <Button
                   key={filter.key}
-                  variant={filterType === filter.key ? "default" : "outline"}
+                  variant={filterType === filter.key ? "default" : "ghost"}
                   size="sm"
                   className={cn(
-                    "h-8 px-3 rounded-lg text-xs font-medium transition-all",
+                    "h-8 px-4 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all shrink-0",
                     filterType === filter.key
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "bg-transparent border-muted-foreground/20 text-muted-foreground hover:text-foreground"
+                      ? "bg-primary text-white shadow-lg shadow-primary/20"
+                      : "text-slate-400 hover:bg-slate-100 hover:text-slate-600"
                   )}
                   onClick={() => setFilterType(filter.key as typeof filterType)}
                 >
@@ -897,107 +942,96 @@ export function MessagesContent() {
           {selectedConv ? (
             <>
               {/* Header Chat */}
-              <header className="h-[72px] px-4 lg:px-6 flex items-center justify-between border-b bg-card/80 backdrop-blur-sm">
-                <div className="flex items-center gap-3">
+              <header className="h-[72px] px-4 lg:px-8 flex items-center justify-between border-b bg-white/80 backdrop-blur-md sticky top-0 z-30">
+                <div className="flex items-center gap-4">
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="md:hidden h-9 w-9 rounded-xl"
+                    className="md:hidden h-10 w-10 rounded-xl hover:bg-slate-100"
                     onClick={() => setShowChatMobile(false)}
                   >
-                    <ArrowLeft className="h-5 w-5" />
+                    <ArrowLeft className="h-5 w-5 text-slate-600" />
                   </Button>
 
-                  <div className="relative">
-                    <Avatar className="h-10 w-10 border-2 border-background shadow-sm">
+                  <div className="relative group cursor-pointer" onClick={() => router.push(`/profil/${selectedConv.otherUser.id}`)}>
+                    <div className="absolute inset-0 bg-primary/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <Avatar className="h-11 w-11 border-2 border-white shadow-md relative z-10">
                       <AvatarImage src={selectedConv.otherUser.avatar || undefined} className="object-cover" />
-                      <AvatarFallback className="bg-muted font-medium">
+                      <AvatarFallback className="bg-primary/5 text-primary font-black">
                         {selectedConv.otherUser.name.split(' ').map(n => n[0]).join('')}
                       </AvatarFallback>
                     </Avatar>
                     <span className={cn(
-                      "absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-card",
-                      onlineUsers.has(selectedConv.otherUser.id) ? "bg-emerald-500" : "bg-muted-foreground/40"
+                      "absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-white z-20",
+                      onlineUsers.has(selectedConv.otherUser.id) ? "bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]" : "bg-slate-300"
                     )} />
                   </div>
 
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 min-w-0">
-                      <h2 className="font-semibold text-sm text-foreground truncate">
+                      <h2 className="font-black text-sm text-slate-900 truncate tracking-tight">
                         {selectedConv.otherUser.name}
                       </h2>
                       {mediationActive && (
-                        <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-none shadow-sm shadow-orange-500/20 px-2.5 py-0.5 hidden sm:inline-flex animate-pulse items-center">
-                          <Shield className="w-3 h-3 mr-1" />
+                        <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-none shadow-sm shadow-orange-500/20 px-2 py-0.5 hidden sm:inline-flex animate-pulse items-center text-[9px] font-black uppercase tracking-wider">
+                          <Shield className="w-2.5 h-2.5 mr-1" />
                           Médiation
                         </Badge>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-[11px] font-bold">
                       {onlineUsers.has(selectedConv.otherUser.id)
-                        ? <span className="text-emerald-600 font-medium">En ligne</span>
-                        : formatLastSeen(selectedConv.otherUser.lastSeen)
+                        ? <span className="text-emerald-600">En ligne maintenant</span>
+                        : <span className="text-slate-400">{formatLastSeen(selectedConv.otherUser.lastSeen)}</span>
                       }
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-2">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button 
                         variant="ghost" 
                         size="icon" 
-                        className="h-9 w-9 rounded-xl flex"
-                        onClick={() => toast.info("Bientôt disponible", { description: "Le service d'appel audio sera activé prochainement." })}
+                        className="h-10 w-10 rounded-xl text-slate-400 hover:text-primary hover:bg-primary/5 transition-all"
+                        onClick={() => toast.info("Profil", { description: "Ouverture du profil..." })}
                       >
-                        <Phone className="h-4 w-4 text-muted-foreground" />
+                        <User className="h-5 w-5" />
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent>Appel audio</TooltipContent>
+                    <TooltipContent>Voir le profil</TooltipContent>
                   </Tooltip>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-9 w-9 rounded-xl hidden sm:flex"
-                        onClick={() => toast.info("Bientôt disponible", { description: "Le service d'appel vidéo sera activé prochainement." })}
-                      >
-                        <Video className="h-4 w-4 text-muted-foreground" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Appel video</TooltipContent>
-                  </Tooltip>
+                  
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl">
-                        <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
+                      <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-slate-400 hover:bg-slate-100 transition-all">
+                        <MoreHorizontal className="h-5 w-5" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48 rounded-xl">
-                      <DropdownMenuItem className="rounded-lg">
-                        <Star className="h-4 w-4 mr-2" />
+                    <DropdownMenuContent align="end" className="w-56 rounded-2xl p-2 shadow-2xl border-slate-100">
+                      <DropdownMenuItem className="rounded-xl py-2.5 font-bold text-xs text-slate-600">
+                        <Star className="h-4 w-4 mr-3 text-amber-500" />
                         Messages importants
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="rounded-lg">
-                        <Search className="h-4 w-4 mr-2" />
-                        Rechercher
+                      <DropdownMenuItem className="rounded-xl py-2.5 font-bold text-xs text-slate-600">
+                        <Search className="h-4 w-4 mr-3 text-slate-400" />
+                        Rechercher dans le chat
                       </DropdownMenuItem>
-                      <DropdownMenuSeparator />
+                      <DropdownMenuSeparator className="my-1 opacity-50" />
                       <DropdownMenuItem
-                        className="rounded-lg text-amber-600 focus:text-amber-600 font-bold"
+                        className="rounded-xl py-2.5 text-xs text-amber-600 focus:text-amber-600 font-black uppercase tracking-wider"
                         onClick={() => handleInviteAdmin(selectedConv.id)}
                       >
-                        <Shield className="h-4 w-4 mr-2" />
-                        Médiation Nukun
+                        <Shield className="h-4 w-4 mr-3" />
+                        Demander une médiation
                       </DropdownMenuItem>
                       <DropdownMenuItem 
-                        className="rounded-lg text-destructive focus:text-destructive cursor-pointer"
+                        className="rounded-xl py-2.5 text-xs text-destructive focus:text-destructive font-black uppercase tracking-wider cursor-pointer"
                         onClick={() => handleDeleteConversation(selectedConv.id)}
                       >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Supprimer la conversation
+                        <Trash2 className="h-4 w-4 mr-3" />
+                        Supprimer le chat
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -1100,61 +1134,69 @@ export function MessagesContent() {
                           )}
 
                           <div className={cn(
-                            "max-w-[75%] sm:max-w-[65%]",
+                            "max-w-[85%] sm:max-w-[70%]",
                             isOwn ? "items-end" : "items-start"
                           )}>
                             <div className={cn(
-                              "px-4 py-2.5 rounded-xl text-sm leading-relaxed",
+                              "px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm transition-all",
                               isOwn
-                                ? "bg-primary text-primary-foreground rounded-br-md"
-                                : "bg-card border border-border rounded-bl-md"
+                                ? "bg-gradient-to-br from-primary to-primary/80 text-white rounded-tr-none"
+                                : "bg-white/80 backdrop-blur-sm border border-slate-100 text-slate-800 rounded-tl-none"
                             )}>
                               {msg.content.startsWith('[Image]') ? (
                                 <div className="space-y-2">
                                   <img
                                     src={msg.content.split(' ')[1]}
-                                    className="rounded-xl max-w-full hover:scale-[1.02] transition-transform cursor-pointer shadow-sm border border-black/5"
+                                    className="rounded-xl max-w-full hover:scale-[1.02] transition-all cursor-pointer shadow-md border border-white/20"
                                     alt="Shared"
                                     onClick={() => window.open(msg.content.split(' ')[1], '_blank')}
                                   />
                                 </div>
                               ) : msg.content.startsWith('[Fichier]') ? (
-                                <div className="flex items-center gap-3 bg-black/5 p-3 rounded-xl border border-white/10 group/file">
-                                  <div className="p-2 bg-primary/10 rounded-lg">
-                                    <Paperclip className="h-4 w-4 text-primary" />
+                                <div className={cn(
+                                  "flex items-center gap-3 p-3 rounded-xl border transition-all group/file",
+                                  isOwn ? "bg-white/10 border-white/20" : "bg-slate-50 border-slate-100"
+                                )}>
+                                  <div className={cn(
+                                    "p-2 rounded-lg shadow-inner",
+                                    isOwn ? "bg-white/20" : "bg-primary/10"
+                                  )}>
+                                    <FileText className={cn("h-5 w-5", isOwn ? "text-white" : "text-primary")} />
                                   </div>
                                   <div className="flex-1 min-w-0">
-                                    <p className="font-bold text-xs truncate">{msg.content.split(' - ')[0].replace('[Fichier] ', '')}</p>
+                                    <p className={cn("font-black text-xs truncate", isOwn ? "text-white" : "text-slate-900")}>
+                                      {msg.content.split(' - ')[0].replace('[Fichier] ', '')}
+                                    </p>
                                     <a
                                       href={msg.content.split(' - ')[1]}
                                       target="_blank"
-                                      className="text-[10px] text-primary hover:underline font-semibold"
+                                      className={cn("text-[10px] font-bold uppercase tracking-wider hover:underline", isOwn ? "text-white/80" : "text-primary")}
                                     >
-                                      Télécharger le document
+                                      Télécharger
                                     </a>
                                   </div>
                                 </div>
                               ) : (
-                                msg.content
+                                <p className="font-medium">{msg.content}</p>
                               )}
                             </div>
 
                             {isLastInGroup && (
                               <div className={cn(
-                                "flex items-center gap-1.5 mt-1 px-1",
+                                "flex items-center gap-2 mt-1.5 px-1",
                                 isOwn ? "justify-end" : "justify-start"
                               )}>
-                                <span className="text-[10px] text-muted-foreground">
+                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
                                   {formatMessageTime(msg.created_at)}
                                 </span>
                                 {isOwn && (
-                                  <span className="flex items-center">
+                                  <div className="flex items-center">
                                     {msg.is_read ? (
                                       <CheckCheck className="h-3.5 w-3.5 text-primary" />
                                     ) : (
-                                      <Check className="h-3.5 w-3.5 text-muted-foreground" />
+                                      <Check className="h-3.5 w-3.5 text-slate-300" />
                                     )}
-                                  </span>
+                                  </div>
                                 )}
                               </div>
                             )}
@@ -1167,24 +1209,43 @@ export function MessagesContent() {
                 )}
               </ScrollArea>
 
-              {/* Input */}
-              <footer className="p-2 sm:p-4 lg:px-6 pb-[max(0.5rem,env(safe-area-inset-bottom))] border-t bg-card/95 backdrop-blur-md">
-                <div className="flex items-end gap-1.5 sm:gap-2 w-full max-w-3xl mx-auto">
+              {/* Input Area */}
+              <footer className="p-4 sm:p-6 border-t bg-white/80 backdrop-blur-md sticky bottom-0 z-30">
+                <div className="flex items-end gap-3 w-full max-w-4xl mx-auto">
                   <div className="flex gap-1 shrink-0">
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10 rounded-full sm:rounded-xl shrink-0 text-slate-500 hover:bg-slate-100">
-                          <Plus className="h-5 w-5" />
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-11 w-11 rounded-2xl text-slate-400 hover:text-primary hover:bg-primary/5 transition-all"
+                          onClick={() => fileInputRef.current?.click()}
+                        >
+                          <Paperclip className="h-5 w-5" />
                         </Button>
                       </TooltipTrigger>
-                      <TooltipContent>Ajouter</TooltipContent>
+                      <TooltipContent>Joindre un fichier</TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-11 w-11 rounded-2xl text-slate-400 hover:text-primary hover:bg-primary/5 transition-all"
+                          onClick={() => imageInputRef.current?.click()}
+                        >
+                          <Image className="h-5 w-5" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Envoyer une image</TooltipContent>
                     </Tooltip>
                   </div>
 
-                  <div className="flex-1 min-w-0 relative">
+                  <div className="flex-1 min-w-0 relative group">
+                    <div className="absolute inset-0 bg-primary/5 rounded-[20px] blur-md opacity-0 group-focus-within:opacity-100 transition-opacity" />
                     <Textarea
                       ref={inputRef}
-                      placeholder="Ecrivez votre message..."
+                      placeholder="Tapez votre message ici..."
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
                       onKeyDown={(e) => {
@@ -1193,46 +1254,31 @@ export function MessagesContent() {
                           handleSendMessage()
                         }
                       }}
-                      className="min-h-[40px] sm:min-h-[44px] max-h-[120px] py-2.5 sm:py-3 pl-3 sm:pl-4 pr-16 sm:pr-20 resize-none rounded-2xl bg-slate-100 border-0 text-[15px] sm:text-sm w-full focus-visible:ring-1 focus-visible:ring-primary/30"
+                      className="min-h-[48px] max-h-[150px] py-3.5 px-5 resize-none rounded-[20px] bg-slate-100/50 border-slate-100 focus:bg-white focus:border-primary/30 transition-all font-medium text-sm w-full leading-relaxed shadow-inner"
                       rows={1}
                     />
-                    <div className="absolute right-1 sm:right-2 bottom-1.5 sm:bottom-2 flex items-center gap-0.5">
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg" onClick={() => imageInputRef.current?.click()}>
-                            <Image className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>Image</TooltipContent>
-                      </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg" onClick={() => fileInputRef.current?.click()}>
-                            <Paperclip className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>Fichier</TooltipContent>
-                      </Tooltip>
+                    <div className="absolute right-3 bottom-2.5 flex items-center gap-1">
+                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl text-slate-400 hover:text-amber-500 hover:bg-amber-50 transition-all">
+                        <Smile className="h-5 w-5" />
+                      </Button>
                     </div>
                   </div>
 
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        size="icon"
-                        className="h-9 w-9 sm:h-10 sm:w-10 rounded-full sm:rounded-xl shrink-0 bg-primary hover:bg-primary/90 shadow-md transition-transform active:scale-95 flex items-center justify-center p-0"
-                        onClick={handleSendMessage}
-                        disabled={!message.trim() || isSending}
-                      >
-                        {isSending ? (
-                          <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                        ) : (
-                          <Send className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Envoyer</TooltipContent>
-                  </Tooltip>
+                  <Button
+                    size="icon"
+                    className={cn(
+                      "h-12 w-12 rounded-2xl shrink-0 transition-all shadow-lg active:scale-95 flex items-center justify-center p-0",
+                      message.trim() ? "bg-primary text-white shadow-primary/25" : "bg-slate-200 text-slate-400 shadow-none cursor-not-allowed"
+                    )}
+                    onClick={handleSendMessage}
+                    disabled={!message.trim() || isSending}
+                  >
+                    {isSending ? (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                      <Send className="h-5 w-5" />
+                    )}
+                  </Button>
                 </div>
               </footer>
 
