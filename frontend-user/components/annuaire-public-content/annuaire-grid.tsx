@@ -17,6 +17,7 @@ import { createClient } from "@/lib/supabase/client"
 import { AnnuaireCard } from "./annuaire-card"
 import { EmptyState } from "@/components/EmptyState"
 import { Search } from "lucide-react"
+import type { EntrepreneurStats, PublicProfile } from "@/types"
 
 interface AnnuaireGridProps {
     filters?: {
@@ -31,7 +32,7 @@ interface AnnuaireGridProps {
 
 export function AnnuaireGrid({ filters }: AnnuaireGridProps) {
     const [loading, setLoading] = useState(true)
-    const [profiles, setProfiles] = useState<any[]>([])
+    const [profiles, setProfiles] = useState<PublicProfile[]>([])
 
     useEffect(() => {
         const loadProfiles = async () => {

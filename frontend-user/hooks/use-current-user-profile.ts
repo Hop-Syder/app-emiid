@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react"
 import type { Session } from "@supabase/supabase-js"
-import { fetchWithAuth } from "@/lib/apiClient"
 import { createClient } from "@/lib/supabase/client"
 
 interface CurrentUserProfile {
