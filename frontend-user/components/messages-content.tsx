@@ -18,7 +18,7 @@ import {
   Loader2, Send, Search, Image, Paperclip, 
   MoreHorizontal, ArrowLeft, Check, CheckCheck, X, Plus,
   Settings, Bell, Pin, Trash2, Archive, Star, Shield, Gavel, AlertTriangle,
-  Camera, FileText, Smile, MessageSquare, User
+  FileText, Smile, MessageSquare, User
 } from "lucide-react"
 import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -31,6 +31,7 @@ import {
   DialogContent,
   DialogTitle,
   DialogDescription,
+  DialogHeader,
 } from "@/components/ui/dialog"
 import {
   Select,
@@ -480,7 +481,7 @@ export function MessagesContent() {
       const filePath = `${convFolder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${extension}`
 
       // Tentative d'upload
-      const { data: uploadData, error: uploadError } = await supabase.storage.from("messages").upload(filePath, file, {
+      const { error: uploadError } = await supabase.storage.from("messages").upload(filePath, file, {
         cacheControl: '3600',
         upsert: false
       })

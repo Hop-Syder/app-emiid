@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client"
 
-import { Menu, PanelLeft, Bell, MessageSquare, LogOut, LogIn, Settings, AlertCircle, Shield, Info } from "lucide-react"
+import { Menu, PanelLeft, Bell, MessageSquare, LogOut, LogIn, Settings, AlertCircle, Shield } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
