@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client"
 
-import { Menu, PanelLeft, Bell, MessageSquare, LogOut, LogIn, Settings } from "lucide-react"
+import { Menu, PanelLeft, Bell, MessageSquare, LogOut, LogIn, Settings, AlertCircle, Shield, Info } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
@@ -140,24 +140,50 @@ export function NukunHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
                   </div>
                   <div className="max-h-[400px] overflow-y-auto">
                     {notifications.length > 0 ? (
-                      notifications.map((n) => (
-                        <div
-                          key={n.id}
-                          onClick={() => {
-                            markAsRead(n.id)
-                            if (n.link) router.push(n.link)
-                          }}
-                          className={`p-4 border-b border-slate-50 last:border-0 cursor-pointer transition-all hover:bg-slate-50 ${!n.is_read ? 'bg-primary/5 hover:bg-primary/10' : ''}`}
-                        >
-                          <div className="flex justify-between items-start gap-3">
-                            <h4 className="text-sm font-bold text-slate-900 line-clamp-1">{n.title}</h4>
-                            <span className="text-[10px] font-semibold text-slate-400 whitespace-nowrap bg-white px-2 py-0.5 rounded-full shadow-sm">
-                              {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: fr })}
-                            </span>
+                      notifications.map((n) => {
+                        const isBug = n.type === 'bug' || n.type === 'error'
+                        const isSecurity = n.type === 'security'
+                        
+                        return (
+                          <div
+                            key={n.id}
+                            onClick={() => {
+                              markAsRead(n.id)
+                              if (n.link) router.push(n.link)
+                            }}
+                            className={cn(
+                              "p-4 border-b border-slate-50 last:border-0 cursor-pointer transition-all hover:bg-slate-50",
+                              !n.is_read ? 'bg-primary/5 hover:bg-primary/10' : '',
+                              isBug && !n.is_read ? 'bg-red-50 hover:bg-red-100/50' : ''
+                            )}
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className={cn(
+                                "p-2 rounded-lg shrink-0",
+                                isBug ? "bg-red-100 text-red-600" : 
+                                isSecurity ? "bg-amber-100 text-amber-600" : 
+                                "bg-blue-100 text-blue-600"
+                              )}>
+                                {isBug ? <AlertCircle className="h-4 w-4" /> : 
+                                 isSecurity ? <Shield className="h-4 w-4" /> : 
+                                 <MessageSquare className="h-4 w-4" />}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex justify-between items-start gap-2">
+                                  <h4 className={cn(
+                                    "text-sm font-bold line-clamp-1",
+                                    isBug ? "text-red-900" : "text-slate-900"
+                                  )}>{n.title}</h4>
+                                  <span className="text-[9px] font-semibold text-slate-400 whitespace-nowrap bg-white px-2 py-0.5 rounded-full shadow-sm">
+                                    {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: fr })}
+                                  </span>
+                                </div>
+                                <p className="text-[11px] text-slate-500 mt-1 line-clamp-2">{n.content}</p>
+                              </div>
+                            </div>
                           </div>
-                          <p className="text-xs text-slate-500 mt-1.5 line-clamp-2">{n.content}</p>
-                        </div>
-                      ))
+                        )
+                      })
                     ) : (
                       <div className="p-8 text-center text-sm font-medium text-slate-400">
                         Aucune notification
@@ -196,24 +222,48 @@ export function NukunHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
                         <Drawer.Title className="font-bold text-2xl mb-6 px-4 text-slate-900">Notifications</Drawer.Title>
                         <ScrollArea className="h-[55vh] px-2">
                           {notifications.length > 0 ? (
-                            notifications.map((n) => (
-                              <div
-                                key={n.id}
-                                onClick={() => {
-                                  markAsRead(n.id);
-                                  if (n.link) router.push(n.link);
-                                }}
-                                className={`p-4 mb-3 rounded-xl transition-all shadow-sm border ${!n.is_read ? 'bg-primary/5 border-primary/20 shadow-primary/5' : 'bg-white border-slate-100 hover:border-slate-200'}`}
-                              >
-                                <div className="flex justify-between items-start gap-2 mb-2">
-                                  <h4 className="text-sm font-bold text-slate-900">{n.title}</h4>
-                                  <span className="text-[10px] font-semibold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-full border border-slate-100">
-                                    {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: fr })}
-                                  </span>
+                            notifications.map((n) => {
+                              const isBug = n.type === 'bug' || n.type === 'error'
+                              const isSecurity = n.type === 'security'
+                              
+                              return (
+                                <div
+                                  key={n.id}
+                                  onClick={() => {
+                                    markAsRead(n.id);
+                                    if (n.link) router.push(n.link);
+                                  }}
+                                  className={cn(
+                                    "p-4 mb-3 rounded-2xl transition-all shadow-sm border flex items-start gap-4",
+                                    !n.is_read ? 'bg-primary/5 border-primary/20' : 'bg-white border-slate-100',
+                                    isBug && !n.is_read ? 'bg-red-50 border-red-200' : ''
+                                  )}
+                                >
+                                  <div className={cn(
+                                    "p-3 rounded-xl shrink-0",
+                                    isBug ? "bg-red-100 text-red-600" : 
+                                    isSecurity ? "bg-amber-100 text-amber-600" : 
+                                    "bg-blue-100 text-blue-600"
+                                  )}>
+                                    {isBug ? <AlertCircle className="h-5 w-5" /> : 
+                                     isSecurity ? <Shield className="h-5 w-5" /> : 
+                                     <MessageSquare className="h-5 w-5" />}
+                                  </div>
+                                  <div className="flex-1">
+                                    <div className="flex justify-between items-start gap-2 mb-1">
+                                      <h4 className={cn(
+                                        "text-sm font-bold",
+                                        isBug ? "text-red-900" : "text-slate-900"
+                                      )}>{n.title}</h4>
+                                      <span className="text-[10px] font-semibold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-full border border-slate-100 whitespace-nowrap">
+                                        {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: fr })}
+                                      </span>
+                                    </div>
+                                    <p className="text-sm text-slate-500 leading-relaxed">{n.content}</p>
+                                  </div>
                                 </div>
-                                <p className="text-sm text-slate-500">{n.content}</p>
-                              </div>
-                            ))
+                              )
+                            })
                           ) : (
                             <div className="text-center py-20 text-slate-400 font-medium">Rien de nouveau ici.</div>
                           )}

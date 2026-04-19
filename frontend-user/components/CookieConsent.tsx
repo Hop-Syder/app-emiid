@@ -90,7 +90,7 @@ export function CookieConsent() {
                             </div>
                             
                             <p className="text-[10px] text-slate-400 mt-4 text-center font-bold uppercase tracking-widest">
-                                Nexus Partners • Confidentialité Garantie
+                                Nukun • Confidentialité Garantie
                             </p>
                         </div>
                     </div>
