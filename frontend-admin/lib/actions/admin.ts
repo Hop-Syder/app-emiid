@@ -367,7 +367,7 @@ export async function getAdminSettings(): Promise<AdminSettings> {
 
   return {
     profile: {
-      name: [profile?.first_name, profile?.last_name].filter(Boolean).join(" ") || "Admin Nexus",
+      name: [profile?.first_name, profile?.last_name].filter(Boolean).join(" ") || "Admin Nukun",
       email: profile?.email || authUserData.user?.email || "",
       phone: profile?.phone || authUserData.user?.phone || "",
       role: profile?.role || "Administrateur",
@@ -454,7 +454,7 @@ export async function getGalleryItems(): Promise<GalleryItem[]> {
 
   return (data as ProjectGalleryRow[]).map((item) => {
     const profile = profileMap.get(item.user_id)
-    const userName = `${profile?.first_name || ""} ${profile?.last_name || ""}`.trim() || "Membre Nexus"
+    const userName = `${profile?.first_name || ""} ${profile?.last_name || ""}`.trim() || "Membre Nukun"
 
     return {
       id: item.id,

@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { fetchWithAuth } from "@/lib/apiClient"
 
-import { NexusProfileCard, NexusCardVariant } from "@/components/carte-profil/nexus-profile-card"
+import { NukunProfileCard, NukunCardVariant } from "@/components/carte-profil/nukun-profile-card"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 
@@ -60,19 +60,19 @@ export function AnnuaireCard({ profile }: AnnuaireCardProps) {
         }
     }
 
-    // Mapping des données pour correspondre aux props de NexusProfileCard
+    // Mapping des données pour correspondre aux props de NukunProfileCard
     const userData = {
         ...profile,
-        name: profile.name || "Membre Nexus",
+        name: profile.name || "Membre Nukun",
         role: profile.role || "Professionnel",
         followers: followersCount,
         tags: profile.tags || [profile.specialty]
     }
 
-    const activeVariant = (profile.card_variant as NexusCardVariant) || (profile.premium ? "elite" : "tech")
+    const activeVariant = (profile.card_variant as NukunCardVariant) || (profile.premium ? "elite" : "tech")
 
     return (
-        <NexusProfileCard 
+        <NukunProfileCard 
             user={userData}
             variant={activeVariant}
             isFollowed={isFollowed}

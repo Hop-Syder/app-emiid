@@ -1,10 +1,12 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Header pour les visiteurs non-connectés
+ * @description Header pour les visiteurs non-connectés de Nukun
  * @created 2026-01-24
+ * @updated 2026-04-19
  * 🌐 ceo.nexuspartners.xyz
- */
+ * 📧 daoudaabassichristian@gmail.com
+*/──────────────────────────────────
 
 "use client"
 
@@ -24,12 +26,12 @@ export function PublicHeader() {
                 <Link href="/" className="flex items-center gap-2">
                     <Image
                         src="/logo/logo-2.png"
-                        alt="Nexus Connect"
+                        alt="Nukun"
                         width={40}
                         height={40}
                         className="w-10 h-10 object-contain"
                     />
-                    <span className="font-bold text-xl text-[#022753] hidden sm:block">Nexus Connect</span>
+                    <span className="font-bold text-xl text-[#022753] hidden sm:block">Nukun</span>
                 </Link>
 
                 <nav className="hidden md:flex items-center gap-8">

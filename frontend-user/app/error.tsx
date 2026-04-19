@@ -20,7 +20,7 @@ export default function Error({
     reset: () => void
 }) {
     useEffect(() => {
-        console.error("Erreur Application Nexus:", error)
+        console.error("Erreur Application Nukun:", error)
     }, [error])
 
     return (

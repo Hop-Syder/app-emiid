@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
 
         if (!data) {
             return {
-                title: 'Profil non trouvé | Nexus Connect'
+                title: 'Profil non trouvé | Nukun'
             }
         }
 
@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
             fullName,
             data.specialty,
             data.role,
-            "Nexus Connect",
+            "Nukun",
             "Réseau Professionnel",
             "Afrique",
             ...tagsList
@@ -55,16 +55,16 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
 
         const description = data.bio 
             ? (data.bio.length > 150 ? data.bio.substring(0, 147) + '...' : data.bio)
-            : `Découvrez le profil de ${fullName}, expert en ${data.specialty || data.role || 'son domaine'} sur Nexus Connect.`
+            : `Découvrez le profil de ${fullName}, expert en ${data.specialty || data.role || 'son domaine'} sur Nukun.`
 
-        const ogImageUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://app-nexus-connect.vercel.app'}/api/og/profile?id=${id}`
+        const ogImageUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://app-nukun.app'}/api/og/profile?id=${id}`
 
         return {
-            title: `${fullName} - ${data.role || 'Profil'} | Nexus Connect`,
+            title: `${fullName} - ${data.role || 'Profil'} | Nukun`,
             description: description,
             keywords: seoKeywords,
             openGraph: {
-                title: `${fullName} sur Nexus Connect`,
+                title: `${fullName} sur Nukun`,
                 description: description,
                 type: 'profile',
                 images: [
@@ -78,14 +78,14 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
             },
             twitter: {
                 card: 'summary_large_image',
-                title: `${fullName} sur Nexus Connect`,
+                title: `${fullName} sur Nukun`,
                 description: description,
                 images: [ogImageUrl],
             }
         }
     } catch (e) {
         return {
-            title: 'Profil | Nexus Connect'
+            title: 'Profil | Nukun'
         }
     }
 }

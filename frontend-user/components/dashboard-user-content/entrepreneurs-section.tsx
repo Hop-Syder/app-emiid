@@ -5,18 +5,22 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
-import { NexusProfileCard } from "@/components/carte-profil/nexus-profile-card"
+import { NukunProfileCard, NukunCardVariant } from "@/components/carte-profil/nukun-profile-card"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { toast } from "sonner"
 import { useCurrentUserProfile } from "@/hooks/use-current-user-profile"
 import type { PublicProfile } from "@/types"
 
+import { EmptyState } from "@/components/EmptyState"
+import { Users } from "lucide-react"
+
 interface EntrepreneursSectionProps {
     entrepreneursList: PublicProfile[]
     loading: boolean
+    variant?: NukunCardVariant
 }
 
-export function EntrepreneursSection({ entrepreneursList, loading }: EntrepreneursSectionProps) {
+export function EntrepreneursSection({ entrepreneursList, loading, variant = "tech" }: EntrepreneursSectionProps) {
     const router = useRouter()
     const { session } = useCurrentUserProfile()
     const [profiles, setProfiles] = useState(entrepreneursList)
@@ -76,23 +80,9 @@ export function EntrepreneursSection({ entrepreneursList, loading }: Entrepreneu
 
     return (
         <section>
-            <div className="mb-6 flex items-center justify-between">
-                <div>
-                    <h3 className="text-2xl font-bold">Entrepreneurs du Réseau</h3>
-                    <p className="text-sm text-muted-foreground">Découvrez les profils premium du moment</p>
-                </div>
-                <Button
-                    variant="outline"
-                    className="rounded-xl bg-transparent"
-                    onClick={() => router.push("/annuaire/artisans")}
-                >
-                    Voir Tout
-                </Button>
-            </div>
-
             {loading ? (
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {Array.from({ length: 6 }).map((_, i) => (
+                    {Array.from({ length: 3 }).map((_, i) => (
                         <div key={i} className="space-y-4 p-6 border rounded-xl bg-card">
                             <div className="flex items-center gap-4">
                                 <Skeleton className="h-16 w-16 rounded-full" />
@@ -110,15 +100,16 @@ export function EntrepreneursSection({ entrepreneursList, loading }: Entrepreneu
                     ))}
                 </div>
             ) : profiles.length > 0 ? (
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div className="flex overflow-x-auto pb-6 gap-6 snap-x no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:overflow-visible">
                     {profiles.map((entrepreneur, index) => (
                         <motion.div
                             key={entrepreneur.id}
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ duration: 0.3, delay: index * 0.1 }}
+                            className="min-w-[280px] snap-center"
                         >
-                            <NexusProfileCard
+                            <NukunProfileCard
                                 user={{
                                     id: entrepreneur.id,
                                     name: entrepreneur.name,
@@ -132,7 +123,7 @@ export function EntrepreneursSection({ entrepreneursList, loading }: Entrepreneu
                                     premium: entrepreneur.premium,
                                     tags: entrepreneur.tags || [entrepreneur.specialty],
                                 }}
-                                variant="tech"
+                                variant={variant}
                                 isFollowed={!!entrepreneur.isFollowed}
                                 onAction={(type) => handleCardAction(type, entrepreneur.id)}
                             />
@@ -140,9 +131,13 @@ export function EntrepreneursSection({ entrepreneursList, loading }: Entrepreneu
                     ))}
                 </div>
             ) : (
-                <div className="py-12 text-center bg-muted/20 rounded-xl border-2 border-dashed">
-                    <p className="text-muted-foreground">Aucun entrepreneur en vedette pour le moment.</p>
-                </div>
+                <EmptyState 
+                    icon={Users}
+                    title="Aucun entrepreneur trouvé"
+                    description="Soyez le premier à rejoindre cette catégorie ou essayez d'autres filtres."
+                    actionText="Découvrir l'annuaire"
+                    onAction={() => router.push("/annuaire")}
+                />
             )}
         </section>
     )

@@ -104,7 +104,7 @@ export default function LoginPage() {
             >
               <Image
                 src="/logo/logo-2.png"
-                alt="Nexus Connect"
+                alt="Nukun"
                 width={160}
                 height={40}
                 className="h-10 w-auto object-contain brightness-0 invert"

@@ -1,22 +1,23 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description PROJECT OVERVIEW - Vision, Strategy & Roadmap
+ * @description PROJECT OVERVIEW - Vision, Strategy & Roadmap pour Nukun
  * @created 2026-04-18
- * @updated 2026-04-18
+ * @updated 2026-04-19
  * 🌐 ceo.nexuspartners.xyz
- */
+ * 📧 daoudaabassichristian@gmail.com
+*/──────────────────────────────────
 
-# 🌌 Nexus Connect — Project Overview
+# 🌌 Nukun — Project Overview
 
-Nexus Connect est bien plus qu'une plateforme de réseautage ; c'est une **infrastructure de confiance** pour l'écosystème professionnel, conçue pour transformer les interactions informelles en opportunités vérifiables et qualifiées.
+Nukun est bien plus qu'une plateforme de réseautage ; c'est une **infrastructure de confiance** pour l'écosystème professionnel, conçue pour transformer les interactions informelles en opportunités vérifiables et qualifiées.
 
 ---
 
 ## 🚀 Perspective SaaS (Agent SaaS)
 
 ### 🎯 Cible & Marché
-Nexus Connect s'adresse à trois segments clés :
+Nukun s'adresse à trois segments clés :
 1. **Artisans & Indépendants** : Besoin de visibilité et de crédibilité (profils vérifiés).
 2. **Professionnels & Experts** : Besoin de réseautage stratégique et de gestion de carrière.
 3. **Entreprises & ONG** : Besoin de recrutement, de gestion de communauté et de visibilité institutionnelle.

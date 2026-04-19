@@ -1,6 +1,6 @@
 "use client"
 
-import { NexusProfileCard, NexusCardVariant } from "@/components/carte-profil/nexus-profile-card"
+import { NukunProfileCard, NukunCardVariant } from "@/components/carte-profil/nukun-profile-card"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { useState, useEffect } from "react"
@@ -83,16 +83,16 @@ export function AnnuaireCard({ profile }: AnnuaireCardProps) {
     const userData = {
         ...profile,
         id: profile.id || "temp",
-        name: profile.name || "Membre Nexus",
+        name: profile.name || "Membre Nukun",
         role: profile.role || "Professionnel",
         followers: followersCount,
         tags: [profile.specialty]
     }
 
-    const activeVariant = (profile.card_variant as NexusCardVariant) || (profile.premium ? "elite" : "tech")
+    const activeVariant = (profile.card_variant as NukunCardVariant) || (profile.premium ? "elite" : "tech")
 
     return (
-        <NexusProfileCard 
+        <NukunProfileCard 
             user={userData}
             variant={activeVariant}
             isFollowed={isFollowed}

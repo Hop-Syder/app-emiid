@@ -14,6 +14,9 @@ import {
   getAdminDisputes,
   replyToMediation,
   updateMediationStatus,
+  getConversations,
+  getConversationMessages,
+  deleteConversation,
 } from '../../controllers/messageController';
 import { requireAuth, requireAdmin } from '../../middlewares/authMiddleware';
 
@@ -49,5 +52,17 @@ router.post('/dispute/:conversationId', requestMediation);
 // @route   GET /api/messages/support
 // @desc    Récupérer le service client
 router.get('/support', getSupportUser);
+
+// @route   GET /api/messages/conversations
+// @desc    Liste des conversations de l'utilisateur
+router.get('/conversations', getConversations);
+
+// @route   GET /api/messages/conversation/:id
+// @desc    Liste des messages d'une conversation spécifique
+router.get('/conversation/:id', getConversationMessages);
+
+// @route   DELETE /api/messages/conversation/:id
+// @desc    Supprimer une conversation
+router.delete('/conversation/:id', deleteConversation);
 
 export default router;

@@ -1,10 +1,10 @@
-import { NexusLayout } from "@/components/menu/nexus-layout"
+import { NukunLayout } from "@/components/menu/nukun-layout"
 import { FollowedProfilesContent } from "@/components/portefeuille-content/followed-profiles-content"
 
 export default function ProfilsSuivisPage() {
   return (
-    <NexusLayout>
+    <NukunLayout>
       <FollowedProfilesContent />
-    </NexusLayout>
+    </NukunLayout>
   )
 }

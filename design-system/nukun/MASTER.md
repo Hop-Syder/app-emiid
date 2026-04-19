@@ -6,7 +6,7 @@
 
 ---
 
-**Project:** Nexus Connect
+**Project:** Nukun
 **Generated:** 2026-02-22 22:49:56
 **Category:** Luxury/Premium Brand
 

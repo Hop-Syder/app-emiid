@@ -2,7 +2,7 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Contrôleur pour la messagerie entre membres Nexus
+ * @description Contrôleur pour la messagerie entre membres Nukun
  * @created 2026-01-25
 */
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -13,10 +13,10 @@ const MEDIATION_REQUEST_MARKER = '[MÉDIATION DEMANDÉE]';
 const MEDIATION_STATUS_MARKER = '[MÉDIATION STATUT]';
 const formatParticipantName = (profile) => {
     if (!profile) {
-        return 'Utilisateur Nexus';
+        return 'Utilisateur Nukun';
     }
     const fullName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim();
-    return fullName || 'Utilisateur Nexus';
+    return fullName || 'Utilisateur Nukun';
 };
 const buildProfileLookup = (profiles = []) => profiles.reduce((acc, profile) => {
     acc[profile.user_id] = profile;
@@ -192,7 +192,7 @@ const getSupportUser = async (req, res) => {
             id: data.user_id,
             name: data.first_name + " " + (data.last_name || ""),
             avatar: data.avatar_url,
-            role: data.role || "Support Nexus"
+            role: data.role || "Support Nukun"
         });
     }
     catch (err) {

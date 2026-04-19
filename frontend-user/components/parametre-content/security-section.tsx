@@ -25,9 +25,16 @@ import { createClient } from "@/lib/supabase/client"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp"
 
+interface UserProfile {
+    id: string
+    email?: string
+    phone?: string
+    phone_verified?: boolean
+}
+
 interface SecuritySectionProps {
-    profile: any
-    setProfile: (profile: any) => void
+    profile: UserProfile
+    setProfile: (profile: UserProfile) => void
     securitySettings: {
         two_factor_enabled: boolean
     }
@@ -93,7 +100,7 @@ export function SecuritySection({
                 })
                 if (res.ok) {
                     setProfile({ ...profile, pin_enabled: false })
-                    sessionStorage.removeItem("nexus_pin_verified")
+                    sessionStorage.removeItem("nukun_pin_verified")
                     toast.success("Verrouillage PIN désactivé")
                 } else {
                     toast.error(await readApiError(res, "Impossible de désactiver le PIN"))
@@ -130,7 +137,7 @@ export function SecuritySection({
                 setProfile({ ...profile, pin_enabled: true })
                 setPinDialogOpen(false)
                 toast.success("Sécurité PIN activée !")
-                sessionStorage.setItem("nexus_pin_verified", "true")
+                sessionStorage.setItem("nukun_pin_verified", "true")
             } else {
                 toast.error(await readApiError(res, "Erreur serveur"))
             }
@@ -238,7 +245,7 @@ export function SecuritySection({
             }
 
             await supabase.auth.signOut()
-            sessionStorage.removeItem("nexus_pin_verified")
+            sessionStorage.removeItem("nukun_pin_verified")
             toast.success("Compte désactivé")
             router.push("/")
             router.refresh()
@@ -403,7 +410,7 @@ export function SecuritySection({
                                         : "border-slate-100 hover:border-slate-200"
                                     }`}
                                 >
-                                    <MessageSquare className="h-6 w-6 mb-2" />
+                                    <img src="/svg/whatsapp-logo.svg" className="h-6 w-6 mb-2" alt="WhatsApp" />
                                     <span className="font-bold text-sm">WhatsApp</span>
                                 </button>
                                 <button

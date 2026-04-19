@@ -21,7 +21,7 @@ const defaultOrigins = [
     'http://localhost:3000',
     'http://localhost:3001',
     'http://127.0.0.1:3001',
-    'https://app-nexus-connect.vercel.app',
+    'https://app-nukun.app',
     'https://app-nexus-connect-frontend.vercel.app',
 ];
 exports.allowedOrigins = (() => {
@@ -48,7 +48,7 @@ function createApp() {
     app.use(express_1.default.json());
     app.get('/', (_req, res) => {
         res.status(200).json({
-            message: "Nexus Connect Backend est opérationnel !",
+            message: "Nukun Backend est opérationnel !",
             status: 'ok',
             port: Number(process.env.PORT || 5000),
         });

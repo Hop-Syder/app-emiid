@@ -1,18 +1,15 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description MASTER SCHEMA FINAL - Nexus Connect (SSoT)
- * @version 1.2.0
- * @updated 2026-04-18
+ * @description MASTER SCHEMA FINAL - Nukun (SSoT)
+ * @version 1.2.1
+ * @updated 2026-04-19
  * 
  * 📖 Documentation détaillée : docs/DATABASE_SCHEMA.md
  * 
- * CHANGE LOG v1.2.0:
- * - Fix: Ajout des policies UPDATE pour conversations et messages.
- * - Fix: Ajout de la policy INSERT pour user_profiles.
- * - Security: Suppression du SELECT public sur la table user_profiles (lecture via VIEW uniquement).
- * - Bugfix: Protection contre les compteurs de followers négatifs.
- * - Security: Grants restreints aux colonnes non-sensibles.
+ * CHANGE LOG v1.2.1:
+ * - Rebranding global : Nukun -> Nukun.
+ * - Ton réseau, ta force.
  */
 
 -- ==========================================
@@ -278,4 +275,4 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON public.user_follows TO authenticated;
 GRANT SELECT, INSERT, UPDATE ON public.conversations TO authenticated;
 GRANT SELECT, INSERT, UPDATE ON public.messages TO authenticated;
 
-SELECT '✅ Nexus Master Schema v1.2.0 déployé. Sécurité renforcée.' as status;
+SELECT '✅ Nukun Master Schema v1.2.1 déployé. Ton réseau, ta force.' as status;

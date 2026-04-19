@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
-import { NexusProfileCard } from "@/components/carte-profil/nexus-profile-card"
+import { NukunProfileCard } from "@/components/carte-profil/nukun-profile-card"
 import { toast } from "sonner"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { useCurrentUserProfile } from "@/hooks/use-current-user-profile"
@@ -119,7 +119,7 @@ export function EntrepreneursSection({ entrepreneursList, loading }: Entrepreneu
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ duration: 0.3, delay: index * 0.1 }}
                         >
-                            <NexusProfileCard
+                            <NukunProfileCard
                                 user={{
                                     id: entrepreneur.id,
                                     name: entrepreneur.name,

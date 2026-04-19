@@ -5,7 +5,7 @@
  * @created 2026-04-18
  */
 
-# 📱 Frontend User — Nexus Connect
+# 📱 Frontend User — Nukun
 
 Application web principale destinée aux utilisateurs finaux (professionnels, artisans, entreprises).
 

@@ -36,7 +36,7 @@
 **Variables vérifiées :**
 ```
 ✅ PORT=5000
-✅ CORS_ORIGIN=http://localhost:3000,https://app-nexus-connect.vercel.app,https://app-nexus-connect-admin.vercel.app
+✅ CORS_ORIGIN=http://localhost:3000,https://app-nukun.app,https://app-nexus-connect-admin.vercel.app
 ✅ SUPABASE_URL=https://orokyklztecsuvpbktwz.supabase.co
 ✅ SUPABASE_ANON_KEY=[CONFIGURÉ]
 ✅ SUPABASE_SERVICE_ROLE_KEY=[CONFIGURÉ - Longueur valide]
@@ -66,7 +66,7 @@
 **Testés et validés :**
 ```bash
 $ curl http://localhost:5000/
-{"message":"Nexus Connect Backend est opérationnel !"}
+{"message":"Nukun Backend est opérationnel !"}
 
 $ curl http://localhost:5000/api/public/profiles
 [4 profils retournés avec succès]
@@ -135,7 +135,7 @@ $ curl http://localhost:5000/api/public/stats
 ```javascript
 [
   "http://localhost:3000",
-  "https://app-nexus-connect.vercel.app",
+  "https://app-nukun.app",
   "https://app-nexus-connect-admin.vercel.app"
 ]
 ```
@@ -418,4 +418,4 @@ Le serveur est **PRÊT POUR LA PRODUCTION** après ajout du rate limiting.
 **Prochaine vérification :** 27 mars 2026  
 **Contact :** daoudaabassichristian@gmail.com
 
-**Serveur Backend Nexus Connect - Status : OPÉRATIONNEL ✅**
+**Serveur Backend Nukun - Status : OPÉRATIONNEL ✅**

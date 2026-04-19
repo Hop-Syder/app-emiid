@@ -8,14 +8,14 @@
  * 📧 daoudaabassichristian@gmail.com
 */
 
-import { NexusLayout } from "@/components/menu/nexus-layout"
+import { NukunLayout } from "@/components/menu/nukun-layout"
 import { CreerProfilContent } from "@/components/creer-profil-content"
 
 export default function CreateProfilePage() {
   return (
-    <NexusLayout>
+    <NukunLayout>
       <CreerProfilContent />
-    </NexusLayout>
+    </NukunLayout>
   )
 }
 

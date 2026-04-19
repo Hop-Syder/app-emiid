@@ -8,13 +8,13 @@
  * 📧 daoudaabassichristian@gmail.com
 */
 
-import { NexusLayout } from "@/components/menu/nexus-layout"
+import { NukunLayout } from "@/components/menu/nukun-layout"
 import { DashboardContent } from "@/components/dashboard-user-content/dashboard-user-content"
 
 export default function DashboardPage() {
     return (
-        <NexusLayout>
+        <NukunLayout>
             <DashboardContent />
-        </NexusLayout>
+        </NukunLayout>
     )
 }

@@ -12,18 +12,31 @@
 import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { AvatarUpload } from "@/components/AvatarUpload"
+import { fetchWithAuth } from "@/lib/apiClient"
 import { Mail, Smartphone, User, Shield, MessageCircle, MessageSquare, CheckCircle2, ChevronRight, AlertCircle } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { cn } from "@/lib/utils"
+import { toast } from "sonner"
+
+interface UserProfile {
+  id: string;
+  avatar_url?: string;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  phone?: string;
+  phone_verified?: boolean;
+}
 
 interface ProfileSectionProps {
-  profile: any
-  setProfile: (profile: any) => void
-  saving: boolean
-  handleSave: () => void
-  handleCancel: () => void
+  profile: UserProfile;
+  setProfile: (profile: UserProfile) => void;
+  saving: boolean;
+  handleSave: () => void;
+  handleCancel: () => void;
 }
 
 export function ProfileSection({
@@ -37,20 +50,54 @@ export function ProfileSection({
   const [otpCode, setOtpCode] = useState("")
   const [verifying, setVerifying] = useState(false)
 
-  const handleVerifyRequest = (method: "whatsapp" | "sms") => {
-    setVerifyMethod(method)
-    // Ici on déclencherait l'API pour envoyer le code
+  const handleVerifyRequest = async (method: "whatsapp" | "sms") => {
+    if (!profile.phone) {
+        toast.error("Veuillez saisir votre numéro de téléphone d'abord")
+        return
+    }
+    
+    try {
+        const res = await fetchWithAuth("/api/users/phone/request", {
+            method: "POST",
+            body: JSON.stringify({ phone: profile.phone, method })
+        })
+        
+        if (res.ok) {
+            setVerifyMethod(method)
+            toast.success(`Code envoyé par ${method}`)
+        } else {
+            const err = await res.json()
+            toast.error(err.error || "Erreur lors de l'envoi du code")
+        }
+    } catch (error) {
+        toast.error("Erreur de connexion au serveur")
+    }
   }
 
-  const handleVerifySubmit = () => {
+  const handleVerifySubmit = async () => {
+    if (otpCode.length < 6) return
     setVerifying(true)
-    // Mock API
-    setTimeout(() => {
-      setVerifying(false)
-      setProfile({ ...profile, phone_verified: true })
-      setVerifyMethod(null)
-      setOtpCode("")
-    }, 1500)
+    
+    try {
+        const res = await fetchWithAuth("/api/users/phone/verify", {
+            method: "POST",
+            body: JSON.stringify({ phone: profile.phone, code: otpCode })
+        })
+        
+        if (res.ok) {
+            setProfile({ ...profile, phone_verified: true })
+            setVerifyMethod(null)
+            setOtpCode("")
+            toast.success("Téléphone vérifié avec succès !")
+        } else {
+            const err = await res.json()
+            toast.error(err.error || "Code incorrect ou expiré")
+        }
+    } catch (error) {
+        toast.error("Erreur technique lors de la vérification")
+    } finally {
+        setVerifying(false)
+    }
   }
 
   return (
@@ -151,7 +198,7 @@ export function ProfileSection({
                               <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-rose-600" />
                               <span className="text-sm font-bold text-rose-800">Numéro non vérifié</span>
                             </div>
-                            <p className="text-xs sm:text-sm text-rose-700/80 mb-4 font-medium">Veuillez sécuriser votre compte en confirmant ce numéro pour accéder à toutes les fonctionnalités Nexus.</p>
+                            <p className="text-xs sm:text-sm text-rose-700/80 mb-4 font-medium">Veuillez sécuriser votre compte en confirmant ce numéro pour accéder à toutes les fonctionnalités Nukun.</p>
                             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                               <Button 
                                 type="button"
@@ -159,7 +206,7 @@ export function ProfileSection({
                                 className="flex-1 h-11 sm:h-12 border-emerald-200 text-emerald-800 bg-emerald-50 hover:bg-emerald-100 hover:text-emerald-900 rounded-xl justify-start shadow-sm transition-transform active:scale-95"
                                 onClick={() => handleVerifyRequest("whatsapp")}
                               >
-                                <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5 mr-3 text-emerald-600" /> 
+                                <img src="/svg/whatsapp-logo.svg" className="h-4 w-4 sm:h-5 sm:w-5 mr-3" alt="WhatsApp" /> 
                                 <span className="font-bold">WhatsApp</span>
                                 <ChevronRight className="h-4 w-4 ml-auto opacity-40" />
                               </Button>
@@ -178,7 +225,7 @@ export function ProfileSection({
                         ) : (
                           <div className="p-4 sm:p-5 rounded-2xl border border-indigo-200 bg-indigo-50/50 shadow-md animate-in fade-in slide-in-from-top-4">
                             <div className="flex items-center gap-2 mb-2 text-indigo-900">
-                              {verifyMethod === 'whatsapp' ? <MessageCircle className="h-5 w-5 text-emerald-600" /> : <MessageSquare className="h-5 w-5 text-blue-600" />}
+                              {verifyMethod === 'whatsapp' ? <img src="/svg/whatsapp-logo.svg" className="h-5 w-5" alt="WhatsApp" /> : <MessageSquare className="h-5 w-5 text-blue-600" />}
                               <span className="text-sm font-bold">Code de vérification envoyé</span>
                             </div>
                             <p className="text-xs sm:text-sm text-indigo-700/80 mb-5 font-medium leading-relaxed">
@@ -280,10 +327,17 @@ export function ProfileSection({
                 <p className="text-xs font-semibold text-slate-500">{profile.phone || "+223 70 12 34 56"}</p>
               </div>
             </div>
-            <Badge className="w-fit rounded-xl px-3 py-1 bg-green-100 text-green-700 hover:bg-green-100 border-none font-bold text-xs uppercase tracking-wider">
-              <Shield className="mr-1.5 h-3.5 w-3.5" />
-              Vérifié
-            </Badge>
+            {profile.phone_verified ? (
+              <Badge className="w-fit rounded-xl px-3 py-1 bg-green-100 text-green-700 hover:bg-green-100 border-none font-bold text-xs uppercase tracking-wider">
+                <Shield className="mr-1.5 h-3.5 w-3.5" />
+                Vérifié
+              </Badge>
+            ) : (
+              <Badge variant="outline" className="w-fit rounded-xl px-3 py-1 border-slate-200 text-slate-400 font-bold text-xs uppercase tracking-wider">
+                <AlertCircle className="mr-1.5 h-3.5 w-3.5" />
+                Non vérifié
+              </Badge>
+            )}
           </div>
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 md:p-5 bg-slate-50 border border-slate-100 rounded-xl md:rounded-xl gap-4 hover:shadow-md transition-all">
@@ -296,7 +350,12 @@ export function ProfileSection({
                 <p className="text-xs font-semibold text-slate-400">Vérification recommandée pour plus de visibilité</p>
               </div>
             </div>
-            <Button variant="outline" className="w-full sm:w-auto rounded-xl h-10 md:h-12 px-4 md:px-6 border-slate-200 text-slate-600 font-bold hover:bg-slate-100 hover:text-slate-900 transition-all" size="sm">
+            <Button 
+              variant="outline" 
+              className="w-full sm:w-auto rounded-xl h-10 md:h-12 px-4 md:px-6 border-slate-200 text-slate-600 font-bold hover:bg-slate-100 hover:text-slate-900 transition-all" 
+              size="sm"
+              onClick={() => toast.info("Bientôt disponible", { description: "Le service de vérification d'identité (KYC) sera activé prochainement." })}
+            >
               Lancer la vérification
             </Button>
           </div>

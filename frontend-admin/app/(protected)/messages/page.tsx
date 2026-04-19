@@ -9,8 +9,8 @@ import { Suspense } from 'react'
 import AdminMessagesContent from '@/components/messages/admin-messages-content'
 
 export const metadata = {
-  title: 'Médiation & Messages | Nexus Admin',
-  description: 'Gestion des litiges et médiations de la plateforme Nexus Connect',
+  title: 'Médiation & Messages | Nukun Admin',
+  description: 'Gestion des litiges et médiations de la plateforme Nukun',
 }
 
 export default function AdminMessagesPage() {

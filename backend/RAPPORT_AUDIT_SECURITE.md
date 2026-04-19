@@ -174,7 +174,7 @@ $ npm run validate-env
 
 **Ajouts :**
 ```env
-CORS_ORIGINS=http://localhost:3000,https://app-nexus-connect.vercel.app,https://app-nexus-connect-admin.vercel.app
+CORS_ORIGINS=http://localhost:3000,https://app-nukun.app,https://app-nexus-connect-admin.vercel.app
 SUPABASE_JWT_SECRET=votre_secret_jwt_32_caracteres_minimum
 ```
 
@@ -561,4 +561,4 @@ npm audit
 **Pour toute question :** daoudaabassichristian@gmail.com  
 **Site :** ceo.nexuspartners.xyz
 
-**Félicitations ! Le backend Nexus Connect est maintenant 260% plus sécurisé.** 🎉🔒
+**Félicitations ! Le backend Nukun est maintenant 260% plus sécurisé.** 🎉🔒

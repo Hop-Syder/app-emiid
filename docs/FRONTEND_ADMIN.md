@@ -1,14 +1,14 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description FRONTEND ADMIN DOCUMENTATION - Nexus Connect Cockpit
+ * @description FRONTEND ADMIN DOCUMENTATION - Nukun Cockpit
  * @created 2026-04-18
  * @updated 2026-04-18
  */
 
-# 🛠️ Frontend Admin — Nexus Cockpit
+# 🛠️ Frontend Admin — Nukun Cockpit
 
-Le "Nexus Cockpit" est l'interface de contrôle et de modération de la plateforme. Il permet de piloter l'écosystème utilisateur et d'assurer la sécurité du contenu.
+Le "Nukun Cockpit" est l'interface de contrôle et de modération de la plateforme. Il permet de piloter l'écosystème utilisateur et d'assurer la sécurité du contenu.
 
 ## 🚀 Stack Technique
 - **Framework** : Next.js 16 (App Router - Expérimental)

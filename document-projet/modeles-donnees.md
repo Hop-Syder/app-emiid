@@ -1,12 +1,14 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Modèles de données (Schéma SQL) pour Nexus Connect
+ * @description Modèles de données (Schéma SQL) pour Nukun
  * @created 2026-03-24
- * @updated 2026-03-24
+ * @updated 2026-04-19
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
 */──────────────────────────────────
 
-# 💾 Modèles de Données - Nexus Connect
+# 💾 Modèles de Données - Nukun
 
 Ce document présente les modèles de données fondamentaux du projet, leurs relations et leurs contraintes techniques.
 

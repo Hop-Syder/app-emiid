@@ -6,13 +6,13 @@
  * 🌐 ceo.nexuspartners.xyz
  */
 
-import { NexusLayout } from "@/components/menu/nexus-layout"
+import { NukunLayout } from "@/components/menu/nukun-layout"
 import { DashboardPublicContent } from "@/components/dashboard-public-content/dashboard-public-content"
 
 export default function DashboardPublicPage() {
     return (
-        <NexusLayout>
+        <NukunLayout>
             <DashboardPublicContent />
-        </NexusLayout>
+        </NukunLayout>
     )
 }

@@ -1,15 +1,16 @@
-/\*\*
+/**
+ * @author @hopsyder
+ * @organization Nexus Partners
+ * @description FRONTEND USER DOCUMENTATION - App Nukun
+ * @created 2026-04-18
+ * @updated 2026-04-19
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+ */
 
-- @author @hopsyder
-- @organization Nexus Partners
-- @description FRONTEND USER DOCUMENTATION - App Nexus Connect
-- @created 2026-04-18
-- @updated 2026-04-18
-  \*/
+# 📱 Frontend User — Nukun
 
-# 📱 Frontend User — Nexus Connect
-
-L'application utilisateur est le cœur de l'expérience Nexus. Elle est conçue pour être fluide, visuellement premium et hautement interactive.
+L'application utilisateur est le cœur de l'expérience Nukun. Elle est conçue pour être fluide, visuellement premium et hautement interactive.
 
 ## 🚀 Stack Technique
 
@@ -65,13 +66,16 @@ L'application utilisateur est le cœur de l'expérience Nexus. Elle est conçue 
 - Messagerie temps réel complète.
 - Code PIN de sécurité.
 - **Paramètres** : Les préférences (Notifications, App) sont connectées au backend avec sauvegarde instantanée.
+- **Emailing** : Les notifications transactionnelles (Messages, Alertes) sont gérées via Supabase.
 - **Follow State** : Synchronisation du bouton follow corrigée dans l'annuaire.
-- **Sécurité** : 2FA WhatsApp/SMS active avec code à 5 chiffres (via Supabase Auth MFA). Le changement de mot de passe est retiré au profit des Providers.
+- **Sécurité** : 2FA WhatsApp/SMS active (6 chiffres).
+- **Performance** : Optimisation des images via le CDN Supabase (redimensionnement & WebP).
+- **Caching** : Règles de cache navigateur (365j) pour les polices et SVGs (Next.js Headers).
+- **Cookies** : Gestion optimisée des sessions via Supabase SSR avec attributs de sécurité.
 
 ### ❌ Ce qui reste à implémenter / corriger
 
-- **Emailing** : Les notifications par email (Newsletter, Activité) nécessitent le branchement d'un fournisseur SMTP.
-- **Performance** : Optimisation des images via le CDN Supabase.
+- **Emailing** : Branchement final des clés SMTP Supabase (Production).
 
 ---
 

@@ -9,7 +9,7 @@
  * 📧 daoudaabassichristian@gmail.com
 */
 
-import { NexusProfileCard, NexusCardVariant } from "@/components/carte-profil/nexus-profile-card"
+import { NukunProfileCard, NukunCardVariant } from "@/components/carte-profil/nukun-profile-card"
 
 interface CreerProfilPreviewProps {
     formData: any
@@ -36,13 +36,13 @@ export function CreerProfilPreview({ formData }: CreerProfilPreviewProps) {
                 <p className="text-[10px] font-black text-primary uppercase tracking-widest text-center">Aperçu en temps réel</p>
             </div>
 
-            <NexusProfileCard
+            <NukunProfileCard
                 user={previewUser}
-                variant={(formData.card_variant as NexusCardVariant) || "tech"}
+                variant={(formData.card_variant as NukunCardVariant) || "tech"}
             />
 
             <p className="text-[10px] text-center text-slate-400 font-medium px-8 italic">
-                Ceci est un aperçu de votre carte telle qu&apos;elle apparaîtra dans l&apos;annuaire Nexus Connect.
+                Ceci est un aperçu de votre carte telle qu&apos;elle apparaîtra dans l&apos;annuaire Nukun.
             </p>
         </div>
     )

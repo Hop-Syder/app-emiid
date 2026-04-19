@@ -2,9 +2,12 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Logger centralisé pour homogénéiser les logs dans l'application
+ * @description Logger centralisé pour homogénéiser les logs dans Nukun
  * @created 2026-03-26
- */
+ * @updated 2026-04-19
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+*/──────────────────────────────────
 
 const isDev = process.env.NODE_ENV === 'development'
 
@@ -74,7 +77,7 @@ class Logger {
 // Export d'un logger par défaut pour le frontend
 export const logger = new Logger({
     shouldLogInProd: false,
-    prefix: 'Nexus Connect'
+    prefix: 'Nukun'
 })
 
 // Export du constructeur pour créer des loggers spécialisés

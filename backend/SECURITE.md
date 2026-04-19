@@ -1,4 +1,4 @@
-# 🔒 Guide de Sécurité - Backend Nexus Connect
+# 🔒 Guide de Sécurité - Backend Nukun
 
 **Date :** 26 mars 2026  
 **Version :** 1.0.0  
@@ -82,7 +82,7 @@ app.use(helmet({
 ```javascript
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://app-nexus-connect.vercel.app',
+  'https://app-nukun.app',
   'https://app-nexus-connect-admin.vercel.app'
 ];
 ```

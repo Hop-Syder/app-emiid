@@ -420,3 +420,90 @@ export const verifyPin = async (req: any, res: Response) => {
     res.status(500).json({ error: "Erreur lors de la vérification du PIN" });
   }
 };
+
+/**
+ * Demande un code OTP pour vérifier le téléphone
+ * POST /api/users/phone/request
+ */
+export const requestPhoneVerification = async (req: any, res: Response) => {
+  const userId = req.user.id;
+  const { phone, method } = req.body; // method: 'whatsapp' | 'sms'
+
+  if (!phone) return res.status(400).json({ error: "Numéro de téléphone requis" });
+
+  try {
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    const { error } = await supabaseAdmin
+      .from('phone_verifications')
+      .insert({
+        user_id: userId,
+        phone,
+        otp_code: otp,
+        expires_at: expiresAt.toISOString()
+      });
+
+    if (error) throw error;
+
+    // Simulation d'envoi (À remplacer par une API réelle)
+    logger.info(`[OTP ${method.toUpperCase()}] Pour ${phone}: ${otp}`);
+    
+    // Si method === 'whatsapp', on pourrait appeler une API WhatsApp ici
+    
+    res.json({ success: true, message: "Code envoyé" });
+  } catch (err) {
+    logger.error('Erreur requestPhoneVerification', err);
+    res.status(500).json({ error: "Impossible d'envoyer le code" });
+  }
+};
+
+/**
+ * Vérifie le code OTP et certifie le téléphone
+ * POST /api/users/phone/verify
+ */
+export const verifyPhone = async (req: any, res: Response) => {
+  const userId = req.user.id;
+  const { phone, code } = req.body;
+
+  try {
+    const { data: verification, error } = await supabaseAdmin
+      .from('phone_verifications')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('phone', phone)
+      .eq('otp_code', code)
+      .eq('verified', false)
+      .gt('expires_at', new Date().toISOString())
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (error || !verification) {
+      return res.status(400).json({ error: "Code invalide ou expiré" });
+    }
+
+    // Marquer comme vérifié dans la table OTP
+    await supabaseAdmin
+      .from('phone_verifications')
+      .update({ verified: true })
+      .eq('id', verification.id);
+
+    // Mettre à jour le profil utilisateur
+    const { error: profileError } = await supabaseAdmin
+      .from('user_profiles')
+      .update({ 
+        phone_verified: true,
+        phone: phone, // S'assurer que le numéro est celui vérifié
+        updated_at: new Date().toISOString()
+      })
+      .eq('user_id', userId);
+
+    if (profileError) throw profileError;
+
+    res.json({ success: true, message: "Téléphone vérifié avec succès" });
+  } catch (err) {
+    logger.error('Erreur verifyPhone', err);
+    res.status(500).json({ error: "Erreur lors de la vérification" });
+  }
+};

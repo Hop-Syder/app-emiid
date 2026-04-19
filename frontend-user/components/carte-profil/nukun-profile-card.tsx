@@ -13,10 +13,11 @@ import { motion } from "framer-motion"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { getOptimizedImageUrl } from "@/lib/image-optimization"
 
-export type NexusCardVariant = "elite" | "glass" | "tech"
+export type NukunCardVariant = "elite" | "glass" | "tech"
 
-interface NexusProfileCardProps {
+interface NukunProfileCardProps {
   user: {
     id: string
     name: string
@@ -31,24 +32,24 @@ interface NexusProfileCardProps {
     premium?: boolean
     tags?: string[]
   }
-  variant?: NexusCardVariant
+  variant?: NukunCardVariant
   onAction?: (type: 'message' | 'follow' | 'view') => void
   isFollowed?: boolean
   className?: string
 }
 
-export function NexusProfileCard({ 
+export function NukunProfileCard({ 
   user, 
   variant = "tech", 
   onAction,
   isFollowed = false,
   className
-}: NexusProfileCardProps) {
+}: NukunProfileCardProps) {
 
-  const name = user.name || "Membre Nexus"
+  const name = user.name || "Membre Nukun"
   const role = user.role || "Professionnel"
   const location = user.location || "Afrique"
-  const category = user.category || "Nexus"
+  const category = user.category || "Nukun"
   const following = user.following || 0
   const categoryLabelMap: Record<string, string> = {
     artisan: "Artisan",
@@ -60,14 +61,14 @@ export function NexusProfileCard({
   }
   const displayCategory = categoryLabelMap[category.toLowerCase()] || category
 
-  // NEXUS ELITE (Luxury Dark)
+  // NUKUN ELITE (Luxury Dark)
   if (variant === "elite") {
     return (
       <motion.div 
         whileHover={{ y: -6, transition: { duration: 0.3 } }}
         onClick={() => onAction?.('view')}
         className={cn(
-          "relative w-full max-w-[320px] sm:max-w-[280px] lg:max-w-[300px] aspect-[1/1.4] mx-auto rounded-3xl overflow-hidden bg-[#050505] border border-amber-500/30 group shadow-2xl cursor-pointer",
+          "relative w-full max-w-[320px] sm:max-w-[280px] lg:max-w-[300px] aspect-[1/1.2] mx-auto rounded-3xl overflow-hidden bg-[#050505] border border-amber-500/30 group shadow-2xl cursor-pointer",
           className
         )}
       >
@@ -86,7 +87,7 @@ export function NexusProfileCard({
            <div className="relative mx-auto mb-2">
               <div className="absolute inset-0 rounded-full bg-amber-500/10 blur-md scale-105" />
               <Avatar className="h-16 w-16 sm:h-18 lg:h-22 ring-1 ring-amber-500/40 p-0.5 bg-black mx-auto">
-                <AvatarImage src={user.avatar} className="rounded-full object-cover" />
+                <AvatarImage src={getOptimizedImageUrl(user.avatar, { width: 200, height: 200 })} className="rounded-full object-cover" />
                 <AvatarFallback className="bg-amber-950 text-amber-500 font-bold text-xs">{name[0]}</AvatarFallback>
               </Avatar>
               {user.verified && (
@@ -96,7 +97,7 @@ export function NexusProfileCard({
               )}
            </div>
 
-           <div className="space-y-1 mb-2 flex flex-col justify-center min-h-[3.5rem]">
+           <div className="space-y-1 mb-2 flex flex-col justify-center min-h-[2.5rem]">
               <h3 className="text-base sm:text-lg lg:text-xl font-bold tracking-tight text-amber-50 font-serif leading-tight">
                 {name}
               </h3>
@@ -149,14 +150,14 @@ export function NexusProfileCard({
     )
   }
 
-  // NEXUS GLASS (Modern Blue)
+  // NUKUN GLASS (Modern Blue)
   if (variant === "glass") {
     return (
       <motion.div 
         whileHover={{ y: -6 }}
         onClick={() => onAction?.('view')}
         className={cn(
-          "relative w-full max-w-[320px] sm:max-w-[280px] lg:max-w-[300px] aspect-[1/1.4] mx-auto rounded-3xl overflow-hidden bg-gradient-to-br from-blue-600/10 to-indigo-950/30 border border-white/20 backdrop-blur-xl shadow-xl hover:shadow-blue-500/20 cursor-pointer group",
+          "relative w-full max-w-[320px] sm:max-w-[280px] lg:max-w-[300px] aspect-[1/1.2] mx-auto rounded-3xl overflow-hidden bg-gradient-to-br from-blue-600/10 to-indigo-950/30 border border-white/20 backdrop-blur-xl shadow-xl hover:shadow-blue-500/20 cursor-pointer group",
           className
         )}
       >
@@ -171,12 +172,12 @@ export function NexusProfileCard({
           <div className="flex flex-col items-center mb-6">
              <div className="relative">
                 <Avatar className="h-20 w-20 ring-4 ring-blue-500/10 shadow-2xl">
-                  <AvatarImage src={user.avatar} className="object-cover" />
+                  <AvatarImage src={getOptimizedImageUrl(user.avatar, { width: 200, height: 200 })} className="object-cover" />
                   <AvatarFallback className="bg-blue-600/30">{name[0]}</AvatarFallback>
                 </Avatar>
                 <div className="absolute top-0 right-0 h-3 w-3 bg-green-500 border-2 border-[#12121e] rounded-full" />
              </div>
-             <div className="mt-3 text-center min-h-[3rem] flex flex-col justify-center">
+             <div className="mt-3 text-center min-h-[2rem] flex flex-col justify-center">
                 <h3 className="text-lg font-black tracking-tight leading-tight">{name}</h3>
                 <p className="text-[10px] sm:text-[9px] font-bold text-blue-400 uppercase tracking-widest mt-0.5 line-clamp-2">{category}</p>
                 
@@ -221,13 +222,13 @@ export function NexusProfileCard({
     )
   }
 
-  // NEXUS TECH (White/Orange - Default)
+  // NUKUN TECH (White/Orange - Default)
   return (
     <motion.div 
       whileHover={{ y: -6 }}
       onClick={() => onAction?.('view')}
       className={cn(
-        "relative w-full max-w-[320px] sm:max-w-[280px] lg:max-w-[300px] aspect-[1/1.4] mx-auto rounded-3xl bg-white border border-slate-100 shadow-xl hover:shadow-2xl hover:shadow-slate-200/60 p-1 flex flex-col cursor-pointer group",
+        "relative w-full max-w-[320px] sm:max-w-[280px] lg:max-w-[300px] aspect-[1/1.2] mx-auto rounded-3xl bg-white border border-slate-100 shadow-xl hover:shadow-2xl hover:shadow-slate-200/60 p-1 flex flex-col cursor-pointer group",
         className
       )}
     >
@@ -236,13 +237,13 @@ export function NexusProfileCard({
          <span className="relative -top-1 text-3xl font-black text-slate-200 select-none tracking-tighter italic">{displayCategory}</span>
          
          <Avatar className="absolute left-6 -bottom-10 z-10 h-20 w-20 border-[6px] border-white shadow-lg">
-            <AvatarImage src={user.avatar} className="object-cover" />
+            <AvatarImage src={getOptimizedImageUrl(user.avatar, { width: 200, height: 200 })} className="object-cover" />
             <AvatarFallback className="bg-orange-500 text-white font-black text-xl">{name[0]}</AvatarFallback>
          </Avatar>
       </div>
 
       <div className="flex-1 flex flex-col items-center px-5 pt-8 pb-5">
-         <div className="text-center space-y-1 w-full flex-1 flex flex-col justify-center min-h-[3rem]">
+         <div className="text-center space-y-1 w-full flex-1 flex flex-col justify-center min-h-[2.5rem]">
             <h3 className="relative -top-2 text-lg font-black text-slate-800 tracking-tight leading-tight">{name}</h3>
             <p className="text-[11px] sm:text-[10px] font-bold text-orange-500 tracking-[0.1em] uppercase line-clamp-2">{role}</p>
 

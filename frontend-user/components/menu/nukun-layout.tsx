@@ -5,15 +5,15 @@ import type React from "react"
 
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { NexusSidebar } from "./nexus-sidebar"
-import { NexusHeader } from "./nexus-header"
+import { NukunSidebar } from "./nukun-sidebar"
+import { NukunHeader } from "./nukun-header"
 import { cn } from "@/lib/utils"
 
-interface NexusLayoutProps {
+interface NukunLayoutProps {
   children: React.ReactNode
 }
 
-export function NexusLayout({ children }: NexusLayoutProps) {
+export function NukunLayout({ children }: NukunLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
@@ -33,7 +33,7 @@ export function NexusLayout({ children }: NexusLayoutProps) {
         transition={{ duration: 30, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
       />
 
-      <NexusSidebar
+      <NukunSidebar
         sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}
         mobileMenuOpen={mobileMenuOpen}
@@ -41,7 +41,7 @@ export function NexusLayout({ children }: NexusLayoutProps) {
       />
 
       <div className={cn("transition-all duration-300", sidebarOpen ? "md:pl-[260px]" : "md:pl-[96px]")}>
-        <NexusHeader sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} setMobileMenuOpen={setMobileMenuOpen} />
+        <NukunHeader sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} setMobileMenuOpen={setMobileMenuOpen} />
         <main className="p-4 md:p-6 lg:p-8 relative">
           {children}
         </main>

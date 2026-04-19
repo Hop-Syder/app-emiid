@@ -1,17 +1,18 @@
 <!--
   @author @hopsyder
   @organization Nexus Partners
-  @description NEXUS CONNECT — Investor & User Pitch Deck
+  @description NUKUN — Investor & User Pitch Deck
   @created 2026-04-18
+  @updated 2026-04-19
   🌐 ceo.nexuspartners.xyz
   📧 daoudaabassichristian@gmail.com
 -->
 
 <div align="center">
 
-# 🌌 NEXUS CONNECT
+# 🌌 NUKUN
 
-### _Le réseau professionnel de confiance pour l'Afrique._
+### _Ton réseau, ta force._
 
 **🚀 Rejoignez la prochaine infrastructure professionnelle du continent.**
 
@@ -23,7 +24,7 @@ _Nexus Partners · ceo.nexuspartners.xyz · daoudaabassichristian@gmail.com_
 
 ## ⚡ Une seule phrase pour tout comprendre
 
-> **Nexus Connect est à l'Afrique ce que LinkedIn est à l'Occident — mais en mieux : nous ne nous contentons pas de connecter des gens, nous validons leur valeur réelle et transformons chaque relation en opportunité vérifiable.**
+> **Nukun est à l'Afrique ce que LinkedIn est à l'Occident — mais en mieux : nous ne nous contentons pas de connecter des gens, nous validons leur valeur réelle et transformons chaque relation en opportunité vérifiable.**
 
 ---
 
@@ -53,15 +54,15 @@ Les opportunités ? Aussi. Mais il manque **une infrastructure de confiance**.
 
 ---
 
-## ✅ La Solution — Nexus Connect
+## ✅ La Solution — Nukun
 
-**Nexus Connect est une plateforme digitale de mise en relation professionnelle intelligente**, conçue spécifiquement pour les réalités africaines.
+**Nukun est une plateforme digitale de mise en relation professionnelle intelligente**, conçue spécifiquement pour les réalités africaines.
 
 Elle fonctionne en **3 étapes simples** :
 
 **1. TU CRÉES TON PROFIL PROFESSIONNEL**
 Tu décris tes compétences, ton secteur, ta ville, ton histoire.
-Tu obtiens un slug unique : nexusconnect.app/@tonnom
+Tu obtiens un slug unique : nukun.app/@tonnom
 
 **2. TU REJOINS L'ÉCOSYSTÈME**
 Tu apparais dans l'annuaire intelligent.
@@ -77,7 +78,7 @@ Tu deviens une référence dans ton secteur.
 
 ### Ce qui nous différencie
 
-|                                 | WhatsApp | LinkedIn  | **Nexus Connect** |
+|                                 | WhatsApp | LinkedIn  | **Nukun** |
 | :------------------------------ | :------: | :-------: | :---------------: |
 | Profils professionnels vérifiés |    ❌    |    ✅     |        ✅         |
 | Conçu pour l'Afrique            |    ❌    |    ❌     |        ✅         |
@@ -110,7 +111,7 @@ Tu deviens une référence dans ton secteur.
 - 💸 Le marché TechAfrique attire déjà **+4 Mds USD d'investissements annuels**.
 - 🏗️ Aucun acteur dominant n'a encore réussi à s'imposer dans le networking professionnel africain francophone.
 
-> **La fenêtre d'opportunité est ouverte. Nexus la prend maintenant.**
+> **La fenêtre d'opportunité est ouverte. Nukun la prend maintenant.**
 
 ---
 
@@ -122,7 +123,7 @@ Notre modèle est **Freemium SaaS** : simple pour l'utilisateur, scalable pour l
 
 ### 🎁 Pack Starter — Gratuit, Toujours
 
-_Pour découvrir Nexus, créer son profil et rejoindre l'écosystème._
+_Pour découvrir Nukun, créer son profil et rejoindre l'écosystème._
 
 | Feature                                    | Inclus |
 | :----------------------------------------- | :----: |
@@ -199,7 +200,7 @@ _Pour les grandes entreprises, groupes et partenaires institutionnels._
 
 ## 🏗️ Traction — Ce qui est déjà construit (v1.2.0)
 
-**Nexus Connect n'est pas une idée. C'est un produit.**
+**Nukun n'est pas une idée. C'est un produit.**
 
 ### Ce qui fonctionne aujourd'hui
 
@@ -250,7 +251,7 @@ Architecture    : Monorepo    · App Router · i18n FR/EN
 
 ---
 
-## 📈 Pourquoi Investir dans Nexus Connect — Maintenant
+## 📈 Pourquoi Investir dans Nukun — Maintenant
 
 ### 1. Le timing est parfait
 
@@ -304,7 +305,7 @@ Nexus Partners est une organisation spécialisée en recrutement tech, développ
 
 ---
 
-## 🤝 Ce qu'on cherche — Votre rôle dans Nexus
+## 🤝 Ce qu'on cherche — Votre rôle dans Nukun
 
 ### Pour les Investisseurs
 
@@ -337,7 +338,7 @@ Les **1 000 premiers membres** obtiennent :
 
 <div align="center">
 
-## 🌌 Nexus Connect
+## 🌌 Nukun
 
 **L'infrastructure de confiance que l'Afrique professionnelle attendait.**
 

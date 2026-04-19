@@ -7,13 +7,13 @@
  * 📧 daoudaabassichristian@gmail.com
 */
 
-import { NexusLayout } from "@/components/menu/nexus-layout"
+import { NukunLayout } from "@/components/menu/nukun-layout"
 import { AnnuairePublicContent } from "@/components/annuaire-public-content/annuaire-main"
 
 export default function AnnuairePage() {
     return (
-        <NexusLayout>
+        <NukunLayout>
             <AnnuairePublicContent />
-        </NexusLayout>
+        </NukunLayout>
     )
 }

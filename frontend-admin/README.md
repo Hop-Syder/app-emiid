@@ -1,6 +1,6 @@
-# 🛠️ Frontend Admin — Nexus Cockpit
+# 🛠️ Frontend Admin — Nukun Cockpit
 
-Panneau d'administration pour la plateforme App Nexus Connect. Interface moderne construite avec Next.js 16, Tailwind CSS 4, et connectée à Supabase.
+Panneau d'administration pour la plateforme Nukun. Interface moderne construite avec Next.js 16, Tailwind CSS 4, et connectée à Supabase.
 
 ## 📖 Documentation Détaillée
 Pour une documentation technique et sécuritaire complète, voir :

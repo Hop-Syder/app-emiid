@@ -15,7 +15,8 @@ import { motion } from "framer-motion"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { createClient } from "@/lib/supabase/client"
 import { AnnuaireCard } from "./annuaire-card"
-import type { EntrepreneurStats } from "@/types"
+import { EmptyState } from "@/components/EmptyState"
+import { Search, UserPlus } from "lucide-react"
 
 interface AnnuaireGridProps {
     filters?: {
@@ -80,8 +81,8 @@ export function AnnuaireGrid({ filters }: AnnuaireGridProps) {
                         const profileId = e.user_id || e.id
                         return {
                             id: profileId,
-                            name: `${e.first_name || ''} ${e.last_name || ''}`.trim() || 'Utilisateur Nexus',
-                            role: e.role || "Membre Nexus",
+                            name: `${e.first_name || ''} ${e.last_name || ''}`.trim() || 'Utilisateur Nukun',
+                            role: e.role || "Membre Nukun",
                             location: e.city ? `${e.city}, ${e.countries?.name || ''}` : (e.countries?.name || "Afrique"),
                             avatar: e.avatar_url || "/profil/avatar.jpg",
                             specialty: e.specialty || "Expertise",
@@ -116,8 +117,14 @@ export function AnnuaireGrid({ filters }: AnnuaireGridProps) {
 
     if (profiles.length === 0) {
         return (
-            <div className="py-20 text-center">
-                <p className="text-xl text-muted-foreground">Aucun profil trouvé.</p>
+            <div className="max-w-md mx-auto py-10">
+                <EmptyState 
+                    icon={Search}
+                    title="Aucun résultat trouvé"
+                    description="Nous n'avons trouvé aucun profil correspondant à vos critères de recherche. Essayez d'autres filtres."
+                    actionText="Réinitialiser les filtres"
+                    onAction={() => window.location.href = "/annuaire"}
+                />
             </div>
         )
     }

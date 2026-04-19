@@ -1,10 +1,20 @@
+/**
+ * @author @hopsyder
+ * @organization Nexus Partners
+ * @description Layout racine de l'application Nukun avec métadonnées SEO
+ * @created 2026-04-18
+ * @updated 2026-04-19
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+*/──────────────────────────────────
+
 import type { Metadata } from 'next'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Nexus Connect - Réseau Pan-Africain',
-  description: 'Plateforme de networking économique pour l\'Afrique de l\'Ouest',
+  title: 'Nukun — Ton réseau, ta force',
+  description: 'La plateforme de networking intelligente pour les professionnels en Afrique.',
   generator: 'Next.js',
   icons: {
     icon: [
@@ -26,6 +36,7 @@ export const metadata: Metadata = {
 }
 
 import { Toaster } from 'sonner'
+import { CookieConsent } from '@/components/CookieConsent'
 
 export default function RootLayout({
   children,
@@ -38,6 +49,7 @@ export default function RootLayout({
         {children}
         <Analytics />
         <Toaster position="top-right" richColors closeButton />
+        <CookieConsent />
       </body>
     </html>
   )

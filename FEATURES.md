@@ -2,15 +2,15 @@
 
 - @author @hopsyder
 - @organization Nexus Partners
-- @description Rapport d'analyse systémique des fonctionnalités de Nexus Connect
+- @description Rapport d'analyse systémique des fonctionnalités de Nukun
 - @created 2026-01-24
 - @updated 2026-01-24
 - 🌐 ceo.nexuspartners.xyz
   \*/──────────────────────────────────
 
-# 📊 Rapport d'Analyse des Fonctionnalités - Nexus Connect
+# 📊 Rapport d'Analyse des Fonctionnalités - Nukun
 
-Ce document est généré par l'**Agent d'Analyse des Fonctionnalités**. Il synthétise l'état actuel de l'écosystème Nexus Connect.
+Ce document est généré par l'**Agent d'Analyse des Fonctionnalités**. Il synthétise l'état actuel de l'écosystème Nukun.
 
 ## 🏗️ Architecture Globale
 

@@ -11,7 +11,7 @@
 import { StickyNote, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { NexusProfileCard, NexusCardVariant } from "@/components/carte-profil/nexus-profile-card"
+import { NukunProfileCard, NukunCardVariant } from "@/components/carte-profil/nukun-profile-card"
 import { useState } from "react"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
@@ -74,14 +74,14 @@ export function ProfileCard({ profile, onUnfollow, onViewProfile, onSaveNote, on
 
     return (
         <div className="flex flex-col lg:flex-row gap-6 items-start w-full transition-all duration-500 animate-in fade-in slide-in-from-bottom-4">
-            {/* Profil Nexus Card */}
+            {/* Profil Nukun Card */}
             <div className="shrink-0 w-full sm:w-auto flex justify-center lg:justify-start">
-                <NexusProfileCard 
+                <NukunProfileCard 
                     user={{
                         ...profile,
                         followers: profile.followers
                     }}
-                    variant={(profile.card_variant as NexusCardVariant) || (profile.premium ? 'elite' : 'tech')}
+                    variant={(profile.card_variant as NukunCardVariant) || (profile.premium ? 'elite' : 'tech')}
                     isFollowed={true}
                     onAction={handleAction}
                     className="shadow-2xl"
@@ -90,7 +90,7 @@ export function ProfileCard({ profile, onUnfollow, onViewProfile, onSaveNote, on
 
             {/* Note CRM Strategique */}
             <Card className={cn(
-                "flex-1 w-full h-full lg:min-h-[380px] p-8 rounded-3xl border-2 shadow-sm overflow-hidden flex flex-col transition-all duration-300",
+                "flex-1 w-full h-full lg:min-h-[280px] p-6 rounded-3xl border-2 shadow-sm overflow-hidden flex flex-col transition-all duration-300",
                 noteTheme
             )}>
                 <div className="flex items-center justify-between mb-6">
@@ -108,11 +108,11 @@ export function ProfileCard({ profile, onUnfollow, onViewProfile, onSaveNote, on
                         value={localNote}
                         onChange={(e) => setLocalNote(e.target.value)}
                         placeholder="Points clés du profil, prochaines étapes, contacts utiles..."
-                        className="w-full min-h-[150px] lg:h-full lg:min-h-[200px] text-base md:text-lg resize-none bg-transparent border-0 focus-visible:ring-0 p-0 shadow-none placeholder:opacity-40 placeholder:text-inherit font-medium leading-relaxed"
+                        className="w-full min-h-[100px] lg:h-full lg:min-h-[120px] text-sm md:text-base resize-none bg-transparent border-0 focus-visible:ring-0 p-0 shadow-none placeholder:opacity-40 placeholder:text-inherit font-medium leading-relaxed"
                     />
                 </div>
 
-                <div className="flex items-center justify-between mt-8 pt-6 border-t border-black/5">
+                <div className="flex items-center justify-between mt-4 pt-4 border-t border-black/5">
                     <div className="flex flex-col gap-0.5">
                         <span className="text-[8px] font-bold text-black/40 uppercase tracking-wider">Activité</span>
                         <span className="text-[10px] font-black text-black/60">{profile.lastUpdate || "Mise à jour en attente"}</span>

@@ -25,13 +25,13 @@ import { fr } from "date-fns/locale"
 import { useScroll, useMotionValueEvent } from "framer-motion"
 import { Drawer } from "vaul"
 
-interface NexusHeaderProps {
+interface NukunHeaderProps {
   sidebarOpen: boolean
   setSidebarOpen: (open: boolean) => void
   setMobileMenuOpen: (open: boolean) => void
 }
 
-export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: NexusHeaderProps) {
+export function NukunHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: NukunHeaderProps) {
   const messagingDevBypassEnabled = process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS === "true"
   const router = useRouter()
   const { notifications, unreadCount, markAsRead } = useNotifications()
@@ -94,7 +94,7 @@ export function NexusHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
 
             {/* Title Area (mostly for mobile/tablet where sidebar is hidden) */}
             <div className="min-w-0 md:hidden flex items-center">
-              <img src="/logo/logo-1.png" alt="Nexus Connect" className="h-7 w-auto max-w-[130px] object-contain" />
+              <img src="/logo/logo-1.png" alt="Nukun" className="h-7 w-auto max-w-[130px] object-contain" />
             </div>
           </div>
 

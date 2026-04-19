@@ -1,4 +1,4 @@
-# 🚀 Guide de Déploiement Vercel - Nexus Connect
+# 🚀 Guide de Déploiement Vercel - Nukun
 
 Ce projet est un **Monorepo**. Il contient 3 applications distinctes à déployer séparément sur Vercel.
 
@@ -6,7 +6,7 @@ Ce projet est un **Monorepo**. Il contient 3 applications distinctes à déploye
 
 | Projet            | Dossier Racine  | Type         | URL (Exemple)              |
 | ----------------- | --------------- | ------------ | -------------------------- |
-| **Frontend User** | `frontend-user` | Next.js      | `nexus-connect.vercel.app` |
+| **Frontend User** | `frontend-user` | Next.js      | `nukun.app` |
 | **Admin Panel**   | `admin`         | Next.js      | `admin-nexus.vercel.app`   |
 | **Backend API**   | `backend`       | Node/Express | `api-nexus.vercel.app`     |
 
@@ -63,7 +63,7 @@ Ton serveur Express sécurisé. J'ai ajouté les fichiers (`vercel.json`, `api/i
    Ajoute les infos de `backend/.env` :
    - `SUPABASE_URL`
    - `SUPABASE_ANON_KEY`
-   - `CORS_ORIGIN` (Mets l'URL de ton Frontend déployé, ex: `https://nexus-connect.vercel.app`)
+   - `CORS_ORIGIN` (Mets l'URL de ton Frontend déployé, ex: `https://nukun.app`)
 5. Clique sur **Deploy**.
 
 ---

@@ -1,10 +1,10 @@
 ---
-description: Assistant d'analyse des fonctionnalités de Nexus Connect
+description: Assistant d'analyse des fonctionnalités de Nukun
 ---
 
 # 🕵️ Agent d'Analyse des Fonctionnalités
 
-Cet agent a pour mission d'explorer, de cartographier et de documenter les fonctionnalités de l'écosystème Nexus Connect.
+Cet agent a pour mission d'explorer, de cartographier et de documenter les fonctionnalités de l'écosystème Nukun.
 
 ## 🛠️ Capacités
 

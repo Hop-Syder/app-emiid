@@ -122,47 +122,10 @@ export function MessagesContent() {
       if (!currentUserId) return;
       setLoadingConv(true)
       try {
-        const { data: convData, error: convError } = await supabase
-          .from('conversations')
-          .select('*')
-          .or(`participant1_id.eq.${currentUserId},participant2_id.eq.${currentUserId}`)
-          .order('last_message_at', { ascending: false });
-
-        if (convError) throw convError;
-
-        if (!convData || convData.length === 0) {
-            setConversations([]);
-            setLoadingConv(false);
-            return;
-        }
-
-        const userIds = convData.flatMap(c => [c.participant1_id, c.participant2_id]);
-        const { data: profiles } = await supabase.from('user_profiles').select('user_id, first_name, last_name, avatar_url, role').in('user_id', userIds);
-        const profileLookup = (profiles || []).reduce((acc: Record<string, any>, p: any) => { acc[p.user_id] = p; return acc; }, {});
-
-        const convIds = convData.map(c => c.id);
-        const { data: unreadData } = await supabase.from('messages').select('conversation_id').in('conversation_id', convIds).neq('sender_id', currentUserId).eq('is_read', false);
-        const unreadCount = (unreadData || []).reduce((acc: Record<string, number>, m: any) => { acc[m.conversation_id] = (acc[m.conversation_id] || 0) + 1; return acc; }, {});
-
-        const formatted = convData.map(conv => {
-           const otherId = conv.participant1_id === currentUserId ? conv.participant2_id : conv.participant1_id;
-           const otherP = profileLookup[otherId] || {};
-           return {
-              id: conv.id,
-              otherUser: {
-                 id: otherId,
-                 name: `${otherP.first_name || ''} ${otherP.last_name || ''}`.trim() || 'Utilisateur Nexus',
-                 avatar: otherP.avatar_url,
-                 role: otherP.role,
-                 isOnline: false,
-                 lastSeen: null
-              },
-              lastMessage: conv.last_message_content,
-              lastMessageAt: conv.last_message_at,
-              unreadCount: unreadCount[conv.id] || 0
-           }
-        });
-
+        const res = await fetchWithAuth("/api/messages/conversations")
+        if (!res.ok) throw new Error("Erreur backend")
+        
+        const formatted = await res.json()
         setConversations(formatted);
 
         if (contactId) {
@@ -171,11 +134,12 @@ export function MessagesContent() {
               setSelectedConv(existing)
               setShowChatMobile(true)
             } else {
+              // Créer une conversation temporaire si c'est un nouveau contact
               setSelectedConv({
                 id: `new-conv-${contactId}`,
                 otherUser: {
                   id: contactId,
-                  name: "Nouvelle interaction",
+                  name: "Chargement...", // Sera mis à jour ou restera ainsi jusqu'au premier message
                   avatar: null,
                   role: null,
                   isOnline: false,
@@ -223,19 +187,16 @@ export function MessagesContent() {
       }
       setLoadingMsgs(true)
       try {
-        const { data, error } = await supabase
-            .from('messages')
-            .select('*')
-            .eq('conversation_id', selectedConv.id)
-            .order('created_at', { ascending: true });
-
-        if (error) throw error;
+        const res = await fetchWithAuth(`/api/messages/conversation/${selectedConv.id}`)
+        if (!res.ok) throw new Error("Erreur messages")
+        
+        const data = await res.json()
         setMessages(data || [])
         setSyncError(null)
         markMessagesAsRead(selectedConv.id)
       } catch (err) {
         console.error("Error loading msgs:", err)
-        toast.error("Impossible de charger les messages")
+        // On ne toast pas ici pour éviter de polluer si c'est une erreur de transition
       } finally {
         setLoadingMsgs(false)
       }
@@ -243,34 +204,57 @@ export function MessagesContent() {
     loadMessages()
   }, [selectedConv, markMessagesAsRead])
 
-  // 3. Souscription Temps Réel (Supabase Realtime)
+  // 3. Temps réel & Presence
   useEffect(() => {
     if (!currentUserId) return
 
-    // Canal global pour les notifications et mise à jour de la liste
-    const globalChannel = supabase
-      .channel(`user-messages-${currentUserId}`)
+    const globalChannel = supabase.channel(`user-presence-global`)
+
+    globalChannel
+      .on('presence', { event: 'sync' }, () => {
+        const state = globalChannel.presenceState()
+        const onlineIds = new Set<string>()
+        
+        Object.values(state).forEach((presences: any) => {
+          presences.forEach((p: any) => {
+            if (p.user_id) onlineIds.add(p.user_id)
+          })
+        })
+        
+        setOnlineUsers(onlineIds)
+      })
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
           schema: 'public',
-          table: 'messages'
+          table: 'messages',
         },
         async (payload) => {
           const newMsg = payload.new as Message
+          
+          // Vérifier si cette conversation nous concerne
+          setConversations(prev => {
+            const convIndex = prev.findIndex(c => c.id === newMsg.conversation_id)
+            
+            if (convIndex === -1) {
+              void fetchWithAuth("/api/messages/conversations").then(async res => {
+                if (res.ok) setConversations(await res.json())
+              })
+              return prev
+            }
 
-          // On ne s'intéresse qu'aux messages qu'on reçoit ou qu'on envoie
-          // Note : Supabase Realtime ne filtre pas par défaut par RLS sur INSERT pour tout le monde si configuré ainsi
-          // On vérifie donc si la conversation appartient à l'utilisateur
+            const next = [...prev]
+            const updated = {
+              ...next[convIndex],
+              lastMessage: newMsg.content,
+              lastMessageAt: newMsg.created_at,
+              unreadCount: newMsg.sender_id !== currentUserId ? next[convIndex].unreadCount + 1 : next[convIndex].unreadCount
+            }
+            next.splice(convIndex, 1)
+            return [updated, ...next]
+          })
 
-          const convRes = await fetchWithAuth("/api/messages/conversations")
-          if (convRes.ok) {
-            const data = await convRes.json()
-            setConversations(data)
-          }
-
-          // Si c'est le message de la conversation active, on l'ajoute (si pas déjà fait par le canal spécifique)
           if (selectedConv && (newMsg.conversation_id === selectedConv.id)) {
             setMessages(prev => {
               if (prev.some(m => m.id === newMsg.id)) return prev
@@ -282,10 +266,16 @@ export function MessagesContent() {
           }
         }
       )
-      .subscribe((status) => {
+      .subscribe(async (status) => {
         if (status === 'SUBSCRIBED') {
           setRealtimeConnected(true)
           setConnectionNotice(null)
+          
+          // Tracker notre presence
+          await globalChannel.track({
+            user_id: currentUserId,
+            online_at: new Date().toISOString(),
+          })
           return
         }
 
@@ -517,7 +507,7 @@ export function MessagesContent() {
             id: 'new-support',
             otherUser: {
               id: supportUser.id,
-              name: supportUser.name || "Service Client Nexus",
+              name: supportUser.name || "Service Client Nukun",
               avatar: supportUser.avatar || "/nexus-support.png",
               role: "Support Technique",
               isOnline: true,
@@ -542,6 +532,29 @@ export function MessagesContent() {
   const handleInviteAdmin = (conversationId: string) => {
     setConvToMediate(conversationId)
     setIsMediationDialogOpen(true)
+  }
+
+  const handleDeleteConversation = async (convId: string) => {
+    if (!confirm("Voulez-vous vraiment supprimer cette conversation et tous ses messages ?")) return
+    
+    try {
+      const res = await fetchWithAuth(`/api/messages/conversation/${convId}`, {
+        method: 'DELETE'
+      })
+      
+      if (res.ok) {
+        setConversations(prev => prev.filter(c => c.id !== convId))
+        if (selectedConv?.id === convId) {
+          setSelectedConv(null)
+          setMessages([])
+        }
+        toast.success("Conversation supprimée")
+      } else {
+        toast.error("Erreur lors de la suppression")
+      }
+    } catch (err) {
+      toast.error("Erreur de connexion")
+    }
   }
 
   const submitMediation = async () => {
@@ -671,7 +684,7 @@ export function MessagesContent() {
                       <Phone className="h-4 w-4 text-muted-foreground" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>Support Nexus</TooltipContent>
+                  <TooltipContent>Support Nukun</TooltipContent>
                 </Tooltip>
               </div>
             </div>
@@ -741,7 +754,7 @@ export function MessagesContent() {
                 <div className="space-y-1">
                   {filteredConversations.map((conv) => {
                     const isSelected = selectedConv?.id === conv.id
-                    const isOnline = conv.otherUser.isOnline
+                    const isOnline = onlineUsers.has(conv.otherUser.id)
 
                     return (
                       <motion.div
@@ -838,7 +851,13 @@ export function MessagesContent() {
                               Archiver
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem className="rounded-lg text-destructive focus:text-destructive">
+                            <DropdownMenuItem 
+                              className="rounded-lg text-destructive focus:text-destructive cursor-pointer"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteConversation(conv.id);
+                              }}
+                            >
                               <Trash2 className="h-4 w-4 mr-2" />
                               Supprimer
                             </DropdownMenuItem>
@@ -895,7 +914,7 @@ export function MessagesContent() {
                     </Avatar>
                     <span className={cn(
                       "absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-card",
-                      selectedConv.otherUser.isOnline ? "bg-emerald-500" : "bg-muted-foreground/40"
+                      onlineUsers.has(selectedConv.otherUser.id) ? "bg-emerald-500" : "bg-muted-foreground/40"
                     )} />
                   </div>
 
@@ -912,7 +931,7 @@ export function MessagesContent() {
                       )}
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      {selectedConv.otherUser.isOnline
+                      {onlineUsers.has(selectedConv.otherUser.id)
                         ? <span className="text-emerald-600 font-medium">En ligne</span>
                         : formatLastSeen(selectedConv.otherUser.lastSeen)
                       }
@@ -923,7 +942,12 @@ export function MessagesContent() {
                 <div className="flex items-center gap-1">
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hidden sm:flex">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-9 w-9 rounded-xl flex"
+                        onClick={() => toast.info("Bientôt disponible", { description: "Le service d'appel audio sera activé prochainement." })}
+                      >
                         <Phone className="h-4 w-4 text-muted-foreground" />
                       </Button>
                     </TooltipTrigger>
@@ -931,7 +955,12 @@ export function MessagesContent() {
                   </Tooltip>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hidden sm:flex">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-9 w-9 rounded-xl hidden sm:flex"
+                        onClick={() => toast.info("Bientôt disponible", { description: "Le service d'appel vidéo sera activé prochainement." })}
+                      >
                         <Video className="h-4 w-4 text-muted-foreground" />
                       </Button>
                     </TooltipTrigger>
@@ -958,11 +987,14 @@ export function MessagesContent() {
                         onClick={() => handleInviteAdmin(selectedConv.id)}
                       >
                         <Shield className="h-4 w-4 mr-2" />
-                        Médiation Nexus
+                        Médiation Nukun
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="rounded-lg text-destructive focus:text-destructive">
+                      <DropdownMenuItem 
+                        className="rounded-lg text-destructive focus:text-destructive cursor-pointer"
+                        onClick={() => handleDeleteConversation(selectedConv.id)}
+                      >
                         <Trash2 className="h-4 w-4 mr-2" />
-                        Signaler / Litige
+                        Supprimer la conversation
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -991,7 +1023,7 @@ export function MessagesContent() {
                           </div>
                           <div className="flex-1">
                             <h4 className="text-sm font-bold text-amber-950">
-                              Médiation Nexus en cours
+                              Médiation Nukun en cours
                             </h4>
                             <p className="text-[11px] sm:text-xs font-medium text-amber-900/70 mt-0.5 leading-relaxed">
                               Un administrateur accompagne cette conversation afin de garantir la sécurité et la sérénité de vos échanges.
@@ -1236,7 +1268,7 @@ export function MessagesContent() {
                 <div className="space-y-1">
                   <DialogTitle className="text-2xl font-black text-slate-900 tracking-tight">Demande de Médiation</DialogTitle>
                   <DialogDescription className="text-slate-500 font-medium">
-                    Un administrateur Nexus sera invité à rejoindre cette discussion pour vous aider à résoudre le litige.
+                    Un administrateur Nukun sera invité à rejoindre cette discussion pour vous aider à résoudre le litige.
                   </DialogDescription>
                 </div>
               </div>

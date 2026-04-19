@@ -13,6 +13,8 @@ import {
   deactivateMyAccount,
   deleteMyAccount,
   verifyPin,
+  requestPhoneVerification,
+  verifyPhone,
 } from '../../controllers/userController';
 import { getFollowedProfiles, toggleFollowProfile, getFollowers, updateFollowNote } from '../../controllers/followController';
 import { requireAuth } from '../../middlewares/authMiddleware';
@@ -61,5 +63,13 @@ router.post('/follow/:id', toggleFollowProfile);
 // @route   PUT /api/users/follow/:id/note
 // @desc    Mettre à jour la note privée sur un utilisateur suivi
 router.put('/follow/:id/note', updateFollowNote);
+
+// @route   POST /api/users/phone/request
+// @desc    Demander un code OTP par WhatsApp ou SMS
+router.post('/phone/request', requestPhoneVerification);
+
+// @route   POST /api/users/phone/verify
+// @desc    Vérifier le code OTP
+router.post('/phone/verify', verifyPhone);
 
 export default router;

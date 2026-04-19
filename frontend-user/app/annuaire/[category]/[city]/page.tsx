@@ -1,5 +1,5 @@
 import { Metadata } from "next"
-import { NexusLayout } from "@/components/menu/nexus-layout"
+import { NukunLayout } from "@/components/menu/nukun-layout"
 import { AnnuairePublicContent } from "@/components/annuaire-public-content/annuaire-main"
 
 interface CityPageProps {
@@ -12,8 +12,8 @@ export async function generateMetadata({ params }: CityPageProps): Promise<Metad
     const cityName = city.charAt(0).toUpperCase() + city.slice(1).replace(/-/g, ' ')
     
     return {
-        title: `Annuaire des ${categoryName}s à ${cityName} | Nexus Connect`,
-        description: `Trouvez les meilleurs ${categoryName}s basés à ${cityName}. Parcourez les profils d'experts locaux sur Nexus Connect.`,
+        title: `Annuaire des ${categoryName}s à ${cityName} | Nukun`,
+        description: `Trouvez les meilleurs ${categoryName}s basés à ${cityName}. Parcourez les profils d'experts locaux sur Nukun.`,
         keywords: `${category} ${cityName}, annuaire ${category} ${cityName}, expert ${cityName}, freelance ${cityName}, artisan ${cityName}, nexus connect`
     }
 }
@@ -23,8 +23,8 @@ export default async function CityPage({ params }: CityPageProps) {
     const cityName = city.replace(/-/g, ' ')
     
     return (
-        <NexusLayout>
+        <NukunLayout>
             <AnnuairePublicContent initialCategory={category} initialCity={cityName} />
-        </NexusLayout>
+        </NukunLayout>
     )
 }

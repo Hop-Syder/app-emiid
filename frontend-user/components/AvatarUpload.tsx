@@ -14,6 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
+import { getOptimizedImageUrl } from "@/lib/image-optimization"
 
 interface AvatarUploadProps {
     currentAvatarUrl: string | null
@@ -92,7 +93,7 @@ export function AvatarUpload({ currentAvatarUrl, onUploadComplete, disabled }: A
         <div className="flex items-center gap-6">
             <div className="relative group">
                 <Avatar className="h-24 w-24 border-2 border-white shadow-md transition-all group-hover:ring-4 group-hover:ring-primary/20">
-                    <AvatarImage src={preview || "/profil/avatar.jpg"} className="object-cover" />
+                    <AvatarImage src={getOptimizedImageUrl(preview || "/profil/avatar.jpg", { width: 200, height: 200 })} className="object-cover" />
                     <AvatarFallback className="bg-amber-100 text-amber-900">
                         <User className="h-10 w-10" />
                     </AvatarFallback>

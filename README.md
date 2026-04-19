@@ -1,17 +1,16 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @project Nexus Connect
- * @description Plateforme de mise en relation professionnelle intelligente
+ * @description Documentation racine de l'écosystème Nukun
  * @created 2026-01-04
- * @updated 2026-04-18
- * @website https://ceo.nexuspartners.xyz
- * @contact daoudaabassichristian@gmail.com
- */
+ * @updated 2026-04-19
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+*/──────────────────────────────────
 
-# 🚀 Nexus Connect — Professional Network Infrastructure
+# 🚀 Nukun — Ton réseau, ta force
 
-**Nexus Connect** est une infrastructure digitale centralisée conçue pour structurer, connecter et dynamiser l’écosystème professionnel à travers une gestion intelligente de profils, d’interactions et de validations.
+**Nukun** est une infrastructure digitale centralisée conçue pour structurer, connecter et dynamiser l’écosystème professionnel à travers une gestion intelligente de profils, d’interactions et de validations.
 
 ---
 

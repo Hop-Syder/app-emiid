@@ -41,7 +41,7 @@ export function AdminLayout({ children, adminProfile }: AdminLayoutProps) {
     const router = useRouter()
     const supabase = createClient()
 
-    const adminName = [adminProfile.firstName, adminProfile.lastName].filter(Boolean).join(" ") || "Admin Nexus"
+    const adminName = [adminProfile.firstName, adminProfile.lastName].filter(Boolean).join(" ") || "Admin Nukun"
     const adminInitials = adminName
         .split(" ")
         .filter(Boolean)
@@ -80,7 +80,7 @@ export function AdminLayout({ children, adminProfile }: AdminLayoutProps) {
                             animate={{ opacity: 1 }}
                             className="font-bold text-xl tracking-tight bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent"
                         >
-                            Nexus Admin
+                            Nukun Admin
                         </motion.span>
                     )}
                 </div>

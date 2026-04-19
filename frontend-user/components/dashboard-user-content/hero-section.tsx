@@ -1,3 +1,13 @@
+/**
+ * @author @hopsyder
+ * @organization Nexus Partners
+ * @description Hero Section utilisateur de Nukun avec partage social
+ * @created 2026-04-18
+ * @updated 2026-04-19
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+*/──────────────────────────────────
+
 "use client"
 
 import { useState } from "react"
@@ -39,7 +49,7 @@ export function HeroSection() {
     }
 
     const shareToWhatsApp = (url: string) => {
-        const text = "Je viens de rejoindre l'élite sur Nexus Connect ! Découvrez mon expertise :"
+        const text = "Je viens de rejoindre l'élite sur Nukun ! Découvrez mon expertise :"
         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text + " " + url)}`, '_blank')
     }
 
@@ -48,11 +58,11 @@ export function HeroSection() {
     }
 
     const shareToTwitter = (url: string) => {
-        const text = "Je viens de rejoindre l'élite sur Nexus Connect ! Découvrez mon expertise :"
+        const text = "Je viens de rejoindre l'élite sur Nukun ! Découvrez mon expertise :"
         window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank')
     }
 
-    const baseHost = typeof window !== 'undefined' ? window.location.origin : 'https://app-nexus-connect.vercel.app'
+    const baseHost = typeof window !== 'undefined' ? window.location.origin : 'https://nukun.app'
     const customUrl = currentUser?.slug ? `${baseHost}/profil/${currentUser.slug}` : null
     const techUrl = session?.user?.id ? `${baseHost}/profil/${session.user.id}` : ''
     
@@ -77,11 +87,10 @@ export function HeroSection() {
 
                 <div className="relative z-10 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
                     <div className="space-y-4">
-                        <Badge className="bg-white/20 text-white hover:bg-white/30 rounded-xl">Réseau Pan-Africain</Badge>
-                        <h2 className="text-4xl font-bold">Bienvenue sur Nexus Connect</h2>
+                        <Badge className="bg-white/20 text-white hover:bg-white/30 rounded-xl">Nukun — Ton réseau, ta force</Badge>
+                        <h2 className="text-4xl font-bold">Bienvenue sur Nukun</h2>
                         <p className="max-w-[600px] text-white/90 text-lg">
-                            Cartographier et propulser 100 000 acteurs économiques ouest-africains d&apos;ici 2027. Connectez-vous avec des
-                            entrepreneurs, artisans et institutions à travers l&apos;Afrique de l&apos;Ouest.
+                            La plateforme de networking intelligente conçue pour connecter les talents, les artisans et les entreprises à travers l&apos;Afrique.
                         </p>
                         <div className="flex flex-wrap gap-3 pt-2">
                             <Button
@@ -173,7 +182,7 @@ export function HeroSection() {
                                     className="h-12 rounded-xl border-[#25D366] text-[#25D366] hover:bg-[#25D366]/10 flex gap-2"
                                     onClick={() => shareToWhatsApp(mainUrl)}
                                 >
-                                    <MessageCircle className="h-4 w-4" />
+                                    <img src="/svg/whatsapp-logo.svg" className="h-4 w-4" alt="WhatsApp" />
                                     WhatsApp
                                 </Button>
                                 <Button 

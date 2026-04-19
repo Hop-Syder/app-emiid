@@ -46,6 +46,8 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 
+import { getOptimizedImageUrl } from "@/lib/image-optimization"
+
 interface ProfileData {
     id: string
     name: string
@@ -113,8 +115,8 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                 if (data && !error) {
                     const mappedProfile: ProfileData = {
                         id: data.user_id || data.id,
-                        name: `${data.first_name || ""} ${data.last_name || ""}`.trim() || "Utilisateur Nexus",
-                        role: data.role || "Membre Nexus",
+                        name: `${data.first_name || ""} ${data.last_name || ""}`.trim() || "Utilisateur Nukun",
+                        role: data.role || "Membre Nukun",
                         bio: data.bio || "Ce membre n'a pas encore rédigé sa biographie professionnelle.",
                         location: data.city ? `${data.city}, ${data.countries?.name || ""}` : (data.countries?.name || "Afrique"),
                         avatar: data.avatar_url || "/profil/avatar.jpg",
@@ -196,7 +198,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
     }
 
     const shareToWhatsApp = (url: string) => {
-        const text = `Découvrez le profil de ${profile?.name} sur Nexus Connect :`
+        const text = `Découvrez le profil de ${profile?.name} sur Nukun :`
         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text + " " + url)}`, '_blank')
     }
 
@@ -205,7 +207,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
     }
 
     const shareToTwitter = (url: string) => {
-        const text = `Découvrez le profil de ${profile?.name} sur Nexus Connect :`
+        const text = `Découvrez le profil de ${profile?.name} sur Nukun :`
         window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank')
     }
 
@@ -281,11 +283,15 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                         <div className="absolute inset-0 bg-gradient-to-br from-[#022753] via-[#022753]/90 to-[#CE1126]/40 flex items-center justify-center">
                             <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }} />
                             {!profile.coverImage && (
-                                <img src="/logo/logo-1.png" alt="Nexus" className="h-16 opacity-10 grayscale group-hover:scale-110 transition-transform duration-700" />
+                                <img src="/logo/logo-1.png" alt="Nukun" className="h-16 opacity-10 grayscale group-hover:scale-110 transition-transform duration-700" />
                             )}
                         </div>
                         {profile.coverImage && (
-                            <img src={profile.coverImage} alt="Cover" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" />
+                            <img 
+                                src={getOptimizedImageUrl(profile.coverImage, { width: 1200, height: 400, quality: 90 })} 
+                                alt="Cover" 
+                                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" 
+                            />
                         )}
                         <div className="absolute top-6 right-6 flex items-center gap-2">
                             {profile.premium && (
@@ -308,7 +314,11 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                                         profile.premium ? "from-amber-400 to-yellow-500" : "from-primary to-accent"
                                     )} />
                                     <Avatar className="h-32 w-32 sm:h-40 sm:w-40 ring-4 ring-white shadow-2xl relative">
-                                        <AvatarImage src={profile.avatar || "/profil/avatar.jpg"} alt={profile.name} className="object-cover" />
+                                        <AvatarImage 
+                                            src={getOptimizedImageUrl(profile.avatar || "/profil/avatar.jpg", { width: 300, height: 300 })} 
+                                            alt={profile.name} 
+                                            className="object-cover" 
+                                        />
                                         <AvatarFallback className="bg-slate-100 text-slate-400 text-4xl font-black">
                                             {initials}
                                         </AvatarFallback>
@@ -436,7 +446,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                                 <h3 className="text-xs font-black uppercase tracking-[0.2em] opacity-60">Secteur Principal</h3>
                                 <div className="space-y-1">
                                     <p className="text-3xl font-black">{profile.specialty}</p>
-                                    <p className="text-amber-400 font-bold opacity-80">{profile.category || 'Expert Nexus'}</p>
+                                    <p className="text-amber-400 font-bold opacity-80">{profile.category || 'Expert Nukun'}</p>
                                 </div>
                                 {profile.website && (
                                     <Button asChild variant="link" className="p-0 text-white hover:text-amber-400 mt-4 h-auto font-bold flex items-center gap-2">
@@ -480,7 +490,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                                             <div className="w-16 h-16 bg-primary/5 rounded-[1.5rem] flex items-center justify-center text-primary font-black shrink-0">NC</div>
                                             <div>
                                                 <h4 className="text-lg font-black text-slate-900">Membre actif du Réseau</h4>
-                                                <p className="text-slate-500 font-bold uppercase text-[10px] tracking-widest mt-1">Nexus Connect</p>
+                                                <p className="text-slate-500 font-bold uppercase text-[10px] tracking-widest mt-1">Nukun</p>
                                                 <p className="text-xs text-slate-400 mt-2">Contribue à l&apos;épanouissement technologique et économique de la sous-région.</p>
                                             </div>
                                         </CardContent>
@@ -555,7 +565,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                                     className="h-12 rounded-xl border-[#25D366] text-[#25D366] hover:bg-[#25D366]/10 flex gap-2"
                                     onClick={() => shareToWhatsApp(typeof window !== 'undefined' ? `${window.location.origin}/profil/${profile?.slug || profile?.id}` : '')}
                                 >
-                                    <MessageCircle className="h-4 w-4" />
+                                    <img src="/svg/whatsapp-logo.svg" className="h-4 w-4" alt="WhatsApp" />
                                     WhatsApp
                                 </Button>
                                 <Button 

@@ -1,12 +1,14 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Analyse et documentation des points d'entrée de l'API Nexus Connect
+ * @description Analyse et documentation des points d'entrée de l'API Nukun
  * @created 2026-03-24
- * @updated 2026-03-24
+ * @updated 2026-04-19
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
 */──────────────────────────────────
 
-# 📡 Points d'Entrée API (Backend) - Nexus Connect
+# 📡 Points d'Entrée API (Backend) - Nukun
 
 Ce document recense les endpoints de l'API Express, leurs méthodes HTTP et leurs fonctions dans l'écosystème.
 

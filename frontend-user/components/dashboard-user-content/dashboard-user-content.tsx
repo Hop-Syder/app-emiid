@@ -59,7 +59,9 @@ interface DashboardContentProps {
 
 export function DashboardContent({ initialStats = null }: DashboardContentProps) {
   const [loading, setLoading] = useState(true)
-  const [entrepreneursList, setEntrepreneursList] = useState<EntrepreneurProfile[]>([])
+  const [premiumProfiles, setPremiumProfiles] = useState<EntrepreneurProfile[]>([])
+  const [newProfiles, setNewProfiles] = useState<EntrepreneurProfile[]>([])
+  const [verifiedProfiles, setVerifiedProfiles] = useState<EntrepreneurProfile[]>([])
   const [profilesWarning, setProfilesWarning] = useState<string | null>(null)
   const { stats, statsLoading, statsError } = useDashboardStats({
     endpoint: "/api/dashboard-user/stats",
@@ -82,69 +84,65 @@ export function DashboardContent({ initialStats = null }: DashboardContentProps)
       try {
         let nextWarning: string | null = null
 
-        const { data: entData, error: entError } = await supabase
+        // 1. Fetch Premium Profiles
+        const { data: premiumData } = await supabase
             .from('user_profiles')
-            .select(`*, countries(name, iso_code), profile_tags(tags(name))`)
+            .select(`*, countries(name), profile_tags(tags(name))`)
+            .eq('is_published', true)
+            .eq('is_premium', true)
+            .limit(3)
+
+        // 2. Fetch New Profiles
+        const { data: newData } = await supabase
+            .from('user_profiles')
+            .select(`*, countries(name), profile_tags(tags(name))`)
             .eq('is_published', true)
             .order('created_at', { ascending: false })
             .limit(6)
 
-        if (!entError && entData) {
-          let userFollowsIds: string[] = []
-          try {
-            const followsRes = await fetchWithAuth("/api/users/follows")
-            if (followsRes.ok) {
-              const followsData = await followsRes.json()
-              userFollowsIds = followsData.map((f: { user_id?: string; id?: string }) => f.user_id || f.id)
-            } else {
-              nextWarning = "Le statut de vos abonnements n’a pas pu être synchronisé sur le dashboard." 
-            }
-          } catch (error) {
-            console.error("Failed to load follows, continuing without", error)
-            nextWarning = "Le statut de vos abonnements n’a pas pu être synchronisé sur le dashboard."
-          }
+        // 3. Fetch Verified Profiles
+        const { data: verifiedData } = await supabase
+            .from('user_profiles')
+            .select(`*, countries(name), profile_tags(tags(name))`)
+            .eq('is_published', true)
+            .eq('is_verified', true)
+            .limit(4)
 
-          const nextEntrepreneurs = entData.map((e: any) => {
+        const mapProfile = (e: any, follows: string[]) => {
             const profileId = e.user_id || e.id || "0"
             return {
-              id: profileId,
-              name: (e.first_name || e.last_name) ? `${e.first_name || ''} ${e.last_name || ''}`.trim() : "Utilisateur Nexus",
-              role: e.role || "Membre Nexus",
-              location: e.city ? `${e.city}, ${e.countries?.name || ''}` : (e.countries?.name || "Afrique de l'Ouest"),
-              avatar: e.avatar_url || "/profil/avatar.jpg",
-              specialty: e.specialty || "Expertise",
-              category: e.category || "",
-              verified: !!e.is_verified,
-              premium: !!e.is_premium,
-              followers: e.followers_count || 0,
-              isFollowed: userFollowsIds.includes(profileId),
-              tags: e.profile_tags?.map((pt: any) => pt.tags?.name) || []
+                id: profileId,
+                name: (e.first_name || e.last_name) ? `${e.first_name || ''} ${e.last_name || ''}`.trim() : "Membre Nukun",
+                role: e.role || "Professionnel",
+                location: e.city ? `${e.city}, ${e.countries?.name || ''}` : (e.countries?.name || "Afrique"),
+                avatar: e.avatar_url || "/profil/avatar.jpg",
+                specialty: e.specialty || "Expertise",
+                verified: !!e.is_verified,
+                premium: !!e.is_premium,
+                followers: e.followers_count || 0,
+                isFollowed: follows.includes(profileId),
+                tags: e.profile_tags?.map((pt: any) => pt.tags?.name) || []
             }
-          })
+        }
 
-          if (!isMounted) {
-            return
-          }
+        let userFollowsIds: string[] = []
+        try {
+            const followsRes = await fetchWithAuth("/api/users/follows")
+            if (followsRes.ok) {
+                const followsData = await followsRes.json()
+                userFollowsIds = followsData.map((f: any) => f.user_id || f.id)
+            }
+        } catch (e) { console.error(e) }
 
-          setEntrepreneursList(nextEntrepreneurs)
-          setProfilesWarning(nextWarning)
-        } else {
-          console.error("Erreur API entrepreneurs (Supabase):", entError)
-
-          if (showLoading && isMounted) {
-            setEntrepreneursList([])
-          }
-
-          if (isMounted) {
-            setProfilesWarning("Les profils mis en avant n’ont pas pu être chargés pour le moment.")
-          }
+        if (isMounted) {
+            setPremiumProfiles((premiumData || []).map(p => mapProfile(p, userFollowsIds)))
+            setNewProfiles((newData || []).map(p => mapProfile(p, userFollowsIds)))
+            setVerifiedProfiles((verifiedData || []).map(p => mapProfile(p, userFollowsIds)))
+            setLoading(false)
         }
       } catch (error) {
         console.error("Erreur chargement profils dashboard-user:", error)
-        if (showLoading && isMounted) {
-          setEntrepreneursList([])
-        }
-
+        
         if (isMounted) {
           setProfilesWarning("Les profils mis en avant n’ont pas pu être chargés pour le moment.")
         }
@@ -199,8 +197,44 @@ export function DashboardContent({ initialStats = null }: DashboardContentProps)
         </div>
       )}
 
-      {/* Entrepreneurs du Réseau */}
-      <EntrepreneursSection entrepreneursList={entrepreneursList} loading={loading} />
+      {/* Section Premium (Elite) */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+           <div>
+              <h3 className="text-xl font-black text-slate-900 flex items-center gap-2 italic uppercase tracking-tighter">
+                💎 Profils Premium
+              </h3>
+              <p className="text-xs text-slate-500 font-medium">L'excellence de notre réseau</p>
+           </div>
+        </div>
+        <EntrepreneursSection entrepreneursList={premiumProfiles} loading={loading} variant="elite" />
+      </div>
+
+      {/* Section Nouveaux Profils (Horizontal) */}
+      <div className="space-y-4 py-4 bg-slate-50/50 -mx-4 px-4 sm:-mx-8 sm:px-8">
+        <div className="flex items-center justify-between">
+           <div>
+              <h3 className="text-xl font-black text-slate-900 italic uppercase tracking-tighter">
+                ⚡ Nouveaux Arrivants
+              </h3>
+              <p className="text-xs text-slate-500 font-medium">Souhaitez-leur la bienvenue</p>
+           </div>
+        </div>
+        <EntrepreneursSection entrepreneursList={newProfiles} loading={loading} variant="tech" />
+      </div>
+
+      {/* Section 100% Vérifiés */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+           <div>
+              <h3 className="text-xl font-black text-slate-900 flex items-center gap-2 italic uppercase tracking-tighter">
+                🛡️ 100% Vérifiés
+              </h3>
+              <p className="text-xs text-slate-500 font-medium">La confiance avant tout</p>
+           </div>
+        </div>
+        <EntrepreneursSection entrepreneursList={verifiedProfiles} loading={loading} variant="glass" />
+      </div>
     </div>
   )
 }

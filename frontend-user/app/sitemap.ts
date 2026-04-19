@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next'
 import { createClient } from '@supabase/supabase-js'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://app-nexus-connect.vercel.app'
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://app-nukun.app'
   
   // 1. Les routes principales (Statiques)
   const routes = [
