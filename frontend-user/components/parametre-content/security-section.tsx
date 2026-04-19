@@ -13,6 +13,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { MessageSquare, Phone, Smartphone, CheckCircle2 } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -61,11 +62,16 @@ export function SecuritySection({
     const [tempPin, setTempPin] = useState("")
     const [confirmPin, setConfirmPin] = useState("")
     const [pinError, setPinError] = useState("")
-    const [currentPassword, setCurrentPassword] = useState("")
-    const [newPassword, setNewPassword] = useState("")
-    const [confirmPassword, setConfirmPassword] = useState("")
-    const [passwordSaving, setPasswordSaving] = useState(false)
     const [accountLoading, setAccountLoading] = useState(false)
+    const [mfaDialogOpen, setMfaDialogOpen] = useState(false)
+    const [mfaStep, setMfaStep] = useState<"phone" | "code">("phone")
+    const [mfaPhoneNumber, setMfaPhoneNumber] = useState("")
+    const [mfaChannel, setMfaChannel] = useState<"whatsapp" | "sms">("whatsapp")
+    const [mfaCode, setMfaCode] = useState("")
+    const [mfaLoading, setMfaLoading] = useState(false)
+    const [mfaFactorId, setMfaFactorId] = useState("")
+    const [mfaChallengeId, setMfaChallengeId] = useState("")
+
     const supabase = createClient()
     const router = useRouter()
 
@@ -133,53 +139,89 @@ export function SecuritySection({
         }
     }
 
-    const handlePasswordUpdate = async () => {
-        if (!currentPassword || !newPassword || !confirmPassword) {
-            toast.error("Tous les champs mot de passe sont requis")
-            return
-        }
 
-        if (newPassword.length < 8) {
-            toast.error("Le nouveau mot de passe doit contenir au moins 8 caractères")
-            return
-        }
-
-        if (newPassword !== confirmPassword) {
-            toast.error("La confirmation du mot de passe ne correspond pas")
-            return
-        }
-
-        setPasswordSaving(true)
-        try {
-            const { error } = await supabase.auth.updateUser({ password: newPassword })
-            if (error) {
-                toast.error(error.message)
-                return
+    const handleTwoFactorToggle = (checked: boolean) => {
+        if (checked) {
+            setMfaStep("phone")
+            setMfaPhoneNumber("")
+            setMfaCode("")
+            setMfaDialogOpen(true)
+        } else {
+            if (window.confirm("Désactiver l'authentification à deux facteurs ?")) {
+                void saveSettings(
+                    { security_preferences: { two_factor_enabled: false } },
+                    "2FA désactivée"
+                ).then((success) => {
+                    if (success) setSecuritySettings({ two_factor_enabled: false })
+                })
             }
-
-            setCurrentPassword("")
-            setNewPassword("")
-            setConfirmPassword("")
-            toast.success("Mot de passe mis à jour avec succès")
-        } finally {
-            setPasswordSaving(false)
         }
     }
 
-    const handleTwoFactorToggle = async (checked: boolean) => {
-        const previous = securitySettings.two_factor_enabled
-        setSecuritySettings({ two_factor_enabled: checked })
-        const success = await saveSettings(
-            { security_preferences: { two_factor_enabled: checked } },
-            checked ? "Préférence 2FA enregistrée" : "Préférence 2FA désactivée",
-        )
-
-        if (!success) {
-            setSecuritySettings({ two_factor_enabled: previous })
+    const handleMfaEnroll = async () => {
+        if (!mfaPhoneNumber) {
+            toast.error("Veuillez entrer un numéro de téléphone")
             return
         }
+        setMfaLoading(true)
+        try {
+            // 1. Enrôlement du facteur téléphone
+            const { data: enrollData, error: enrollError } = await supabase.auth.mfa.enroll({
+                phone: mfaPhoneNumber,
+                factorType: 'phone'
+            })
+            if (enrollError) throw enrollError
+            setMfaFactorId(enrollData.id)
 
-        toast.info("Assurez-vous d'activer la MFA côté Supabase pour une protection complète")
+            // 2. Création du challenge (Envoi du code)
+            const { data: challengeData, error: challengeError } = await supabase.auth.mfa.challenge({
+                factorId: enrollData.id
+            })
+            if (challengeError) throw challengeError
+            
+            setMfaChallengeId(challengeData.id)
+            setMfaStep("code")
+            toast.success(`Code envoyé par ${mfaChannel === "whatsapp" ? "WhatsApp" : "SMS"}`)
+        } catch (error: any) {
+            console.error("MFA Enrollment Error:", error)
+            toast.error(error.message || "Erreur lors de l'envoi du code")
+        } finally {
+            setMfaLoading(false)
+        }
+    }
+
+    const handleMfaVerify = async () => {
+        if (mfaCode.length < 6) {
+            toast.error("Veuillez entrer le code complet (6 chiffres)")
+            return
+        }
+        setMfaLoading(true)
+        try {
+            // 3. Vérification du challenge
+            const { error: verifyError } = await supabase.auth.mfa.verify({
+                factorId: mfaFactorId,
+                challengeId: mfaChallengeId,
+                code: mfaCode
+            })
+            if (verifyError) throw verifyError
+
+            // 4. Mise à jour des préférences utilisateur dans la DB custom
+            const success = await saveSettings(
+                { security_preferences: { two_factor_enabled: true } },
+                "Authentification 2FA activée et vérifiée !"
+            )
+            
+            if (success) {
+                setSecuritySettings({ two_factor_enabled: true })
+                setMfaDialogOpen(false)
+                router.refresh() // Pour rafraîchir l'état de la session
+            }
+        } catch (error: any) {
+            console.error("MFA Verification Error:", error)
+            toast.error(error.message || "Code invalide ou expiré")
+        } finally {
+            setMfaLoading(false)
+        }
     }
 
     const handleDeactivateAccount = async () => {
@@ -230,29 +272,6 @@ export function SecuritySection({
 
     return (
         <div className="space-y-6">
-            <Card className="rounded-xl">
-                <CardHeader>
-                    <CardTitle>Mot de passe</CardTitle>
-                    <CardDescription>Modifiez votre mot de passe</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="current-password">Mot de passe actuel</Label>
-                        <Input id="current-password" type="password" className="rounded-xl" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="new-password">Nouveau mot de passe</Label>
-                        <Input id="new-password" type="password" className="rounded-xl" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="confirm-password">Confirmer le mot de passe</Label>
-                        <Input id="confirm-password" type="password" className="rounded-xl" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
-                    </div>
-                    <Button className="rounded-xl" onClick={handlePasswordUpdate} disabled={passwordSaving}>
-                        {passwordSaving ? "Mise à jour..." : "Mettre à jour le mot de passe"}
-                    </Button>
-                </CardContent>
-            </Card>
 
             <Card className="rounded-xl">
                 <CardHeader>
@@ -272,8 +291,8 @@ export function SecuritySection({
                     </div>
                     <div className="flex items-center justify-between p-4 border rounded-xl">
                         <div>
-                            <p className="font-medium">Authentification à deux facteurs</p>
-                            <p className="text-sm text-muted-foreground">Enregistre votre préférence MFA pour sécuriser le compte</p>
+                            <p className="font-medium">Authentification à deux facteurs (2FA)</p>
+                            <p className="text-sm text-muted-foreground">Sécurisez votre compte via WhatsApp ou SMS (Code à 5 chiffres)</p>
                         </div>
                         <Switch checked={securitySettings.two_factor_enabled} onCheckedChange={(checked) => void handleTwoFactorToggle(checked)} />
                     </div>
@@ -344,6 +363,117 @@ export function SecuritySection({
                             </Button>
                         </div>
                     </div>
+                </DialogContent>
+            </Dialog>
+            <Dialog open={mfaDialogOpen} onOpenChange={setMfaDialogOpen}>
+                <DialogContent className="sm:max-w-md rounded-2xl">
+                    <DialogHeader>
+                        <DialogTitle className="text-2xl font-black text-[#022753]">
+                            {mfaStep === "phone" ? "Activer la 2FA" : "Vérification"}
+                        </DialogTitle>
+                        <DialogDescription>
+                            {mfaStep === "phone" 
+                                ? "Sécurisez votre compte en recevant un code de validation." 
+                                : `Entrez le code à 6 chiffres envoyé sur ${mfaPhoneNumber}`}
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    {mfaStep === "phone" ? (
+                        <div className="space-y-6 py-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="phone">Numéro de téléphone (format international)</Label>
+                                <div className="relative">
+                                    <Smartphone className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
+                                    <Input
+                                        id="phone"
+                                        placeholder="+225 0700000000"
+                                        value={mfaPhoneNumber}
+                                        onChange={(e) => setMfaPhoneNumber(e.target.value)}
+                                        className="pl-10 rounded-xl h-12"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <button
+                                    onClick={() => setMfaChannel("whatsapp")}
+                                    className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${
+                                        mfaChannel === "whatsapp" 
+                                        ? "border-green-500 bg-green-50 text-green-700" 
+                                        : "border-slate-100 hover:border-slate-200"
+                                    }`}
+                                >
+                                    <MessageSquare className="h-6 w-6 mb-2" />
+                                    <span className="font-bold text-sm">WhatsApp</span>
+                                </button>
+                                <button
+                                    onClick={() => setMfaChannel("sms")}
+                                    className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${
+                                        mfaChannel === "sms" 
+                                        ? "border-blue-500 bg-blue-50 text-blue-700" 
+                                        : "border-slate-100 hover:border-slate-200"
+                                    }`}
+                                >
+                                    <Phone className="h-6 w-6 mb-2" />
+                                    <span className="font-bold text-sm">SMS</span>
+                                </button>
+                            </div>
+
+                            <Button 
+                                onClick={() => void handleMfaEnroll()} 
+                                disabled={mfaLoading || !mfaPhoneNumber}
+                                className="w-full h-12 rounded-xl bg-[#022753] hover:bg-[#033a7a]"
+                            >
+                                {mfaLoading ? "Envoi en cours..." : "Recevoir le code"}
+                            </Button>
+                        </div>
+                    ) : (
+                        <div className="flex flex-col items-center gap-8 py-6">
+                            <div className="bg-slate-50 p-6 rounded-2xl w-full flex flex-col items-center gap-6 border border-slate-100">
+                                <InputOTP
+                                    maxLength={6}
+                                    value={mfaCode}
+                                    onChange={(val) => setMfaCode(val)}
+                                >
+                                    <InputOTPGroup className="gap-2">
+                                        <InputOTPSlot index={0} className="w-12 h-14 text-xl font-bold rounded-lg border-2" />
+                                        <InputOTPSlot index={1} className="w-12 h-14 text-xl font-bold rounded-lg border-2" />
+                                        <InputOTPSlot index={2} className="w-12 h-14 text-xl font-bold rounded-lg border-2" />
+                                        <InputOTPSlot index={3} className="w-12 h-14 text-xl font-bold rounded-lg border-2" />
+                                        <InputOTPSlot index={4} className="w-12 h-14 text-xl font-bold rounded-lg border-2" />
+                                        <InputOTPSlot index={5} className="w-12 h-14 text-xl font-bold rounded-lg border-2" />
+                                    </InputOTPGroup>
+                                </InputOTP>
+
+                                <div className="text-center">
+                                    <p className="text-sm text-muted-foreground mb-1">Vous n&apos;avez rien reçu ?</p>
+                                    <button 
+                                        onClick={() => void handleMfaEnroll()}
+                                        className="text-sm font-bold text-primary hover:underline"
+                                    >
+                                        Renvoyer le code
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="flex gap-3 w-full">
+                                <Button 
+                                    variant="outline" 
+                                    onClick={() => setMfaStep("phone")}
+                                    className="flex-1 h-12 rounded-xl"
+                                >
+                                    Retour
+                                </Button>
+                                <Button 
+                                    onClick={() => void handleMfaVerify()}
+                                    disabled={mfaLoading || mfaCode.length !== 6}
+                                    className="flex-[2] h-12 rounded-xl bg-green-600 hover:bg-green-700"
+                                >
+                                    {mfaLoading ? "Vérification..." : "Vérifier et activer"}
+                                </Button>
+                            </div>
+                        </div>
+                    )}
                 </DialogContent>
             </Dialog>
         </div>

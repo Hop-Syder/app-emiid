@@ -3,7 +3,7 @@
 import { NexusProfileCard, NexusCardVariant } from "@/components/carte-profil/nexus-profile-card"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { useCurrentUserProfile } from "@/hooks/use-current-user-profile"
 
@@ -31,6 +31,15 @@ export function AnnuaireCard({ profile }: AnnuaireCardProps) {
     const { session } = useCurrentUserProfile()
     const [isFollowed, setIsFollowed] = useState(!!profile.isFollowed)
     const [followersCount, setFollowersCount] = useState(profile.followers)
+
+    // Synchronisation de l'état local avec les props (important pour le premier chargement)
+    useEffect(() => {
+        setIsFollowed(!!profile.isFollowed)
+    }, [profile.isFollowed])
+
+    useEffect(() => {
+        setFollowersCount(profile.followers)
+    }, [profile.followers])
 
     const handleAction = async (type: 'message' | 'follow' | 'view') => {
         if (type === 'view') {

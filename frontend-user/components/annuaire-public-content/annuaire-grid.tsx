@@ -37,11 +37,11 @@ export function AnnuaireGrid({ filters }: AnnuaireGridProps) {
             setLoading(true)
             try {
                 const supabase = createClient()
+                // On utilise la vue public_profiles pour plus de sécurité et de conformité au schéma
                 let query = supabase
-                    .from('user_profiles')
+                    .from('public_profiles')
                     .select(`*, countries(name, iso_code), profile_tags(tags(name))`)
-                    .eq('is_published', true)
-                    .order('updated_at', { ascending: false })
+                    .order('created_at', { ascending: false })
 
                 if (filters?.category && filters.category !== "all") query = query.ilike('category', filters.category)
                 if (filters?.country && filters.country !== "all") query = query.eq('countries.iso_code', filters.country)

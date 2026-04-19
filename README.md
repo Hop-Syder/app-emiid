@@ -4,73 +4,61 @@
  * @project Nexus Connect
  * @description Plateforme de mise en relation professionnelle intelligente
  * @created 2026-01-04
- * @updated 2026-01-04
+ * @updated 2026-04-18
  * @website https://ceo.nexuspartners.xyz
  * @contact daoudaabassichristian@gmail.com
  */
 
 # 🚀 Nexus Connect — Professional Network Infrastructure
 
-**Nexus Connect** est une plateforme digitale conçue pour structurer, connecter et dynamiser l’écosystème professionnel à travers une infrastructure centralisée de profils, d’interactions et de validation de compétences.
-
-Elle s’adresse aux **professionnels, artisans, entreprises et ONG** en facilitant des **mises en relation stratégiques, qualifiées et vérifiables**.
+**Nexus Connect** est une infrastructure digitale centralisée conçue pour structurer, connecter et dynamiser l’écosystème professionnel à travers une gestion intelligente de profils, d’interactions et de validations.
 
 ---
 
-## 🎯 Vision Produit
+## 📖 Documentation Complète
 
-Créer un **réseau professionnel fiable**, basé sur :
-- la **validation des compétences**
-- la **qualité des interactions**
-- la **mise en relation qualifiée**
+Pour une immersion profonde dans les différentes couches du projet, consultez la documentation dédiée :
 
----
-
-## 💡 Proposition de Valeur
-
-### 👤 Pour les talents
-- Valorisation des compétences et expertises
-- Visibilité professionnelle renforcée
-- Système de **validation professionnelle (certification)**
-- Accès à des connexions qualifiées
-
-### 🏢 Pour les entreprises
-- Accès à un vivier de profils qualifiés
-- Outils de **recrutement ciblé**
-- Système de **certification des collaborateurs**
-- Campagnes de **mailing marketing**
-- Gestion centralisée de communauté
+- 🌌 **[Project Overview](file:///home/hopsyder/Projet/app-nukun/docs/PROJECT_OVERVIEW.md)** : Vision, Stratégie SaaS et Roadmap.
+- 📱 **[Frontend User](file:///home/hopsyder/Projet/app-nukun/docs/FRONTEND_USER.md)** : Guide technique et fonctionnel de l'application utilisateur.
+- 🛠️ **[Frontend Admin](file:///home/hopsyder/Projet/app-nukun/docs/FRONTEND_ADMIN.md)** : Cockpit d'administration, sécurité et modération.
+- 🗄️ **[Database & SQL](file:///home/hopsyder/Projet/app-nukun/docs/DATABASE_SCHEMA.md)** : Schéma master, RLS et logique métier SQL.
 
 ---
 
-## ⚙️ Core Features
-
-- 🔐 Authentification sécurisée (Supabase SSR)
-- 👥 Annuaire intelligent de profils
-- 💬 Messagerie temps réel
-- 🏢 Gestion d’organisation (entreprises / ONG)
-- ✅ Système de validation & certification
-- 📢 Mailing & communication ciblée
-- 🛠️ Admin panel pour modération & supervision
-
----
-
-## 🏗️ Architecture
-
-Architecture **Monorepo modulaire** orientée scalabilité :
+## 🏗️ Architecture du Monorepo
 
 ```bash
 .
-├── admin/                # Dashboard Admin (Next.js 16 + Tailwind 4)
-├── backend/              # API REST sécurisée (Express + TypeScript)
-│   └── src/
-│       ├── api/routes/   # Endpoints (Auth, Users, etc.)
-│       ├── controllers/  # Business logic
-│       ├── middlewares/  # Auth, validation, sécurité
-│       └── app.ts        # Bootstrap serveur
-├── frontend-user/        # App utilisateur (Next.js 15 App Router)
-│   ├── app/              # Routing (dashboard, messaging, annuaire)
-│   ├── components/       # UI system
-│   └── lib/              # Services & utils (Supabase client)
-├── package.json
-└── DEPLOYMENT.m
+├── docs/                 # Documentation centralisée (MAJ 2026-04-18)
+├── frontend-user/        # App Utilisateur (Next.js 15 + Supabase SSR)
+├── frontend-admin/       # Cockpit Admin (Next.js 16 + Tailwind 4)
+├── backend/              # Proxy API (Express + TypeScript)
+├── sql/                  # Source of Truth Base de Données
+└── design-system/        # Tokens et composants UI partagés
+```
+
+---
+
+## ⚙️ État des Fonctionnalités (Core Features)
+
+- 🔐 **Auth** : Authentification sécurisée (Email/OAuth) avec middleware de protection.
+- 👥 **Profiles** : Système extensible de profils pro/artisans avec publication contrôlée.
+- 💬 **Messaging** : Messagerie temps réel avec support média et médiation admin.
+- 🗺️ **Directory** : Annuaire intelligent avec filtres géographiques et sectoriels.
+- 🛡️ **Security** : Protection par PIN et Row Level Security (RLS) granulaire.
+
+---
+
+## 🚀 Démarrage Rapide
+
+1. **Installation** : `pnpm install` à la racine.
+2. **Configuration** : Configurer les `.env.local` dans `frontend-user` et `frontend-admin`.
+3. **Développement** :
+   - User : `cd frontend-user && npm run dev`
+   - Admin : `cd frontend-admin && npm run dev`
+
+---
+
+## 📊 Audit & Qualité
+Consultez l'**[Audit des Frontends](file:///home/hopsyder/Projet/app-nukun/AUDIT_FRONTENDS.md)** pour connaître les points de vigilance techniques et les priorités de développement actuelles.

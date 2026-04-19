@@ -27,8 +27,13 @@ interface NotificationsSectionProps {
 }
 
 export function NotificationsSection({ settings, setSettings, onSave, saving }: NotificationsSectionProps) {
-    const toggle = (key: keyof NotificationSettings, checked: boolean) => {
+    const toggle = async (key: keyof NotificationSettings, checked: boolean) => {
         setSettings({ ...settings, [key]: checked })
+        // On attend un petit peu pour laisser le state React se mettre à jour
+        // ou on pourrait passer la valeur directement à une nouvelle fonction d'auto-save
+        setTimeout(() => {
+            void onSave()
+        }, 100)
     }
 
     return (

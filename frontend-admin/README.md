@@ -1,10 +1,12 @@
-# Frontend Admin - App Nexus Connect
+# 🛠️ Frontend Admin — Nexus Cockpit
 
-Panneau d'administration pour la plateforme App Nexus Connect. Interface moderne construite avec Next.js 16, Tailwind CSS 4, et connectee a Supabase.
+Panneau d'administration pour la plateforme App Nexus Connect. Interface moderne construite avec Next.js 16, Tailwind CSS 4, et connectée à Supabase.
 
-## Fonctionnalites
+## 📖 Documentation Détaillée
+Pour une documentation technique et sécuritaire complète, voir :
+👉 **[docs/FRONTEND_ADMIN.md](file:///home/hopsyder/Projet/app-nukun/docs/FRONTEND_ADMIN.md)**
 
-### Dashboard (`/`)
+## 🚀 Fonctionnalités Actuelles
 - Statistiques en temps reel (utilisateurs, profils publies, messages)
 - Graphique d'activite hebdomadaire
 - Etat du systeme (API, Base de donnees, Stockage)

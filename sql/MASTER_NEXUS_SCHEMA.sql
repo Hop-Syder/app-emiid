@@ -3,7 +3,9 @@
  * @organization Nexus Partners
  * @description MASTER SCHEMA FINAL - Nexus Connect (SSoT)
  * @version 1.2.0
- * @created 2026-03-24
+ * @updated 2026-04-18
+ * 
+ * 📖 Documentation détaillée : docs/DATABASE_SCHEMA.md
  * 
  * CHANGE LOG v1.2.0:
  * - Fix: Ajout des policies UPDATE pour conversations et messages.
