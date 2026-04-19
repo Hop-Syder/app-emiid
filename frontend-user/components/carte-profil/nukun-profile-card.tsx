@@ -242,7 +242,7 @@ export function NukunProfileCard({
          </Avatar>
       </div>
 
-      <div className="flex-1 flex flex-col items-center px-5 pt-8 pb-5">
+      <div className="flex-1 flex flex-col items-center px-4 pt-8 pb-5">
          <div className="text-center space-y-1 w-full flex-1 flex flex-col justify-center min-h-[2.5rem]">
             <h3 className="relative -top-2 text-lg font-black text-slate-800 tracking-tight leading-tight">{name}</h3>
             <p className="text-[11px] sm:text-[10px] font-bold text-orange-500 tracking-[0.1em] uppercase line-clamp-2">{role}</p>
@@ -271,26 +271,26 @@ export function NukunProfileCard({
 
          </div>
 
-         <div className="w-full flex gap-2 mt-auto">
+         <div className="w-full flex gap-1.5 mt-auto">
             <Button 
                onClick={(e) => { e.stopPropagation(); onAction?.('message') }}
-               className="flex-1 rounded-xl h-11 bg-[#FF4F01] hover:bg-[#FF4F01]/90 shadow-lg shadow-[#FF4F01]/10 font-black text-[10px] uppercase tracking-wider"
+               className="flex-1 rounded-xl h-9 bg-[#FF4F01] hover:bg-[#FF4F01]/90 shadow-lg shadow-[#FF4F01]/10 font-black text-[9px] uppercase tracking-wider px-2"
             >
                Message
             </Button>
             <Button
               onClick={(e) => { e.stopPropagation(); onAction?.('view') }}
               variant="outline"
-              className="rounded-xl h-11 border-slate-200 text-slate-700 hover:text-orange-500 hover:bg-orange-50 transition-colors px-4 text-[10px] font-black uppercase tracking-wider"
+              className="rounded-xl h-9 border-slate-200 text-slate-700 hover:text-orange-500 hover:bg-orange-50 transition-colors px-2 text-[9px] font-black uppercase tracking-wider"
             >
               Voir profil
             </Button>
             <Button 
                onClick={(e) => { e.stopPropagation(); onAction?.('follow') }}
                variant="outline"
-               className="h-11 w-11 rounded-xl border-slate-100 text-slate-400 hover:text-orange-500 hover:bg-orange-50 transition-colors"
+               className="h-9 w-9 shrink-0 rounded-xl border-slate-100 text-slate-400 hover:text-orange-500 hover:bg-orange-50 transition-colors p-0"
             >
-               {isFollowed ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+               {isFollowed ? <Check className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
             </Button>
          </div>
       </div>
