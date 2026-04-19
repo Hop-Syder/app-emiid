@@ -29,7 +29,7 @@ export function AnnuaireHero({
             className="relative overflow-hidden rounded-xl p-8 mb-8 text-white min-h-[250px] flex flex-col justify-center bg-[#022753]"
         >
             <div className="absolute inset-0 opacity-10"
-                style={{ backgroundImage: 'url(/dashboard-user/background-1.svg)', backgroundSize: 'cover' }} />
+                style={{ backgroundImage: 'url(/dashboard/background-1.svg)', backgroundSize: 'cover' }} />
 
             <div className="relative z-10 space-y-4">
                 <div className="flex items-center gap-2 text-amber-400">

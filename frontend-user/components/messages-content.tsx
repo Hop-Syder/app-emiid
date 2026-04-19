@@ -1310,7 +1310,7 @@ export function MessagesContent() {
         <Dialog open={isMediationDialogOpen} onOpenChange={setIsMediationDialogOpen}>
           <DialogContent className="rounded-3xl border-none shadow-2xl p-0 overflow-hidden max-w-md bg-white">
             <div className="p-8 space-y-6">
-              <div className="flex flex-col items-center text-center space-y-4">
+              <DialogHeader className="flex flex-col items-center text-center space-y-4">
                 <div className="w-16 h-16 bg-amber-100 rounded-3xl flex items-center justify-center text-amber-600 shadow-inner">
                   <Gavel className="h-8 w-8" />
                 </div>
@@ -1320,7 +1320,7 @@ export function MessagesContent() {
                     Un administrateur Nukun sera invité à rejoindre cette discussion pour vous aider à résoudre le litige.
                   </DialogDescription>
                 </div>
-              </div>
+              </DialogHeader>
 
               <div className="space-y-4">
                 <div className="space-y-2">

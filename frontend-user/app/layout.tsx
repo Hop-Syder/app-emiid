@@ -48,7 +48,7 @@ export default function RootLayout({
     <html lang="fr">
       <body className="font-sans antialiased">
         {children}
-        <Analytics />
+        {/* <Analytics /> */}
         <Toaster position="top-right" richColors closeButton />
         <CookieConsent />
       </body>

@@ -26,7 +26,7 @@ export function HeroSection() {
             transition={{ duration: 0.5 }}
             className="relative overflow-hidden rounded-xl p-8 text-white min-h-[300px] flex flex-col justify-center"
             style={{
-                backgroundImage: 'url(/dashboard-user/background-1.svg)',
+                backgroundImage: 'url(/dashboard/background-2.svg)',
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
             }}
