@@ -9,6 +9,7 @@ import { Router, Request, Response } from 'express';
 import { logger } from '../../utils/logger';
 import { supabaseAdmin } from '../../config/supabase';
 import { sendNewMessageNotification } from '../../services/mailService';
+import { sendPushNotification } from '../../services/pushService';
 
 const router = Router();
 
@@ -65,7 +66,35 @@ router.post('/supabase', async (req: Request, res: Response) => {
         await sendNewMessageNotification(email, senderName, content.substring(0, 100));
         logger.info(`Notification email envoyée à ${email} pour le message de ${senderName}`);
       }
-    }
+
+      // 2. Création de la notification In-App (visible dans le header)
+      const { error: notifError } = await supabaseAdmin
+        .from('notifications')
+        .insert({
+          user_id: recipientId,
+          type: 'message',
+          title: `Nouveau message de ${senderName}`,
+          content: content.substring(0, 100),
+          link: `/messages?conv=${conversation_id}`,
+          is_read: false
+        });
+
+      if (notifError) {
+        logger.error("Erreur lors de la création de la notification in-app", notifError);
+      } else {
+        logger.info(`Notification in-app créée pour ${recipientId}`);
+      }
+
+      // 3. Envoi de la notification Push (Mobile/Desktop)
+      if (preferences?.push !== false) {
+        await sendPushNotification(
+          recipientId,
+          `Nouveau message de ${senderName}`,
+          content.substring(0, 100),
+          undefined,
+          `/messages?conv=${conversation_id}`
+        );
+      }
     
     res.status(200).json({ success: true });
   } catch (err: any) {

@@ -1,10 +1,20 @@
+/**
+ * @author @hopsyder
+ * @organization Nexus Partners
+ * @description Contenu du portefeuille de profils suivis avec design Grid Premium
+ * @created 2026-04-19
+ * @updated 2026-04-19
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+*/
+
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { ProfileStats } from "./profile-stats"
 import { ProfileCard } from "./profile-card"
-import { Loader2, Search, SlidersHorizontal } from "lucide-react"
+import { Loader2, Search, SlidersHorizontal, UserPlus } from "lucide-react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
@@ -19,6 +29,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/client"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { motion, AnimatePresence } from "framer-motion"
 
 interface PortfolioProfile {
     id?: string
@@ -206,132 +217,189 @@ export function FollowedProfilesContent() {
 
     if (loading) {
         return (
-            <div className="flex flex-col items-center justify-center py-20 gap-4">
-                <Loader2 className="h-10 w-10 animate-spin text-primary" />
-                <p className="text-muted-foreground font-medium text-lg">Chargement de votre portefeuille...</p>
+            <div className="flex flex-col items-center justify-center py-32 gap-6">
+                <div className="relative">
+                    <div className="h-20 w-20 rounded-full border-4 border-primary/10 border-t-primary animate-spin" />
+                    <Loader2 className="absolute inset-0 m-auto h-8 w-8 text-primary animate-pulse" />
+                </div>
+                <p className="text-muted-foreground font-black text-xl tracking-widest uppercase animate-pulse">Initialisation...</p>
             </div>
         )
     }
 
     const totalUpdates = 0
-    const activeToday = followedProfiles.filter(isActiveToday).length
+    const activeTodayCount = followedProfiles.filter(isActiveToday).length
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-10 pb-20">
             <ProfileStats
                 total={followedProfiles.length}
                 updates={totalUpdates}
-                activeToday={activeToday}
+                activeToday={activeTodayCount}
             />
 
             <Tabs defaultValue="following" onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-2 rounded-xl p-1 bg-muted/20 border border-muted/10 h-12">
-                    <TabsTrigger value="following" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm">
-                        Favoris ({followedProfiles.length})
-                    </TabsTrigger>
-                    <TabsTrigger value="followers" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm">
-                        Abonnés ({followers.length})
-                    </TabsTrigger>
-                </TabsList>
+                <div className="flex flex-col space-y-6">
+                    <div className="flex flex-col md:flex-row gap-6 items-center justify-between">
+                        <TabsList className="h-14 p-1.5 bg-slate-100/50 backdrop-blur-md rounded-2xl border border-slate-200/50 w-full md:w-auto min-w-[320px]">
+                            <TabsTrigger 
+                                value="following" 
+                                className="flex-1 rounded-xl font-black text-[10px] uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-lg transition-all duration-300"
+                            >
+                                Favoris ({followedProfiles.length})
+                            </TabsTrigger>
+                            <TabsTrigger 
+                                value="followers" 
+                                className="flex-1 rounded-xl font-black text-[10px] uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-lg transition-all duration-300"
+                            >
+                                Abonnés ({followers.length})
+                            </TabsTrigger>
+                        </TabsList>
 
-                <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white/50 backdrop-blur-sm p-4 rounded-xl border border-white/20 shadow-sm mt-6">
-                    <div className="relative w-full md:max-w-md">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                            placeholder={activeTab === "following" ? "Rechercher dans vos favoris..." : "Rechercher un abonné..."}
-                            className="pl-10 rounded-xl bg-white/80 border-none shadow-inner"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
+                        <div className="flex items-center gap-3 w-full md:w-auto">
+                            <div className="relative flex-1 md:w-80">
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                <Input
+                                    placeholder={activeTab === "following" ? "Rechercher un profil..." : "Rechercher un abonné..."}
+                                    className="h-14 pl-12 rounded-2xl bg-white/80 border-none shadow-sm focus-visible:ring-2 focus-visible:ring-blue-500/20 text-sm font-medium transition-all"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                />
+                            </div>
+
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="outline" className="h-14 px-6 rounded-2xl gap-3 border-none bg-white shadow-sm hover:bg-slate-50 transition-all">
+                                        <SlidersHorizontal className="h-4 w-4 text-blue-500" />
+                                        <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">
+                                            {sortBy === "name" ? "Nom" : sortBy === "followers" ? "Abonnés" : "Récents"}
+                                        </span>
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="rounded-2xl p-2 min-w-[200px] border-none shadow-2xl">
+                                    <DropdownMenuLabel className="text-[9px] font-black uppercase tracking-widest opacity-40 px-3 py-2">Trier par</DropdownMenuLabel>
+                                    <DropdownMenuSeparator className="bg-slate-100" />
+                                    <DropdownMenuItem className="rounded-xl font-bold text-sm py-3 px-4 focus:bg-blue-50 focus:text-blue-600 transition-colors" onClick={() => setSortBy("recent")}>Plus récents</DropdownMenuItem>
+                                    <DropdownMenuItem className="rounded-xl font-bold text-sm py-3 px-4 focus:bg-blue-50 focus:text-blue-600 transition-colors" onClick={() => setSortBy("name")}>Nom alphabétique</DropdownMenuItem>
+                                    <DropdownMenuItem className="rounded-xl font-bold text-sm py-3 px-4 focus:bg-blue-50 focus:text-blue-600 transition-colors" onClick={() => setSortBy("followers")}>Nombre d&apos;abonnés</DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
                     </div>
 
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline" className="rounded-xl gap-2 bg-white/80">
-                                <SlidersHorizontal className="h-4 w-4" />
-                                Trier par: {sortBy === "name" ? "Nom" : sortBy === "followers" ? "Abonnés" : "Récents"}
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="rounded-xl">
-                            <DropdownMenuLabel>Options de tri</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => setSortBy("recent")}>Récents</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setSortBy("name")}>Nom</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setSortBy("followers")}>Nombre d&apos;abonnés</DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
-
-                <TabsContent value="following" className="mt-6 space-y-4">
-                    {filteredProfiles.length > 0 ? (
-                        filteredProfiles.map((profile) => (
-                            <ProfileCard
-                                key={profile.user_id || profile.id}
-                                profile={{
-                                    id: getPortfolioProfileId(profile),
-                                    name: profile.name,
-                                    role: profile.role || "Membre",
-                                    location: profile.location || "Non renseigné",
-                                    avatar: profile.avatar_url || "/profil/avatar.jpg",
-                                    lastActive: getProfileLastActive(profile),
-                                    newUpdates: 0,
-                                    lastUpdate: getProfileLastUpdate(profile, "following"),
-                                    followers: profile.followers || profile.followers_count || 0,
-                                    premium: !!profile.is_premium,
-                                    card_variant: profile.card_variant,
-                                    verified: !!profile.is_verified,
-                                    notes: profile.notes || undefined
-                                }}
-                                onUnfollow={handleUnfollow}
-                                onViewProfile={handleViewProfile}
-                                onSaveNote={handleSaveNote}
-                                onMessage={handleMessage}
-                            />
-                        ))
-                    ) : (
-                        <div className="text-center py-20 bg-muted/20 rounded-xl border-2 border-dashed">
-                            {searchQuery ? (
-                                <p className="text-muted-foreground text-lg">Aucun résultat pour &quot;{searchQuery}&quot;</p>
+                    <TabsContent value="following" className="m-0 outline-none">
+                        <AnimatePresence mode="popLayout">
+                            {filteredProfiles.length > 0 ? (
+                                <motion.div 
+                                    className="space-y-6"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                >
+                                    {filteredProfiles.map((profile) => (
+                                        <ProfileCard
+                                            key={getPortfolioProfileId(profile)}
+                                            profile={{
+                                                id: getPortfolioProfileId(profile),
+                                                name: profile.name,
+                                                role: profile.role || "Membre",
+                                                location: profile.location || "Non renseigné",
+                                                avatar: profile.avatar_url || "/profil/avatar.jpg",
+                                                lastActive: getProfileLastActive(profile),
+                                                newUpdates: 0,
+                                                lastUpdate: getProfileLastUpdate(profile, "following"),
+                                                followers: profile.followers || profile.followers_count || 0,
+                                                premium: !!profile.is_premium,
+                                                card_variant: profile.card_variant,
+                                                verified: !!profile.is_verified,
+                                                notes: profile.notes || undefined
+                                            }}
+                                            onUnfollow={handleUnfollow}
+                                            onViewProfile={handleViewProfile}
+                                            onSaveNote={handleSaveNote}
+                                            onMessage={handleMessage}
+                                        />
+                                    ))}
+                                </motion.div>
                             ) : (
-                                <>
-                                    <p className="text-muted-foreground text-lg">Votre portefeuille est vide.</p>
-                                    <p className="text-sm text-muted-foreground mt-2">Suivez des entrepreneurs pour les retrouver ici.</p>
-                                </>
+                                <motion.div 
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="flex flex-col items-center justify-center py-32 bg-white/50 backdrop-blur-sm rounded-[2.5rem] border-2 border-dashed border-slate-200"
+                                >
+                                    <div className="p-6 rounded-full bg-slate-50 mb-6">
+                                        <UserPlus className="h-12 w-12 text-slate-300" />
+                                    </div>
+                                    <h3 className="text-xl font-black tracking-tight text-slate-900 mb-2">
+                                        {searchQuery ? "Aucun résultat trouvé" : "Votre portefeuille est vide"}
+                                    </h3>
+                                    <p className="text-slate-500 font-medium text-center max-w-sm">
+                                        {searchQuery 
+                                            ? `Nous n'avons trouvé aucun profil correspondant à "${searchQuery}" dans vos favoris.` 
+                                            : "Commencez à suivre des membres inspirants pour les retrouver rapidement ici et gérer vos notes."}
+                                    </p>
+                                    {!searchQuery && (
+                                        <Button 
+                                            onClick={() => router.push('/explorer')}
+                                            className="mt-8 h-12 px-8 rounded-2xl bg-blue-600 text-white font-black text-[10px] uppercase tracking-widest shadow-xl shadow-blue-500/20 hover:scale-105 transition-all"
+                                        >
+                                            Explorer la communauté
+                                        </Button>
+                                    )}
+                                </motion.div>
                             )}
-                        </div>
-                    )}
-                </TabsContent>
+                        </AnimatePresence>
+                    </TabsContent>
 
-                <TabsContent value="followers" className="mt-6 space-y-4">
-                    {filteredProfiles.length > 0 ? (
-                        filteredProfiles.map((profile) => (
-                            <ProfileCard
-                                key={profile.user_id || profile.id || `follower-${profile.name}`}
-                                profile={{
-                                    id: getPortfolioProfileId(profile),
-                                    name: profile.name,
-                                    role: profile.role || "Abonné",
-                                    location: profile.location || "N/A",
-                                    avatar: profile.avatar_url || "/profil/avatar.jpg",
-                                    lastActive: getProfileLastActive(profile),
-                                    newUpdates: 0,
-                                    lastUpdate: getProfileLastUpdate(profile, "followers"),
-                                    followers: profile.followers || profile.followers_count || 0,
-                                    premium: !!profile.is_premium,
-                                    card_variant: profile.card_variant,
-                                    verified: !!profile.is_verified
-                                }}
-                                onViewProfile={handleViewProfile}
-                                onMessage={handleMessage}
-                            />
-                        ))
-                    ) : (
-                        <div className="text-center py-20 bg-muted/20 rounded-xl border-2 border-dashed">
-                            <p className="text-muted-foreground text-lg">Vous n&apos;avez pas encore d&apos;abonnés.</p>
-                            <p className="text-sm text-muted-foreground mt-2">Partagez votre profil pour attirer de nouveaux membres.</p>
-                        </div>
-                    )}
-                </TabsContent>
+                    <TabsContent value="followers" className="m-0 outline-none">
+                        <AnimatePresence mode="popLayout">
+                            {filteredProfiles.length > 0 ? (
+                                <motion.div 
+                                    className="space-y-6"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                >
+                                    {filteredProfiles.map((profile) => (
+                                        <ProfileCard
+                                            key={`follower-${getPortfolioProfileId(profile)}`}
+                                            profile={{
+                                                id: getPortfolioProfileId(profile),
+                                                name: profile.name,
+                                                role: profile.role || "Abonné",
+                                                location: profile.location || "N/A",
+                                                avatar: profile.avatar_url || "/profil/avatar.jpg",
+                                                lastActive: getProfileLastActive(profile),
+                                                newUpdates: 0,
+                                                lastUpdate: getProfileLastUpdate(profile, "followers"),
+                                                followers: profile.followers || profile.followers_count || 0,
+                                                premium: !!profile.is_premium,
+                                                card_variant: profile.card_variant,
+                                                verified: !!profile.is_verified
+                                            }}
+                                            onViewProfile={handleViewProfile}
+                                            onMessage={handleMessage}
+                                        />
+                                    ))}
+                                </motion.div>
+                            ) : (
+                                <motion.div 
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="flex flex-col items-center justify-center py-32 bg-white/50 backdrop-blur-sm rounded-[2.5rem] border-2 border-dashed border-slate-200"
+                                >
+                                    <div className="p-6 rounded-full bg-slate-50 mb-6">
+                                        <Loader2 className="h-12 w-12 text-slate-300" />
+                                    </div>
+                                    <h3 className="text-xl font-black tracking-tight text-slate-900 mb-2">Vous n&apos;avez pas encore d&apos;abonnés</h3>
+                                    <p className="text-slate-500 font-medium text-center max-w-sm">
+                                        Partagez votre profil Nukun pour attirer de nouveaux membres et développer votre réseau.
+                                    </p>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </TabsContent>
+                </div>
             </Tabs>
         </div>
     )

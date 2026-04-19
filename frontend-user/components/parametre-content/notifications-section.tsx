@@ -11,6 +11,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
+import { subscribeToPushNotifications } from "@/lib/push-notifications"
 
 interface NotificationSettings {
     messages: boolean
@@ -29,8 +30,13 @@ interface NotificationsSectionProps {
 export function NotificationsSection({ settings, setSettings, onSave, saving }: NotificationsSectionProps) {
     const toggle = async (key: keyof NotificationSettings, checked: boolean) => {
         setSettings({ ...settings, [key]: checked })
+
+        // Si l'utilisateur active les notifications push, on lance la procédure d'abonnement
+        if (key === 'push' && checked) {
+            await subscribeToPushNotifications()
+        }
+
         // On attend un petit peu pour laisser le state React se mettre à jour
-        // ou on pourrait passer la valeur directement à une nouvelle fonction d'auto-save
         setTimeout(() => {
             void onSave()
         }, 100)

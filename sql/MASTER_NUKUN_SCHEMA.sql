@@ -209,6 +209,34 @@ BEFORE UPDATE ON public.messages
 FOR EACH ROW EXECUTE FUNCTION public.enforce_message_read_only();
 
 -- ==========================================
+-- 6b. SYSTÈME DE NOTIFICATIONS
+-- ==========================================
+
+CREATE TABLE IF NOT EXISTS public.notifications (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+    type VARCHAR(50) NOT NULL, -- 'message', 'system', 'security'
+    title TEXT NOT NULL,
+    content TEXT NOT NULL,
+    link TEXT,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON public.notifications(user_id);
+
+CREATE TABLE IF NOT EXISTS public.push_subscriptions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+    endpoint TEXT UNIQUE NOT NULL,
+    p256dh TEXT NOT NULL,
+    auth TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_push_subs_user_id ON public.push_subscriptions(user_id);
+
+-- ==========================================
 -- 7. SÉCURITÉ (RLS)
 -- ==========================================
 
@@ -251,6 +279,16 @@ CREATE POLICY "Messages Mark as Read" ON public.messages FOR UPDATE
         AND is_read = TRUE
     );
 
+-- Notifications
+ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Notifications Access" ON public.notifications;
+CREATE POLICY "Notifications Access" ON public.notifications FOR ALL USING (auth.uid() = user_id);
+
+-- Push Subscriptions
+ALTER TABLE public.push_subscriptions ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Push Subs Access" ON public.push_subscriptions;
+CREATE POLICY "Push Subs Access" ON public.push_subscriptions FOR ALL USING (auth.uid() = user_id);
+
 -- ==========================================
 -- 8. VUES PUBLIQUES SÉCURISÉES
 -- ==========================================
@@ -274,5 +312,7 @@ GRANT SELECT ON public.public_profiles TO anon, authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.user_follows TO authenticated;
 GRANT SELECT, INSERT, UPDATE ON public.conversations TO authenticated;
 GRANT SELECT, INSERT, UPDATE ON public.messages TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.notifications TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.push_subscriptions TO authenticated;
 
 SELECT '✅ Nukun Master Schema v1.2.1 déployé. Ton réseau, ta force.' as status;
