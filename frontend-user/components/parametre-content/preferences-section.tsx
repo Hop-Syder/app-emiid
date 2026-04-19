@@ -29,7 +29,7 @@ interface PreferenceSettings {
 interface PreferencesSectionProps {
     settings: PreferenceSettings
     setSettings: (settings: PreferenceSettings) => void
-    onSave: () => Promise<boolean>
+    onSave: (newSettings?: PreferenceSettings) => Promise<boolean>
     saving: boolean
 }
 
@@ -41,11 +41,10 @@ export function PreferencesSection({ settings, setSettings, onSave, saving }: Pr
     }, [settings.theme, setTheme])
 
     const updateSetting = <K extends keyof PreferenceSettings>(key: K, value: PreferenceSettings[K]) => {
-        setSettings({ ...settings, [key]: value })
-        // Auto-save pour une expérience fluide
-        setTimeout(() => {
-            void onSave()
-        }, 100)
+        const newSettings = { ...settings, [key]: value }
+        setSettings(newSettings)
+        // Auto-save immédiat avec les nouvelles données
+        void onSave(newSettings)
     }
 
     return (

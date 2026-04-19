@@ -23,23 +23,27 @@ interface NotificationSettings {
 interface NotificationsSectionProps {
     settings: NotificationSettings
     setSettings: (settings: NotificationSettings) => void
-    onSave: () => Promise<boolean>
+    onSave: (newSettings?: NotificationSettings) => Promise<boolean>
     saving: boolean
 }
 
 export function NotificationsSection({ settings, setSettings, onSave, saving }: NotificationsSectionProps) {
     const toggle = async (key: keyof NotificationSettings, checked: boolean) => {
-        setSettings({ ...settings, [key]: checked })
+        const newSettings = { ...settings, [key]: checked }
+        setSettings(newSettings)
 
         // Si l'utilisateur active les notifications push, on lance la procédure d'abonnement
         if (key === 'push' && checked) {
-            await subscribeToPushNotifications()
+            const sub = await subscribeToPushNotifications()
+            // Si l'abonnement échoue (refus permission etc), on peut choisir de désactiver le switch
+            if (!sub) {
+                setSettings({ ...settings, [key]: false })
+                return
+            }
         }
 
-        // On attend un petit peu pour laisser le state React se mettre à jour
-        setTimeout(() => {
-            void onSave()
-        }, 100)
+        // On lance la sauvegarde avec les nouvelles données directement
+        void onSave(newSettings)
     }
 
     return (

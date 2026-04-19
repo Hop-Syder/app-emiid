@@ -332,7 +332,7 @@ export function ParametresContent() {
                         <NotificationsSection
                             settings={notificationSettings}
                             setSettings={setNotificationSettings}
-                            onSave={() => saveSettings({ notification_preferences: notificationSettings }, "Préférences de notifications mises à jour")}
+                            onSave={(newSettings) => saveSettings({ notification_preferences: newSettings || notificationSettings }, "Préférences de notifications mises à jour")}
                             saving={saving}
                         />
                     </TabsContent>
@@ -341,7 +341,7 @@ export function ParametresContent() {
                         <PreferencesSection
                             settings={preferences}
                             setSettings={setPreferences}
-                            onSave={() => saveSettings({ app_preferences: preferences }, "Préférences générales mises à jour")}
+                            onSave={(newSettings) => saveSettings({ app_preferences: newSettings || preferences }, "Préférences générales mises à jour")}
                             saving={saving}
                         />
                     </TabsContent>
