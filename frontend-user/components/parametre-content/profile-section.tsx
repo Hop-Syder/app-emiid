@@ -13,12 +13,11 @@ import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { AvatarUpload } from "@/components/AvatarUpload"
 import { fetchWithAuth } from "@/lib/apiClient"
-import { Mail, Smartphone, User, Shield, MessageCircle, MessageSquare, CheckCircle2, ChevronRight, AlertCircle } from "lucide-react"
+import { Mail, Smartphone, User, Shield, MessageSquare, CheckCircle2, ChevronRight, AlertCircle } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 
 interface UserProfile {
@@ -69,7 +68,7 @@ export function ProfileSection({
             const err = await res.json()
             toast.error(err.error || "Erreur lors de l'envoi du code")
         }
-    } catch (error) {
+    } catch (_error) {
         toast.error("Erreur de connexion au serveur")
     }
   }
@@ -93,7 +92,7 @@ export function ProfileSection({
             const err = await res.json()
             toast.error(err.error || "Code incorrect ou expiré")
         }
-    } catch (error) {
+    } catch (_error) {
         toast.error("Erreur technique lors de la vérification")
     } finally {
         setVerifying(false)

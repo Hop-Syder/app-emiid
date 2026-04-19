@@ -3,7 +3,6 @@
 import { motion } from "framer-motion"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
-import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { NukunProfileCard, NukunCardVariant } from "@/components/carte-profil/nukun-profile-card"
 import { fetchWithAuth } from "@/lib/apiClient"

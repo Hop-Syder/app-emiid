@@ -16,7 +16,7 @@ import { fetchWithAuth } from "@/lib/apiClient"
 import { createClient } from "@/lib/supabase/client"
 import { AnnuaireCard } from "./annuaire-card"
 import { EmptyState } from "@/components/EmptyState"
-import { Search, UserPlus } from "lucide-react"
+import { Search } from "lucide-react"
 
 interface AnnuaireGridProps {
     filters?: {

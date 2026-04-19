@@ -30,7 +30,7 @@ export async function GET(request: Request) {
         query = query.eq('slug', id)
     }
 
-    const { data: profile, error } = await query.single()
+    const { data: profile, error: _error } = await query.single()
 
     if (!profile) {
       return new Response('Profile not found', { status: 404 })
@@ -81,12 +81,12 @@ export async function GET(request: Request) {
             <div style={{ 
               display: 'flex', 
               color: 'white', 
-              fontSize: '32px', 
+              fontSize: '48px', 
               fontWeight: 900, 
               letterSpacing: '2px',
               textTransform: 'uppercase'
             }}>
-              NEXUS <span style={{ color: '#CE1126', marginLeft: '10px' }}>CONNECT</span>
+              NUKUN
             </div>
             <div style={{
               display: 'flex',
@@ -178,7 +178,7 @@ export async function GET(request: Request) {
             fontSize: '24px',
             fontWeight: 'bold',
           }}>
-            nexus-connect.africa
+            nukun.app
           </div>
         </div>
       ),

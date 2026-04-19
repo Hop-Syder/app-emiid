@@ -167,7 +167,7 @@ export function DashboardPublicContent({ initialStats = null }: DashboardPublicC
             isMounted = false
             window.clearInterval(intervalId)
         }
-    }, [])
+    }, [supabase])
 
     return (
         <div className="space-y-8">

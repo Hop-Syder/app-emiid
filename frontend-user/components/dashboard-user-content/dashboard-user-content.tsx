@@ -82,8 +82,6 @@ export function DashboardContent({ initialStats = null }: DashboardContentProps)
       }
 
       try {
-        let nextWarning: string | null = null
-
         // 1. Fetch Premium Profiles
         const { data: premiumData } = await supabase
             .from('user_profiles')
@@ -163,7 +161,7 @@ export function DashboardContent({ initialStats = null }: DashboardContentProps)
       isMounted = false
       window.clearInterval(intervalId)
     }
-  }, [])
+  }, [supabase])
 
   return (
     <div className="space-y-8">
@@ -204,7 +202,7 @@ export function DashboardContent({ initialStats = null }: DashboardContentProps)
               <h3 className="text-xl font-black text-slate-900 flex items-center gap-2 italic uppercase tracking-tighter">
                 💎 Profils Premium
               </h3>
-              <p className="text-xs text-slate-500 font-medium">L'excellence de notre réseau</p>
+              <p className="text-xs text-slate-500 font-medium">L&apos;excellence de notre réseau</p>
            </div>
         </div>
         <EntrepreneursSection entrepreneursList={premiumProfiles} loading={loading} variant="elite" />

@@ -16,7 +16,7 @@ import { motion } from "framer-motion"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
-import { Share2, Copy, Check, Linkedin, Twitter, MessageCircle } from "lucide-react"
+import { Share2, Copy, Check, Linkedin, Twitter } from "lucide-react"
 import { useCurrentUserProfile } from "@/hooks/use-current-user-profile"
 import { toast } from "sonner"
 import {
