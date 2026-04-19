@@ -6,7 +6,8 @@
  * @updated 2026-04-19
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
-*/──────────────────────────────────
+ * ──────────────────────────────────
+ */
 
 import type { Metadata } from 'next'
 import { Analytics } from '@vercel/analytics/next'

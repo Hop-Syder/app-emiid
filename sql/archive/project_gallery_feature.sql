@@ -5,7 +5,8 @@
  * @created 2026-03-12
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
-*/──────────────────────────────────
+ * ──────────────────────────────────
+ */
 
 -- ==========================================
 -- 1. ACTIVATION DE SUPABASE REALTIME

@@ -6,7 +6,8 @@
 - @created 2026-01-24
 - @updated 2026-01-24
 - 🌐 ceo.nexuspartners.xyz
-  \*/──────────────────────────────────
+  \ * ──────────────────────────────────
+ */
 
 # 📊 Rapport d'Analyse des Fonctionnalités - Nukun
 

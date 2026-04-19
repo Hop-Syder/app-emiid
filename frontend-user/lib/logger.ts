@@ -7,7 +7,8 @@
  * @updated 2026-04-19
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
-*/──────────────────────────────────
+ * ──────────────────────────────────
+ */
 
 const isDev = process.env.NODE_ENV === 'development'
 
