@@ -13,7 +13,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Phone, Smartphone, Lock, Eye, EyeOff, CheckCircle2, ShieldAlert } from "lucide-react"
+import { Phone, Smartphone, Lock, Eye, EyeOff, ShieldAlert } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -25,12 +25,7 @@ import { createClient } from "@/lib/supabase/client"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp"
 
-interface UserProfile {
-    id: string
-    email?: string
-    phone?: string
-    phone_verified?: boolean
-}
+
 
 interface SecuritySectionProps {
     profile: any

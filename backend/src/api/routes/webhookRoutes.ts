@@ -144,36 +144,4 @@ router.post('/supabase', async (req: Request, res: Response) => {
   }
 });
 
-// @route   GET /api/webhooks/test-notif
-// @desc    Déclenche une notification de test (Temporaire)
-router.get('/test-notif', async (req: Request, res: Response) => {
-  try {
-    const { userId } = req.query;
-    if (!userId) return res.status(400).json({ error: "userId requis" });
-
-    // 1. Notification In-App
-    await supabaseAdmin.from('notifications').insert({
-      user_id: userId as string,
-      type: 'system',
-      title: "Test de notification EmiID",
-      content: "Ceci est une notification de test pour vérifier que tout fonctionne.",
-      link: "/dashboard-user",
-      is_read: false
-    });
-
-    // 2. Notification Push
-    await sendPushNotification(
-      userId as string,
-      "Test Push EmiID",
-      "Votre système de notification est opérationnel !",
-      undefined,
-      "/dashboard-user"
-    );
-
-    res.status(200).json({ message: "Notifications de test envoyées !" });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
 export default router;
