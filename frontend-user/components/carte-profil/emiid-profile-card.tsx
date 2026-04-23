@@ -1,7 +1,7 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Carte de profil premium (Elite, Glass, Tech) - Nukun
+ * @description Carte de profil premium (Elite, Glass, Tech) - EmiID
  * @created 2026-03-23
  * @updated 2026-03-23
 */
@@ -15,9 +15,9 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { getOptimizedImageUrl } from "@/lib/image-optimization"
 
-export type NukunCardVariant = "elite" | "glass" | "tech"
+export type EmiIDCardVariant = "elite" | "glass" | "tech"
 
-interface NukunProfileCardProps {
+interface EmiIDProfileCardProps {
   user: {
     id: string
     name: string
@@ -32,24 +32,24 @@ interface NukunProfileCardProps {
     premium?: boolean
     tags?: string[]
   }
-  variant?: NukunCardVariant
+  variant?: EmiIDCardVariant
   onAction?: (type: 'message' | 'follow' | 'view') => void
   isFollowed?: boolean
   className?: string
 }
 
-export function NukunProfileCard({ 
+export function EmiIDProfileCard({ 
   user, 
   variant = "tech", 
   onAction,
   isFollowed = false,
   className
-}: NukunProfileCardProps) {
+}: EmiIDProfileCardProps) {
 
-  const name = user.name || "Membre Nukun"
+  const name = user.name || "Membre EmiID"
   const role = user.role || "Professionnel"
   const location = user.location || "Afrique"
-  const category = user.category || "Nukun"
+  const category = user.category || "EmiID"
   const following = user.following || 0
   const categoryLabelMap: Record<string, string> = {
     artisan: "Artisan",
@@ -61,7 +61,7 @@ export function NukunProfileCard({
   }
   const displayCategory = categoryLabelMap[category.toLowerCase()] || category
 
-  // NUKUN ELITE (Luxury Dark)
+  // EMIID ELITE (Luxury Dark)
   if (variant === "elite") {
     return (
       <motion.div 
@@ -150,7 +150,7 @@ export function NukunProfileCard({
     )
   }
 
-  // NUKUN GLASS (Modern Blue)
+  // EMIID GLASS (Modern Blue)
   if (variant === "glass") {
     return (
       <motion.div 
@@ -222,7 +222,7 @@ export function NukunProfileCard({
     )
   }
 
-  // NUKUN TECH (White/Orange - Default)
+  // EMIID TECH (White/Orange - Default)
   return (
     <motion.div 
       whileHover={{ y: -6 }}

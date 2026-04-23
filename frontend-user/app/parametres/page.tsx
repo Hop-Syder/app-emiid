@@ -1,10 +1,10 @@
-import { NukunLayout } from "@/components/menu/nukun-layout"
+import { EmiIDLayout } from "@/components/menu/emiid-layout"
 import { ParametresContent } from "@/components/parametre-content"
 
 export default function ParametresPage() {
   return (
-    <NukunLayout>
+    <EmiIDLayout>
       <ParametresContent />
-    </NukunLayout>
+    </EmiIDLayout>
   )
 }

@@ -1,7 +1,7 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description DATABASE DOCUMENTATION - Schema & Security (SSoT) pour Nukun
+ * @description DATABASE DOCUMENTATION - Schema & Security (SSoT) pour EmiID
  * @version 1.2.1
  * @updated 2026-04-19
  * 🌐 ceo.nexuspartners.xyz
@@ -9,9 +9,9 @@
  * ──────────────────────────────────
  */
 
-# 🗄️ Database — Nukun Master Schema
+# 🗄️ Database — EmiID Master Schema
 
-La base de données repose sur **PostgreSQL (via Supabase)**. Le fichier `sql/MASTER_NUKUN_SCHEMA.sql` sert de source unique de vérité (Single Source of Truth).
+La base de données repose sur **PostgreSQL (via Supabase)**. Le fichier `sql/MASTER_EMIID_SCHEMA.sql` sert de source unique de vérité (Single Source of Truth).
 
 ---
 
@@ -57,4 +57,4 @@ La base de données repose sur **PostgreSQL (via Supabase)**. Le fichier `sql/MA
 
 ## 🚀 Maintenance & Evolution (Business Analyst)
 > [!IMPORTANT]
-> Toute modification du schéma doit être reportée dans le fichier `sql/MASTER_NUKUN_SCHEMA.sql` et versionnée. Les extensions comme `pg_crypto` sont requises pour la gestion des PIN.
+> Toute modification du schéma doit être reportée dans le fichier `sql/MASTER_EMIID_SCHEMA.sql` et versionnée. Les extensions comme `pg_crypto` sont requises pour la gestion des PIN.

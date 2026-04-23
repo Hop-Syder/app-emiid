@@ -83,6 +83,7 @@ export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProp
                             <SelectContent className="rounded-xl">
                                 <SelectItem value="all">Tous les secteurs</SelectItem>
                                 <SelectItem value="artisan">Artisans</SelectItem>
+                                <SelectItem value="commerçante">Commerçantes</SelectItem>
                                 <SelectItem value="freelance">Freelances</SelectItem>
                                 <SelectItem value="entreprise">Entreprises</SelectItem>
                                 <SelectItem value="agence">Agences</SelectItem>

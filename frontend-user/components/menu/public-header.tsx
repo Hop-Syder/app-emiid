@@ -1,7 +1,7 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Header pour les visiteurs non-connectés de Nukun
+ * @description Header pour les visiteurs non-connectés de EmiID
  * @created 2026-01-24
  * @updated 2026-04-19
  * 🌐 ceo.nexuspartners.xyz
@@ -27,12 +27,12 @@ export function PublicHeader() {
                 <Link href="/" className="flex items-center gap-2">
                     <Image
                         src="/logo/logo-2.png"
-                        alt="Nukun"
+                        alt="EmiID"
                         width={40}
                         height={40}
                         className="w-10 h-10 object-contain"
                     />
-                    <span className="font-bold text-xl text-[#022753] hidden sm:block">Nukun</span>
+                    <span className="font-bold text-xl text-[#022753] hidden sm:block">EmiID</span>
                 </Link>
 
                 <nav className="hidden md:flex items-center gap-8">

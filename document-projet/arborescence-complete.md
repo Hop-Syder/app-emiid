@@ -1,7 +1,7 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Arborescence logicielle complète de l'écosystème Nukun
+ * @description Arborescence logicielle complète de l'écosystème EmiID
  * @created 2026-03-24
  * @updated 2026-04-19
  * 🌐 ceo.nexuspartners.xyz
@@ -9,9 +9,9 @@
  * ──────────────────────────────────
  */
 
-# 📂 Arborescence Complète - Nukun
+# 📂 Arborescence Complète - EmiID
 
-Ce document détaille la structure organisationnelle du projet Nukun pour une reconstruction fidèle du système.
+Ce document détaille la structure organisationnelle du projet EmiID pour une reconstruction fidèle du système.
 
 ```tree
 .

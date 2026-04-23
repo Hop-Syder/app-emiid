@@ -1,7 +1,8 @@
 {
-  "name": "nukun-monorepo",
-  "version": "1.0.0",
+  "name": "emiid",
+  "version": "1.2.1",
   "private": true,
+  "description": "EmiID — Ton réseau, ta force",
   "scripts": {
     "dev:all": "concurrently \"npm run dev --prefix frontend-user\" \"npm run dev --prefix backend\" \"npm run dev --prefix frontend-admin\"",
     "dev:frontend": "npm run dev --prefix frontend-user",

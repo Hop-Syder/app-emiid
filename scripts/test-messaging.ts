@@ -40,7 +40,7 @@ async function testMessagingAPI() {
                 headers,
                 body: JSON.stringify({
                     receiverId: support.id,
-                    content: "Test automatique Nukun Support"
+                    content: "Test automatique EmiID Support"
                 })
             });
             

@@ -1,7 +1,7 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Routes pour les webhooks (venant de Supabase) pour Nukun
+ * @description Routes pour les webhooks (venant de Supabase) pour EmiID
  * @created 2026-04-17
  */
 
@@ -50,24 +50,24 @@ router.post('/supabase', async (req: Request, res: Response) => {
       const preferences = recipient.user.user_metadata?.notification_preferences;
       const email = recipient.user.email;
 
-      // Si les notifications par mail pour les messages sont activées
+      // Récupérer le nom de l'expéditeur
+      const { data: senderProfile } = await supabaseAdmin
+        .from('user_profiles')
+        .select('first_name, last_name')
+        .eq('user_id', sender_id)
+        .single();
+
+      const senderName = senderProfile 
+        ? `${senderProfile.first_name || ''} ${senderProfile.last_name || ''}`.trim() 
+        : "Un membre EmiID";
+
+      // Notifications Mail
       if (email && preferences?.messages !== false) {
-        // Récupérer le nom de l'expéditeur
-        const { data: senderProfile } = await supabaseAdmin
-          .from('user_profiles')
-          .select('first_name, last_name')
-          .eq('user_id', sender_id)
-          .single();
-
-        const senderName = senderProfile 
-          ? `${senderProfile.first_name || ''} ${senderProfile.last_name || ''}`.trim() 
-          : "Un membre Nukun";
-
         await sendNewMessageNotification(email, senderName, content.substring(0, 100));
         logger.info(`Notification email envoyée à ${email} pour le message de ${senderName}`);
       }
 
-      // 2. Création de la notification In-App (visible dans le header)
+      // Notification In-App
       const { error: notifError } = await supabaseAdmin
         .from('notifications')
         .insert({
@@ -79,13 +79,9 @@ router.post('/supabase', async (req: Request, res: Response) => {
           is_read: false
         });
 
-      if (notifError) {
-        logger.error("Erreur lors de la création de la notification in-app", notifError);
-      } else {
-        logger.info(`Notification in-app créée pour ${recipientId}`);
-      }
+      if (notifError) logger.error("Erreur notification in-app message", notifError);
 
-      // 3. Envoi de la notification Push (Mobile/Desktop)
+      // Notification Push
       if (preferences?.push !== false) {
         await sendPushNotification(
           recipientId,
@@ -95,11 +91,88 @@ router.post('/supabase', async (req: Request, res: Response) => {
           `/messages?conv=${conversation_id}`
         );
       }
+    }
+
+    // 2. Gestion des nouveaux followers
+    if (type === 'INSERT' && table === 'user_follows') {
+      const { follower_id, following_id } = record;
+
+      // Récupérer le profil du follower
+      const { data: followerProfile } = await supabaseAdmin
+        .from('user_profiles')
+        .select('first_name, last_name')
+        .eq('user_id', follower_id)
+        .single();
+
+      const followerName = followerProfile 
+        ? `${followerProfile.first_name || ''} ${followerProfile.last_name || ''}`.trim() 
+        : "Un nouveau membre";
+
+      // Récupérer les préférences du destinataire (following_id)
+      const { data: recipient, error: recipientError } = await supabaseAdmin.auth.admin.getUserById(following_id);
+      
+      if (!recipientError && recipient) {
+        const preferences = recipient.user.user_metadata?.notification_preferences;
+
+        // Notification In-App
+        await supabaseAdmin.from('notifications').insert({
+          user_id: following_id,
+          type: 'network',
+          title: "Nouveau follower !",
+          content: `${followerName} a commencé à vous suivre.`,
+          link: `/profil/${follower_id}`,
+          is_read: false
+        });
+
+        // Notification Push
+        if (preferences?.push !== false) {
+          await sendPushNotification(
+            following_id,
+            "Nouveau follower !",
+            `${followerName} vous suit désormais.`,
+            undefined,
+            `/profil/${follower_id}`
+          );
+        }
+      }
+    }
     
     res.status(200).json({ success: true });
   } catch (err: any) {
     logger.error('Erreur webhook supabase', err);
     res.status(500).json({ error: err.message || 'Erreur interne' });
+  }
+});
+
+// @route   GET /api/webhooks/test-notif
+// @desc    Déclenche une notification de test (Temporaire)
+router.get('/test-notif', async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.query;
+    if (!userId) return res.status(400).json({ error: "userId requis" });
+
+    // 1. Notification In-App
+    await supabaseAdmin.from('notifications').insert({
+      user_id: userId as string,
+      type: 'system',
+      title: "Test de notification EmiID",
+      content: "Ceci est une notification de test pour vérifier que tout fonctionne.",
+      link: "/dashboard-user",
+      is_read: false
+    });
+
+    // 2. Notification Push
+    await sendPushNotification(
+      userId as string,
+      "Test Push EmiID",
+      "Votre système de notification est opérationnel !",
+      undefined,
+      "/dashboard-user"
+    );
+
+    res.status(200).json({ message: "Notifications de test envoyées !" });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
   }
 });
 

@@ -1,7 +1,7 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Page 404 personnalisée avec design Nukun Premium
+ * @description Page 404 personnalisée avec design EmiID Premium
  * @created 2026-01-25
 */
 
@@ -40,7 +40,7 @@ export default function NotFound() {
                 <h2 className="text-2xl font-semibold text-gray-800 mb-4">Destination inconnue</h2>
 
                 <p className="text-gray-500 mb-8 leading-relaxed">
-                    Il semble que vous ayez navigué hors de la carte de Nukun.
+                    Il semble que vous ayez navigué hors de la carte de EmiID.
                     Cette page n&apos;existe pas ou a été déplacée.
                 </p>
 
@@ -60,7 +60,7 @@ export default function NotFound() {
             </motion.div>
 
             <footer className="absolute bottom-8 text-xs text-gray-400 font-medium">
-                Nukun • 2026
+                EmiID • 2026
             </footer>
         </div>
     )

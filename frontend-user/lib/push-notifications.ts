@@ -7,7 +7,7 @@
 
 import { createClient } from './supabase/client';
 
-const PUBLIC_VAPID_KEY = 'BJ8MIeoZ6wZsNAeBINc3YXecQGvRODOh7ZTSrYdN7vqPPBgT-3EjnUwwtNLruY7sdWf0HtamN4yo6619_0zcLDo';
+const PUBLIC_VAPID_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || 'BJ8MIeoZ6wZsNAeBINc3YXecQGvRODOh7ZTSrYdN7vqPPBgT-3EjnUwwtNLruY7sdWf0HtamN4yo6619_0zcLDo';
 
 /**
  * Convertit une clé VAPID base64 en Uint8Array pour le navigateur

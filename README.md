@@ -1,7 +1,7 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Documentation racine de l'écosystème Nukun
+ * @description Documentation racine de l'écosystème EmiID
  * @created 2026-01-04
  * @updated 2026-04-19
  * 🌐 ceo.nexuspartners.xyz
@@ -9,9 +9,9 @@
  * ──────────────────────────────────
  */
 
-# 🚀 Nukun — Ton réseau, ta force
+# 🚀 EmiID — Ton réseau, ta force
 
-**Nukun** est une infrastructure digitale centralisée conçue pour structurer, connecter et dynamiser l’écosystème professionnel à travers une gestion intelligente de profils, d’interactions et de validations.
+**EmiID** est une infrastructure digitale centralisée conçue pour structurer, connecter et dynamiser l’écosystème professionnel à travers une gestion intelligente de profils, d’interactions et de validations.
 
 ---
 
@@ -19,10 +19,10 @@
 
 Pour une immersion profonde dans les différentes couches du projet, consultez la documentation dédiée :
 
-- 🌌 **[Project Overview](file:///home/hopsyder/Projet/app-nukun/docs/PROJECT_OVERVIEW.md)** : Vision, Stratégie SaaS et Roadmap.
-- 📱 **[Frontend User](file:///home/hopsyder/Projet/app-nukun/docs/FRONTEND_USER.md)** : Guide technique et fonctionnel de l'application utilisateur.
-- 🛠️ **[Frontend Admin](file:///home/hopsyder/Projet/app-nukun/docs/FRONTEND_ADMIN.md)** : Cockpit d'administration, sécurité et modération.
-- 🗄️ **[Database & SQL](file:///home/hopsyder/Projet/app-nukun/docs/DATABASE_SCHEMA.md)** : Schéma master, RLS et logique métier SQL.
+- 🌌 **[Project Overview](file:///home/hopsyder/Projet/app-emiid/docs/PROJECT_OVERVIEW.md)** : Vision, Stratégie SaaS et Roadmap.
+- 📱 **[Frontend User](file:///home/hopsyder/Projet/app-emiid/docs/FRONTEND_USER.md)** : Guide technique et fonctionnel de l'application utilisateur.
+- 🛠️ **[Frontend Admin](file:///home/hopsyder/Projet/app-emiid/docs/FRONTEND_ADMIN.md)** : Cockpit d'administration, sécurité et modération.
+- 🗄️ **[Database & SQL](file:///home/hopsyder/Projet/app-emiid/docs/DATABASE_SCHEMA.md)** : Schéma master, RLS et logique métier SQL.
 
 ---
 
@@ -61,4 +61,4 @@ Pour une immersion profonde dans les différentes couches du projet, consultez l
 ---
 
 ## 📊 Audit & Qualité
-Consultez l'**[Audit des Frontends](file:///home/hopsyder/Projet/app-nukun/AUDIT_FRONTENDS.md)** pour connaître les points de vigilance techniques et les priorités de développement actuelles.
+Consultez l'**[Audit des Frontends](file:///home/hopsyder/Projet/app-emiid/AUDIT_FRONTENDS.md)** pour connaître les points de vigilance techniques et les priorités de développement actuelles.

@@ -1,7 +1,7 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Code de base (Boilerplate) pour Nukun
+ * @description Code de base (Boilerplate) pour EmiID
  * @created 2026-03-24
  * @updated 2026-04-19
  * 🌐 ceo.nexuspartners.xyz
@@ -9,9 +9,9 @@
  * ──────────────────────────────────
  */
 
-# 🧱 Code de Base & Initialisation - Nukun
+# 🧱 Code de Base & Initialisation - EmiID
 
-Ce document présente les extraits de code fondamentaux pour initialiser et faire fonctionner l'écosystème Nukun.
+Ce document présente les extraits de code fondamentaux pour initialiser et faire fonctionner l'écosystème EmiID.
 
 ## 1. Initialisation de l'API Express (Backend)
 
@@ -34,7 +34,7 @@ app.use('/api/users', userRoutes);
 
 const PORT = Number(process.env.PORT) || 5000;
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Nukun Backend prêt sur le port ${PORT}`);
+  console.log(`🚀 EmiID Backend prêt sur le port ${PORT}`);
 });
 ```
 
@@ -109,7 +109,7 @@ export const ProfileCard = ({ name, role, avatar }: ProfileProps) => {
 
 ```json
 {
-  "name": "nukun-monorepo",
+  "name": "emiid-monorepo",
   "scripts": {
     "dev:all": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:admin\"",
     "dev:backend": "cd backend && npm run dev",

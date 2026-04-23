@@ -1,14 +1,14 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description FRONTEND ADMIN DOCUMENTATION - Nukun Cockpit
+ * @description FRONTEND ADMIN DOCUMENTATION - EmiID Cockpit
  * @created 2026-04-18
  * @updated 2026-04-18
  */
 
-# 🛠️ Frontend Admin — Nukun Cockpit
+# 🛠️ Frontend Admin — EmiID Cockpit
 
-Le "Nukun Cockpit" est l'interface de contrôle et de modération de la plateforme. Il permet de piloter l'écosystème utilisateur et d'assurer la sécurité du contenu.
+Le "EmiID Cockpit" est l'interface de contrôle et de modération de la plateforme. Il permet de piloter l'écosystème utilisateur et d'assurer la sécurité du contenu.
 
 ## 🚀 Stack Technique
 - **Framework** : Next.js 16 (App Router - Expérimental)

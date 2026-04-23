@@ -47,7 +47,7 @@ const sidebarItems: SidebarItem[] = [
     requiresAuth: true,
   },
   {
-    title: "Ma Carte Nukun",
+    title: "Ma Carte EmiID",
     icon: "/svg/FileText.svg",
     href: "/creer-profil",
     requiresAuth: true,
@@ -66,14 +66,14 @@ const sidebarItems: SidebarItem[] = [
   },
 ]
 
-interface NukunSidebarProps {
+interface EmiIDSidebarProps {
   sidebarOpen: boolean
   setSidebarOpen: (open: boolean) => void
   mobileMenuOpen: boolean
   setMobileMenuOpen: (open: boolean) => void
 }
 
-export function NukunSidebar({ sidebarOpen, setSidebarOpen: _setSidebarOpen, mobileMenuOpen, setMobileMenuOpen }: NukunSidebarProps) {
+export function EmiIDSidebar({ sidebarOpen, setSidebarOpen: _setSidebarOpen, mobileMenuOpen, setMobileMenuOpen }: EmiIDSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const { session, currentUser } = useCurrentUserProfile()
@@ -131,7 +131,7 @@ export function NukunSidebar({ sidebarOpen, setSidebarOpen: _setSidebarOpen, mob
         <div className={cn("flex items-center gap-3", isCompactDesktop && "justify-center") }>
           <Image
             src="/logo/logo-1.png"
-            alt="Nukun Logo"
+            alt="EmiID Logo"
             width={160}
             height={45}
             className={cn(

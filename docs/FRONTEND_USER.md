@@ -2,16 +2,16 @@
 
 - @author @hopsyder
 - @organization Nexus Partners
-- @description FRONTEND USER DOCUMENTATION - App Nukun
+- @description FRONTEND USER DOCUMENTATION - App EmiID
 - @created 2026-04-18
 - @updated 2026-04-19
 - 🌐 ceo.nexuspartners.xyz
 - 📧 daoudaabassichristian@gmail.com
   \*/
 
-# 📱 Frontend User — Nukun
+# 📱 Frontend User — EmiID
 
-L'application utilisateur est le cœur de l'expérience Nukun. Elle est conçue pour être fluide, visuellement premium et hautement interactive.
+L'application utilisateur est le cœur de l'expérience EmiID. Elle est conçue pour être fluide, visuellement premium et hautement interactive.
 
 ## 🚀 Stack Technique
 

@@ -1,7 +1,7 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Composant d'état vide pour Nukun
+ * @description Composant d'état vide pour EmiID
  * @created 2026-04-19
 */
 

@@ -132,7 +132,7 @@ export function MessagesContent() {
         if (!res.ok) throw new Error("Erreur backend")
         
         const data = await res.json()
-        const pinnedIds = JSON.parse(localStorage.getItem(`nukun_pinned_convs_${currentUserId}`) || "[]")
+        const pinnedIds = JSON.parse(localStorage.getItem(`emiid_pinned_convs_${currentUserId}`) || "[]")
         const formatted = data.map((c: Conversation) => ({
           ...c,
           isPinned: pinnedIds.includes(c.id)
@@ -313,7 +313,7 @@ export function MessagesContent() {
         const convRes = await fetchWithAuth("/api/messages/conversations")
         if (convRes.ok) {
           const data = await convRes.json()
-          const pinnedIds = JSON.parse(localStorage.getItem(`nukun_pinned_convs_${currentUserId}`) || "[]")
+          const pinnedIds = JSON.parse(localStorage.getItem(`emiid_pinned_convs_${currentUserId}`) || "[]")
           const enrichedData = data.map((c: any) => ({
             ...c,
             isPinned: pinnedIds.includes(c.id)
@@ -543,7 +543,7 @@ export function MessagesContent() {
             id: 'new-support',
             otherUser: {
               id: supportUser.id,
-              name: supportUser.name || "Service Client Nukun",
+              name: supportUser.name || "Service Client EmiID",
               avatar: supportUser.avatar || "/nexus-support.png",
               role: "Support Technique",
               isOnline: true,
@@ -626,7 +626,7 @@ export function MessagesContent() {
       
       // Persister dans localStorage
       const pinnedIds = next.filter(c => c.isPinned).map(c => c.id);
-      localStorage.setItem(`nukun_pinned_convs_${currentUserId}`, JSON.stringify(pinnedIds));
+      localStorage.setItem(`emiid_pinned_convs_${currentUserId}`, JSON.stringify(pinnedIds));
       
       return next;
     })
@@ -1061,7 +1061,7 @@ export function MessagesContent() {
                           </div>
                           <div className="flex-1">
                             <h4 className="text-sm font-bold text-amber-950">
-                              Médiation Nukun en cours
+                              Médiation EmiID en cours
                             </h4>
                             <p className="text-[11px] sm:text-xs font-medium text-amber-900/70 mt-0.5 leading-relaxed">
                               Un administrateur accompagne cette conversation afin de garantir la sécurité et la sérénité de vos échanges.
@@ -1318,7 +1318,7 @@ export function MessagesContent() {
                 <div className="space-y-1">
                   <DialogTitle className="text-2xl font-black text-slate-900 tracking-tight">Demande de Médiation</DialogTitle>
                   <DialogDescription className="text-slate-500 font-medium">
-                    Un administrateur Nukun sera invité à rejoindre cette discussion pour vous aider à résoudre le litige.
+                    Un administrateur EmiID sera invité à rejoindre cette discussion pour vous aider à résoudre le litige.
                   </DialogDescription>
                 </div>
               </DialogHeader>

@@ -400,7 +400,7 @@ export default function AdminMessagesContent() {
                       const isOwn = msg.sender_id === currentAdminId
                       const sender = msg.sender_id === selectedConv.user1.id ? selectedConv.user1 : 
                                      msg.sender_id === selectedConv.user2.id ? selectedConv.user2 : 
-                                     { name: "Nukun Admin", avatar: "", role: "admin" }
+                                     { name: "EmiID Admin", avatar: "", role: "admin" }
 
                       const isMediation = msg.content.includes("[MÉDIATION DEMANDÉE]")
                       const isStatusUpdate = msg.content.includes("[MÉDIATION STATUT]")

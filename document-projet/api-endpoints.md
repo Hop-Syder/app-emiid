@@ -1,7 +1,7 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Analyse et documentation des points d'entrée de l'API Nukun
+ * @description Analyse et documentation des points d'entrée de l'API EmiID
  * @created 2026-03-24
  * @updated 2026-04-19
  * 🌐 ceo.nexuspartners.xyz
@@ -9,7 +9,7 @@
  * ──────────────────────────────────
  */
 
-# 📡 Points d'Entrée API (Backend) - Nukun
+# 📡 Points d'Entrée API (Backend) - EmiID
 
 Ce document recense les endpoints de l'API Express, leurs méthodes HTTP et leurs fonctions dans l'écosystème.
 

@@ -8,13 +8,13 @@
  * 📧 daoudaabassichristian@gmail.com
 */
 
-import { NukunLayout } from "@/components/menu/nukun-layout"
+import { EmiIDLayout } from "@/components/menu/emiid-layout"
 import { DashboardContent } from "@/components/dashboard-user-content/dashboard-user-content"
 
 export default function DashboardPage() {
     return (
-        <NukunLayout>
+        <EmiIDLayout>
             <DashboardContent />
-        </NukunLayout>
+        </EmiIDLayout>
     )
 }

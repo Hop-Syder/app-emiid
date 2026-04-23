@@ -1,10 +1,10 @@
-# 🛠️ Frontend Admin — Nukun Cockpit
+# 🛠️ Frontend Admin — EmiID Cockpit
 
-Panneau d'administration pour la plateforme Nukun. Interface moderne construite avec Next.js 16, Tailwind CSS 4, et connectée à Supabase.
+Panneau d'administration pour la plateforme EmiID. Interface moderne construite avec Next.js 16, Tailwind CSS 4, et connectée à Supabase.
 
 ## 📖 Documentation Détaillée
 Pour une documentation technique et sécuritaire complète, voir :
-👉 **[docs/FRONTEND_ADMIN.md](file:///home/hopsyder/Projet/app-nukun/docs/FRONTEND_ADMIN.md)**
+👉 **[docs/FRONTEND_ADMIN.md](file:///home/hopsyder/Projet/app-emiid/docs/FRONTEND_ADMIN.md)**
 
 ## 🚀 Fonctionnalités Actuelles
 - Statistiques en temps reel (utilisateurs, profils publies, messages)

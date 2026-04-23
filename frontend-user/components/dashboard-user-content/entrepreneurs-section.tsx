@@ -4,7 +4,7 @@ import { motion } from "framer-motion"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
-import { NukunProfileCard, NukunCardVariant } from "@/components/carte-profil/nukun-profile-card"
+import { EmiIDProfileCard, EmiIDCardVariant } from "@/components/carte-profil/emiid-profile-card"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { toast } from "sonner"
 import { useCurrentUserProfile } from "@/hooks/use-current-user-profile"
@@ -16,7 +16,7 @@ import { Users } from "lucide-react"
 interface EntrepreneursSectionProps {
     entrepreneursList: PublicProfile[]
     loading: boolean
-    variant?: NukunCardVariant
+    variant?: EmiIDCardVariant
 }
 
 export function EntrepreneursSection({ entrepreneursList, loading, variant = "tech" }: EntrepreneursSectionProps) {
@@ -108,7 +108,7 @@ export function EntrepreneursSection({ entrepreneursList, loading, variant = "te
                             transition={{ duration: 0.3, delay: index * 0.1 }}
                             className="min-w-[280px] snap-center"
                         >
-                            <NukunProfileCard
+                            <EmiIDProfileCard
                                 user={{
                                     id: entrepreneur.id,
                                     name: entrepreneur.name,

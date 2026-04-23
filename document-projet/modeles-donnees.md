@@ -1,7 +1,7 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Modèles de données (Schéma SQL) pour Nukun
+ * @description Modèles de données (Schéma SQL) pour EmiID
  * @created 2026-03-24
  * @updated 2026-04-19
  * 🌐 ceo.nexuspartners.xyz
@@ -9,7 +9,7 @@
  * ──────────────────────────────────
  */
 
-# 💾 Modèles de Données - Nukun
+# 💾 Modèles de Données - EmiID
 
 Ce document présente les modèles de données fondamentaux du projet, leurs relations et leurs contraintes techniques.
 

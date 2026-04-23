@@ -20,7 +20,7 @@ export default function Error({
     reset: () => void
 }) {
     useEffect(() => {
-        console.error("Erreur Application Nukun:", error)
+        console.error("Erreur Application EmiID:", error)
     }, [error])
 
     return (

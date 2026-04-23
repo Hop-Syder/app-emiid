@@ -111,6 +111,7 @@ export function CreerProfilForm({
                         </SelectTrigger>
                         <SelectContent className="rounded-xl border-slate-200 shadow-xl">
                             <SelectItem value="artisan" className="rounded-xl py-3 cursor-pointer">🎨 Artisan</SelectItem>
+                            <SelectItem value="commerçante" className="rounded-xl py-3 cursor-pointer">🛒 Commerçante</SelectItem>
                             <SelectItem value="freelance" className="rounded-xl py-3 cursor-pointer">💻 Freelance</SelectItem>
                             <SelectItem value="entreprise" className="rounded-xl py-3 cursor-pointer">🏢 Entreprise</SelectItem>
                             <SelectItem value="agence" className="rounded-xl py-3 cursor-pointer">📣 Agence</SelectItem>
@@ -124,16 +125,16 @@ export function CreerProfilForm({
                 <div className="space-y-3">
                     <Label htmlFor="card_variant" className="text-sm font-bold flex items-center gap-2">
                         <Badge variant="outline" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-[10px] border-primary text-primary">✨</Badge>
-                        Design de votre Carte Nukun *
+                        Design de votre Carte EmiID *
                     </Label>
                     <Select value={formData.card_variant || "tech"} onValueChange={(value) => handleInputChange("card_variant", value)}>
                         <SelectTrigger id="card_variant" className="h-14 rounded-xl bg-slate-50 border-slate-200 focus:ring-2 focus:ring-primary/20 transition-all">
                             <SelectValue placeholder="Choisissez le design de votre carte..." />
                         </SelectTrigger>
                         <SelectContent className="rounded-xl border-slate-200 shadow-xl">
-                            <SelectItem value="tech" className="rounded-xl py-3 cursor-pointer">🟠 Nukun Tech (Minimalist & Orange)</SelectItem>
-                            <SelectItem value="glass" className="rounded-xl py-3 cursor-pointer">🔵 Nukun Glass (Modern & Blue)</SelectItem>
-                            <SelectItem value="elite" className="rounded-xl py-3 cursor-pointer">⭐ Nukun Elite (Premium & Gold)</SelectItem>
+                            <SelectItem value="tech" className="rounded-xl py-3 cursor-pointer">🟠 EmiID Tech (Minimalist & Orange)</SelectItem>
+                            <SelectItem value="glass" className="rounded-xl py-3 cursor-pointer">🔵 EmiID Glass (Modern & Blue)</SelectItem>
+                            <SelectItem value="elite" className="rounded-xl py-3 cursor-pointer">⭐ EmiID Elite (Premium & Gold)</SelectItem>
                         </SelectContent>
                     </Select>
                     <p className="text-[10px] text-muted-foreground ml-1">Ce design sera visible dans l&apos;annuaire au survol de votre profil.</p>
@@ -177,7 +178,7 @@ export function CreerProfilForm({
                     </Label>
                     <div className="flex items-center rounded-xl bg-slate-50 border border-slate-200 overflow-hidden focus-within:ring-2 focus-within:ring-primary/20 transition-all">
                         <div className="bg-slate-100 px-4 py-4 text-slate-500 font-medium text-sm border-r border-slate-200 flex items-center whitespace-nowrap">
-                            nukun.app/profil/
+                            emiid.app/profil/
                         </div>
                         <Input
                             id="slug"

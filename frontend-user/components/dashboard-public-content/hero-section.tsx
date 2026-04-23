@@ -1,7 +1,7 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Hero Section publique de Nukun
+ * @description Hero Section publique de EmiID
  * @created 2026-04-19
  * @updated 2026-04-19
  * 🌐 ceo.nexuspartners.xyz
@@ -36,8 +36,8 @@ export function HeroSection() {
 
             <div className="relative z-10 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
                 <div className="space-y-4">
-                    <Badge className="bg-white/20 text-white hover:bg-white/30 rounded-xl">Nukun — Ton réseau, ta force</Badge>
-                    <h2 className="text-4xl font-bold">Propulsez votre réseau avec Nukun</h2>
+                    <Badge className="bg-white/20 text-white hover:bg-white/30 rounded-xl">EmiID — Ton réseau, ta force</Badge>
+                    <h2 className="text-4xl font-bold">Propulsez votre réseau avec EmiID</h2>
                     <p className="max-w-[600px] text-white/90 text-lg">
                         La plateforme de networking intelligente conçue pour connecter les talents, les artisans et les entreprises à travers l&apos;Afrique.
                     </p>

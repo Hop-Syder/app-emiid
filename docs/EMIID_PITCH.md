@@ -1,7 +1,7 @@
 <!--
   @author @hopsyder
   @organization Nexus Partners
-  @description NUKUN — Investor & User Pitch Deck
+  @description EMIID — Investor & User Pitch Deck
   @created 2026-04-18
   @updated 2026-04-19
   🌐 ceo.nexuspartners.xyz
@@ -10,7 +10,7 @@
 
 <div align="center">
 
-# 🌌 NUKUN
+# 🌌 EMIID
 
 ### _Ton réseau, ta force._
 
@@ -24,7 +24,7 @@ _Nexus Partners · ceo.nexuspartners.xyz · daoudaabassichristian@gmail.com_
 
 ## ⚡ Une seule phrase pour tout comprendre
 
-> **Nukun est à l'Afrique ce que LinkedIn est à l'Occident — mais en mieux : nous ne nous contentons pas de connecter des gens, nous validons leur valeur réelle et transformons chaque relation en opportunité vérifiable.**
+> **EmiID est à l'Afrique ce que LinkedIn est à l'Occident — mais en mieux : nous ne nous contentons pas de connecter des gens, nous validons leur valeur réelle et transformons chaque relation en opportunité vérifiable.**
 
 ---
 
@@ -54,15 +54,15 @@ Les opportunités ? Aussi. Mais il manque **une infrastructure de confiance**.
 
 ---
 
-## ✅ La Solution — Nukun
+## ✅ La Solution — EmiID
 
-**Nukun est une plateforme digitale de mise en relation professionnelle intelligente**, conçue spécifiquement pour les réalités africaines.
+**EmiID est une plateforme digitale de mise en relation professionnelle intelligente**, conçue spécifiquement pour les réalités africaines.
 
 Elle fonctionne en **3 étapes simples** :
 
 **1. TU CRÉES TON PROFIL PROFESSIONNEL**
 Tu décris tes compétences, ton secteur, ta ville, ton histoire.
-Tu obtiens un slug unique : nukun.app/@tonnom
+Tu obtiens un slug unique : emiid.app/@tonnom
 
 **2. TU REJOINS L'ÉCOSYSTÈME**
 Tu apparais dans l'annuaire intelligent.
@@ -78,7 +78,7 @@ Tu deviens une référence dans ton secteur.
 
 ### Ce qui nous différencie
 
-|                                 | WhatsApp | LinkedIn  | **Nukun** |
+|                                 | WhatsApp | LinkedIn  | **EmiID** |
 | :------------------------------ | :------: | :-------: | :---------------: |
 | Profils professionnels vérifiés |    ❌    |    ✅     |        ✅         |
 | Conçu pour l'Afrique            |    ❌    |    ❌     |        ✅         |
@@ -111,7 +111,7 @@ Tu deviens une référence dans ton secteur.
 - 💸 Le marché TechAfrique attire déjà **+4 Mds USD d'investissements annuels**.
 - 🏗️ Aucun acteur dominant n'a encore réussi à s'imposer dans le networking professionnel africain francophone.
 
-> **La fenêtre d'opportunité est ouverte. Nukun la prend maintenant.**
+> **La fenêtre d'opportunité est ouverte. EmiID la prend maintenant.**
 
 ---
 
@@ -123,7 +123,7 @@ Notre modèle est **Freemium SaaS** : simple pour l'utilisateur, scalable pour l
 
 ### 🎁 Pack Starter — Gratuit, Toujours
 
-_Pour découvrir Nukun, créer son profil et rejoindre l'écosystème._
+_Pour découvrir EmiID, créer son profil et rejoindre l'écosystème._
 
 | Feature                                    | Inclus |
 | :----------------------------------------- | :----: |
@@ -200,7 +200,7 @@ _Pour les grandes entreprises, groupes et partenaires institutionnels._
 
 ## 🏗️ Traction — Ce qui est déjà construit (v1.2.0)
 
-**Nukun n'est pas une idée. C'est un produit.**
+**EmiID n'est pas une idée. C'est un produit.**
 
 ### Ce qui fonctionne aujourd'hui
 
@@ -251,7 +251,7 @@ Architecture    : Monorepo    · App Router · i18n FR/EN
 
 ---
 
-## 📈 Pourquoi Investir dans Nukun — Maintenant
+## 📈 Pourquoi Investir dans EmiID — Maintenant
 
 ### 1. Le timing est parfait
 
@@ -305,7 +305,7 @@ Nexus Partners est une organisation spécialisée en recrutement tech, développ
 
 ---
 
-## 🤝 Ce qu'on cherche — Votre rôle dans Nukun
+## 🤝 Ce qu'on cherche — Votre rôle dans EmiID
 
 ### Pour les Investisseurs
 
@@ -338,7 +338,7 @@ Les **1 000 premiers membres** obtiennent :
 
 <div align="center">
 
-## 🌌 Nukun
+## 🌌 EmiID
 
 **L'infrastructure de confiance que l'Afrique professionnelle attendait.**
 

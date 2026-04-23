@@ -393,7 +393,7 @@ export function FollowedProfilesContent() {
                                     </div>
                                     <h3 className="text-xl font-black tracking-tight text-slate-900 mb-2">Vous n&apos;avez pas encore d&apos;abonnés</h3>
                                     <p className="text-slate-500 font-medium text-center max-w-sm">
-                                        Partagez votre profil Nukun pour attirer de nouveaux membres et développer votre réseau.
+                                        Partagez votre profil EmiID pour attirer de nouveaux membres et développer votre réseau.
                                     </p>
                                 </motion.div>
                             )}

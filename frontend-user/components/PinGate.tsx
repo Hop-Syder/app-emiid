@@ -18,7 +18,7 @@ export function PinGate({ children }: { children: React.ReactNode }) {
     const checkPinStatus = async () => {
         // 1. Vérification session (évite l'appel API si déjà vérifié)
         if (typeof window !== "undefined") {
-            const verified = sessionStorage.getItem("nukun_pin_verified")
+            const verified = sessionStorage.getItem("emiid_pin_verified")
             if (verified === "true") {
                 setLocked(false)
                 setLoading(false)
@@ -62,7 +62,7 @@ export function PinGate({ children }: { children: React.ReactNode }) {
             const data = await res.json()
 
             if (res.ok && data.success) {
-                sessionStorage.setItem("nukun_pin_verified", "true")
+                sessionStorage.setItem("emiid_pin_verified", "true")
                 setLocked(false)
             } else {
                 setError(data.error || "Code incorrect")
@@ -91,7 +91,7 @@ export function PinGate({ children }: { children: React.ReactNode }) {
                     </div>
 
                     <div className="text-center space-y-2">
-                        <h2 className="text-xl font-bold text-[#022753]">Sécurité Nukun</h2>
+                        <h2 className="text-xl font-bold text-[#022753]">Sécurité EmiID</h2>
                         <p className="text-sm text-gray-500">Veuillez confirmez votre identité</p>
                     </div>
 

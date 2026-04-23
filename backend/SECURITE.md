@@ -1,4 +1,4 @@
-# 🔒 Guide de Sécurité - Backend Nukun
+# 🔒 Guide de Sécurité - Backend EmiID
 
 **Date :** 26 mars 2026  
 **Version :** 1.0.0  
@@ -82,7 +82,7 @@ app.use(helmet({
 ```javascript
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://app-nukun.app',
+  'https://app-emiid.app',
   'https://app-nexus-connect-admin.vercel.app'
 ];
 ```

@@ -64,15 +64,15 @@ export default function AuthCodeErrorPage() {
         <div className="pt-6">
           <p className="text-xs text-slate-400 font-medium flex items-center justify-center gap-2">
             <MessageSquare className="h-3 w-3" />
-            Besoin d&apos;aide ? Contactez le support Nukun.
+            Besoin d&apos;aide ? Contactez le support EmiID.
           </p>
         </div>
       </motion.div>
       
-      {/* Nukun Branding Footer */}
+      {/* EmiID Branding Footer */}
       <footer className="mt-12 text-slate-400 font-bold text-[10px] uppercase tracking-[0.2em] flex items-center gap-2">
         <span className="w-4 h-px bg-slate-300"></span>
-        Nukun Security Phase
+        EmiID Security Phase
         <span className="w-4 h-px bg-slate-300"></span>
       </footer>
     </div>

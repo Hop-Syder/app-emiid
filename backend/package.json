@@ -1,7 +1,7 @@
 {
-  "name": "nukun-backend",
+  "name": "emiid-backend",
   "version": "1.0.0",
-  "description": "Le cerveau de l'application Nukun",
+  "description": "Le cerveau de l'application EmiID",
   "main": "dist/server.js",
   "scripts": {
     "start": "node dist/server.js",
@@ -35,6 +35,7 @@
     "@types/node": "^25.0.3",
     "@types/nodemailer": "^8.0.0",
     "@types/supertest": "^6.0.3",
+    "@types/web-push": "^3.6.4",
     "nodemon": "^3.1.4",
     "supertest": "^7.1.4",
     "ts-node": "^10.9.2",

@@ -8,7 +8,7 @@ export interface ReferenceCountry {
   is_west_africa?: boolean
 }
 
-const REFERENCE_COUNTRIES_CACHE_KEY = "nukun-reference-countries-v1"
+const REFERENCE_COUNTRIES_CACHE_KEY = "emiid-reference-countries-v1"
 const REFERENCE_COUNTRIES_TTL_MS = 24 * 60 * 60 * 1000
 const MAX_RESULTS = 80
 

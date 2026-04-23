@@ -2,16 +2,16 @@
 
 - @author @hopsyder
 - @organization Nexus Partners
-- @description Rapport d'analyse systémique des fonctionnalités de Nukun
+- @description Rapport d'analyse systémique des fonctionnalités de EmiID
 - @created 2026-01-24
 - @updated 2026-01-24
 - 🌐 ceo.nexuspartners.xyz
   \ * ──────────────────────────────────
  */
 
-# 📊 Rapport d'Analyse des Fonctionnalités - Nukun
+# 📊 Rapport d'Analyse des Fonctionnalités - EmiID
 
-Ce document est généré par l'**Agent d'Analyse des Fonctionnalités**. Il synthétise l'état actuel de l'écosystème Nukun.
+Ce document est généré par l'**Agent d'Analyse des Fonctionnalités**. Il synthétise l'état actuel de l'écosystème EmiID.
 
 ## 🏗️ Architecture Globale
 

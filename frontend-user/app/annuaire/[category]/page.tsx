@@ -1,5 +1,5 @@
 import { Metadata } from "next"
-import { NukunLayout } from "@/components/menu/nukun-layout"
+import { EmiIDLayout } from "@/components/menu/emiid-layout"
 import { AnnuairePublicContent } from "@/components/annuaire-public-content/annuaire-main"
 
 interface CategoryPageProps {
@@ -11,8 +11,8 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
     const categoryName = category.charAt(0).toUpperCase() + category.slice(1)
     
     return {
-        title: `Annuaire des ${categoryName}s en Afrique | Nukun`,
-        description: `Découvrez les meilleurs ${categoryName}s d'Afrique. Parcourez les profils vérifiés sur Nukun.`,
+        title: `Annuaire des ${categoryName}s en Afrique | EmiID`,
+        description: `Découvrez les meilleurs ${categoryName}s d'Afrique. Parcourez les profils vérifiés sur EmiID.`,
         keywords: `${category}, annuaire ${category}, freelance afrique, artisan afrique, nexus connect`
     }
 }
@@ -20,8 +20,8 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 export default async function CategoryPage({ params }: CategoryPageProps) {
     const { category } = await params
     return (
-        <NukunLayout>
+        <EmiIDLayout>
             <AnnuairePublicContent initialCategory={category} />
-        </NukunLayout>
+        </EmiIDLayout>
     )
 }

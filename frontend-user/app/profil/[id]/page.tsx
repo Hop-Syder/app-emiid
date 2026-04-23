@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
 
         if (!data) {
             return {
-                title: 'Profil non trouvé | Nukun'
+                title: 'Profil non trouvé | EmiID'
             }
         }
 
@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
             fullName,
             data.specialty,
             data.role,
-            "Nukun",
+            "EmiID",
             "Réseau Professionnel",
             "Afrique",
             ...tagsList
@@ -55,16 +55,16 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
 
         const description = data.bio 
             ? (data.bio.length > 150 ? data.bio.substring(0, 147) + '...' : data.bio)
-            : `Découvrez le profil de ${fullName}, expert en ${data.specialty || data.role || 'son domaine'} sur Nukun.`
+            : `Découvrez le profil de ${fullName}, expert en ${data.specialty || data.role || 'son domaine'} sur EmiID.`
 
-        const ogImageUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://app-nukun.app'}/api/og/profile?id=${id}`
+        const ogImageUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://app-emiid.app'}/api/og/profile?id=${id}`
 
         return {
-            title: `${fullName} - ${data.role || 'Profil'} | Nukun`,
+            title: `${fullName} - ${data.role || 'Profil'} | EmiID`,
             description: description,
             keywords: seoKeywords,
             openGraph: {
-                title: `${fullName} sur Nukun`,
+                title: `${fullName} sur EmiID`,
                 description: description,
                 type: 'profile',
                 images: [
@@ -78,14 +78,14 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
             },
             twitter: {
                 card: 'summary_large_image',
-                title: `${fullName} sur Nukun`,
+                title: `${fullName} sur EmiID`,
                 description: description,
                 images: [ogImageUrl],
             }
         }
     } catch (e) {
         return {
-            title: 'Profil | Nukun'
+            title: 'Profil | EmiID'
         }
     }
 }

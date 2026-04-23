@@ -1,14 +1,14 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description MASTER SCHEMA FINAL - Nukun (SSoT)
+ * @description MASTER SCHEMA FINAL - EmiID (SSoT)
  * @version 1.2.1
  * @updated 2026-04-19
  * 
  * 📖 Documentation détaillée : docs/DATABASE_SCHEMA.md
  * 
  * CHANGE LOG v1.2.1:
- * - Rebranding global : Nukun -> Nukun.
+ * - Rebranding global : EmiID -> EmiID.
  * - Ton réseau, ta force.
  */
 
@@ -315,4 +315,4 @@ GRANT SELECT, INSERT, UPDATE ON public.messages TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.notifications TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.push_subscriptions TO authenticated;
 
-SELECT '✅ Nukun Master Schema v1.2.1 déployé. Ton réseau, ta force.' as status;
+SELECT '✅ EmiID Master Schema v1.2.1 déployé. Ton réseau, ta force.' as status;

@@ -194,7 +194,7 @@ export function ProfileSection({
                               <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-rose-600" />
                               <span className="text-sm font-bold text-rose-800">Numéro non vérifié</span>
                             </div>
-                            <p className="text-xs sm:text-sm text-rose-700/80 mb-4 font-medium">Veuillez sécuriser votre compte en confirmant ce numéro pour accéder à toutes les fonctionnalités Nukun.</p>
+                            <p className="text-xs sm:text-sm text-rose-700/80 mb-4 font-medium">Veuillez sécuriser votre compte en confirmant ce numéro pour accéder à toutes les fonctionnalités EmiID.</p>
                             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                               <Button 
                                 type="button"

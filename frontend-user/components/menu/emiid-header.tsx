@@ -25,13 +25,13 @@ import { fr } from "date-fns/locale"
 import { useScroll, useMotionValueEvent } from "framer-motion"
 import { Drawer } from "vaul"
 
-interface NukunHeaderProps {
+interface EmiIDHeaderProps {
   sidebarOpen: boolean
   setSidebarOpen: (open: boolean) => void
   setMobileMenuOpen: (open: boolean) => void
 }
 
-export function NukunHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: NukunHeaderProps) {
+export function EmiIDHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: EmiIDHeaderProps) {
   const messagingDevBypassEnabled = process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS === "true"
   const router = useRouter()
   const { notifications, unreadCount, markAsRead } = useNotifications()
@@ -94,7 +94,7 @@ export function NukunHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
 
             {/* Title Area (mostly for mobile/tablet where sidebar is hidden) */}
             <div className="min-w-0 md:hidden flex items-center">
-              <img src="/logo/logo-1.png" alt="Nukun" className="h-7 w-auto max-w-[130px] object-contain" />
+              <img src="/logo/logo-1.png" alt="EmiID" className="h-7 w-auto max-w-[130px] object-contain" />
             </div>
           </div>
 
@@ -143,6 +143,7 @@ export function NukunHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
                       notifications.map((n) => {
                         const isBug = n.type === 'bug' || n.type === 'error'
                         const isSecurity = n.type === 'security'
+                        const isNetwork = n.type === 'network'
                         
                         return (
                           <div
@@ -162,10 +163,12 @@ export function NukunHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
                                 "p-2 rounded-lg shrink-0",
                                 isBug ? "bg-red-100 text-red-600" : 
                                 isSecurity ? "bg-amber-100 text-amber-600" : 
+                                isNetwork ? "bg-indigo-100 text-indigo-600" :
                                 "bg-blue-100 text-blue-600"
                               )}>
                                 {isBug ? <AlertCircle className="h-4 w-4" /> : 
                                  isSecurity ? <Shield className="h-4 w-4" /> : 
+                                 isNetwork ? <Users className="h-4 w-4" /> :
                                  <MessageSquare className="h-4 w-4" />}
                               </div>
                               <div className="flex-1 min-w-0">
@@ -225,6 +228,7 @@ export function NukunHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
                             notifications.map((n) => {
                               const isBug = n.type === 'bug' || n.type === 'error'
                               const isSecurity = n.type === 'security'
+                              const isNetwork = n.type === 'network'
                               
                               return (
                                 <div
@@ -243,10 +247,12 @@ export function NukunHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
                                     "p-3 rounded-xl shrink-0",
                                     isBug ? "bg-red-100 text-red-600" : 
                                     isSecurity ? "bg-amber-100 text-amber-600" : 
+                                    isNetwork ? "bg-indigo-100 text-indigo-600" :
                                     "bg-blue-100 text-blue-600"
                                   )}>
                                     {isBug ? <AlertCircle className="h-5 w-5" /> : 
                                      isSecurity ? <Shield className="h-5 w-5" /> : 
+                                     isNetwork ? <Users className="h-5 w-5" /> :
                                      <MessageSquare className="h-5 w-5" />}
                                   </div>
                                   <div className="flex-1">

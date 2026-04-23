@@ -1,7 +1,7 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Layout racine de l'application Nukun avec métadonnées SEO
+ * @description Layout racine de l'application EmiID avec métadonnées SEO
  * @created 2026-04-18
  * @updated 2026-04-19
  * 🌐 ceo.nexuspartners.xyz
@@ -14,8 +14,8 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Nukun — Ton réseau, ta force',
-  description: 'La plateforme de networking intelligente pour les professionnels en Afrique.',
+  title: 'EmiID — Ton réseau, ta force',
+  description: 'La plateforme de networking intelligente pour les professionnels.',
   generator: 'Next.js',
   icons: {
     icon: [

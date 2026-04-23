@@ -7,13 +7,13 @@
  * 📧 daoudaabassichristian@gmail.com
 */
 
-import { NukunLayout } from "@/components/menu/nukun-layout"
+import { EmiIDLayout } from "@/components/menu/emiid-layout"
 import { AnnuairePublicContent } from "@/components/annuaire-public-content/annuaire-main"
 
 export default function AnnuairePage() {
     return (
-        <NukunLayout>
+        <EmiIDLayout>
             <AnnuairePublicContent />
-        </NukunLayout>
+        </EmiIDLayout>
     )
 }

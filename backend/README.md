@@ -1,12 +1,12 @@
-# Nukun - API Backend 🚀
+# EmiID - API Backend 🚀
 
 > **@author**: @hopsyder  
 > **@organization**: Nexus Partners  
-> **Mission**: API robuste et sécurisée pour la plateforme Nukun.
+> **Mission**: API robuste et sécurisée pour la plateforme EmiID.
 
 ## 📌 Préservation & Vision
 
-Ce backend est le moteur "Gendarme" de Nukun. Il assure le relais d'authentification (Token Relay), la gestion des profils d'entrepreneurs, la messagerie et les services centraux de modération de la plateforme.
+Ce backend est le moteur "Gendarme" de EmiID. Il assure le relais d'authentification (Token Relay), la gestion des profils d'entrepreneurs, la messagerie et les services centraux de modération de la plateforme.
 
 ---
 
@@ -106,7 +106,7 @@ Le backend utilise une stratégie de **Multi-Origin CORS**. Vous pouvez définir
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description README du Backend Nukun
+ * @description README du Backend EmiID
  * @created 2026-01-04
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com

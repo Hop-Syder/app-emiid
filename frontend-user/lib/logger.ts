@@ -2,7 +2,7 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Logger centralisé pour homogénéiser les logs dans Nukun
+ * @description Logger centralisé pour homogénéiser les logs dans EmiID
  * @created 2026-03-26
  * @updated 2026-04-19
  * 🌐 ceo.nexuspartners.xyz
@@ -78,7 +78,7 @@ class Logger {
 // Export d'un logger par défaut pour le frontend
 export const logger = new Logger({
     shouldLogInProd: false,
-    prefix: 'Nukun'
+    prefix: 'EmiID'
 })
 
 // Export du constructeur pour créer des loggers spécialisés

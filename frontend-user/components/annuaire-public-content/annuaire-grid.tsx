@@ -82,8 +82,8 @@ export function AnnuaireGrid({ filters }: AnnuaireGridProps) {
                         const profileId = e.user_id || e.id
                         return {
                             id: profileId,
-                            name: `${e.first_name || ''} ${e.last_name || ''}`.trim() || 'Utilisateur Nukun',
-                            role: e.role || "Membre Nukun",
+                            name: `${e.first_name || ''} ${e.last_name || ''}`.trim() || 'Utilisateur EmiID',
+                            role: e.role || "Membre EmiID",
                             location: e.city ? `${e.city}, ${e.countries?.name || ''}` : (e.countries?.name || "Afrique"),
                             avatar: e.avatar_url || "/profil/avatar.jpg",
                             specialty: e.specialty || "Expertise",
@@ -108,8 +108,8 @@ export function AnnuaireGrid({ filters }: AnnuaireGridProps) {
 
     if (loading) {
         return (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {Array.from({ length: 9 }).map((_, i) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {Array.from({ length: 12 }).map((_, i) => (
                     <div key={i} className="aspect-[1/1.4] w-full bg-slate-100 animate-pulse rounded-3xl" />
                 ))}
             </div>
@@ -131,13 +131,14 @@ export function AnnuaireGrid({ filters }: AnnuaireGridProps) {
     }
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 justify-items-center">
             {profiles.map((profile, index) => (
                 <motion.div
                     key={profile.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4, delay: index * 0.05 }}
+                    className="w-full"
                 >
                     <AnnuaireCard profile={profile} />
                 </motion.div>

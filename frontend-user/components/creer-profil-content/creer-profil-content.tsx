@@ -106,7 +106,7 @@ const validateProfileForm = (formData: CreateProfileFormData, mode: "draft" | "p
         }
 
         if (!formData.card_variant) {
-            errors.push("Veuillez choisir un design de carte Nukun")
+            errors.push("Veuillez choisir un design de carte EmiID")
         }
 
         if (!trimmedRole) {
@@ -301,7 +301,7 @@ export function CreerProfilContent() {
         return (
             <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
                 <Loader2 className="h-10 w-10 text-primary animate-spin" />
-                <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest animate-pulse">Initialisation de votre profil Nukun...</p>
+                <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest animate-pulse">Initialisation de votre profil EmiID...</p>
             </div>
         )
     }

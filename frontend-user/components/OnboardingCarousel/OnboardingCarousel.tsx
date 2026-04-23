@@ -20,7 +20,7 @@ import { Button } from "@/components/ui/button"
 const SLIDES = [
     {
         id: 1,
-        title: "L'Excellence Nukun",
+        title: "L'Excellence EmiID",
         subtitle: "L'élite du réseau professionnel africain.",
         description: "Connectez-vous à un écosystème de talents vérifiés et d'expertises réelles. Là où la vision rencontre l'opportunité.",
         icon: Globe,
@@ -215,7 +215,7 @@ export function OnboardingCarousel() {
                                     size="lg"
                                     className="w-full h-16 text-lg bg-blue-600 hover:bg-blue-500 rounded-2xl shadow-[0_0_30px_rgba(37,99,235,0.4)] font-black text-white transition-all transform hover:scale-[1.02] active:scale-[0.98]"
                                 >
-                                    REJOINDRE NUKUN <ArrowRight className="ml-3 w-6 h-6" />
+                                    REJOINDRE EMIID <ArrowRight className="ml-3 w-6 h-6" />
                                 </Button>
                             </Link>
                             <div className="flex items-center justify-center gap-4 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500 italic">

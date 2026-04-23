@@ -2,8 +2,8 @@ import { Suspense } from "react"
 import { AdminLoginForm } from "@/components/auth/admin-login-form"
 
 export const metadata = {
-  title: "Connexion | Nukun Admin",
-  description: "Connexion administrateur Nukun",
+  title: "Connexion | EmiID Admin",
+  description: "Connexion administrateur EmiID",
 }
 
 export const dynamic = "force-dynamic"

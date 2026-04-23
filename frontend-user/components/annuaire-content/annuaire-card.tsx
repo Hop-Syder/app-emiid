@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { fetchWithAuth } from "@/lib/apiClient"
 
-import { NukunProfileCard, NukunCardVariant } from "@/components/carte-profil/nukun-profile-card"
+import { EmiIDProfileCard, EmiIDCardVariant } from "@/components/carte-profil/emiid-profile-card"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 
@@ -60,19 +60,19 @@ export function AnnuaireCard({ profile }: AnnuaireCardProps) {
         }
     }
 
-    // Mapping des données pour correspondre aux props de NukunProfileCard
+    // Mapping des données pour correspondre aux props de EmiIDProfileCard
     const userData = {
         ...profile,
-        name: profile.name || "Membre Nukun",
+        name: profile.name || "Membre EmiID",
         role: profile.role || "Professionnel",
         followers: followersCount,
         tags: profile.tags || [profile.specialty]
     }
 
-    const activeVariant = (profile.card_variant as NukunCardVariant) || (profile.premium ? "elite" : "tech")
+    const activeVariant = (profile.card_variant as EmiIDCardVariant) || (profile.premium ? "elite" : "tech")
 
     return (
-        <NukunProfileCard 
+        <EmiIDProfileCard 
             user={userData}
             variant={activeVariant}
             isFollowed={isFollowed}

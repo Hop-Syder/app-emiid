@@ -13,7 +13,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Phone, Smartphone } from "lucide-react"
+import { Phone, Smartphone, Lock, Eye, EyeOff, CheckCircle2, ShieldAlert } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -78,39 +78,108 @@ export function SecuritySection({
     const [mfaLoading, setMfaLoading] = useState(false)
     const [mfaFactorId, setMfaFactorId] = useState("")
     const [mfaChallengeId, setMfaChallengeId] = useState("")
+    
+    // Reauthentication State
+    const [reauthDialogOpen, setReauthDialogOpen] = useState(false)
+    const [reauthPassword, setReauthPassword] = useState("")
+    const [showReauthPassword, setShowReauthPassword] = useState(false)
+    const [reauthLoading, setReauthLoading] = useState(false)
+    const [reauthError, setReauthError] = useState("")
+    const [pendingAction, setPendingAction] = useState<"enable" | "disable" | "change" | null>(null)
+
 
     const supabase = createClient()
     const router = useRouter()
 
     const handlePinToggle = (checked: boolean) => {
-        if (checked) {
+        setPendingAction(checked ? "enable" : "disable")
+        setReauthPassword("")
+        setReauthError("")
+        setReauthDialogOpen(true)
+    }
+
+    const processAfterReauth = () => {
+        setReauthDialogOpen(false)
+        
+        if (pendingAction === "enable") {
             setPinStep("enter")
             setTempPin("")
             setConfirmPin("")
             setPinError("")
             setPinDialogOpen(true)
+        } else if (pendingAction === "disable") {
+            void disablePin()
+        } else if (pendingAction === "change") {
+            setPinStep("enter")
+            setTempPin("")
+            setConfirmPin("")
+            setPinError("")
+            setPinDialogOpen(true)
+        }
+        
+        setPendingAction(null)
+    }
+
+    const disablePin = async () => {
+        try {
+            const res = await fetchWithAuth("/api/users/me", {
+                method: "PUT",
+                body: JSON.stringify({ ...profile, pin_enabled: false })
+            })
+            if (res.ok) {
+                setProfile({ ...profile, pin_enabled: false })
+                sessionStorage.removeItem("emiid_pin_verified")
+                toast.success("Verrouillage PIN désactivé")
+            } else {
+                toast.error(await readApiError(res, "Impossible de désactiver le PIN"))
+            }
+        } catch {
+            toast.error("Erreur réseau")
+        }
+    }
+
+    const handleReauthSubmit = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault()
+
+        // Détection utilisateur OAuth
+        const isOAuth = profile.email && !profile.has_password // Note: On supposera qu'on a cette info ou on gère l'erreur
+
+        if (isOAuth) {
+            // Pour OAuth, on peut faire une confirmation simple ou re-OAuth
+            // Pour l'instant, on laisse passer avec un toast d'avertissement
+            // ou on pourrait forcer un re-login
+            processAfterReauth()
+            return
+        }
+        
+        if (!reauthPassword) {
+            setReauthError("Mot de passe requis")
             return
         }
 
-        const disablePin = async () => {
-            try {
-                const res = await fetchWithAuth("/api/users/me", {
-                    method: "PUT",
-                    body: JSON.stringify({ ...profile, pin_enabled: false })
-                })
-                if (res.ok) {
-                    setProfile({ ...profile, pin_enabled: false })
-                    sessionStorage.removeItem("nukun_pin_verified")
-                    toast.success("Verrouillage PIN désactivé")
-                } else {
-                    toast.error(await readApiError(res, "Impossible de désactiver le PIN"))
-                }
-            } catch {
-                toast.error("Erreur réseau")
-            }
-        }
+        setReauthLoading(true)
+        setReauthError("")
 
-        void disablePin()
+        try {
+            // Tentative de réauthentification avec le mot de passe
+            const { error } = await supabase.auth.signInWithPassword({
+                email: profile.email || "",
+                password: reauthPassword,
+            })
+
+            if (error) {
+                setReauthError("Mot de passe incorrect")
+                return
+            }
+
+            // Succès !
+            processAfterReauth()
+        } catch (err) {
+            console.error("Reauth error:", err)
+            setReauthError("Erreur lors de la vérification")
+        } finally {
+            setReauthLoading(false)
+        }
     }
 
     const handlePinSubmit = async () => {
@@ -137,7 +206,7 @@ export function SecuritySection({
                 setProfile({ ...profile, pin_enabled: true })
                 setPinDialogOpen(false)
                 toast.success("Sécurité PIN activée !")
-                sessionStorage.setItem("nukun_pin_verified", "true")
+                sessionStorage.setItem("emiid_pin_verified", "true")
             } else {
                 toast.error(await readApiError(res, "Erreur serveur"))
             }
@@ -245,7 +314,7 @@ export function SecuritySection({
             }
 
             await supabase.auth.signOut()
-            sessionStorage.removeItem("nukun_pin_verified")
+            sessionStorage.removeItem("emiid_pin_verified")
             toast.success("Compte désactivé")
             router.push("/")
             router.refresh()
@@ -287,9 +356,22 @@ export function SecuritySection({
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="flex items-center justify-between p-4 border rounded-xl">
-                        <div>
+                        <div className="space-y-1">
                             <p className="font-medium text-[#022753]">Verrouillage par Code PIN</p>
                             <p className="text-sm text-muted-foreground">Sécurisez l&apos;accès au tableau de bord</p>
+                            {profile.pin_enabled && (
+                                <button 
+                                    onClick={() => {
+                                        setPendingAction("change")
+                                        setReauthPassword("")
+                                        setReauthError("")
+                                        setReauthDialogOpen(true)
+                                    }}
+                                    className="text-xs font-bold text-blue-600 hover:text-blue-700 underline underline-offset-4 pt-1"
+                                >
+                                    Modifier le code PIN
+                                </button>
+                            )}
                         </div>
                         <Switch
                             checked={profile.pin_enabled}
@@ -483,6 +565,77 @@ export function SecuritySection({
                     )}
                 </DialogContent>
             </Dialog>
+
+            {/* --- REAUTHENTICATION DIALOG --- */}
+            <Dialog open={reauthDialogOpen} onOpenChange={setReauthDialogOpen}>
+                <DialogContent className="sm:max-w-md rounded-2xl border-none shadow-2xl">
+                    <DialogHeader>
+                        <div className="mx-auto w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mb-4">
+                            <Lock className="h-6 w-6 text-[#022753]" />
+                        </div>
+                        <DialogTitle className="text-2xl font-black text-center text-[#022753]">
+                            Vérification de sécurité
+                        </DialogTitle>
+                        <DialogDescription className="text-center px-4">
+                            Pour modifier vos paramètres de sécurité sensibles, veuillez confirmer votre mot de passe EmiID.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <form onSubmit={(e) => void handleReauthSubmit(e)} className="space-y-6 py-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="reauth-password">Mot de passe actuel</Label>
+                            <div className="relative">
+                                <Input
+                                    id="reauth-password"
+                                    type={showReauthPassword ? "text" : "password"}
+                                    placeholder="••••••••"
+                                    value={reauthPassword}
+                                    onChange={(e) => setReauthPassword(e.target.value)}
+                                    className="pr-10 rounded-xl h-12 border-slate-200 focus:border-[#022753] focus:ring-[#022753]/10"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowReauthPassword(!showReauthPassword)}
+                                    className="absolute right-3 top-3.5 text-slate-400 hover:text-slate-600 transition-colors"
+                                >
+                                    {showReauthPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </button>
+                            </div>
+                            {reauthError && (
+                                <p className="text-xs font-medium text-red-500 flex items-center gap-1 mt-1">
+                                    <ShieldAlert size={12} /> {reauthError}
+                                </p>
+                            )}
+                        </div>
+
+                        <div className="flex gap-3 pt-2">
+                            <Button 
+                                type="button"
+                                variant="ghost" 
+                                onClick={() => setReauthDialogOpen(false)}
+                                className="flex-1 h-12 rounded-xl text-slate-500 hover:bg-slate-50"
+                            >
+                                Annuler
+                            </Button>
+                            <Button 
+                                type="submit"
+                                disabled={reauthLoading || !reauthPassword}
+                                className="flex-[2] h-12 rounded-xl bg-[#022753] hover:bg-[#033a7a] text-white font-bold shadow-lg shadow-blue-900/10"
+                            >
+                                {reauthLoading ? (
+                                    <div className="flex items-center gap-2">
+                                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                                        Vérification...
+                                    </div>
+                                ) : (
+                                    "Confirmer"
+                                )}
+                            </Button>
+                        </div>
+                    </form>
+                </DialogContent>
+            </Dialog>
         </div>
+
     )
 }

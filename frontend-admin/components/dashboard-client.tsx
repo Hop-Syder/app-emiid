@@ -69,7 +69,7 @@ export function DashboardClient({ initialStats }: DashboardClientProps) {
           Tableau de Bord
         </h1>
         <p className="text-slate-500 text-sm mt-1">
-          Vue d’ensemble de la plateforme Nukun
+          Vue d’ensemble de la plateforme EmiID
         </p>
       </div>
 

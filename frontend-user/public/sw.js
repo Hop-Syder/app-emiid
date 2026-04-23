@@ -1,7 +1,7 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Service Worker pour Nukun - Gestion des notifications push
+ * @description Service Worker pour EmiID - Gestion des notifications push
  * @created 2026-04-19
  */
 

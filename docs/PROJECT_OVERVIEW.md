@@ -1,7 +1,7 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description PROJECT OVERVIEW - Vision, Strategy & Roadmap pour Nukun
+ * @description PROJECT OVERVIEW - Vision, Strategy & Roadmap pour EmiID
  * @created 2026-04-18
  * @updated 2026-04-19
  * 🌐 ceo.nexuspartners.xyz
@@ -9,16 +9,16 @@
  * ──────────────────────────────────
  */
 
-# 🌌 Nukun — Project Overview
+# 🌌 EmiID — Project Overview
 
-Nukun est bien plus qu'une plateforme de réseautage ; c'est une **infrastructure de confiance** pour l'écosystème professionnel, conçue pour transformer les interactions informelles en opportunités vérifiables et qualifiées.
+EmiID est bien plus qu'une plateforme de réseautage ; c'est une **infrastructure de confiance** pour l'écosystème professionnel, conçue pour transformer les interactions informelles en opportunités vérifiables et qualifiées.
 
 ---
 
 ## 🚀 Perspective SaaS (Agent SaaS)
 
 ### 🎯 Cible & Marché
-Nukun s'adresse à trois segments clés :
+EmiID s'adresse à trois segments clés :
 1. **Artisans & Indépendants** : Besoin de visibilité et de crédibilité (profils vérifiés).
 2. **Professionnels & Experts** : Besoin de réseautage stratégique et de gestion de carrière.
 3. **Entreprises & ONG** : Besoin de recrutement, de gestion de communauté et de visibilité institutionnelle.

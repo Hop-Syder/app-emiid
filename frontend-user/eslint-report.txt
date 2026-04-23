@@ -1,27 +1,27 @@
 
-/home/hopsyder/Projet/app-nukun/frontend-user/app/login/page.tsx
+/home/hopsyder/Projet/app-emiid/frontend-user/app/login/page.tsx
   18:10  warning  'Globe' is defined but never used. Allowed unused vars must match /^_/u            @typescript-eslint/no-unused-vars
   19:18  warning  'AnimatePresence' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
 
-/home/hopsyder/Projet/app-nukun/frontend-user/components/AvatarUpload.tsx
+/home/hopsyder/Projet/app-emiid/frontend-user/components/AvatarUpload.tsx
   83:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-/home/hopsyder/Projet/app-nukun/frontend-user/components/OnboardingCarousel/OnboardingCarousel.tsx
+/home/hopsyder/Projet/app-emiid/frontend-user/components/OnboardingCarousel/OnboardingCarousel.tsx
    5:8   warning  'Image' is defined but never used. Allowed unused vars must match /^_/u              @typescript-eslint/no-unused-vars
    7:18  warning  'AnimatePresence' is defined but never used. Allowed unused vars must match /^_/u    @typescript-eslint/no-unused-vars
    8:36  warning  'Briefcase' is defined but never used. Allowed unused vars must match /^_/u          @typescript-eslint/no-unused-vars
   57:11  warning  'scrollTo' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
 
-/home/hopsyder/Projet/app-nukun/frontend-user/components/PinGate.tsx
+/home/hopsyder/Projet/app-emiid/frontend-user/components/PinGate.tsx
   71:18  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
 
-/home/hopsyder/Projet/app-nukun/frontend-user/components/SmartSelect.tsx
+/home/hopsyder/Projet/app-emiid/frontend-user/components/SmartSelect.tsx
   11:17  warning  'ChevronsUpDown' is defined but never used. Allowed unused vars must match /^_/u    @typescript-eslint/no-unused-vars
   15:5   warning  'CommandEmpty' is defined but never used. Allowed unused vars must match /^_/u      @typescript-eslint/no-unused-vars
   20:5   warning  'CommandSeparator' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
   52:44  warning  Unexpected any. Specify a different type                                            @typescript-eslint/no-explicit-any
 
-/home/hopsyder/Projet/app-nukun/frontend-user/components/annuaire-content/annuaire-card.tsx
+/home/hopsyder/Projet/app-emiid/frontend-user/components/annuaire-content/annuaire-card.tsx
    4:10  warning  'Shield' is defined but never used. Allowed unused vars must match /^_/u           @typescript-eslint/no-unused-vars
    4:18  warning  'MapPin' is defined but never used. Allowed unused vars must match /^_/u           @typescript-eslint/no-unused-vars
    4:26  warning  'Users' is defined but never used. Allowed unused vars must match /^_/u            @typescript-eslint/no-unused-vars
@@ -39,27 +39,27 @@
   10:46  warning  'CardHeader' is defined but never used. Allowed unused vars must match /^_/u       @typescript-eslint/no-unused-vars
   10:58  warning  'CardTitle' is defined but never used. Allowed unused vars must match /^_/u        @typescript-eslint/no-unused-vars
 
-/home/hopsyder/Projet/app-nukun/frontend-user/components/annuaire-public-content/annuaire-content.tsx
+/home/hopsyder/Projet/app-emiid/frontend-user/components/annuaire-public-content/annuaire-content.tsx
    5:10  warning  'Filter' is defined but never used. Allowed unused vars must match /^_/u           @typescript-eslint/no-unused-vars
    6:10  warning  'Button' is defined but never used. Allowed unused vars must match /^_/u           @typescript-eslint/no-unused-vars
   16:45  warning  'initialProfiles' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
 
-/home/hopsyder/Projet/app-nukun/frontend-user/components/annuaire-public-content/annuaire-grid.tsx
+/home/hopsyder/Projet/app-emiid/frontend-user/components/annuaire-public-content/annuaire-grid.tsx
   16:15  warning  'PublicProfile' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
   17:10  warning  'Skeleton' is defined but never used. Allowed unused vars must match /^_/u       @typescript-eslint/no-unused-vars
   32:46  warning  Unexpected any. Specify a different type                                         @typescript-eslint/no-explicit-any
   54:26  warning  'error' is defined but never used                                                @typescript-eslint/no-unused-vars
 
-/home/hopsyder/Projet/app-nukun/frontend-user/components/carte-profil/nexus-profile-card.tsx
+/home/hopsyder/Projet/app-emiid/frontend-user/components/carte-profil/nexus-profile-card.tsx
   11:18  warning  'MessageSquare' is defined but never used. Allowed unused vars must match /^_/u    @typescript-eslint/no-unused-vars
   11:52  warning  'Zap' is defined but never used. Allowed unused vars must match /^_/u              @typescript-eslint/no-unused-vars
   12:18  warning  'AnimatePresence' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
   15:10  warning  'Badge' is defined but never used. Allowed unused vars must match /^_/u            @typescript-eslint/no-unused-vars
 
-/home/hopsyder/Projet/app-nukun/frontend-user/components/creer-profil-content/creer-profil-content.tsx
+/home/hopsyder/Projet/app-emiid/frontend-user/components/creer-profil-content/creer-profil-content.tsx
   212:54  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-/home/hopsyder/Projet/app-nukun/frontend-user/components/creer-profil-content/creer-profil-form.tsx
+/home/hopsyder/Projet/app-emiid/frontend-user/components/creer-profil-content/creer-profil-form.tsx
    23:10  warning  'motion' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
    27:15  warning  Unexpected any. Specify a different type                                  @typescript-eslint/no-explicit-any
    28:18  warning  Unexpected any. Specify a different type                                  @typescript-eslint/no-explicit-any
@@ -70,13 +70,13 @@
   183:77  warning  Unexpected any. Specify a different type                                  @typescript-eslint/no-explicit-any
   184:56  warning  Unexpected any. Specify a different type                                  @typescript-eslint/no-explicit-any
 
-/home/hopsyder/Projet/app-nukun/frontend-user/components/creer-profil-content/creer-profil-preview.tsx
+/home/hopsyder/Projet/app-emiid/frontend-user/components/creer-profil-content/creer-profil-preview.tsx
   14:15  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-/home/hopsyder/Projet/app-nukun/frontend-user/components/dashboard-user-content/dashboard-user-content.tsx
+/home/hopsyder/Projet/app-emiid/frontend-user/components/dashboard-user-content/dashboard-user-content.tsx
   91:52  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-/home/hopsyder/Projet/app-nukun/frontend-user/components/menu/nexus-header.tsx
+/home/hopsyder/Projet/app-emiid/frontend-user/components/menu/nexus-header.tsx
     3:48  warning  'Search' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                                 @typescript-eslint/no-unused-vars
     3:56  warning  'Home' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
     3:62  warning  'Users' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
@@ -93,7 +93,7 @@
    77:9   warning  'handleTabChange' is assigned a value but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                               @typescript-eslint/no-unused-vars
   125:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
 
-/home/hopsyder/Projet/app-nukun/frontend-user/components/menu/nexus-layout.tsx
+/home/hopsyder/Projet/app-emiid/frontend-user/components/menu/nexus-layout.tsx
    10:10  warning  'Plus' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
    10:16  warning  'MessageSquare' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                          @typescript-eslint/no-unused-vars
    10:31  warning  'Camera' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                                 @typescript-eslint/no-unused-vars
@@ -107,7 +107,7 @@
    99:23  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
   115:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
 
-/home/hopsyder/Projet/app-nukun/frontend-user/components/menu/nexus-sidebar.tsx
+/home/hopsyder/Projet/app-emiid/frontend-user/components/menu/nexus-sidebar.tsx
    10:3   warning  'Globe' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
    11:3   warning  'Home' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
    12:3   warning  'Grid' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
@@ -119,7 +119,7 @@
   220:29  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
   260:29  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
 
-/home/hopsyder/Projet/app-nukun/frontend-user/components/messages-content.tsx
+/home/hopsyder/Projet/app-emiid/frontend-user/components/messages-content.tsx
     13:18  warning  'AnimatePresence' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
     16:44  warning  'Smile' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
     16:51  warning  'Mic' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                                    @typescript-eslint/no-unused-vars
@@ -133,7 +133,7 @@
   1035:35  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
   1124:29  warning  Image elements must have an alt prop, either with meaningful text, or an empty string for decorative images                                                                                                                                                                              jsx-a11y/alt-text
 
-/home/hopsyder/Projet/app-nukun/frontend-user/components/parametre-content/parametre-content.tsx
+/home/hopsyder/Projet/app-emiid/frontend-user/components/parametre-content/parametre-content.tsx
    73:12  warning  'sectors' is assigned a value but never used. Allowed unused vars must match /^_/u                                  @typescript-eslint/no-unused-vars
    73:44  warning  Unexpected any. Specify a different type                                                                            @typescript-eslint/no-explicit-any
    74:12  warning  'professions' is assigned a value but never used. Allowed unused vars must match /^_/u                              @typescript-eslint/no-unused-vars
@@ -142,19 +142,19 @@
   179:18  warning  'error' is defined but never used                                                                                   @typescript-eslint/no-unused-vars
   223:18  warning  'error' is defined but never used                                                                                   @typescript-eslint/no-unused-vars
 
-/home/hopsyder/Projet/app-nukun/frontend-user/components/parametre-content/profile-section.tsx
+/home/hopsyder/Projet/app-emiid/frontend-user/components/parametre-content/profile-section.tsx
   20:12  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
   21:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-/home/hopsyder/Projet/app-nukun/frontend-user/components/parametre-content/security-section.tsx
+/home/hopsyder/Projet/app-emiid/frontend-user/components/parametre-content/security-section.tsx
   27:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
   28:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-/home/hopsyder/Projet/app-nukun/frontend-user/components/portefeuille-content/followed-profiles-content.tsx
+/home/hopsyder/Projet/app-emiid/frontend-user/components/portefeuille-content/followed-profiles-content.tsx
   175:18  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
   194:18  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
 
-/home/hopsyder/Projet/app-nukun/frontend-user/components/profile-detail/profile-detail-content.tsx
+/home/hopsyder/Projet/app-emiid/frontend-user/components/profile-detail/profile-detail-content.tsx
    11:5   warning  'Globe' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
    13:5   warning  'Phone' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
    25:10  warning  'Skeleton' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                               @typescript-eslint/no-unused-vars
@@ -164,7 +164,7 @@
   234:33  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
   238:29  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
 
-/home/hopsyder/Projet/app-nukun/frontend-user/lib/logger.ts
+/home/hopsyder/Projet/app-emiid/frontend-user/lib/logger.ts
   36:36  warning  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
   36:44  warning  'args' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
   36:50  warning  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
@@ -182,7 +182,7 @@
   66:34  warning  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
   68:13  warning  Unexpected console statement                                            no-console
 
-/home/hopsyder/Projet/app-nukun/frontend-user/lib/supabase/middleware.ts
+/home/hopsyder/Projet/app-emiid/frontend-user/lib/supabase/middleware.ts
   20:48  warning  'options' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
 
 ✖ 138 problems (0 errors, 138 warnings)

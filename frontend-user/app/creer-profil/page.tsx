@@ -8,14 +8,14 @@
  * 📧 daoudaabassichristian@gmail.com
 */
 
-import { NukunLayout } from "@/components/menu/nukun-layout"
+import { EmiIDLayout } from "@/components/menu/emiid-layout"
 import { CreerProfilContent } from "@/components/creer-profil-content"
 
 export default function CreateProfilePage() {
   return (
-    <NukunLayout>
+    <EmiIDLayout>
       <CreerProfilContent />
-    </NukunLayout>
+    </EmiIDLayout>
   )
 }
 

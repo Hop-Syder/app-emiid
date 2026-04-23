@@ -110,7 +110,7 @@ export function DashboardContent({ initialStats = null }: DashboardContentProps)
             const profileId = e.user_id || e.id || "0"
             return {
                 id: profileId,
-                name: (e.first_name || e.last_name) ? `${e.first_name || ''} ${e.last_name || ''}`.trim() : "Membre Nukun",
+                name: (e.first_name || e.last_name) ? `${e.first_name || ''} ${e.last_name || ''}`.trim() : "Membre EmiID",
                 role: e.role || "Professionnel",
                 location: e.city ? `${e.city}, ${e.countries?.name || ''}` : (e.countries?.name || "Afrique"),
                 avatar: e.avatar_url || "/profil/avatar.jpg",

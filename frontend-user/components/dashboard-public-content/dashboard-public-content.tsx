@@ -110,8 +110,8 @@ export function DashboardPublicContent({ initialStats = null }: DashboardPublicC
                         const profileId = e.user_id || e.id || "0"
                         return {
                             id: profileId,
-                            name: (e.first_name || e.last_name) ? `${e.first_name || ''} ${e.last_name || ''}`.trim() : "Utilisateur Nukun",
-                            role: e.role || "Membre Nukun",
+                            name: (e.first_name || e.last_name) ? `${e.first_name || ''} ${e.last_name || ''}`.trim() : "Utilisateur EmiID",
+                            role: e.role || "Membre EmiID",
                             location: e.city ? `${e.city}, ${e.countries?.name || ''}` : (e.countries?.name || "Afrique de l'Ouest"),
                             avatar: e.avatar_url || "/profil/avatar.jpg",
                             specialty: e.specialty || "Expertise",

@@ -36,7 +36,7 @@ export async function GET(request: Request) {
       return new Response('Profile not found', { status: 404 })
     }
 
-    const fullName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Membre Nukun'
+    const fullName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Membre EmiID'
     const role = profile.role || 'Professionnel'
     const specialty = profile.specialty || 'Réseau Pan-Africain'
     const location = profile.city ? `${profile.city}, Afrique` : 'Afrique'
@@ -52,7 +52,7 @@ export async function GET(request: Request) {
             flexDirection: 'column',
             alignItems: 'flex-start',
             justifyContent: 'center',
-            backgroundColor: '#022753', // Nukun dark blue
+            backgroundColor: '#022753', // EmiID dark blue
             backgroundImage: 'linear-gradient(to bottom right, #022753 0%, #011833 100%)',
             padding: '80px',
             position: 'relative',
@@ -66,7 +66,7 @@ export async function GET(request: Request) {
             right: -100,
             width: 500,
             height: 500,
-            backgroundColor: 'rgba(206, 17, 38, 0.15)', // Nukun red accent
+            backgroundColor: 'rgba(206, 17, 38, 0.15)', // EmiID red accent
             borderRadius: '50%',
             filter: 'blur(80px)',
           }} />
@@ -86,7 +86,7 @@ export async function GET(request: Request) {
               letterSpacing: '2px',
               textTransform: 'uppercase'
             }}>
-              NUKUN
+              EMIID
             </div>
             <div style={{
               display: 'flex',
@@ -178,7 +178,7 @@ export async function GET(request: Request) {
             fontSize: '24px',
             fontWeight: 'bold',
           }}>
-            nukun.app
+            emiid.app
           </div>
         </div>
       ),

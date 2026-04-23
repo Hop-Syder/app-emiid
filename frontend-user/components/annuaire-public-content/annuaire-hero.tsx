@@ -19,7 +19,7 @@ interface AnnuaireHeroProps {
 
 export function AnnuaireHero({
     title = "Découvrez les Talents de l'Afrique de l'Ouest",
-    description = "Explorez notre réseau dynamique regroupant artisans, freelances, entreprises, agences, startup et ONG. Trouvez les partenaires et experts dont vous avez besoin pour développer votre activité."
+    description = "Explorez notre réseau dynamique regroupant artisans, commerçantes, freelances, entreprises, agences, startup et ONG. Trouvez les partenaires et experts dont vous avez besoin pour développer votre activité."
 }: AnnuaireHeroProps) {
     return (
         <motion.div
@@ -34,7 +34,7 @@ export function AnnuaireHero({
             <div className="relative z-10 space-y-4">
                 <div className="flex items-center gap-2 text-amber-400">
                     <Grid className="w-6 h-6" />
-                    <span className="font-semibold uppercase tracking-wider text-sm">Annuaire Nukun</span>
+                    <span className="font-semibold uppercase tracking-wider text-sm">Annuaire EmiID</span>
                 </div>
                 <h1 className="text-4xl font-bold">{title}</h1>
                 <p className="max-w-[700px] text-white/80 text-lg">

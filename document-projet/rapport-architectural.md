@@ -1,7 +1,7 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Analyse architecturale et documentation système complète de Nukun
+ * @description Analyse architecturale et documentation système complète de EmiID
  * @created 2026-03-24
  * @updated 2026-04-19
  * 🌐 ceo.nexuspartners.xyz
@@ -9,14 +9,14 @@
  * ──────────────────────────────────
  */
 
-# 🏗️ Rapport d'Analyse Systémique - Nukun
+# 🏗️ Rapport d'Analyse Systémique - EmiID
 
-Ce document présente une analyse en profondeur de l'écosystème Nukun, permettant sa compréhension totale et sa reconstruction systématique.
+Ce document présente une analyse en profondeur de l'écosystème EmiID, permettant sa compréhension totale et sa reconstruction systématique.
 
 ## 1. 🎯 OBJECTIF DU PROJET
 
 ### Problématique résolue
-Nukun répond au besoin de structuration et de visibilité de l'écosystème professionnel en Afrique (avec un focus initial sur l'Afrique de l'Ouest). Il résout le problème de la fragmentation des talents et de la difficulté à trouver des prestataires de confiance via une plateforme centralisée et interactive.
+EmiID répond au besoin de structuration et de visibilité de l'écosystème professionnel en Afrique (avec un focus initial sur l'Afrique de l'Ouest). Il résout le problème de la fragmentation des talents et de la difficulté à trouver des prestataires de confiance via une plateforme centralisée et interactive.
 
 ### Cible utilisateur
 - **Indépendants/Artisans** : En quête de clients et d'une vitrine numérique.
@@ -115,7 +115,7 @@ Nukun répond au besoin de structuration et de visibilité de l'écosystème pro
 ## 🧱 PLAN DE RECONSTRUCTION
 
 ### Phase 1 : Infrastructure (MVP)
-1.  Mise en place de l'instance Supabase et déploiement du schéma SQL (`sql/nukun_unified.sql`).
+1.  Mise en place de l'instance Supabase et déploiement du schéma SQL (`sql/emiid_unified.sql`).
 2.  Configuration du monorepo avec les dépendances racines.
 3.  Mise en place de l'Auth Supabase.
 

@@ -1,10 +1,10 @@
 ---
-description: Assistant d'analyse des fonctionnalités de Nukun
+description: Assistant d'analyse des fonctionnalités de EmiID
 ---
 
 # 🕵️ Agent d'Analyse des Fonctionnalités
 
-Cet agent a pour mission d'explorer, de cartographier et de documenter les fonctionnalités de l'écosystème Nukun.
+Cet agent a pour mission d'explorer, de cartographier et de documenter les fonctionnalités de l'écosystème EmiID.
 
 ## 🛠️ Capacités
 

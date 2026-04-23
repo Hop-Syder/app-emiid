@@ -5,13 +5,13 @@
  * @created 2026-04-18
  */
 
-# 📱 Frontend User — Nukun
+# 📱 Frontend User — EmiID
 
 Application web principale destinée aux utilisateurs finaux (professionnels, artisans, entreprises).
 
 ## 📖 Documentation Détaillée
 Pour une documentation complète des fonctionnalités et de l'architecture, voir :
-👉 **[docs/FRONTEND_USER.md](file:///home/hopsyder/Projet/app-nukun/docs/FRONTEND_USER.md)**
+👉 **[docs/FRONTEND_USER.md](file:///home/hopsyder/Projet/app-emiid/docs/FRONTEND_USER.md)**
 
 ## 🚀 Stack Technique
 - **Framework** : Next.js 15 (App Router)

@@ -6,13 +6,13 @@
  * 🌐 ceo.nexuspartners.xyz
  */
 
-import { NukunLayout } from "@/components/menu/nukun-layout"
+import { EmiIDLayout } from "@/components/menu/emiid-layout"
 import { DashboardPublicContent } from "@/components/dashboard-public-content/dashboard-public-content"
 
 export default function DashboardPublicPage() {
     return (
-        <NukunLayout>
+        <EmiIDLayout>
             <DashboardPublicContent />
-        </NukunLayout>
+        </EmiIDLayout>
     )
 }

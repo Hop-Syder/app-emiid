@@ -38,7 +38,7 @@ CREATE TABLE public.user_profiles (
 -- Index pour performance
 CREATE INDEX idx_user_profiles_user_id ON public.user_profiles(user_id);
 
-COMMENT ON TABLE public.user_profiles IS 'Profils utilisateurs Nukun.';
+COMMENT ON TABLE public.user_profiles IS 'Profils utilisateurs EmiID.';
 COMMENT ON COLUMN public.user_profiles.has_profile IS 'Indique si l''utilisateur a complété son profil entrepreneur.';
 
 -- ==========================================

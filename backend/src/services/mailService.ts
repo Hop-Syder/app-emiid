@@ -1,7 +1,7 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Service centralisé pour l'envoi d'emails (SMTP / Nodemailer) pour Nukun
+ * @description Service centralisé pour l'envoi d'emails (SMTP / Nodemailer) pour EmiID
  * @created 2026-04-19
  * @updated 2026-04-19
  * 🌐 ceo.nexuspartners.xyz
@@ -34,7 +34,7 @@ interface EmailOptions {
  * Envoie un email générique
  */
 export const sendEmail = async ({ to, subject, html, text }: EmailOptions) => {
-  const from = process.env.EMAIL_FROM || '"Nukun" <no-reply@nexuspartners.xyz>';
+  const from = process.env.EMAIL_FROM || '"EmiID" <no-reply@nexuspartners.xyz>';
 
   try {
     const info = await transporter.sendMail({
@@ -57,11 +57,11 @@ export const sendEmail = async ({ to, subject, html, text }: EmailOptions) => {
  * Envoie une notification de nouveau message
  */
 export const sendNewMessageNotification = async (recipientEmail: string, senderName: string, messagePreview: string) => {
-  const subject = `Nouveau message de ${senderName} sur Nukun`;
+  const subject = `Nouveau message de ${senderName} sur EmiID`;
   
   const html = `
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; rounded: 12px;">
-      <h2 style="color: #022753;">Nukun</h2>
+      <h2 style="color: #022753;">EmiID</h2>
       <p>Bonjour,</p>
       <p>Vous avez reçu un nouveau message de <strong>${senderName}</strong> :</p>
       <div style="background-color: #f8fafc; padding: 15px; border-radius: 8px; font-style: italic; margin: 20px 0;">
@@ -69,14 +69,14 @@ export const sendNewMessageNotification = async (recipientEmail: string, senderN
       </div>
       <p>Connectez-vous à votre tableau de bord pour répondre.</p>
       <div style="margin-top: 30px;">
-        <a href="https://app-nukun.app/dashboard-user" 
+        <a href="https://app-emiid.app/dashboard-user" 
            style="background-color: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
            Voir mes messages
         </a>
       </div>
       <hr style="margin-top: 40px; border: 0; border-top: 1px solid #e2e8f0;" />
       <p style="font-size: 12px; color: #64748b;">
-        Vous recevez cet email car vous avez activé les notifications par email dans vos paramètres Nukun.
+        Vous recevez cet email car vous avez activé les notifications par email dans vos paramètres EmiID.
       </p>
     </div>
   `;

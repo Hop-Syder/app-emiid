@@ -1,7 +1,7 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Service centralisé pour l'envoi de notifications Push pour Nukun
+ * @description Service centralisé pour l'envoi de notifications Push pour EmiID
  * @created 2026-04-19
  * @updated 2026-04-19
  * 🌐 ceo.nexuspartners.xyz

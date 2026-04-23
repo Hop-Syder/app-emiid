@@ -3,8 +3,8 @@ import "./globals.css";
 import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
-  title: "Nukun Admin",
-  description: "Cockpit d'administration Nukun",
+  title: "EmiID Admin",
+  description: "Cockpit d'administration EmiID",
 };
 
 export default function RootLayout({
