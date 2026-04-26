@@ -368,7 +368,7 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
                         {user.first_name || ""} {user.last_name || ""}
                         {user.is_verified && <BadgeCheck className="h-4 w-4 text-blue-500" />}
                         {user.is_premium && <Crown className="h-4 w-4 text-amber-500" />}
-                        {user.is_locked && <ShieldX className="h-4 w-4 text-red-500" title="Compte verrouillé (PIN)" />}
+                        {user.is_locked && <span title="Compte verrouillé (PIN)"><ShieldX className="h-4 w-4 text-red-500" /></span>}
                       </p>
                       {user.has_profile && !user.is_verified && <BadgeCheck className="h-4 w-4 text-slate-300" />}
                     </div>
@@ -551,7 +551,7 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
                           {selectedUser.first_name || ""} {selectedUser.last_name || ""}
                           {selectedUser.is_verified && <BadgeCheck className="h-5 w-5 text-blue-500" />}
                           {selectedUser.is_premium && <Crown className="h-5 w-5 text-amber-500" />}
-                          {selectedUser.is_locked && <ShieldX className="h-5 w-5 text-red-500" title="Compte verrouillé (PIN)" />}
+                          {selectedUser.is_locked && <span title="Compte verrouillé (PIN)"><ShieldX className="h-5 w-5 text-red-500" /></span>}
                         </h2>
                         {selectedUser.has_profile && !selectedUser.is_verified && <BadgeCheck className="h-5 w-5 text-slate-300" />}
                       </div>
