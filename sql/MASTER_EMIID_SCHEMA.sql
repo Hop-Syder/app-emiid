@@ -158,7 +158,7 @@ BEGIN
         COALESCE(NEW.raw_user_meta_data->>'last_name', ''),
         NEW.email,
         COALESCE(NEW.raw_user_meta_data->>'avatar_url', NEW.raw_user_meta_data->>'picture'),
-        COALESCE(NEW.raw_user_meta_data->>'role', '')
+        ''
     ) ON CONFLICT (user_id) DO NOTHING;
     RETURN NEW;
 END;

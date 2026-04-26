@@ -8,7 +8,28 @@
 import { Request, Response } from 'express';
 import { supabase, supabaseAdmin } from '../config/supabase';
 import bcrypt from 'bcrypt';
+import { randomInt } from 'crypto';
 import { logger } from '../utils/logger';
+
+const RESERVED_ROLE_PATTERN = /\b(admin|administrator|administrateur|superadmin|root|moderator|modérateur)\b/i;
+const PIN_PATTERN = /^\d{6}$/;
+const PHONE_PATTERN = /^\+?[0-9\s().-]{8,20}$/;
+
+function sanitizeProfileForResponse<T extends Record<string, any> | null>(profile: T): T {
+  if (profile && Object.prototype.hasOwnProperty.call(profile, 'pin_code')) {
+    delete profile.pin_code;
+  }
+
+  return profile;
+}
+
+function sanitizeProfileText(value: unknown, maxLength: number): string | null | undefined {
+  if (value === undefined) return undefined;
+  if (value === null) return null;
+  if (typeof value !== 'string') return undefined;
+  const trimmed = value.trim();
+  return trimmed ? trimmed.slice(0, maxLength) : null;
+}
 
 const DEFAULT_NOTIFICATION_PREFERENCES = {
   messages: true,
@@ -89,6 +110,7 @@ export const getMyProfile = async (req: any, res: Response) => {
     }
 
     if (data) {
+        sanitizeProfileForResponse(data);
         data.tags = data.profile_tags?.map((pt: any) => pt.tags?.name).filter(Boolean) || [];
         delete data.profile_tags;
         data.first_name = data.first_name || authFallback.first_name;
@@ -145,7 +167,9 @@ export const updateMyProfile = async (req: any, res: Response) => {
     }
 
     // --- SLUG VALIDATION LOGIC ---
-    let finalSlug = slug ? slug.toLowerCase().replace(/[^a-z0-9-]/g, "") : null;
+    let finalSlug = typeof slug === 'string' && slug.trim()
+      ? slug.toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 80)
+      : null;
     if (finalSlug) {
       const { data: existingSlugProfile } = await supabaseAdmin
         .from('user_profiles')
@@ -161,12 +185,16 @@ export const updateMyProfile = async (req: any, res: Response) => {
 
     // --- SMART AUTOCOMPLETE LOGIC ---
     // On utilise 'role' ou 'job_title' pour alimenter 'jobs'
-    const finalRole = role || job_title;
+    const finalRole = sanitizeProfileText(role || job_title, 100);
+    if (typeof finalRole === 'string' && RESERVED_ROLE_PATTERN.test(finalRole)) {
+      return res.status(400).json({ error: "Le rôle renseigné utilise une valeur réservée." });
+    }
+
     if (finalRole) {
       await supabaseAdmin.from('jobs').upsert({ name: finalRole }, { onConflict: 'name' });
     }
     // On utilise 'activity_domain' ou 'industry' pour 'industries'
-    const finalDomain = activity_domain || industry;
+    const finalDomain = sanitizeProfileText(activity_domain || industry, 100);
     if (finalDomain) {
       await supabaseAdmin.from('industries').upsert({ name: finalDomain }, { onConflict: 'name' });
     }
@@ -175,20 +203,20 @@ export const updateMyProfile = async (req: any, res: Response) => {
     // Construction sécurisée de l'objet updates pour éviter les erreurs de colonnes inexistantes
     const updates: any = { 
         user_id: userId,
-        first_name, 
-        last_name, 
-        bio, 
-        avatar_url,
+        first_name: sanitizeProfileText(first_name, 100), 
+        last_name: sanitizeProfileText(last_name, 100), 
+        bio: sanitizeProfileText(bio, 1000), 
+        avatar_url: sanitizeProfileText(avatar_url, 2048),
         role: finalRole,
-        specialty,
-        category,
+        specialty: sanitizeProfileText(specialty, 255),
+        category: sanitizeProfileText(category, 50),
         activity_domain: finalDomain,
         country_id: finalCountryId,
-        city,
-        phone,
-        website,
+        city: sanitizeProfileText(city, 100),
+        phone: sanitizeProfileText(phone, 20),
+        website: sanitizeProfileText(website, 2048),
         is_published,
-        card_variant,
+        card_variant: sanitizeProfileText(card_variant, 50),
         updated_at: new Date().toISOString()
     };
     
@@ -199,10 +227,12 @@ export const updateMyProfile = async (req: any, res: Response) => {
     if (pin_enabled !== undefined) updates.pin_enabled = pin_enabled;
 
     // Si un nouveau code PIN est envoyé, on le hashe
-    if (pin_code && pin_code.length === 6) {
+    if (pin_code && PIN_PATTERN.test(pin_code)) {
       const salt = await bcrypt.genSalt(10);
       updates.pin_code = await bcrypt.hash(pin_code, salt);
       updates.pin_attempts = 0;
+    } else if (pin_code) {
+      return res.status(400).json({ error: "Le code PIN doit contenir exactement 6 chiffres." });
     }
 
     const { data, error } = await supabaseAdmin
@@ -220,7 +250,8 @@ export const updateMyProfile = async (req: any, res: Response) => {
         await supabaseAdmin.from('profile_tags').delete().eq('profile_id', profileId);
         
         for (const tagName of tags) {
-            const cleanTag = tagName.toLowerCase().trim();
+            if (typeof tagName !== 'string') continue;
+            const cleanTag = tagName.toLowerCase().trim().slice(0, 50);
             if (cleanTag) {
                 // Upsert tag
                 const { data: tagData } = await supabaseAdmin.from('tags').upsert({ name: cleanTag }, { onConflict: 'name' }).select('id').single();
@@ -231,7 +262,7 @@ export const updateMyProfile = async (req: any, res: Response) => {
         }
     }
 
-    res.json(data);
+    res.json(sanitizeProfileForResponse(data));
   } catch (err) {
     res.status(500).json({ error: "Erreur interne lors de la mise à jour du profil" });
   }
@@ -378,6 +409,10 @@ export const verifyPin = async (req: any, res: Response) => {
   const userId = req.user.id;
   const { pin } = req.body;
 
+  if (typeof pin !== 'string' || !PIN_PATTERN.test(pin)) {
+    return res.status(400).json({ error: "Format de PIN invalide" });
+  }
+
   try {
     const { data: profile, error } = await supabaseAdmin
       .from('user_profiles')
@@ -463,25 +498,29 @@ export const requestPhoneVerification = async (req: any, res: Response) => {
   const userId = req.user.id;
   const { phone, method } = req.body; // method: 'whatsapp' | 'sms'
 
-  if (!phone) return res.status(400).json({ error: "Numéro de téléphone requis" });
+  if (typeof phone !== 'string' || !PHONE_PATTERN.test(phone.trim())) {
+    return res.status(400).json({ error: "Numéro de téléphone invalide" });
+  }
+
+  const normalizedMethod = method === 'whatsapp' || method === 'sms' ? method : 'sms';
 
   try {
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otp = randomInt(100000, 1000000).toString();
+    const otpHash = await bcrypt.hash(otp, 10);
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
     const { error } = await supabaseAdmin
       .from('phone_verifications')
       .insert({
         user_id: userId,
-        phone,
-        otp_code: otp,
+        phone: phone.trim(),
+        otp_code: otpHash,
         expires_at: expiresAt.toISOString()
       });
 
     if (error) throw error;
 
-    // Simulation d'envoi (À remplacer par une API réelle)
-    logger.info(`[OTP ${method.toUpperCase()}] Pour ${phone}: ${otp}`);
+    logger.info(`Code OTP ${normalizedMethod.toUpperCase()} généré pour l'utilisateur ${userId}`);
     
     // Si method === 'whatsapp', on pourrait appeler une API WhatsApp ici
     
@@ -500,13 +539,16 @@ export const verifyPhone = async (req: any, res: Response) => {
   const userId = req.user.id;
   const { phone, code } = req.body;
 
+  if (typeof phone !== 'string' || !PHONE_PATTERN.test(phone.trim()) || typeof code !== 'string' || !PIN_PATTERN.test(code)) {
+    return res.status(400).json({ error: "Paramètres de vérification invalides" });
+  }
+
   try {
     const { data: verification, error } = await supabaseAdmin
       .from('phone_verifications')
-      .select('*')
+      .select('id, otp_code')
       .eq('user_id', userId)
-      .eq('phone', phone)
-      .eq('otp_code', code)
+      .eq('phone', phone.trim())
       .eq('verified', false)
       .gt('expires_at', new Date().toISOString())
       .order('created_at', { ascending: false })
@@ -514,6 +556,14 @@ export const verifyPhone = async (req: any, res: Response) => {
       .single();
 
     if (error || !verification) {
+      return res.status(400).json({ error: "Code invalide ou expiré" });
+    }
+
+    const isValidCode = verification.otp_code?.startsWith('$2')
+      ? await bcrypt.compare(code, verification.otp_code)
+      : verification.otp_code === code;
+
+    if (!isValidCode) {
       return res.status(400).json({ error: "Code invalide ou expiré" });
     }
 
@@ -528,7 +578,7 @@ export const verifyPhone = async (req: any, res: Response) => {
       .from('user_profiles')
       .update({ 
         phone_verified: true,
-        phone: phone, // S'assurer que le numéro est celui vérifié
+        phone: phone.trim(), // S'assurer que le numéro est celui vérifié
         updated_at: new Date().toISOString()
       })
       .eq('user_id', userId);

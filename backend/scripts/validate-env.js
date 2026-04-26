@@ -66,7 +66,7 @@ Object.keys(envVars).forEach(key => {
     const value = envVars[key];
 
     // Ignorer les valeurs vides pour les variables optionnelles
-    const optionalVars = ['CORS_ORIGIN'];
+    const optionalVars = ['CORS_ORIGIN', 'ADMIN_EMAILS', 'WEBHOOK_SECRET'];
     if (optionalVars.includes(key)) return;
 
     if (!value || value.trim() === '') {

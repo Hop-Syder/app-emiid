@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from 'express'
 
 export function errorHandler(err: unknown, _req: Request, res: Response, _next: NextFunction) {
+  const isProduction = process.env.NODE_ENV === 'production'
+
   if (err instanceof Error && err.message === 'CORS_FORBIDDEN') {
     return res.status(403).json({
       error: 'CORS_FORBIDDEN',
@@ -11,7 +13,7 @@ export function errorHandler(err: unknown, _req: Request, res: Response, _next: 
   if (err instanceof Error) {
     return res.status(500).json({
       error: 'INTERNAL_SERVER_ERROR',
-      message: err.message,
+      message: isProduction ? "Erreur interne du serveur." : err.message,
     })
   }
 

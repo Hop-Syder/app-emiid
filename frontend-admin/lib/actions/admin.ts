@@ -119,6 +119,36 @@ interface ProjectGalleryRow {
   profile_id: string
 }
 
+const USER_PROFILE_SAFE_SELECT = `
+  id,
+  user_id,
+  first_name,
+  last_name,
+  email,
+  avatar_url,
+  bio,
+  category,
+  role,
+  job_title,
+  specialty,
+  activity_domain,
+  industry,
+  city,
+  website,
+  phone,
+  followers_count,
+  country_id,
+  has_profile,
+  is_published,
+  is_verified,
+  is_premium,
+  is_locked,
+  pin_attempts,
+  created_at,
+  updated_at,
+  countries(name)
+`
+
 const DEFAULT_ADMIN_NOTIFICATIONS = {
   emailNewUser: true,
   emailModeration: true,
@@ -216,7 +246,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
 
   const { data: recentUsers } = await supabase
     .from("user_profiles")
-    .select("*")
+    .select(USER_PROFILE_SAFE_SELECT)
     .order("created_at", { ascending: false })
     .limit(5)
 
@@ -265,7 +295,7 @@ export async function getUsers(params?: {
 
   let query = supabase
     .from("user_profiles")
-    .select("*, countries(name)", { count: "exact" })
+    .select(USER_PROFILE_SAFE_SELECT, { count: "exact" })
 
   if (search) {
     query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,email.ilike.%${search}%`)

@@ -49,7 +49,7 @@ export function useCurrentUserProfile() {
             try {
                 const { data, error } = await supabase
                     .from('user_profiles')
-                    .select('*')
+                    .select('first_name, last_name, email, avatar_url, slug, is_published')
                     .eq('user_id', nextSession.user.id)
                     .single()
 

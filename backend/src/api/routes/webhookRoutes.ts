@@ -5,7 +5,7 @@
  * @created 2026-04-17
  */
 
-import { Router, Request, Response } from 'express';
+import { NextFunction, Router, Request, Response } from 'express';
 import { logger } from '../../utils/logger';
 import { supabaseAdmin } from '../../config/supabase';
 import { sendNewMessageNotification } from '../../services/mailService';
@@ -13,16 +13,30 @@ import { sendPushNotification } from '../../services/pushService';
 
 const router = Router();
 
-// Middleware optionnel pour vérifier un token secret webhook
-// const verifyWebhookSecret = (req: Request, res: Response, next: NextFunction) => {
-//   const secret = req.headers['x-webhook-secret'];
-//   if (secret !== process.env.WEBHOOK_SECRET) return res.status(401).send('Unauthorized');
-//   next();
-// };
+const verifyWebhookSecret = (req: Request, res: Response, next: NextFunction) => {
+  const configuredSecret = process.env.WEBHOOK_SECRET;
+
+  if (!configuredSecret) {
+    logger.error('Webhook refuse: WEBHOOK_SECRET non configure');
+    return res.status(503).json({ error: 'Webhook non configure' });
+  }
+
+  const headerSecret = req.headers['x-webhook-secret'];
+  const bearerSecret = req.headers.authorization?.startsWith('Bearer ')
+    ? req.headers.authorization.slice('Bearer '.length)
+    : null;
+  const receivedSecret = typeof headerSecret === 'string' ? headerSecret : bearerSecret;
+
+  if (!receivedSecret || receivedSecret !== configuredSecret) {
+    return res.status(401).json({ error: 'Webhook non autorise' });
+  }
+
+  return next();
+};
 
 // @route   POST /api/webhooks/supabase
 // @desc    Reçoit les événements de la DB Supabase
-router.post('/supabase', async (req: Request, res: Response) => {
+router.post('/supabase', verifyWebhookSecret, async (req: Request, res: Response) => {
   try {
     const { type, table, record } = req.body;
     logger.info('Webhook reçu depuis Supabase', { type, table });

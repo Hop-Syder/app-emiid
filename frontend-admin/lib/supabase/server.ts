@@ -11,6 +11,28 @@ export interface AdminSessionProfile {
   avatarUrl: string | null
 }
 
+const ADMIN_ROLE_PATTERN = /^(admin|administrator|administrateur|superadmin)$/i
+
+function isAdminFromAuthMetadata(user: any) {
+  const metadata = user?.app_metadata || {}
+  const roles = [
+    metadata.role,
+    metadata.app_role,
+    ...(Array.isArray(metadata.roles) ? metadata.roles : []),
+  ].filter(Boolean)
+
+  return roles.some((role) => typeof role === 'string' && ADMIN_ROLE_PATTERN.test(role.trim()))
+}
+
+function isAdminFromAllowlist(email?: string | null) {
+  const configuredEmails = (process.env.ADMIN_EMAILS || '')
+    .split(',')
+    .map((item) => item.trim().toLowerCase())
+    .filter(Boolean)
+
+  return !!email && configuredEmails.includes(email.toLowerCase())
+}
+
 export async function createClient() {
   const cookieStore = await cookies()
 
@@ -49,7 +71,12 @@ export async function requireAdminSession(): Promise<AdminSessionProfile | null>
     .eq('user_id', user.id)
     .single()
 
-  if (error || !profile || !profile.role?.toLowerCase().includes('admin')) {
+  const isAdmin =
+    isAdminFromAuthMetadata(user) ||
+    isAdminFromAllowlist(user.email) ||
+    (isAdminFromAllowlist(profile?.email) && typeof profile?.role === 'string' && ADMIN_ROLE_PATTERN.test(profile.role.trim()))
+
+  if (error || !profile || !isAdmin) {
     return null
   }
 

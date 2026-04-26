@@ -22,9 +22,15 @@ const defaultOrigins = [
 
 export const allowedOrigins = (() => {
   const configuredOrigins = process.env.CORS_ORIGINS || process.env.CORS_ORIGIN || ''
-  return configuredOrigins
+  const origins = configuredOrigins
     ? configuredOrigins.split(',').map((origin) => origin.trim()).filter(Boolean)
     : defaultOrigins
+
+  if (process.env.NODE_ENV === 'production' && origins.includes('*')) {
+    throw new Error('Configuration CORS invalide: wildcard interdit en production')
+  }
+
+  return origins
 })()
 
 export function createApp(): Application {
@@ -34,7 +40,7 @@ export function createApp(): Application {
   app.use(cors({
     origin: (origin, callback) => {
       if (!origin) return callback(null, true)
-      if (allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
+      if (allowedOrigins.includes(origin)) {
         return callback(null, true)
       }
 
@@ -43,7 +49,7 @@ export function createApp(): Application {
     },
     credentials: true,
   }))
-  app.use(express.json())
+  app.use(express.json({ limit: '100kb' }))
 
   app.get('/', (_req: Request, res: Response) => {
     res.status(200).json({
