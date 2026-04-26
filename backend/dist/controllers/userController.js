@@ -9,10 +9,30 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyPin = exports.deleteMyAccount = exports.deactivateMyAccount = exports.updateMySettings = exports.updateMyProfile = exports.getMyProfile = void 0;
+exports.verifyPhone = exports.requestPhoneVerification = exports.unlockUserPin = exports.verifyPin = exports.deleteMyAccount = exports.deactivateMyAccount = exports.updateMySettings = exports.updateMyProfile = exports.getMyProfile = void 0;
 const supabase_1 = require("../config/supabase");
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const crypto_1 = require("crypto");
 const logger_1 = require("../utils/logger");
+const RESERVED_ROLE_PATTERN = /\b(admin|administrator|administrateur|superadmin|root|moderator|modérateur)\b/i;
+const PIN_PATTERN = /^\d{6}$/;
+const PHONE_PATTERN = /^\+?[0-9\s().-]{8,20}$/;
+function sanitizeProfileForResponse(profile) {
+    if (profile && Object.prototype.hasOwnProperty.call(profile, 'pin_code')) {
+        delete profile.pin_code;
+    }
+    return profile;
+}
+function sanitizeProfileText(value, maxLength) {
+    if (value === undefined)
+        return undefined;
+    if (value === null)
+        return null;
+    if (typeof value !== 'string')
+        return undefined;
+    const trimmed = value.trim();
+    return trimmed ? trimmed.slice(0, maxLength) : null;
+}
 const DEFAULT_NOTIFICATION_PREFERENCES = {
     messages: true,
     network_activity: true,
@@ -84,6 +104,7 @@ const getMyProfile = async (req, res) => {
             return res.status(400).json({ error: error.message });
         }
         if (data) {
+            sanitizeProfileForResponse(data);
             data.tags = data.profile_tags?.map((pt) => pt.tags?.name).filter(Boolean) || [];
             delete data.profile_tags;
             data.first_name = data.first_name || authFallback.first_name;
@@ -131,7 +152,9 @@ const updateMyProfile = async (req, res) => {
             }
         }
         // --- SLUG VALIDATION LOGIC ---
-        let finalSlug = slug ? slug.toLowerCase().replace(/[^a-z0-9-]/g, "") : null;
+        let finalSlug = typeof slug === 'string' && slug.trim()
+            ? slug.toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 80)
+            : null;
         if (finalSlug) {
             const { data: existingSlugProfile } = await supabase_1.supabaseAdmin
                 .from('user_profiles')
@@ -145,12 +168,15 @@ const updateMyProfile = async (req, res) => {
         }
         // --- SMART AUTOCOMPLETE LOGIC ---
         // On utilise 'role' ou 'job_title' pour alimenter 'jobs'
-        const finalRole = role || job_title;
+        const finalRole = sanitizeProfileText(role || job_title, 100);
+        if (typeof finalRole === 'string' && RESERVED_ROLE_PATTERN.test(finalRole)) {
+            return res.status(400).json({ error: "Le rôle renseigné utilise une valeur réservée." });
+        }
         if (finalRole) {
             await supabase_1.supabaseAdmin.from('jobs').upsert({ name: finalRole }, { onConflict: 'name' });
         }
         // On utilise 'activity_domain' ou 'industry' pour 'industries'
-        const finalDomain = activity_domain || industry;
+        const finalDomain = sanitizeProfileText(activity_domain || industry, 100);
         if (finalDomain) {
             await supabase_1.supabaseAdmin.from('industries').upsert({ name: finalDomain }, { onConflict: 'name' });
         }
@@ -158,33 +184,35 @@ const updateMyProfile = async (req, res) => {
         // Construction sécurisée de l'objet updates pour éviter les erreurs de colonnes inexistantes
         const updates = {
             user_id: userId,
-            first_name,
-            last_name,
-            bio,
-            avatar_url,
+            first_name: sanitizeProfileText(first_name, 100),
+            last_name: sanitizeProfileText(last_name, 100),
+            bio: sanitizeProfileText(bio, 1000),
+            avatar_url: sanitizeProfileText(avatar_url, 2048),
             role: finalRole,
-            specialty,
-            category,
+            specialty: sanitizeProfileText(specialty, 255),
+            category: sanitizeProfileText(category, 50),
             activity_domain: finalDomain,
             country_id: finalCountryId,
-            city,
-            phone,
-            website,
+            city: sanitizeProfileText(city, 100),
+            phone: sanitizeProfileText(phone, 20),
+            website: sanitizeProfileText(website, 2048),
             is_published,
-            card_variant,
+            card_variant: sanitizeProfileText(card_variant, 50),
             updated_at: new Date().toISOString()
         };
-        if (finalSlug) {
-            updates.slug = finalSlug;
-        }
+        // On autorise la suppression du slug si finalSlug est null
+        updates.slug = finalSlug;
         // Ajout conditionnel des champs PIN (seulement si présents)
         if (pin_enabled !== undefined)
             updates.pin_enabled = pin_enabled;
         // Si un nouveau code PIN est envoyé, on le hashe
-        if (pin_code && pin_code.length === 6) {
+        if (pin_code && PIN_PATTERN.test(pin_code)) {
             const salt = await bcrypt_1.default.genSalt(10);
             updates.pin_code = await bcrypt_1.default.hash(pin_code, salt);
             updates.pin_attempts = 0;
+        }
+        else if (pin_code) {
+            return res.status(400).json({ error: "Le code PIN doit contenir exactement 6 chiffres." });
         }
         const { data, error } = await supabase_1.supabaseAdmin
             .from('user_profiles')
@@ -199,7 +227,9 @@ const updateMyProfile = async (req, res) => {
             // Supprimer les anciens tags
             await supabase_1.supabaseAdmin.from('profile_tags').delete().eq('profile_id', profileId);
             for (const tagName of tags) {
-                const cleanTag = tagName.toLowerCase().trim();
+                if (typeof tagName !== 'string')
+                    continue;
+                const cleanTag = tagName.toLowerCase().trim().slice(0, 50);
                 if (cleanTag) {
                     // Upsert tag
                     const { data: tagData } = await supabase_1.supabaseAdmin.from('tags').upsert({ name: cleanTag }, { onConflict: 'name' }).select('id').single();
@@ -209,7 +239,7 @@ const updateMyProfile = async (req, res) => {
                 }
             }
         }
-        res.json(data);
+        res.json(sanitizeProfileForResponse(data));
     }
     catch (err) {
         res.status(500).json({ error: "Erreur interne lors de la mise à jour du profil" });
@@ -336,18 +366,21 @@ exports.deleteMyAccount = deleteMyAccount;
 const verifyPin = async (req, res) => {
     const userId = req.user.id;
     const { pin } = req.body;
+    if (typeof pin !== 'string' || !PIN_PATTERN.test(pin)) {
+        return res.status(400).json({ error: "Format de PIN invalide" });
+    }
     try {
         const { data: profile, error } = await supabase_1.supabaseAdmin
             .from('user_profiles')
-            .select('pin_code, pin_attempts, pin_enabled')
+            .select('pin_code, pin_attempts, pin_enabled, is_locked')
             .eq('user_id', userId)
             .single();
         if (error || !profile)
             return res.status(400).json({ error: "Profil introuvable" });
         if (!profile.pin_enabled)
             return res.json({ success: true, message: "PIN non activé" });
-        if (profile.pin_attempts >= 6) {
-            return res.status(403).json({ error: "Compte bloqué après 6 essais infructueux. Veuillez contacter le support." });
+        if (profile.is_locked) {
+            return res.status(403).json({ error: "Compte bloqué après 3 essais infructueux. Veuillez contacter un administrateur.", is_locked: true });
         }
         const isMatch = await bcrypt_1.default.compare(pin, profile.pin_code);
         if (isMatch) {
@@ -361,13 +394,24 @@ const verifyPin = async (req, res) => {
         else {
             // Incrémenter les tentatives
             const newAttempts = (profile.pin_attempts || 0) + 1;
+            const isNowLocked = newAttempts >= 3;
             await supabase_1.supabaseAdmin
                 .from('user_profiles')
-                .update({ pin_attempts: newAttempts })
+                .update({
+                pin_attempts: newAttempts,
+                ...(isNowLocked ? { is_locked: true, locked_at: new Date().toISOString() } : {})
+            })
                 .eq('user_id', userId);
+            if (isNowLocked) {
+                return res.status(403).json({
+                    error: "Compte bloqué après 3 essais infructueux. Veuillez contacter un administrateur.",
+                    attempts_remaining: 0,
+                    is_locked: true
+                });
+            }
             return res.status(401).json({
                 error: "Code PIN incorrect",
-                attempts_remaining: 6 - newAttempts
+                attempts_remaining: 3 - newAttempts
             });
         }
     }
@@ -376,3 +420,112 @@ const verifyPin = async (req, res) => {
     }
 };
 exports.verifyPin = verifyPin;
+/**
+ * Débloque le compte utilisateur côté admin
+ * POST /api/users/:id/unlock-pin
+ */
+const unlockUserPin = async (req, res) => {
+    const targetUserId = req.params.id;
+    try {
+        const { error } = await supabase_1.supabaseAdmin
+            .from('user_profiles')
+            .update({ is_locked: false, locked_at: null, pin_attempts: 0 })
+            .eq('user_id', targetUserId);
+        if (error)
+            return res.status(400).json({ error: error.message });
+        return res.json({ success: true, message: "Utilisateur débloqué avec succès" });
+    }
+    catch (err) {
+        res.status(500).json({ error: "Erreur lors du déblocage de l'utilisateur" });
+    }
+};
+exports.unlockUserPin = unlockUserPin;
+/**
+ * Demande un code OTP pour vérifier le téléphone
+ * POST /api/users/phone/request
+ */
+const requestPhoneVerification = async (req, res) => {
+    const userId = req.user.id;
+    const { phone, method } = req.body; // method: 'whatsapp' | 'sms'
+    if (typeof phone !== 'string' || !PHONE_PATTERN.test(phone.trim())) {
+        return res.status(400).json({ error: "Numéro de téléphone invalide" });
+    }
+    const normalizedMethod = method === 'whatsapp' || method === 'sms' ? method : 'sms';
+    try {
+        const otp = (0, crypto_1.randomInt)(100000, 1000000).toString();
+        const otpHash = await bcrypt_1.default.hash(otp, 10);
+        const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+        const { error } = await supabase_1.supabaseAdmin
+            .from('phone_verifications')
+            .insert({
+            user_id: userId,
+            phone: phone.trim(),
+            otp_code: otpHash,
+            expires_at: expiresAt.toISOString()
+        });
+        if (error)
+            throw error;
+        logger_1.logger.info(`Code OTP ${normalizedMethod.toUpperCase()} généré pour l'utilisateur ${userId}`);
+        // Si method === 'whatsapp', on pourrait appeler une API WhatsApp ici
+        res.json({ success: true, message: "Code envoyé" });
+    }
+    catch (err) {
+        logger_1.logger.error('Erreur requestPhoneVerification', err);
+        res.status(500).json({ error: "Impossible d'envoyer le code" });
+    }
+};
+exports.requestPhoneVerification = requestPhoneVerification;
+/**
+ * Vérifie le code OTP et certifie le téléphone
+ * POST /api/users/phone/verify
+ */
+const verifyPhone = async (req, res) => {
+    const userId = req.user.id;
+    const { phone, code } = req.body;
+    if (typeof phone !== 'string' || !PHONE_PATTERN.test(phone.trim()) || typeof code !== 'string' || !PIN_PATTERN.test(code)) {
+        return res.status(400).json({ error: "Paramètres de vérification invalides" });
+    }
+    try {
+        const { data: verification, error } = await supabase_1.supabaseAdmin
+            .from('phone_verifications')
+            .select('id, otp_code')
+            .eq('user_id', userId)
+            .eq('phone', phone.trim())
+            .eq('verified', false)
+            .gt('expires_at', new Date().toISOString())
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
+        if (error || !verification) {
+            return res.status(400).json({ error: "Code invalide ou expiré" });
+        }
+        const isValidCode = verification.otp_code?.startsWith('$2')
+            ? await bcrypt_1.default.compare(code, verification.otp_code)
+            : verification.otp_code === code;
+        if (!isValidCode) {
+            return res.status(400).json({ error: "Code invalide ou expiré" });
+        }
+        // Marquer comme vérifié dans la table OTP
+        await supabase_1.supabaseAdmin
+            .from('phone_verifications')
+            .update({ verified: true })
+            .eq('id', verification.id);
+        // Mettre à jour le profil utilisateur
+        const { error: profileError } = await supabase_1.supabaseAdmin
+            .from('user_profiles')
+            .update({
+            phone_verified: true,
+            phone: phone.trim(), // S'assurer que le numéro est celui vérifié
+            updated_at: new Date().toISOString()
+        })
+            .eq('user_id', userId);
+        if (profileError)
+            throw profileError;
+        res.json({ success: true, message: "Téléphone vérifié avec succès" });
+    }
+    catch (err) {
+        logger_1.logger.error('Erreur verifyPhone', err);
+        res.status(500).json({ error: "Erreur lors de la vérification" });
+    }
+};
+exports.verifyPhone = verifyPhone;

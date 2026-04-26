@@ -6,8 +6,8 @@
  */
 
 import { Router } from 'express';
-import { getDashboardStats } from '../controllers/dashboardController';
-import { requireAuth } from '../middlewares/authMiddleware';
+import { getDashboardStats } from '../../controllers/dashboardController';
+import { requireAuth } from '../../middlewares/authMiddleware';
 
 const router = Router();
 
