@@ -11,3 +11,4 @@ node_modules
 .skills/*
 skills-lock.json 
 .cursorrules
+.mcp.json
