@@ -37,6 +37,7 @@ import {
   toggleUserPublished, 
   toggleUserVerified,
   toggleUserPremium,
+  unlockUserPin,
   deleteUser,
   type UserProfile, 
   type Country 
@@ -133,6 +134,22 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
       setUsers(prev => prev.filter(u => u.id !== userId))
       setTotal(prev => prev - 1)
       setShowUserModal(false)
+    }
+  }
+
+  const handleUnlockUserPin = async (userId: string) => {
+    if (!confirm("Débloquer le compte de cet utilisateur (réinitialisation du PIN) ?")) return
+    const result = await unlockUserPin(userId)
+    if (result.success) {
+      setUsers(prev => prev.map(u => 
+        u.id === userId ? { ...u, is_locked: false, pin_attempts: 0 } : u
+      ))
+      if (selectedUser?.id === userId) {
+        setSelectedUser(prev => prev ? { ...prev, is_locked: false, pin_attempts: 0 } : null)
+      }
+      alert("Le compte de l'utilisateur a été débloqué avec succès.")
+    } else {
+      alert(`Erreur : ${result.error}`)
     }
   }
 
@@ -351,6 +368,7 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
                         {user.first_name || ""} {user.last_name || ""}
                         {user.is_verified && <BadgeCheck className="h-4 w-4 text-blue-500" />}
                         {user.is_premium && <Crown className="h-4 w-4 text-amber-500" />}
+                        {user.is_locked && <ShieldX className="h-4 w-4 text-red-500" title="Compte verrouillé (PIN)" />}
                       </p>
                       {user.has_profile && !user.is_verified && <BadgeCheck className="h-4 w-4 text-slate-300" />}
                     </div>
@@ -533,6 +551,7 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
                           {selectedUser.first_name || ""} {selectedUser.last_name || ""}
                           {selectedUser.is_verified && <BadgeCheck className="h-5 w-5 text-blue-500" />}
                           {selectedUser.is_premium && <Crown className="h-5 w-5 text-amber-500" />}
+                          {selectedUser.is_locked && <ShieldX className="h-5 w-5 text-red-500" title="Compte verrouillé (PIN)" />}
                         </h2>
                         {selectedUser.has_profile && !selectedUser.is_verified && <BadgeCheck className="h-5 w-5 text-slate-300" />}
                       </div>
@@ -668,6 +687,15 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
                         </>
                       )}
                     </button>
+                    {selectedUser.is_locked && (
+                      <button
+                        onClick={() => handleUnlockUserPin(selectedUser.id)}
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-50 text-blue-600 rounded-xl text-sm font-semibold hover:bg-blue-100 transition-colors"
+                      >
+                        <ShieldCheck className="h-4 w-4" />
+                        Débloquer PIN
+                      </button>
+                    )}
                     <button
                       onClick={() => handleDeleteUser(selectedUser.id)}
                       className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-rose-50 text-rose-600 rounded-xl text-sm font-semibold hover:bg-rose-100 transition-colors"

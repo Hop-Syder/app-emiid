@@ -178,7 +178,7 @@ export async function GET(request: Request) {
             fontSize: '24px',
             fontWeight: 'bold',
           }}>
-            emiid.app
+            app.emiid.com
           </div>
         </div>
       ),

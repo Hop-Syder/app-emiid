@@ -937,7 +937,7 @@ export function MessagesContent() {
 
         {/* Zone de chat */}
         <main className={cn(
-          "flex-1 w-full min-w-0 flex flex-col bg-muted/20 pb-[env(safe-area-inset-bottom)] md:pb-0 relative",
+          "flex-1 w-full min-w-0 min-h-0 flex flex-col bg-muted/20 pb-[env(safe-area-inset-bottom)] md:pb-0 relative",
           !showChatMobile && "hidden md:flex"
         )}>
           {selectedConv ? (
@@ -1211,7 +1211,7 @@ export function MessagesContent() {
               </ScrollArea>
 
               {/* Input Area */}
-              <footer className="p-4 sm:p-6 border-t bg-white/80 backdrop-blur-md sticky bottom-0 z-30">
+              <footer className="p-4 sm:p-6 border-t bg-white/80 backdrop-blur-md mt-auto shrink-0 z-30">
                 <div className="flex items-end gap-3 w-full max-w-4xl mx-auto">
                   <div className="flex gap-1 shrink-0">
                     <Tooltip>
@@ -1272,6 +1272,13 @@ export function MessagesContent() {
                       message.trim() ? "bg-primary text-white shadow-primary/25" : "bg-slate-200 text-slate-400 shadow-none cursor-not-allowed"
                     )}
                     onClick={handleSendMessage}
+                    onPointerDown={(e) => {
+                      // Empêche la perte de focus (et la fermeture du clavier sur mobile)
+                      e.preventDefault()
+                      if (message.trim() && !isSending) {
+                        handleSendMessage()
+                      }
+                    }}
                     disabled={!message.trim() || isSending}
                   >
                     {isSending ? (

@@ -25,6 +25,8 @@ export interface UserProfile {
   is_published: boolean | null
   is_verified?: boolean | null
   is_premium?: boolean | null
+  is_locked?: boolean | null
+  pin_attempts?: number | null
   created_at: string
   updated_at: string | null
 }
@@ -312,6 +314,26 @@ export async function toggleUserVerified(userId: string, isVerified: boolean) {
 
 export async function toggleUserPremium(userId: string, isPremium: boolean) {
   return updateUserProfile(userId, { is_premium: isPremium })
+}
+
+export async function unlockUserPin(userId: string): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createAdminClient()
+
+  const { error } = await supabase
+    .from("user_profiles")
+    .update({ 
+      is_locked: false, 
+      pin_attempts: 0, 
+      locked_at: null,
+      updated_at: new Date().toISOString()
+    })
+    .eq("id", userId)
+
+  if (error) {
+    return { success: false, error: error.message }
+  }
+
+  return { success: true }
 }
 
 export async function deleteUser(userId: string): Promise<{ success: boolean; error?: string }> {

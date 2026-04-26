@@ -178,7 +178,7 @@ export function CreerProfilForm({
                     </Label>
                     <div className="flex items-center rounded-xl bg-slate-50 border border-slate-200 overflow-hidden focus-within:ring-2 focus-within:ring-primary/20 transition-all">
                         <div className="bg-slate-100 px-4 py-4 text-slate-500 font-medium text-sm border-r border-slate-200 flex items-center whitespace-nowrap">
-                            emiid.app/profil/
+                            app.emiid.com/profil/
                         </div>
                         <Input
                             id="slug"

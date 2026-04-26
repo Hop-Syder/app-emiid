@@ -82,7 +82,7 @@ app.use(helmet({
 ```javascript
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://app-emiid.app',
+  'https://app.emiid.com',
   'https://app-nexus-connect-admin.vercel.app'
 ];
 ```

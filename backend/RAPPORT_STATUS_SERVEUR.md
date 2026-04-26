@@ -36,7 +36,7 @@
 **Variables vérifiées :**
 ```
 ✅ PORT=5000
-✅ CORS_ORIGIN=http://localhost:3000,https://app-emiid.app,https://app-nexus-connect-admin.vercel.app
+✅ CORS_ORIGIN=http://localhost:3000,https://app.emiid.com,https://app-nexus-connect-admin.vercel.app
 ✅ SUPABASE_URL=https://orokyklztecsuvpbktwz.supabase.co
 ✅ SUPABASE_ANON_KEY=[CONFIGURÉ]
 ✅ SUPABASE_SERVICE_ROLE_KEY=[CONFIGURÉ - Longueur valide]
@@ -135,7 +135,7 @@ $ curl http://localhost:5000/api/public/stats
 ```javascript
 [
   "http://localhost:3000",
-  "https://app-emiid.app",
+  "https://app.emiid.com",
   "https://app-nexus-connect-admin.vercel.app"
 ]
 ```

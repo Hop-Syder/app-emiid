@@ -15,9 +15,10 @@ import {
   verifyPin,
   requestPhoneVerification,
   verifyPhone,
+  unlockUserPin,
 } from '../../controllers/userController';
 import { getFollowedProfiles, toggleFollowProfile, getFollowers, updateFollowNote } from '../../controllers/followController';
-import { requireAuth } from '../../middlewares/authMiddleware';
+import { requireAuth, requireAdmin } from '../../middlewares/authMiddleware';
 
 const router = Router();
 
@@ -71,5 +72,9 @@ router.post('/phone/request', requestPhoneVerification);
 // @route   POST /api/users/phone/verify
 // @desc    Vérifier le code OTP
 router.post('/phone/verify', verifyPhone);
+
+// @route   POST /api/users/:id/unlock-pin
+// @desc    Débloquer le PIN d'un utilisateur (Admin seulement)
+router.post('/:id/unlock-pin', requireAdmin, unlockUserPin);
 
 export default router;

@@ -77,6 +77,7 @@ export function SecuritySection({
     // Reauthentication State
     const [reauthDialogOpen, setReauthDialogOpen] = useState(false)
     const [reauthPassword, setReauthPassword] = useState("")
+    const [reauthPin, setReauthPin] = useState("")
     const [showReauthPassword, setShowReauthPassword] = useState(false)
     const [reauthLoading, setReauthLoading] = useState(false)
     const [reauthError, setReauthError] = useState("")
@@ -89,6 +90,7 @@ export function SecuritySection({
     const handlePinToggle = (checked: boolean) => {
         setPendingAction(checked ? "enable" : "disable")
         setReauthPassword("")
+        setReauthPin("")
         setReauthError("")
         setReauthDialogOpen(true)
     }
@@ -135,6 +137,34 @@ export function SecuritySection({
 
     const handleReauthSubmit = async (e?: React.FormEvent) => {
         if (e) e.preventDefault()
+
+        if (profile.pin_enabled) {
+            if (!reauthPin || reauthPin.length !== 6) {
+                setReauthError("Code PIN complet requis")
+                return
+            }
+            setReauthLoading(true)
+            setReauthError("")
+
+            try {
+                const res = await fetchWithAuth("/api/users/verify-pin", {
+                    method: "POST",
+                    body: JSON.stringify({ pin: reauthPin })
+                })
+                const data = await res.json()
+
+                if (res.ok && data.success) {
+                    processAfterReauth()
+                } else {
+                    setReauthError(data.error || "Code PIN incorrect")
+                }
+            } catch {
+                setReauthError("Erreur de connexion")
+            } finally {
+                setReauthLoading(false)
+            }
+            return
+        }
 
         // Détection utilisateur OAuth
         const isOAuth = profile.email && !profile.has_password // Note: On supposera qu'on a cette info ou on gère l'erreur
@@ -572,32 +602,52 @@ export function SecuritySection({
                             Vérification de sécurité
                         </DialogTitle>
                         <DialogDescription className="text-center px-4">
-                            Pour modifier vos paramètres de sécurité sensibles, veuillez confirmer votre mot de passe EmiID.
+                            {profile.pin_enabled 
+                                ? "Pour modifier vos paramètres de sécurité sensibles, veuillez confirmer votre code PIN."
+                                : "Pour modifier vos paramètres de sécurité sensibles, veuillez confirmer votre mot de passe EmiID."}
                         </DialogDescription>
                     </DialogHeader>
 
                     <form onSubmit={(e) => void handleReauthSubmit(e)} className="space-y-6 py-4">
                         <div className="space-y-2">
-                            <Label htmlFor="reauth-password">Mot de passe actuel</Label>
-                            <div className="relative">
-                                <Input
-                                    id="reauth-password"
-                                    type={showReauthPassword ? "text" : "password"}
-                                    placeholder="••••••••"
-                                    value={reauthPassword}
-                                    onChange={(e) => setReauthPassword(e.target.value)}
-                                    className="pr-10 rounded-xl h-12 border-slate-200 focus:border-[#022753] focus:ring-[#022753]/10"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowReauthPassword(!showReauthPassword)}
-                                    className="absolute right-3 top-3.5 text-slate-400 hover:text-slate-600 transition-colors"
-                                >
-                                    {showReauthPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                                </button>
-                            </div>
+                            {profile.pin_enabled ? (
+                                <div className="flex flex-col items-center gap-4">
+                                    <Label htmlFor="reauth-pin">Votre code PIN</Label>
+                                    <InputOTP maxLength={6} value={reauthPin} onChange={setReauthPin}>
+                                        <InputOTPGroup className="gap-2">
+                                            <InputOTPSlot index={0} className="w-10 h-12 rounded-lg border-gray-200" />
+                                            <InputOTPSlot index={1} className="w-10 h-12 rounded-lg border-gray-200" />
+                                            <InputOTPSlot index={2} className="w-10 h-12 rounded-lg border-gray-200" />
+                                            <InputOTPSlot index={3} className="w-10 h-12 rounded-lg border-gray-200" />
+                                            <InputOTPSlot index={4} className="w-10 h-12 rounded-lg border-gray-200" />
+                                            <InputOTPSlot index={5} className="w-10 h-12 rounded-lg border-gray-200" />
+                                        </InputOTPGroup>
+                                    </InputOTP>
+                                </div>
+                            ) : (
+                                <>
+                                    <Label htmlFor="reauth-password">Mot de passe actuel</Label>
+                                    <div className="relative">
+                                        <Input
+                                            id="reauth-password"
+                                            type={showReauthPassword ? "text" : "password"}
+                                            placeholder="••••••••"
+                                            value={reauthPassword}
+                                            onChange={(e) => setReauthPassword(e.target.value)}
+                                            className="pr-10 rounded-xl h-12 border-slate-200 focus:border-[#022753] focus:ring-[#022753]/10"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowReauthPassword(!showReauthPassword)}
+                                            className="absolute right-3 top-3.5 text-slate-400 hover:text-slate-600 transition-colors"
+                                        >
+                                            {showReauthPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                        </button>
+                                    </div>
+                                </>
+                            )}
                             {reauthError && (
-                                <p className="text-xs font-medium text-red-500 flex items-center gap-1 mt-1">
+                                <p className="text-xs font-medium text-red-500 flex items-center justify-center gap-1 mt-2">
                                     <ShieldAlert size={12} /> {reauthError}
                                 </p>
                             )}

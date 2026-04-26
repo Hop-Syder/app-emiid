@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next'
 import { createClient } from '@supabase/supabase-js'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://app-emiid.app'
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://app.emiid.com'
   
   // 1. Les routes principales (Statiques)
   const routes = [

@@ -62,7 +62,7 @@ Elle fonctionne en **3 étapes simples** :
 
 **1. TU CRÉES TON PROFIL PROFESSIONNEL**
 Tu décris tes compétences, ton secteur, ta ville, ton histoire.
-Tu obtiens un slug unique : emiid.app/@tonnom
+Tu obtiens un slug unique : app.emiid.com/@tonnom
 
 **2. TU REJOINS L'ÉCOSYSTÈME**
 Tu apparais dans l'annuaire intelligent.

@@ -3,8 +3,10 @@ node_modules
 .env.local
 .env
 .agent
-.agents
-.codex
-.agent-saas
-.cursorrules
-.cursor
+.agents/*
+.codex/*
+.agent-saas/*
+.cursorrules/*
+.cursor/*
+.skills/*
+skills-lock.json 

@@ -49,19 +49,19 @@ export function CookieConsent() {
                     className="fixed bottom-6 left-6 right-6 md:left-auto md:right-8 md:w-[400px] z-[100]"
                 >
                     <div className="relative overflow-hidden group">
-                        {/* Background Layer with intense blur */}
-                        <div className="absolute inset-0 bg-white/40 backdrop-blur-3xl border border-white/40 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)]" />
+                        {/* Background Layer - Increased opacity for readability */}
+                        <div className="absolute inset-0 bg-white/95 backdrop-blur-xl border border-white/40 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)]" />
                         
-                        {/* Animated Glows */}
-                        <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/10 rounded-full blur-[80px] animate-pulse" />
-                        <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-blue-400/10 rounded-full blur-[80px] animate-pulse delay-700" />
+                        {/* Animated Glows - Subtle and controlled */}
+                        <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/20 rounded-full blur-[80px] animate-pulse" />
+                        <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-blue-400/20 rounded-full blur-[80px] animate-pulse delay-700" />
 
                         <div className="relative p-6 sm:p-8 space-y-6">
                             {/* Header */}
                             <div className="flex items-start justify-between gap-4">
                                 <div className="flex items-center gap-4">
                                     <div className="relative">
-                                        <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-white shadow-lg shadow-primary/20 transform -rotate-3 group-hover:rotate-0 transition-transform duration-500">
+                                        <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-[#022753] to-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-900/20 transform -rotate-3 group-hover:rotate-0 transition-transform duration-500">
                                             <Cookie className="h-7 w-7" />
                                         </div>
                                         <div className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full bg-white flex items-center justify-center text-emerald-500 shadow-sm border border-slate-100">
@@ -69,17 +69,17 @@ export function CookieConsent() {
                                         </div>
                                     </div>
                                     <div>
-                                        <h3 className="text-xl font-black text-slate-900 tracking-tight leading-none mb-1">
+                                        <h3 className="text-xl font-black text-[#022753] tracking-tight leading-none mb-1">
                                             Expérience EmiID
                                         </h3>
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-primary/60">
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-[#022753]/60">
                                             Sécurité & Cookies
                                         </span>
                                     </div>
                                 </div>
                                 <button 
                                     onClick={() => setIsVisible(false)}
-                                    className="h-8 w-8 rounded-full bg-slate-100/50 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition-all"
+                                    className="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition-all"
                                 >
                                     <X className="h-4 w-4" />
                                 </button>
@@ -87,13 +87,13 @@ export function CookieConsent() {
 
                             {/* Content */}
                             <div className="space-y-3">
-                                <p className="text-sm text-slate-600 font-medium leading-relaxed">
-                                    Nous personnalisons votre voyage sur <span className="font-black text-primary">EmiID</span> avec des cookies pour une navigation fluide et sécurisée.
+                                <p className="text-sm text-slate-700 font-bold leading-relaxed">
+                                    Nous personnalisons votre voyage sur <span className="font-black text-[#022753]">EmiID</span> avec des cookies pour une navigation fluide et sécurisée.
                                 </p>
                                 
                                 <button 
                                     onClick={() => setIsExpanded(!isExpanded)}
-                                    className="text-[11px] font-bold text-slate-400 hover:text-primary flex items-center gap-1.5 transition-colors group/btn"
+                                    className="text-[11px] font-black text-[#022753]/70 hover:text-[#022753] flex items-center gap-1.5 transition-colors group/btn"
                                 >
                                     <Settings2 className="h-3 w-3" />
                                     Personnaliser mes préférences
@@ -105,14 +105,14 @@ export function CookieConsent() {
                             <div className="flex flex-col sm:flex-row items-center gap-3">
                                 <Button 
                                     onClick={handleAccept}
-                                    className="w-full sm:flex-1 h-14 rounded-[1.2rem] bg-slate-900 hover:bg-black text-white font-black text-sm shadow-xl shadow-slate-900/10 active:scale-[0.98] transition-all"
+                                    className="w-full sm:flex-1 h-14 rounded-[1.2rem] bg-[#022753] hover:bg-[#033a7a] text-white font-black text-sm shadow-xl shadow-blue-900/10 active:scale-[0.98] transition-all"
                                 >
                                     Tout accepter
                                 </Button>
                                 <Button 
-                                    variant="ghost"
+                                    variant="outline"
                                     onClick={handleDecline}
-                                    className="w-full sm:w-auto px-6 h-14 rounded-[1.2rem] font-bold text-slate-500 hover:text-slate-900 hover:bg-white/50 transition-all"
+                                    className="w-full sm:w-auto px-6 h-14 rounded-[1.2rem] font-black text-slate-700 border-2 border-slate-100 hover:bg-slate-50 hover:border-slate-200 transition-all"
                                 >
                                     Refuser
                                 </Button>

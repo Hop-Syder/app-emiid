@@ -6,7 +6,7 @@ Ce projet est un **Monorepo**. Il contient 3 applications distinctes à déploye
 
 | Projet            | Dossier Racine  | Type         | URL (Exemple)              |
 | ----------------- | --------------- | ------------ | -------------------------- |
-| **Frontend User** | `frontend-user` | Next.js      | `emiid.app` |
+| **Frontend User** | `frontend-user` | Next.js      | `app.emiid.com` |
 | **Admin Panel**   | `admin`         | Next.js      | `admin-nexus.vercel.app`   |
 | **Backend API**   | `backend`       | Node/Express | `api-nexus.vercel.app`     |
 
@@ -63,7 +63,7 @@ Ton serveur Express sécurisé. J'ai ajouté les fichiers (`vercel.json`, `api/i
    Ajoute les infos de `backend/.env` :
    - `SUPABASE_URL`
    - `SUPABASE_ANON_KEY`
-   - `CORS_ORIGIN` (Mets l'URL de ton Frontend déployé, ex: `https://emiid.app`)
+   - `CORS_ORIGIN` (Mets l'URL de ton Frontend déployé, ex: `https://app.emiid.com`)
 5. Clique sur **Deploy**.
 
 ---

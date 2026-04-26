@@ -57,7 +57,7 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
             ? (data.bio.length > 150 ? data.bio.substring(0, 147) + '...' : data.bio)
             : `Découvrez le profil de ${fullName}, expert en ${data.specialty || data.role || 'son domaine'} sur EmiID.`
 
-        const ogImageUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://app-emiid.app'}/api/og/profile?id=${id}`
+        const ogImageUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://app.emiid.com'}/api/og/profile?id=${id}`
 
         return {
             title: `${fullName} - ${data.role || 'Profil'} | EmiID`,

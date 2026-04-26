@@ -174,7 +174,7 @@ $ npm run validate-env
 
 **Ajouts :**
 ```env
-CORS_ORIGINS=http://localhost:3000,https://app-emiid.app,https://app-nexus-connect-admin.vercel.app
+CORS_ORIGINS=http://localhost:3000,https://app.emiid.com,https://app-nexus-connect-admin.vercel.app
 SUPABASE_JWT_SECRET=votre_secret_jwt_32_caracteres_minimum
 ```
 

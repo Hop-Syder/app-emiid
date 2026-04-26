@@ -86,6 +86,8 @@ CREATE TABLE IF NOT EXISTS public.user_profiles (
     pin_enabled BOOLEAN DEFAULT FALSE,
     pin_code TEXT,
     pin_attempts INTEGER DEFAULT 0,
+    is_locked BOOLEAN DEFAULT FALSE,
+    locked_at TIMESTAMPTZ,
     is_published BOOLEAN DEFAULT FALSE,
     card_variant VARCHAR(50) DEFAULT 'default',
     has_profile BOOLEAN DEFAULT FALSE,

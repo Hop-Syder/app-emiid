@@ -69,7 +69,7 @@ export const sendNewMessageNotification = async (recipientEmail: string, senderN
       </div>
       <p>Connectez-vous à votre tableau de bord pour répondre.</p>
       <div style="margin-top: 30px;">
-        <a href="https://app-emiid.app/dashboard-user" 
+        <a href="https://app.emiid.com/dashboard-user" 
            style="background-color: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
            Voir mes messages
         </a>

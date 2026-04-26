@@ -381,7 +381,7 @@ export const verifyPin = async (req: any, res: Response) => {
   try {
     const { data: profile, error } = await supabaseAdmin
       .from('user_profiles')
-      .select('pin_code, pin_attempts, pin_enabled')
+      .select('pin_code, pin_attempts, pin_enabled, is_locked')
       .eq('user_id', userId)
       .single();
 
@@ -389,8 +389,8 @@ export const verifyPin = async (req: any, res: Response) => {
 
     if (!profile.pin_enabled) return res.json({ success: true, message: "PIN non activé" });
 
-    if (profile.pin_attempts >= 6) {
-      return res.status(403).json({ error: "Compte bloqué après 6 essais infructueux. Veuillez contacter le support." });
+    if (profile.is_locked) {
+      return res.status(403).json({ error: "Compte bloqué après 3 essais infructueux. Veuillez contacter un administrateur.", is_locked: true });
     }
 
     const isMatch = await bcrypt.compare(pin, profile.pin_code);
@@ -406,18 +406,52 @@ export const verifyPin = async (req: any, res: Response) => {
     } else {
       // Incrémenter les tentatives
       const newAttempts = (profile.pin_attempts || 0) + 1;
+      const isNowLocked = newAttempts >= 3;
+
       await supabaseAdmin
         .from('user_profiles')
-        .update({ pin_attempts: newAttempts })
+        .update({ 
+          pin_attempts: newAttempts,
+          ...(isNowLocked ? { is_locked: true, locked_at: new Date().toISOString() } : {})
+        })
         .eq('user_id', userId);
       
+      if (isNowLocked) {
+        return res.status(403).json({ 
+          error: "Compte bloqué après 3 essais infructueux. Veuillez contacter un administrateur.", 
+          attempts_remaining: 0,
+          is_locked: true
+        });
+      }
+
       return res.status(401).json({ 
         error: "Code PIN incorrect", 
-        attempts_remaining: 6 - newAttempts 
+        attempts_remaining: 3 - newAttempts 
       });
     }
   } catch (err) {
     res.status(500).json({ error: "Erreur lors de la vérification du PIN" });
+  }
+};
+
+/**
+ * Débloque le compte utilisateur côté admin
+ * POST /api/users/:id/unlock-pin
+ */
+export const unlockUserPin = async (req: any, res: Response) => {
+  const targetUserId = req.params.id;
+
+  try {
+    const { error } = await supabaseAdmin
+      .from('user_profiles')
+      .update({ is_locked: false, locked_at: null, pin_attempts: 0 })
+      .eq('user_id', targetUserId);
+
+    if (error) return res.status(400).json({ error: error.message });
+
+    return res.json({ success: true, message: "Utilisateur débloqué avec succès" });
+  } catch (err) {
+    res.status(500).json({ error: "Erreur lors du déblocage de l'utilisateur" });
   }
 };
 
