@@ -1243,7 +1243,7 @@ export function MessagesContent() {
                   </div>
 
                   <div className="flex-1 min-w-0 relative group">
-                    <div className="absolute inset-0 bg-primary/5 rounded-[20px] blur-md opacity-0 group-focus-within:opacity-100 transition-opacity" />
+                    <div className="absolute inset-0 bg-primary/5 rounded-[20px] blur-md opacity-0 group-focus-within:opacity-100 transition-opacity pointer-events-none" />
                     <Textarea
                       ref={inputRef}
                       placeholder="Tapez votre message ici..."
@@ -1255,7 +1255,7 @@ export function MessagesContent() {
                           handleSendMessage()
                         }
                       }}
-                      className="min-h-[48px] max-h-[150px] py-3.5 px-5 resize-none rounded-[20px] bg-slate-100/50 border-slate-100 focus:bg-white focus:border-primary/30 transition-all font-medium text-sm w-full leading-relaxed shadow-inner"
+                      className="relative z-10 min-h-[48px] max-h-[150px] py-3.5 px-5 resize-none rounded-[20px] bg-slate-100/50 border-slate-100 focus:bg-white focus:border-primary/30 transition-all font-medium text-sm w-full leading-relaxed shadow-inner"
                       rows={1}
                     />
                     <div className="absolute right-3 bottom-2.5 flex items-center gap-1">
