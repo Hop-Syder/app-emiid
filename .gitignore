@@ -10,3 +10,4 @@ node_modules
 .cursor/*
 .skills/*
 skills-lock.json 
+.cursorrules
