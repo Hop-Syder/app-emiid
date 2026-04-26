@@ -8,109 +8,110 @@
 import { Response } from 'express';
 import { supabaseAdmin } from '../config/supabase';
 import { logger } from '../utils/logger';
+import { isValidUUID } from '../utils/validation';
 
 const MEDIATION_REQUEST_MARKER = '[MÉDIATION DEMANDÉE]';
 const MEDIATION_STATUS_MARKER = '[MÉDIATION STATUT]';
 
 const formatParticipantName = (profile: any) => {
-  if (!profile) {
-    return 'Utilisateur EmiID';
-  }
+    if (!profile) {
+        return 'Utilisateur EmiID';
+    }
 
-  const fullName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim();
-  return fullName || 'Utilisateur EmiID';
+    const fullName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim();
+    return fullName || 'Utilisateur EmiID';
 };
 
 const buildProfileLookup = (profiles: any[] = []) =>
-  profiles.reduce<Record<string, any>>((acc, profile) => {
-    acc[profile.user_id] = profile;
-    return acc;
-  }, {});
+    profiles.reduce<Record<string, any>>((acc, profile) => {
+        acc[profile.user_id] = profile;
+        return acc;
+    }, {});
 
 const getProfilesByUserIds = async (userIds: string[]) => {
-  if (userIds.length === 0) {
-    return {} as Record<string, any>;
-  }
+    if (userIds.length === 0) {
+        return {} as Record<string, any>;
+    }
 
-  const uniqueUserIds = Array.from(new Set(userIds));
-  const { data, error } = await supabaseAdmin
-    .from('user_profiles')
-    .select('user_id, first_name, last_name, avatar_url, role')
-    .in('user_id', uniqueUserIds);
+    const uniqueUserIds = Array.from(new Set(userIds));
+    const { data, error } = await supabaseAdmin
+        .from('user_profiles')
+        .select('user_id, first_name, last_name, avatar_url, role')
+        .in('user_id', uniqueUserIds);
 
-  if (error) {
-    throw error;
-  }
+    if (error) {
+        throw error;
+    }
 
-  return buildProfileLookup(data || []);
+    return buildProfileLookup(data || []);
 };
 
 const isAdminUser = async (userId: string) => {
-  const { data, error } = await supabaseAdmin
-    .from('user_profiles')
-    .select('role')
-    .eq('user_id', userId)
-    .single();
+    const { data, error } = await supabaseAdmin
+        .from('user_profiles')
+        .select('role')
+        .eq('user_id', userId)
+        .single();
 
-  if (error || !data?.role) {
-    return false;
-  }
+    if (error || !data?.role) {
+        return false;
+    }
 
-  return data.role.toLowerCase().includes('admin');
+    return data.role.toLowerCase().includes('admin');
 };
 
 const isConversationInMediation = async (conversationId: string) => {
-  const { count, error } = await supabaseAdmin
-    .from('messages')
-    .select('id', { count: 'exact', head: true })
-    .eq('conversation_id', conversationId)
-    .ilike('content', `%${MEDIATION_REQUEST_MARKER}%`);
+    const { count, error } = await supabaseAdmin
+        .from('messages')
+        .select('id', { count: 'exact', head: true })
+        .eq('conversation_id', conversationId)
+        .ilike('content', `%${MEDIATION_REQUEST_MARKER}%`);
 
-  if (error) {
-    throw error;
-  }
+    if (error) {
+        throw error;
+    }
 
-  return (count || 0) > 0;
+    return (count || 0) > 0;
 };
 
 const extractMediationStatus = (messages: Array<{ content: string }>) => {
-  const statusMessages = messages.filter((message) => message.content.includes(MEDIATION_STATUS_MARKER));
-  const latestStatus = statusMessages.length > 0 ? statusMessages[statusMessages.length - 1].content : '';
+    const statusMessages = messages.filter((message) => message.content.includes(MEDIATION_STATUS_MARKER));
+    const latestStatus = statusMessages.length > 0 ? statusMessages[statusMessages.length - 1].content : '';
 
-  if (latestStatus.toLowerCase().includes('resolved')) {
-    return 'resolved';
-  }
+    if (latestStatus.toLowerCase().includes('resolved')) {
+        return 'resolved';
+    }
 
-  if (latestStatus.toLowerCase().includes('in_progress')) {
-    return 'in_progress';
-  }
+    if (latestStatus.toLowerCase().includes('in_progress')) {
+        return 'in_progress';
+    }
 
-  return 'pending';
+    return 'pending';
 };
 
 const formatConversation = (
-  conv: any,
-  userId: string,
-  unreadCount: number,
-  profileLookup: Record<string, any>,
+    conv: any,
+    userId: string,
+    unreadCount: number,
+    profileLookup: Record<string, any>,
 ) => {
-  const otherUserId = conv.participant1_id === userId ? conv.participant2_id : conv.participant1_id;
-  const otherUser = profileLookup[otherUserId];
+    const otherUserId = conv.participant1_id === userId ? conv.participant2_id : conv.participant1_id;
+    const otherUser = profileLookup[otherUserId];
 
-  return {
-    id: conv.id,
-    otherUser: {
-      id: otherUserId,
-      name: formatParticipantName(otherUser),
-      avatar: otherUser?.avatar_url || null,
-      role: otherUser?.role || null,
-      isOnline: false,
-      lastSeen: null,
-    },
-    lastMessage: conv.last_message_content || null,
-    lastMessageAt: conv.last_message_at || null,
-    unreadCount,
-  };
+    return {
+        id: conv.id,
+        otherUser: {
+            id: otherUserId,
+            name: formatParticipantName(otherUser),
+            avatar: otherUser?.avatar_url || null,
+            role: otherUser?.role || null,
+            isOnline: false,
+            lastSeen: null,
+        },
+        lastMessage: conv.last_message_content || null,
+        lastMessageAt: conv.last_message_at || null,
+        unreadCount,
+    };
 };
 
 
@@ -253,6 +254,11 @@ export const requestMediation = async (req: any, res: Response) => {
     const { reason } = req.body;
 
     try {
+        // Vérifier que userId est un UUID valide
+        if (!isValidUUID(userId)) {
+            return res.status(400).json({ error: "ID utilisateur invalide" });
+        }
+
         // 1. Vérifier si l'utilisateur est participant de cette conversation
         const { data: conv, error: convError } = await supabaseAdmin
             .from('conversations')
@@ -509,6 +515,11 @@ export const getConversationMessages = async (req: any, res: Response) => {
     const conversationId = req.params.id;
 
     try {
+        // Vérifier que les IDs sont des UUID valides
+        if (!isValidUUID(userId) || !isValidUUID(conversationId)) {
+            return res.status(400).json({ error: "ID invalide" });
+        }
+
         // Vérifier l'accès
         const { data: conv, error: convError } = await supabaseAdmin
             .from('conversations')
@@ -545,6 +556,11 @@ export const deleteConversation = async (req: any, res: Response) => {
     const conversationId = req.params.id;
 
     try {
+        // Vérifier que les IDs sont des UUID valides
+        if (!isValidUUID(userId) || !isValidUUID(conversationId)) {
+            return res.status(400).json({ error: "ID invalide" });
+        }
+
         // Vérifier l'accès
         const { data: conv, error: convError } = await supabaseAdmin
             .from('conversations')

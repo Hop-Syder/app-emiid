@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
+import { verifyAdminAccess } from '@/lib/admin-auth'
 
 export interface AdminSessionProfile {
   userId: string
@@ -65,16 +66,19 @@ export async function requireAdminSession(): Promise<AdminSessionProfile | null>
     return null
   }
 
+  // Check account disabled
+  if (user.user_metadata?.account_disabled) {
+    return null
+  }
+
   const { data: profile, error } = await supabase
     .from('user_profiles')
     .select('user_id, role, first_name, last_name, email, avatar_url')
     .eq('user_id', user.id)
     .single()
 
-  const isAdmin =
-    isAdminFromAuthMetadata(user) ||
-    isAdminFromAllowlist(user.email) ||
-    (isAdminFromAllowlist(profile?.email) && typeof profile?.role === 'string' && ADMIN_ROLE_PATTERN.test(profile.role.trim()))
+  // Use centralized admin verification
+  const isAdmin = await verifyAdminAccess(user, profile)
 
   if (error || !profile || !isAdmin) {
     return null
@@ -96,6 +100,9 @@ export async function createAdminClient() {
   if (!adminSession) {
     throw new Error('UNAUTHORIZED_ADMIN')
   }
+
+  // Additional safety check - log admin access
+  console.log(`[ADMIN ACCESS] User ${adminSession.userId} (${adminSession.email}) accessing admin panel at ${new Date().toISOString()}`)
 
   return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

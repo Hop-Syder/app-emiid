@@ -82,13 +82,17 @@ CREATE TABLE IF NOT EXISTS public.user_profiles (
     country_id UUID REFERENCES public.countries(id),
     city VARCHAR(100),
     phone VARCHAR(20),
+    phone_verified BOOLEAN DEFAULT FALSE,
     website TEXT,
+    slug VARCHAR(80) UNIQUE,
     pin_enabled BOOLEAN DEFAULT FALSE,
     pin_code TEXT,
     pin_attempts INTEGER DEFAULT 0,
     is_locked BOOLEAN DEFAULT FALSE,
     locked_at TIMESTAMPTZ,
     is_published BOOLEAN DEFAULT FALSE,
+    is_verified BOOLEAN DEFAULT FALSE,
+    is_premium BOOLEAN DEFAULT FALSE,
     card_variant VARCHAR(50) DEFAULT 'default',
     has_profile BOOLEAN DEFAULT FALSE,
     followers_count INTEGER DEFAULT 0 CHECK (followers_count >= 0),
@@ -97,6 +101,8 @@ CREATE TABLE IF NOT EXISTS public.user_profiles (
 );
 
 CREATE INDEX IF NOT EXISTS idx_user_profiles_user_id ON public.user_profiles(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_profiles_is_published ON public.user_profiles(is_published);
+CREATE INDEX IF NOT EXISTS idx_user_profiles_slug ON public.user_profiles(slug);
 
 CREATE TABLE IF NOT EXISTS public.profile_tags (
     profile_id UUID REFERENCES public.user_profiles(id) ON DELETE CASCADE,
@@ -239,6 +245,42 @@ CREATE TABLE IF NOT EXISTS public.push_subscriptions (
 CREATE INDEX IF NOT EXISTS idx_push_subs_user_id ON public.push_subscriptions(user_id);
 
 -- ==========================================
+-- 6c. VÉRIFICATION TÉLÉPHONE
+-- ==========================================
+
+CREATE TABLE IF NOT EXISTS public.phone_verifications (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+    phone VARCHAR(20) NOT NULL,
+    otp_code TEXT NOT NULL,
+    expires_at TIMESTAMPTZ NOT NULL,
+    verified BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_phone_verif_user_id ON public.phone_verifications(user_id);
+CREATE INDEX IF NOT EXISTS idx_phone_verif_expires ON public.phone_verifications(expires_at);
+
+-- ==========================================
+-- 6d. GALERIE PROJETS
+-- ==========================================
+
+CREATE TABLE IF NOT EXISTS public.project_gallery (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+    profile_id UUID REFERENCES public.user_profiles(id) ON DELETE CASCADE,
+    title VARCHAR(200),
+    description TEXT,
+    image_url TEXT NOT NULL,
+    order_index INTEGER DEFAULT 0,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_gallery_user_id ON public.project_gallery(user_id);
+CREATE INDEX IF NOT EXISTS idx_gallery_profile_id ON public.project_gallery(profile_id);
+
+-- ==========================================
 -- 7. SÉCURITÉ (RLS)
 -- ==========================================
 
@@ -281,6 +323,20 @@ CREATE POLICY "Messages Mark as Read" ON public.messages FOR UPDATE
         AND is_read = TRUE
     );
 
+-- Project Gallery
+ALTER TABLE public.project_gallery ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Gallery Read Published" ON public.project_gallery;
+CREATE POLICY "Gallery Read Published" ON public.project_gallery FOR SELECT USING (
+    profile_id IN (SELECT id FROM public.user_profiles WHERE is_published = TRUE)
+);
+DROP POLICY IF EXISTS "Gallery Owner Write" ON public.project_gallery;
+CREATE POLICY "Gallery Owner Write" ON public.project_gallery FOR ALL USING (auth.uid() = user_id);
+
+-- Phone Verifications
+ALTER TABLE public.phone_verifications ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Phone Verifications Access" ON public.phone_verifications;
+CREATE POLICY "Phone Verifications Access" ON public.phone_verifications FOR ALL USING (auth.uid() = user_id);
+
 -- Notifications
 ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Notifications Access" ON public.notifications;
@@ -316,5 +372,7 @@ GRANT SELECT, INSERT, UPDATE ON public.conversations TO authenticated;
 GRANT SELECT, INSERT, UPDATE ON public.messages TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.notifications TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.push_subscriptions TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.project_gallery TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.phone_verifications TO authenticated;
 
 SELECT '✅ EmiID Master Schema v1.2.1 déployé. Ton réseau, ta force.' as status;

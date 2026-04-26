@@ -2,6 +2,7 @@ import express, { Application, Request, Response } from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import helmet from 'helmet'
+import rateLimit from 'express-rate-limit'
 import authRoutes from './api/routes/auth'
 import userRoutes from './api/routes/userRoutes'
 import messageRoutes from './api/routes/messageRoutes'
@@ -35,6 +36,16 @@ export const allowedOrigins = (() => {
 
 export function createApp(): Application {
   const app: Application = express()
+
+  // Rate limiting global - 100 req/15min par IP
+  const globalLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    message: { error: 'Trop de requêtes, veuillez réessayer plus tard' },
+    standardHeaders: true,
+    legacyHeaders: false,
+  })
+  app.use(globalLimiter)
 
   app.use(helmet())
   app.use(cors({
