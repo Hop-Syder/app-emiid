@@ -124,6 +124,9 @@ CREATE TABLE IF NOT EXISTS public.user_follows (
     CONSTRAINT participants_differs CHECK (follower_id != following_id)
 );
 
+CREATE INDEX IF NOT EXISTS idx_user_follows_follower_id ON public.user_follows(follower_id);
+CREATE INDEX IF NOT EXISTS idx_user_follows_following_id ON public.user_follows(following_id);
+
 -- ==========================================
 -- 5. MESSAGERIE
 -- ==========================================
@@ -139,6 +142,15 @@ CREATE TABLE IF NOT EXISTS public.conversations (
     CONSTRAINT different_participants CHECK (participant1_id != participant2_id)
 );
 
+-- Empêche (A,B) et (B,A) (unicité symétrique)
+CREATE UNIQUE INDEX IF NOT EXISTS idx_conversations_participants_unique
+  ON public.conversations (
+    LEAST(participant1_id, participant2_id),
+    GREATEST(participant1_id, participant2_id)
+  );
+CREATE INDEX IF NOT EXISTS idx_conversations_participant1_id ON public.conversations(participant1_id);
+CREATE INDEX IF NOT EXISTS idx_conversations_participant2_id ON public.conversations(participant2_id);
+
 CREATE TABLE IF NOT EXISTS public.messages (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     conversation_id UUID REFERENCES public.conversations(id) ON DELETE CASCADE NOT NULL,
@@ -149,6 +161,8 @@ CREATE TABLE IF NOT EXISTS public.messages (
 );
 
 CREATE INDEX IF NOT EXISTS idx_messages_conv_id ON public.messages(conversation_id);
+CREATE INDEX IF NOT EXISTS idx_messages_sender_id ON public.messages(sender_id);
+CREATE INDEX IF NOT EXISTS idx_messages_conv_created_at ON public.messages(conversation_id, created_at DESC);
 
 -- ==========================================
 -- 6. LOGIQUE AUTOMATIQUE
@@ -232,6 +246,22 @@ CREATE TABLE IF NOT EXISTS public.notifications (
 );
 
 CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON public.notifications(user_id);
+CREATE INDEX IF NOT EXISTS idx_notifications_created_at ON public.notifications(created_at DESC);
+
+-- ==========================================
+-- 6b-bis. PROFILE VIEWS (stats dashboard)
+-- ==========================================
+
+CREATE TABLE IF NOT EXISTS public.profile_views (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    -- Correspond à auth.users.id (utilisé côté backend comme req.user.id)
+    profile_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+    viewer_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_profile_views_profile_id ON public.profile_views(profile_id);
+CREATE INDEX IF NOT EXISTS idx_profile_views_created_at ON public.profile_views(created_at DESC);
 
 CREATE TABLE IF NOT EXISTS public.push_subscriptions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -347,6 +377,21 @@ ALTER TABLE public.push_subscriptions ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Push Subs Access" ON public.push_subscriptions;
 CREATE POLICY "Push Subs Access" ON public.push_subscriptions FOR ALL USING (auth.uid() = user_id);
 
+-- Profile Views
+ALTER TABLE public.profile_views ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Profile views insert (anon/auth)" ON public.profile_views;
+CREATE POLICY "Profile views insert (anon/auth)" ON public.profile_views
+  FOR INSERT
+  WITH CHECK (
+    (auth.uid() IS NULL AND viewer_id IS NULL)
+    OR
+    (auth.uid() IS NOT NULL AND viewer_id = auth.uid())
+  );
+DROP POLICY IF EXISTS "Profile views owner read" ON public.profile_views;
+CREATE POLICY "Profile views owner read" ON public.profile_views
+  FOR SELECT
+  USING (auth.uid() = profile_id);
+
 -- ==========================================
 -- 8. VUES PUBLIQUES SÉCURISÉES
 -- ==========================================
@@ -374,5 +419,6 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON public.notifications TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.push_subscriptions TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.project_gallery TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.phone_verifications TO authenticated;
+GRANT SELECT, INSERT ON public.profile_views TO anon, authenticated;
 
 SELECT '✅ EmiID Master Schema v1.2.1 déployé. Ton réseau, ta force.' as status;

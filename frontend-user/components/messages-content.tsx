@@ -1,5 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
-/* eslint-disable jsx-a11y/alt-text */
 /**
  * @author @hopsyder
  * @organization Nexus Partners
@@ -10,8 +8,9 @@
 
 "use client"
 
-import { useState, useRef, useEffect, useCallback } from "react"
+import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
+import NextImage from "next/image"
 import { motion } from "framer-motion"
 import { Label } from "@/components/ui/label"
 import {
@@ -54,18 +53,28 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
-import { fetchWithAuth, readApiError } from "@/lib/apiClient"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 import type { Conversation, Message } from "@/types"
-
-// Supprimé les mocks et generateMockMessages qui ne sont plus nécessaires
-const supabase = createClient()
+import { captureError } from "@/lib/observability"
+import {
+  deleteConversation,
+  fetchConversationMessages,
+  fetchConversations,
+  fetchSupportUser,
+  requestMediation,
+} from "@/features/messages/messagesApi"
+import { buildImageAlt, parseMessageContent } from "@/features/messages/messageContent"
+import { useCurrentUserId } from "@/features/messages/useCurrentUserId"
+import { useMessagesRealtime } from "@/features/messages/useMessagesRealtime"
 
 export function MessagesContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const contactId = searchParams.get("contact") || searchParams.get("user")
+
+  const supabase = useMemo(() => createClient(), [])
+  const currentUserId = useCurrentUserId()
 
   const [message, setMessage] = useState("")
   const [conversations, setConversations] = useState<Conversation[]>([])
@@ -77,7 +86,6 @@ export function MessagesContent() {
   const [showChatMobile, setShowChatMobile] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [filterType, setFilterType] = useState<"all" | "unread" | "pinned">("all")
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const [realtimeConnected, setRealtimeConnected] = useState(false)
   const [connectionNotice, setConnectionNotice] = useState<string | null>(null)
   const [syncError, setSyncError] = useState<string | null>(null)
@@ -128,10 +136,7 @@ export function MessagesContent() {
       if (!currentUserId) return;
       setLoadingConv(true)
       try {
-        const res = await fetchWithAuth("/api/messages/conversations")
-        if (!res.ok) throw new Error("Erreur backend")
-        
-        const data = await res.json()
+        const data = await fetchConversations()
         const pinnedIds = JSON.parse(localStorage.getItem(`emiid_pinned_convs_${currentUserId}`) || "[]")
         const formatted = data.map((c: Conversation) => ({
           ...c,
@@ -169,7 +174,7 @@ export function MessagesContent() {
         }
 
       } catch (err) {
-        console.error("Error loading convs:", err)
+        captureError(err, { scope: "messages", action: "loadConversations" })
         toast.error("Impossible de charger les conversations")
         setSyncError("Erreur de chargement des conversations")
       } finally {
@@ -177,15 +182,7 @@ export function MessagesContent() {
       }
     }
     
-    if (currentUserId) {
-        loadConversations()
-    } else {
-        supabase.auth.getUser().then(({ data: { user } }) => {
-          if (user) {
-            setCurrentUserId(user.id)
-          }
-        })
-    }
+    if (currentUserId) loadConversations()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUserId])
 
@@ -201,15 +198,12 @@ export function MessagesContent() {
       }
       setLoadingMsgs(true)
       try {
-        const res = await fetchWithAuth(`/api/messages/conversation/${selectedConv.id}`)
-        if (!res.ok) throw new Error("Erreur messages")
-        
-        const data = await res.json()
+        const data = await fetchConversationMessages(selectedConv.id)
         setMessages(data || [])
         setSyncError(null)
         markMessagesAsRead(selectedConv.id)
       } catch (err) {
-        console.error("Error loading msgs:", err)
+        captureError(err, { scope: "messages", action: "loadMessages", conversationId: selectedConv.id })
         // On ne toast pas ici pour éviter de polluer si c'est une erreur de transition
       } finally {
         setLoadingMsgs(false)
@@ -218,116 +212,86 @@ export function MessagesContent() {
     loadMessages()
   }, [selectedConv, markMessagesAsRead])
 
-  // 3. Temps réel & Presence
-  useEffect(() => {
-    if (!currentUserId) return
+  // 3. Temps réel & Presence (isolé dans un hook)
+  const realtime = useMessagesRealtime(currentUserId, {
+    onPresenceChange: setOnlineUsers,
+    onNewMessage: (newMsg) => {
+      // Mettre à jour la liste des conversations (last message + unread)
+      setConversations((prev) => {
+        const convIndex = prev.findIndex((c) => c.id === newMsg.conversation_id)
 
-    const globalChannel = supabase.channel(`user-presence-global`)
-
-    globalChannel
-      .on('presence', { event: 'sync' }, () => {
-        const state = globalChannel.presenceState()
-        const onlineIds = new Set<string>()
-        
-        Object.values(state).forEach((presences: any) => {
-          presences.forEach((p: any) => {
-            if (p.user_id) onlineIds.add(p.user_id)
-          })
-        })
-        
-        setOnlineUsers(onlineIds)
-      })
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'messages',
-        },
-        async (payload) => {
-          const newMsg = payload.new as Message
-          
-          // Vérifier si cette conversation nous concerne
-          setConversations(prev => {
-            const convIndex = prev.findIndex(c => c.id === newMsg.conversation_id)
-            
-            if (convIndex === -1) {
-              void fetchWithAuth("/api/messages/conversations").then(async res => {
-                if (res.ok) setConversations(await res.json())
-              })
-              return prev
-            }
-
-            const next = [...prev]
-            const updated = {
-              ...next[convIndex],
-              lastMessage: newMsg.content,
-              lastMessageAt: newMsg.created_at,
-              unreadCount: newMsg.sender_id !== currentUserId ? next[convIndex].unreadCount + 1 : next[convIndex].unreadCount
-            }
-            next.splice(convIndex, 1)
-            return [updated, ...next]
-          })
-
-          if (selectedConv && (newMsg.conversation_id === selectedConv.id)) {
-            setMessages(prev => {
-              if (prev.some(m => m.id === newMsg.id)) return prev
-              return [...prev, newMsg]
+        if (convIndex === -1) {
+          void fetchConversations()
+            .then((fresh) => {
+              const pinnedIds = JSON.parse(
+                localStorage.getItem(`emiid_pinned_convs_${currentUserId}`) || "[]",
+              )
+              setConversations(
+                fresh.map((c) => ({ ...c, isPinned: pinnedIds.includes(c.id) })),
+              )
             })
-            if (newMsg.sender_id !== currentUserId) {
-              markMessagesAsRead(selectedConv.id)
-            }
-          }
-        }
-      )
-      .subscribe(async (status) => {
-        if (status === 'SUBSCRIBED') {
-          setRealtimeConnected(true)
-          setConnectionNotice(null)
-          
-          // Tracker notre presence
-          await globalChannel.track({
-            user_id: currentUserId,
-            online_at: new Date().toISOString(),
-          })
-          return
+            .catch((err) => captureError(err, { scope: "messages", action: "refreshConversations" }))
+          return prev
         }
 
-        if (status === 'TIMED_OUT' || status === 'CHANNEL_ERROR' || status === 'CLOSED') {
-          setRealtimeConnected(false)
-          setConnectionNotice("Temps réel indisponible. La messagerie passe en synchronisation automatique.")
+        const next = [...prev]
+        const updated = {
+          ...next[convIndex],
+          lastMessage: newMsg.content,
+          lastMessageAt: newMsg.created_at,
+          unreadCount:
+            currentUserId && newMsg.sender_id !== currentUserId
+              ? next[convIndex].unreadCount + 1
+              : next[convIndex].unreadCount,
         }
+
+        next.splice(convIndex, 1)
+        return [updated, ...next]
       })
 
-    return () => {
-      setRealtimeConnected(false)
-      supabase.removeChannel(globalChannel)
+      // Si conversation ouverte: append + mark read
+      if (selectedConv && newMsg.conversation_id === selectedConv.id) {
+        setMessages((prev) => (prev.some((m) => m.id === newMsg.id) ? prev : [...prev, newMsg]))
+        if (currentUserId && newMsg.sender_id !== currentUserId) {
+          void markMessagesAsRead(selectedConv.id)
+        }
+      }
+    },
+  })
+
+  useEffect(() => {
+    setRealtimeConnected(realtime.realtimeConnected)
+    if (realtime.realtimeConnected) {
+      setConnectionNotice(null)
+    } else if (currentUserId) {
+      setConnectionNotice("Temps réel indisponible. Synchronisation automatique activée.")
     }
-  }, [currentUserId, selectedConv, markMessagesAsRead])
+  }, [currentUserId, realtime.realtimeConnected])
 
   useEffect(() => {
     if (!currentUserId || realtimeConnected) return
 
     const intervalId = window.setInterval(async () => {
       try {
-        const convRes = await fetchWithAuth("/api/messages/conversations")
-        if (convRes.ok) {
-          const data = await convRes.json()
-          const pinnedIds = JSON.parse(localStorage.getItem(`emiid_pinned_convs_${currentUserId}`) || "[]")
-          const enrichedData = data.map((c: any) => ({
-            ...c,
-            isPinned: pinnedIds.includes(c.id)
-          }))
-          setConversations(enrichedData)
+        const data = await fetchConversations()
+        const pinnedIds = JSON.parse(
+          localStorage.getItem(`emiid_pinned_convs_${currentUserId}`) || "[]",
+        )
+        const enrichedData = data.map((c) => ({
+          ...c,
+          isPinned: pinnedIds.includes(c.id),
+        }))
+        setConversations(enrichedData)
 
-          if (selectedConv) {
-            const refreshedConversation = enrichedData.find((conversation: Conversation) =>
-              conversation.id === selectedConv.id || conversation.otherUser.id === selectedConv.otherUser.id,
-            )
+        if (selectedConv) {
+          const refreshedConversation = enrichedData.find(
+            (conversation: Conversation) =>
+              conversation.id === selectedConv.id ||
+              conversation.otherUser.id === selectedConv.otherUser.id,
+          )
 
-            if (refreshedConversation && refreshedConversation.id !== selectedConv.id) {
-              setSelectedConv(refreshedConversation)
-            }
+          if (refreshedConversation && refreshedConversation.id !== selectedConv.id) {
+            setSelectedConv(refreshedConversation)
           }
         }
 
@@ -335,29 +299,28 @@ export function MessagesContent() {
           return
         }
 
-        const msgRes = await fetchWithAuth(`/api/messages/conversation/${selectedConv.id}`)
-        if (!msgRes.ok) {
-          return
-        }
-
-        const data = await msgRes.json()
+        const messagesData = await fetchConversationMessages(selectedConv.id)
         setSyncError(null)
         setMessages(prev => {
           const previousLastId = prev[prev.length - 1]?.id
-          const nextLastId = data[data.length - 1]?.id
+          const nextLastId = messagesData[messagesData.length - 1]?.id
 
-          if (prev.length === data.length && previousLastId === nextLastId) {
+          if (prev.length === messagesData.length && previousLastId === nextLastId) {
             return prev
           }
 
-          return data
+          return messagesData
         })
 
-        if (data.some((msg: Message) => !msg.is_read && msg.sender_id !== currentUserId)) {
+        if (
+          messagesData.some(
+            (msg: Message) => !msg.is_read && msg.sender_id !== currentUserId,
+          )
+        ) {
           void markMessagesAsRead(selectedConv.id)
         }
       } catch (error) {
-        console.error("Realtime fallback refresh error:", error)
+        captureError(error, { scope: "messages", action: "fallbackRefresh" })
         setSyncError("Impossible de synchroniser les nouveaux messages pour le moment.")
       }
     }, 3000)
@@ -520,7 +483,7 @@ export function MessagesContent() {
       setMessages((prev) => prev.some(existingMessage => existingMessage.id === newMsg.id) ? prev : [...prev, newMsg])
       toast.success(`${type === "image" ? "Image envoyée" : "Fichier envoyé"}`, { id: uploadToastId })
     } catch (err: any) {
-      console.error("Detailed Upload error:", err)
+      captureError(err, { scope: "messages", action: "uploadFile", fileType: type })
       toast.error(err.message || "Erreur de partage du fichier", { id: uploadToastId })
     } finally {
       setIsSending(false)
@@ -531,36 +494,32 @@ export function MessagesContent() {
 
   const handleContactSupport = async () => {
     try {
-      const res = await fetchWithAuth("/api/messages/support")
-      if (res.ok) {
-        const supportUser = await res.json()
-        const existing = conversations.find(c => c.otherUser.id === supportUser.id)
+      const supportUser = await fetchSupportUser()
+      const existing = conversations.find((c) => c.otherUser.id === supportUser.id)
 
-        if (existing) {
-          setSelectedConv(existing)
-        } else {
-          setSelectedConv({
-            id: 'new-support',
-            otherUser: {
-              id: supportUser.id,
-              name: supportUser.name || "Service Client EmiID",
-              avatar: supportUser.avatar || "/nexus-support.png",
-              role: "Support Technique",
-              isOnline: true,
-              lastSeen: null
-            },
-            lastMessage: "",
-            lastMessageAt: new Date().toISOString(),
-            unreadCount: 0
-          })
-          setMessages([])
-        }
-        setShowChatMobile(true)
+      if (existing) {
+        setSelectedConv(existing)
       } else {
-        toast.error(await readApiError(res, "Support indisponible"))
+        setSelectedConv({
+          id: "new-support",
+          otherUser: {
+            id: supportUser.id,
+            name: supportUser.name || "Service Client EmiID",
+            avatar: supportUser.avatar || "/nexus-support.png",
+            role: supportUser.role || "Support Technique",
+            isOnline: true,
+            lastSeen: null,
+          },
+          lastMessage: "",
+          lastMessageAt: new Date().toISOString(),
+          unreadCount: 0,
+        })
+        setMessages([])
       }
+
+      setShowChatMobile(true)
     } catch (err) {
-      console.error("Support error:", err)
+      captureError(err, { scope: "messages", action: "contactSupport" })
       toast.error("Support indisponible")
     }
   }
@@ -574,22 +533,16 @@ export function MessagesContent() {
     if (!confirm("Voulez-vous vraiment supprimer cette conversation et tous ses messages ?")) return
     
     try {
-      const res = await fetchWithAuth(`/api/messages/conversation/${convId}`, {
-        method: 'DELETE'
-      })
-      
-      if (res.ok) {
-        setConversations(prev => prev.filter(c => c.id !== convId))
-        if (selectedConv?.id === convId) {
-          setSelectedConv(null)
-          setMessages([])
-        }
-        toast.success("Conversation supprimée")
-      } else {
-        toast.error("Erreur lors de la suppression")
+      await deleteConversation(convId)
+      setConversations((prev) => prev.filter((c) => c.id !== convId))
+      if (selectedConv?.id === convId) {
+        setSelectedConv(null)
+        setMessages([])
       }
+      toast.success("Conversation supprimée")
     } catch (err) {
-      toast.error("Erreur de connexion")
+      captureError(err, { scope: "messages", action: "deleteConversation", conversationId: convId })
+      toast.error("Erreur lors de la suppression")
     }
   }
 
@@ -597,19 +550,19 @@ export function MessagesContent() {
     if (!convToMediate || !mediationReason) return
     setIsSending(true)
     try {
-      const res = await fetchWithAuth(`/api/messages/dispute/${convToMediate}`, {
-        method: "POST",
-        body: JSON.stringify({ reason: mediationReason })
+      await requestMediation(convToMediate, mediationReason)
+      toast.success(
+        "Demande de médiation envoyée. Un administrateur rejoindra la discussion prochainement.",
+      )
+      setIsMediationDialogOpen(false)
+      setMediationReason("")
+    } catch (err) {
+      captureError(err, {
+        scope: "messages",
+        action: "requestMediation",
+        conversationId: convToMediate,
       })
-      if (res.ok) {
-        toast.success("Demande de médiation envoyée. Un administrateur rejoindra la discussion prochainement.")
-        setIsMediationDialogOpen(false)
-        setMediationReason("")
-      } else {
-        toast.error(await readApiError(res, "Impossible d'inviter l'admin"))
-      }
-    } catch {
-      toast.error("Erreur de connexion")
+      toast.error("Impossible d'inviter l'admin")
     } finally {
       setIsSending(false)
     }
@@ -1144,42 +1097,75 @@ export function MessagesContent() {
                                 ? "bg-gradient-to-br from-primary to-primary/80 text-white rounded-tr-none"
                                 : "bg-white/80 backdrop-blur-sm border border-slate-100 text-slate-800 rounded-tl-none"
                             )}>
-                              {msg.content.startsWith('[Image]') ? (
-                                <div className="space-y-2">
-                                  <img
-                                    src={msg.content.split(' ')[1]}
-                                    className="rounded-xl max-w-full hover:scale-[1.02] transition-all cursor-pointer shadow-md border border-white/20"
-                                    alt="Shared"
-                                    onClick={() => window.open(msg.content.split(' ')[1], '_blank')}
-                                  />
-                                </div>
-                              ) : msg.content.startsWith('[Fichier]') ? (
-                                <div className={cn(
-                                  "flex items-center gap-3 p-3 rounded-xl border transition-all group/file",
-                                  isOwn ? "bg-white/10 border-white/20" : "bg-slate-50 border-slate-100"
-                                )}>
-                                  <div className={cn(
-                                    "p-2 rounded-lg shadow-inner",
-                                    isOwn ? "bg-white/20" : "bg-primary/10"
-                                  )}>
-                                    <FileText className={cn("h-5 w-5", isOwn ? "text-white" : "text-primary")} />
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <p className={cn("font-black text-xs truncate", isOwn ? "text-white" : "text-slate-900")}>
-                                      {msg.content.split(' - ')[0].replace('[Fichier] ', '')}
-                                    </p>
-                                    <a
-                                      href={msg.content.split(' - ')[1]}
-                                      target="_blank"
-                                      className={cn("text-[10px] font-bold uppercase tracking-wider hover:underline", isOwn ? "text-white/80" : "text-primary")}
+                              {(() => {
+                                const parsed = parseMessageContent(msg.content)
+                                if (parsed.kind === "image") {
+                                  return (
+                                    <button
+                                      type="button"
+                                      className="block overflow-hidden rounded-xl border border-white/20 shadow-md transition-transform hover:scale-[1.02]"
+                                      onClick={() => window.open(parsed.url, "_blank", "noopener,noreferrer")}
+                                      aria-label="Ouvrir l'image dans un nouvel onglet"
                                     >
-                                      Télécharger
-                                    </a>
-                                  </div>
-                                </div>
-                              ) : (
-                                <p className="font-medium">{msg.content}</p>
-                              )}
+                                      <NextImage
+                                        src={parsed.url}
+                                        alt={buildImageAlt(parsed.url)}
+                                        width={900}
+                                        height={900}
+                                        unoptimized
+                                        className="h-auto w-full max-w-full"
+                                      />
+                                    </button>
+                                  )
+                                }
+
+                                if (parsed.kind === "file") {
+                                  return (
+                                    <div
+                                      className={cn(
+                                        "flex items-center gap-3 p-3 rounded-xl border transition-all group/file",
+                                        isOwn ? "bg-white/10 border-white/20" : "bg-slate-50 border-slate-100",
+                                      )}
+                                    >
+                                      <div
+                                        className={cn(
+                                          "p-2 rounded-lg shadow-inner",
+                                          isOwn ? "bg-white/20" : "bg-primary/10",
+                                        )}
+                                      >
+                                        <FileText className={cn("h-5 w-5", isOwn ? "text-white" : "text-primary")} />
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <p
+                                          className={cn(
+                                            "font-black text-xs truncate",
+                                            isOwn ? "text-white" : "text-slate-900",
+                                          )}
+                                        >
+                                          {parsed.name}
+                                        </p>
+                                        <a
+                                          href={parsed.url}
+                                          target="_blank"
+                                          rel="noreferrer"
+                                          className={cn(
+                                            "text-[10px] font-bold uppercase tracking-wider hover:underline",
+                                            isOwn ? "text-white/80" : "text-primary",
+                                          )}
+                                        >
+                                          Télécharger
+                                        </a>
+                                      </div>
+                                    </div>
+                                  )
+                                }
+
+                                if (parsed.kind === "text") {
+                                  return <p className="font-medium">{parsed.text}</p>
+                                }
+
+                                return <p className="font-medium">{msg.content}</p>
+                              })()}
                             </div>
 
                             {isLastInGroup && (

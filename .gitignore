@@ -1,31 +1,50 @@
-node_modules
-.next
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Next.js
+.next/
+**/.next/
+out/
+
+# Env / secrets
+.env
+.env.*
+*.env
 .env.local
-.env
-.agent
-.agents/*
-.codex/*
-.agent-saas/*
-.cursorrules/*
-.cursor/*
-.skills/*
-skills-lock.json 
+**/.env.local
+credentials.json
+*.pem
+*.key
+.credentials
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build artifacts
+dist/
+build/
+coverage/
+.turbo/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Local tooling / agents
+.agent-frontend/
+.agents/
+.agent-saas/
+.codex/
+.cursor/
 .cursorrules
-.mcp.json-e 
-# Environment and credential files
-.env
-.env.*
-*.env
-credentials.json
-*.pem
-*.key
-.credentials
--e 
-# Environment and credential files
-.env
-.env.*
-*.env
-credentials.json
-*.pem
-*.key
-.credentials
+.skills/
+skills-lock.json
+
+# Scratch
+hj
