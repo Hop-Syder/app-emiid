@@ -133,6 +133,19 @@ CREATE TABLE IF NOT EXISTS public.conversations (
     CONSTRAINT different_participants CHECK (participant1_id != participant2_id)
 );
 
+-- Empêche (A,B) et (B,A) (unicité symétrique)
+CREATE UNIQUE INDEX IF NOT EXISTS idx_conversations_participants_unique
+  ON public.conversations (
+    LEAST(participant1_id, participant2_id),
+    GREATEST(participant1_id, participant2_id)
+  );
+
+-- Index pour accélérer les accès par participants
+CREATE INDEX IF NOT EXISTS idx_conversations_participant1_id
+  ON public.conversations(participant1_id);
+CREATE INDEX IF NOT EXISTS idx_conversations_participant2_id
+  ON public.conversations(participant2_id);
+
 CREATE TABLE IF NOT EXISTS public.messages (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     conversation_id UUID REFERENCES public.conversations(id) ON DELETE CASCADE NOT NULL,
