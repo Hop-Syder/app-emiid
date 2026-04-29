@@ -1,8 +1,6 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { supabaseAdmin } from '../config/supabase';
-
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const RESERVED_ROLE_PATTERN = /\b(admin|administrator|administrateur|superadmin|root|moderator|modérateur)\b/i;
+import { ApiError } from '../utils/apiError';
 
 function sanitizeText(value: unknown, maxLength: number) {
     if (typeof value !== 'string') return null;
@@ -14,31 +12,13 @@ function sanitizeText(value: unknown, maxLength: number) {
  * @description Gère l'enregistrement d'un utilisateur via le Backend (mode Admin)
  * @route POST /api/auth/register
  */
-export const registerUser = async (req: Request, res: Response) => {
+export const registerUser = async (req: Request, res: Response, next: NextFunction) => {
     const { email, password, first_name, last_name, role } = req.body;
 
     try {
-        if (typeof email !== 'string' || typeof password !== 'string') {
-            return res.status(400).json({ error: "Email et mot de passe requis" });
-        }
-
-        const normalizedEmail = email.trim().toLowerCase();
-
-        if (!EMAIL_PATTERN.test(normalizedEmail)) {
-            return res.status(400).json({ error: "Format d'email invalide" });
-        }
-
-        if (password.length < 8 || !/[A-Za-z]/.test(password) || !/\d/.test(password)) {
-            return res.status(400).json({ error: "Mot de passe trop faible" });
-        }
-
-        if (typeof role === 'string' && RESERVED_ROLE_PATTERN.test(role)) {
-            return res.status(400).json({ error: "Rôle réservé non autorisé à l'inscription" });
-        }
-
         // 1. Création de l'utilisateur dans Supabase Auth
         const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
-            email: normalizedEmail,
+            email,
             password,
             email_confirm: true,
             user_metadata: {
@@ -47,17 +27,19 @@ export const registerUser = async (req: Request, res: Response) => {
             }
         });
 
-        if (authError) return res.status(400).json({ error: authError.message });
+        if (authError) {
+            return next(new ApiError(400, 'BAD_REQUEST', authError.message));
+        }
 
         // Note: Le trigger SQL 'handle_new_user' devrait normalement créer le profil.
         // On renvoie les données de l'utilisateur créé.
-        res.status(201).json({ 
+        return res.status(201).json({ 
             message: "Utilisateur créé avec succès", 
             user: authData.user
                 ? { id: authData.user.id, email: authData.user.email }
                 : null
         });
     } catch (error: any) {
-        res.status(500).json({ error: "Erreur serveur lors de l'enregistrement", details: error.message });
+        return next(new ApiError(500, 'INTERNAL_SERVER_ERROR', "Erreur serveur lors de l'enregistrement", error?.message));
     }
 };

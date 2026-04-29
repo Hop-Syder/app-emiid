@@ -5,11 +5,12 @@
  * @created 2026-01-04
 */
 
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { createSupabaseUserClient, supabase, supabaseAdmin } from '../config/supabase';
 import bcrypt from 'bcrypt';
 import { randomInt } from 'crypto';
 import { logger } from '../utils/logger';
+import { ApiError } from '../utils/apiError';
 
 const RESERVED_ROLE_PATTERN = /\b(admin|administrator|administrateur|superadmin|root|moderator|modérateur)\b/i;
 const PIN_PATTERN = /^\d{6}$/;
@@ -141,7 +142,7 @@ export const getMyProfile = async (req: any, res: Response) => {
  * Met à jour le profil de l'utilisateur connecté
  * PUT /api/users/me
  */
-export const updateMyProfile = async (req: any, res: Response) => {
+export const updateMyProfile = async (req: any, res: Response, next: NextFunction) => {
   const userId = req.user.id;
   const { 
     first_name, last_name, bio, avatar_url,
@@ -190,7 +191,7 @@ export const updateMyProfile = async (req: any, res: Response) => {
         .single();
       
       if (existingSlugProfile) {
-        return res.status(400).json({ error: "Ce lien personnalisé est déjà utilisé par un autre utilisateur." });
+        return next(new ApiError(409, 'CONFLICT', "Ce lien personnalisé est déjà utilisé par un autre utilisateur."));
       }
     }
 
@@ -242,8 +243,6 @@ export const updateMyProfile = async (req: any, res: Response) => {
       const salt = await bcrypt.genSalt(10);
       updates.pin_code = await bcrypt.hash(pin_code, salt);
       updates.pin_attempts = 0;
-    } else if (pin_code) {
-      return res.status(400).json({ error: "Le code PIN doit contenir exactement 6 chiffres." });
     }
 
     const { data, error } = await db
@@ -252,7 +251,7 @@ export const updateMyProfile = async (req: any, res: Response) => {
       .select()
       .single();
 
-    if (error) return res.status(400).json({ error: error.message });
+    if (error) return next(new ApiError(400, 'BAD_REQUEST', error.message));
     
     // --- TAGS LOGIC ---
     if (tags && Array.isArray(tags)) {
@@ -273,9 +272,9 @@ export const updateMyProfile = async (req: any, res: Response) => {
         }
     }
 
-    res.json(sanitizeProfileForResponse(data));
+    return res.json(sanitizeProfileForResponse(data));
   } catch (err) {
-    res.status(500).json({ error: "Erreur interne lors de la mise à jour du profil" });
+    return next(new ApiError(500, 'INTERNAL_SERVER_ERROR', "Erreur interne lors de la mise à jour du profil"));
   }
 };
 
@@ -416,13 +415,9 @@ export const deleteMyAccount = async (req: any, res: Response) => {
  * Vérifie le code PIN de l'utilisateur
  * POST /api/users/verify-pin
  */
-export const verifyPin = async (req: any, res: Response) => {
+export const verifyPin = async (req: any, res: Response, next: NextFunction) => {
   const userId = req.user.id;
   const { pin } = req.body;
-
-  if (typeof pin !== 'string' || !PIN_PATTERN.test(pin)) {
-    return res.status(400).json({ error: "Format de PIN invalide" });
-  }
 
   try {
     const { data: profile, error } = await supabaseAdmin
@@ -431,12 +426,12 @@ export const verifyPin = async (req: any, res: Response) => {
       .eq('user_id', userId)
       .single();
 
-    if (error || !profile) return res.status(400).json({ error: "Profil introuvable" });
+    if (error || !profile) return next(new ApiError(404, 'NOT_FOUND', "Profil introuvable"));
 
     if (!profile.pin_enabled) return res.json({ success: true, message: "PIN non activé" });
 
     if (profile.is_locked) {
-      return res.status(403).json({ error: "Compte bloqué après 3 essais infructueux. Veuillez contacter un administrateur.", is_locked: true });
+      return next(new ApiError(403, 'FORBIDDEN', "Compte bloqué après 3 essais infructueux. Veuillez contacter un administrateur.", { is_locked: true }));
     }
 
     const isMatch = await bcrypt.compare(pin, profile.pin_code);
@@ -463,20 +458,13 @@ export const verifyPin = async (req: any, res: Response) => {
         .eq('user_id', userId);
       
       if (isNowLocked) {
-        return res.status(403).json({ 
-          error: "Compte bloqué après 3 essais infructueux. Veuillez contacter un administrateur.", 
-          attempts_remaining: 0,
-          is_locked: true
-        });
+        return next(new ApiError(403, 'FORBIDDEN', "Compte bloqué après 3 essais infructueux. Veuillez contacter un administrateur.", { attempts_remaining: 0, is_locked: true }));
       }
 
-      return res.status(401).json({ 
-        error: "Code PIN incorrect", 
-        attempts_remaining: 3 - newAttempts 
-      });
+      return next(new ApiError(401, 'UNAUTHORIZED', "Code PIN incorrect", { attempts_remaining: 3 - newAttempts }));
     }
   } catch (err) {
-    res.status(500).json({ error: "Erreur lors de la vérification du PIN" });
+    return next(new ApiError(500, 'INTERNAL_SERVER_ERROR', "Erreur lors de la vérification du PIN"));
   }
 };
 
@@ -505,13 +493,9 @@ export const unlockUserPin = async (req: any, res: Response) => {
  * Demande un code OTP pour vérifier le téléphone
  * POST /api/users/phone/request
  */
-export const requestPhoneVerification = async (req: any, res: Response) => {
+export const requestPhoneVerification = async (req: any, res: Response, next: NextFunction) => {
   const userId = req.user.id;
   const { phone, method } = req.body; // method: 'whatsapp' | 'sms'
-
-  if (typeof phone !== 'string' || !PHONE_PATTERN.test(phone.trim())) {
-    return res.status(400).json({ error: "Numéro de téléphone invalide" });
-  }
 
   const normalizedMethod = method === 'whatsapp' || method === 'sms' ? method : 'sms';
 
@@ -535,10 +519,10 @@ export const requestPhoneVerification = async (req: any, res: Response) => {
     
     // Si method === 'whatsapp', on pourrait appeler une API WhatsApp ici
     
-    res.json({ success: true, message: "Code envoyé" });
+    return res.json({ success: true, message: "Code envoyé" });
   } catch (err) {
     logger.error('Erreur requestPhoneVerification', err);
-    res.status(500).json({ error: "Impossible d'envoyer le code" });
+    return next(new ApiError(500, 'INTERNAL_SERVER_ERROR', "Impossible d'envoyer le code"));
   }
 };
 
@@ -546,13 +530,9 @@ export const requestPhoneVerification = async (req: any, res: Response) => {
  * Vérifie le code OTP et certifie le téléphone
  * POST /api/users/phone/verify
  */
-export const verifyPhone = async (req: any, res: Response) => {
+export const verifyPhone = async (req: any, res: Response, next: NextFunction) => {
   const userId = req.user.id;
   const { phone, code } = req.body;
-
-  if (typeof phone !== 'string' || !PHONE_PATTERN.test(phone.trim()) || typeof code !== 'string' || !PIN_PATTERN.test(code)) {
-    return res.status(400).json({ error: "Paramètres de vérification invalides" });
-  }
 
   try {
     const { data: verification, error } = await supabaseAdmin
@@ -566,17 +546,13 @@ export const verifyPhone = async (req: any, res: Response) => {
       .limit(1)
       .single();
 
-    if (error || !verification) {
-      return res.status(400).json({ error: "Code invalide ou expiré" });
-    }
+    if (error || !verification) return next(new ApiError(400, 'BAD_REQUEST', "Code invalide ou expiré"));
 
     const isValidCode = verification.otp_code?.startsWith('$2')
       ? await bcrypt.compare(code, verification.otp_code)
       : verification.otp_code === code;
 
-    if (!isValidCode) {
-      return res.status(400).json({ error: "Code invalide ou expiré" });
-    }
+    if (!isValidCode) return next(new ApiError(400, 'BAD_REQUEST', "Code invalide ou expiré"));
 
     // Marquer comme vérifié dans la table OTP
     await supabaseAdmin
@@ -596,9 +572,9 @@ export const verifyPhone = async (req: any, res: Response) => {
 
     if (profileError) throw profileError;
 
-    res.json({ success: true, message: "Téléphone vérifié avec succès" });
+    return res.json({ success: true, message: "Téléphone vérifié avec succès" });
   } catch (err) {
     logger.error('Erreur verifyPhone', err);
-    res.status(500).json({ error: "Erreur lors de la vérification" });
+    return next(new ApiError(500, 'INTERNAL_SERVER_ERROR', "Erreur lors de la vérification"));
   }
 };

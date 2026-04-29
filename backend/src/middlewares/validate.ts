@@ -1,23 +1,16 @@
 import type { NextFunction, Request, Response } from 'express'
-import type { ZodSchema } from 'zod'
-import { ZodError } from 'zod'
+import { ApiError } from '../utils/apiError'
 
-export function validateBody<T>(schema: ZodSchema<T>) {
+type Parser<T> = (body: unknown) => T
+
+export function validateBody<T>(parse: Parser<T>) {
   return (req: Request, res: Response, next: NextFunction) => {
     try {
-      req.body = schema.parse(req.body)
+      req.body = parse(req.body)
       return next()
     } catch (err) {
-      if (err instanceof ZodError) {
-        return res.status(422).json({
-          error: 'UNPROCESSABLE_ENTITY',
-          message: 'Validation error',
-          issues: err.issues,
-          request_id: req.requestId,
-        })
-      }
-      return next(err)
+      if (err instanceof ApiError) return next(err)
+      return next(new ApiError(422, 'UNPROCESSABLE_ENTITY', 'Validation error'))
     }
   }
 }
-
