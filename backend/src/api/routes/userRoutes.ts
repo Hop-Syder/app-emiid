@@ -20,6 +20,13 @@ import {
 import { getFollowedProfiles, toggleFollowProfile, getFollowers, updateFollowNote } from '../../controllers/followController';
 import { requireAuth, requireAdmin } from '../../middlewares/authMiddleware';
 import { pinLimiter, phoneVerificationLimiter } from '../../middlewares/rateLimiter';
+import { validateBody } from '../../middlewares/validate';
+import {
+  requestPhoneVerificationSchema,
+  updateMyProfileSchema,
+  verifyPhoneSchema,
+  verifyPinSchema,
+} from '../schemas/userSchemas';
 
 const router = Router();
 
@@ -32,7 +39,7 @@ router.get('/me', getMyProfile);
 
 // @route   PUT /api/users/me
 // @desc    Mettre à jour le profil connecté
-router.put('/me', updateMyProfile);
+router.put('/me', validateBody(updateMyProfileSchema), updateMyProfile);
 
 // @route   PUT /api/users/settings
 // @desc    Mettre à jour les paramètres du compte connecté
@@ -48,7 +55,7 @@ router.delete('/account', deleteMyAccount);
 
 // @route   POST /api/users/verify-pin
 // @desc    Vérifier le code PIN
-router.post('/verify-pin', pinLimiter, verifyPin);
+router.post('/verify-pin', pinLimiter, validateBody(verifyPinSchema), verifyPin);
 
 // @route   GET /api/users/follows
 // @desc    Récupérer les profils suivis
@@ -68,11 +75,16 @@ router.put('/follow/:id/note', updateFollowNote);
 
 // @route   POST /api/users/phone/request
 // @desc    Demander un code OTP par WhatsApp ou SMS
-router.post('/phone/request', phoneVerificationLimiter, requestPhoneVerification);
+router.post(
+  '/phone/request',
+  phoneVerificationLimiter,
+  validateBody(requestPhoneVerificationSchema),
+  requestPhoneVerification,
+);
 
 // @route   POST /api/users/phone/verify
 // @desc    Vérifier le code OTP
-router.post('/phone/verify', verifyPhone);
+router.post('/phone/verify', validateBody(verifyPhoneSchema), verifyPhone);
 
 // @route   POST /api/users/:id/unlock-pin
 // @desc    Débloquer le PIN d'un utilisateur (Admin seulement)

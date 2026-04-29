@@ -6,7 +6,7 @@
 */
 
 import { Request, Response } from 'express';
-import { supabase, supabaseAdmin } from '../config/supabase';
+import { createSupabaseUserClient, supabase, supabaseAdmin } from '../config/supabase';
 import bcrypt from 'bcrypt';
 import { randomInt } from 'crypto';
 import { logger } from '../utils/logger';
@@ -50,6 +50,15 @@ const DEFAULT_SECURITY_PREFERENCES = {
   two_factor_enabled: false,
 };
 
+function getDbClient(req: any) {
+  const token = req.authToken;
+  if (typeof token === 'string' && token.trim()) {
+    return createSupabaseUserClient(token);
+  }
+  // Dev bypass / fallback: conserve le comportement existant
+  return supabaseAdmin;
+}
+
 const buildUserSettings = (authUser: any, isPublished = false) => {
   const metadata = authUser?.user_metadata || {};
 
@@ -89,7 +98,8 @@ export const getMyProfile = async (req: any, res: Response) => {
   };
 
   try {
-    const { data, error } = await supabase
+    const db = getDbClient(req);
+    const { data, error } = await db
       .from('user_profiles')
       .select('*, countries(name, iso_code), profile_tags(tags(name))')
       .eq('user_id', userId)
@@ -142,6 +152,7 @@ export const updateMyProfile = async (req: any, res: Response) => {
   } = req.body;
 
   try {
+    const db = getDbClient(req);
     let finalCountryId = country_id;
 
     // Si on a un code pays mais pas d'ID, on cherche ou on crée
@@ -235,7 +246,7 @@ export const updateMyProfile = async (req: any, res: Response) => {
       return res.status(400).json({ error: "Le code PIN doit contenir exactement 6 chiffres." });
     }
 
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await db
       .from('user_profiles')
       .upsert(updates, { onConflict: 'user_id' })
       .select()

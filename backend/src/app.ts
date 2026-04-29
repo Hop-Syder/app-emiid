@@ -9,6 +9,8 @@ import messageRoutes from './api/routes/messageRoutes'
 import dashboardRoutes from './api/routes/dashboardRoutes'
 import webhookRoutes from './api/routes/webhookRoutes'
 import { errorHandler } from './middlewares/errorMiddleware'
+import { notFoundHandler } from './middlewares/notFound'
+import { requestContext } from './middlewares/requestContext'
 import { logger } from './utils/logger'
 import { supabaseAdmin } from './config/supabase'
 
@@ -37,6 +39,8 @@ export const allowedOrigins = (() => {
 
 export function createApp(): Application {
   const app: Application = express()
+
+  app.use(requestContext)
 
   // Rate limiting global - 100 req/15min par IP
   const globalLimiter = rateLimit({
@@ -120,6 +124,7 @@ export function createApp(): Application {
   app.use('/api/dashboard-user', dashboardRoutes)
   app.use('/api/webhooks', webhookRoutes)
 
+  app.use(notFoundHandler)
   app.use(errorHandler)
 
   return app
