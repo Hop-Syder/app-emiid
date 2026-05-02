@@ -1,8 +1,16 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Contrôleur pour les statistiques du dashboard utilisateur
- * @created 2026-04-26
+ * @description Contrôleur pour les statistiques globales du réseau EmiID affichées
+ *   sur le dashboard utilisateur (connecté) et le dashboard public.
+ *
+ *   Contrat API (ne pas modifier sans aligner le frontend) :
+ *     {
+ *       totalEntrepreneurs: number,  // pros publiés dans le réseau
+ *       verifiedMembers:    number,  // pros publiés + vérifiés
+ *       countriesCovered:   number,  // pays distincts couverts par les pros publiés
+ *       premiumMembers:     number,  // pros publiés + premium
+ *     }
  */
 
 import { Response } from 'express';
@@ -10,127 +18,79 @@ import { supabaseAdmin } from '../config/supabase';
 import { logger } from '../utils/logger';
 
 export interface DashboardStats {
-  total_followers: number;
-  total_messages: number;
-  profile_views: number;
-  followers_growth: number;
-  messages_growth: number;
-  profile_views_growth: number;
+  totalEntrepreneurs: number;
+  verifiedMembers: number;
+  countriesCovered: number;
+  premiumMembers: number;
 }
 
 /**
- * Récupère les statistiques du dashboard pour l'utilisateur connecté
- * GET /api/dashboard-user/stats
+ * Exécute en parallèle les 4 comptages nécessaires au dashboard.
+ * Chaque requête échouée renvoie 0 (on n'empêche pas le dashboard de charger).
  */
-export const getDashboardStats = async (req: any, res: Response) => {
-  const userId = req.user.id;
+async function computeNetworkStats(): Promise<DashboardStats> {
+  const publishedFilter = (builder: any) => builder.eq('is_published', true);
 
+  const [totalResult, verifiedResult, premiumResult, countriesResult] = await Promise.all([
+    publishedFilter(
+      supabaseAdmin.from('user_profiles').select('user_id', { count: 'exact', head: true }),
+    ),
+    publishedFilter(
+      supabaseAdmin
+        .from('user_profiles')
+        .select('user_id', { count: 'exact', head: true })
+        .eq('is_verified', true),
+    ),
+    publishedFilter(
+      supabaseAdmin
+        .from('user_profiles')
+        .select('user_id', { count: 'exact', head: true })
+        .eq('is_premium', true),
+    ),
+    publishedFilter(
+      supabaseAdmin.from('user_profiles').select('country_id').not('country_id', 'is', null),
+    ),
+  ]);
+
+  if (totalResult.error) {
+    logger.error('[Dashboard] total count error', totalResult.error);
+  }
+  if (verifiedResult.error) {
+    logger.error('[Dashboard] verified count error', verifiedResult.error);
+  }
+  if (premiumResult.error) {
+    logger.error('[Dashboard] premium count error', premiumResult.error);
+  }
+  if (countriesResult.error) {
+    logger.error('[Dashboard] countries query error', countriesResult.error);
+  }
+
+  // Les aggrégations DISTINCT ne sont pas exposées par PostgREST ; on déduit
+  // côté JS à partir de la liste des country_id des profils publiés.
+  const distinctCountries = new Set(
+    ((countriesResult.data || []) as Array<{ country_id?: string | null }>)
+      .map((row) => row.country_id)
+      .filter((value): value is string => typeof value === 'string' && value.length > 0),
+  );
+
+  return {
+    totalEntrepreneurs: totalResult.count || 0,
+    verifiedMembers: verifiedResult.count || 0,
+    countriesCovered: distinctCountries.size,
+    premiumMembers: premiumResult.count || 0,
+  };
+}
+
+/**
+ * GET /api/dashboard-user/stats  (authentifié)
+ * GET /api/public/stats          (public)
+ */
+export const getDashboardStats = async (_req: any, res: Response) => {
   try {
-    const now = new Date();
-    const thisWeekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-    const lastWeekStart = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
-
-    // 1. Récupération des conversations utilisateur (nécessaire pour plusieurs compteurs)
-    const { data: userConversations, error: convError } = await supabaseAdmin
-      .from('conversations')
-      .select('id')
-      .or(`participant1_id.eq.${userId},participant2_id.eq.${userId}`);
-
-    if (convError) {
-      logger.error('[Dashboard] Error fetching conversations:', convError);
-    }
-
-    const convIds = (userConversations || []).map((c: any) => c.id);
-
-    // 2. Exécution en parallèle de toutes les requêtes de comptage
-    const baseFollowers = supabaseAdmin
-      .from('user_follows')
-      .select('*', { count: 'exact', head: true })
-      .eq('following_id', userId);
-
-    const followersThisWeek = supabaseAdmin
-      .from('user_follows')
-      .select('*', { count: 'exact', head: true })
-      .eq('following_id', userId)
-      .gte('created_at', thisWeekStart.toISOString());
-
-    const followersLastWeek = supabaseAdmin
-      .from('user_follows')
-      .select('*', { count: 'exact', head: true })
-      .eq('following_id', userId)
-      .gte('created_at', lastWeekStart.toISOString())
-      .lt('created_at', thisWeekStart.toISOString());
-
-    const profileViewsQuery = supabaseAdmin
-      .from('profile_views')
-      .select('*', { count: 'exact', head: true })
-      .eq('profile_id', userId);
-
-    const messagesPromises = convIds.length > 0
-      ? [
-          supabaseAdmin
-            .from('messages')
-            .select('*', { count: 'exact', head: true })
-            .in('conversation_id', convIds),
-          supabaseAdmin
-            .from('messages')
-            .select('*', { count: 'exact', head: true })
-            .in('conversation_id', convIds)
-            .gte('created_at', thisWeekStart.toISOString()),
-          supabaseAdmin
-            .from('messages')
-            .select('*', { count: 'exact', head: true })
-            .in('conversation_id', convIds)
-            .gte('created_at', lastWeekStart.toISOString())
-            .lt('created_at', thisWeekStart.toISOString()),
-        ]
-      : [];
-
-    const [
-      followersResult,
-      followersThisWeekResult,
-      followersLastWeekResult,
-      profileViewsResult,
-      ...messagesResults
-    ] = await Promise.all([
-      baseFollowers,
-      followersThisWeek,
-      followersLastWeek,
-      profileViewsQuery,
-      ...messagesPromises,
-    ]);
-
-    const totalFollowers = followersResult.count || 0;
-    const newFollowersThisWeek = followersThisWeekResult.count || 0;
-    const newFollowersLastWeek = followersLastWeekResult.count || 0;
-    const profileViews = profileViewsResult.error ? 0 : (profileViewsResult.count || 0);
-
-    const totalMessages = messagesResults[0]?.count || 0;
-    const messagesThisWeek = messagesResults[1]?.count || 0;
-    const messagesLastWeek = messagesResults[2]?.count || 0;
-
-    const stats: DashboardStats = {
-      total_followers: totalFollowers,
-      total_messages: totalMessages,
-      profile_views: profileViews,
-      followers_growth: calculateGrowth(newFollowersThisWeek, newFollowersLastWeek),
-      messages_growth: calculateGrowth(messagesThisWeek, messagesLastWeek),
-      profile_views_growth: 0,
-    };
-
+    const stats = await computeNetworkStats();
     res.json(stats);
   } catch (err) {
     logger.error('[Dashboard] Critical error in getDashboardStats:', err);
     res.status(500).json({ error: 'Erreur lors du chargement des statistiques' });
   }
 };
-
-/**
- * Calcule le pourcentage de croissance entre deux périodes
- */
-function calculateGrowth(current: number, previous: number): number {
-  if (previous === 0) {
-    return current > 0 ? 100 : 0;
-  }
-  return Math.round(((current - previous) / previous) * 100);
-}

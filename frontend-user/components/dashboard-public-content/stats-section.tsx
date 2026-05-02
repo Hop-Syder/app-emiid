@@ -16,28 +16,28 @@ export function StatsSection({ stats }: StatsSectionProps) {
     const statsItems = [
         {
             label: "Professionnels inscrits",
-            value: stats.totalEntrepreneurs.toString(),
+            value: (stats.totalEntrepreneurs || 0).toString(),
             sub: "Membres actifs du réseau",
             icon: Users,
             color: "text-green-600",
         },
         {
             label: "Profils Vérifiés",
-            value: stats.verifiedMembers.toString(),
+            value: (stats.verifiedMembers || 0).toString(),
             sub: "Expertises validées",
             icon: BadgeCheck,
             color: "text-amber-500",
         },
         {
             label: "Pays représentés",
-            value: stats.countriesCovered.toString(),
+            value: (stats.countriesCovered || 0).toString(),
             sub: "Présence régionale",
             icon: Globe,
             color: "text-red-600",
         },
         {
             label: "Membres Premium",
-            value: stats.premiumMembers.toString(),
+            value: (stats.premiumMembers || 0).toString(),
             sub: "Profils à forte visibilité",
             icon: Crown,
             color: "text-primary",

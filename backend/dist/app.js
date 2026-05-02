@@ -14,6 +14,7 @@ const auth_1 = __importDefault(require("./api/routes/auth"));
 const userRoutes_1 = __importDefault(require("./api/routes/userRoutes"));
 const messageRoutes_1 = __importDefault(require("./api/routes/messageRoutes"));
 const dashboardRoutes_1 = __importDefault(require("./api/routes/dashboardRoutes"));
+const publicRoutes_1 = __importDefault(require("./api/routes/publicRoutes"));
 const webhookRoutes_1 = __importDefault(require("./api/routes/webhookRoutes"));
 const errorMiddleware_1 = require("./middlewares/errorMiddleware");
 const notFound_1 = require("./middlewares/notFound");
@@ -116,6 +117,7 @@ function createApp() {
     app.use('/api/users', userRoutes_1.default);
     app.use('/api/messages', messageRoutes_1.default);
     app.use('/api/dashboard-user', dashboardRoutes_1.default);
+    app.use('/api/public', publicRoutes_1.default);
     app.use('/api/webhooks', webhookRoutes_1.default);
     app.use(notFound_1.notFoundHandler);
     app.use(errorMiddleware_1.errorHandler);

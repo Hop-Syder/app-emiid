@@ -46,3 +46,22 @@ test('C4 - Route /api/auth/me sans token retourne 401 (pas 500)', async () => {
   assert.equal(res.status, 401);
   assert.ok(res.body.error, 'Doit contenir un champ error');
 });
+
+test('Stats publiques GET /api/public/stats renvoient le contrat attendu (contrat API)', async () => {
+  const res = await request(app).get('/api/public/stats');
+  // Le backend peut répondre 200 (DB OK) ou 500 (si la connexion Supabase échoue
+  // dans l'env de test). Dans les 2 cas, on valide que la route est bien
+  // enregistrée (pas 404) — c'est le bug qu'on vient de corriger.
+  assert.notEqual(res.status, 404, `/api/public/stats doit être enregistré, reçu ${res.status}`);
+  if (res.status === 200) {
+    assert.equal(typeof res.body.totalEntrepreneurs, 'number');
+    assert.equal(typeof res.body.verifiedMembers, 'number');
+    assert.equal(typeof res.body.countriesCovered, 'number');
+    assert.equal(typeof res.body.premiumMembers, 'number');
+  }
+});
+
+test('Stats user GET /api/dashboard-user/stats exigent l authentification', async () => {
+  const res = await request(app).get('/api/dashboard-user/stats');
+  assert.equal(res.status, 401, `Attendu 401 sans token, reçu ${res.status}`);
+});

@@ -7,6 +7,7 @@ import authRoutes from './api/routes/auth'
 import userRoutes from './api/routes/userRoutes'
 import messageRoutes from './api/routes/messageRoutes'
 import dashboardRoutes from './api/routes/dashboardRoutes'
+import publicRoutes from './api/routes/publicRoutes'
 import webhookRoutes from './api/routes/webhookRoutes'
 import { errorHandler } from './middlewares/errorMiddleware'
 import { notFoundHandler } from './middlewares/notFound'
@@ -122,6 +123,7 @@ export function createApp(): Application {
   app.use('/api/users', userRoutes)
   app.use('/api/messages', messageRoutes)
   app.use('/api/dashboard-user', dashboardRoutes)
+  app.use('/api/public', publicRoutes)
   app.use('/api/webhooks', webhookRoutes)
 
   app.use(notFoundHandler)
