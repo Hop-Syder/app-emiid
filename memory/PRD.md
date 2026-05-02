@@ -56,6 +56,7 @@ L'utilisateur a demandé :
 - **P0** Configurer `ADMIN_EMAILS` dans env backend
 - **P1** Vérifier RLS policies Supabase (messages, conversations, project_gallery)
 - **P1** Ajouter colonne `status` à `project_gallery` + MAJ approve/reject
+- **P1** Appliquer migration `sql/migrations/create_get_network_stats.sql` (RPC optimisée, backend prêt avec fallback)
 - **P1** Retirer forward `x-dev-user-*` du proxy Next.js en prod
 - **P2** Archiver/supprimer les 7 anciens rapports redondants
 - **P2** Migrer l'envoi de message côté client vers le backend (harmoniser validation)
