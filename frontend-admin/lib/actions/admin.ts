@@ -119,6 +119,36 @@ interface ProjectGalleryRow {
   profile_id: string
 }
 
+const USER_PROFILE_SAFE_SELECT = `
+  id,
+  user_id,
+  first_name,
+  last_name,
+  email,
+  avatar_url,
+  bio,
+  category,
+  role,
+  job_title,
+  specialty,
+  activity_domain,
+  industry,
+  city,
+  website,
+  phone,
+  followers_count,
+  country_id,
+  has_profile,
+  is_published,
+  is_verified,
+  is_premium,
+  is_locked,
+  pin_attempts,
+  created_at,
+  updated_at,
+  countries(name)
+`
+
 const DEFAULT_ADMIN_NOTIFICATIONS = {
   emailNewUser: true,
   emailModeration: true,
@@ -184,72 +214,155 @@ async function getBackendHealth(): Promise<SystemCheck[]> {
 export async function getDashboardStats(): Promise<DashboardStats> {
   const supabase = await createAdminClient()
 
-  const { count: totalUsers } = await supabase
-    .from("user_profiles")
-    .select("*", { count: "exact", head: true })
-
-  const { count: publishedProfiles } = await supabase
-    .from("user_profiles")
-    .select("*", { count: "exact", head: true })
-    .eq("is_published", true)
-
-  const { count: totalMessages } = await supabase
-    .from("messages")
-    .select("*", { count: "exact", head: true })
-
-  const { data: usersByCountryData } = await supabase
-    .from("user_profiles")
-    .select("country_id, countries(name)")
-    .not("country_id", "is", null)
-
-  const countryMap = new Map<string, number>()
-  ;(usersByCountryData as UserCountryRow[] | null)?.forEach((user) => {
-    const country = Array.isArray(user.countries) ? user.countries[0] : user.countries
-    const countryName = country?.name || "Inconnu"
-    countryMap.set(countryName, (countryMap.get(countryName) || 0) + 1)
-  })
-
-  const usersByCountry = Array.from(countryMap.entries())
-    .map(([country, count]) => ({ country, count }))
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 6)
-
-  const { data: recentUsers } = await supabase
-    .from("user_profiles")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .limit(5)
-
-  const now = new Date()
-  const weeklyActivity = []
+  // Initialize default values
+  let totalUsers = 0
+  let publishedProfiles = 0
+  let totalMessages = 0
+  let usersByCountry: { country: string; count: number }[] = []
+  let recentUsers: UserProfile[] = []
+  const weeklyActivity: { day: string; users: number }[] = []
   const dayNames = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"]
 
-  for (let i = 6; i >= 0; i--) {
-    const date = new Date(now)
-    date.setDate(date.getDate() - i)
-    const startOfDay = new Date(date.setHours(0, 0, 0, 0)).toISOString()
-    const endOfDay = new Date(date.setHours(23, 59, 59, 999)).toISOString()
-
-    const { count } = await supabase
+  try {
+    // Get total users
+    const { count: totalUsersCount, error: totalUsersError } = await supabase
       .from("user_profiles")
       .select("*", { count: "exact", head: true })
-      .gte("created_at", startOfDay)
-      .lte("created_at", endOfDay)
 
-    weeklyActivity.push({
-      day: dayNames[new Date(startOfDay).getDay()],
-      users: count || 0,
-    })
+    if (totalUsersError) {
+      console.error('[Dashboard] Error fetching total users:', totalUsersError)
+    } else {
+      totalUsers = totalUsersCount || 0
+    }
+
+    // Get published profiles
+    const { count: publishedCount, error: publishedError } = await supabase
+      .from("user_profiles")
+      .select("*", { count: "exact", head: true })
+      .eq("is_published", true)
+
+    if (publishedError) {
+      console.error('[Dashboard] Error fetching published profiles:', publishedError)
+    } else {
+      publishedProfiles = publishedCount || 0
+    }
+
+    // Get total messages
+    const { count: messagesCount, error: messagesError } = await supabase
+      .from("messages")
+      .select("*", { count: "exact", head: true })
+
+    if (messagesError) {
+      console.error('[Dashboard] Error fetching total messages:', messagesError)
+    } else {
+      totalMessages = messagesCount || 0
+    }
+
+    // Get users by country
+    try {
+      const { data: usersByCountryData, error: countryError } = await supabase
+        .from("user_profiles")
+        .select("country_id, countries(name)")
+        .not("country_id", "is", null)
+
+      if (countryError) {
+        console.error('[Dashboard] Error fetching users by country:', countryError)
+      } else if (usersByCountryData) {
+        const countryMap = new Map<string, number>()
+          ; (usersByCountryData as UserCountryRow[]).forEach((user) => {
+            const country = Array.isArray(user.countries) ? user.countries[0] : user.countries
+            const countryName = country?.name || "Inconnu"
+            countryMap.set(countryName, (countryMap.get(countryName) || 0) + 1)
+          })
+
+        usersByCountry = Array.from(countryMap.entries())
+          .map(([country, count]) => ({ country, count }))
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 6)
+      }
+    } catch (err) {
+      console.error('[Dashboard] Exception in users by country:', err)
+    }
+
+    // Get recent users
+    try {
+      const { data: recentUsersData, error: recentUsersError } = await supabase
+        .from("user_profiles")
+        .select(USER_PROFILE_SAFE_SELECT)
+        .order("created_at", { ascending: false })
+        .limit(5)
+
+      if (recentUsersError) {
+        console.error('[Dashboard] Error fetching recent users:', recentUsersError)
+      } else {
+        recentUsers = (recentUsersData as UserProfile[]) || []
+      }
+    } catch (err) {
+      console.error('[Dashboard] Exception in recent users:', err)
+    }
+
+    // Get weekly activity
+    try {
+      const now = new Date()
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date(now)
+        date.setDate(date.getDate() - i)
+        const startOfDay = new Date(date.setHours(0, 0, 0, 0)).toISOString()
+        const endOfDay = new Date(date.setHours(23, 59, 59, 999)).toISOString()
+
+        const { count, error: weeklyError } = await supabase
+          .from("user_profiles")
+          .select("*", { count: "exact", head: true })
+          .gte("created_at", startOfDay)
+          .lte("created_at", endOfDay)
+
+        if (weeklyError) {
+          console.error(`[Dashboard] Error fetching weekly activity for ${startOfDay}:`, weeklyError)
+        }
+
+        weeklyActivity.push({
+          day: dayNames[new Date(startOfDay).getDay()],
+          users: count || 0,
+        })
+      }
+    } catch (err) {
+      console.error('[Dashboard] Exception in weekly activity:', err)
+      // Fill with zeros if fails
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date()
+        date.setDate(date.getDate() - i)
+        weeklyActivity.push({
+          day: dayNames[date.getDay()],
+          users: 0,
+        })
+      }
+    }
+
+  } catch (err) {
+    console.error('[Dashboard] Critical error in getDashboardStats:', err)
+  }
+
+  // Get system health (can fail independently)
+  let systemChecks: SystemCheck[] = []
+  try {
+    systemChecks = await getBackendHealth()
+  } catch (err) {
+    console.error('[Dashboard] Error fetching system health:', err)
+    systemChecks = [
+      { label: "API Serveur", status: "unknown", detail: "Verification indisponible" },
+      { label: "Base de donnees", status: "unknown", detail: "Verification indisponible" },
+      { label: "Stockage", status: "unknown", detail: "Verification indisponible" },
+    ]
   }
 
   return {
-    totalUsers: totalUsers || 0,
-    publishedProfiles: publishedProfiles || 0,
-    totalMessages: totalMessages || 0,
+    totalUsers,
+    publishedProfiles,
+    totalMessages,
     usersByCountry,
-    recentUsers: (recentUsers as UserProfile[]) || [],
+    recentUsers,
     weeklyActivity,
-    systemChecks: await getBackendHealth(),
+    systemChecks,
   }
 }
 
@@ -265,7 +378,7 @@ export async function getUsers(params?: {
 
   let query = supabase
     .from("user_profiles")
-    .select("*, countries(name)", { count: "exact" })
+    .select(USER_PROFILE_SAFE_SELECT, { count: "exact" })
 
   if (search) {
     query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,email.ilike.%${search}%`)
@@ -321,9 +434,9 @@ export async function unlockUserPin(userId: string): Promise<{ success: boolean;
 
   const { error } = await supabase
     .from("user_profiles")
-    .update({ 
-      is_locked: false, 
-      pin_attempts: 0, 
+    .update({
+      is_locked: false,
+      pin_attempts: 0,
       locked_at: null,
       updated_at: new Date().toISOString()
     })

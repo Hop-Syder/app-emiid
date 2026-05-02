@@ -5,7 +5,8 @@
  * @created 2026-04-17
  */
 
-import { Router, Request, Response } from 'express';
+import { NextFunction, Router, Request, Response } from 'express';
+import { createHash, timingSafeEqual } from 'crypto';
 import { logger } from '../../utils/logger';
 import { supabaseAdmin } from '../../config/supabase';
 import { sendNewMessageNotification } from '../../services/mailService';
@@ -13,20 +14,42 @@ import { sendPushNotification } from '../../services/pushService';
 
 const router = Router();
 
-// Middleware optionnel pour vérifier un token secret webhook
-// const verifyWebhookSecret = (req: Request, res: Response, next: NextFunction) => {
-//   const secret = req.headers['x-webhook-secret'];
-//   if (secret !== process.env.WEBHOOK_SECRET) return res.status(401).send('Unauthorized');
-//   next();
-// };
+const verifyWebhookSecret = (req: Request, res: Response, next: NextFunction) => {
+  const configuredSecret = process.env.WEBHOOK_SECRET;
+
+  if (!configuredSecret) {
+    logger.error('Webhook refuse: WEBHOOK_SECRET non configure');
+    return res.status(503).json({ error: 'Webhook non configure' });
+  }
+
+  const headerSecret = req.headers['x-webhook-secret'];
+  const bearerSecret = req.headers.authorization?.startsWith('Bearer ')
+    ? req.headers.authorization.slice('Bearer '.length)
+    : null;
+  const receivedSecret = typeof headerSecret === 'string' ? headerSecret : bearerSecret;
+
+  if (!receivedSecret) {
+    return res.status(401).json({ error: 'Webhook non autorise' });
+  }
+
+  // Utilisation de timing-safe comparison pour éviter les timing attacks
+  const receivedBuffer = Buffer.from(String(receivedSecret));
+  const expectedBuffer = Buffer.from(String(configuredSecret));
+
+  if (receivedBuffer.length !== expectedBuffer.length || !timingSafeEqual(receivedBuffer, expectedBuffer)) {
+    return res.status(401).json({ error: 'Webhook non autorise' });
+  }
+
+  return next();
+};
 
 // @route   POST /api/webhooks/supabase
 // @desc    Reçoit les événements de la DB Supabase
-router.post('/supabase', async (req: Request, res: Response) => {
+router.post('/supabase', verifyWebhookSecret, async (req: Request, res: Response) => {
   try {
     const { type, table, record } = req.body;
     logger.info('Webhook reçu depuis Supabase', { type, table });
-    
+
     // 1. Gestion des nouveaux messages
     if (type === 'INSERT' && table === 'messages') {
       const { conversation_id, sender_id, content } = record;
@@ -44,7 +67,7 @@ router.post('/supabase', async (req: Request, res: Response) => {
 
       // Récupérer les infos du destinataire (Email + Préférences)
       const { data: recipient, error: recipientError } = await supabaseAdmin.auth.admin.getUserById(recipientId);
-      
+
       if (recipientError || !recipient) throw new Error("Destinataire introuvable");
 
       const preferences = recipient.user.user_metadata?.notification_preferences;
@@ -57,8 +80,8 @@ router.post('/supabase', async (req: Request, res: Response) => {
         .eq('user_id', sender_id)
         .single();
 
-      const senderName = senderProfile 
-        ? `${senderProfile.first_name || ''} ${senderProfile.last_name || ''}`.trim() 
+      const senderName = senderProfile
+        ? `${senderProfile.first_name || ''} ${senderProfile.last_name || ''}`.trim()
         : "Un membre EmiID";
 
       // Notifications Mail
@@ -104,13 +127,13 @@ router.post('/supabase', async (req: Request, res: Response) => {
         .eq('user_id', follower_id)
         .single();
 
-      const followerName = followerProfile 
-        ? `${followerProfile.first_name || ''} ${followerProfile.last_name || ''}`.trim() 
+      const followerName = followerProfile
+        ? `${followerProfile.first_name || ''} ${followerProfile.last_name || ''}`.trim()
         : "Un nouveau membre";
 
       // Récupérer les préférences du destinataire (following_id)
       const { data: recipient, error: recipientError } = await supabaseAdmin.auth.admin.getUserById(following_id);
-      
+
       if (!recipientError && recipient) {
         const preferences = recipient.user.user_metadata?.notification_preferences;
 
@@ -136,7 +159,7 @@ router.post('/supabase', async (req: Request, res: Response) => {
         }
       }
     }
-    
+
     res.status(200).json({ success: true });
   } catch (err: any) {
     logger.error('Erreur webhook supabase', err);

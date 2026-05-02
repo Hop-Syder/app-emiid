@@ -14,6 +14,14 @@ const DEV_AUTH_BYPASS_USER_EMAIL = process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS_USER_
 
 const getSupabaseClient = () => createClient();
 
+const buildRequestId = () => {
+  try {
+    return crypto.randomUUID();
+  } catch {
+    return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  }
+};
+
 const buildTargetUrl = (endpoint: string) => {
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
 
@@ -40,10 +48,13 @@ export const fetchWithAuth = async (endpoint: string, options: RequestInit = {})
   const { data: { session } } = await supabase.auth.getSession();
   const useDevBypass = !session?.access_token && DEV_AUTH_BYPASS && DEV_AUTH_BYPASS_USER_ID;
   
+  const requestId = buildRequestId();
+
   // 2. Préparer les headers avec le token
   const headers = {
     'Content-Type': 'application/json',
     ...options.headers,
+    'x-request-id': requestId,
     ...(session?.access_token ? { 'Authorization': `Bearer ${session.access_token}` } : {}),
     ...(useDevBypass ? {
       'x-dev-user-id': DEV_AUTH_BYPASS_USER_ID,

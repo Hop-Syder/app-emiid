@@ -1,0 +1,28 @@
+import rateLimit from 'express-rate-limit';
+
+// Rate limiter pour la vérification PIN - 5 tentatives/15min
+export const pinLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    message: { error: 'Trop de tentatives de vérification PIN' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+// Rate limiter pour la vérification téléphone - 3 demandes/heure
+export const phoneVerificationLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000,
+    max: 3,
+    message: { error: 'Trop de demandes de vérification téléphone' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+// Rate limiter pour l'authentification - 10 tentatives/15min
+export const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    message: { error: 'Trop de tentatives d\'authentification' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});

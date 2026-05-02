@@ -46,15 +46,15 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // --- CONFIGURATION DES ROUTES ---
+  // --- ROUTING ---
+  // Public (toujours accessibles)
+  const publicRoutes = new Set(['/', '/login', '/auth/callback', '/dashboard-public'])
+  const publicPrefixes = ['/annuaire', '/profil', '/auth/']
 
-  // Routes accessibles à TOUT LE MONDE (même non connecté)
-  // - / : L'Onboarding
-  // - /login : La connexion
-  // - /dashboard-public : Le dashboard visiteurs
-  // - /annuaire : L'accès public à l'annuaire
-  const publicRoutes = ['/', '/login', '/auth/callback', '/dashboard-public'];
-  const isPublicResource = path.startsWith('/annuaire') || path.startsWith('/profil');
+  // Protected (doivent être authentifiés)
+  const protectedPrefixes = ['/dashboard-user', '/messages', '/parametres', '/portefeuille', '/creer-profil']
+
+  const isProtected = protectedPrefixes.some((prefix) => path.startsWith(prefix))
 
   // --- LOGIQUE DE REDIRECTION ---
 
@@ -69,8 +69,9 @@ export async function middleware(request: NextRequest) {
   // CAS 2 : L'utilisateur N'EST PAS CONNECTÉ (Inconnu)
   // S'il essaie d'aller sur une page privée (ex: /dashboard-user, /messages, /parametres...)
   // -> On le force à aller sur l'Onboarding (/)
-  if (!user && !publicRoutes.includes(path) && !isPublicResource) {
-    url.pathname = '/' // Ou '/login' selon ta préférence
+  if (!user && isProtected) {
+    url.pathname = '/login'
+    url.searchParams.set('next', `${path}${url.search}`)
     return NextResponse.redirect(url)
   }
 

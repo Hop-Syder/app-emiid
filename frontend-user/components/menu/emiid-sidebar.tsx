@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 "use client"
 
 import { useState } from "react"
@@ -211,10 +210,15 @@ export function EmiIDSidebar({ sidebarOpen, setSidebarOpen: _setSidebarOpen, mob
                           active ? "text-white opacity-100" : "text-slate-400 group-hover:text-primary opacity-80"
                         )}>
                           {typeof item.icon === "string" ? (
-                            <img
+                            <Image
                               src={item.icon}
                               alt={item.title}
-                              className={cn("h-5 w-5 object-contain transition-all duration-300 opacity-70 group-hover:opacity-100", active && "brightness-0 invert opacity-100")}
+                              width={20}
+                              height={20}
+                              className={cn(
+                                "h-5 w-5 object-contain transition-all duration-300 opacity-70 group-hover:opacity-100",
+                                active && "brightness-0 invert opacity-100",
+                              )}
                             />
                           ) : (
                             item.icon
@@ -251,7 +255,13 @@ export function EmiIDSidebar({ sidebarOpen, setSidebarOpen: _setSidebarOpen, mob
                           parentActive ? "text-primary opacity-100" : "text-slate-400 group-hover:text-primary opacity-80"
                         )}>
                           {typeof item.icon === "string" ? (
-                            <img src={item.icon} alt={item.title} className="h-5 w-5 object-contain transition-all duration-300" />
+                            <Image
+                              src={item.icon}
+                              alt={item.title}
+                              width={20}
+                              height={20}
+                              className="h-5 w-5 object-contain transition-all duration-300"
+                            />
                           ) : (
                             item.icon
                           )}

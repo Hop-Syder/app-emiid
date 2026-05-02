@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 "use client"
 
 import { Menu, PanelLeft, Bell, MessageSquare, LogOut, LogIn, Settings, AlertCircle, Shield, Users } from "lucide-react"
@@ -24,6 +23,7 @@ import { formatDistanceToNow } from "date-fns"
 import { fr } from "date-fns/locale"
 import { useScroll, useMotionValueEvent } from "framer-motion"
 import { Drawer } from "vaul"
+import Image from "next/image"
 
 interface EmiIDHeaderProps {
   sidebarOpen: boolean
@@ -94,7 +94,14 @@ export function EmiIDHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
 
             {/* Title Area (mostly for mobile/tablet where sidebar is hidden) */}
             <div className="min-w-0 md:hidden flex items-center">
-              <img src="/logo/logo-1.png" alt="EmiID" className="h-7 w-auto max-w-[130px] object-contain" />
+              <Image
+                src="/logo/logo-1.png"
+                alt="EmiID"
+                width={130}
+                height={28}
+                priority
+                className="h-7 w-auto max-w-[130px] object-contain"
+              />
             </div>
           </div>
 

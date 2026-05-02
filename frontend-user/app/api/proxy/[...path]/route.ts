@@ -14,6 +14,11 @@ function buildForwardHeaders(request: NextRequest) {
     const contentType = request.headers.get("content-type")
     const authorization = request.headers.get("authorization")
     const accept = request.headers.get("accept")
+    const requestId = request.headers.get("x-request-id")
+    const devUserId = request.headers.get("x-dev-user-id")
+    const devUserEmail = request.headers.get("x-dev-user-email")
+    const acceptLanguage = request.headers.get("accept-language")
+    const userAgent = request.headers.get("user-agent")
 
     if (contentType) {
         headers.set("content-type", contentType)
@@ -27,11 +32,37 @@ function buildForwardHeaders(request: NextRequest) {
         headers.set("accept", accept)
     }
 
+    if (requestId) {
+        headers.set("x-request-id", requestId)
+    }
+
+    if (devUserId) {
+        headers.set("x-dev-user-id", devUserId)
+    }
+
+    if (devUserEmail) {
+        headers.set("x-dev-user-email", devUserEmail)
+    }
+
+    if (acceptLanguage) {
+        headers.set("accept-language", acceptLanguage)
+    }
+
+    if (userAgent) {
+        headers.set("user-agent", userAgent)
+    }
+
     return headers
 }
 
 async function proxyRequest(request: NextRequest, context: { params: Promise<{ path: string[] }> }) {
     const { path } = await context.params
+
+    // Safety: proxy uniquement vers le backend API
+    if (!path || path.length === 0 || path[0] !== "api") {
+        return NextResponse.json({ error: "Proxy path interdit" }, { status: 400 })
+    }
+
     const targetUrl = buildTargetUrl(path, request.nextUrl.search)
     const headers = buildForwardHeaders(request)
 

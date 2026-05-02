@@ -9,6 +9,23 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.requireAdmin = exports.requireAuth = void 0;
 const supabase_1 = require("../config/supabase");
 const logger_1 = require("../utils/logger");
+const ADMIN_ROLE_PATTERN = /^(admin|administrator|administrateur|superadmin)$/i;
+function isAdminFromAuthMetadata(user) {
+    const appMetadata = user?.app_metadata || {};
+    const roles = [
+        appMetadata.role,
+        appMetadata.app_role,
+        ...(Array.isArray(appMetadata.roles) ? appMetadata.roles : []),
+    ].filter(Boolean);
+    return roles.some((role) => typeof role === 'string' && ADMIN_ROLE_PATTERN.test(role.trim()));
+}
+function isAdminFromAllowlist(user) {
+    const configuredEmails = (process.env.ADMIN_EMAILS || '')
+        .split(',')
+        .map((email) => email.trim().toLowerCase())
+        .filter(Boolean);
+    return !!user?.email && configuredEmails.includes(String(user.email).toLowerCase());
+}
 /**
  * Middleware pour sécuriser les routes avec un Access Token Supabase.
  * Attend le token dans le header "Authorization: Bearer <token>".
@@ -67,12 +84,19 @@ const requireAdmin = async (req, res, next) => {
     if (!user)
         return res.status(401).json({ error: "Authentification requise" });
     try {
+        if (isAdminFromAuthMetadata(user) || isAdminFromAllowlist(user)) {
+            return next();
+        }
         const { data: profile, error } = await supabase_1.supabaseAdmin
             .from('user_profiles')
-            .select('role')
+            .select('role, email')
             .eq('user_id', user.id)
             .single();
-        if (error || !profile || !profile.role?.toLowerCase().includes('admin')) {
+        const isLegacyAllowlistedAdmin = profile?.email &&
+            isAdminFromAllowlist({ email: profile.email }) &&
+            typeof profile.role === 'string' &&
+            ADMIN_ROLE_PATTERN.test(profile.role.trim());
+        if (error || !profile || !isLegacyAllowlistedAdmin) {
             return res.status(403).json({ error: "Accès refusé. Droits administrateur requis." });
         }
         next();
