@@ -126,7 +126,15 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
             {jsonLd && (
                 <script
                     type="application/ld+json"
-                    dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+                    // Échappe < / > et 2028/2029 pour empêcher un "</script>" injecté
+                    // via first_name/last_name/bio de casser le parser et introduire du XSS.
+                    dangerouslySetInnerHTML={{
+                        __html: JSON.stringify(jsonLd)
+                            .replace(/</g, '\\u003c')
+                            .replace(/>/g, '\\u003e')
+                            .replace(/\u2028/g, '\\u2028')
+                            .replace(/\u2029/g, '\\u2029'),
+                    }}
                 />
             )}
             <ProfileDetailContent profileId={id} />

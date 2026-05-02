@@ -16,6 +16,8 @@ const messageRoutes_1 = __importDefault(require("./api/routes/messageRoutes"));
 const dashboardRoutes_1 = __importDefault(require("./api/routes/dashboardRoutes"));
 const webhookRoutes_1 = __importDefault(require("./api/routes/webhookRoutes"));
 const errorMiddleware_1 = require("./middlewares/errorMiddleware");
+const notFound_1 = require("./middlewares/notFound");
+const requestContext_1 = require("./middlewares/requestContext");
 const logger_1 = require("./utils/logger");
 const supabase_1 = require("./config/supabase");
 dotenv_1.default.config();
@@ -38,6 +40,7 @@ exports.allowedOrigins = (() => {
 })();
 function createApp() {
     const app = (0, express_1.default)();
+    app.use(requestContext_1.requestContext);
     // Rate limiting global - 100 req/15min par IP
     const globalLimiter = (0, express_rate_limit_1.default)({
         windowMs: 15 * 60 * 1000,
@@ -114,6 +117,7 @@ function createApp() {
     app.use('/api/messages', messageRoutes_1.default);
     app.use('/api/dashboard-user', dashboardRoutes_1.default);
     app.use('/api/webhooks', webhookRoutes_1.default);
+    app.use(notFound_1.notFoundHandler);
     app.use(errorMiddleware_1.errorHandler);
     return app;
 }

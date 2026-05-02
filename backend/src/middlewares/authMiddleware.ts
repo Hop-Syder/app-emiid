@@ -110,13 +110,21 @@ export const requireAdmin = async (req: Request, res: Response, next: NextFuncti
       .eq('user_id', user.id)
       .single();
 
-    const isLegacyAllowlistedAdmin =
-      profile?.email &&
-      isAdminFromAllowlist({ email: profile.email }) &&
-      typeof profile.role === 'string' &&
-      ADMIN_ROLE_PATTERN.test(profile.role.trim());
+    if (error || !profile) {
+      return res.status(403).json({ error: "Accès refusé. Droits administrateur requis." });
+    }
 
-    if (error || !profile || !isLegacyAllowlistedAdmin) {
+    const hasAdminRole =
+      typeof profile.role === 'string' && ADMIN_ROLE_PATTERN.test(profile.role.trim());
+
+    // Admin validé par : (1) rôle DB, (2) email dans ADMIN_EMAILS (allowlist),
+    // ou (3) combinaison des deux. Chaque condition est suffisante.
+    const isAuthorizedAdmin =
+      hasAdminRole ||
+      isAdminFromAllowlist({ email: profile.email }) ||
+      isAdminFromAllowlist({ email: user.email });
+
+    if (!isAuthorizedAdmin) {
       return res.status(403).json({ error: "Accès refusé. Droits administrateur requis." });
     }
 

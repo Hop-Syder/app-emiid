@@ -14,6 +14,7 @@ const supabase_1 = require("../config/supabase");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const crypto_1 = require("crypto");
 const logger_1 = require("../utils/logger");
+const apiError_1 = require("../utils/apiError");
 const RESERVED_ROLE_PATTERN = /\b(admin|administrator|administrateur|superadmin|root|moderator|modérateur)\b/i;
 const PIN_PATTERN = /^\d{6}$/;
 const PHONE_PATTERN = /^\+?[0-9\s().-]{8,20}$/;
@@ -49,6 +50,14 @@ const DEFAULT_APP_PREFERENCES = {
 const DEFAULT_SECURITY_PREFERENCES = {
     two_factor_enabled: false,
 };
+function getDbClient(req) {
+    const token = req.authToken;
+    if (typeof token === 'string' && token.trim()) {
+        return (0, supabase_1.createSupabaseUserClient)(token);
+    }
+    // Dev bypass / fallback: conserve le comportement existant
+    return supabase_1.supabaseAdmin;
+}
 const buildUserSettings = (authUser, isPublished = false) => {
     const metadata = authUser?.user_metadata || {};
     return {
@@ -85,7 +94,8 @@ const getMyProfile = async (req, res) => {
         avatar_url: authUser.user_metadata?.avatar_url || null,
     };
     try {
-        const { data, error } = await supabase_1.supabase
+        const db = getDbClient(req);
+        const { data, error } = await db
             .from('user_profiles')
             .select('*, countries(name, iso_code), profile_tags(tags(name))')
             .eq('user_id', userId)
@@ -125,27 +135,29 @@ exports.getMyProfile = getMyProfile;
  * Met à jour le profil de l'utilisateur connecté
  * PUT /api/users/me
  */
-const updateMyProfile = async (req, res) => {
+const updateMyProfile = async (req, res, next) => {
     const userId = req.user.id;
     const { first_name, last_name, bio, avatar_url, role, specialty, category, activity_domain, country_id, country_code, country_name, city, job_title, industry, pin_enabled, pin_code, phone, website, is_published, tags, card_variant, slug } = req.body;
     try {
+        const db = getDbClient(req);
         let finalCountryId = country_id;
-        // Si on a un code pays mais pas d'ID, on cherche ou on crée
+        // Si on a un code pays mais pas d'ID, on cherche ou on crée.
+        // On utilise supabaseAdmin pour bypasser RLS qui bloquerait l'anon.
         if (!finalCountryId && country_code) {
-            const { data: countryData, error: countryError } = await supabase_1.supabase
+            const { data: countryData } = await supabase_1.supabaseAdmin
                 .from('countries')
                 .select('id')
                 .eq('iso_code', country_code)
-                .single();
+                .maybeSingle();
             if (countryData) {
                 finalCountryId = countryData.id;
             }
-            else {
-                // Créer le pays s'il n'existe pas
-                const { data: newCountry, error: createError } = await supabase_1.supabase
+            else if (country_name) {
+                // Créer le pays s'il n'existe pas (nom requis pour éviter NULL en base)
+                const { data: newCountry } = await supabase_1.supabaseAdmin
                     .from('countries')
                     .insert({ name: country_name, iso_code: country_code })
-                    .select()
+                    .select('id')
                     .single();
                 if (newCountry)
                     finalCountryId = newCountry.id;
@@ -163,7 +175,7 @@ const updateMyProfile = async (req, res) => {
                 .neq('user_id', userId)
                 .single();
             if (existingSlugProfile) {
-                return res.status(400).json({ error: "Ce lien personnalisé est déjà utilisé par un autre utilisateur." });
+                return next(new apiError_1.ApiError(409, 'CONFLICT', "Ce lien personnalisé est déjà utilisé par un autre utilisateur."));
             }
         }
         // --- SMART AUTOCOMPLETE LOGIC ---
@@ -211,16 +223,13 @@ const updateMyProfile = async (req, res) => {
             updates.pin_code = await bcrypt_1.default.hash(pin_code, salt);
             updates.pin_attempts = 0;
         }
-        else if (pin_code) {
-            return res.status(400).json({ error: "Le code PIN doit contenir exactement 6 chiffres." });
-        }
-        const { data, error } = await supabase_1.supabaseAdmin
+        const { data, error } = await db
             .from('user_profiles')
             .upsert(updates, { onConflict: 'user_id' })
             .select()
             .single();
         if (error)
-            return res.status(400).json({ error: error.message });
+            return next(new apiError_1.ApiError(400, 'BAD_REQUEST', error.message));
         // --- TAGS LOGIC ---
         if (tags && Array.isArray(tags)) {
             const profileId = data.id;
@@ -239,10 +248,10 @@ const updateMyProfile = async (req, res) => {
                 }
             }
         }
-        res.json(sanitizeProfileForResponse(data));
+        return res.json(sanitizeProfileForResponse(data));
     }
     catch (err) {
-        res.status(500).json({ error: "Erreur interne lors de la mise à jour du profil" });
+        return next(new apiError_1.ApiError(500, 'INTERNAL_SERVER_ERROR', "Erreur interne lors de la mise à jour du profil"));
     }
 };
 exports.updateMyProfile = updateMyProfile;
@@ -363,12 +372,9 @@ exports.deleteMyAccount = deleteMyAccount;
  * Vérifie le code PIN de l'utilisateur
  * POST /api/users/verify-pin
  */
-const verifyPin = async (req, res) => {
+const verifyPin = async (req, res, next) => {
     const userId = req.user.id;
     const { pin } = req.body;
-    if (typeof pin !== 'string' || !PIN_PATTERN.test(pin)) {
-        return res.status(400).json({ error: "Format de PIN invalide" });
-    }
     try {
         const { data: profile, error } = await supabase_1.supabaseAdmin
             .from('user_profiles')
@@ -376,11 +382,15 @@ const verifyPin = async (req, res) => {
             .eq('user_id', userId)
             .single();
         if (error || !profile)
-            return res.status(400).json({ error: "Profil introuvable" });
+            return next(new apiError_1.ApiError(404, 'NOT_FOUND', "Profil introuvable"));
         if (!profile.pin_enabled)
             return res.json({ success: true, message: "PIN non activé" });
         if (profile.is_locked) {
-            return res.status(403).json({ error: "Compte bloqué après 3 essais infructueux. Veuillez contacter un administrateur.", is_locked: true });
+            return next(new apiError_1.ApiError(403, 'FORBIDDEN', "Compte bloqué après 3 essais infructueux. Veuillez contacter un administrateur.", { is_locked: true }));
+        }
+        if (!profile.pin_code || typeof profile.pin_code !== 'string') {
+            // PIN activé mais aucun hash enregistré : incohérence de données.
+            return next(new apiError_1.ApiError(409, 'CONFLICT', "Aucun code PIN configuré. Veuillez en définir un depuis les paramètres."));
         }
         const isMatch = await bcrypt_1.default.compare(pin, profile.pin_code);
         if (isMatch) {
@@ -403,20 +413,13 @@ const verifyPin = async (req, res) => {
             })
                 .eq('user_id', userId);
             if (isNowLocked) {
-                return res.status(403).json({
-                    error: "Compte bloqué après 3 essais infructueux. Veuillez contacter un administrateur.",
-                    attempts_remaining: 0,
-                    is_locked: true
-                });
+                return next(new apiError_1.ApiError(403, 'FORBIDDEN', "Compte bloqué après 3 essais infructueux. Veuillez contacter un administrateur.", { attempts_remaining: 0, is_locked: true }));
             }
-            return res.status(401).json({
-                error: "Code PIN incorrect",
-                attempts_remaining: 3 - newAttempts
-            });
+            return next(new apiError_1.ApiError(401, 'UNAUTHORIZED', "Code PIN incorrect", { attempts_remaining: 3 - newAttempts }));
         }
     }
     catch (err) {
-        res.status(500).json({ error: "Erreur lors de la vérification du PIN" });
+        return next(new apiError_1.ApiError(500, 'INTERNAL_SERVER_ERROR', "Erreur lors de la vérification du PIN"));
     }
 };
 exports.verifyPin = verifyPin;
@@ -444,12 +447,9 @@ exports.unlockUserPin = unlockUserPin;
  * Demande un code OTP pour vérifier le téléphone
  * POST /api/users/phone/request
  */
-const requestPhoneVerification = async (req, res) => {
+const requestPhoneVerification = async (req, res, next) => {
     const userId = req.user.id;
     const { phone, method } = req.body; // method: 'whatsapp' | 'sms'
-    if (typeof phone !== 'string' || !PHONE_PATTERN.test(phone.trim())) {
-        return res.status(400).json({ error: "Numéro de téléphone invalide" });
-    }
     const normalizedMethod = method === 'whatsapp' || method === 'sms' ? method : 'sms';
     try {
         const otp = (0, crypto_1.randomInt)(100000, 1000000).toString();
@@ -467,11 +467,11 @@ const requestPhoneVerification = async (req, res) => {
             throw error;
         logger_1.logger.info(`Code OTP ${normalizedMethod.toUpperCase()} généré pour l'utilisateur ${userId}`);
         // Si method === 'whatsapp', on pourrait appeler une API WhatsApp ici
-        res.json({ success: true, message: "Code envoyé" });
+        return res.json({ success: true, message: "Code envoyé" });
     }
     catch (err) {
         logger_1.logger.error('Erreur requestPhoneVerification', err);
-        res.status(500).json({ error: "Impossible d'envoyer le code" });
+        return next(new apiError_1.ApiError(500, 'INTERNAL_SERVER_ERROR', "Impossible d'envoyer le code"));
     }
 };
 exports.requestPhoneVerification = requestPhoneVerification;
@@ -479,12 +479,9 @@ exports.requestPhoneVerification = requestPhoneVerification;
  * Vérifie le code OTP et certifie le téléphone
  * POST /api/users/phone/verify
  */
-const verifyPhone = async (req, res) => {
+const verifyPhone = async (req, res, next) => {
     const userId = req.user.id;
     const { phone, code } = req.body;
-    if (typeof phone !== 'string' || !PHONE_PATTERN.test(phone.trim()) || typeof code !== 'string' || !PIN_PATTERN.test(code)) {
-        return res.status(400).json({ error: "Paramètres de vérification invalides" });
-    }
     try {
         const { data: verification, error } = await supabase_1.supabaseAdmin
             .from('phone_verifications')
@@ -496,15 +493,13 @@ const verifyPhone = async (req, res) => {
             .order('created_at', { ascending: false })
             .limit(1)
             .single();
-        if (error || !verification) {
-            return res.status(400).json({ error: "Code invalide ou expiré" });
-        }
+        if (error || !verification)
+            return next(new apiError_1.ApiError(400, 'BAD_REQUEST', "Code invalide ou expiré"));
         const isValidCode = verification.otp_code?.startsWith('$2')
             ? await bcrypt_1.default.compare(code, verification.otp_code)
             : verification.otp_code === code;
-        if (!isValidCode) {
-            return res.status(400).json({ error: "Code invalide ou expiré" });
-        }
+        if (!isValidCode)
+            return next(new apiError_1.ApiError(400, 'BAD_REQUEST', "Code invalide ou expiré"));
         // Marquer comme vérifié dans la table OTP
         await supabase_1.supabaseAdmin
             .from('phone_verifications')
@@ -521,11 +516,11 @@ const verifyPhone = async (req, res) => {
             .eq('user_id', userId);
         if (profileError)
             throw profileError;
-        res.json({ success: true, message: "Téléphone vérifié avec succès" });
+        return res.json({ success: true, message: "Téléphone vérifié avec succès" });
     }
     catch (err) {
         logger_1.logger.error('Erreur verifyPhone', err);
-        res.status(500).json({ error: "Erreur lors de la vérification" });
+        return next(new apiError_1.ApiError(500, 'INTERNAL_SERVER_ERROR', "Erreur lors de la vérification"));
     }
 };
 exports.verifyPhone = verifyPhone;

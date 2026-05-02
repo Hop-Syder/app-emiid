@@ -5,7 +5,7 @@
  * @created 2026-04-26
  */
 
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { supabaseAdmin } from '../config/supabase';
 import { logger } from '../utils/logger';
 
@@ -26,110 +26,95 @@ export const getDashboardStats = async (req: any, res: Response) => {
   const userId = req.user.id;
 
   try {
-    // Compteur de followers
-    const { count: totalFollowers, error: followersError } = await supabaseAdmin
-      .from('user_follows')
-      .select('*', { count: 'exact', head: true })
-      .eq('following_id', userId);
-
-    if (followersError) {
-      logger.error('[Dashboard] Error fetching followers:', followersError);
-    }
-
-    // Compteur de messages
-    let totalMessages = 0;
-    try {
-      const { data: userConversations } = await supabaseAdmin
-        .from('conversations')
-        .select('id')
-        .or(`participant1_id.eq.${userId},participant2_id.eq.${userId}`);
-
-      if (userConversations && userConversations.length > 0) {
-        const convIds = userConversations.map(c => c.id);
-        
-        const { count, error: messagesError } = await supabaseAdmin
-          .from('messages')
-          .select('*', { count: 'exact', head: true })
-          .in('conversation_id', convIds);
-
-        if (messagesError) {
-          logger.error('[Dashboard] Error fetching messages:', messagesError);
-        } else {
-          totalMessages = count || 0;
-        }
-      }
-    } catch (err) {
-      logger.error('[Dashboard] Exception fetching messages:', err);
-    }
-
-    // Vues de profil (si table existe, sinon 0)
-    let profileViews = 0;
-    try {
-      const { count } = await supabaseAdmin
-        .from('profile_views')
-        .select('*', { count: 'exact', head: true })
-        .eq('profile_id', userId);
-      
-      profileViews = count || 0;
-    } catch (err) {
-      logger.info('[Dashboard] profile_views table not available, using 0');
-    }
-
-    // Calcul de la croissance (comparaison avec la semaine précédente)
     const now = new Date();
     const thisWeekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     const lastWeekStart = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
 
-    // Nouveaux followers cette semaine
-    const { count: newFollowersThisWeek } = await supabaseAdmin
+    // 1. Récupération des conversations utilisateur (nécessaire pour plusieurs compteurs)
+    const { data: userConversations, error: convError } = await supabaseAdmin
+      .from('conversations')
+      .select('id')
+      .or(`participant1_id.eq.${userId},participant2_id.eq.${userId}`);
+
+    if (convError) {
+      logger.error('[Dashboard] Error fetching conversations:', convError);
+    }
+
+    const convIds = (userConversations || []).map((c: any) => c.id);
+
+    // 2. Exécution en parallèle de toutes les requêtes de comptage
+    const baseFollowers = supabaseAdmin
+      .from('user_follows')
+      .select('*', { count: 'exact', head: true })
+      .eq('following_id', userId);
+
+    const followersThisWeek = supabaseAdmin
       .from('user_follows')
       .select('*', { count: 'exact', head: true })
       .eq('following_id', userId)
       .gte('created_at', thisWeekStart.toISOString());
 
-    // Nouveaux followers semaine dernière
-    const { count: newFollowersLastWeek } = await supabaseAdmin
+    const followersLastWeek = supabaseAdmin
       .from('user_follows')
       .select('*', { count: 'exact', head: true })
       .eq('following_id', userId)
       .gte('created_at', lastWeekStart.toISOString())
       .lt('created_at', thisWeekStart.toISOString());
 
-    const followersGrowth = calculateGrowth(newFollowersThisWeek || 0, newFollowersLastWeek || 0);
+    const profileViewsQuery = supabaseAdmin
+      .from('profile_views')
+      .select('*', { count: 'exact', head: true })
+      .eq('profile_id', userId);
 
-    // Nouveaux messages cette semaine
-    const { data: userConversations } = await supabaseAdmin
-      .from('conversations')
-      .select('id')
-      .or(`participant1_id.eq.${userId},participant2_id.eq.${userId}`);
+    const messagesPromises = convIds.length > 0
+      ? [
+          supabaseAdmin
+            .from('messages')
+            .select('*', { count: 'exact', head: true })
+            .in('conversation_id', convIds),
+          supabaseAdmin
+            .from('messages')
+            .select('*', { count: 'exact', head: true })
+            .in('conversation_id', convIds)
+            .gte('created_at', thisWeekStart.toISOString()),
+          supabaseAdmin
+            .from('messages')
+            .select('*', { count: 'exact', head: true })
+            .in('conversation_id', convIds)
+            .gte('created_at', lastWeekStart.toISOString())
+            .lt('created_at', thisWeekStart.toISOString()),
+        ]
+      : [];
 
-    let messagesGrowth = 0;
-    if (userConversations && userConversations.length > 0) {
-      const convIds = userConversations.map(c => c.id);
-      
-      const { count: messagesThisWeek } = await supabaseAdmin
-        .from('messages')
-        .select('*', { count: 'exact', head: true })
-        .in('conversation_id', convIds)
-        .gte('created_at', thisWeekStart.toISOString());
+    const [
+      followersResult,
+      followersThisWeekResult,
+      followersLastWeekResult,
+      profileViewsResult,
+      ...messagesResults
+    ] = await Promise.all([
+      baseFollowers,
+      followersThisWeek,
+      followersLastWeek,
+      profileViewsQuery,
+      ...messagesPromises,
+    ]);
 
-      const { count: messagesLastWeek } = await supabaseAdmin
-        .from('messages')
-        .select('*', { count: 'exact', head: true })
-        .in('conversation_id', convIds)
-        .gte('created_at', lastWeekStart.toISOString())
-        .lt('created_at', thisWeekStart.toISOString());
+    const totalFollowers = followersResult.count || 0;
+    const newFollowersThisWeek = followersThisWeekResult.count || 0;
+    const newFollowersLastWeek = followersLastWeekResult.count || 0;
+    const profileViews = profileViewsResult.error ? 0 : (profileViewsResult.count || 0);
 
-      messagesGrowth = calculateGrowth(messagesThisWeek || 0, messagesLastWeek || 0);
-    }
+    const totalMessages = messagesResults[0]?.count || 0;
+    const messagesThisWeek = messagesResults[1]?.count || 0;
+    const messagesLastWeek = messagesResults[2]?.count || 0;
 
-    // Construction de la réponse
     const stats: DashboardStats = {
-      total_followers: totalFollowers || 0,
+      total_followers: totalFollowers,
       total_messages: totalMessages,
       profile_views: profileViews,
-      followers_growth: followersGrowth,
-      messages_growth: messagesGrowth,
+      followers_growth: calculateGrowth(newFollowersThisWeek, newFollowersLastWeek),
+      messages_growth: calculateGrowth(messagesThisWeek, messagesLastWeek),
       profile_views_growth: 0,
     };
 

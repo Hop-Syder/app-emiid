@@ -18,6 +18,15 @@ export const phoneVerificationLimiter = rateLimit({
     legacyHeaders: false,
 });
 
+// Rate limiter pour la validation d'OTP téléphone - 5 tentatives/15min (brute force OTP)
+export const phoneVerifyLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    message: { error: 'Trop de tentatives de vérification OTP' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
 // Rate limiter pour l'authentification - 10 tentatives/15min
 export const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,

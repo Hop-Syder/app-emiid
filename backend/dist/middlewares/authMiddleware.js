@@ -41,6 +41,7 @@ const requireAuth = async (req, res, next) => {
                 ? devUserEmailHeader
                 : `${devUserIdHeader}@dev.local`,
         };
+        req.authToken = undefined;
         return next();
     }
     const authHeader = req.headers.authorization;
@@ -52,6 +53,7 @@ const requireAuth = async (req, res, next) => {
     }
     const token = authHeader.split(' ')[1];
     try {
+        req.authToken = token;
         // Vérification du token via Supabase
         const { data: { user }, error } = await supabase_1.supabase.auth.getUser(token);
         if (error || !user) {
@@ -92,11 +94,16 @@ const requireAdmin = async (req, res, next) => {
             .select('role, email')
             .eq('user_id', user.id)
             .single();
-        const isLegacyAllowlistedAdmin = profile?.email &&
-            isAdminFromAllowlist({ email: profile.email }) &&
-            typeof profile.role === 'string' &&
-            ADMIN_ROLE_PATTERN.test(profile.role.trim());
-        if (error || !profile || !isLegacyAllowlistedAdmin) {
+        if (error || !profile) {
+            return res.status(403).json({ error: "Accès refusé. Droits administrateur requis." });
+        }
+        const hasAdminRole = typeof profile.role === 'string' && ADMIN_ROLE_PATTERN.test(profile.role.trim());
+        // Admin validé par : (1) rôle DB, (2) email dans ADMIN_EMAILS (allowlist),
+        // ou (3) combinaison des deux. Chaque condition est suffisante.
+        const isAuthorizedAdmin = hasAdminRole ||
+            isAdminFromAllowlist({ email: profile.email }) ||
+            isAdminFromAllowlist({ email: user.email });
+        if (!isAuthorizedAdmin) {
             return res.status(403).json({ error: "Accès refusé. Droits administrateur requis." });
         }
         next();

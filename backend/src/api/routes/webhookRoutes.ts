@@ -6,7 +6,7 @@
  */
 
 import { NextFunction, Router, Request, Response } from 'express';
-import { createHash, timingSafeEqual } from 'crypto';
+import { timingSafeEqual } from 'crypto';
 import { logger } from '../../utils/logger';
 import { supabaseAdmin } from '../../config/supabase';
 import { sendNewMessageNotification } from '../../services/mailService';
@@ -53,6 +53,8 @@ router.post('/supabase', verifyWebhookSecret, async (req: Request, res: Response
     // 1. Gestion des nouveaux messages
     if (type === 'INSERT' && table === 'messages') {
       const { conversation_id, sender_id, content } = record;
+      const safeContent = typeof content === 'string' ? content : '';
+      const preview = safeContent.substring(0, 100);
 
       // Récupérer la conversation pour trouver le destinataire
       const { data: conv, error: convError } = await supabaseAdmin
@@ -86,7 +88,7 @@ router.post('/supabase', verifyWebhookSecret, async (req: Request, res: Response
 
       // Notifications Mail
       if (email && preferences?.messages !== false) {
-        await sendNewMessageNotification(email, senderName, content.substring(0, 100));
+        await sendNewMessageNotification(email, senderName, preview);
         logger.info(`Notification email envoyée à ${email} pour le message de ${senderName}`);
       }
 
@@ -97,7 +99,7 @@ router.post('/supabase', verifyWebhookSecret, async (req: Request, res: Response
           user_id: recipientId,
           type: 'message',
           title: `Nouveau message de ${senderName}`,
-          content: content.substring(0, 100),
+          content: preview,
           link: `/messages?conv=${conversation_id}`,
           is_read: false
         });
@@ -109,7 +111,7 @@ router.post('/supabase', verifyWebhookSecret, async (req: Request, res: Response
         await sendPushNotification(
           recipientId,
           `Nouveau message de ${senderName}`,
-          content.substring(0, 100),
+          preview,
           undefined,
           `/messages?conv=${conversation_id}`
         );

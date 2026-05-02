@@ -6,7 +6,7 @@
 */
 
 import { NextFunction, Request, Response } from 'express';
-import { createSupabaseUserClient, supabase, supabaseAdmin } from '../config/supabase';
+import { createSupabaseUserClient, supabaseAdmin } from '../config/supabase';
 import bcrypt from 'bcrypt';
 import { randomInt } from 'crypto';
 import { logger } from '../utils/logger';
@@ -156,24 +156,25 @@ export const updateMyProfile = async (req: any, res: Response, next: NextFunctio
     const db = getDbClient(req);
     let finalCountryId = country_id;
 
-    // Si on a un code pays mais pas d'ID, on cherche ou on crée
+    // Si on a un code pays mais pas d'ID, on cherche ou on crée.
+    // On utilise supabaseAdmin pour bypasser RLS qui bloquerait l'anon.
     if (!finalCountryId && country_code) {
-      const { data: countryData, error: countryError } = await supabase
+      const { data: countryData } = await supabaseAdmin
         .from('countries')
         .select('id')
         .eq('iso_code', country_code)
-        .single();
+        .maybeSingle();
 
       if (countryData) {
         finalCountryId = countryData.id;
-      } else {
-        // Créer le pays s'il n'existe pas
-        const { data: newCountry, error: createError } = await supabase
+      } else if (country_name) {
+        // Créer le pays s'il n'existe pas (nom requis pour éviter NULL en base)
+        const { data: newCountry } = await supabaseAdmin
           .from('countries')
           .insert({ name: country_name, iso_code: country_code })
-          .select()
+          .select('id')
           .single();
-        
+
         if (newCountry) finalCountryId = newCountry.id;
       }
     }
@@ -432,6 +433,11 @@ export const verifyPin = async (req: any, res: Response, next: NextFunction) => 
 
     if (profile.is_locked) {
       return next(new ApiError(403, 'FORBIDDEN', "Compte bloqué après 3 essais infructueux. Veuillez contacter un administrateur.", { is_locked: true }));
+    }
+
+    if (!profile.pin_code || typeof profile.pin_code !== 'string') {
+      // PIN activé mais aucun hash enregistré : incohérence de données.
+      return next(new ApiError(409, 'CONFLICT', "Aucun code PIN configuré. Veuillez en définir un depuis les paramètres."));
     }
 
     const isMatch = await bcrypt.compare(pin, profile.pin_code);

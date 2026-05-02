@@ -301,30 +301,44 @@ export async function getDashboardStats(): Promise<DashboardStats> {
       console.error('[Dashboard] Exception in recent users:', err)
     }
 
-    // Get weekly activity
+    // Get weekly activity (parallélisé pour perf)
     try {
       const now = new Date()
+      const dayBounds: { start: string; end: string; day: string }[] = []
       for (let i = 6; i >= 0; i--) {
         const date = new Date(now)
         date.setDate(date.getDate() - i)
-        const startOfDay = new Date(date.setHours(0, 0, 0, 0)).toISOString()
-        const endOfDay = new Date(date.setHours(23, 59, 59, 999)).toISOString()
-
-        const { count, error: weeklyError } = await supabase
-          .from("user_profiles")
-          .select("*", { count: "exact", head: true })
-          .gte("created_at", startOfDay)
-          .lte("created_at", endOfDay)
-
-        if (weeklyError) {
-          console.error(`[Dashboard] Error fetching weekly activity for ${startOfDay}:`, weeklyError)
-        }
-
-        weeklyActivity.push({
+        const startOfDay = new Date(new Date(date).setHours(0, 0, 0, 0)).toISOString()
+        const endOfDay = new Date(new Date(date).setHours(23, 59, 59, 999)).toISOString()
+        dayBounds.push({
+          start: startOfDay,
+          end: endOfDay,
           day: dayNames[new Date(startOfDay).getDay()],
-          users: count || 0,
         })
       }
+
+      const weeklyResults = await Promise.all(
+        dayBounds.map(({ start, end }) =>
+          supabase
+            .from("user_profiles")
+            .select("*", { count: "exact", head: true })
+            .gte("created_at", start)
+            .lte("created_at", end),
+        ),
+      )
+
+      weeklyResults.forEach((result, index) => {
+        if (result.error) {
+          console.error(
+            `[Dashboard] Error fetching weekly activity for ${dayBounds[index].start}:`,
+            result.error,
+          )
+        }
+        weeklyActivity.push({
+          day: dayBounds[index].day,
+          users: result.count || 0,
+        })
+      })
     } catch (err) {
       console.error('[Dashboard] Exception in weekly activity:', err)
       // Fill with zeros if fails
@@ -381,7 +395,17 @@ export async function getUsers(params?: {
     .select(USER_PROFILE_SAFE_SELECT, { count: "exact" })
 
   if (search) {
-    query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,email.ilike.%${search}%`)
+    // Sanitization anti-injection PostgREST : échappe les caractères qui pourraient
+    // casser la structure `.or()` (virgules, parenthèses, astérisques).
+    const safeSearch = String(search)
+      .replace(/[,()%*]/g, ' ')
+      .trim()
+      .slice(0, 100)
+    if (safeSearch) {
+      query = query.or(
+        `first_name.ilike.%${safeSearch}%,last_name.ilike.%${safeSearch}%,email.ilike.%${safeSearch}%`,
+      )
+    }
   }
 
   if (role && role !== "all") {
