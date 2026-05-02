@@ -7,7 +7,7 @@
 
 import { createClient } from './supabase/client';
 
-const PUBLIC_VAPID_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || 'BJ8MIeoZ6wZsNAeBINc3YXecQGvRODOh7ZTSrYdN7vqPPBgT-3EjnUwwtNLruY7sdWf0HtamN4yo6619_0zcLDo';
+const PUBLIC_VAPID_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
 
 /**
  * Convertit une clé VAPID base64 en Uint8Array pour le navigateur
@@ -29,6 +29,11 @@ function urlBase64ToUint8Array(base64String: string) {
 export async function subscribeToPushNotifications() {
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
     console.warn('Les notifications push ne sont pas supportées par ce navigateur');
+    return null;
+  }
+
+  if (!PUBLIC_VAPID_KEY) {
+    console.error('NEXT_PUBLIC_VAPID_PUBLIC_KEY manquant : push désactivé');
     return null;
   }
 

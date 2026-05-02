@@ -51,7 +51,8 @@ L'utilisateur a demandé :
 - M5 Nettoyage imports inutiles (`supabase`, `createHash`)
 
 ## Backlog prioritaire (pour futures itérations)
-- **P0** Rotation des secrets de `/app/backend/.env` (tous compromis car visibles)
+- ✅ VAPID rotées (2026-01) + clé hardcoded retirée de `push-notifications.ts`
+- **P0** Rotation manuelle restante : `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_ANON_KEY`, `SUPABASE_JWT_SECRET`, `SMTP_PASS` — procédure complète dans `/app/memory/SECRETS_ROTATION.md`
 - **P0** Configurer `ADMIN_EMAILS` dans env backend
 - **P1** Vérifier RLS policies Supabase (messages, conversations, project_gallery)
 - **P1** Ajouter colonne `status` à `project_gallery` + MAJ approve/reject
