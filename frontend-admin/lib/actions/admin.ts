@@ -743,3 +743,240 @@ export async function deleteGalleryItem(itemId: string): Promise<{ success: bool
 
   return { success: true }
 }
+
+// ============================================================
+// MODÉRATION — Hub & Signalements polymorphes (content_reports)
+// ============================================================
+
+export interface ModerationCounts {
+  galleryPending: number
+  reportsOpen: number
+  reportsByType: {
+    gallery: number
+    message: number
+    profile: number
+  }
+  totalPending: number
+}
+
+export interface ContentReport {
+  id: string
+  subject_type: "gallery" | "message" | "profile"
+  subject_id: string
+  reporter_id: string
+  reporter_name: string
+  reporter_email: string | null
+  reason: string
+  status: "open" | "resolved" | "dismissed"
+  admin_note: string | null
+  resolved_at: string | null
+  resolved_by: string | null
+  created_at: string
+  subject_preview: string | null
+}
+
+interface ContentReportRow {
+  id: string
+  subject_type: "gallery" | "message" | "profile"
+  subject_id: string
+  reporter_id: string
+  reason: string
+  status: "open" | "resolved" | "dismissed"
+  admin_note: string | null
+  resolved_at: string | null
+  resolved_by: string | null
+  created_at: string
+}
+
+/**
+ * Compteurs agrégés de modération — utilisé par la sidebar (badge) et le hub.
+ * Retourne toujours un objet valide même si la table content_reports n'est
+ * pas encore déployée (fallback silencieux pour éviter de casser le layout).
+ */
+export async function getModerationCounts(): Promise<ModerationCounts> {
+  const supabase = await createAdminClient()
+
+  const [galleryRes, reportsRes] = await Promise.all([
+    supabase
+      .from("project_gallery")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "pending"),
+    supabase
+      .from("content_reports")
+      .select("subject_type", { count: "exact" })
+      .eq("status", "open"),
+  ])
+
+  const galleryPending = galleryRes.count ?? 0
+
+  const reportsByType = { gallery: 0, message: 0, profile: 0 }
+  let reportsOpen = 0
+  if (!reportsRes.error && reportsRes.data) {
+    reportsOpen = reportsRes.count ?? reportsRes.data.length
+    for (const row of reportsRes.data as Array<{ subject_type: string }>) {
+      if (row.subject_type === "gallery") reportsByType.gallery += 1
+      else if (row.subject_type === "message") reportsByType.message += 1
+      else if (row.subject_type === "profile") reportsByType.profile += 1
+    }
+  }
+
+  return {
+    galleryPending,
+    reportsOpen,
+    reportsByType,
+    totalPending: galleryPending + reportsOpen,
+  }
+}
+
+/**
+ * Liste les signalements avec enrichissement du nom du reporter et un
+ * aperçu textuel de la cible (titre galerie, extrait message, nom profil).
+ */
+export async function getContentReports(options?: {
+  status?: "open" | "resolved" | "dismissed" | "all"
+  subjectType?: "gallery" | "message" | "profile" | "all"
+  limit?: number
+}): Promise<ContentReport[]> {
+  const supabase = await createAdminClient()
+  const status = options?.status ?? "open"
+  const subjectType = options?.subjectType ?? "all"
+  const limit = Math.min(options?.limit ?? 100, 200)
+
+  let query = supabase
+    .from("content_reports")
+    .select("id, subject_type, subject_id, reporter_id, reason, status, admin_note, resolved_at, resolved_by, created_at")
+    .order("created_at", { ascending: false })
+    .limit(limit)
+
+  if (status !== "all") query = query.eq("status", status)
+  if (subjectType !== "all") query = query.eq("subject_type", subjectType)
+
+  const { data, error } = await query
+
+  if (error || !data) {
+    return []
+  }
+
+  const reports = data as ContentReportRow[]
+
+  const reporterIds = Array.from(new Set(reports.map((r) => r.reporter_id)))
+  const galleryIds = reports.filter((r) => r.subject_type === "gallery").map((r) => r.subject_id)
+  const messageIds = reports.filter((r) => r.subject_type === "message").map((r) => r.subject_id)
+  const profileIds = reports.filter((r) => r.subject_type === "profile").map((r) => r.subject_id)
+
+  const [profilesRes, galleriesRes, messagesRes, subjectProfilesRes] = await Promise.all([
+    reporterIds.length
+      ? supabase
+          .from("user_profiles")
+          .select("user_id, first_name, last_name, email")
+          .in("user_id", reporterIds)
+      : Promise.resolve({ data: [] as Array<{ user_id: string; first_name: string | null; last_name: string | null; email: string | null }> }),
+    galleryIds.length
+      ? supabase.from("project_gallery").select("id, title").in("id", galleryIds)
+      : Promise.resolve({ data: [] as Array<{ id: string; title: string | null }> }),
+    messageIds.length
+      ? supabase.from("messages").select("id, content").in("id", messageIds)
+      : Promise.resolve({ data: [] as Array<{ id: string; content: string | null }> }),
+    profileIds.length
+      ? supabase
+          .from("user_profiles")
+          .select("id, first_name, last_name")
+          .in("id", profileIds)
+      : Promise.resolve({ data: [] as Array<{ id: string; first_name: string | null; last_name: string | null }> }),
+  ])
+
+  type ReporterRow = { user_id: string; first_name: string | null; last_name: string | null; email: string | null }
+  type GalleryRow = { id: string; title: string | null }
+  type MessageRow = { id: string; content: string | null }
+  type SubjectProfileRow = { id: string; first_name: string | null; last_name: string | null }
+
+  const reporterMap = new Map<string, ReporterRow>(
+    ((profilesRes.data as ReporterRow[] | null) || []).map((p) => [p.user_id, p]),
+  )
+  const galleryMap = new Map<string, GalleryRow>(
+    ((galleriesRes.data as GalleryRow[] | null) || []).map((g) => [g.id, g]),
+  )
+  const messageMap = new Map<string, MessageRow>(
+    ((messagesRes.data as MessageRow[] | null) || []).map((m) => [m.id, m]),
+  )
+  const subjectProfileMap = new Map<string, SubjectProfileRow>(
+    ((subjectProfilesRes.data as SubjectProfileRow[] | null) || []).map((p) => [p.id, p]),
+  )
+
+  return reports.map((r) => {
+    const reporter = reporterMap.get(r.reporter_id)
+    const reporterName = `${reporter?.first_name || ""} ${reporter?.last_name || ""}`.trim() || "Utilisateur"
+
+    let preview: string | null = null
+    if (r.subject_type === "gallery") {
+      preview = galleryMap.get(r.subject_id)?.title || "(projet sans titre)"
+    } else if (r.subject_type === "message") {
+      const content = messageMap.get(r.subject_id)?.content || ""
+      preview = content.length > 120 ? content.slice(0, 120) + "…" : content || "(message vide ou supprimé)"
+    } else if (r.subject_type === "profile") {
+      const p = subjectProfileMap.get(r.subject_id)
+      preview = `${p?.first_name || ""} ${p?.last_name || ""}`.trim() || "(profil introuvable)"
+    }
+
+    return {
+      id: r.id,
+      subject_type: r.subject_type,
+      subject_id: r.subject_id,
+      reporter_id: r.reporter_id,
+      reporter_name: reporterName,
+      reporter_email: reporter?.email || null,
+      reason: r.reason,
+      status: r.status,
+      admin_note: r.admin_note,
+      resolved_at: r.resolved_at,
+      resolved_by: r.resolved_by,
+      created_at: r.created_at,
+      subject_preview: preview,
+    }
+  })
+}
+
+export async function resolveContentReport(
+  reportId: string,
+  adminNote?: string,
+): Promise<{ success: boolean; error?: string }> {
+  const session = await requireAdminSession()
+  if (!session) return { success: false, error: "Session admin requise" }
+  const supabase = await createAdminClient()
+
+  const { error } = await supabase
+    .from("content_reports")
+    .update({
+      status: "resolved",
+      resolved_at: new Date().toISOString(),
+      resolved_by: session.userId,
+      admin_note: adminNote?.trim() || null,
+    })
+    .eq("id", reportId)
+
+  if (error) return { success: false, error: error.message }
+  return { success: true }
+}
+
+export async function dismissContentReport(
+  reportId: string,
+  adminNote?: string,
+): Promise<{ success: boolean; error?: string }> {
+  const session = await requireAdminSession()
+  if (!session) return { success: false, error: "Session admin requise" }
+  const supabase = await createAdminClient()
+
+  const { error } = await supabase
+    .from("content_reports")
+    .update({
+      status: "dismissed",
+      resolved_at: new Date().toISOString(),
+      resolved_by: session.userId,
+      admin_note: adminNote?.trim() || null,
+    })
+    .eq("id", reportId)
+
+  if (error) return { success: false, error: error.message }
+  return { success: true }
+}
+

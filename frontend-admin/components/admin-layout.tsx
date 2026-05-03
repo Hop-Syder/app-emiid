@@ -18,24 +18,27 @@ import {
     Settings,
     LogOut,
     Menu,
-    X,
     Bell,
     Search,
-    MessageSquare
+    MessageSquare,
+    ShieldAlert,
+    Flag,
 } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion } from "framer-motion"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import type { AdminSessionProfile } from "@/lib/supabase/server"
+import type { ModerationCounts } from "@/lib/actions/admin"
 
 interface AdminLayoutProps {
     children: React.ReactNode
     adminProfile: AdminSessionProfile
+    moderationCounts?: ModerationCounts
 }
 
-export function AdminLayout({ children, adminProfile }: AdminLayoutProps) {
+export function AdminLayout({ children, adminProfile, moderationCounts }: AdminLayoutProps) {
     const [sidebarOpen, setSidebarOpen] = useState(true)
     const pathname = usePathname()
     const router = useRouter()
@@ -54,12 +57,16 @@ export function AdminLayout({ children, adminProfile }: AdminLayoutProps) {
         router.refresh()
     }
 
-    const menuItems = [
-        { title: "Dashboard", icon: LayoutDashboard, href: "/" },
-        { title: "Utilisateurs", icon: Users, href: "/users" },
-        { title: "Messagerie & Litiges", icon: MessageSquare, href: "/messages" },
-        { title: "Modération Galeries", icon: ImageIcon, href: "/moderation/galerie" },
-        { title: "Paramètres", icon: Settings, href: "/settings" },
+    const counts = moderationCounts ?? { galleryPending: 0, reportsOpen: 0, reportsByType: { gallery: 0, message: 0, profile: 0 }, totalPending: 0 }
+
+    const menuItems: Array<{ title: string; icon: typeof Users; href: string; badge?: number; testId?: string }> = [
+        { title: "Dashboard", icon: LayoutDashboard, href: "/", testId: "nav-dashboard" },
+        { title: "Utilisateurs", icon: Users, href: "/users", testId: "nav-users" },
+        { title: "Messagerie & Litiges", icon: MessageSquare, href: "/messages", testId: "nav-messages" },
+        { title: "Modération", icon: ShieldAlert, href: "/moderation", badge: counts.totalPending, testId: "nav-moderation-hub" },
+        { title: "— Galeries", icon: ImageIcon, href: "/moderation/galerie", badge: counts.galleryPending, testId: "nav-moderation-gallery" },
+        { title: "— Signalements", icon: Flag, href: "/moderation/signalements", badge: counts.reportsOpen, testId: "nav-moderation-reports" },
+        { title: "Paramètres", icon: Settings, href: "/settings", testId: "nav-settings" },
     ]
 
     return (
@@ -85,15 +92,19 @@ export function AdminLayout({ children, adminProfile }: AdminLayoutProps) {
                     )}
                 </div>
 
-                <nav className="flex-1 px-4 space-y-2 mt-4">
+                <nav className="flex-1 px-4 space-y-2 mt-4 overflow-y-auto">
                     {menuItems.map((item) => {
                         const isActive = pathname === item.href
+                        const isSubItem = item.title.startsWith("—")
+                        const label = isSubItem ? item.title.replace(/^—\s*/, "") : item.title
                         return (
                             <Link
                                 key={item.href}
                                 href={item.href}
+                                data-testid={item.testId}
                                 className={cn(
                                     "flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 group",
+                                    isSubItem && "ml-3 py-2",
                                     isActive
                                         ? "bg-blue-600 text-white shadow-lg shadow-blue-200"
                                         : "text-slate-500 hover:bg-slate-50 hover:text-blue-600"
@@ -104,18 +115,33 @@ export function AdminLayout({ children, adminProfile }: AdminLayoutProps) {
                                     <motion.span
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
-                                        className="font-medium text-sm"
+                                        className="font-medium text-sm flex-1"
                                     >
-                                        {item.title}
+                                        {label}
                                     </motion.span>
                                 )}
+                                {sidebarOpen && item.badge && item.badge > 0 ? (
+                                    <span
+                                        data-testid={`${item.testId}-badge`}
+                                        className={cn(
+                                            "inline-flex items-center justify-center min-w-[22px] h-5 px-1.5 rounded-full text-[11px] font-bold",
+                                            isActive ? "bg-white text-blue-600" : "bg-rose-100 text-rose-700",
+                                        )}
+                                    >
+                                        {item.badge > 99 ? "99+" : item.badge}
+                                    </span>
+                                ) : null}
                             </Link>
                         )
                     })}
                 </nav>
 
                 <div className="p-4 border-t border-slate-100">
-                    <button className="flex items-center gap-3 w-full px-4 py-3 text-red-500 hover:bg-red-50 rounded-2xl transition-colors font-medium text-sm" onClick={() => void handleLogout()}>
+                    <button
+                        data-testid="admin-logout-btn"
+                        className="flex items-center gap-3 w-full px-4 py-3 text-red-500 hover:bg-red-50 rounded-2xl transition-colors font-medium text-sm"
+                        onClick={() => void handleLogout()}
+                    >
                         <LogOut className="h-5 w-5" />
                         {sidebarOpen && <span>Déconnexion</span>}
                     </button>
@@ -141,10 +167,14 @@ export function AdminLayout({ children, adminProfile }: AdminLayoutProps) {
                     </div>
 
                     <div className="flex items-center gap-4">
-                        <button className="relative p-2.5 hover:bg-slate-50 rounded-xl transition-all group">
+                        <Link href="/moderation" data-testid="header-moderation-link" className="relative p-2.5 hover:bg-slate-50 rounded-xl transition-all group" title="Modération">
                             <Bell className="h-5 w-5 text-slate-500 group-hover:text-blue-600" />
-                            <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-blue-600 rounded-full border-2 border-white"></span>
-                        </button>
+                            {counts.totalPending > 0 && (
+                                <span className="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 rounded-full border-2 border-white bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center">
+                                    {counts.totalPending > 99 ? "99+" : counts.totalPending}
+                                </span>
+                            )}
+                        </Link>
                         <div className="h-8 w-px bg-slate-200 mx-1"></div>
                         <div className="flex items-center gap-3">
                             <div className="text-right hidden sm:block">
