@@ -36,6 +36,17 @@ L'utilisateur a demandé :
 
 ## Implémenté
 
+### 2026-05 (suite) — Hardening P1
+
+- **Proxy Next.js `x-dev-user-*`** (`frontend-user/app/api/proxy/[...path]/route.ts`)
+  - Forward des headers `x-dev-user-id` / `x-dev-user-email` **bloqué en prod** (guard sur `NODE_ENV`). Override possible via `ALLOW_DEV_USER_HEADERS=true` en cas de debug contrôlé.
+  - Défense en profondeur confirmée côté backend : `authMiddleware` respecte déjà `DEV_AUTH_BYPASS === 'true' && NODE_ENV !== 'production'`.
+- **Audit RLS `messages` + `conversations`** — Tests fonctionnels E2E avec JWT utilisateur réel :
+  - ANON : 0 lignes visibles sur les 2 tables ✅
+  - Participant : voit sa conversation et ses messages ✅
+  - Outsider : aucun accès (lecture/écriture/spoof sender_id) ✅
+  - **Aucune correction nécessaire** : les policies Master Schema sont robustes.
+
 ### 2026-05 — P1 Galerie projet : modération complète
 - Migration SQL `sql/migrations/add_project_gallery_status.sql` **appliquée en prod Supabase**
   - Colonnes ajoutées : `status` (CHECK pending/approved/rejected, DEFAULT pending), `reviewed_at`, `reviewed_by`, `rejection_reason`
@@ -84,9 +95,9 @@ L'utilisateur a demandé :
 
 ### P1 — Code-only restants
 - ✅ ~~Colonne `status` à `project_gallery` + approve/reject~~ (2026-05)
-- Vérifier RLS policies Supabase (messages, conversations, project_gallery) — partiellement fait (project_gallery OK)
-- Appliquer migration `sql/migrations/create_get_network_stats.sql` (RPC optimisée, backend prêt avec fallback)
-- Retirer forward `x-dev-user-*` du proxy Next.js en prod
+- ✅ ~~Audit RLS messages/conversations~~ (2026-05 — aucun correctif nécessaire)
+- ✅ ~~Retirer forward `x-dev-user-*` du proxy Next.js en prod~~ (2026-05)
+- ⏳ **Appliquer migration `sql/migrations/create_get_network_stats.sql`** (à exécuter dans SQL Editor Supabase — backend a déjà le fallback)
 
 ### P2 — Qualité / dette
 - Archiver/supprimer les 7 anciens rapports redondants
