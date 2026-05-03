@@ -94,6 +94,8 @@ export interface GalleryItem {
   user_name: string
   user_avatar: string | null
   status: "pending" | "approved" | "rejected"
+  rejection_reason: string | null
+  reviewed_at: string | null
   reports: number
 }
 
@@ -117,6 +119,9 @@ interface ProjectGalleryRow {
   order_index: number | null
   user_id: string
   profile_id: string
+  status: "pending" | "approved" | "rejected" | null
+  rejection_reason: string | null
+  reviewed_at: string | null
 }
 
 const USER_PROFILE_SAFE_SELECT = `
@@ -596,7 +601,7 @@ export async function getGalleryItems(): Promise<GalleryItem[]> {
 
   const { data, error } = await supabase
     .from("project_gallery")
-    .select("id, title, description, image_url, created_at, order_index, user_id, profile_id")
+    .select("id, title, description, image_url, created_at, order_index, user_id, profile_id, status, rejection_reason, reviewed_at")
     .order("created_at", { ascending: false })
 
   if (error || !data) {
@@ -614,6 +619,8 @@ export async function getGalleryItems(): Promise<GalleryItem[]> {
   return (data as ProjectGalleryRow[]).map((item) => {
     const profile = profileMap.get(item.user_id)
     const userName = `${profile?.first_name || ""} ${profile?.last_name || ""}`.trim() || "Membre EmiID"
+    const status: GalleryItem["status"] =
+      item.status === "approved" || item.status === "rejected" ? item.status : "pending"
 
     return {
       id: item.id,
@@ -625,7 +632,9 @@ export async function getGalleryItems(): Promise<GalleryItem[]> {
       user_id: item.user_id,
       user_name: userName,
       user_avatar: profile?.avatar_url || null,
-      status: "pending",
+      status,
+      rejection_reason: item.rejection_reason || null,
+      reviewed_at: item.reviewed_at || null,
       reports: 0,
     }
   })
@@ -633,14 +642,28 @@ export async function getGalleryItems(): Promise<GalleryItem[]> {
 
 export async function approveGalleryItem(itemId: string): Promise<{ success: boolean; error?: string }> {
   const supabase = await createAdminClient()
-  const { data: item, error } = await supabase
+
+  const { data: item, error: fetchError } = await supabase
     .from("project_gallery")
     .select("id, user_id, title")
     .eq("id", itemId)
     .single()
 
-  if (error || !item) {
-    return { success: false, error: error?.message || "Élément introuvable" }
+  if (fetchError || !item) {
+    return { success: false, error: fetchError?.message || "Élément introuvable" }
+  }
+
+  const { error: updateError } = await supabase
+    .from("project_gallery")
+    .update({
+      status: "approved",
+      reviewed_at: new Date().toISOString(),
+      rejection_reason: null,
+    })
+    .eq("id", itemId)
+
+  if (updateError) {
+    return { success: false, error: updateError.message }
   }
 
   const { error: notificationError } = await supabase
@@ -654,20 +677,60 @@ export async function approveGalleryItem(itemId: string): Promise<{ success: boo
     })
 
   if (notificationError) {
-    return { success: false, error: notificationError.message }
+    // Non bloquant : l'approbation est persistée, seule la notif a échoué.
+    return { success: true, error: `Notification non envoyée : ${notificationError.message}` }
   }
 
   return { success: true }
 }
 
-export async function rejectGalleryItem(itemId: string): Promise<{ success: boolean; error?: string }> {
+export async function rejectGalleryItem(
+  itemId: string,
+  reason?: string,
+): Promise<{ success: boolean; error?: string }> {
   const supabase = await createAdminClient()
 
-  const { data: item } = await supabase
+  const { data: item, error: fetchError } = await supabase
     .from("project_gallery")
-    .select("user_id, title")
+    .select("id, user_id, title")
     .eq("id", itemId)
     .single()
+
+  if (fetchError || !item) {
+    return { success: false, error: fetchError?.message || "Élément introuvable" }
+  }
+
+  const trimmedReason = reason?.trim() || null
+
+  const { error: updateError } = await supabase
+    .from("project_gallery")
+    .update({
+      status: "rejected",
+      reviewed_at: new Date().toISOString(),
+      rejection_reason: trimmedReason,
+    })
+    .eq("id", itemId)
+
+  if (updateError) {
+    return { success: false, error: updateError.message }
+  }
+
+  const reasonSuffix = trimmedReason ? ` Motif : ${trimmedReason}` : ""
+  await supabase
+    .from("notifications")
+    .insert({
+      user_id: item.user_id,
+      type: "admin",
+      title: "Élément retiré de la galerie",
+      content: `Un élément ${item.title ? `“${item.title}” ` : ""}a été retiré de votre galerie par l'administration.${reasonSuffix}`,
+      link: "/creer-profil",
+    })
+
+  return { success: true }
+}
+
+export async function deleteGalleryItem(itemId: string): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createAdminClient()
 
   const { error } = await supabase
     .from("project_gallery")
@@ -676,18 +739,6 @@ export async function rejectGalleryItem(itemId: string): Promise<{ success: bool
 
   if (error) {
     return { success: false, error: error.message }
-  }
-
-  if (item?.user_id) {
-    await supabase
-      .from("notifications")
-      .insert({
-        user_id: item.user_id,
-        type: "admin",
-        title: "Élément retiré de la galerie",
-        content: `Un élément ${item.title ? `“${item.title}” ` : ""}a été retiré de votre galerie par l'administration.`,
-        link: "/creer-profil",
-      })
   }
 
   return { success: true }
