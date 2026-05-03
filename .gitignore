@@ -9,6 +9,9 @@ out/
 
 # Env / secrets
 .env
+.env.local
+frontend-user/.env.local
+backend/.env.local
 .env.*
 *.env
 .env.local
