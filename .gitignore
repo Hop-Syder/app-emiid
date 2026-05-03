@@ -48,3 +48,12 @@ skills-lock.json
 
 # Scratch
 hj
+-e 
+# Environment and credential files
+.env
+.env.*
+*.env
+credentials.json
+*.pem
+*.key
+.credentials

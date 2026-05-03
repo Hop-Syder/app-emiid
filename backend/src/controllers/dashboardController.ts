@@ -22,6 +22,7 @@
 import { Response } from 'express';
 import { supabaseAdmin } from '../config/supabase';
 import { logger } from '../utils/logger';
+import { TtlCache } from '../utils/ttlCache';
 
 export interface DashboardStats {
   totalEntrepreneurs: number;
@@ -36,6 +37,12 @@ const EMPTY_STATS: DashboardStats = {
   countriesCovered: 0,
   premiumMembers: 0,
 };
+
+// Les stats sont globales (non personnalisées) → une seule entrée de cache suffit.
+// TTL configurable via env (DASHBOARD_STATS_TTL_MS), défaut 60s.
+const STATS_CACHE_KEY = 'network-stats';
+const STATS_CACHE_TTL_MS = Math.max(0, Number(process.env.DASHBOARD_STATS_TTL_MS) || 60_000);
+const statsCache = new TtlCache<DashboardStats>();
 
 /**
  * Tente d'utiliser la RPC `get_network_stats()` (optimale).
