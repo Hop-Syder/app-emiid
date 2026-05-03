@@ -3,20 +3,20 @@
  */
 
 import { renderHook, waitFor } from '@testing-library/react'
-import { useDashboardStats } from '@/hooks/use-dashboard-stats'
+import { useDashboardStats, EMPTY_DASHBOARD_STATS } from '@/hooks/use-dashboard-stats'
 
 describe('useDashboardStats', () => {
-    const originalConsoleError = console.error
+    const originalConsoleWarn = console.warn
 
     beforeEach(() => {
-        console.error = jest.fn()
+        console.warn = jest.fn()
     })
 
     afterEach(() => {
-        console.error = originalConsoleError
+        console.warn = originalConsoleWarn
     })
 
-    it('does not mark stats as loaded when the first request fails', async () => {
+    it('falls back to zero stats when the first request fails (so the dashboard still renders)', async () => {
         const fetcher = jest.fn().mockRejectedValue(new Error('network error'))
 
         const { result } = renderHook(() =>
@@ -31,9 +31,11 @@ describe('useDashboardStats', () => {
             expect(result.current.statsLoading).toBe(false)
         })
 
-        expect(result.current.statsLoaded).toBe(false)
-        expect(result.current.stats).toBeNull()
+        // On affiche toujours un dashboard (valeurs à zéro) même quand le backend est injoignable
+        expect(result.current.statsLoaded).toBe(true)
+        expect(result.current.stats).toEqual(EMPTY_DASHBOARD_STATS)
         expect(result.current.statsError).toBe('Impossible de charger les statistiques pour le moment.')
+        expect(result.current.isSyncing).toBe(false)
     })
 
     it('marks stats as loaded after a successful request', async () => {
@@ -64,5 +66,6 @@ describe('useDashboardStats', () => {
         expect(result.current.statsLoading).toBe(false)
         expect(result.current.stats).toEqual(stats)
         expect(result.current.statsError).toBeNull()
+        expect(result.current.isSyncing).toBe(false)
     })
 })
