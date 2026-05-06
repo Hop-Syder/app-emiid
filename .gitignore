@@ -93,3 +93,7 @@ credentials.json
 *.pem
 *.key
 .credentials
+
+.agent-frontend
+design-system
+.gemini
