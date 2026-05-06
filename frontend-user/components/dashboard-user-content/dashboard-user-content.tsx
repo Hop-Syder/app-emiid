@@ -168,20 +168,20 @@ export function DashboardContent({ initialStats = null }: DashboardContentProps)
       {/* Hero Section */}
       <HeroSection />
 
-      {statsError && (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-900">
-          <div className="flex items-start gap-3">
-            <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-600" />
-            <div>
-              <p className="font-semibold">Statistiques indisponibles</p>
-              <p className="text-sm text-amber-800">{statsError}</p>
-            </div>
-          </div>
+      {/* Stats Section — affiche toujours des valeurs (0 si backend KO), avec petit badge sync discret */}
+      {stats ? (
+        <div className="space-y-2">
+          <StatsSection stats={stats} />
+          {statsError && (
+            <p className="text-xs text-slate-400 flex items-center gap-1.5 px-1" data-testid="stats-sync-indicator">
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+              Statistiques non synchronisées — nouvelle tentative dans quelques secondes
+            </p>
+          )}
         </div>
-      )}
-
-      {/* Stats Section */}
-      {stats ? <StatsSection stats={stats} /> : statsLoading ? <DashboardStatsSkeleton /> : null}
+      ) : statsLoading ? (
+        <DashboardStatsSkeleton />
+      ) : null}
 
       {profilesWarning && (
         <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-900">

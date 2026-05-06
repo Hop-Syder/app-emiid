@@ -15,10 +15,18 @@ function buildForwardHeaders(request: NextRequest) {
     const authorization = request.headers.get("authorization")
     const accept = request.headers.get("accept")
     const requestId = request.headers.get("x-request-id")
-    const devUserId = request.headers.get("x-dev-user-id")
-    const devUserEmail = request.headers.get("x-dev-user-email")
     const acceptLanguage = request.headers.get("accept-language")
     const userAgent = request.headers.get("user-agent")
+
+    // SECURITÉ : les headers x-dev-user-* simulent une identité backend
+    // et NE DOIVENT JAMAIS être forwardés en production. Ils sont utilisés
+    // uniquement en développement local pour tester sans JWT Supabase.
+    const isDevEnvironment =
+        process.env.NODE_ENV !== "production" ||
+        process.env.ALLOW_DEV_USER_HEADERS === "true"
+
+    const devUserId = isDevEnvironment ? request.headers.get("x-dev-user-id") : null
+    const devUserEmail = isDevEnvironment ? request.headers.get("x-dev-user-email") : null
 
     if (contentType) {
         headers.set("content-type", contentType)

@@ -14,16 +14,17 @@ L'utilisateur a demandé :
 4. Reprendre à zéro ET se concentrer sur les bugs critiques non corrigés
 5. Périmètre : backend + frontend-user + frontend-admin
 6. Fixes critiques + majeurs + raisonnables
-7. Ne **pas** toucher aux policies RLS Supabase (code applicatif uniquement)
+7. Ne **pas** toucher aux policies RLS Supabase (code applicatif uniquement) — _exception validée par l'utilisateur : la policy `Gallery Read Published` a été mise à jour pour filtrer sur `status='approved'` dans le cadre du P1 galerie_
 8. Mode audit statique (pas de .env frontends configurés)
 
 ## Architecture
 ```
 /app
-  backend/         # Express + TypeScript + Supabase client
-  frontend-user/   # Next.js 14, App Router
-  frontend-admin/  # Next.js 16, App Router
-  AUDIT_CONSOLIDE_2026.md  # Rapport consolidé (livrable)
+  backend/                       # Express + TypeScript + Supabase client
+  frontend-user/                 # Next.js 14, App Router
+  frontend-admin/                # Next.js 16, App Router
+  sql/migrations/                # Migrations SQL idempotentes
+  AUDIT_CONSOLIDE_2026.md        # Rapport consolidé (livrable)
 ```
 
 ## Livrables
@@ -33,9 +34,42 @@ L'utilisateur a demandé :
 - ✅ Backend TS compile (tsc --noEmit → exit 0)
 - ✅ Tests smoke + audit-fixes : 8/8 OK
 
-## Implémenté (2026-01)
+## Implémenté
 
-### Critiques fixés
+### 2026-05 (suite) — Hardening P1
+
+- **Proxy Next.js `x-dev-user-*`** (`frontend-user/app/api/proxy/[...path]/route.ts`)
+  - Forward des headers `x-dev-user-id` / `x-dev-user-email` **bloqué en prod** (guard sur `NODE_ENV`). Override possible via `ALLOW_DEV_USER_HEADERS=true` en cas de debug contrôlé.
+  - Défense en profondeur confirmée côté backend : `authMiddleware` respecte déjà `DEV_AUTH_BYPASS === 'true' && NODE_ENV !== 'production'`.
+- **Audit RLS `messages` + `conversations`** — Tests fonctionnels E2E avec JWT utilisateur réel :
+  - ANON : 0 lignes visibles sur les 2 tables ✅
+  - Participant : voit sa conversation et ses messages ✅
+  - Outsider : aucun accès (lecture/écriture/spoof sender_id) ✅
+  - **Aucune correction nécessaire** : les policies Master Schema sont robustes.
+
+### 2026-05 — P1 Galerie projet : modération complète
+- Migration SQL `sql/migrations/add_project_gallery_status.sql` **appliquée en prod Supabase**
+  - Colonnes ajoutées : `status` (CHECK pending/approved/rejected, DEFAULT pending), `reviewed_at`, `reviewed_by`, `rejection_reason`
+  - Indexes : `idx_gallery_status`, `idx_gallery_status_created`
+  - Rétrocompat : tous les items pré-existants marqués `approved`
+  - RLS mise à jour : `Gallery Read Approved` = public ne voit que `status='approved'`
+- `frontend-admin/lib/actions/admin.ts`
+  - `getGalleryItems` : lit vraiment `status`, `rejection_reason`, `reviewed_at`
+  - `approveGalleryItem` : UPDATE status='approved' + notif (non bloquante)
+  - `rejectGalleryItem(id, reason?)` : soft-reject (UPDATE) + motif persisté + notif
+  - `deleteGalleryItem(id)` : hard-delete séparé
+- `frontend-admin/components/gallery-moderation-client.tsx`
+  - Filtre par défaut = `pending`
+  - Cartes-stats cliquables (filtrent la liste)
+  - Boutons : Valider · Retirer · Rétablir · Supprimer
+  - Prompts : motif de rejet + confirmation delete
+  - Affichage : motif + date modération + badges
+  - `data-testid` sur tous les éléments interactifs
+- Tests end-to-end via service role : insert/update/delete/CHECK/RLS → 7/7 OK
+
+### 2026-01 — Audit initial
+
+#### Critiques fixés
 - C1 `requireAdmin` : logique OR correcte (DB role / allowlist / metadata)
 - C2 Rate-limit sur `/api/auth/register`
 - C3 Nouveau `phoneVerifyLimiter` (défense en profondeur, OTP)
@@ -43,28 +77,45 @@ L'utilisateur a demandé :
 - C5 Guard null sur `pin_code` + création pays via `supabaseAdmin`
 - C6 Sanitization PostgREST sur search admin (anti-injection `or`)
 
-### Majeurs fixés
+#### Majeurs fixés
 - M1 Dashboard utilisateur : requêtes parallélisées (Promise.all)
 - M2 Dashboard admin : weekly activity parallélisée + bug `setHours` corrigé
 - M3 Emails : escape HTML senderName/preview
 - M4 Webhook : guard content null
 - M5 Nettoyage imports inutiles (`supabase`, `createHash`)
 
+#### Hardening
+- VAPID rotées + clé hardcoded retirée de `push-notifications.ts`
+
 ## Backlog prioritaire (pour futures itérations)
-- ✅ VAPID rotées (2026-01) + clé hardcoded retirée de `push-notifications.ts`
-- **P0** Rotation manuelle restante : `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_ANON_KEY`, `SUPABASE_JWT_SECRET`, `SMTP_PASS` — procédure complète dans `/app/memory/SECRETS_ROTATION.md`
-- **P0** Configurer `ADMIN_EMAILS` dans env backend
-- **P1** Vérifier RLS policies Supabase (messages, conversations, project_gallery)
-- **P1** Ajouter colonne `status` à `project_gallery` + MAJ approve/reject
-- **P1** Appliquer migration `sql/migrations/create_get_network_stats.sql` (RPC optimisée, backend prêt avec fallback)
-- **P1** Retirer forward `x-dev-user-*` du proxy Next.js en prod
-- **P2** Archiver/supprimer les 7 anciens rapports redondants
-- **P2** Migrer l'envoi de message côté client vers le backend (harmoniser validation)
-- **P2** Logger JSON structuré backend
-- **P2** Étoffer la suite de tests backend
+
+### P0 — Actions manuelles utilisateur
+- Rotation manuelle restante : `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_ANON_KEY`, `SUPABASE_JWT_SECRET`, `SMTP_PASS` — procédure complète dans `/app/memory/SECRETS_ROTATION.md`
+- Configurer `ADMIN_EMAILS` dans env backend
+
+### P1 — Code-only restants
+- ✅ ~~Colonne `status` à `project_gallery` + approve/reject~~ (2026-05)
+- ✅ ~~Audit RLS messages/conversations~~ (2026-05 — aucun correctif nécessaire)
+- ✅ ~~Retirer forward `x-dev-user-*` du proxy Next.js en prod~~ (2026-05)
+- ⏳ **Appliquer migration `sql/migrations/create_get_network_stats.sql`** (à exécuter dans SQL Editor Supabase — backend a déjà le fallback)
+
+### P2 — Qualité / dette
+- Archiver/supprimer les 7 anciens rapports redondants
+- Migrer l'envoi de message côté client vers le backend (harmoniser validation)
+- Logger JSON structuré backend
+- Étoffer la suite de tests backend
 
 ## Test credentials
-N/A (aucune credential créée ou modifiée dans cette itération — audit + fix code only).
+N/A — aucune credential applicative créée ou modifiée.
+Auth Supabase : 10 users en base (gérés via Supabase Auth directement, pas de seed applicatif).
+
+## Données live (snapshot 2026-05)
+- 10 users auth, 10 user_profiles (tous reliés)
+- 12 tags, 6 profile_tags, 9 jobs, 0 industries (vide)
+- 2 user_follows, 4 conversations, 15 messages
+- 14 countries, 1 notification
+- 1 project_gallery item (status=approved après migration)
+- 0 phone_verifications, 0 push_subscriptions
 
 ## Statut global
-**Audit livré**. Backend compile, tests smoke OK, tests de non-régression OK.
+**Audit livré + P1 galerie complet en prod.** Backend compile, tests smoke OK, tests de non-régression OK, flow galerie modération validé end-to-end sur Supabase live.
