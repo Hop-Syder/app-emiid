@@ -22,11 +22,11 @@ test('GET /health expose l etat de la base', async () => {
   assert.equal(response.body.checks.database.status, 'up')
 })
 
-test('GET /health repond avec un statut de service', async () => {
-  const response = await request(app).get('/health')
+test('GET /api/public/stats repond', async () => {
+  const response = await request(app).get('/api/public/stats')
 
   assert.equal(response.status, 200)
-  assert.equal(response.body.status, 'ok')
+  assert.equal(typeof response.body.totalEntrepreneurs, 'number')
 })
 
 test('GET /api/auth/me sans token retourne 401', async () => {
@@ -37,7 +37,7 @@ test('GET /api/auth/me sans token retourne 401', async () => {
 
 test('CORS refuse une origine non autorisee proprement', async () => {
   const response = await request(app)
-    .get('/health')
+    .get('/api/public/stats')
     .set('Origin', 'https://evil.example.com')
 
   assert.equal(response.status, 403)
