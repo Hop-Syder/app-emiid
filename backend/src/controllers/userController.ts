@@ -5,32 +5,10 @@
  * @created 2026-01-04
 */
 
-import { NextFunction, Request, Response } from 'express';
-import { createSupabaseUserClient, supabaseAdmin } from '../config/supabase';
+import { Request, Response } from 'express';
+import { supabase, supabaseAdmin } from '../config/supabase';
 import bcrypt from 'bcrypt';
-import { randomInt } from 'crypto';
 import { logger } from '../utils/logger';
-import { ApiError } from '../utils/apiError';
-
-const RESERVED_ROLE_PATTERN = /\b(admin|administrator|administrateur|superadmin|root|moderator|modérateur)\b/i;
-const PIN_PATTERN = /^\d{6}$/;
-const PHONE_PATTERN = /^\+?[0-9\s().-]{8,20}$/;
-
-function sanitizeProfileForResponse<T extends Record<string, any> | null>(profile: T): T {
-  if (profile && Object.prototype.hasOwnProperty.call(profile, 'pin_code')) {
-    delete profile.pin_code;
-  }
-
-  return profile;
-}
-
-function sanitizeProfileText(value: unknown, maxLength: number): string | null | undefined {
-  if (value === undefined) return undefined;
-  if (value === null) return null;
-  if (typeof value !== 'string') return undefined;
-  const trimmed = value.trim();
-  return trimmed ? trimmed.slice(0, maxLength) : null;
-}
 
 const DEFAULT_NOTIFICATION_PREFERENCES = {
   messages: true,
@@ -50,15 +28,6 @@ const DEFAULT_APP_PREFERENCES = {
 const DEFAULT_SECURITY_PREFERENCES = {
   two_factor_enabled: false,
 };
-
-function getDbClient(req: any) {
-  const token = req.authToken;
-  if (typeof token === 'string' && token.trim()) {
-    return createSupabaseUserClient(token);
-  }
-  // Dev bypass / fallback: conserve le comportement existant
-  return supabaseAdmin;
-}
 
 const buildUserSettings = (authUser: any, isPublished = false) => {
   const metadata = authUser?.user_metadata || {};
@@ -99,8 +68,7 @@ export const getMyProfile = async (req: any, res: Response) => {
   };
 
   try {
-    const db = getDbClient(req);
-    const { data, error } = await db
+    const { data, error } = await supabase
       .from('user_profiles')
       .select('*, countries(name, iso_code), profile_tags(tags(name))')
       .eq('user_id', userId)
@@ -121,7 +89,6 @@ export const getMyProfile = async (req: any, res: Response) => {
     }
 
     if (data) {
-        sanitizeProfileForResponse(data);
         data.tags = data.profile_tags?.map((pt: any) => pt.tags?.name).filter(Boolean) || [];
         delete data.profile_tags;
         data.first_name = data.first_name || authFallback.first_name;
@@ -142,7 +109,7 @@ export const getMyProfile = async (req: any, res: Response) => {
  * Met à jour le profil de l'utilisateur connecté
  * PUT /api/users/me
  */
-export const updateMyProfile = async (req: any, res: Response, next: NextFunction) => {
+export const updateMyProfile = async (req: any, res: Response) => {
   const userId = req.user.id;
   const { 
     first_name, last_name, bio, avatar_url,
@@ -153,36 +120,32 @@ export const updateMyProfile = async (req: any, res: Response, next: NextFunctio
   } = req.body;
 
   try {
-    const db = getDbClient(req);
     let finalCountryId = country_id;
 
-    // Si on a un code pays mais pas d'ID, on cherche ou on crée.
-    // On utilise supabaseAdmin pour bypasser RLS qui bloquerait l'anon.
+    // Si on a un code pays mais pas d'ID, on cherche ou on crée
     if (!finalCountryId && country_code) {
-      const { data: countryData } = await supabaseAdmin
+      const { data: countryData, error: countryError } = await supabase
         .from('countries')
         .select('id')
         .eq('iso_code', country_code)
-        .maybeSingle();
+        .single();
 
       if (countryData) {
         finalCountryId = countryData.id;
-      } else if (country_name) {
-        // Créer le pays s'il n'existe pas (nom requis pour éviter NULL en base)
-        const { data: newCountry } = await supabaseAdmin
+      } else {
+        // Créer le pays s'il n'existe pas
+        const { data: newCountry, error: createError } = await supabase
           .from('countries')
           .insert({ name: country_name, iso_code: country_code })
-          .select('id')
+          .select()
           .single();
-
+        
         if (newCountry) finalCountryId = newCountry.id;
       }
     }
 
     // --- SLUG VALIDATION LOGIC ---
-    let finalSlug = typeof slug === 'string' && slug.trim()
-      ? slug.toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 80)
-      : null;
+    let finalSlug = slug ? slug.toLowerCase().replace(/[^a-z0-9-]/g, "") : null;
     if (finalSlug) {
       const { data: existingSlugProfile } = await supabaseAdmin
         .from('user_profiles')
@@ -192,22 +155,18 @@ export const updateMyProfile = async (req: any, res: Response, next: NextFunctio
         .single();
       
       if (existingSlugProfile) {
-        return next(new ApiError(409, 'CONFLICT', "Ce lien personnalisé est déjà utilisé par un autre utilisateur."));
+        return res.status(400).json({ error: "Ce lien personnalisé est déjà utilisé par un autre utilisateur." });
       }
     }
 
     // --- SMART AUTOCOMPLETE LOGIC ---
     // On utilise 'role' ou 'job_title' pour alimenter 'jobs'
-    const finalRole = sanitizeProfileText(role || job_title, 100);
-    if (typeof finalRole === 'string' && RESERVED_ROLE_PATTERN.test(finalRole)) {
-      return res.status(400).json({ error: "Le rôle renseigné utilise une valeur réservée." });
-    }
-
+    const finalRole = role || job_title;
     if (finalRole) {
       await supabaseAdmin.from('jobs').upsert({ name: finalRole }, { onConflict: 'name' });
     }
     // On utilise 'activity_domain' ou 'industry' pour 'industries'
-    const finalDomain = sanitizeProfileText(activity_domain || industry, 100);
+    const finalDomain = activity_domain || industry;
     if (finalDomain) {
       await supabaseAdmin.from('industries').upsert({ name: finalDomain }, { onConflict: 'name' });
     }
@@ -216,20 +175,20 @@ export const updateMyProfile = async (req: any, res: Response, next: NextFunctio
     // Construction sécurisée de l'objet updates pour éviter les erreurs de colonnes inexistantes
     const updates: any = { 
         user_id: userId,
-        first_name: sanitizeProfileText(first_name, 100), 
-        last_name: sanitizeProfileText(last_name, 100), 
-        bio: sanitizeProfileText(bio, 1000), 
-        avatar_url: sanitizeProfileText(avatar_url, 2048),
+        first_name, 
+        last_name, 
+        bio, 
+        avatar_url,
         role: finalRole,
-        specialty: sanitizeProfileText(specialty, 255),
-        category: sanitizeProfileText(category, 50),
+        specialty,
+        category,
         activity_domain: finalDomain,
         country_id: finalCountryId,
-        city: sanitizeProfileText(city, 100),
-        phone: sanitizeProfileText(phone, 20),
-        website: sanitizeProfileText(website, 2048),
+        city,
+        phone,
+        website,
         is_published,
-        card_variant: sanitizeProfileText(card_variant, 50),
+        card_variant,
         updated_at: new Date().toISOString()
     };
     
@@ -240,19 +199,19 @@ export const updateMyProfile = async (req: any, res: Response, next: NextFunctio
     if (pin_enabled !== undefined) updates.pin_enabled = pin_enabled;
 
     // Si un nouveau code PIN est envoyé, on le hashe
-    if (pin_code && PIN_PATTERN.test(pin_code)) {
+    if (pin_code && pin_code.length === 6) {
       const salt = await bcrypt.genSalt(10);
       updates.pin_code = await bcrypt.hash(pin_code, salt);
       updates.pin_attempts = 0;
     }
 
-    const { data, error } = await db
+    const { data, error } = await supabaseAdmin
       .from('user_profiles')
       .upsert(updates, { onConflict: 'user_id' })
       .select()
       .single();
 
-    if (error) return next(new ApiError(400, 'BAD_REQUEST', error.message));
+    if (error) return res.status(400).json({ error: error.message });
     
     // --- TAGS LOGIC ---
     if (tags && Array.isArray(tags)) {
@@ -261,8 +220,7 @@ export const updateMyProfile = async (req: any, res: Response, next: NextFunctio
         await supabaseAdmin.from('profile_tags').delete().eq('profile_id', profileId);
         
         for (const tagName of tags) {
-            if (typeof tagName !== 'string') continue;
-            const cleanTag = tagName.toLowerCase().trim().slice(0, 50);
+            const cleanTag = tagName.toLowerCase().trim();
             if (cleanTag) {
                 // Upsert tag
                 const { data: tagData } = await supabaseAdmin.from('tags').upsert({ name: cleanTag }, { onConflict: 'name' }).select('id').single();
@@ -273,9 +231,9 @@ export const updateMyProfile = async (req: any, res: Response, next: NextFunctio
         }
     }
 
-    return res.json(sanitizeProfileForResponse(data));
+    res.json(data);
   } catch (err) {
-    return next(new ApiError(500, 'INTERNAL_SERVER_ERROR', "Erreur interne lors de la mise à jour du profil"));
+    res.status(500).json({ error: "Erreur interne lors de la mise à jour du profil" });
   }
 };
 
@@ -416,7 +374,7 @@ export const deleteMyAccount = async (req: any, res: Response) => {
  * Vérifie le code PIN de l'utilisateur
  * POST /api/users/verify-pin
  */
-export const verifyPin = async (req: any, res: Response, next: NextFunction) => {
+export const verifyPin = async (req: any, res: Response) => {
   const userId = req.user.id;
   const { pin } = req.body;
 
@@ -427,17 +385,12 @@ export const verifyPin = async (req: any, res: Response, next: NextFunction) => 
       .eq('user_id', userId)
       .single();
 
-    if (error || !profile) return next(new ApiError(404, 'NOT_FOUND', "Profil introuvable"));
+    if (error || !profile) return res.status(400).json({ error: "Profil introuvable" });
 
     if (!profile.pin_enabled) return res.json({ success: true, message: "PIN non activé" });
 
     if (profile.is_locked) {
-      return next(new ApiError(403, 'FORBIDDEN', "Compte bloqué après 3 essais infructueux. Veuillez contacter un administrateur.", { is_locked: true }));
-    }
-
-    if (!profile.pin_code || typeof profile.pin_code !== 'string') {
-      // PIN activé mais aucun hash enregistré : incohérence de données.
-      return next(new ApiError(409, 'CONFLICT', "Aucun code PIN configuré. Veuillez en définir un depuis les paramètres."));
+      return res.status(403).json({ error: "Compte bloqué après 3 essais infructueux. Veuillez contacter un administrateur.", is_locked: true });
     }
 
     const isMatch = await bcrypt.compare(pin, profile.pin_code);
@@ -464,13 +417,20 @@ export const verifyPin = async (req: any, res: Response, next: NextFunction) => 
         .eq('user_id', userId);
       
       if (isNowLocked) {
-        return next(new ApiError(403, 'FORBIDDEN', "Compte bloqué après 3 essais infructueux. Veuillez contacter un administrateur.", { attempts_remaining: 0, is_locked: true }));
+        return res.status(403).json({ 
+          error: "Compte bloqué après 3 essais infructueux. Veuillez contacter un administrateur.", 
+          attempts_remaining: 0,
+          is_locked: true
+        });
       }
 
-      return next(new ApiError(401, 'UNAUTHORIZED', "Code PIN incorrect", { attempts_remaining: 3 - newAttempts }));
+      return res.status(401).json({ 
+        error: "Code PIN incorrect", 
+        attempts_remaining: 3 - newAttempts 
+      });
     }
   } catch (err) {
-    return next(new ApiError(500, 'INTERNAL_SERVER_ERROR', "Erreur lors de la vérification du PIN"));
+    res.status(500).json({ error: "Erreur lors de la vérification du PIN" });
   }
 };
 
@@ -499,36 +459,36 @@ export const unlockUserPin = async (req: any, res: Response) => {
  * Demande un code OTP pour vérifier le téléphone
  * POST /api/users/phone/request
  */
-export const requestPhoneVerification = async (req: any, res: Response, next: NextFunction) => {
+export const requestPhoneVerification = async (req: any, res: Response) => {
   const userId = req.user.id;
   const { phone, method } = req.body; // method: 'whatsapp' | 'sms'
 
-  const normalizedMethod = method === 'whatsapp' || method === 'sms' ? method : 'sms';
+  if (!phone) return res.status(400).json({ error: "Numéro de téléphone requis" });
 
   try {
-    const otp = randomInt(100000, 1000000).toString();
-    const otpHash = await bcrypt.hash(otp, 10);
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
     const { error } = await supabaseAdmin
       .from('phone_verifications')
       .insert({
         user_id: userId,
-        phone: phone.trim(),
-        otp_code: otpHash,
+        phone,
+        otp_code: otp,
         expires_at: expiresAt.toISOString()
       });
 
     if (error) throw error;
 
-    logger.info(`Code OTP ${normalizedMethod.toUpperCase()} généré pour l'utilisateur ${userId}`);
+    // Simulation d'envoi (À remplacer par une API réelle)
+    logger.info(`[OTP ${method.toUpperCase()}] Pour ${phone}: ${otp}`);
     
     // Si method === 'whatsapp', on pourrait appeler une API WhatsApp ici
     
-    return res.json({ success: true, message: "Code envoyé" });
+    res.json({ success: true, message: "Code envoyé" });
   } catch (err) {
     logger.error('Erreur requestPhoneVerification', err);
-    return next(new ApiError(500, 'INTERNAL_SERVER_ERROR', "Impossible d'envoyer le code"));
+    res.status(500).json({ error: "Impossible d'envoyer le code" });
   }
 };
 
@@ -536,29 +496,26 @@ export const requestPhoneVerification = async (req: any, res: Response, next: Ne
  * Vérifie le code OTP et certifie le téléphone
  * POST /api/users/phone/verify
  */
-export const verifyPhone = async (req: any, res: Response, next: NextFunction) => {
+export const verifyPhone = async (req: any, res: Response) => {
   const userId = req.user.id;
   const { phone, code } = req.body;
 
   try {
     const { data: verification, error } = await supabaseAdmin
       .from('phone_verifications')
-      .select('id, otp_code')
+      .select('*')
       .eq('user_id', userId)
-      .eq('phone', phone.trim())
+      .eq('phone', phone)
+      .eq('otp_code', code)
       .eq('verified', false)
       .gt('expires_at', new Date().toISOString())
       .order('created_at', { ascending: false })
       .limit(1)
       .single();
 
-    if (error || !verification) return next(new ApiError(400, 'BAD_REQUEST', "Code invalide ou expiré"));
-
-    const isValidCode = verification.otp_code?.startsWith('$2')
-      ? await bcrypt.compare(code, verification.otp_code)
-      : verification.otp_code === code;
-
-    if (!isValidCode) return next(new ApiError(400, 'BAD_REQUEST', "Code invalide ou expiré"));
+    if (error || !verification) {
+      return res.status(400).json({ error: "Code invalide ou expiré" });
+    }
 
     // Marquer comme vérifié dans la table OTP
     await supabaseAdmin
@@ -571,16 +528,16 @@ export const verifyPhone = async (req: any, res: Response, next: NextFunction) =
       .from('user_profiles')
       .update({ 
         phone_verified: true,
-        phone: phone.trim(), // S'assurer que le numéro est celui vérifié
+        phone: phone, // S'assurer que le numéro est celui vérifié
         updated_at: new Date().toISOString()
       })
       .eq('user_id', userId);
 
     if (profileError) throw profileError;
 
-    return res.json({ success: true, message: "Téléphone vérifié avec succès" });
+    res.json({ success: true, message: "Téléphone vérifié avec succès" });
   } catch (err) {
     logger.error('Erreur verifyPhone', err);
-    return next(new ApiError(500, 'INTERNAL_SERVER_ERROR', "Erreur lors de la vérification"));
+    res.status(500).json({ error: "Erreur lors de la vérification" });
   }
 };

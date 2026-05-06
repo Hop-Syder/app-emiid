@@ -54,31 +54,18 @@ export const sendEmail = async ({ to, subject, html, text }: EmailOptions) => {
 };
 
 /**
- * Échappe les caractères HTML dangereux pour éviter l'injection HTML dans les emails.
- */
-const escapeHtml = (value: string) =>
-  String(value)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;');
-
-/**
  * Envoie une notification de nouveau message
  */
 export const sendNewMessageNotification = async (recipientEmail: string, senderName: string, messagePreview: string) => {
-  const safeSenderName = escapeHtml(senderName);
-  const safePreview = escapeHtml(messagePreview);
-  const subject = `Nouveau message de ${safeSenderName} sur EmiID`;
-
+  const subject = `Nouveau message de ${senderName} sur EmiID`;
+  
   const html = `
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; rounded: 12px;">
       <h2 style="color: #022753;">EmiID</h2>
       <p>Bonjour,</p>
-      <p>Vous avez reçu un nouveau message de <strong>${safeSenderName}</strong> :</p>
+      <p>Vous avez reçu un nouveau message de <strong>${senderName}</strong> :</p>
       <div style="background-color: #f8fafc; padding: 15px; border-radius: 8px; font-style: italic; margin: 20px 0;">
-        "${safePreview}"
+        "${messagePreview}"
       </div>
       <p>Connectez-vous à votre tableau de bord pour répondre.</p>
       <div style="margin-top: 30px;">

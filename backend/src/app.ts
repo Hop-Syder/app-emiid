@@ -2,16 +2,11 @@ import express, { Application, Request, Response } from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import helmet from 'helmet'
-import rateLimit from 'express-rate-limit'
 import authRoutes from './api/routes/auth'
 import userRoutes from './api/routes/userRoutes'
 import messageRoutes from './api/routes/messageRoutes'
-import dashboardRoutes from './api/routes/dashboardRoutes'
-import publicRoutes from './api/routes/publicRoutes'
 import webhookRoutes from './api/routes/webhookRoutes'
 import { errorHandler } from './middlewares/errorMiddleware'
-import { notFoundHandler } from './middlewares/notFound'
-import { requestContext } from './middlewares/requestContext'
 import { logger } from './utils/logger'
 import { supabaseAdmin } from './config/supabase'
 
@@ -27,37 +22,19 @@ const defaultOrigins = [
 
 export const allowedOrigins = (() => {
   const configuredOrigins = process.env.CORS_ORIGINS || process.env.CORS_ORIGIN || ''
-  const origins = configuredOrigins
+  return configuredOrigins
     ? configuredOrigins.split(',').map((origin) => origin.trim()).filter(Boolean)
     : defaultOrigins
-
-  if (process.env.NODE_ENV === 'production' && origins.includes('*')) {
-    throw new Error('Configuration CORS invalide: wildcard interdit en production')
-  }
-
-  return origins
 })()
 
 export function createApp(): Application {
   const app: Application = express()
 
-  app.use(requestContext)
-
-  // Rate limiting global - 100 req/15min par IP
-  const globalLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 100,
-    message: { error: 'Trop de requêtes, veuillez réessayer plus tard' },
-    standardHeaders: true,
-    legacyHeaders: false,
-  })
-  app.use(globalLimiter)
-
   app.use(helmet())
   app.use(cors({
     origin: (origin, callback) => {
       if (!origin) return callback(null, true)
-      if (allowedOrigins.includes(origin)) {
+      if (allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
         return callback(null, true)
       }
 
@@ -66,7 +43,7 @@ export function createApp(): Application {
     },
     credentials: true,
   }))
-  app.use(express.json({ limit: '100kb' }))
+  app.use(express.json())
 
   app.get('/', (_req: Request, res: Response) => {
     res.status(200).json({
@@ -122,11 +99,8 @@ export function createApp(): Application {
   app.use('/api/auth', authRoutes)
   app.use('/api/users', userRoutes)
   app.use('/api/messages', messageRoutes)
-  app.use('/api/dashboard-user', dashboardRoutes)
-  app.use('/api/public', publicRoutes)
   app.use('/api/webhooks', webhookRoutes)
 
-  app.use(notFoundHandler)
   app.use(errorHandler)
 
   return app

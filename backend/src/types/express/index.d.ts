@@ -11,10 +11,6 @@ declare global {
   namespace Express {
     interface Request {
       user?: User; // On ajoute la propriété optionnelle user
-      authToken?: string;
-      requestId?: string;
     }
   }
 }
-
-export {};

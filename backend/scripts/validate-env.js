@@ -13,17 +13,11 @@ const examplePath = path.join(__dirname, '..', '.env.example');
 
 let hasErrors = false;
 
-// Tenter de charger dotenv si disponible (optionnel pour ce script stand-alone)
-try {
-    require('dotenv').config({ path: envPath });
-} catch (e) {
-    // Si dotenv n'est pas installé ou échoue, on continue avec process.env
-}
-
-// Vérifier que .env existe (Information seulement, plus bloquant)
+// Vérifier que .env existe
 if (!fs.existsSync(envPath)) {
-    console.log('ℹ️  INFO: Le fichier .env n\'existe pas (Normal en environnement de production/CI)');
-    console.log('💡 Le script va vérifier les variables directement dans l\'environnement (process.env)\n');
+    console.error('❌ ERREUR: Le fichier .env n\'existe pas');
+    console.log('💡 Solution: Copiez .env.example vers .env et remplissez les valeurs');
+    process.exit(1);
 }
 
 // Vérifier que .env.example existe
@@ -32,7 +26,8 @@ if (!fs.existsSync(examplePath)) {
     process.exit(1);
 }
 
-// Charger les variables de l'exemple pour comparaison
+// Charger les variables
+const envContent = fs.readFileSync(envPath, 'utf-8');
 const exampleContent = fs.readFileSync(examplePath, 'utf-8');
 
 const parseEnv = (content) => {
@@ -42,21 +37,21 @@ const parseEnv = (content) => {
         const match = line.match(/^([^#][^=]+)=(.*)$/);
         if (match) {
             const key = match[1].trim();
-            // On nettoie les guillemets si présents
-            const value = (match[2]?.trim() || '').replace(/^["'](.*)["']$/, '$1');
+            const value = match[2]?.trim() || '';
             vars[key] = value;
         }
     });
     return vars;
 };
 
+const envVars = parseEnv(envContent);
 const exampleVars = parseEnv(exampleContent);
 
 // Vérifier que toutes les variables de .env.example sont dans .env
 console.log('📋 Vérification des variables requises...\n');
 
 Object.keys(exampleVars).forEach(key => {
-    if (!process.env[key]) {
+    if (!envVars[key]) {
         console.error(`❌ MANQUANT: ${key}`);
         hasErrors = true;
     } else {
@@ -67,11 +62,11 @@ Object.keys(exampleVars).forEach(key => {
 console.log('\n📊 Vérification des valeurs...\n');
 
 // Vérifier que les valeurs ne sont pas vides
-Object.keys(exampleVars).forEach(key => {
-    const value = process.env[key];
+Object.keys(envVars).forEach(key => {
+    const value = envVars[key];
 
     // Ignorer les valeurs vides pour les variables optionnelles
-    const optionalVars = ['CORS_ORIGIN', 'ADMIN_EMAILS', 'WEBHOOK_SECRET'];
+    const optionalVars = ['CORS_ORIGIN'];
     if (optionalVars.includes(key)) return;
 
     if (!value || value.trim() === '') {
@@ -88,8 +83,8 @@ Object.keys(exampleVars).forEach(key => {
 // Vérifications spécifiques
 console.log('\n🔐 Vérifications de sécurité...\n');
 
-if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    if (process.env.SUPABASE_SERVICE_ROLE_KEY.length < 20) {
+if (envVars.SUPABASE_SERVICE_ROLE_KEY) {
+    if (envVars.SUPABASE_SERVICE_ROLE_KEY.length < 20) {
         console.error('❌ CRITIQUE: SUPABASE_SERVICE_ROLE_KEY est trop courte');
         hasErrors = true;
     } else {
@@ -97,8 +92,8 @@ if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
     }
 }
 
-if (process.env.SUPABASE_JWT_SECRET) {
-    if (process.env.SUPABASE_JWT_SECRET.length < 32) {
+if (envVars.SUPABASE_JWT_SECRET) {
+    if (envVars.SUPABASE_JWT_SECRET.length < 32) {
         console.error('❌ CRITIQUE: SUPABASE_JWT_SECRET est trop courte (min 32 caractères)');
         hasErrors = true;
     } else {

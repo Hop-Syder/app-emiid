@@ -10,7 +10,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.supabaseAdmin = exports.supabase = void 0;
-exports.createSupabaseUserClient = createSupabaseUserClient;
 const supabase_js_1 = require("@supabase/supabase-js");
 const dotenv_1 = __importDefault(require("dotenv"));
 const logger_1 = require("../utils/logger");
@@ -31,17 +30,3 @@ if (supabaseUrl && !supabaseUrl.startsWith('https://')) {
 }
 exports.supabase = (0, supabase_js_1.createClient)(supabaseUrl, supabaseAnonKey);
 exports.supabaseAdmin = (0, supabase_js_1.createClient)(supabaseUrl, supabaseServiceRoleKey);
-function createSupabaseUserClient(accessToken) {
-    return (0, supabase_js_1.createClient)(supabaseUrl, supabaseAnonKey, {
-        global: {
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-            },
-        },
-        auth: {
-            persistSession: false,
-            autoRefreshToken: false,
-            detectSessionInUrl: false,
-        },
-    });
-}

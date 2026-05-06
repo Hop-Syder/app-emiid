@@ -2,44 +2,34 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.registerUser = void 0;
 const supabase_1 = require("../config/supabase");
-const apiError_1 = require("../utils/apiError");
-function sanitizeText(value, maxLength) {
-    if (typeof value !== 'string')
-        return null;
-    const trimmed = value.trim();
-    return trimmed ? trimmed.slice(0, maxLength) : null;
-}
 /**
  * @description Gère l'enregistrement d'un utilisateur via le Backend (mode Admin)
  * @route POST /api/auth/register
  */
-const registerUser = async (req, res, next) => {
+const registerUser = async (req, res) => {
     const { email, password, first_name, last_name, role } = req.body;
     try {
+        if (!email || !password) {
+            return res.status(400).json({ error: "Email et mot de passe requis" });
+        }
         // 1. Création de l'utilisateur dans Supabase Auth
         const { data: authData, error: authError } = await supabase_1.supabaseAdmin.auth.admin.createUser({
             email,
             password,
             email_confirm: true,
-            user_metadata: {
-                first_name: sanitizeText(first_name, 100),
-                last_name: sanitizeText(last_name, 100),
-            }
+            user_metadata: { first_name, last_name, role }
         });
-        if (authError) {
-            return next(new apiError_1.ApiError(400, 'BAD_REQUEST', authError.message));
-        }
+        if (authError)
+            return res.status(400).json({ error: authError.message });
         // Note: Le trigger SQL 'handle_new_user' devrait normalement créer le profil.
         // On renvoie les données de l'utilisateur créé.
-        return res.status(201).json({
+        res.status(201).json({
             message: "Utilisateur créé avec succès",
             user: authData.user
-                ? { id: authData.user.id, email: authData.user.email }
-                : null
         });
     }
     catch (error) {
-        return next(new apiError_1.ApiError(500, 'INTERNAL_SERVER_ERROR', "Erreur serveur lors de l'enregistrement", error?.message));
+        res.status(500).json({ error: "Erreur serveur lors de l'enregistrement", details: error.message });
     }
 };
 exports.registerUser = registerUser;
