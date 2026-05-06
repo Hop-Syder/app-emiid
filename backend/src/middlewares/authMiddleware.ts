@@ -47,7 +47,7 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
         ? devUserEmailHeader
         : `${devUserIdHeader}@dev.local`,
     };
-    req.authToken = undefined;
+    (req as any).authToken = undefined;
 
     return next();
   }
@@ -64,7 +64,7 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
   const token = authHeader.split(' ')[1];
 
   try {
-    req.authToken = token;
+    (req as any).authToken = token;
     // Vérification du token via Supabase
     const { data: { user }, error } = await supabase.auth.getUser(token);
 
