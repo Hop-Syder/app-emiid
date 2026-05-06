@@ -1,16 +1,26 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Hook pour charger et rafraîchir automatiquement les statistiques dashboard
+ * @description Hook pour charger et rafraîchir automatiquement les statistiques dashboard.
+ *              Résilient aux erreurs réseau transitoires (502/404/offline) :
+ *              - Fallback sur des valeurs à zéro pour que le dashboard s'affiche toujours
+ *              - Distinction "isSyncing" (erreur transitoire) vs "hasFatalError" (jamais eu de data)
+ *              - Log discret (console.warn) au lieu de console.error pour ne pas polluer la prod
  * @created 2026-03-30
- * 🌐 ceo.nexuspartners.xyz
- * 📧 daoudaabassichristian@gmail.com
+ * @updated 2026-05-03
  */
 
 "use client"
 
 import { useEffect, useRef, useState } from "react"
 import type { DashboardStats } from "@/types"
+
+export const EMPTY_DASHBOARD_STATS: DashboardStats = {
+    totalEntrepreneurs: 0,
+    verifiedMembers: 0,
+    countriesCovered: 0,
+    premiumMembers: 0,
+}
 
 interface UseDashboardStatsOptions {
     endpoint: string
@@ -31,6 +41,7 @@ export function useDashboardStats({
     const [statsLoaded, setStatsLoaded] = useState(Boolean(initialData))
     const [statsLoading, setStatsLoading] = useState(!initialData)
     const [statsError, setStatsError] = useState<string | null>(null)
+    const [isSyncing, setIsSyncing] = useState(false)
     const hasSuccessfulStatsRef = useRef(Boolean(initialData))
 
     useEffect(() => {
@@ -45,7 +56,7 @@ export function useDashboardStats({
                 const response = await fetcher(endpoint)
 
                 if (!response.ok) {
-                    throw new Error(`Erreur HTTP ${response.status}`)
+                    throw new Error(`HTTP_${response.status}`)
                 }
 
                 const data: DashboardStats = await response.json()
@@ -58,21 +69,28 @@ export function useDashboardStats({
                 setStatsLoaded(true)
                 setStats(data)
                 setStatsError(null)
+                setIsSyncing(false)
             } catch (error) {
-                console.error(`Erreur chargement statistiques (${endpoint}):`, error)
+                // Log discret : les erreurs réseau transitoires (502, 404, offline) sont normales
+                // quand le backend redémarre ou que la connexion est instable. On n'affiche pas
+                // d'erreur rouge dans la console pour ne pas polluer.
+                if (process.env.NODE_ENV !== "production") {
+                    console.warn(`[useDashboardStats] Sync échouée pour ${endpoint} :`, error instanceof Error ? error.message : error)
+                }
 
                 if (!isMounted) {
                     return
                 }
 
-                setStatsError(
-                    hasSuccessfulStatsRef.current
-                        ? "Les statistiques affichées n’ont pas pu être actualisées."
-                        : errorMessage,
-                )
-
+                // Si on n'a jamais eu de data : on retombe sur EMPTY pour afficher un dashboard à zéro
+                // plutôt qu'un skeleton infini ou un message d'erreur bloquant.
                 if (!hasSuccessfulStatsRef.current) {
-                    setStats(null)
+                    setStats(EMPTY_DASHBOARD_STATS)
+                    setStatsLoaded(true)
+                    setStatsError(errorMessage)
+                } else {
+                    // On avait déjà une valeur → on la garde, on signale juste une resync
+                    setIsSyncing(true)
                 }
             } finally {
                 if (showLoading && isMounted) {
@@ -93,5 +111,5 @@ export function useDashboardStats({
         }
     }, [endpoint, errorMessage, fetcher, refreshIntervalMs])
 
-    return { stats, statsLoaded, statsLoading, statsError }
+    return { stats, statsLoaded, statsLoading, statsError, isSyncing }
 }

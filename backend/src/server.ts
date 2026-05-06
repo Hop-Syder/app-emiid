@@ -1,3 +1,4 @@
+/// <reference path="./types/express/index.d.ts" />
 import dotenv from 'dotenv'
 import { app, allowedOrigins } from './app'
 import { logger } from './utils/logger'

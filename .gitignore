@@ -48,24 +48,8 @@ Thumbs.db
 .cursorrules
 .skills/
 skills-lock.json
+.emergent/
+.gemini/
 
-# Scratch
-hj
--e 
-# Environment and credential files
-.env
-.env.*
-*.env
-credentials.json
-*.pem
-*.key
-.credentials
--e 
-# Environment and credential files
-.env
-.env.*
-*.env
-credentials.json
-*.pem
-*.key
-.credentials
+# Project specific
+design-system
