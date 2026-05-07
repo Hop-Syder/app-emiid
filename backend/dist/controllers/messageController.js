@@ -6,7 +6,7 @@
  * @created 2026-01-25
 */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.markAdminAsRead = exports.updateMediationStatus = exports.replyToMediation = exports.requestMediation = exports.getSupportUser = exports.getAdminDisputes = exports.getAdminConversationMessages = void 0;
+exports.deleteConversation = exports.getConversationMessages = exports.getConversations = exports.markAdminAsRead = exports.updateMediationStatus = exports.replyToMediation = exports.requestMediation = exports.getSupportUser = exports.getAdminDisputes = exports.getAdminConversationMessages = void 0;
 const supabase_1 = require("../config/supabase");
 const logger_1 = require("../utils/logger");
 const MEDIATION_REQUEST_MARKER = '[MÉDIATION DEMANDÉE]';
@@ -368,3 +368,136 @@ const markAdminAsRead = async (req, res) => {
     }
 };
 exports.markAdminAsRead = markAdminAsRead;
+/**
+ * Récupère les conversations de l'utilisateur connecté
+ * GET /api/messages/conversations
+ */
+const getConversations = async (req, res) => {
+    const userId = req.user.id;
+    try {
+        // 1. Charger les conversations
+        const { data: convData, error: convError } = await supabase_1.supabaseAdmin
+            .from('conversations')
+            .select('*')
+            .or(`participant1_id.eq.${userId},participant2_id.eq.${userId}`)
+            .order('last_message_at', { ascending: false });
+        if (convError)
+            throw convError;
+        if (!convData || convData.length === 0) {
+            return res.json([]);
+        }
+        // 2. Récupérer les profils des autres participants
+        const otherUserIds = convData.map(c => c.participant1_id === userId ? c.participant2_id : c.participant1_id);
+        const profileLookup = await getProfilesByUserIds(otherUserIds);
+        // 3. Récupérer les compteurs non lus
+        const convIds = convData.map(c => c.id);
+        const { data: unreadData } = await supabase_1.supabaseAdmin
+            .from('messages')
+            .select('conversation_id')
+            .in('conversation_id', convIds)
+            .neq('sender_id', userId)
+            .eq('is_read', false);
+        const unreadCountMap = (unreadData || []).reduce((acc, m) => {
+            acc[m.conversation_id] = (acc[m.conversation_id] || 0) + 1;
+            return acc;
+        }, {});
+        // 4. Formater la réponse
+        const formatted = convData.map(conv => {
+            const otherUserId = conv.participant1_id === userId ? conv.participant2_id : conv.participant1_id;
+            const otherUser = profileLookup[otherUserId];
+            return {
+                id: conv.id,
+                otherUser: {
+                    id: otherUserId,
+                    name: formatParticipantName(otherUser),
+                    avatar: otherUser?.avatar_url || null,
+                    role: otherUser?.role || null,
+                    isOnline: false, // À implémenter avec Presence si besoin
+                    lastSeen: null
+                },
+                lastMessage: conv.last_message_content,
+                lastMessageAt: conv.last_message_at,
+                unreadCount: unreadCountMap[conv.id] || 0
+            };
+        });
+        res.json(formatted);
+    }
+    catch (err) {
+        logger_1.logger.error("Error fetching conversations", err);
+        res.status(500).json({ error: "Erreur lors de la récupération des conversations" });
+    }
+};
+exports.getConversations = getConversations;
+/**
+ * Récupère les messages d'une conversation spécifique
+ * GET /api/messages/conversation/:id
+ */
+const getConversationMessages = async (req, res) => {
+    const userId = req.user.id;
+    const conversationId = req.params.id;
+    try {
+        // Vérifier l'accès
+        const { data: conv, error: convError } = await supabase_1.supabaseAdmin
+            .from('conversations')
+            .select('id')
+            .eq('id', conversationId)
+            .or(`participant1_id.eq.${userId},participant2_id.eq.${userId}`)
+            .single();
+        if (convError || !conv) {
+            return res.status(403).json({ error: "Accès refusé" });
+        }
+        const { data, error } = await supabase_1.supabaseAdmin
+            .from('messages')
+            .select('*')
+            .eq('conversation_id', conversationId)
+            .order('created_at', { ascending: true });
+        if (error)
+            throw error;
+        res.json(data);
+    }
+    catch (err) {
+        logger_1.logger.error("Error fetching messages", err);
+        res.status(500).json({ error: "Erreur lors de la récupération des messages" });
+    }
+};
+exports.getConversationMessages = getConversationMessages;
+/**
+ * Supprime une conversation et tous ses messages
+ * DELETE /api/messages/conversation/:id
+ */
+const deleteConversation = async (req, res) => {
+    const userId = req.user.id;
+    const conversationId = req.params.id;
+    try {
+        // Vérifier l'accès
+        const { data: conv, error: convError } = await supabase_1.supabaseAdmin
+            .from('conversations')
+            .select('id')
+            .eq('id', conversationId)
+            .or(`participant1_id.eq.${userId},participant2_id.eq.${userId}`)
+            .single();
+        if (convError || !conv) {
+            return res.status(403).json({ error: "Accès refusé ou conversation introuvable" });
+        }
+        // Supprimer les messages d'abord (cascade normalement gérée par DB, mais on assure)
+        const { error: msgError } = await supabase_1.supabaseAdmin
+            .from('messages')
+            .delete()
+            .eq('conversation_id', conversationId);
+        if (msgError)
+            throw msgError;
+        // Supprimer la conversation
+        const { error: convDelError } = await supabase_1.supabaseAdmin
+            .from('conversations')
+            .delete()
+            .eq('id', conversationId);
+        if (convDelError)
+            throw convDelError;
+        res.json({ success: true, message: "Conversation supprimée" });
+    }
+    catch (err) {
+        logger_1.logger.error("Error deleting conversation", err);
+        res.status(500).json({ error: "Erreur lors de la suppression de la conversation" });
+    }
+};
+exports.deleteConversation = deleteConversation;

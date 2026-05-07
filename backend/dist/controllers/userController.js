@@ -9,7 +9,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyPin = exports.deleteMyAccount = exports.deactivateMyAccount = exports.updateMySettings = exports.updateMyProfile = exports.getMyProfile = void 0;
+exports.verifyPhone = exports.requestPhoneVerification = exports.unlockUserPin = exports.verifyPin = exports.deleteMyAccount = exports.deactivateMyAccount = exports.updateMySettings = exports.updateMyProfile = exports.getMyProfile = void 0;
 const supabase_1 = require("../config/supabase");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const logger_1 = require("../utils/logger");
@@ -174,9 +174,8 @@ const updateMyProfile = async (req, res) => {
             card_variant,
             updated_at: new Date().toISOString()
         };
-        if (finalSlug) {
-            updates.slug = finalSlug;
-        }
+        // On autorise la suppression du slug si finalSlug est null
+        updates.slug = finalSlug;
         // Ajout conditionnel des champs PIN (seulement si présents)
         if (pin_enabled !== undefined)
             updates.pin_enabled = pin_enabled;
@@ -339,15 +338,15 @@ const verifyPin = async (req, res) => {
     try {
         const { data: profile, error } = await supabase_1.supabaseAdmin
             .from('user_profiles')
-            .select('pin_code, pin_attempts, pin_enabled')
+            .select('pin_code, pin_attempts, pin_enabled, is_locked')
             .eq('user_id', userId)
             .single();
         if (error || !profile)
             return res.status(400).json({ error: "Profil introuvable" });
         if (!profile.pin_enabled)
             return res.json({ success: true, message: "PIN non activé" });
-        if (profile.pin_attempts >= 6) {
-            return res.status(403).json({ error: "Compte bloqué après 6 essais infructueux. Veuillez contacter le support." });
+        if (profile.is_locked) {
+            return res.status(403).json({ error: "Compte bloqué après 3 essais infructueux. Veuillez contacter un administrateur.", is_locked: true });
         }
         const isMatch = await bcrypt_1.default.compare(pin, profile.pin_code);
         if (isMatch) {
@@ -361,13 +360,24 @@ const verifyPin = async (req, res) => {
         else {
             // Incrémenter les tentatives
             const newAttempts = (profile.pin_attempts || 0) + 1;
+            const isNowLocked = newAttempts >= 3;
             await supabase_1.supabaseAdmin
                 .from('user_profiles')
-                .update({ pin_attempts: newAttempts })
+                .update({
+                pin_attempts: newAttempts,
+                ...(isNowLocked ? { is_locked: true, locked_at: new Date().toISOString() } : {})
+            })
                 .eq('user_id', userId);
+            if (isNowLocked) {
+                return res.status(403).json({
+                    error: "Compte bloqué après 3 essais infructueux. Veuillez contacter un administrateur.",
+                    attempts_remaining: 0,
+                    is_locked: true
+                });
+            }
             return res.status(401).json({
                 error: "Code PIN incorrect",
-                attempts_remaining: 6 - newAttempts
+                attempts_remaining: 3 - newAttempts
             });
         }
     }
@@ -376,3 +386,102 @@ const verifyPin = async (req, res) => {
     }
 };
 exports.verifyPin = verifyPin;
+/**
+ * Débloque le compte utilisateur côté admin
+ * POST /api/users/:id/unlock-pin
+ */
+const unlockUserPin = async (req, res) => {
+    const targetUserId = req.params.id;
+    try {
+        const { error } = await supabase_1.supabaseAdmin
+            .from('user_profiles')
+            .update({ is_locked: false, locked_at: null, pin_attempts: 0 })
+            .eq('user_id', targetUserId);
+        if (error)
+            return res.status(400).json({ error: error.message });
+        return res.json({ success: true, message: "Utilisateur débloqué avec succès" });
+    }
+    catch (err) {
+        res.status(500).json({ error: "Erreur lors du déblocage de l'utilisateur" });
+    }
+};
+exports.unlockUserPin = unlockUserPin;
+/**
+ * Demande un code OTP pour vérifier le téléphone
+ * POST /api/users/phone/request
+ */
+const requestPhoneVerification = async (req, res) => {
+    const userId = req.user.id;
+    const { phone, method } = req.body; // method: 'whatsapp' | 'sms'
+    if (!phone)
+        return res.status(400).json({ error: "Numéro de téléphone requis" });
+    try {
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+        const { error } = await supabase_1.supabaseAdmin
+            .from('phone_verifications')
+            .insert({
+            user_id: userId,
+            phone,
+            otp_code: otp,
+            expires_at: expiresAt.toISOString()
+        });
+        if (error)
+            throw error;
+        // Simulation d'envoi (À remplacer par une API réelle)
+        logger_1.logger.info(`[OTP ${method.toUpperCase()}] Pour ${phone}: ${otp}`);
+        // Si method === 'whatsapp', on pourrait appeler une API WhatsApp ici
+        res.json({ success: true, message: "Code envoyé" });
+    }
+    catch (err) {
+        logger_1.logger.error('Erreur requestPhoneVerification', err);
+        res.status(500).json({ error: "Impossible d'envoyer le code" });
+    }
+};
+exports.requestPhoneVerification = requestPhoneVerification;
+/**
+ * Vérifie le code OTP et certifie le téléphone
+ * POST /api/users/phone/verify
+ */
+const verifyPhone = async (req, res) => {
+    const userId = req.user.id;
+    const { phone, code } = req.body;
+    try {
+        const { data: verification, error } = await supabase_1.supabaseAdmin
+            .from('phone_verifications')
+            .select('*')
+            .eq('user_id', userId)
+            .eq('phone', phone)
+            .eq('otp_code', code)
+            .eq('verified', false)
+            .gt('expires_at', new Date().toISOString())
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
+        if (error || !verification) {
+            return res.status(400).json({ error: "Code invalide ou expiré" });
+        }
+        // Marquer comme vérifié dans la table OTP
+        await supabase_1.supabaseAdmin
+            .from('phone_verifications')
+            .update({ verified: true })
+            .eq('id', verification.id);
+        // Mettre à jour le profil utilisateur
+        const { error: profileError } = await supabase_1.supabaseAdmin
+            .from('user_profiles')
+            .update({
+            phone_verified: true,
+            phone: phone, // S'assurer que le numéro est celui vérifié
+            updated_at: new Date().toISOString()
+        })
+            .eq('user_id', userId);
+        if (profileError)
+            throw profileError;
+        res.json({ success: true, message: "Téléphone vérifié avec succès" });
+    }
+    catch (err) {
+        logger_1.logger.error('Erreur verifyPhone', err);
+        res.status(500).json({ error: "Erreur lors de la vérification" });
+    }
+};
+exports.verifyPhone = verifyPhone;

@@ -21,8 +21,8 @@ const defaultOrigins = [
     'http://localhost:3000',
     'http://localhost:3001',
     'http://127.0.0.1:3001',
-    'https://app-emiid.app',
-    'https://app-nexus-connect-frontend.vercel.app',
+    'https://app.emiid.com',
+    'https://www.app.emiid.com',
 ];
 exports.allowedOrigins = (() => {
     const configuredOrigins = process.env.CORS_ORIGINS || process.env.CORS_ORIGIN || '';

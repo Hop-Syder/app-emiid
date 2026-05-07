@@ -13,11 +13,10 @@ import { logger } from '../utils/logger';
 
 dotenv.config();
 
-// Injection globale pour les bibliothèques qui cherchent WebSocket nativement
-// Cela règle le problème pour Node.js < 22 sans causer d'erreurs TypeScript
-if (!globalThis.WebSocket) {
-  (globalThis as any).WebSocket = ws;
-}
+// Injection globale pour les bibliothèques qui cherchent WebSocket nativement.
+// On force l'utilisation de 'ws' car l'implémentation native de Node.js 20+ 
+// peut être instable ou expérimentale dans certains environnements (comme Railway).
+(globalThis as any).WebSocket = ws;
 
 function requireEnv(name: string): string {
   const value = (process.env[name] || '').trim();

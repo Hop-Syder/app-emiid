@@ -43,4 +43,13 @@ router.post('/follow/:id', followController_1.toggleFollowProfile);
 // @route   PUT /api/users/follow/:id/note
 // @desc    Mettre à jour la note privée sur un utilisateur suivi
 router.put('/follow/:id/note', followController_1.updateFollowNote);
+// @route   POST /api/users/phone/request
+// @desc    Demander un code OTP par WhatsApp ou SMS
+router.post('/phone/request', userController_1.requestPhoneVerification);
+// @route   POST /api/users/phone/verify
+// @desc    Vérifier le code OTP
+router.post('/phone/verify', userController_1.verifyPhone);
+// @route   POST /api/users/:id/unlock-pin
+// @desc    Débloquer le PIN d'un utilisateur (Admin seulement)
+router.post('/:id/unlock-pin', authMiddleware_1.requireAdmin, userController_1.unlockUserPin);
 exports.default = router;

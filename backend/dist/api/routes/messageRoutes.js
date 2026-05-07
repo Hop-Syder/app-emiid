@@ -33,4 +33,13 @@ router.post('/dispute/:conversationId', messageController_1.requestMediation);
 // @route   GET /api/messages/support
 // @desc    Récupérer le service client
 router.get('/support', messageController_1.getSupportUser);
+// @route   GET /api/messages/conversations
+// @desc    Liste des conversations de l'utilisateur
+router.get('/conversations', messageController_1.getConversations);
+// @route   GET /api/messages/conversation/:id
+// @desc    Liste des messages d'une conversation spécifique
+router.get('/conversation/:id', messageController_1.getConversationMessages);
+// @route   DELETE /api/messages/conversation/:id
+// @desc    Supprimer une conversation
+router.delete('/conversation/:id', messageController_1.deleteConversation);
 exports.default = router;
