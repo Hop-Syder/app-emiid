@@ -35,6 +35,9 @@ importers:
       web-push:
         specifier: ^3.6.7
         version: 3.6.7
+      ws:
+        specifier: ^8.18.0
+        version: 8.20.0
     devDependencies:
       '@types/bcrypt':
         specifier: ^6.0.0
