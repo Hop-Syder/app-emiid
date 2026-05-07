@@ -13,6 +13,11 @@ import { logger } from '../utils/logger';
 
 dotenv.config();
 
+// Injection globale pour les bibliothèques qui cherchent WebSocket nativement
+if (!globalThis.WebSocket) {
+  (globalThis as any).WebSocket = ws;
+}
+
 function requireEnv(name: string): string {
   const value = (process.env[name] || '').trim();
   if (!value) {
