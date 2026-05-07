@@ -14,6 +14,7 @@ import { logger } from '../utils/logger';
 dotenv.config();
 
 // Injection globale pour les bibliothèques qui cherchent WebSocket nativement
+// Cela règle le problème pour Node.js < 22 sans causer d'erreurs TypeScript
 if (!globalThis.WebSocket) {
   (globalThis as any).WebSocket = ws;
 }
@@ -35,18 +36,13 @@ if (supabaseUrl && !supabaseUrl.startsWith('https://')) {
   throw new Error('Configuration Supabase invalide: SUPABASE_URL');
 }
 
-// Configuration pour supporter les WebSockets sur les anciennes versions de Node.js
+// Configuration standard
+// L'injection globale ci-dessus s'occupe du support WebSocket automatiquement
 const clientOptions = {
   auth: {
     persistSession: false,
     autoRefreshToken: true,
-  },
-  global: {
-    fetch: globalThis.fetch,
-  },
-  realtime: {
-    transport: ws,
-  },
+  }
 };
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, clientOptions);
