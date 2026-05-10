@@ -480,8 +480,8 @@ export const requestPhoneVerification = async (req: any, res: Response) => {
 
     if (error) throw error;
 
-    // Simulation d'envoi (À remplacer par une API réelle)
-    logger.info(`[OTP ${method.toUpperCase()}] Pour ${phone}: ${otp}`);
+    // Simulation d'envoi (On ne log que les 3 premiers chiffres par sécurité)
+    logger.info(`[OTP ${method.toUpperCase()}] Pour ${phone}: ${otp.substring(0, 3)}***`);
     
     // Si method === 'whatsapp', on pourrait appeler une API WhatsApp ici
     

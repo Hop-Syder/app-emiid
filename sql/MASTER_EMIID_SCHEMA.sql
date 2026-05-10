@@ -323,7 +323,8 @@ ALTER TABLE public.user_profiles ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Profil propre : accès total" ON public.user_profiles;
 CREATE POLICY "Profil propre : accès total" ON public.user_profiles FOR ALL USING (auth.uid() = user_id);
 DROP POLICY IF EXISTS "Profils publiés : lecture" ON public.user_profiles;
-CREATE POLICY "Profils publiés : lecture" ON public.user_profiles FOR SELECT USING (is_published = TRUE);
+-- NOTE: La lecture publique des profils est désormais gérée exclusivement par la VUE public_profiles
+-- pour éviter toute fuite de colonnes sensibles (PIN, email, phone).
 
 -- Follows
 ALTER TABLE public.user_follows ENABLE ROW LEVEL SECURITY;
@@ -414,7 +415,7 @@ WHERE is_published = TRUE;
 -- ==========================================
 REVOKE ALL ON public.user_profiles FROM PUBLIC, authenticated, anon;
 GRANT SELECT, INSERT, UPDATE ON public.user_profiles TO authenticated;
-GRANT SELECT ON public.user_profiles TO anon;
+-- anon n'a PAS accès à la table brute, seulement à la vue filtrée
 GRANT SELECT ON public.public_profiles TO anon, authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.user_follows TO authenticated;
 GRANT SELECT, INSERT, UPDATE ON public.conversations TO authenticated;
