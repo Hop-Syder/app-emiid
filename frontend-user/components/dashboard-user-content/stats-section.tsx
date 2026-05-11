@@ -54,7 +54,7 @@ export function StatsSection({ stats }: StatsSectionProps) {
                     <div
                         className="absolute inset-0 opacity-10 group-hover:opacity-15 transition-opacity"
                         style={{
-                            backgroundImage: "url(/dashboard-user/background-2.svg)",
+                            backgroundImage: "url(/dashboard/background-2.svg)",
                             backgroundSize: "cover",
                             backgroundPosition: "center",
                         }}
