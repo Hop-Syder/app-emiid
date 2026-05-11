@@ -8,7 +8,7 @@
 "use client"
 
 import { useState, useRef, useEffect, useCallback, useMemo } from "react"
-import { useSearchParams, useRouter } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import { ArrowLeft, MoreHorizontal, Gavel, Trash2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
@@ -17,7 +17,6 @@ import { captureError } from "@/lib/observability"
 
 // Components
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
 import { ConfirmActionDialog } from "@/components/ui/confirm-action-dialog"
 import { Button } from "@/components/ui/button"
 import {
@@ -46,7 +45,6 @@ import { useMessagesRealtime } from "@/features/messages/useMessagesRealtime"
 
 export function MessagesContent() {
   const searchParams = useSearchParams()
-  const router = useRouter()
   const contactId = searchParams.get("contact") || searchParams.get("user")
 
   const supabase = useMemo(() => createClient(), [])
@@ -104,7 +102,7 @@ export function MessagesContent() {
         setConversations(data)
         
         if (contactId) {
-          const existing = data.find((c: any) => c.other_participant.user_id === contactId)
+          const existing = data.find((c: Conversation) => c.other_participant.user_id === contactId)
           if (existing) {
             setSelectedConv(existing)
             setShowChatMobile(true)
@@ -259,7 +257,7 @@ export function MessagesContent() {
       const newMsg = await sendMessageToDB(content, selectedConv.other_participant.user_id)
       setMessages(prev => [...prev, newMsg])
       toast.success("Fichier envoyé", { id: uploadToastId })
-    } catch (err) {
+    } catch {
       toast.error("Échec de l'upload", { id: uploadToastId })
     }
   }
@@ -275,7 +273,7 @@ export function MessagesContent() {
         setMessages(prev => [...prev, newMsg])
       }
       scrollToBottom()
-    } catch (err) {
+    } catch {
       toast.error("Échec de l'envoi")
     }
   }
@@ -287,7 +285,7 @@ export function MessagesContent() {
       await requestMediation(selectedConv.id, reason)
       toast.success("Demande de médiation envoyée")
       setIsMediationOpen(false)
-    } catch (err) {
+    } catch {
       toast.error("Erreur lors de la demande")
     } finally {
       setIsMediationLoading(false)
@@ -307,7 +305,7 @@ export function MessagesContent() {
       setSelectedConv(null)
       setShowChatMobile(false)
       toast.success("Conversation supprimée")
-    } catch (err) {
+    } catch {
       toast.error("Erreur lors de la suppression")
     }
   }

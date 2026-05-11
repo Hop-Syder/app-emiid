@@ -23,7 +23,12 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isOwn }) 
   const [formattedTime, setFormattedTime] = React.useState<string>("")
 
   React.useEffect(() => {
-    setFormattedTime(format(new Date(message.created_at), 'HH:mm', { locale: fr }))
+    const date = new Date(message.created_at)
+    const isToday = new Date().toDateString() === date.toDateString()
+    const timeStr = format(date, 'HH:mm', { locale: fr })
+    const dateStr = format(date, 'dd MMM', { locale: fr })
+    
+    setFormattedTime(isToday ? timeStr : `${dateStr}, ${timeStr}`)
   }, [message.created_at])
 
   if (parsed.kind === "mediation") {
@@ -101,7 +106,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isOwn }) 
 interface MessageListProps {
   messages: Message[]
   currentUserId: string
-  scrollRef: React.RefObject<HTMLDivElement>
+  scrollRef: React.RefObject<HTMLDivElement | null>
 }
 
 export const MessageList: React.FC<MessageListProps> = ({ messages, currentUserId, scrollRef }) => {

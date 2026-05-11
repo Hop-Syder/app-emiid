@@ -24,6 +24,16 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
   isActive,
   onClick,
 }) => {
+  const [formattedDate, setFormattedDate] = React.useState<string>("")
+
+  React.useEffect(() => {
+    if (conversation.last_message_at) {
+      const date = new Date(conversation.last_message_at)
+      const isToday = new Date().toDateString() === date.toDateString()
+      setFormattedDate(isToday ? format(date, 'HH:mm', { locale: fr }) : format(date, 'dd/MM', { locale: fr }))
+    }
+  }, [conversation.last_message_at])
+
   const p = conversation.other_participant
   const fullName = `${p?.first_name || ''} ${p?.last_name || ''}`.trim() || 'Utilisateur'
   const initials = fullName.substring(0, 2).toUpperCase()
@@ -58,9 +68,9 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
           )}>
             {fullName}
           </h3>
-          {conversation.last_message_at && (
+          {formattedDate && (
             <span className="text-[10px] text-slate-400">
-              {format(new Date(conversation.last_message_at), 'HH:mm', { locale: fr })}
+              {formattedDate}
             </span>
           )}
         </div>

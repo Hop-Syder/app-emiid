@@ -1,5 +1,5 @@
 import { fetchWithAuth, readApiError } from "@/lib/apiClient"
-import type { Conversation, Message } from "@/types"
+import type { Conversation, Message } from "@/components/messages/types"
 
 export interface SupportUser {
   id: string

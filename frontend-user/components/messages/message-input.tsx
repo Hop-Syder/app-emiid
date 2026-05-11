@@ -9,6 +9,7 @@ import React, { useState, useRef } from 'react'
 import { Send, Paperclip, Smile } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { toast } from 'sonner'
 
 interface MessageInputProps {
   onSend: (content: string, file?: File) => void
@@ -39,7 +40,14 @@ export const MessageInput: React.FC<MessageInputProps> = ({ onSend, isDisabled }
           type="file" 
           ref={fileInputRef} 
           className="hidden" 
-          onChange={(e) => setFile(e.target.files?.[0] || null)}
+          onChange={(e) => {
+            const selectedFile = e.target.files?.[0]
+            if (selectedFile && selectedFile.size > 10 * 1024 * 1024) {
+              toast.error("Le fichier est trop volumineux (max 10 Mo)")
+              return
+            }
+            setFile(selectedFile || null)
+          }}
         />
         
         <Button 

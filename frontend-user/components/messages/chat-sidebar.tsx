@@ -11,6 +11,7 @@ import { Conversation } from './types'
 import { ConversationItem } from './conversation-item'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { useRouter } from 'next/navigation'
 
 interface ChatSidebarProps {
   conversations: Conversation[]
@@ -29,12 +30,19 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
   onSearchChange,
   isLoading,
 }) => {
+  const router = useRouter()
   return (
     <div className="flex flex-col h-full border-r bg-white w-full md:w-80 lg:w-96">
       <div className="p-4 border-b space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold text-slate-800">Messages</h2>
-          <Button size="icon" variant="ghost" className="rounded-full text-indigo-600 hover:bg-indigo-50">
+          <Button 
+            size="icon" 
+            variant="ghost" 
+            className="rounded-full text-indigo-600 hover:bg-indigo-50"
+            onClick={() => router.push('/annuaire')}
+            title="Démarrer une nouvelle discussion"
+          >
             <Plus className="h-5 w-5" />
           </Button>
         </div>

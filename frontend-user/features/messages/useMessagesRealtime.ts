@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
-import type { Message } from "@/types"
+import type { Message } from "@/components/messages/types"
 
 interface RealtimeHandlers {
   onNewMessage: (message: Message) => void
