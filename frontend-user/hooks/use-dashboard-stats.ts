@@ -12,8 +12,7 @@
 
 "use client"
 
-import { useEffect, useRef, useState, useCallback } from "react"
-import { createClient } from "@/lib/supabase/client"
+import { useEffect, useRef, useState } from "react"
 import type { DashboardStats } from "@/types"
 
 export const EMPTY_DASHBOARD_STATS: DashboardStats = {
@@ -44,54 +43,6 @@ export function useDashboardStats({
     const [statsError, setStatsError] = useState<string | null>(null)
     const [isSyncing, setIsSyncing] = useState(false)
     const hasSuccessfulStatsRef = useRef(Boolean(initialData))
-
-    const fallbackToSupabase = useCallback(async () => {
-        try {
-            const supabase = createClient()
-            
-            // 1. Total Entrepreneurs
-            const { count: total } = await supabase
-                .from('user_profiles')
-                .select('*', { count: 'exact', head: true })
-                .eq('is_published', true)
-
-            // 2. Verified Members
-            const { count: verified } = await supabase
-                .from('user_profiles')
-                .select('*', { count: 'exact', head: true })
-                .eq('is_published', true)
-                .eq('is_verified', true)
-
-            // 3. Premium Members
-            const { count: premium } = await supabase
-                .from('user_profiles')
-                .select('*', { count: 'exact', head: true })
-                .eq('is_published', true)
-                .eq('is_premium', true)
-
-            // 4. Countries Covered
-            const { data: countries } = await supabase
-                .from('user_profiles')
-                .select('country_id')
-                .eq('is_published', true)
-            
-            const uniqueCountries = new Set(countries?.map(c => c.country_id).filter(Boolean)).size
-
-            const fallbackStats: DashboardStats = {
-                totalEntrepreneurs: total || 0,
-                verifiedMembers: verified || 0,
-                premiumMembers: premium || 0,
-                countriesCovered: uniqueCountries || 1, // Minimum 1 pays
-            }
-
-            setStats(fallbackStats)
-            setStatsLoaded(true)
-            setIsSyncing(true)
-            hasSuccessfulStatsRef.current = true
-        } catch (e) {
-            console.error("[useDashboardStats] Fallback Supabase échoué:", e)
-        }
-    }, [])
 
     useEffect(() => {
         let isMounted = true
@@ -128,13 +79,12 @@ export function useDashboardStats({
                     return
                 }
 
-                // Tentative de secours via Supabase si l'API échoue
-                await fallbackToSupabase()
-                
                 if (!hasSuccessfulStatsRef.current) {
                     setStats(EMPTY_DASHBOARD_STATS)
                     setStatsLoaded(true)
                     setStatsError(errorMessage)
+                } else {
+                    setIsSyncing(true)
                 }
             } finally {
                 if (showLoading && isMounted) {
@@ -153,7 +103,7 @@ export function useDashboardStats({
             isMounted = false
             window.clearInterval(intervalId)
         }
-    }, [endpoint, errorMessage, fetcher, refreshIntervalMs, fallbackToSupabase])
+    }, [endpoint, errorMessage, fetcher, refreshIntervalMs])
 
     return { stats, statsLoaded, statsLoading, statsError, isSyncing }
 }
