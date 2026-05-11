@@ -56,6 +56,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isOwn }) 
             <img 
               src={parsed.url} 
               alt="Image partagée" 
+              loading="lazy"
               className="max-w-full h-auto object-cover hover:scale-105 transition-transform duration-300 cursor-pointer" 
             />
           </div>

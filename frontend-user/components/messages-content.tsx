@@ -9,8 +9,7 @@
 
 import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
-import { motion, AnimatePresence } from "framer-motion"
-import { ArrowLeft, MoreHorizontal, Gavel, Trash2, Info } from "lucide-react"
+import { ArrowLeft, MoreHorizontal, Gavel, Trash2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
@@ -137,7 +136,7 @@ export function MessagesContent() {
       }
     }
     load()
-  }, [currentUserId, contactId])
+  }, [currentUserId, contactId, selectedConv])
 
   // Load Messages
   useEffect(() => {
@@ -162,7 +161,9 @@ export function MessagesContent() {
 
   // Realtime
   const realtime = useMessagesRealtime(currentUserId, {
-    onPresenceChange: () => {},
+    onPresenceChange: () => {
+      // Pour l'instant on ne gère pas visuellement la présence ici
+    },
     onNewMessage: (newMsg) => {
       if (selectedConv && newMsg.conversation_id === selectedConv.id) {
         setMessages(prev => [...prev, newMsg])
