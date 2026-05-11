@@ -39,7 +39,7 @@ export function EmiIDLayout({ children }: EmiIDLayoutProps) {
         setMobileMenuOpen={setMobileMenuOpen}
       />
 
-      <div className={cn("transition-all duration-300", sidebarOpen ? "md:pl-[260px]" : "md:pl-[96px]")}>
+      <div className={cn("transition-all duration-300", sidebarOpen ? "md:pl-[240px]" : "md:pl-[80px]")}>
         <EmiIDHeader sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} setMobileMenuOpen={setMobileMenuOpen} />
         <main className="p-4 md:p-6 lg:p-8 relative">
           {children}

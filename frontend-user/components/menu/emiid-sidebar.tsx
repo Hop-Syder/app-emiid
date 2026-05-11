@@ -384,13 +384,12 @@ export function EmiIDSidebar({ sidebarOpen, setSidebarOpen: _setSidebarOpen, mob
         <SidebarContent isMobile={true} />
       </div>
 
-      {/* Sidebar - Desktop */}
-      <div
-        className={cn(
-          "fixed inset-y-0 left-0 z-30 hidden border-r border-slate-100 bg-white shadow-sm transition-all duration-300 ease-in-out md:block",
-          sidebarOpen ? "w-[260px] translate-x-0" : "w-24 translate-x-0",
-        )}
-      >
+  <div
+    className={cn(
+      "fixed inset-y-0 left-0 z-30 hidden border-r border-slate-100 bg-white shadow-sm transition-all duration-300 ease-in-out md:block",
+      sidebarOpen ? "w-[240px] translate-x-0" : "w-20 translate-x-0",
+    )}
+  >
         <SidebarContent />
       </div>
     </>
