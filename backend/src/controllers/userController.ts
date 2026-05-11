@@ -9,6 +9,7 @@ import { Request, Response } from 'express';
 import { supabase, supabaseAdmin } from '../config/supabase';
 import bcrypt from 'bcrypt';
 import { logger } from '../utils/logger';
+import { UserProfile } from '../types/models';
 
 const DEFAULT_NOTIFICATION_PREFERENCES = {
   messages: true,
@@ -56,9 +57,11 @@ const buildUserSettings = (authUser: any, isPublished = false) => {
  * Récupère le profil de l'utilisateur actuellement connecté (via Token Relay)
  * GET /api/users/me
  */
-export const getMyProfile = async (req: any, res: Response) => {
-  const userId = req.user.id;
+export const getMyProfile = async (req: Request, res: Response) => {
+  const userId = req.user?.id;
   const authUser = req.user;
+  if (!userId || !authUser) return res.status(401).json({ error: "Non authentifié" });
+  
   const authFallback = {
     first_name: authUser.user_metadata?.first_name || authUser.user_metadata?.given_name || null,
     last_name: authUser.user_metadata?.last_name || authUser.user_metadata?.family_name || null,
@@ -374,23 +377,43 @@ export const deleteMyAccount = async (req: any, res: Response) => {
  * Vérifie le code PIN de l'utilisateur
  * POST /api/users/verify-pin
  */
-export const verifyPin = async (req: any, res: Response) => {
-  const userId = req.user.id;
+export const verifyPin = async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  if (!userId) return res.status(401).json({ error: "Non authentifié" });
   const { pin } = req.body;
 
   try {
-    const { data: profile, error } = await supabaseAdmin
+    const { data, error } = await supabaseAdmin
       .from('user_profiles')
-      .select('pin_code, pin_attempts, pin_enabled, is_locked')
+      .select('pin_code, pin_attempts, pin_enabled, is_locked, locked_at')
       .eq('user_id', userId)
       .single();
 
-    if (error || !profile) return res.status(400).json({ error: "Profil introuvable" });
+    if (error || !data) return res.status(400).json({ error: "Profil introuvable" });
+    const profile = data as UserProfile;
 
-    if (!profile.pin_enabled) return res.json({ success: true, message: "PIN non activé" });
+    if (!profile.pin_enabled || !profile.pin_code) return res.json({ success: true, message: "PIN non activé" });
 
-    if (profile.is_locked) {
-      return res.status(403).json({ error: "Compte bloqué après 3 essais infructueux. Veuillez contacter un administrateur.", is_locked: true });
+    if (profile.is_locked && profile.locked_at) {
+      const attempts = profile.pin_attempts || 3;
+      // Délai exponentiel : 1 min, 5 min, 15 min, 1h, 24h
+      const delays = [0, 0, 0, 1, 5, 15, 60, 1440]; // index = attempts
+      const delayMinutes = attempts < delays.length ? delays[attempts] : 1440;
+      
+      const lockTime = new Date(profile.locked_at!).getTime();
+      const now = new Date().getTime();
+      const diffMinutes = (now - lockTime) / (1000 * 60);
+
+      if (diffMinutes < delayMinutes) {
+        const remainingMinutes = Math.ceil(delayMinutes - diffMinutes);
+        return res.status(403).json({ 
+          error: `Compte temporairement bloqué. Veuillez réessayer dans ${remainingMinutes} minute(s).`, 
+          is_locked: true,
+          remaining_minutes: remainingMinutes
+        });
+      }
+      
+      // Le délai est écoulé, on autorise la tentative mais on garde is_locked tant qu'on n'a pas réussi
     }
 
     const isMatch = await bcrypt.compare(pin, profile.pin_code);
@@ -406,21 +429,25 @@ export const verifyPin = async (req: any, res: Response) => {
     } else {
       // Incrémenter les tentatives
       const newAttempts = (profile.pin_attempts || 0) + 1;
-      const isNowLocked = newAttempts >= 3;
+      const shouldLock = newAttempts >= 3;
 
       await supabaseAdmin
         .from('user_profiles')
         .update({ 
           pin_attempts: newAttempts,
-          ...(isNowLocked ? { is_locked: true, locked_at: new Date().toISOString() } : {})
+          ...(shouldLock ? { is_locked: true, locked_at: new Date().toISOString() } : {})
         })
         .eq('user_id', userId);
       
-      if (isNowLocked) {
+      if (shouldLock) {
+        const delays = [0, 0, 0, 1, 5, 15, 60, 1440];
+        const delayMinutes = newAttempts < delays.length ? delays[newAttempts] : 1440;
+
         return res.status(403).json({ 
-          error: "Compte bloqué après 3 essais infructueux. Veuillez contacter un administrateur.", 
+          error: `Code PIN incorrect. Compte bloqué pour ${delayMinutes} minute(s).`, 
           attempts_remaining: 0,
-          is_locked: true
+          is_locked: true,
+          next_retry_in: delayMinutes
         });
       }
 
@@ -438,8 +465,8 @@ export const verifyPin = async (req: any, res: Response) => {
  * Débloque le compte utilisateur côté admin
  * POST /api/users/:id/unlock-pin
  */
-export const unlockUserPin = async (req: any, res: Response) => {
-  const targetUserId = req.params.id;
+export const unlockUserPin = async (req: Request, res: Response) => {
+  const targetUserId = req.params.id as string;
 
   try {
     const { error } = await supabaseAdmin

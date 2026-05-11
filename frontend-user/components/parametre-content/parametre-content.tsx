@@ -271,7 +271,10 @@ export function ParametresContent() {
 
             <Tabs defaultValue="profil" className="flex flex-col lg:flex-row gap-6 md:gap-8 lg:items-start" orientation="vertical">
                 {/* Menu latéral (Desktop) ou horizontal scroll (Mobile) */}
-                <div className="w-full lg:w-[280px] shrink-0 sticky top-24 z-10">
+                <div className="w-full lg:w-[280px] shrink-0 sticky top-24 z-10 relative">
+                    {/* Indicateur de défilement horizontal mobile */}
+                    <div className="absolute right-0 top-0 bottom-4 w-8 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none lg:hidden" />
+                    
                     <div className="w-full overflow-x-auto pb-4 -mb-4 lg:overflow-visible lg:pb-0 lg:mb-0 scrollbar-hide">
                         <TabsList className="inline-flex lg:flex flex-row lg:flex-col h-auto justify-start items-stretch gap-2 bg-transparent p-0 w-max min-w-full lg:w-full px-1 lg:px-0">
                             <TabsTrigger

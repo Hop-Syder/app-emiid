@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Contenu du portefeuille de profils suivis avec design Grid Premium
  * @created 2026-04-19
- * @updated 2026-04-19
+ * @updated 2026-05-11
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
 */
@@ -340,7 +340,7 @@ export function FollowedProfilesContent() {
                                     </p>
                                     {!searchQuery && (
                                         <Button 
-                                            onClick={() => router.push('/explorer')}
+                                            onClick={() => router.push('/annuaire')}
                                             className="mt-8 h-12 px-8 rounded-2xl bg-blue-600 text-white font-black text-[10px] uppercase tracking-widest shadow-xl shadow-blue-500/20 hover:scale-105 transition-all"
                                         >
                                             Explorer la communauté

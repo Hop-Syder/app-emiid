@@ -75,9 +75,9 @@ export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProp
 
                     {/* Catégorie */}
                     <div className="space-y-2">
-                        <label className="text-sm font-medium ml-1 text-muted-foreground">Secteur</label>
+                        <label htmlFor="category-select" className="text-sm font-medium ml-1 text-muted-foreground">Secteur</label>
                         <Select onValueChange={(val) => onFilterChange("category", val)} value={filters.category}>
-                            <SelectTrigger className="h-11 rounded-xl bg-white border-muted">
+                            <SelectTrigger id="category-select" className="h-11 rounded-xl bg-white border-muted">
                                 <SelectValue placeholder="Catégorie" />
                             </SelectTrigger>
                             <SelectContent className="rounded-xl">

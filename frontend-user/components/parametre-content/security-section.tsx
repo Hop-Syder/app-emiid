@@ -4,7 +4,7 @@
  * @organization Nexus Partners
  * @description Security section for Settings (Password, PIN, 2FA)
  * @created 2026-01-16
- * @updated 2026-01-16
+ * @updated 2026-05-11
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
 */
@@ -24,6 +24,7 @@ import { fetchWithAuth, readApiError } from "@/lib/apiClient"
 import { createClient } from "@/lib/supabase/client"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp"
+import { ConfirmActionDialog } from "@/components/ui/confirm-action-dialog"
 
 
 
@@ -81,7 +82,8 @@ export function SecuritySection({
     const [showReauthPassword, setShowReauthPassword] = useState(false)
     const [reauthLoading, setReauthLoading] = useState(false)
     const [reauthError, setReauthError] = useState("")
-    const [pendingAction, setPendingAction] = useState<"enable" | "disable" | "change" | null>(null)
+    const [pendingAction, setPendingAction] = useState<"enable" | "disable" | "change" | "disable2fa" | "deactivate" | "delete" | null>(null)
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false)
 
 
     const supabase = createClient()
@@ -167,12 +169,12 @@ export function SecuritySection({
         }
 
         // Détection utilisateur OAuth
-        const isOAuth = profile.email && !profile.has_password // Note: On supposera qu'on a cette info ou on gère l'erreur
+        const isOAuth = profile.email && !profile.has_password // Note: On supposera qu' on a cette info ou on gère l'erreur
 
         if (isOAuth) {
-            // Pour OAuth, on peut faire une confirmation simple ou re-OAuth
-            // Pour l'instant, on laisse passer avec un toast d'avertissement
-            // ou on pourrait forcer un re-login
+            toast.info("Re-vérification simplifiée pour compte social", {
+                description: "En tant qu'utilisateur Google/Social, vos accès sensibles sont protégés par votre fournisseur d'identité."
+            })
             processAfterReauth()
             return
         }
@@ -248,15 +250,19 @@ export function SecuritySection({
             setMfaCode("")
             setMfaDialogOpen(true)
         } else {
-            if (window.confirm("Désactiver l'authentification à deux facteurs ?")) {
-                void saveSettings(
-                    { security_preferences: { two_factor_enabled: false } },
-                    "2FA désactivée"
-                ).then((success) => {
-                    if (success) setSecuritySettings({ two_factor_enabled: false })
-                })
-            }
+            setPendingAction("disable2fa")
+            setIsConfirmOpen(true)
         }
+    }
+
+    const confirmDisable2fa = () => {
+        setIsConfirmOpen(false)
+        void saveSettings(
+            { security_preferences: { two_factor_enabled: false } },
+            "2FA désactivée"
+        ).then((success) => {
+            if (success) setSecuritySettings({ two_factor_enabled: false })
+        })
     }
 
     const handleMfaEnroll = async () => {
@@ -325,10 +331,13 @@ export function SecuritySection({
         }
     }
 
-    const handleDeactivateAccount = async () => {
-        if (!window.confirm("Désactiver votre compte maintenant ? Vous serez immédiatement déconnecté.")) {
-            return
-        }
+    const handleDeactivateAccount = () => {
+        setPendingAction("deactivate")
+        setIsConfirmOpen(true)
+    }
+
+    const confirmDeactivateAccount = async () => {
+        setIsConfirmOpen(false)
 
         setAccountLoading(true)
         try {
@@ -348,10 +357,13 @@ export function SecuritySection({
         }
     }
 
-    const handleDeleteAccount = async () => {
-        if (!window.confirm("Cette action supprime définitivement votre compte. Continuer ?")) {
-            return
-        }
+    const handleDeleteAccount = () => {
+        setPendingAction("delete")
+        setIsConfirmOpen(true)
+    }
+
+    const confirmDeleteAccount = async () => {
+        setIsConfirmOpen(false)
 
         setAccountLoading(true)
         try {
@@ -362,7 +374,7 @@ export function SecuritySection({
             }
 
             await supabase.auth.signOut()
-            sessionStorage.removeItem("nexus_pin_verified")
+            sessionStorage.removeItem("emiid_pin_verified")
             toast.success("Compte supprimé")
             router.push("/")
             router.refresh()
@@ -680,6 +692,32 @@ export function SecuritySection({
                     </form>
                 </DialogContent>
             </Dialog>
+
+            <ConfirmActionDialog
+                isOpen={isConfirmOpen}
+                onClose={() => setIsConfirmOpen(false)}
+                onConfirm={() => {
+                    if (pendingAction === "disable2fa") confirmDisable2fa()
+                    else if (pendingAction === "deactivate") void confirmDeactivateAccount()
+                    else if (pendingAction === "delete") void confirmDeleteAccount()
+                }}
+                variant={pendingAction === "delete" ? "destructive" : "warning"}
+                title={
+                    pendingAction === "disable2fa" ? "Désactiver la 2FA ?" :
+                    pendingAction === "deactivate" ? "Désactiver le compte ?" :
+                    "Supprimer le compte ?"
+                }
+                description={
+                    pendingAction === "disable2fa" ? "Votre compte sera moins sécurisé. Voulez-vous continuer ?" :
+                    pendingAction === "deactivate" ? "Votre profil ne sera plus visible. Vous pourrez le réactiver plus tard." :
+                    "Cette action est irréversible. Toutes vos données seront définitivement supprimées."
+                }
+                confirmText={
+                    pendingAction === "delete" ? "Supprimer définitivement" :
+                    "Confirmer la désactivation"
+                }
+                isLoading={accountLoading}
+            />
         </div>
 
     )

@@ -5,14 +5,15 @@
  * @created 2026-01-25
 */
 
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { supabaseAdmin } from '../config/supabase';
 import { logger } from '../utils/logger';
+import { UserProfile, DBConversation, DBMessage } from '../types/models';
 
 const MEDIATION_REQUEST_MARKER = '[MÉDIATION DEMANDÉE]';
 const MEDIATION_STATUS_MARKER = '[MÉDIATION STATUT]';
 
-const formatParticipantName = (profile: any) => {
+const formatParticipantName = (profile: UserProfile | undefined) => {
   if (!profile) {
     return 'Utilisateur EmiID';
   }
@@ -29,7 +30,7 @@ const buildProfileLookup = (profiles: any[] = []) =>
 
 const getProfilesByUserIds = async (userIds: string[]) => {
   if (userIds.length === 0) {
-    return {} as Record<string, any>;
+    return {} as Record<string, UserProfile>;
   }
 
   const uniqueUserIds = Array.from(new Set(userIds));
@@ -89,10 +90,10 @@ const extractMediationStatus = (messages: Array<{ content: string }>) => {
 };
 
 const formatConversation = (
-  conv: any,
+  conv: DBConversation,
   userId: string,
   unreadCount: number,
-  profileLookup: Record<string, any>,
+  profileLookup: Record<string, UserProfile>,
 ) => {
   const otherUserId = conv.participant1_id === userId ? conv.participant2_id : conv.participant1_id;
   const otherUser = profileLookup[otherUserId];
@@ -121,8 +122,8 @@ const formatConversation = (
  * Récupère les messages d'une conversation de médiation pour l'admin
  * GET /api/messages/admin/conversation/:id
  */
-export const getAdminConversationMessages = async (req: any, res: Response) => {
-    const conversationId = req.params.id;
+export const getAdminConversationMessages = async (req: Request, res: Response) => {
+    const conversationId = req.params.id as string;
 
     try {
         const hasMediation = await isConversationInMediation(conversationId);
@@ -153,7 +154,7 @@ export const getAdminConversationMessages = async (req: any, res: Response) => {
  * Récupère TOUTES les conversations avec demande de médiation (ADMIN)
  * GET /api/messages/admin/disputes
  */
-export const getAdminDisputes = async (req: any, res: Response) => {
+export const getAdminDisputes = async (req: Request, res: Response) => {
     try {
         // 1. Chercher les messages de médiation pour trouver les IDs de conversation
         const { data: mediationMsgs, error: msgError } = await supabaseAdmin
@@ -217,14 +218,16 @@ export const getAdminDisputes = async (req: any, res: Response) => {
  * Récupère le compte Service Client / Support
  * GET /api/messages/support
  */
-export const getSupportUser = async (req: any, res: Response) => {
+export const getSupportUser = async (req: Request, res: Response) => {
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ error: "Non authentifié" });
     try {
         // On cherche le premier admin ou un compte nommé Service Client
         const { data, error } = await supabaseAdmin
             .from('user_profiles')
             .select('user_id, first_name, last_name, avatar_url, role')
             .or('role.ilike.%admin%,first_name.ilike.%service client%')
-            .neq('user_id', req.user.id)
+            .neq('user_id', userId)
             .limit(1)
             .single();
 
@@ -247,8 +250,9 @@ export const getSupportUser = async (req: any, res: Response) => {
  * Demande une médiation pour une conversation
  * POST /api/messages/dispute/:conversationId
  */
-export const requestMediation = async (req: any, res: Response) => {
-    const userId = req.user.id;
+export const requestMediation = async (req: Request, res: Response) => {
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ error: "Non authentifié" });
     const { conversationId } = req.params;
     const { reason } = req.body;
 
@@ -299,9 +303,10 @@ export const requestMediation = async (req: any, res: Response) => {
  * Permet à l'Admin de répondre dans une conversation de médiation
  * POST /api/messages/admin/reply/:conversationId
  */
-export const replyToMediation = async (req: any, res: Response) => {
-    const adminId = req.user.id;
-    const { conversationId } = req.params;
+export const replyToMediation = async (req: Request, res: Response) => {
+    const adminId = req.user?.id;
+    if (!adminId) return res.status(401).json({ error: "Non authentifié" });
+    const conversationId = req.params.conversationId as string;
     const { content } = req.body;
 
     if (!content) return res.status(400).json({ error: "Contenu requis" });
@@ -347,9 +352,10 @@ export const replyToMediation = async (req: any, res: Response) => {
  * Met à jour le statut d'une médiation.
  * POST /api/messages/admin/status/:conversationId
  */
-export const updateMediationStatus = async (req: any, res: Response) => {
-    const adminId = req.user.id;
-    const { conversationId } = req.params;
+export const updateMediationStatus = async (req: Request, res: Response) => {
+    const adminId = req.user?.id;
+    if (!adminId) return res.status(401).json({ error: "Non authentifié" });
+    const conversationId = req.params.conversationId as string;
     const { status } = req.body;
 
     if (!['pending', 'in_progress', 'resolved'].includes(status)) {
@@ -401,9 +407,10 @@ export const updateMediationStatus = async (req: any, res: Response) => {
  * Marque les messages d'une conversation de médiation comme lus pour l'admin
  * POST /api/messages/admin/read/:conversationId
  */
-export const markAdminAsRead = async (req: any, res: Response) => {
-    const adminId = req.user.id;
-    const { conversationId } = req.params;
+export const markAdminAsRead = async (req: Request, res: Response) => {
+    const adminId = req.user?.id;
+    if (!adminId) return res.status(401).json({ error: "Non authentifié" });
+    const conversationId = req.params.conversationId as string;
 
     try {
         const isAdmin = await isAdminUser(adminId);
@@ -437,8 +444,9 @@ export const markAdminAsRead = async (req: any, res: Response) => {
  * Récupère les conversations de l'utilisateur connecté
  * GET /api/messages/conversations
  */
-export const getConversations = async (req: any, res: Response) => {
-    const userId = req.user.id;
+export const getConversations = async (req: Request, res: Response) => {
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ error: "Non authentifié" });
 
     try {
         // 1. Charger les conversations
@@ -504,8 +512,9 @@ export const getConversations = async (req: any, res: Response) => {
  * Récupère les messages d'une conversation spécifique
  * GET /api/messages/conversation/:id
  */
-export const getConversationMessages = async (req: any, res: Response) => {
-    const userId = req.user.id;
+export const getConversationMessages = async (req: Request, res: Response) => {
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ error: "Non authentifié" });
     const conversationId = req.params.id;
 
     try {
@@ -540,8 +549,9 @@ export const getConversationMessages = async (req: any, res: Response) => {
  * Supprime une conversation et tous ses messages
  * DELETE /api/messages/conversation/:id
  */
-export const deleteConversation = async (req: any, res: Response) => {
-    const userId = req.user.id;
+export const deleteConversation = async (req: Request, res: Response) => {
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ error: "Non authentifié" });
     const conversationId = req.params.id;
 
     try {

@@ -140,7 +140,7 @@ export function EmiIDSidebar({ sidebarOpen, setSidebarOpen: _setSidebarOpen, mob
           />
         </div>
         {isMobile && (
-          <Button variant="ghost" size="icon" className="md:hidden rounded-full hover:bg-slate-100 text-slate-500 shrink-0" onClick={() => setMobileMenuOpen(false)}>
+          <Button variant="ghost" size="icon" aria-label="Fermer le menu" className="md:hidden rounded-full hover:bg-slate-100 text-slate-500 shrink-0" onClick={() => setMobileMenuOpen(false)}>
             <X className="h-5 w-5" />
           </Button>
         )}
@@ -274,6 +274,7 @@ export function EmiIDSidebar({ sidebarOpen, setSidebarOpen: _setSidebarOpen, mob
                   {item.items && !isCompactDesktop && (
                     <button
                       onClick={(e) => { e.stopPropagation(); toggleExpanded(item.title); }}
+                      aria-label={isExpanded ? `Réduire ${item.title}` : `Développer ${item.title}`}
                       className={cn(
                         "p-2 hover:bg-slate-100 rounded-xl ml-1 transition-colors",
                         isExpanded ? "text-primary" : "text-slate-400 hover:text-slate-600"

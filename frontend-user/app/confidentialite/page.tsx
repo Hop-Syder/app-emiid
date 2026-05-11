@@ -47,7 +47,7 @@ export default function ConfidentialitePage() {
               Vos données sont utilisées pour :
             </p>
             <ul className="list-disc ml-6 mt-2 space-y-1">
-              <li>Afficher votre profil professionnel dans l'annuaire.</li>
+              <li>Afficher votre profil professionnel dans l&apos;annuaire.</li>
               <li>Permettre la communication entre les membres.</li>
               <li>Améliorer nos services et la sécurité de la plateforme.</li>
               <li>Vous envoyer des notifications importantes.</li>
@@ -80,13 +80,13 @@ export default function ConfidentialitePage() {
               Vos Droits (RGPD)
             </h2>
             <p>
-              Vous disposez d'un droit d'accès, de rectification et de suppression de vos données. Vous pouvez exercer ces droits directement depuis vos paramètres de profil ou en nous contactant.
+              Vous disposez d&apos;un droit d&apos;accès, de rectification et de suppression de vos données. Vous pouvez exercer ces droits directement depuis vos paramètres de profil ou en nous contactant.
             </p>
           </section>
 
           <div className="pt-8 border-t border-slate-100 flex justify-between items-center">
             <Link href="/" className="text-emerald-600 hover:text-emerald-500 font-medium transition-colors">
-              ← Retour à l'accueil
+              ← Retour à l&apos;accueil
             </Link>
             <Link href="/conditions" className="text-slate-500 hover:text-slate-700 text-sm transition-colors">
               Conditions Générales

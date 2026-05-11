@@ -55,8 +55,10 @@ const buildUserSettings = (authUser, isPublished = false) => {
  * GET /api/users/me
  */
 const getMyProfile = async (req, res) => {
-    const userId = req.user.id;
+    const userId = req.user?.id;
     const authUser = req.user;
+    if (!userId || !authUser)
+        return res.status(401).json({ error: "Non authentifié" });
     const authFallback = {
         first_name: authUser.user_metadata?.first_name || authUser.user_metadata?.given_name || null,
         last_name: authUser.user_metadata?.last_name || authUser.user_metadata?.family_name || null,
@@ -333,20 +335,38 @@ exports.deleteMyAccount = deleteMyAccount;
  * POST /api/users/verify-pin
  */
 const verifyPin = async (req, res) => {
-    const userId = req.user.id;
+    const userId = req.user?.id;
+    if (!userId)
+        return res.status(401).json({ error: "Non authentifié" });
     const { pin } = req.body;
     try {
-        const { data: profile, error } = await supabase_1.supabaseAdmin
+        const { data, error } = await supabase_1.supabaseAdmin
             .from('user_profiles')
-            .select('pin_code, pin_attempts, pin_enabled, is_locked')
+            .select('pin_code, pin_attempts, pin_enabled, is_locked, locked_at')
             .eq('user_id', userId)
             .single();
-        if (error || !profile)
+        if (error || !data)
             return res.status(400).json({ error: "Profil introuvable" });
-        if (!profile.pin_enabled)
+        const profile = data;
+        if (!profile.pin_enabled || !profile.pin_code)
             return res.json({ success: true, message: "PIN non activé" });
-        if (profile.is_locked) {
-            return res.status(403).json({ error: "Compte bloqué après 3 essais infructueux. Veuillez contacter un administrateur.", is_locked: true });
+        if (profile.is_locked && profile.locked_at) {
+            const attempts = profile.pin_attempts || 3;
+            // Délai exponentiel : 1 min, 5 min, 15 min, 1h, 24h
+            const delays = [0, 0, 0, 1, 5, 15, 60, 1440]; // index = attempts
+            const delayMinutes = attempts < delays.length ? delays[attempts] : 1440;
+            const lockTime = new Date(profile.locked_at).getTime();
+            const now = new Date().getTime();
+            const diffMinutes = (now - lockTime) / (1000 * 60);
+            if (diffMinutes < delayMinutes) {
+                const remainingMinutes = Math.ceil(delayMinutes - diffMinutes);
+                return res.status(403).json({
+                    error: `Compte temporairement bloqué. Veuillez réessayer dans ${remainingMinutes} minute(s).`,
+                    is_locked: true,
+                    remaining_minutes: remainingMinutes
+                });
+            }
+            // Le délai est écoulé, on autorise la tentative mais on garde is_locked tant qu'on n'a pas réussi
         }
         const isMatch = await bcrypt_1.default.compare(pin, profile.pin_code);
         if (isMatch) {
@@ -360,19 +380,22 @@ const verifyPin = async (req, res) => {
         else {
             // Incrémenter les tentatives
             const newAttempts = (profile.pin_attempts || 0) + 1;
-            const isNowLocked = newAttempts >= 3;
+            const shouldLock = newAttempts >= 3;
             await supabase_1.supabaseAdmin
                 .from('user_profiles')
                 .update({
                 pin_attempts: newAttempts,
-                ...(isNowLocked ? { is_locked: true, locked_at: new Date().toISOString() } : {})
+                ...(shouldLock ? { is_locked: true, locked_at: new Date().toISOString() } : {})
             })
                 .eq('user_id', userId);
-            if (isNowLocked) {
+            if (shouldLock) {
+                const delays = [0, 0, 0, 1, 5, 15, 60, 1440];
+                const delayMinutes = newAttempts < delays.length ? delays[newAttempts] : 1440;
                 return res.status(403).json({
-                    error: "Compte bloqué après 3 essais infructueux. Veuillez contacter un administrateur.",
+                    error: `Code PIN incorrect. Compte bloqué pour ${delayMinutes} minute(s).`,
                     attempts_remaining: 0,
-                    is_locked: true
+                    is_locked: true,
+                    next_retry_in: delayMinutes
                 });
             }
             return res.status(401).json({
@@ -428,8 +451,8 @@ const requestPhoneVerification = async (req, res) => {
         });
         if (error)
             throw error;
-        // Simulation d'envoi (À remplacer par une API réelle)
-        logger_1.logger.info(`[OTP ${method.toUpperCase()}] Pour ${phone}: ${otp}`);
+        // Simulation d'envoi (On ne log que les 3 premiers chiffres par sécurité)
+        logger_1.logger.info(`[OTP ${method.toUpperCase()}] Pour ${phone}: ${otp.substring(0, 3)}***`);
         // Si method === 'whatsapp', on pourrait appeler une API WhatsApp ici
         res.json({ success: true, message: "Code envoyé" });
     }

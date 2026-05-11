@@ -139,6 +139,12 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                     }
                     setProfile(mappedProfile)
                     setFollowersCount(mappedProfile.followers)
+                    
+                    // On formate la date ici pour éviter les erreurs d'hydratation
+                    if (data.created_at) {
+                        const formatted = new Date(data.created_at).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })
+                        setJoinedDate(formatted)
+                    }
 
                     // Vérifier si l'utilisateur actuel suit ce profil
                     try {
@@ -218,6 +224,8 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
         .toUpperCase()
         .slice(0, 2) || 'NA'
 
+    const [joinedDate, setJoinedDate] = useState<string>("...")
+
     if (loading) return <ProfileSkeleton />
 
     if (!profile) {
@@ -257,12 +265,12 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                     </Button>
 
                     <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="icon" onClick={handleShare} className="rounded-xl bg-white/50 hover:bg-white shadow-sm border border-slate-100 h-10 w-10">
+                        <Button variant="ghost" size="icon" onClick={handleShare} aria-label="Partager ce profil" className="rounded-xl bg-white/50 hover:bg-white shadow-sm border border-slate-100 h-10 w-10">
                             <Share2 className="h-4.5 w-4.5 text-slate-600" />
                         </Button>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="rounded-xl bg-white/50 hover:bg-white shadow-sm border border-slate-100 h-10 w-10">
+                                <Button variant="ghost" size="icon" aria-label="Plus d'options" className="rounded-xl bg-white/50 hover:bg-white shadow-sm border border-slate-100 h-10 w-10">
                                     <MoreHorizontal className="h-4.5 w-4.5 text-slate-600" />
                                 </Button>
                             </DropdownMenuTrigger>
@@ -422,7 +430,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                                         </div>
                                         <div>
                                             <p className="text-[10px] font-bold text-slate-400 uppercase">Membre depuis</p>
-                                            <p className="text-sm font-bold text-slate-700">{profile.joinedDate}</p>
+                                            <p className="text-sm font-bold text-slate-700">{joinedDate}</p>
                                         </div>
                                     </div>
                                     {profile.email && (

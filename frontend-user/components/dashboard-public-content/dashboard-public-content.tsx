@@ -83,7 +83,7 @@ export function DashboardPublicContent({ initialStats = null }: DashboardPublicC
                 let nextWarning: string | null = null
 
                 const { data: entData, error: entError } = await supabase
-                    .from('user_profiles')
+                    .from('public_profiles')
                     .select(`*, countries(name, iso_code), profile_tags(tags(name))`)
                     .eq('is_published', true)
                     .order('created_at', { ascending: false })

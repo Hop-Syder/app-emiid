@@ -179,11 +179,11 @@ export default function LoginPage() {
                 />
                 <label htmlFor="terms" className="text-[11px] leading-tight text-zinc-500 cursor-pointer">
                   J’accepte les{" "}
-                  <Link href="#" className="font-bold text-zinc-300 hover:text-white transition-colors underline underline-offset-2">
+                  <Link href="/conditions" className="font-bold text-zinc-300 hover:text-white transition-colors underline underline-offset-2">
                     conditions d’utilisation
                   </Link>{" "}
                   et la{" "}
-                  <Link href="#" className="font-bold text-zinc-300 hover:text-white transition-colors underline underline-offset-2">
+                  <Link href="/confidentialite" className="font-bold text-zinc-300 hover:text-white transition-colors underline underline-offset-2">
                     politique de confidentialité
                   </Link> de Nexus Partners.
                 </label>

@@ -176,13 +176,16 @@ exports.getAdminDisputes = getAdminDisputes;
  * GET /api/messages/support
  */
 const getSupportUser = async (req, res) => {
+    const userId = req.user?.id;
+    if (!userId)
+        return res.status(401).json({ error: "Non authentifié" });
     try {
         // On cherche le premier admin ou un compte nommé Service Client
         const { data, error } = await supabase_1.supabaseAdmin
             .from('user_profiles')
             .select('user_id, first_name, last_name, avatar_url, role')
             .or('role.ilike.%admin%,first_name.ilike.%service client%')
-            .neq('user_id', req.user.id)
+            .neq('user_id', userId)
             .limit(1)
             .single();
         if (error || !data) {
@@ -205,7 +208,9 @@ exports.getSupportUser = getSupportUser;
  * POST /api/messages/dispute/:conversationId
  */
 const requestMediation = async (req, res) => {
-    const userId = req.user.id;
+    const userId = req.user?.id;
+    if (!userId)
+        return res.status(401).json({ error: "Non authentifié" });
     const { conversationId } = req.params;
     const { reason } = req.body;
     try {
@@ -252,8 +257,10 @@ exports.requestMediation = requestMediation;
  * POST /api/messages/admin/reply/:conversationId
  */
 const replyToMediation = async (req, res) => {
-    const adminId = req.user.id;
-    const { conversationId } = req.params;
+    const adminId = req.user?.id;
+    if (!adminId)
+        return res.status(401).json({ error: "Non authentifié" });
+    const conversationId = req.params.conversationId;
     const { content } = req.body;
     if (!content)
         return res.status(400).json({ error: "Contenu requis" });
@@ -296,8 +303,10 @@ exports.replyToMediation = replyToMediation;
  * POST /api/messages/admin/status/:conversationId
  */
 const updateMediationStatus = async (req, res) => {
-    const adminId = req.user.id;
-    const { conversationId } = req.params;
+    const adminId = req.user?.id;
+    if (!adminId)
+        return res.status(401).json({ error: "Non authentifié" });
+    const conversationId = req.params.conversationId;
     const { status } = req.body;
     if (!['pending', 'in_progress', 'resolved'].includes(status)) {
         return res.status(400).json({ error: 'Statut de médiation invalide' });
@@ -341,8 +350,10 @@ exports.updateMediationStatus = updateMediationStatus;
  * POST /api/messages/admin/read/:conversationId
  */
 const markAdminAsRead = async (req, res) => {
-    const adminId = req.user.id;
-    const { conversationId } = req.params;
+    const adminId = req.user?.id;
+    if (!adminId)
+        return res.status(401).json({ error: "Non authentifié" });
+    const conversationId = req.params.conversationId;
     try {
         const isAdmin = await isAdminUser(adminId);
         if (!isAdmin) {
@@ -373,7 +384,9 @@ exports.markAdminAsRead = markAdminAsRead;
  * GET /api/messages/conversations
  */
 const getConversations = async (req, res) => {
-    const userId = req.user.id;
+    const userId = req.user?.id;
+    if (!userId)
+        return res.status(401).json({ error: "Non authentifié" });
     try {
         // 1. Charger les conversations
         const { data: convData, error: convError } = await supabase_1.supabaseAdmin
@@ -433,7 +446,9 @@ exports.getConversations = getConversations;
  * GET /api/messages/conversation/:id
  */
 const getConversationMessages = async (req, res) => {
-    const userId = req.user.id;
+    const userId = req.user?.id;
+    if (!userId)
+        return res.status(401).json({ error: "Non authentifié" });
     const conversationId = req.params.id;
     try {
         // Vérifier l'accès
@@ -466,7 +481,9 @@ exports.getConversationMessages = getConversationMessages;
  * DELETE /api/messages/conversation/:id
  */
 const deleteConversation = async (req, res) => {
-    const userId = req.user.id;
+    const userId = req.user?.id;
+    if (!userId)
+        return res.status(401).json({ error: "Non authentifié" });
     const conversationId = req.params.id;
     try {
         // Vérifier l'accès

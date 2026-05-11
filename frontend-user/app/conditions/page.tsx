@@ -20,7 +20,7 @@ export default function ConditionsPage() {
       <div className="max-w-3xl mx-auto bg-white shadow-xl rounded-2xl overflow-hidden">
         <div className="bg-indigo-600 px-6 py-8 sm:px-10">
           <h1 className="text-3xl font-extrabold text-white text-center">
-            Conditions Générales d'Utilisation
+            Conditions Générales d&apos;Utilisation
           </h1>
           <p className="mt-2 text-indigo-100 text-center text-sm">
             Dernière mise à jour : 11 Mai 2026
@@ -34,7 +34,7 @@ export default function ConditionsPage() {
               Acceptation des Conditions
             </h2>
             <p>
-              En accédant et en utilisant la plateforme EmiID, vous acceptez d'être lié par les présentes Conditions Générales d'Utilisation. Si vous n'acceptez pas ces conditions, veuillez ne pas utiliser nos services.
+              En accédant et en utilisant la plateforme EmiID, vous acceptez d&apos;être lié par les présentes Conditions Générales d&apos;Utilisation. Si vous n&apos;acceptez pas ces conditions, veuillez ne pas utiliser nos services.
             </p>
           </section>
 
@@ -51,10 +51,10 @@ export default function ConditionsPage() {
           <section>
             <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center">
               <span className="bg-indigo-100 text-indigo-700 w-8 h-8 rounded-full flex items-center justify-center mr-3 text-sm">3</span>
-              Responsabilité de l'Utilisateur
+              Responsabilité de l&apos;Utilisateur
             </h2>
             <p>
-              Vous êtes responsable du contenu que vous publiez sur votre profil. Vous vous engagez à fournir des informations exactes et à ne pas usurper l'identité d'un tiers. Toute utilisation abusive de la messagerie peut entraîner la suspension de votre compte.
+              Vous êtes responsable du contenu que vous publiez sur votre profil. Vous vous engagez à fournir des informations exactes et à ne pas usurper l&apos;identité d&apos;un tiers. Toute utilisation abusive de la messagerie peut entraîner la suspension de votre compte.
             </p>
           </section>
 
@@ -80,7 +80,7 @@ export default function ConditionsPage() {
 
           <div className="pt-8 border-t border-slate-100 flex justify-between items-center">
             <Link href="/" className="text-indigo-600 hover:text-indigo-500 font-medium transition-colors">
-              ← Retour à l'accueil
+              ← Retour à l&apos;accueil
             </Link>
             <Link href="/confidentialite" className="text-slate-500 hover:text-slate-700 text-sm transition-colors">
               Politique de Confidentialité
