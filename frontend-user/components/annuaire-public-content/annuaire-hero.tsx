@@ -47,7 +47,7 @@ export function AnnuaireHero({
                 <div>
                     <Link href="/creer-profil">
                         <Button className="bg-amber-500 hover:bg-amber-600 text-white rounded-xl h-11 px-6 font-semibold shadow-md">
-                            Rejoindre l'annuaire
+                            Rejoindre l&apos;annuaire
                             <ArrowRight className="ml-2 w-4 h-4" />
                         </Button>
                     </Link>
