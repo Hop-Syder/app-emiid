@@ -51,9 +51,10 @@ export default function LoginPage() {
         },
       })
       if (error) throw error
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error(e)
-      setAuthError(e.message || "Une erreur est survenue lors de la connexion. Veuillez réessayer.")
+      const message = e instanceof Error ? e.message : "Une erreur est survenue lors de la connexion. Veuillez réessayer."
+      setAuthError(message)
       setProviderLoading(null)
     }
   }
