@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Layout racine de l'application EmiID avec métadonnées SEO
  * @created 2026-04-18
- * @updated 2026-05-11
+ * @updated 2026-05-20
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  * ──────────────────────────────────
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'EmiID — Ton réseau, ta force',
     description: 'La plateforme de networking intelligente pour les professionnels.',
-    url: 'https://emiid.xyz',
+    url: 'https://app.emiid.com',
     siteName: 'EmiID',
     locale: 'fr_FR',
     type: 'website',

@@ -1,12 +1,57 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Page d'Onboarding (Landing Page pour les non-connectés)
- * @created 2026-01-05
+ * @description Page d'accueil de l'application (Intro / Onboarding)
+ * @created 2026-05-20
+ * @updated 2026-05-20
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
 */
+// ──────────────────────────────────────────────────────────────────
 
-import { OnboardingCarousel } from "@/components/OnboardingCarousel/OnboardingCarousel";
+import type { Metadata } from "next";
+import IntroScreen from "@/components/intro/IntroScreen";
 
-export default function Home() {
-    return <OnboardingCarousel />;
+// ─── SEO & Open Graph ────────────────────────────────────────────────────────
+// og:url corrigé → app.emiid.com (et non plus emiid.xyz)
+export const metadata: Metadata = {
+  title: "EmiID — Ton réseau, ta force",
+  description:
+    "Crée ta carte de visite numérique et rejoins le réseau de professionnels qui construisent l'Afrique de demain.",
+  keywords: ["networking", "professionnel", "Afrique", "carte de visite", "EmiID"],
+  authors: [{ name: "Nexus Partners", url: "https://app.emiid.com" }],
+  openGraph: {
+    type: "website",
+    locale: "fr_FR",
+    // ✅ CORRIGÉ : URL canonique pointe vers app.emiid.com
+    url: "https://app.emiid.com",
+    siteName: "EmiID",
+    title: "EmiID — Ton réseau, ta force",
+    description:
+      "Crée ta carte de visite numérique et rejoins le réseau de professionnels qui construisent l'Afrique de demain.",
+    images: [
+      {
+        url: "https://app.emiid.com/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "EmiID — Ton réseau, ta force",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    creator: "@hopsyder",
+    title: "EmiID — Ton réseau, ta force",
+    description:
+      "Crée ta carte de visite numérique et rejoins le réseau de professionnels qui construisent l'Afrique de demain.",
+  },
+  // Empêche l'indexation de la page d'intro (contenu dupliqué avec dashboard)
+  robots: {
+    index: false,
+    follow: true,
+  },
+};
+
+export default function IntroPage() {
+  return <IntroScreen />;
 }
