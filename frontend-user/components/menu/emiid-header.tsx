@@ -290,64 +290,59 @@ export function EmiIDHeader({ sidebarOpen, setSidebarOpen, setMobileMenuOpen }: 
 
             <div className="h-8 w-px bg-slate-200 mx-1 hidden md:block" />
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative p-0 h-10 w-10 md:h-11 md:w-11 rounded-full outline-none focus:ring-4 focus:ring-primary/20 transition-all sm:ml-1 bg-white shadow-sm shrink-0">
-                  <Avatar className="h-10 w-10 md:h-11 md:w-11 border-2 border-white shadow-sm transition-transform hover:scale-105">
-                    <AvatarImage src={currentUser?.avatar_url || "/profil/avatar.jpg"} alt="User" className="object-cover" />
-                    <AvatarFallback className="bg-primary/10 text-primary font-bold text-xs">{userInitials}</AvatarFallback>
-                  </Avatar>
-                  <div className="absolute bottom-0 right-0 h-2.5 w-2.5 md:h-3 md:w-3 rounded-full bg-green-500 border-2 border-white" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-64 p-2 rounded-xl mt-2 shadow-2xl border-white/50 bg-white/95 backdrop-blur-xl" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal p-3 bg-slate-50 rounded-xl mb-1">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-bold leading-none text-slate-900 line-clamp-1">{userDisplayName}</p>
-                    <p className="text-xs font-medium leading-none text-slate-500 line-clamp-1">{userEmail}</p>
-                  </div>
-                </DropdownMenuLabel>
-
-                <DropdownMenuItem className="rounded-xl mt-1 h-10 px-3 cursor-pointer hover:bg-slate-50 focus:bg-slate-50 transition-colors font-medium text-slate-700" onClick={(e) => handleRestrictedAction(e, "/parametres")}>
-                  <div className="flex items-center gap-3 w-full">
-                    <div className="p-1.5 bg-slate-100 rounded-lg">
-                      <Settings className="h-4 w-4 text-slate-500" />
+            {session ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative p-0 h-10 w-10 md:h-11 md:w-11 rounded-full outline-none focus:ring-4 focus:ring-primary/20 transition-all sm:ml-1 bg-white shadow-sm shrink-0">
+                    <Avatar className="h-10 w-10 md:h-11 md:w-11 border-2 border-white shadow-sm transition-transform hover:scale-105">
+                      <AvatarImage src={currentUser?.avatar_url || "/profil/avatar.jpg"} alt="User" className="object-cover" />
+                      <AvatarFallback className="bg-primary/10 text-primary font-bold text-xs">{userInitials}</AvatarFallback>
+                    </Avatar>
+                    <div className="absolute bottom-0 right-0 h-2.5 w-2.5 md:h-3 md:w-3 rounded-full bg-green-500 border-2 border-white" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-64 p-2 rounded-xl mt-2 shadow-2xl border-white/50 bg-white/95 backdrop-blur-xl" align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal p-3 bg-slate-50 rounded-xl mb-1">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-bold leading-none text-slate-900 line-clamp-1">{userDisplayName}</p>
+                      <p className="text-xs font-medium leading-none text-slate-500 line-clamp-1">{userEmail}</p>
                     </div>
-                    <span>Paramètres du compte</span>
-                  </div>
-                </DropdownMenuItem>
+                  </DropdownMenuLabel>
 
-                <DropdownMenuSeparator className="my-1.5" />
+                  <DropdownMenuItem className="rounded-xl mt-1 h-10 px-3 cursor-pointer hover:bg-slate-50 focus:bg-slate-50 transition-colors font-medium text-slate-700" onClick={(e) => handleRestrictedAction(e, "/parametres")}>
+                    <div className="flex items-center gap-3 w-full">
+                      <div className="p-1.5 bg-slate-100 rounded-lg">
+                        <Settings className="h-4 w-4 text-slate-500" />
+                      </div>
+                      <span>Paramètres du compte</span>
+                    </div>
+                  </DropdownMenuItem>
 
-                <DropdownMenuItem
-                  className={cn(
-                    "rounded-xl h-10 px-3 cursor-pointer transition-colors font-bold",
-                    session
-                      ? "text-red-600 hover:bg-red-50 focus:bg-red-50"
-                      : "text-primary hover:bg-primary/10 focus:bg-primary/10"
-                  )}
-                  onClick={session ? handleLogout : () => router.push("/login")}
-                >
-                  <div className="flex items-center gap-3 w-full">
-                    {session ? (
-                      <>
-                        <div className="p-1.5 bg-red-100/50 rounded-lg">
-                          <LogOut className="h-4 w-4 text-red-600" />
-                        </div>
-                        <span>Déconnexion</span>
-                      </>
-                    ) : (
-                      <>
-                        <div className="p-1.5 bg-primary/10 rounded-lg">
-                          <LogIn className="h-4 w-4 text-primary" />
-                        </div>
-                        <span>Connexion sécurisée</span>
-                      </>
-                    )}
-                  </div>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  <DropdownMenuSeparator className="my-1.5" />
+
+                  <DropdownMenuItem
+                    className="rounded-xl h-10 px-3 cursor-pointer transition-colors font-bold text-red-600 hover:bg-red-50 focus:bg-red-50"
+                    onClick={handleLogout}
+                  >
+                    <div className="flex items-center gap-3 w-full">
+                      <div className="p-1.5 bg-red-100/50 rounded-lg">
+                        <LogOut className="h-4 w-4 text-red-600" />
+                      </div>
+                      <span>Déconnexion</span>
+                    </div>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button
+                onClick={() => router.push("/login")}
+                className="rounded-xl h-10 px-4 font-bold bg-primary text-white hover:bg-primary/90 shadow-sm shadow-primary/25 transition-all hover:scale-105 text-sm sm:ml-1 shrink-0"
+                aria-label="Se connecter à EmiID"
+              >
+                <LogIn className="h-4 w-4 mr-1.5" />
+                <span className="hidden sm:inline">Connexion</span>
+              </Button>
+            )}
           </div>
         </div>
       </header>

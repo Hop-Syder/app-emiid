@@ -374,12 +374,15 @@ export function EmiIDSidebar({ sidebarOpen, setSidebarOpen: _setSidebarOpen, mob
         />
       )}
 
-      {/* Sidebar - Mobile Responsive Pro Max */}
+      {/* Sidebar — Mobile drawer */}
       <div
         className={cn(
           "fixed inset-y-0 left-0 z-50 w-[85%] max-w-[320px] transform bg-white shadow-2xl transition-transform duration-500 ease-out md:hidden rounded-r-[2.5rem] overflow-hidden flex flex-col",
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full",
         )}
+        aria-hidden={!mobileMenuOpen}
+        // @ts-expect-error — inert est un attribut HTML5 standard non encore pleinement typé dans @types/react
+        inert={!mobileMenuOpen ? "true" : undefined}
       >
         <SidebarContent isMobile={true} />
       </div>

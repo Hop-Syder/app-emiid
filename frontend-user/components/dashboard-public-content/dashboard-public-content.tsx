@@ -55,11 +55,13 @@ export interface EntrepreneurApiResponse {
 
 interface DashboardPublicContentProps {
     initialStats?: DashboardStats | null
+    initialProfiles?: EntrepreneurProfile[]
 }
 
-export function DashboardPublicContent({ initialStats = null }: DashboardPublicContentProps) {
-    const [loading, setLoading] = useState(true)
-    const [entrepreneursList, setEntrepreneursList] = useState<EntrepreneurProfile[]>([])
+export function DashboardPublicContent({ initialStats = null, initialProfiles = [] }: DashboardPublicContentProps) {
+    // Initialisation avec les données ISR serveur → premier rendu instantané, CLS = 0
+    const [loading, setLoading] = useState(initialProfiles.length === 0)
+    const [entrepreneursList, setEntrepreneursList] = useState<EntrepreneurProfile[]>(initialProfiles)
     const [profilesWarning, setProfilesWarning] = useState<string | null>(null)
     const { stats, statsLoading, statsError } = useDashboardStats({
         endpoint: "/api/public/stats",
@@ -75,7 +77,8 @@ export function DashboardPublicContent({ initialStats = null }: DashboardPublicC
         let isMounted = true
 
         const loadPublicDashboardData = async (showLoading: boolean) => {
-            if (showLoading && isMounted) {
+            // Ne montre le spinner que si aucun profil SSR n'est disponible (fallback dégradé)
+            if (showLoading && isMounted && initialProfiles.length === 0) {
                 setLoading(true)
             }
 
@@ -90,7 +93,7 @@ export function DashboardPublicContent({ initialStats = null }: DashboardPublicC
                     .limit(6)
 
                 if (!entError && entData) {
-                    // Optionnel: Récupérer les follows si l'utilisateur est connecté
+                    // Récupérer les follows côté client (mise à jour arrière-plan uniquement)
                     let userFollowsIds: string[] = []
                     try {
                         const { fetchWithAuth } = await import("@/lib/apiClient")
@@ -151,13 +154,14 @@ export function DashboardPublicContent({ initialStats = null }: DashboardPublicC
                     setProfilesWarning("Les profils en vedette n’ont pas pu être chargés pour le moment.")
                 }
             } finally {
-                if (showLoading && isMounted) {
+                if (showLoading && isMounted && initialProfiles.length === 0) {
                     setLoading(false)
                 }
             }
         }
 
-        void loadPublicDashboardData(true)
+        // Premier chargement : enrichissement des follows (non bloquant si profils SSR déjà présents)
+        void loadPublicDashboardData(initialProfiles.length === 0)
 
         const intervalId = window.setInterval(() => {
             void loadPublicDashboardData(false)
@@ -167,6 +171,7 @@ export function DashboardPublicContent({ initialStats = null }: DashboardPublicC
             isMounted = false
             window.clearInterval(intervalId)
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [supabase])
 
     return (

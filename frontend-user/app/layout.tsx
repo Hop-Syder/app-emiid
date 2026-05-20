@@ -14,6 +14,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://app.emiid.com'),
   title: 'EmiID — Ton réseau, ta force',
   description: 'La plateforme de networking intelligente pour les professionnels africains. Créez votre carte de visite numérique et développez votre réseau.',
   generator: 'Next.js',
