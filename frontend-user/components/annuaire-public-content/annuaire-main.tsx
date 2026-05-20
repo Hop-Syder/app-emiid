@@ -17,9 +17,10 @@ import { AnnuaireGrid } from "./annuaire-grid"
 interface AnnuairePublicContentProps {
     initialCategory?: string
     initialCity?: string
+    initialProfiles?: any[]
 }
 
-export function AnnuairePublicContent({ initialCategory = "all", initialCity = "" }: AnnuairePublicContentProps) {
+export function AnnuairePublicContent({ initialCategory = "all", initialCity = "", initialProfiles = [] }: AnnuairePublicContentProps) {
     const [filters, setFilters] = useState({
         search: "",
         category: initialCategory,
@@ -43,7 +44,7 @@ export function AnnuairePublicContent({ initialCategory = "all", initialCity = "
                     <h2 className="text-lg sm:text-2xl font-black text-[#022753] uppercase tracking-tight">Tous les Profils</h2>
                     <p className="text-muted-foreground text-[10px] sm:text-sm font-bold uppercase tracking-widest opacity-60">Recherche par pertinence</p>
                 </div>
-                <AnnuaireGrid filters={filters} />
+                <AnnuaireGrid filters={filters} initialProfiles={initialProfiles} />
             </div>
         </div>
     )

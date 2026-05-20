@@ -28,13 +28,29 @@ interface AnnuaireGridProps {
         tags: string
         status: string
     }
+    initialProfiles?: PublicProfile[]
 }
 
-export function AnnuaireGrid({ filters }: AnnuaireGridProps) {
-    const [loading, setLoading] = useState(true)
-    const [profiles, setProfiles] = useState<PublicProfile[]>([])
+export function AnnuaireGrid({ filters, initialProfiles = [] }: AnnuaireGridProps) {
+    const [loading, setLoading] = useState(!initialProfiles.length)
+    const [profiles, setProfiles] = useState<PublicProfile[]>(initialProfiles)
+    const [isFirstRender, setIsFirstRender] = useState(true)
 
     useEffect(() => {
+        // Skip first fetch if we have initial profiles and filters are default
+        const isDefaultFilters = !filters || (
+            !filters.search && 
+            (!filters.category || filters.category === "all") && 
+            (!filters.country || filters.country === "all") && 
+            !filters.city && 
+            !filters.tags
+        )
+
+        if (isFirstRender && isDefaultFilters && initialProfiles.length > 0) {
+            setIsFirstRender(false)
+            return
+        }
+
         const loadProfiles = async () => {
             setLoading(true)
             try {
@@ -101,10 +117,11 @@ export function AnnuaireGrid({ filters }: AnnuaireGridProps) {
                 console.error("Erreur chargement annuaire:", error)
             } finally {
                 setLoading(false)
+                setIsFirstRender(false)
             }
         }
         loadProfiles()
-    }, [filters])
+    }, [filters, initialProfiles.length, isFirstRender])
 
     if (loading) {
         return (

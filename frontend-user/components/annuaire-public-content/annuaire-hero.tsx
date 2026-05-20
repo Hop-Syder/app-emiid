@@ -10,7 +10,9 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Grid } from "lucide-react"
+import { Grid, ArrowRight } from "lucide-react"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
 
 interface AnnuaireHeroProps {
     title?: string;
@@ -19,7 +21,7 @@ interface AnnuaireHeroProps {
 
 export function AnnuaireHero({
     title = "Découvrez les Talents de l'Afrique de l'Ouest",
-    description = "Explorez notre réseau dynamique regroupant artisans, commerçantes, freelances, entreprises, agences, startup et ONG. Trouvez les partenaires et experts dont vous avez besoin pour développer votre activité."
+    description = "Explorez notre réseau dynamique regroupant artisans, commerçants, freelances, entreprises, agences, startup et ONG. Trouvez les partenaires et experts dont vous avez besoin pour développer votre activité."
 }: AnnuaireHeroProps) {
     return (
         <motion.div
@@ -31,15 +33,25 @@ export function AnnuaireHero({
             <div className="absolute inset-0 opacity-10"
                 style={{ backgroundImage: 'url(/dashboard/background-1.svg)', backgroundSize: 'cover' }} />
 
-            <div className="relative z-10 space-y-4">
-                <div className="flex items-center gap-2 text-amber-400">
-                    <Grid className="w-6 h-6" />
-                    <span className="font-semibold uppercase tracking-wider text-sm">Annuaire EmiID</span>
+            <div className="relative z-10 space-y-6">
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 text-amber-400">
+                        <Grid className="w-6 h-6" />
+                        <span className="font-semibold uppercase tracking-wider text-sm">Annuaire EmiID</span>
+                    </div>
+                    <h1 className="text-4xl font-bold">{title}</h1>
+                    <p className="max-w-[700px] text-white/80 text-lg">
+                        {description}
+                    </p>
                 </div>
-                <h1 className="text-4xl font-bold">{title}</h1>
-                <p className="max-w-[700px] text-white/80 text-lg">
-                    {description}
-                </p>
+                <div>
+                    <Link href="/creer-profil">
+                        <Button className="bg-amber-500 hover:bg-amber-600 text-white rounded-xl h-11 px-6 font-semibold shadow-md">
+                            Rejoindre l'annuaire
+                            <ArrowRight className="ml-2 w-4 h-4" />
+                        </Button>
+                    </Link>
+                </div>
             </div>
         </motion.div>
     )

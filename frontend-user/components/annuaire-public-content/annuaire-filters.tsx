@@ -55,6 +55,7 @@ export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProp
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                         <Input
                             placeholder="Rechercher un talent (Nom, Rôle, Bio...)"
+                            aria-label="Rechercher par mot-clé"
                             className="pl-12 h-12 rounded-xl bg-white border-muted focus-visible:ring-primary shadow-sm"
                             value={filters.search}
                             onChange={(e) => onFilterChange("search", e.target.value)}
@@ -63,6 +64,7 @@ export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProp
                     <div className="flex-1">
                         <Input
                             placeholder="Filtrer par Tags (Ex: React, BTP...)"
+                            aria-label="Filtrer par tags"
                             className="h-12 rounded-xl bg-white border-muted shadow-sm"
                             value={filters.tags}
                             onChange={(e) => onFilterChange("tags", e.target.value)}
@@ -77,13 +79,13 @@ export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProp
                     <div className="space-y-2">
                         <label htmlFor="category-select" className="text-sm font-medium ml-1 text-muted-foreground">Secteur</label>
                         <Select onValueChange={(val) => onFilterChange("category", val)} value={filters.category}>
-                            <SelectTrigger id="category-select" className="h-11 rounded-xl bg-white border-muted">
+                            <SelectTrigger id="category-select" className="h-12 rounded-xl bg-white border-muted">
                                 <SelectValue placeholder="Catégorie" />
                             </SelectTrigger>
                             <SelectContent className="rounded-xl">
                                 <SelectItem value="all">Tous les secteurs</SelectItem>
                                 <SelectItem value="artisan">Artisans</SelectItem>
-                                <SelectItem value="commerçante">Commerçantes</SelectItem>
+                                <SelectItem value="commerçante">Commerçants</SelectItem>
                                 <SelectItem value="freelance">Freelances</SelectItem>
                                 <SelectItem value="entreprise">Entreprises</SelectItem>
                                 <SelectItem value="agence">Agences</SelectItem>
@@ -107,7 +109,7 @@ export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProp
                         <Button
                             variant="ghost"
                             onClick={resetFilters}
-                            className="w-full text-muted-foreground hover:text-red-500 hover:bg-red-50 rounded-xl"
+                            className="w-full text-muted-foreground hover:bg-muted/50 rounded-xl h-12"
                         >
                             <X className="mr-2 h-4 w-4" />
                             Réinitialiser
