@@ -26,7 +26,7 @@ export const introSlides: IntroSlide[] = [
     body:
       "Crée ta carte de visite numérique en moins de 2 minutes et rejoins des milliers de professionnels qui construisent l'Afrique de demain.",
     ctaLabel: "Commencer →",
-    illustration: "🌍",
+    illustration: "/onboarding/globe-terreste.png",
   },
   {
     id: 2,
@@ -35,7 +35,7 @@ export const introSlides: IntroSlide[] = [
     body:
       "Trouve des partenaires, clients et collaborateurs de confiance. Chaque profil est authentifié — pas de faux comptes, que des opportunités réelles.",
     ctaLabel: "Suivant →",
-    illustration: "🤝",
+    illustration: "/onboarding/bagbe.jpg",
   },
   {
     id: 3,
@@ -44,6 +44,6 @@ export const introSlides: IntroSlide[] = [
     body:
       "QR code, lien direct, NFC. Ta carte EmiID remplace les cartes papier et t'ouvre des portes, même quand tu n'es pas dans la pièce.",
     ctaLabel: "Créer mon profil gratuit →",
-    illustration: "✨",
+    illustration: "/onboarding/partage.png",
   },
 ];
