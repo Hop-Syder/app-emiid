@@ -25,6 +25,8 @@ export default function LoginPage() {
   const supabase = createClient()
   const [providerLoading, setProviderLoading] = useState<Provider | null>(null)
   const [acceptedTerms, setAcceptedTerms] = useState(false)
+  const [authError, setAuthError] = useState<string | null>(null)
+  const [shakeCheckbox, setShakeCheckbox] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
@@ -32,7 +34,14 @@ export default function LoginPage() {
   }, [])
 
   const handleLogin = async (provider: Provider) => {
-    if (!acceptedTerms) return
+    setAuthError(null)
+    if (!acceptedTerms) {
+      setAuthError("Veuillez accepter les conditions d'utilisation pour continuer.")
+      setShakeCheckbox(true)
+      setTimeout(() => setShakeCheckbox(false), 500)
+      return
+    }
+    
     try {
       setProviderLoading(provider)
       const { error } = await supabase.auth.signInWithOAuth({
@@ -42,8 +51,9 @@ export default function LoginPage() {
         },
       })
       if (error) throw error
-    } catch (e) {
+    } catch (e: any) {
       console.error(e)
+      setAuthError(e.message || "Une erreur est survenue lors de la connexion. Veuillez réessayer.")
       setProviderLoading(null)
     }
   }
@@ -123,6 +133,16 @@ export default function LoginPage() {
 
           {/* Social Auth Grid */}
           <div className="space-y-6">
+            {authError && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-3 text-sm font-medium text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl"
+              >
+                {authError}
+              </motion.div>
+            )}
+
             <div className="grid grid-cols-1 gap-4">
               {(["google", "linkedin", "apple"] as Provider[]).map((provider, index) => (
                 <motion.div
@@ -133,7 +153,7 @@ export default function LoginPage() {
                 >
                   <Button
                     variant="outline"
-                    disabled={!acceptedTerms || providerLoading !== null}
+                    disabled={providerLoading !== null && providerLoading !== provider}
                     onClick={() => handleLogin(provider)}
                     className="relative w-full h-14 rounded-2xl bg-white/[0.05] border-white/10 hover:bg-white/[0.1] hover:border-white/20 text-white transition-all duration-300 group overflow-hidden"
                   >
@@ -167,17 +187,20 @@ export default function LoginPage() {
             <div className="space-y-6">
               <motion.div
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.8 }}
-                className="flex items-start gap-3 p-4 rounded-2xl bg-white/[0.02] border border-white/5"
+                animate={shakeCheckbox ? { x: [-10, 10, -10, 10, 0] } : { opacity: 1 }}
+                transition={shakeCheckbox ? { duration: 0.4 } : { delay: 0.8 }}
+                className={`flex items-start gap-3 p-4 rounded-2xl bg-white/[0.02] border transition-colors ${shakeCheckbox ? "border-red-500/50 bg-red-500/5" : "border-white/5"}`}
               >
                 <Checkbox
                   id="terms"
                   checked={acceptedTerms}
-                  onCheckedChange={(v) => setAcceptedTerms(!!v)}
-                  className="mt-1 border-white/20 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                  onCheckedChange={(v) => {
+                    setAcceptedTerms(!!v)
+                    if (v) setAuthError(null)
+                  }}
+                  className={`mt-1 transition-colors data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 ${shakeCheckbox ? "border-red-500" : "border-white/20"}`}
                 />
-                <label htmlFor="terms" className="text-[11px] leading-tight text-zinc-500 cursor-pointer">
+                <label htmlFor="terms" className="text-[11px] leading-tight text-zinc-400 cursor-pointer">
                   J’accepte les{" "}
                   <Link href="/conditions" className="font-bold text-zinc-300 hover:text-white transition-colors underline underline-offset-2">
                     conditions d’utilisation
@@ -190,7 +213,7 @@ export default function LoginPage() {
               </motion.div>
 
               <div className="flex flex-col items-center gap-4">
-                <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.3em] text-zinc-600">
+                <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.3em] text-zinc-500">
                   <ShieldCheck className="size-3 text-emerald-500" />
                   Sécurité Chiffrée • Nexus Partners
                 </div>
