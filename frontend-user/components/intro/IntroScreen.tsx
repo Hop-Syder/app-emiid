@@ -121,12 +121,23 @@ export default function IntroScreen() {
         aria-live="polite"
         aria-atomic="true"
       >
-        {/* Illustration / Emoji placeholder */}
+        {/* Illustration */}
         <div
           aria-hidden="true"
-          className="mb-8 flex h-24 w-24 items-center justify-center rounded-full bg-white/5 text-5xl ring-1 ring-white/10"
+          className="mb-8 flex h-24 w-24 items-center justify-center rounded-full bg-white/5 overflow-hidden ring-1 ring-white/10 relative"
         >
-          {currentSlide.illustration}
+          {currentSlide.illustration.startsWith("/") ? (
+            <Image
+              src={currentSlide.illustration}
+              alt=""
+              fill
+              className="object-cover"
+              sizes="96px"
+              priority
+            />
+          ) : (
+            <span className="text-5xl">{currentSlide.illustration}</span>
+          )}
         </div>
 
         {/* Eyebrow */}
