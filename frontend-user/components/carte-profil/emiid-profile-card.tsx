@@ -68,7 +68,7 @@ export function EmiIDProfileCard({
         whileHover={{ y: -6, transition: { duration: 0.3 } }}
         onClick={() => onAction?.('view')}
         className={cn(
-          "relative w-full max-w-[320px] sm:max-w-[280px] lg:max-w-[300px] aspect-[1/1.2] mx-auto rounded-3xl overflow-hidden bg-[#050505] border border-amber-500/30 group shadow-2xl cursor-pointer",
+          "relative w-full max-w-[320px] sm:max-w-[280px] lg:max-w-[300px] aspect-[1/1.28] mx-auto rounded-3xl overflow-hidden bg-[#050505] border border-amber-500/30 group shadow-2xl cursor-pointer",
           className
         )}
       >
@@ -77,7 +77,7 @@ export function EmiIDProfileCard({
         <div className="absolute -bottom-16 -left-16 w-40 h-40 bg-amber-500/10 blur-[60px] rounded-full z-0" />
         <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-amber-500/50 to-transparent z-0" />
         
-        <div className="relative z-20 h-full flex flex-col p-5 sm:p-4 lg:p-6 text-white">
+        <div className="relative z-20 h-full flex flex-col p-5 sm:p-5 lg:p-6 text-white">
            <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="px-2 py-1 rounded-full border border-amber-500/25 bg-amber-500/10">
@@ -90,7 +90,7 @@ export function EmiIDProfileCard({
               <MoreHorizontal className="h-4 w-4 text-amber-500/30" />
            </div>
 
-           <div className="mt-5 flex flex-col items-center text-center">
+           <div className="mt-6 flex flex-col items-center text-center">
               <div className="relative">
                 <div className="absolute inset-0 rounded-full bg-amber-500/15 blur-md scale-110" />
                 <Avatar className="h-[74px] w-[74px] sm:h-[78px] sm:w-[78px] ring-1 ring-amber-500/45 p-0.5 bg-black shadow-[0_18px_40px_rgba(0,0,0,0.55)]">
@@ -104,7 +104,7 @@ export function EmiIDProfileCard({
                 )}
               </div>
 
-              <div className="mt-3 space-y-1 min-h-[3rem] flex flex-col justify-center">
+              <div className="mt-3 space-y-1 min-h-[3.25rem] flex flex-col justify-center">
                 <h3 className="text-base sm:text-lg lg:text-xl font-extrabold tracking-tight text-amber-50 leading-tight line-clamp-2">
                   {name}
                 </h3>
@@ -114,9 +114,9 @@ export function EmiIDProfileCard({
               </div>
               
               {user.tags && user.tags.length > 0 && (
-                <div className="flex flex-wrap justify-center gap-1 mt-2 w-full px-1">
-                   {user.tags.slice(0, 4).map((tag, i) => (
-                      <span key={i} className="text-[8px] font-bold text-amber-300/90 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full max-w-full truncate">
+                <div className="flex flex-wrap justify-center gap-1.5 mt-3 w-full px-1">
+                   {user.tags.slice(0, 5).map((tag, i) => (
+                      <span key={i} className="text-[8px] font-bold text-amber-300/90 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-full max-w-full truncate">
                          {tag}
                       </span>
                    ))}
@@ -124,7 +124,7 @@ export function EmiIDProfileCard({
               )}
            </div>
 
-           <div className="mt-4 grid grid-cols-2 gap-2 py-3 border border-amber-500/10 bg-white/5 rounded-2xl text-center">
+           <div className="mt-5 grid grid-cols-2 gap-2 py-3.5 border border-amber-500/10 bg-white/5 rounded-2xl text-center">
               <div>
                  <p className="text-[9px] text-amber-500/45 font-black uppercase tracking-[0.18em]">Abonnés</p>
                  <p className="text-base font-extrabold text-amber-50 -mt-0.5">{user.followers || "0"}</p>
@@ -135,7 +135,7 @@ export function EmiIDProfileCard({
               </div>
            </div>
 
-           <div className="grid grid-cols-2 gap-2 mt-auto pt-4">
+           <div className="grid grid-cols-2 gap-2 mt-auto pt-5 border-t border-amber-500/10">
               <Button 
                 onClick={(e) => { e.stopPropagation(); onAction?.('message') }}
                 className="rounded-2xl h-11 bg-gradient-to-b from-amber-400 to-amber-600 hover:from-amber-400 hover:to-amber-700 text-black font-black text-[10px] uppercase tracking-[0.18em] shadow-lg shadow-amber-500/15"
