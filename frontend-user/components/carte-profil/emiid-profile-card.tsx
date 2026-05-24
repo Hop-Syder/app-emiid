@@ -78,78 +78,84 @@ export function EmiIDProfileCard({
         <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-amber-500/50 to-transparent z-0" />
         
         <div className="relative z-20 h-full flex flex-col p-5 sm:p-4 lg:p-6 text-white">
-           <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="px-2 py-1 rounded-full border border-amber-500/25 bg-amber-500/10">
-                   <span className="text-[8px] font-black tracking-[0.22em] text-amber-400 uppercase">ELITE</span>
-                </div>
-                <div className="px-2 py-1 rounded-full border border-white/10 bg-white/5">
-                  <span className="text-[8px] font-black tracking-[0.18em] text-white/70 uppercase">{displayCategory}</span>
-                </div>
+          {/* Top */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="px-2 py-1 rounded-full border border-amber-500/25 bg-amber-500/10">
+                <span className="text-[8px] font-black tracking-[0.22em] text-amber-400 uppercase">ELITE</span>
               </div>
-              <MoreHorizontal className="h-4 w-4 text-amber-500/30" />
-           </div>
+              <div className="px-2 py-1 rounded-full border border-white/10 bg-white/5">
+                <span className="text-[8px] font-black tracking-[0.18em] text-white/70 uppercase">{displayCategory}</span>
+              </div>
+            </div>
+            <MoreHorizontal className="h-4 w-4 text-amber-500/30" />
+          </div>
 
-           <div className="mt-5 flex flex-col items-center text-center">
-              <div className="relative">
-                <div className="absolute inset-0 rounded-full bg-amber-500/15 blur-md scale-110" />
-                <Avatar className="h-[74px] w-[74px] sm:h-[78px] sm:w-[78px] ring-1 ring-amber-500/45 p-0.5 bg-black shadow-[0_18px_40px_rgba(0,0,0,0.55)]">
-                  <AvatarImage src={getOptimizedImageUrl(user.avatar, { width: 220, height: 220 })} className="rounded-full object-cover" />
-                  <AvatarFallback className="bg-amber-950 text-amber-400 font-black text-xl">{name[0]}</AvatarFallback>
-                </Avatar>
-                {user.verified && (
-                  <div className="absolute -bottom-1 -right-1 bg-amber-500 rounded-full p-1 border-2 border-black shadow-lg">
-                    <Shield className="h-3 w-3 text-black fill-black/10" />
-                  </div>
-                )}
-              </div>
-
-              <div className="mt-3 space-y-1 min-h-[3rem] flex flex-col justify-center">
-                <h3 className="text-base sm:text-lg lg:text-xl font-extrabold tracking-tight text-amber-50 leading-tight line-clamp-2">
-                  {name}
-                </h3>
-                <p className="text-[10px] font-semibold text-amber-400/70 tracking-[0.14em] uppercase line-clamp-2">
-                  {role}
-                </p>
-              </div>
-              
-              {user.tags && user.tags.length > 0 && (
-                <div className="flex flex-wrap justify-center gap-1 mt-2 w-full px-1">
-                   {user.tags.slice(0, 4).map((tag, i) => (
-                      <span key={i} className="text-[8px] font-bold text-amber-300/90 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full max-w-full truncate">
-                         {tag}
-                      </span>
-                   ))}
+          {/* Identity (more horizontal, better space usage) */}
+          <div className="mt-5 flex items-center gap-4">
+            <div className="relative shrink-0">
+              <div className="absolute inset-0 rounded-full bg-amber-500/15 blur-md scale-110" />
+              <Avatar className="h-[78px] w-[78px] ring-1 ring-amber-500/45 p-0.5 bg-black shadow-[0_18px_40px_rgba(0,0,0,0.55)]">
+                <AvatarImage src={getOptimizedImageUrl(user.avatar, { width: 220, height: 220 })} className="rounded-full object-cover" />
+                <AvatarFallback className="bg-amber-950 text-amber-400 font-black text-xl">{name[0]}</AvatarFallback>
+              </Avatar>
+              {user.verified && (
+                <div className="absolute -bottom-1 -right-1 bg-amber-500 rounded-full p-1 border-2 border-black shadow-lg">
+                  <Shield className="h-3 w-3 text-black fill-black/10" />
                 </div>
               )}
-           </div>
+            </div>
 
-           <div className="mt-4 grid grid-cols-2 gap-2 py-3 border border-amber-500/10 bg-white/5 rounded-2xl text-center">
-              <div>
-                 <p className="text-[9px] text-amber-500/45 font-black uppercase tracking-[0.18em]">Abonnés</p>
-                 <p className="text-base font-extrabold text-amber-50 -mt-0.5">{user.followers || "0"}</p>
+            <div className="min-w-0 flex-1">
+              <h3 className="text-base sm:text-lg font-extrabold tracking-tight text-amber-50 leading-tight line-clamp-2">
+                {name}
+              </h3>
+              <p className="mt-1 text-[10px] font-semibold text-amber-400/70 tracking-[0.14em] uppercase line-clamp-2">
+                {role}
+              </p>
+              <div className="mt-3 flex items-center gap-3">
+                <div className="rounded-2xl border border-amber-500/10 bg-white/5 px-3 py-2">
+                  <div className="text-[9px] text-amber-500/45 font-black uppercase tracking-[0.18em]">Abonnés</div>
+                  <div className="text-base font-extrabold text-amber-50 -mt-0.5">{user.followers || "0"}</div>
+                </div>
+                <div className="rounded-2xl border border-amber-500/10 bg-white/5 px-3 py-2">
+                  <div className="text-[9px] text-amber-500/45 font-black uppercase tracking-[0.18em]">Suivis</div>
+                  <div className="text-base font-extrabold text-amber-50 -mt-0.5">{following}</div>
+                </div>
               </div>
-              <div className="border-l border-amber-500/10">
-                 <p className="text-[9px] text-amber-500/45 font-black uppercase tracking-[0.18em]">Suivis</p>
-                 <p className="text-base font-extrabold text-amber-50 -mt-0.5">{following}</p>
-              </div>
-           </div>
+            </div>
+          </div>
 
-           <div className="grid grid-cols-2 gap-2 mt-auto pt-4">
-              <Button 
-                onClick={(e) => { e.stopPropagation(); onAction?.('message') }}
-                className="rounded-2xl h-11 bg-gradient-to-b from-amber-400 to-amber-600 hover:from-amber-400 hover:to-amber-700 text-black font-black text-[10px] uppercase tracking-[0.18em] shadow-lg shadow-amber-500/15"
-              >
-                Message
-              </Button>
-              <Button 
-                onClick={(e) => { e.stopPropagation(); onAction?.('follow') }}
-                variant="outline"
-                className="rounded-2xl h-11 border-amber-500/25 bg-transparent text-amber-300 font-black text-[10px] uppercase tracking-[0.18em] hover:bg-amber-500/10"
-              >
-                {isFollowed ? 'Abonné' : 'Suivre'}
-              </Button>
-           </div>
+          {/* Tags */}
+          {user.tags && user.tags.length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-1.5">
+              {user.tags.slice(0, 5).map((tag, i) => (
+                <span
+                  key={i}
+                  className="text-[8px] font-bold text-amber-300/90 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-full max-w-full truncate"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Bottom */}
+          <div className="grid grid-cols-2 gap-2 mt-auto pt-4 border-t border-amber-500/10">
+            <Button 
+              onClick={(e) => { e.stopPropagation(); onAction?.('message') }}
+              className="rounded-2xl h-11 bg-gradient-to-b from-amber-400 to-amber-600 hover:from-amber-400 hover:to-amber-700 text-black font-black text-[10px] uppercase tracking-[0.18em] shadow-lg shadow-amber-500/15"
+            >
+              Message
+            </Button>
+            <Button 
+              onClick={(e) => { e.stopPropagation(); onAction?.('follow') }}
+              variant="outline"
+              className="rounded-2xl h-11 border-amber-500/25 bg-transparent text-amber-300 font-black text-[10px] uppercase tracking-[0.18em] hover:bg-amber-500/10"
+            >
+              {isFollowed ? 'Abonné' : 'Suivre'}
+            </Button>
+          </div>
         </div>
       </motion.div>
     )
