@@ -1,7 +1,7 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Composant UI/UX de détail de profil utilisateur pour EmiID. Version premium et optimisée avec des transitions fluides, une mise en page asymétrique et une gestion intelligente de l'espace.
+ * @description Composant UI/UX de détail de profil utilisateur pour EmiID. Version Bento Grid Premium intégrant des dégradés subtils, du verre poli (glassmorphism) et une harmonie d'espace pour un effet "wouh" de niveau international.
  * @created 2026-05-24
  * @updated 2026-05-24
  * 🌐 ceo.nexuspartners.xyz
@@ -28,12 +28,14 @@ import {
     Copy,
     Check,
     Linkedin,
-    Twitter
+    Twitter,
+    Globe,
+    Phone,
+    Award
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { createClient } from "@/lib/supabase/client"
@@ -97,7 +99,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
     const [joinedDate, setJoinedDate] = useState<string>("...")
 
     useEffect(() => {
-        const handleScroll = () => setScrolled(window.scrollY > 80)
+        const handleScroll = () => setScrolled(window.scrollY > 50)
         window.addEventListener("scroll", handleScroll)
         return () => window.removeEventListener("scroll", handleScroll)
     }, [])
@@ -190,7 +192,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                 const data = await res.json()
                 setIsFollowed(data.followed)
                 setFollowersCount(prev => data.followed ? prev + 1 : prev - 1)
-                toast.success(data.followed ? "Ajouté à votre portfolio" : "Retiré de votre portfolio")
+                toast.success(data.followed ? "Ajouté au Portfolio" : "Retiré du Portfolio")
             } else {
                 toast.error("Veuillez vous connecter pour suivre ce membre")
             }
@@ -209,7 +211,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
     const copyToClipboard = (url: string) => {
         navigator.clipboard.writeText(url)
         setCopiedLink(url)
-        toast.success("Lien copié !", { description: "Prêt à être collé sur vos réseaux." })
+        toast.success("Lien copié !", { description: "Prêt à être partagé." })
         setTimeout(() => setCopiedLink(null), 2000)
     }
 
@@ -239,12 +241,12 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
     if (!profile) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[85vh] gap-6 p-6 text-center animate-in fade-in duration-500">
-                <div className="w-24 h-24 bg-slate-50 border border-slate-100 rounded-3xl flex items-center justify-center mb-2 shadow-sm">
-                    <Users className="h-10 w-10 text-slate-400" />
+                <div className="w-20 h-20 bg-white border border-slate-100 rounded-3xl flex items-center justify-center mb-2 shadow-sm">
+                    <Users className="h-9 w-9 text-slate-300" />
                 </div>
                 <div className="space-y-1.5">
-                    <h2 className="text-xl font-black text-slate-900 tracking-tight">Profil introuvable</h2>
-                    <p className="text-slate-500 text-sm max-w-xs mx-auto">Ce compte n&apos;existe pas ou a été restreint par la modération.</p>
+                    <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">Profil introuvable</h2>
+                    <p className="text-slate-500 text-sm max-w-xs mx-auto">Ce compte n&apos;existe pas ou a été désactivé par nos modérateurs.</p>
                 </div>
                 <Button onClick={() => router.push('/annuaire')} size="lg" className="rounded-2xl gap-2 font-bold bg-[#022753] hover:bg-[#022753]/95 shadow-lg shadow-[#022753]/20 transition-all active:scale-95">
                     <ArrowLeft className="h-4 w-4" />
@@ -255,34 +257,39 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
     }
 
     return (
-        <div className="min-h-screen bg-[#FAFAF9]">
-            {/* Header Sticky Glassmorphism */}
+        <div className="min-h-screen bg-[#F8F9FA] text-slate-900 antialiased selection:bg-[#022753]/10 selection:text-[#022753]">
+            
+            {/* Ambient Background Glows */}
+            <div className="absolute top-0 left-1/4 w-[400px] h-[400px] bg-gradient-to-tr from-[#022753]/5 to-transparent rounded-full blur-3xl pointer-events-none -z-10" />
+            <div className="absolute top-1/3 right-1/4 w-[350px] h-[350px] bg-gradient-to-br from-[#CE1126]/3 to-transparent rounded-full blur-3xl pointer-events-none -z-10" />
+
+            {/* Navigation Header */}
             <div className={cn(
                 "sticky top-0 z-50 transition-all duration-300 border-b",
-                scrolled ? "bg-white/80 backdrop-blur-md shadow-sm border-slate-100 py-3" : "bg-transparent border-transparent py-5"
+                scrolled ? "bg-white/70 backdrop-blur-xl border-slate-200/40 py-3 shadow-sm" : "bg-transparent border-transparent py-5"
             )}>
                 <div className="container max-w-5xl mx-auto px-4 flex items-center justify-between">
                     <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => router.back()}
-                        className="gap-2 rounded-xl bg-white hover:bg-slate-50 shadow-sm border border-slate-100/80 transition-all active:scale-95"
+                        className="gap-2 rounded-xl bg-white/80 hover:bg-slate-50 shadow-sm border border-slate-200/50 transition-all active:scale-95"
                     >
                         <ArrowLeft className="h-4 w-4 text-slate-600" />
                         <span className="font-bold text-slate-700">Retour</span>
                     </Button>
 
                     <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="icon" onClick={handleShare} aria-label="Partager ce profil" className="rounded-xl bg-white hover:bg-slate-50 shadow-sm border border-slate-100/80 h-10 w-10 transition-all active:scale-95">
-                            <Share2 className="h-4.5 w-4.5 text-slate-600" />
+                        <Button variant="ghost" size="icon" onClick={handleShare} aria-label="Partager ce profil" className="rounded-xl bg-white/80 hover:bg-slate-50 shadow-sm border border-slate-200/50 h-10 w-10 transition-all active:scale-95">
+                            <Share2 className="h-4 w-4 text-slate-600" />
                         </Button>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" aria-label="Plus d'options" className="rounded-xl bg-white hover:bg-slate-50 shadow-sm border border-slate-100/80 h-10 w-10 transition-all active:scale-95">
+                                <Button variant="ghost" size="icon" aria-label="Plus d'options" className="rounded-xl bg-white/80 hover:bg-slate-50 shadow-sm border border-slate-200/50 h-10 w-10 transition-all active:scale-95">
                                     <MoreHorizontal className="h-4.5 w-4.5 text-slate-600" />
                                 </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="rounded-xl shadow-lg border-slate-100 w-48 p-1">
+                            <DropdownMenuContent align="end" className="rounded-xl shadow-xl border-slate-100 w-48 p-1">
                                 <DropdownMenuItem className="rounded-lg font-medium py-2 cursor-pointer hover:bg-slate-50">Signaler</DropdownMenuItem>
                                 <DropdownMenuItem className="rounded-lg font-medium py-2 text-red-600 cursor-pointer hover:bg-red-50">Bloquer</DropdownMenuItem>
                             </DropdownMenuContent>
@@ -292,266 +299,267 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
             </div>
 
             <main className="container max-w-5xl mx-auto px-4 pb-24">
-                {/* Profile Hero & Header Section */}
-                <div className="relative mt-2">
-                    {/* Cover Banner Premium */}
-                    <div className="h-48 sm:h-64 rounded-3xl overflow-hidden relative group shadow-inner">
-                        <div className="absolute inset-0 bg-gradient-to-tr from-[#022753] via-[#022753]/95 to-[#CE1126]/30 flex items-center justify-center">
-                            {/* Subtles dots patterns */}
-                            <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '16px 16px' }} />
-                            {!profile.coverImage && (
-                                <img src="/logo/logo-1.png" alt="EmiID" className="h-14 opacity-[0.08] grayscale transition-transform duration-700 group-hover:scale-105" />
-                            )}
+                
+                {/* 1. Header Profile Bento Block */}
+                <div className="bg-white border border-slate-200/60 rounded-[2rem] overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
+                    <div className="relative h-44 sm:h-56">
+                        {/* Premium Cover Banner */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-[#022753] via-[#04336c] to-[#CE1126]/60">
+                            <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 1.5px 1.5px, white 1.5px, transparent 0)', backgroundSize: '20px 20px' }} />
                         </div>
                         {profile.coverImage && (
                             <img 
-                                src={getOptimizedImageUrl(profile.coverImage, { width: 1200, height: 400, quality: 90 })} 
+                                src={getOptimizedImageUrl(profile.coverImage, { width: 1200, height: 350, quality: 90 })} 
                                 alt="Cover" 
-                                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-103" 
+                                className="w-full h-full object-cover" 
                             />
                         )}
                         <div className="absolute top-4 right-4 flex items-center gap-2">
                             {profile.premium && (
-                                <Badge className="bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 border-0 gap-1.5 px-3 py-1 rounded-full shadow-md font-bold text-[10px] uppercase tracking-wider">
-                                    <Star className="h-3 w-3 fill-slate-900 text-slate-900" />
+                                <Badge className="bg-amber-400/90 hover:bg-amber-400 text-[#022753] border-none gap-1.5 px-3 py-1 rounded-lg font-bold text-[10px] uppercase tracking-wider backdrop-blur-sm">
+                                    <Star className="h-3 w-3 fill-[#022753] text-[#022753]" />
                                     Premium
                                 </Badge>
                             )}
                         </div>
                     </div>
 
-                    {/* Integrated Profile Info Block */}
-                    <div className="px-4 sm:px-8 -mt-16 sm:-mt-20 relative z-10">
-                        <div className="flex flex-col md:flex-row gap-6 items-center md:items-end text-center md:text-left">
-                            {/* Avatar Wrapper with subtle shadow and border */}
-                            <div className="relative group shrink-0">
-                                <div className={cn(
-                                    "absolute -inset-1 rounded-3xl blur-md opacity-25 group-hover:opacity-40 transition-opacity duration-300",
-                                    profile.premium ? "from-amber-400 to-yellow-500" : "from-[#022753] to-red-500"
-                                )} />
-                                <Avatar className="h-28 w-28 sm:h-36 sm:w-36 rounded-3xl ring-4 ring-white shadow-lg relative">
-                                    <AvatarImage 
-                                        src={getOptimizedImageUrl(profile.avatar || "/profil/avatar.jpg", { width: 300, height: 300 })} 
-                                        alt={profile.name} 
-                                        className="object-cover" 
-                                    />
-                                    <AvatarFallback className="bg-slate-100 text-slate-400 text-3xl font-black rounded-3xl">
-                                        {initials}
-                                    </AvatarFallback>
-                                </Avatar>
-                                {profile.isOnline && (
-                                    <div className="absolute bottom-1 right-1 h-5 w-5 rounded-full bg-emerald-500 border-2 border-white shadow-md animate-pulse" />
+                    {/* Profile Information Row */}
+                    <div className="px-6 pb-6 sm:px-8 sm:pb-8 relative z-10 flex flex-col md:flex-row gap-6 md:gap-8 items-center md:items-end -mt-12 sm:-mt-16">
+                        {/* Avatar */}
+                        <div className="relative group shrink-0">
+                            <div className={cn(
+                                "absolute -inset-1.5 rounded-3xl blur opacity-25 group-hover:opacity-40 transition-opacity duration-300",
+                                profile.premium ? "from-amber-400 to-yellow-500" : "from-[#022753] to-red-500"
+                            )} />
+                            <Avatar className="h-28 w-28 sm:h-32 sm:w-32 rounded-3xl ring-4 ring-white shadow-md relative">
+                                <AvatarImage 
+                                    src={getOptimizedImageUrl(profile.avatar || "/profil/avatar.jpg", { width: 300, height: 300 })} 
+                                    alt={profile.name} 
+                                    className="object-cover" 
+                                />
+                                <AvatarFallback className="bg-slate-100 text-slate-400 text-3xl font-black rounded-3xl">
+                                    {initials}
+                                </AvatarFallback>
+                            </Avatar>
+                            {profile.isOnline && (
+                                <div className="absolute bottom-1 right-1 h-5 w-5 rounded-full bg-emerald-500 border-2 border-white shadow-md animate-pulse" />
+                            )}
+                        </div>
+
+                        {/* Text Infos */}
+                        <div className="flex-1 text-center md:text-left pb-1">
+                            <div className="flex items-center gap-2.5 justify-center md:justify-start flex-wrap">
+                                <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+                                    {profile.name}
+                                </h1>
+                                {profile.verified && (
+                                    <div className="bg-blue-500/10 p-0.5 rounded-full shrink-0" title="Profil vérifié">
+                                        <Shield className="h-4.5 w-4.5 text-blue-600 fill-blue-600/15" />
+                                    </div>
                                 )}
                             </div>
-
-                            {/* Identity Summary Info */}
-                            <div className="flex-1 pb-2">
-                                <div className="flex items-center gap-2 justify-center md:justify-start flex-wrap">
-                                    <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
-                                        {profile.name}
-                                    </h1>
-                                    {profile.verified && (
-                                        <div className="bg-blue-500/10 p-1 rounded-full shrink-0">
-                                            <Shield className="h-4.5 w-4.5 text-blue-500 fill-blue-500/20" />
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs sm:text-sm font-semibold text-slate-500 justify-center md:justify-start mt-2">
-                                    <span className="flex items-center gap-1.5 bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg">
-                                        <Briefcase className="h-3.5 w-3.5 text-[#022753]" />
-                                        {profile.role}
-                                    </span>
-                                    <span className="flex items-center gap-1.5 bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg">
-                                        <MapPin className="h-3.5 w-3.5 text-[#022753]" />
-                                        {profile.location}
-                                    </span>
-                                </div>
+                            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs sm:text-sm font-semibold text-slate-500 justify-center md:justify-start mt-2.5">
+                                <span className="flex items-center gap-1.5 text-slate-700">
+                                    <Briefcase className="h-4 w-4 text-[#022753]/70" />
+                                    {profile.role}
+                                </span>
+                                <span className="h-1.5 w-1.5 rounded-full bg-slate-300 hidden sm:inline" />
+                                <span className="flex items-center gap-1.5 text-slate-700">
+                                    <MapPin className="h-4 w-4 text-[#022753]/70" />
+                                    {profile.location}
+                                </span>
                             </div>
+                        </div>
+
+                        {/* CTA Actions */}
+                        <div className="flex gap-3 w-full md:w-auto mt-2 md:mt-0">
+                            <Button
+                                size="lg"
+                                className="flex-1 md:flex-initial rounded-xl h-11 text-xs gap-2 font-extrabold bg-[#022753] hover:bg-[#022753]/95 shadow-md shadow-[#022753]/10 transition-all active:scale-95"
+                                onClick={handleFollow}
+                            >
+                                <Users className="h-4 w-4" />
+                                {isFollowed ? "Retirer" : "Portfolio"}
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="lg"
+                                className="flex-1 md:flex-initial rounded-xl h-11 text-xs gap-2 font-extrabold border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all active:scale-95"
+                                asChild
+                            >
+                                <Link href={`/messages?contact=${profile.id}`}>
+                                    <MessageCircle className="h-4 w-4 text-slate-600" />
+                                    Message
+                                </Link>
+                            </Button>
                         </div>
                     </div>
                 </div>
 
-                {/* Main Asymmetrical Section Grid */}
-                <div className="mt-8 grid lg:grid-cols-3 gap-6 items-start">
+                {/* 2. Main Bento Grid Workspace */}
+                <div className="mt-6 grid md:grid-cols-3 gap-6 items-start">
                     
-                    {/* Left & Center: Professional Journey & Skills (2/3) */}
-                    <div className="lg:col-span-2 space-y-6">
-                        
-                        {/* Bio / Description directly styled without heavy card */}
-                        <div className="bg-white border border-slate-100 rounded-3xl p-6 sm:p-8 shadow-sm">
-                            <h2 className="text-sm font-black text-slate-900 uppercase tracking-wider mb-4 flex items-center gap-2">
-                                <span className="h-2 w-2 rounded-full bg-[#CE1126]" />
-                                À propos
-                            </h2>
-                            <p className="text-slate-600 leading-relaxed text-sm sm:text-base font-medium whitespace-pre-line">
-                                {profile.bio}
-                            </p>
-                        </div>
+                    {/* Bento Box 1: About & Bio (2/3 width) */}
+                    <div className="md:col-span-2 bg-white border border-slate-200/60 rounded-[2rem] p-6 sm:p-8 shadow-sm hover:shadow-md transition-shadow duration-300 min-h-[160px]">
+                        <h2 className="text-xs font-black text-[#022753] uppercase tracking-[0.15em] mb-4 flex items-center gap-2">
+                            <Award className="h-4 w-4 text-[#CE1126]" />
+                            À propos de moi
+                        </h2>
+                        <p className="text-slate-600 leading-relaxed text-sm sm:text-base font-medium whitespace-pre-line">
+                            {profile.bio}
+                        </p>
+                    </div>
 
-                        {/* Custom Tabs for Skills & Journey */}
-                        <div className="bg-white border border-slate-100 rounded-3xl p-6 sm:p-8 shadow-sm">
-                            <Tabs defaultValue="skills" className="w-full">
-                                <TabsList className="bg-slate-50 border border-slate-100/60 w-full justify-start h-auto p-1.5 mb-6 gap-2 rounded-2xl">
-                                    <TabsTrigger 
-                                        value="skills" 
-                                        className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm bg-transparent px-4 py-2 text-sm font-bold text-slate-500 transition-all"
-                                    >
-                                        Compétences
-                                    </TabsTrigger>
-                                    <TabsTrigger 
-                                        value="experience" 
-                                        className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm bg-transparent px-4 py-2 text-sm font-bold text-slate-500 transition-all"
-                                    >
-                                        Parcours & Activité
-                                    </TabsTrigger>
-                                </TabsList>
-
-                                <TabsContent value="skills" className="animate-in fade-in duration-300 focus-visible:outline-none">
-                                    <div className="flex flex-wrap gap-2">
-                                        {profile.skills.length > 0 ? (
-                                            profile.skills.map((skill, idx) => (
-                                                <Badge 
-                                                    key={idx} 
-                                                    variant="secondary" 
-                                                    className="px-4 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold border border-slate-100/80 transition-all hover:-translate-y-0.5 cursor-default shadow-sm"
-                                                >
-                                                    {skill}
-                                                </Badge>
-                                            ))
-                                        ) : (
-                                            <div className="p-8 border border-dashed border-slate-200 text-center w-full rounded-2xl bg-slate-50/50">
-                                                <p className="text-slate-400 font-medium italic text-sm">Aucune compétence listée</p>
-                                            </div>
-                                        )}
-                                    </div>
-                                </TabsContent>
-
-                                <TabsContent value="experience" className="animate-in fade-in duration-300 focus-visible:outline-none">
-                                    <div className="space-y-4">
-                                        {profile.experiences && profile.experiences.length > 0 ? (
-                                            <div className="relative border-l-2 border-slate-100 pl-6 ml-3 space-y-6 py-2">
-                                                {profile.experiences.map((exp, idx) => (
-                                                    <div key={idx} className="relative">
-                                                        {/* Timeline bullet */}
-                                                        <div className="absolute -left-[31px] top-1.5 h-4 w-4 rounded-full bg-white border-2 border-[#022753] flex items-center justify-center">
-                                                            <div className="h-1.5 w-1.5 rounded-full bg-[#022753]" />
-                                                        </div>
-                                                        <div>
-                                                            <h4 className="text-sm font-black text-slate-900">{exp.title}</h4>
-                                                            <p className="text-xs font-semibold text-slate-500 mt-0.5">{exp.company} &bull; {exp.period}</p>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        ) : (
-                                            <div className="relative border-l-2 border-slate-100 pl-6 ml-3 py-2">
-                                                <div className="absolute -left-[31px] top-1.5 h-4 w-4 rounded-full bg-white border-2 border-[#022753] flex items-center justify-center">
-                                                    <div className="h-1.5 w-1.5 rounded-full bg-[#022753]" />
-                                                </div>
-                                                <div>
-                                                    <h4 className="text-sm font-black text-slate-900">Membre actif de l&apos;écosystème</h4>
-                                                    <p className="text-xs font-semibold text-[#022753] uppercase tracking-wider mt-1">Réseau EmiID</p>
-                                                    <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-                                                        Contribue activement au développement professionnel et aux opportunités de collaborations de la plateforme.
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                </TabsContent>
-                            </Tabs>
+                    {/* Bento Box 2: Stats (1/3 width) */}
+                    <div className="bg-white border border-slate-200/60 rounded-[2rem] p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
+                        <h2 className="text-xs font-black text-[#022753] uppercase tracking-[0.15em] mb-5 flex items-center gap-2">
+                            <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
+                            Activité réseau
+                        </h2>
+                        <div className="grid grid-cols-3 gap-2">
+                            <div className="text-center p-2 rounded-xl bg-slate-50/50">
+                                <p className="text-xl font-extrabold text-[#022753]">{followersCount}</p>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase mt-0.5">Abonnés</p>
+                            </div>
+                            <div className="text-center p-2 rounded-xl bg-slate-50/50">
+                                <p className="text-xl font-extrabold text-[#022753]">{profile.following}</p>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase mt-0.5">Suivis</p>
+                            </div>
+                            <div className="text-center p-2 rounded-xl bg-slate-50/50">
+                                <p className="text-xl font-extrabold text-[#022753]">{profile.skills.length}</p>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase mt-0.5">Skills</p>
+                            </div>
                         </div>
                     </div>
 
-                    {/* Right: Contact, Actions & Stats (1/3) */}
-                    <div className="lg:col-span-1 space-y-6">
+                    {/* Bento Box 3: Contact & Links (1/3 width) */}
+                    <div className="bg-white border border-slate-200/60 rounded-[2rem] p-6 shadow-sm hover:shadow-md transition-shadow duration-300 space-y-4">
+                        <h2 className="text-xs font-black text-[#022753] uppercase tracking-[0.15em] mb-2 flex items-center gap-2">
+                            <Globe className="h-4 w-4 text-[#022753]/80" />
+                            Coordonnées & Liens
+                        </h2>
                         
-                        {/* Compact Action Panel Card */}
-                        <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-5">
+                        <div className="space-y-3.5 text-xs">
+                            <div className="flex items-center gap-3 text-slate-600">
+                                <Calendar className="h-4 w-4 text-slate-400 shrink-0" />
+                                <div>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase leading-none mb-1">Membre depuis</p>
+                                    <p className="font-bold text-slate-800">{joinedDate}</p>
+                                </div>
+                            </div>
                             
-                            {/* Stats inline wrapper */}
-                            <div className="grid grid-cols-3 gap-2 py-2 border-b border-slate-50">
-                                <div className="text-center">
-                                    <p className="text-xl font-black text-slate-900">{followersCount}</p>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Followers</p>
-                                </div>
-                                <div className="text-center border-x border-slate-100">
-                                    <p className="text-xl font-black text-slate-900">{profile.following}</p>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Relations</p>
-                                </div>
-                                <div className="text-center">
-                                    <p className="text-xl font-black text-slate-900">{profile.skills.length}</p>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Compétences</p>
-                                </div>
-                            </div>
-
-                            {/* Main CTA Actions */}
-                            <div className="space-y-3 pt-2">
-                                <Button
-                                    size="lg"
-                                    className="w-full rounded-2xl h-11 text-sm gap-2 font-bold bg-[#022753] hover:bg-[#022753]/90 shadow-md shadow-[#022753]/10 transition-all active:scale-98"
-                                    onClick={handleFollow}
-                                >
-                                    <Users className="h-4.5 w-4.5" />
-                                    {isFollowed ? "Retirer du Portfolio" : "Ajouter au Portfolio"}
-                                </Button>
-                                <Button
-                                    variant="outline"
-                                    size="lg"
-                                    className="w-full rounded-2xl h-11 text-sm gap-2 font-bold border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all active:scale-98"
-                                    asChild
-                                >
-                                    <Link href={`/messages?contact=${profile.id}`}>
-                                        <MessageCircle className="h-4.5 w-4.5 text-slate-600" />
-                                        Envoyer un Message
-                                    </Link>
-                                </Button>
-                            </div>
-
-                            {/* Profile details / Metadata list */}
-                            <div className="space-y-3 pt-3 border-t border-slate-50 text-xs">
-                                <div className="flex items-center justify-between text-slate-600">
-                                    <span className="font-semibold text-slate-400">Membre depuis</span>
-                                    <span className="font-bold text-slate-800">{joinedDate}</span>
-                                </div>
-                                {profile.specialty && (
-                                    <div className="flex items-center justify-between text-slate-600">
-                                        <span className="font-semibold text-slate-400">Secteur</span>
-                                        <span className="font-bold text-slate-800">{profile.specialty}</span>
+                            {profile.email && (
+                                <div className="flex items-center gap-3 text-slate-600">
+                                    <Mail className="h-4 w-4 text-slate-400 shrink-0" />
+                                    <div className="min-w-0 flex-1">
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase leading-none mb-1">Adresse Email</p>
+                                        <p className="font-bold text-slate-800 truncate">{profile.email}</p>
                                     </div>
-                                )}
-                                {profile.email && (
-                                    <div className="flex items-center justify-between text-slate-600">
-                                        <span className="font-semibold text-slate-400">Email</span>
-                                        <span className="font-bold text-slate-800 truncate max-w-[150px]">{profile.email}</span>
-                                    </div>
-                                )}
-                                {profile.phone && (
-                                    <div className="flex items-center justify-between text-slate-600">
-                                        <span className="font-semibold text-slate-400">Téléphone</span>
-                                        <span className="font-bold text-slate-800">{profile.phone}</span>
-                                    </div>
-                                )}
-                            </div>
+                                </div>
+                            )}
 
-                            {/* Website Button if available */}
-                            {profile.website && (
-                                <Button asChild variant="outline" className="w-full h-10 rounded-xl text-xs font-bold border-slate-100 hover:bg-slate-50 hover:text-[#022753] gap-2 transition-all">
-                                    <a href={profile.website} target="_blank" rel="noopener noreferrer">
-                                        Visiter le site web <ExternalLink className="h-3.5 w-3.5" />
-                                    </a>
-                                </Button>
+                            {profile.phone && (
+                                <div className="flex items-center gap-3 text-slate-600">
+                                    <Phone className="h-4 w-4 text-slate-400 shrink-0" />
+                                    <div>
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase leading-none mb-1">Téléphone</p>
+                                        <p className="font-bold text-slate-800">{profile.phone}</p>
+                                    </div>
+                                </div>
                             )}
                         </div>
+
+                        {profile.website && (
+                            <Button asChild variant="outline" className="w-full h-10 rounded-xl text-xs font-bold border-slate-200 hover:bg-slate-50 hover:text-[#022753] gap-2 transition-all mt-2">
+                                <a href={profile.website} target="_blank" rel="noopener noreferrer">
+                                    Visiter le site web <ExternalLink className="h-3.5 w-3.5" />
+                                </a>
+                            </Button>
+                        )}
+                    </div>
+
+                    {/* Bento Box 4: Tabs Skills / Timeline (2/3 width) */}
+                    <div className="md:col-span-2 bg-white border border-slate-200/60 rounded-[2rem] p-6 sm:p-8 shadow-sm hover:shadow-md transition-shadow duration-300">
+                        <Tabs defaultValue="skills" className="w-full">
+                            <TabsList className="bg-slate-100/70 border border-slate-200/30 w-full justify-start h-auto p-1.5 mb-6 gap-2 rounded-2xl">
+                                <TabsTrigger 
+                                    value="skills" 
+                                    className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-[#022753] data-[state=active]:shadow-sm bg-transparent px-4 py-2 text-xs sm:text-sm font-bold text-slate-500 transition-all"
+                                >
+                                    Compétences
+                                </TabsTrigger>
+                                <TabsTrigger 
+                                    value="experience" 
+                                    className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-[#022753] data-[state=active]:shadow-sm bg-transparent px-4 py-2 text-xs sm:text-sm font-bold text-slate-500 transition-all"
+                                >
+                                    Parcours professionnel
+                                </TabsTrigger>
+                            </TabsList>
+
+                            <TabsContent value="skills" className="animate-in fade-in duration-300 focus-visible:outline-none">
+                                <div className="flex flex-wrap gap-2">
+                                    {profile.skills.length > 0 ? (
+                                        profile.skills.map((skill, idx) => (
+                                            <Badge 
+                                                key={idx} 
+                                                variant="secondary" 
+                                                className="px-3.5 py-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-800 font-bold border border-slate-200/50 transition-all hover:-translate-y-0.5 cursor-default shadow-sm text-xs"
+                                            >
+                                                {skill}
+                                            </Badge>
+                                        ))
+                                    ) : (
+                                        <div className="p-8 border border-dashed border-slate-200 text-center w-full rounded-2xl bg-slate-50/50">
+                                            <p className="text-slate-400 font-medium italic text-xs">Aucune compétence listée</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </TabsContent>
+
+                            <TabsContent value="experience" className="animate-in fade-in duration-300 focus-visible:outline-none">
+                                <div className="space-y-4">
+                                    {profile.experiences && profile.experiences.length > 0 ? (
+                                        <div className="relative border-l-2 border-slate-100 pl-6 ml-3 space-y-6 py-2">
+                                            {profile.experiences.map((exp, idx) => (
+                                                <div key={idx} className="relative">
+                                                    <div className="absolute -left-[31px] top-1 h-3.5 w-3.5 rounded-full bg-white border-2 border-[#022753] flex items-center justify-center">
+                                                        <div className="h-1 w-1 rounded-full bg-[#022753]" />
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="text-xs sm:text-sm font-black text-slate-900">{exp.title}</h4>
+                                                        <p className="text-[10px] sm:text-xs font-semibold text-slate-400 mt-0.5">{exp.company} &bull; {exp.period}</p>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="relative border-l-2 border-slate-100 pl-6 ml-3 py-2">
+                                            <div className="absolute -left-[31px] top-1.5 h-3.5 w-3.5 rounded-full bg-white border-2 border-[#022753] flex items-center justify-center">
+                                                <div className="h-1 w-1 rounded-full bg-[#022753]" />
+                                            </div>
+                                            <div>
+                                                <h4 className="text-xs sm:text-sm font-black text-slate-950">Membre actif de l&apos;écosystème</h4>
+                                                <p className="text-[10px] font-bold text-[#CE1126] uppercase tracking-wider mt-1">Réseau EmiID</p>
+                                                <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+                                                    Contribue activement au développement professionnel et aux opportunités de collaborations de la plateforme.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </TabsContent>
+                        </Tabs>
                     </div>
                 </div>
             </main>
 
+            {/* Share Dialog */}
             <Dialog open={isShareModalOpen} onOpenChange={setIsShareModalOpen}>
                 <DialogContent className="sm:max-w-md rounded-2xl">
                     <DialogHeader>
-                        <DialogTitle className="text-xl font-bold">Partager ce profil 🚀</DialogTitle>
-                        <DialogDescription>
+                        <DialogTitle className="text-lg font-bold">Partager ce profil 🚀</DialogTitle>
+                        <DialogDescription className="text-xs">
                             Faites découvrir le profil de {profile?.name} à votre réseau.
                         </DialogDescription>
                     </DialogHeader>
@@ -559,42 +567,42 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                     <div className="space-y-6 py-4">
                         {profile?.slug && (
                             <div className="space-y-2">
-                                <span className="text-sm font-semibold text-primary flex items-center gap-2">
-                                    <Badge variant="outline" className="border-primary text-primary text-[10px]">Recommandé</Badge>
+                                <span className="text-xs font-semibold text-[#022753] flex items-center gap-2">
+                                    <Badge variant="outline" className="border-[#022753] text-[#022753] text-[9px] px-1.5 py-0.5 rounded-md">Recommandé</Badge>
                                     Lien personnalisé du profil
                                 </span>
                                 <div className="flex items-center gap-2">
                                     <Input 
                                         readOnly 
                                         value={typeof window !== 'undefined' ? `${window.location.origin}/profil/${profile.slug}` : ''} 
-                                        className="h-12 bg-slate-50 border-slate-200 text-slate-600 font-medium font-mono text-xs focus-visible:ring-0"
+                                        className="h-11 bg-slate-50 border-slate-200 text-slate-600 font-medium font-mono text-xs focus-visible:ring-0 rounded-xl"
                                     />
                                     <Button 
                                         size="icon" 
                                         variant="outline" 
-                                        className="h-12 w-12 rounded-xl shrink-0"
+                                        className="h-11 w-11 rounded-xl shrink-0 border-slate-200"
                                         onClick={() => copyToClipboard(typeof window !== 'undefined' ? `${window.location.origin}/profil/${profile.slug}` : '')}
                                     >
-                                        {copiedLink === (typeof window !== 'undefined' ? `${window.location.origin}/profil/${profile.slug}` : '') ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                                        {copiedLink === (typeof window !== 'undefined' ? `${window.location.origin}/profil/${profile.slug}` : '') ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4 text-slate-500" />}
                                     </Button>
                                 </div>
                             </div>
                         )}
 
                         <div className="space-y-2">
-                            <span className="text-sm font-semibold text-slate-500">
+                            <span className="text-xs font-semibold text-slate-400">
                                 Lien technique (ID) {profile?.slug && "(Alternatif)"}
                             </span>
                             <div className="flex items-center gap-2">
                                 <Input 
                                     readOnly 
                                     value={typeof window !== 'undefined' ? `${window.location.origin}/profil/${profile?.id}` : ''} 
-                                    className="h-12 bg-slate-50 border-slate-200 text-slate-400 font-mono text-xs focus-visible:ring-0"
+                                    className="h-11 bg-slate-50 border-slate-200 text-slate-400 font-mono text-xs focus-visible:ring-0 rounded-xl"
                                 />
                                 <Button 
                                     size="icon" 
                                     variant="outline" 
-                                    className="h-12 w-12 rounded-xl shrink-0 border-slate-200"
+                                    className="h-11 w-11 rounded-xl shrink-0 border-slate-200"
                                     onClick={() => copyToClipboard(typeof window !== 'undefined' ? `${window.location.origin}/profil/${profile?.id}` : '')}
                                 >
                                     {copiedLink === (typeof window !== 'undefined' ? `${window.location.origin}/profil/${profile?.id}` : '') ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4 text-slate-400" />}
@@ -603,30 +611,30 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                         </div>
 
                         <div className="pt-4 border-t border-slate-100">
-                            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-3">Partage rapide</span>
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-3">Partage rapide</span>
                             <div className="grid grid-cols-3 gap-3">
                                 <Button 
                                     variant="outline" 
-                                    className="h-12 rounded-xl border-[#25D366] text-[#25D366] hover:bg-[#25D366]/10 flex gap-2"
+                                    className="h-11 rounded-xl border-[#25D366]/40 text-[#25D366] hover:bg-[#25D366]/5 flex gap-1.5 text-xs font-bold transition-all active:scale-95"
                                     onClick={() => shareToWhatsApp(typeof window !== 'undefined' ? `${window.location.origin}/profil/${profile?.slug || profile?.id}` : '')}
                                 >
-                                    <img src="/svg/whatsapp-logo.svg" className="h-4 w-4" alt="WhatsApp" />
+                                    <img src="/svg/whatsapp-logo.svg" className="h-4 w-4 shrink-0" alt="WhatsApp" />
                                     WhatsApp
                                 </Button>
                                 <Button 
                                     variant="outline" 
-                                    className="h-12 rounded-xl border-[#0A66C2] text-[#0A66C2] hover:bg-[#0A66C2]/10 flex gap-2"
+                                    className="h-11 rounded-xl border-[#0A66C2]/40 text-[#0A66C2] hover:bg-[#0A66C2]/5 flex gap-1.5 text-xs font-bold transition-all active:scale-95"
                                     onClick={() => shareToLinkedIn(typeof window !== 'undefined' ? `${window.location.origin}/profil/${profile?.slug || profile?.id}` : '')}
                                 >
-                                    <Linkedin className="h-4 w-4" />
+                                    <Linkedin className="h-4 w-4 text-[#0A66C2] shrink-0" />
                                     LinkedIn
                                 </Button>
                                 <Button 
                                     variant="outline" 
-                                    className="h-12 rounded-xl border-slate-900 text-slate-900 hover:bg-slate-100 flex gap-2"
+                                    className="h-11 rounded-xl border-slate-200 text-slate-900 hover:bg-slate-50 flex gap-1.5 text-xs font-bold transition-all active:scale-95"
                                     onClick={() => shareToTwitter(typeof window !== 'undefined' ? `${window.location.origin}/profil/${profile?.slug || profile?.id}` : '')}
                                 >
-                                    <Twitter className="h-4 w-4" />
+                                    <Twitter className="h-4 w-4 text-slate-800 shrink-0" />
                                     X
                                 </Button>
                             </div>
@@ -640,28 +648,38 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
 
 function ProfileSkeleton() {
     return (
-        <div className="min-h-screen bg-[#FAFAF9] animate-pulse">
+        <div className="min-h-screen bg-[#F8F9FA] animate-pulse">
             <div className="h-16 container max-w-5xl mx-auto px-4 flex items-center justify-between py-6">
-                <div className="h-10 w-24 bg-slate-200 rounded-xl" />
                 <div className="h-10 w-20 bg-slate-200 rounded-xl" />
+                <div className="h-10 w-24 bg-slate-200 rounded-xl" />
             </div>
-            <div className="container max-w-5xl mx-auto px-4 mt-2">
-                <div className="h-48 sm:h-64 w-full bg-slate-200 rounded-3xl" />
-                <div className="px-8 -mt-16 sm:-mt-20 flex flex-col md:flex-row gap-6 items-center md:items-end w-full">
-                    <div className="h-28 w-28 sm:h-36 sm:w-36 bg-slate-200 rounded-3xl ring-4 ring-white" />
-                    <div className="flex-1 space-y-3 w-full pb-2">
-                        <div className="h-8 w-1/3 bg-slate-200 rounded-xl" />
-                        <div className="h-5 w-1/4 bg-slate-200 rounded-lg" />
+            
+            <div className="container max-w-5xl mx-auto px-4">
+                {/* Header Profile Box Skeleton */}
+                <div className="bg-white border border-slate-200/50 rounded-[2rem] overflow-hidden shadow-sm">
+                    <div className="h-44 sm:h-56 bg-slate-200" />
+                    <div className="px-6 pb-6 sm:px-8 sm:pb-8 flex flex-col md:flex-row gap-6 md:gap-8 items-center md:items-end -mt-12 sm:-mt-16 w-full">
+                        <div className="h-28 w-28 sm:h-32 sm:w-32 bg-slate-200 rounded-3xl ring-4 ring-white" />
+                        <div className="flex-1 space-y-3 w-full pb-1">
+                            <div className="h-7 w-1/3 bg-slate-200 rounded-xl" />
+                            <div className="h-5 w-1/4 bg-slate-200 rounded-lg" />
+                        </div>
+                        <div className="flex gap-3 w-full md:w-auto mt-2 md:mt-0">
+                            <div className="h-11 w-24 bg-slate-200 rounded-xl" />
+                            <div className="h-11 w-24 bg-slate-200 rounded-xl" />
+                        </div>
                     </div>
                 </div>
-                
-                <div className="mt-8 grid lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-2 space-y-6">
-                        <div className="h-40 bg-white border border-slate-100 rounded-3xl p-6" />
-                        <div className="h-64 bg-white border border-slate-100 rounded-3xl p-6" />
+
+                {/* Grid Skeleton */}
+                <div className="mt-6 grid md:grid-cols-3 gap-6">
+                    <div className="md:col-span-2 space-y-6">
+                        <div className="h-40 bg-white border border-slate-200/50 rounded-[2rem] p-6" />
+                        <div className="h-64 bg-white border border-slate-200/50 rounded-[2rem] p-6" />
                     </div>
-                    <div className="lg:col-span-1">
-                        <div className="h-80 bg-white border border-slate-100 rounded-3xl p-6" />
+                    <div className="space-y-6">
+                        <div className="h-32 bg-white border border-slate-200/50 rounded-[2rem] p-6" />
+                        <div className="h-48 bg-white border border-slate-200/50 rounded-[2rem] p-6" />
                     </div>
                 </div>
             </div>
