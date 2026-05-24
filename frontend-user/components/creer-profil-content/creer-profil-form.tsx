@@ -17,7 +17,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import { Save, Eye, EyeOff, X } from "lucide-react"
+import { Save, Eye, EyeOff, X, Loader2 } from "lucide-react"
 import { LocationSelector } from "@/components/LocationSelector"
 import { useState } from "react"
 import { Badge } from "@/components/ui/badge"
@@ -35,6 +35,9 @@ interface CreerProfilFormProps {
     countries: any[]
     tags: string[]
     validationErrors: string[]
+    saving: boolean
+    publishing: boolean
+    unpublishing: boolean
 }
 
 export function CreerProfilForm({
@@ -47,7 +50,10 @@ export function CreerProfilForm({
     isPublished,
     countries,
     tags,
-    validationErrors
+    validationErrors,
+    saving,
+    publishing,
+    unpublishing,
 }: CreerProfilFormProps) {
     const [tagInput, setTagInput] = useState("")
 
@@ -176,7 +182,7 @@ export function CreerProfilForm({
 
                 {/* Lien Personnalisé (Slug) */}
                 <div className="space-y-3 pt-2">
-                    <Label className="text-sm font-bold flex items-center gap-2">
+                    <Label htmlFor="slug" className="text-sm font-bold flex items-center gap-2">
                         <Badge variant="outline" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-[10px] border-primary text-primary">🔗</Badge>
                         Lien personnalisé (URL de votre profil) *
                     </Label>
@@ -287,6 +293,7 @@ export function CreerProfilForm({
                                 id="phone"
                                 name="tel"
                                 autoComplete="tel"
+                                aria-label="Numéro de téléphone mobile"
                                 placeholder="Téléphone mobile"
                                 className="h-12 rounded-xl bg-slate-50 border-slate-200"
                                 value={formData.phone || ""}
@@ -298,6 +305,7 @@ export function CreerProfilForm({
                                 id="email"
                                 name="email"
                                 autoComplete="email"
+                                aria-label="Adresse e-mail professionnelle"
                                 type="email"
                                 placeholder="Contact email professionnel"
                                 className="h-12 rounded-xl bg-slate-50 border-slate-200"
@@ -310,6 +318,7 @@ export function CreerProfilForm({
                         id="website"
                         name="url"
                         autoComplete="url"
+                        aria-label="Site Web ou Portfolio"
                         placeholder="Portfolio ou Site Web (https://...)"
                         className="h-12 rounded-xl bg-slate-50 border-slate-200"
                         value={formData.website || ""}
@@ -319,7 +328,7 @@ export function CreerProfilForm({
 
                 {/* Tags Section */}
                 <div className="space-y-4 pt-4 pb-4">
-                    <Label className="text-sm font-bold flex items-center gap-2">
+                    <Label htmlFor="tags-input" className="text-sm font-bold flex items-center gap-2">
                         <Badge variant="outline" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-[10px] border-primary text-primary">6</Badge>
                         Compétences & Mots-clés (Tags)
                     </Label>
@@ -358,28 +367,58 @@ export function CreerProfilForm({
                     <Button
                         onClick={handleSave}
                         variant="outline"
+                        disabled={saving || publishing || unpublishing}
                         className="rounded-xl flex-1 h-14 border-slate-200 text-slate-600 font-bold hover:bg-green-500 hover:text-white hover:border-green-500 group transition-all"
                     >
-                        <Save className="mr-2 h-5 w-5 text-slate-400 group-hover:text-white transition-colors" />
-                        Sauvegarder
+                        {saving ? (
+                            <>
+                                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                Sauvegarde...
+                            </>
+                        ) : (
+                            <>
+                                <Save className="mr-2 h-5 w-5 text-slate-400 group-hover:text-white transition-colors" />
+                                Sauvegarder
+                            </>
+                        )}
                     </Button>
 
                     {!isPublished ? (
                         <Button
                             onClick={handlePublish}
+                            disabled={saving || publishing || unpublishing}
                             className="rounded-xl flex-[1.5] h-14 bg-gradient-to-br from-indigo-600 via-blue-600 to-blue-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-blue-200 transition-all duration-300 font-extrabold text-lg shadow-xl shadow-blue-100"
                         >
-                            <Eye className="mr-2 h-6 w-6" />
-                            Mettre en ligne
+                            {publishing ? (
+                                <>
+                                    <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+                                    Publication...
+                                </>
+                            ) : (
+                                <>
+                                    <Eye className="mr-2 h-6 w-6" />
+                                    Mettre en ligne
+                                </>
+                            )}
                         </Button>
                     ) : (
                         <Button
                             onClick={handleUnpublish}
                             variant="destructive"
+                            disabled={saving || publishing || unpublishing}
                             className="rounded-xl flex-1 h-14 bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200 font-bold shadow-sm"
                         >
-                            <EyeOff className="mr-2 h-5 w-5" />
-                            Retirer de l&apos;annuaire
+                            {unpublishing ? (
+                                <>
+                                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                    Retrait...
+                                </>
+                            ) : (
+                                <>
+                                    <EyeOff className="mr-2 h-5 w-5" />
+                                    Retirer de l&apos;annuaire
+                                </>
+                            )}
                         </Button>
                     )}
                 </div>

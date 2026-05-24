@@ -40,9 +40,28 @@ interface CreateProfileFormData {
     slug: string
 }
 
+const normalizeWebsite = (input: string) => {
+    const value = input.trim()
+    if (!value) return ""
+
+    const noSpaces = value.replace(/\s+/g, "")
+    const withProtocol = /^https?:\/\//i.test(noSpaces) ? noSpaces : `https://${noSpaces}`
+
+    try {
+        const url = new URL(withProtocol)
+        if (!["http:", "https:"].includes(url.protocol)) return null
+        if (!url.hostname || !url.hostname.includes(".")) return null
+        return url.toString()
+    } catch {
+        return null
+    }
+}
+
 const buildProfilePayload = (formData: CreateProfileFormData, isPublished: boolean) => {
     const trimmedName = formData.name.trim()
     const nameParts = trimmedName.split(/\s+/).filter(Boolean)
+
+    const normalizedWebsite = normalizeWebsite(formData.website)
 
     return {
         first_name: nameParts[0] || "",
@@ -52,7 +71,8 @@ const buildProfilePayload = (formData: CreateProfileFormData, isPublished: boole
         specialty: formData.specialty.trim(),
         bio: formData.bio.trim(),
         phone: formData.phone.trim(),
-        website: formData.website.trim(),
+        email: formData.email.trim(),
+        website: normalizedWebsite || formData.website.trim(),
         avatar_url: formData.avatar || null,
         card_variant: formData.card_variant,
         country_id: formData.country_id || null,
@@ -71,17 +91,9 @@ const validateProfileForm = (formData: CreateProfileFormData, mode: "draft" | "p
     const trimmedRole = formData.role.trim()
     const trimmedSpecialty = formData.specialty.trim()
     const trimmedBio = formData.bio.trim()
-    const trimmedWebsite = formData.website.trim()
-
-    if (trimmedWebsite) {
-        try {
-            const parsedUrl = new URL(trimmedWebsite)
-            if (!["http:", "https:"].includes(parsedUrl.protocol)) {
-                errors.push("Le site web doit commencer par http:// ou https://")
-            }
-        } catch {
-            errors.push("Le site web saisi n’est pas valide")
-        }
+    const normalizedWebsite = normalizeWebsite(formData.website)
+    if (formData.website.trim() && !normalizedWebsite) {
+        errors.push("Le site web saisi n’est pas valide")
     }
 
     if (trimmedBio.length > 1200) {
@@ -140,6 +152,9 @@ export function CreerProfilContent() {
     const [isPublished, setIsPublished] = useState(false)
     const [countries, setCountries] = useState<ReferenceCountry[]>([])
     const [validationErrors, setValidationErrors] = useState<string[]>([])
+    const [saving, setSaving] = useState(false)
+    const [publishing, setPublishing] = useState(false)
+    const [unpublishing, setUnpublishing] = useState(false)
     const [formData, setFormData] = useState<CreateProfileFormData>({
         name: "",
         role: "",
@@ -254,7 +269,9 @@ export function CreerProfilContent() {
     }
 
     const handleSave = async () => {
+        if (saving) return
         try {
+            setSaving(true)
             const errors = validateProfileForm(formData, "draft")
             if (errors.length > 0) {
                 setValidationErrors(errors)
@@ -277,10 +294,13 @@ export function CreerProfilContent() {
             setValidationErrors([])
         } catch (error: any) {
             toast.error(`Échec: ${error.message}`)
+        } finally {
+            setSaving(false)
         }
     }
 
     const handlePublish = async () => {
+        if (publishing) return
         const errors = validateProfileForm(formData, "publish")
         if (errors.length > 0) {
             setValidationErrors(errors)
@@ -289,6 +309,7 @@ export function CreerProfilContent() {
         }
 
         try {
+            setPublishing(true)
             const payload = buildProfilePayload(formData, true)
             const response = await fetchWithAuth("/api/users/me", {
                 method: "PUT",
@@ -301,11 +322,15 @@ export function CreerProfilContent() {
             toast.success("Votre carte est maintenant visible dans l'annuaire !")
         } catch (error: any) {
             toast.error(error.message)
+        } finally {
+            setPublishing(false)
         }
     }
 
     const handleUnpublish = async () => {
+        if (unpublishing) return
         try {
+            setUnpublishing(true)
             const payload = buildProfilePayload(formData, false)
             const response = await fetchWithAuth("/api/users/me", {
                 method: "PUT",
@@ -318,6 +343,8 @@ export function CreerProfilContent() {
             toast.success("Profil masqué avec succès.")
         } catch (error: any) {
             toast.error(error.message)
+        } finally {
+            setUnpublishing(false)
         }
     }
 
@@ -369,6 +396,9 @@ export function CreerProfilContent() {
                         countries={countries}
                         tags={formData.tags}
                         validationErrors={validationErrors}
+                        saving={saving}
+                        publishing={publishing}
+                        unpublishing={unpublishing}
                     />
                     <CreerProfilPreview formData={formData} />
                 </div>

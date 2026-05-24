@@ -99,10 +99,11 @@ export function LocationSelector({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* PAYS */}
             <div className="space-y-2">
-                <Label>Pays</Label>
+                <Label htmlFor="country-select-trigger">Pays</Label>
                 <Popover open={countryOpen} onOpenChange={setCountryOpen}>
                     <PopoverTrigger asChild>
                         <Button
+                            id="country-select-trigger"
                             type="button"
                             variant="outline"
                             role="combobox"
@@ -167,10 +168,11 @@ export function LocationSelector({
 
             {/* VILLE */}
             <div className="space-y-2">
-                <Label>Ville</Label>
+                <Label htmlFor="city-select-trigger">Ville</Label>
                 <Popover open={cityOpen} onOpenChange={setCityOpen}>
                     <PopoverTrigger asChild>
                         <Button
+                            id="city-select-trigger"
                             type="button"
                             variant="outline"
                             role="combobox"
