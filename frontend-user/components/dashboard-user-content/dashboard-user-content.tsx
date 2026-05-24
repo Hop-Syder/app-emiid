@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description dashboard-user principal avec sections Hero, Stats et Profils Premium
  * @created 2025-12-24
- * @updated 2026-01-16
+ * @updated 2026-05-24
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -196,7 +196,7 @@ export function DashboardContent({ initialStats = null }: DashboardContentProps)
       )}
 
       {/* Section Premium (Elite) */}
-      <div className="space-y-4">
+      <div className="space-y-4 py-4 bg-slate-50/50 -mx-4 px-4 sm:-mx-8 sm:px-8">
         <div className="flex items-center justify-between">
            <div>
               <h3 className="text-xl font-black text-slate-900 flex items-center gap-2 italic uppercase tracking-tighter">
@@ -222,7 +222,7 @@ export function DashboardContent({ initialStats = null }: DashboardContentProps)
       </div>
 
       {/* Section 100% Vérifiés */}
-      <div className="space-y-4">
+      <div className="space-y-4 py-4 bg-slate-50/50 -mx-4 px-4 sm:-mx-8 sm:px-8">
         <div className="flex items-center justify-between">
            <div>
               <h3 className="text-xl font-black text-slate-900 flex items-center gap-2 italic uppercase tracking-tighter">
@@ -236,3 +236,4 @@ export function DashboardContent({ initialStats = null }: DashboardContentProps)
     </div>
   )
 }
+
