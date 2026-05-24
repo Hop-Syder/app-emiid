@@ -79,7 +79,7 @@ const VARIANT_CONFIGS = {
     statCount: "text-blue-100",
     statLabel: "text-blue-300/60",
     btnMessage: "bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-500/20 text-white",
-    btnView: "border-white/10 text-white hover:text-blue-200 hover:bg-white/10",
+    btnView: "border-blue-500/30 text-blue-400 hover:text-white hover:bg-blue-600/20 hover:border-blue-400",
     btnFollow: "border-white/10 text-blue-300 hover:text-white hover:bg-blue-500/20",
   },
   elite: {

@@ -1,3 +1,13 @@
+/**
+ * @author @hopsyder
+ * @organization Nexus Partners
+ * @description Section des statistiques du tableau de bord utilisateur (grille responsive 2x2 mobile).
+ * @created 2026-05-24
+ * @updated 2026-05-24
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+*/
+
 "use client"
 
 import { BadgeCheck, Crown, Globe, Users } from "lucide-react"
@@ -45,7 +55,7 @@ export function StatsSection({ stats }: StatsSectionProps) {
     ]
 
     return (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {statsItems.map((stat, i) => (
                 <Card
                     key={i}
@@ -59,18 +69,19 @@ export function StatsSection({ stats }: StatsSectionProps) {
                             backgroundPosition: "center",
                         }}
                     />
-                    <CardHeader className="pb-2 relative z-10">
-                        <div className="flex items-center justify-between">
-                            <CardDescription className="font-medium">{stat.label}</CardDescription>
-                            <stat.icon className={`h-5 w-5 ${stat.color}`} />
+                    <CardHeader className="p-4 pb-1 md:pb-2 relative z-10">
+                        <div className="flex items-center justify-between gap-1">
+                            <CardDescription className="font-semibold text-xs md:text-sm line-clamp-1">{stat.label}</CardDescription>
+                            <stat.icon className={`h-4 w-4 md:h-5 md:w-5 shrink-0 ${stat.color}`} />
                         </div>
                     </CardHeader>
-                    <CardContent className="relative z-10">
-                        <div className="text-3xl font-bold">{stat.value}</div>
-                        <p className="text-xs text-muted-foreground mt-1">{stat.sub}</p>
+                    <CardContent className="p-4 pt-0 relative z-10">
+                        <div className="text-2xl md:text-3xl font-black tracking-tight">{stat.value}</div>
+                        <p className="text-[10px] md:text-xs text-muted-foreground mt-0.5 md:mt-1 line-clamp-1">{stat.sub}</p>
                     </CardContent>
                 </Card>
             ))}
         </div>
     )
 }
+
