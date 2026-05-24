@@ -144,17 +144,18 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
             setLoading(true)
             try {
                 const supabase = createClient()
+                const cleanProfileId = profileId.toLowerCase()
                 const isUUID =
-                    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(profileId)
+                    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(cleanProfileId)
 
                 let query = supabase
                     .from("user_profiles")
                     .select("*, countries(name), profile_tags(tags(name))")
 
                 if (isUUID) {
-                    query = query.or(`slug.eq.${profileId},user_id.eq.${profileId}`)
+                    query = query.or(`slug.eq.${cleanProfileId},user_id.eq.${cleanProfileId}`)
                 } else {
-                    query = query.eq("slug", profileId)
+                    query = query.eq("slug", cleanProfileId)
                 }
 
                 const { data, error } = await query.single()
@@ -431,9 +432,9 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
 
             setProfile((prev) => (prev ? { ...prev, coverImage: publicUrl } : null))
             toast.success("Image de couverture mise à jour !")
-        } catch (error: unknown) {
+        } catch (error: any) {
             console.error("Erreur upload couverture:", error)
-            const message = error instanceof Error ? error.message : "Inconnue"
+            const message = error?.message || (typeof error === "string" ? error : "Inconnue")
             toast.error("Erreur lors de l'upload de la couverture : " + message)
         } finally {
             setUploadingCover(false)

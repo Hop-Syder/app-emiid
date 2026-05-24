@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import type { Message } from "@/components/messages/types"
 
@@ -12,6 +12,11 @@ interface RealtimeHandlers {
 export function useMessagesRealtime(currentUserId: string | null, handlers: RealtimeHandlers) {
   const supabase = useMemo(() => createClient(), [])
   const [connected, setConnected] = useState(false)
+  const handlersRef = useRef(handlers)
+
+  useEffect(() => {
+    handlersRef.current = handlers
+  }, [handlers])
 
   const handlePresenceSync = useCallback(
     (channel: any) => {
@@ -24,9 +29,9 @@ export function useMessagesRealtime(currentUserId: string | null, handlers: Real
         })
       })
 
-      handlers.onPresenceChange(onlineIds)
+      handlersRef.current.onPresenceChange(onlineIds)
     },
-    [handlers],
+    [],
   )
 
   useEffect(() => {
@@ -44,7 +49,7 @@ export function useMessagesRealtime(currentUserId: string | null, handlers: Real
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "messages" },
         (payload) => {
-          handlers.onNewMessage(payload.new as Message)
+          handlersRef.current.onNewMessage(payload.new as Message)
         },
       )
       .subscribe((status) => {
@@ -58,8 +63,7 @@ export function useMessagesRealtime(currentUserId: string | null, handlers: Real
     return () => {
       supabase.removeChannel(globalChannel)
     }
-  }, [currentUserId, handlePresenceSync, handlers, supabase])
+  }, [currentUserId, handlePresenceSync, supabase])
 
   return { realtimeConnected: connected }
 }
-

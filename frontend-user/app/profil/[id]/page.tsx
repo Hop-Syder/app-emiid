@@ -8,10 +8,11 @@ interface ProfilePageProps {
 
 export async function generateMetadata({ params }: ProfilePageProps): Promise<Metadata> {
     const { id } = await params
+    const cleanId = id.toLowerCase()
     const supabase = await createClient()
 
     try {
-        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(cleanId);
         let query = supabase
             .from('user_profiles')
             .select(`
@@ -25,9 +26,9 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
             .eq('is_published', true)
 
         if (isUUID) {
-            query = query.or(`slug.eq.${id},user_id.eq.${id}`)
+            query = query.or(`slug.eq.${cleanId},user_id.eq.${cleanId}`)
         } else {
-            query = query.eq('slug', id)
+            query = query.eq('slug', cleanId)
         }
 
         const { data } = await query.single()
@@ -92,19 +93,20 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
 
 export default async function ProfilePage({ params }: ProfilePageProps) {
     const { id } = await params
+    const cleanId = id.toLowerCase()
     const supabase = await createClient()
     
     // Fetch base info for JSON-LD (deduped by Next.js/Supabase SSR)
-    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(cleanId);
     let query = supabase
         .from('user_profiles')
         .select(`first_name, last_name, specialty, role, city, bio`)
         .eq('is_published', true)
 
     if (isUUID) {
-        query = query.or(`slug.eq.${id},user_id.eq.${id}`)
+        query = query.or(`slug.eq.${cleanId},user_id.eq.${cleanId}`)
     } else {
-        query = query.eq('slug', id)
+        query = query.eq('slug', cleanId)
     }
 
     const { data } = await query.single()
