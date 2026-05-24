@@ -1,7 +1,7 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Composant d'upload d'avatar vers Supabase Storage avec prévisualisation
+ * @description Composant d'upload d'avatar vers Supabase Storage avec déclenchement par ref
  * @created 2026-01-05
  * @updated 2026-05-24
  * 🌐 ceo.nexuspartners.xyz
@@ -10,7 +10,7 @@
 
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Camera, Loader2, User } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -28,6 +28,7 @@ interface AvatarUploadProps {
 export function AvatarUpload({ currentAvatarUrl, onUploadComplete, disabled }: AvatarUploadProps) {
     const [uploading, setUploading] = useState(false)
     const [preview, setPreview] = useState<string | null>(currentAvatarUrl)
+    const fileInputRef = useRef<HTMLInputElement>(null)
 
     // Synchronisation de la prévisualisation quand l'URL parente change
     useEffect(() => {
@@ -35,6 +36,12 @@ export function AvatarUpload({ currentAvatarUrl, onUploadComplete, disabled }: A
     }, [currentAvatarUrl])
 
     const supabase = createClient()
+
+    const triggerFileInput = () => {
+        if (!uploading && !disabled) {
+            fileInputRef.current?.click()
+        }
+    }
 
     const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         try {
@@ -107,8 +114,11 @@ export function AvatarUpload({ currentAvatarUrl, onUploadComplete, disabled }: A
                     </AvatarFallback>
                 </Avatar>
 
-                <label
-                    htmlFor="avatar-input"
+                <button
+                    type="button"
+                    onClick={triggerFileInput}
+                    disabled={uploading || disabled}
+                    aria-label="Changer la photo de profil"
                     className={cn(
                         "absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer",
                         uploading && "opacity-100 cursor-wait",
@@ -120,29 +130,30 @@ export function AvatarUpload({ currentAvatarUrl, onUploadComplete, disabled }: A
                     ) : (
                         <Camera className="h-8 w-8" />
                     )}
-                </label>
+                </button>
 
                 <input
+                    ref={fileInputRef}
                     id="avatar-input"
                     name="avatar_file"
                     type="file"
                     accept="image/*"
                     onChange={handleFileChange}
                     disabled={uploading || disabled}
+                    style={{ display: "none" }}
                 />
             </div>
 
             <div className="space-y-1">
                 <Button
+                    type="button"
                     variant="outline"
                     size="sm"
-                    className="rounded-xl"
-                    asChild
+                    className="rounded-xl font-bold"
+                    onClick={triggerFileInput}
                     disabled={uploading || disabled}
                 >
-                    <label htmlFor="avatar-input" className="cursor-pointer">
-                        {uploading ? "Chargement..." : "Changer la photo"}
-                    </label>
+                    {uploading ? "Chargement..." : "Changer la photo"}
                 </Button>
                 <p className="text-xs text-muted-foreground">
                     JPG, PNG ou GIF. Max 2MB.
