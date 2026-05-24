@@ -124,6 +124,12 @@ const validateProfileForm = (formData: CreateProfileFormData, mode: "draft" | "p
         if (!formData.city.trim()) {
             errors.push("Veuillez renseigner votre ville")
         }
+
+        if (!formData.slug || !formData.slug.trim()) {
+            errors.push("Veuillez renseigner votre lien personnalisé (pseudo)")
+        } else if (formData.slug.trim().length < 3) {
+            errors.push("Le pseudo de votre lien personnalisé doit contenir au moins 3 caractères")
+        }
     }
 
     return errors

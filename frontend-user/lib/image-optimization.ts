@@ -32,6 +32,11 @@ export function getOptimizedImageUrl(
         return url;
     }
 
+    // N'utiliser la transformation d'image CDN que si elle est activée en variable d'env
+    if (process.env.NEXT_PUBLIC_ENABLE_SUPABASE_IMAGE_TRANSFORM !== 'true') {
+        return url;
+    }
+
     const { width, height, quality = 80, resize = 'cover' } = options;
     
     // Remplacer /object/public/ par /render/image/public/ pour activer la transformation

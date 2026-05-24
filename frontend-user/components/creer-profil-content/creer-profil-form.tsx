@@ -174,7 +174,7 @@ export function CreerProfilForm({
                 <div className="space-y-3 pt-2">
                     <Label className="text-sm font-bold flex items-center gap-2">
                         <Badge variant="outline" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-[10px] border-primary text-primary">🔗</Badge>
-                        Lien personnalisé (URL de votre profil)
+                        Lien personnalisé (URL de votre profil) *
                     </Label>
                     <div className="flex items-center rounded-xl bg-slate-50 border border-slate-200 overflow-hidden focus-within:ring-2 focus-within:ring-primary/20 transition-all">
                         <div className="bg-slate-100 px-4 py-4 text-slate-500 font-medium text-sm border-r border-slate-200 flex items-center whitespace-nowrap">

@@ -3,6 +3,9 @@
  * @organization Nexus Partners
  * @description Composant Sidebar pour la liste des conversations
  * @created 2026-05-11
+ * @updated 2026-05-24
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
 */
 
 import React from 'react'
@@ -50,6 +53,9 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <Input 
+            id="chat-search-input"
+            name="chat_search"
+            autoComplete="off"
             placeholder="Rechercher une discussion..." 
             className="pl-9 bg-slate-50 border-none focus-visible:ring-indigo-500"
             value={searchQuery}

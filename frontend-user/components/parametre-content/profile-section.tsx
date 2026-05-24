@@ -4,7 +4,7 @@
  * @organization Nexus Partners
  * @description Profile information section for Settings
  * @created 2026-01-16
- * @updated 2026-01-16
+ * @updated 2026-05-24
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
 */
@@ -130,6 +130,8 @@ export function ProfileSection({
               <Label htmlFor="prenom" className="text-xs font-semibold text-muted-foreground ml-1">Prénom</Label>
               <Input
                 id="prenom"
+                name="given-name"
+                autoComplete="given-name"
                 value={profile.first_name || ""}
                 onChange={(e) => setProfile({ ...profile, first_name: e.target.value })}
                 className="h-12 md:h-14 rounded-xl bg-slate-50 border-slate-200 focus:ring-primary/20 transition-all font-medium text-slate-900"
@@ -140,6 +142,8 @@ export function ProfileSection({
               <Label htmlFor="nom" className="text-xs font-semibold text-muted-foreground ml-1">Nom</Label>
               <Input
                 id="nom"
+                name="family-name"
+                autoComplete="family-name"
                 value={profile.last_name || ""}
                 onChange={(e) => setProfile({ ...profile, last_name: e.target.value })}
                 className="h-12 md:h-14 rounded-xl bg-slate-50 border-slate-200 focus:ring-primary/20 transition-all font-medium text-slate-900"
@@ -156,6 +160,8 @@ export function ProfileSection({
                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
                     <Input
                       id="email"
+                      name="email"
+                      autoComplete="email"
                       type="email"
                       value={profile.email || ""}
                       className="h-12 md:h-14 pl-12 rounded-xl bg-slate-100 border-none text-slate-500 font-medium opacity-80"
@@ -170,6 +176,8 @@ export function ProfileSection({
                     <Smartphone className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
                     <Input 
                         id="telephone" 
+                        name="tel"
+                        autoComplete="tel"
                         type="tel" 
                         value={profile.phone || ""} 
                         onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
@@ -230,6 +238,9 @@ export function ProfileSection({
                             
                             <div className="flex flex-col gap-4">
                               <Input 
+                                id="phone-verification-code"
+                                name="phone_verification_code"
+                                autoComplete="one-time-code"
                                 value={otpCode}
                                 onChange={(e) => setOtpCode(e.target.value.replace(/[^0-9]/g, ''))}
                                 placeholder="0 0 0 0 0 0"

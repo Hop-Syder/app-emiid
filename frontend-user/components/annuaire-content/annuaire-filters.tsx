@@ -1,3 +1,12 @@
+/**
+ * @author @hopsyder
+ * @organization Nexus Partners
+ * @description Filtres de l'annuaire des profils
+ * @created 2025-12-24
+ * @updated 2026-05-24
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+*/
 "use client"
 
 import { Search } from "lucide-react"
@@ -16,7 +25,13 @@ export function AnnuaireFilters() {
                 <div className="flex flex-col md:flex-row gap-4">
                     <div className="flex-1 relative">
                         <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input placeholder="Rechercher un profil..." className="pl-9 rounded-xl" />
+                        <Input
+                            id="annuaire-search-input"
+                            name="annuaire_search"
+                            autoComplete="off"
+                            placeholder="Rechercher un profil..."
+                            className="pl-9 rounded-xl"
+                        />
                     </div>
                     <Select>
                         <SelectTrigger className="w-full md:w-[200px] rounded-xl">

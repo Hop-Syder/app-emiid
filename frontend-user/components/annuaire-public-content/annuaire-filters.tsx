@@ -3,6 +3,7 @@
  * @organization Nexus Partners
  * @description Filtres pour l'annuaire avec sélection de catégorie redirigeant vers les pages spécifiques
  * @created 2026-01-25
+ * @updated 2026-05-24
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
 */
@@ -54,6 +55,9 @@ export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProp
                     <div className="flex-[2] relative">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                         <Input
+                            id="annuaire-keyword-search"
+                            name="annuaire_keyword"
+                            autoComplete="off"
                             placeholder="Rechercher un talent (Nom, Rôle, Bio...)"
                             aria-label="Rechercher par mot-clé"
                             className="pl-12 h-12 rounded-xl bg-white border-muted focus-visible:ring-primary shadow-sm"
@@ -63,6 +67,9 @@ export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProp
                     </div>
                     <div className="flex-1">
                         <Input
+                            id="annuaire-tags-filter"
+                            name="annuaire_tags"
+                            autoComplete="off"
                             placeholder="Filtrer par Tags (Ex: React, BTP...)"
                             aria-label="Filtrer par tags"
                             className="h-12 rounded-xl bg-white border-muted shadow-sm"

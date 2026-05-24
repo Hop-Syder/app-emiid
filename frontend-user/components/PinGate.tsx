@@ -1,3 +1,12 @@
+/**
+ * @author @hopsyder
+ * @organization Nexus Partners
+ * @description Composant PinGate pour la protection par code PIN
+ * @created 2025-12-24
+ * @updated 2026-05-24
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+*/
 "use client"
 
 import { useState, useEffect } from "react"
@@ -111,7 +120,14 @@ export function PinGate({ children }: { children: React.ReactNode }) {
 
                     {!isHardLocked && (
                         <div className="w-full flex flex-col items-center gap-4">
-                            <InputOTP maxLength={6} value={pin} onChange={handleVerify}>
+                            <InputOTP
+                                id="pin-gate-code"
+                                name="pin_gate_code"
+                                autoComplete="one-time-code"
+                                maxLength={6}
+                                value={pin}
+                                onChange={handleVerify}
+                            >
                                 <InputOTPGroup className="gap-2">
                                     <InputOTPSlot index={0} className="w-10 h-12 rounded-lg border-gray-200" />
                                     <InputOTPSlot index={1} className="w-10 h-12 rounded-lg border-gray-200" />

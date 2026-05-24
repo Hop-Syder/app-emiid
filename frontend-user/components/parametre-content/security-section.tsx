@@ -4,7 +4,7 @@
  * @organization Nexus Partners
  * @description Security section for Settings (Password, PIN, 2FA)
  * @created 2026-01-16
- * @updated 2026-05-11
+ * @updated 2026-05-24
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
 */
@@ -462,6 +462,9 @@ export function SecuritySection({
                     </DialogHeader>
                     <div className="flex flex-col items-center gap-6 py-4">
                         <InputOTP
+                            id="create-pin-code"
+                            name="create_pin_code"
+                            autoComplete="one-time-code"
                             maxLength={6}
                             value={pinStep === "enter" ? tempPin : confirmPin}
                             onChange={(val) => {
@@ -512,6 +515,8 @@ export function SecuritySection({
                                     <Smartphone className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
                                     <Input
                                         id="phone"
+                                        name="tel"
+                                        autoComplete="tel"
                                         placeholder="+225 0700000000"
                                         value={mfaPhoneNumber}
                                         onChange={(e) => setMfaPhoneNumber(e.target.value)}
@@ -557,6 +562,9 @@ export function SecuritySection({
                         <div className="flex flex-col items-center gap-8 py-6">
                             <div className="bg-slate-50 p-6 rounded-2xl w-full flex flex-col items-center gap-6 border border-slate-100">
                                 <InputOTP
+                                    id="mfa-verification-code"
+                                    name="mfa_verification_code"
+                                    autoComplete="one-time-code"
                                     maxLength={6}
                                     value={mfaCode}
                                     onChange={(val) => setMfaCode(val)}
@@ -625,7 +633,14 @@ export function SecuritySection({
                             {profile.pin_enabled ? (
                                 <div className="flex flex-col items-center gap-4">
                                     <Label htmlFor="reauth-pin">Votre code PIN</Label>
-                                    <InputOTP maxLength={6} value={reauthPin} onChange={setReauthPin}>
+                                    <InputOTP
+                                        id="reauth-pin-code"
+                                        name="reauth_pin_code"
+                                        autoComplete="one-time-code"
+                                        maxLength={6}
+                                        value={reauthPin}
+                                        onChange={setReauthPin}
+                                    >
                                         <InputOTPGroup className="gap-2">
                                             <InputOTPSlot index={0} className="w-10 h-12 rounded-lg border-gray-200" />
                                             <InputOTPSlot index={1} className="w-10 h-12 rounded-lg border-gray-200" />
@@ -642,6 +657,8 @@ export function SecuritySection({
                                     <div className="relative">
                                         <Input
                                             id="reauth-password"
+                                            name="current-password"
+                                            autoComplete="current-password"
                                             type={showReauthPassword ? "text" : "password"}
                                             placeholder="••••••••"
                                             value={reauthPassword}

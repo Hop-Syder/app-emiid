@@ -3,6 +3,9 @@
  * @organization Nexus Partners
  * @description Sélecteur de pays et de villes intelligent utilisant country-state-city
  * @created 2026-01-05
+ * @updated 2026-05-24
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
 */
 
 "use client"
@@ -117,6 +120,9 @@ export function LocationSelector({
                             <div className="relative">
                                 <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                                 <Input
+                                    id="country-search-input"
+                                    name="country_search"
+                                    autoComplete="off"
                                     autoFocus
                                     value={countrySearch}
                                     onChange={(event) => setCountrySearch(event.target.value)}
@@ -183,6 +189,9 @@ export function LocationSelector({
                             <div className="relative">
                                 <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                                 <Input
+                                    id="city-search-input"
+                                    name="city_search"
+                                    autoComplete="off"
                                     autoFocus
                                     value={citySearch}
                                     onChange={(event) => setCitySearch(event.target.value)}

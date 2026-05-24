@@ -3,6 +3,9 @@
  * @organization Nexus Partners
  * @description Composant d'upload d'avatar vers Supabase Storage avec prévisualisation
  * @created 2026-01-05
+ * @updated 2026-05-24
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
 */
 
 "use client"
@@ -121,11 +124,11 @@ export function AvatarUpload({ currentAvatarUrl, onUploadComplete, disabled }: A
 
                 <input
                     id="avatar-input"
+                    name="avatar_file"
                     type="file"
                     accept="image/*"
                     onChange={handleFileChange}
                     disabled={uploading || disabled}
-                    className="hidden"
                 />
             </div>
 

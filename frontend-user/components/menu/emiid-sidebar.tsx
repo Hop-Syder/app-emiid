@@ -1,3 +1,12 @@
+/**
+ * @author @hopsyder
+ * @organization Nexus Partners
+ * @description Composant Sidebar avec recherche rapide et navigation utilisateur
+ * @created 2025-12-24
+ * @updated 2026-05-24
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+*/
 "use client"
 
 import { useState } from "react"
@@ -161,6 +170,9 @@ export function EmiIDSidebar({ sidebarOpen, setSidebarOpen: _setSidebarOpen, mob
           <div className="relative group rounded-xl bg-white border border-slate-100 shadow-inner">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
             <Input
+              id={isMobile ? "sidebar-search-mobile" : "sidebar-search-desktop"}
+              name="sidebar_search"
+              autoComplete="off"
               type="search"
               placeholder="Recherche rapide..."
               className="w-full rounded-xl bg-transparent border-transparent hover:bg-slate-50 focus:bg-white focus:border-primary/30 focus:ring-4 focus:ring-primary/5 pl-10 pr-4 py-2.5 h-11 text-sm font-medium transition-all duration-300"

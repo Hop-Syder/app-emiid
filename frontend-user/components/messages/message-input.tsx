@@ -3,6 +3,9 @@
  * @organization Nexus Partners
  * @description Composant d'entrée de texte pour la messagerie
  * @created 2026-05-11
+ * @updated 2026-05-24
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
 */
 
 import React, { useState, useRef } from 'react'
@@ -37,6 +40,8 @@ export const MessageInput: React.FC<MessageInputProps> = ({ onSend, isDisabled }
     >
       <div className="flex-1 relative bg-slate-50 rounded-2xl border border-slate-100 transition-all focus-within:border-indigo-300 focus-within:ring-2 focus-within:ring-indigo-100">
         <input 
+          id="message-file-input"
+          name="message_file"
           type="file" 
           ref={fileInputRef} 
           className="hidden" 
@@ -61,6 +66,9 @@ export const MessageInput: React.FC<MessageInputProps> = ({ onSend, isDisabled }
         </Button>
 
         <Input 
+          id="message-text-input"
+          name="message_text"
+          autoComplete="off"
           placeholder="Écrivez votre message..." 
           className="border-none bg-transparent pl-12 pr-12 h-11 focus-visible:ring-0 shadow-none"
           value={text}
