@@ -6,7 +6,6 @@ import { useState } from "react"
 import { motion } from "framer-motion"
 import { EmiIDSidebar } from "./emiid-sidebar"
 import { EmiIDHeader } from "./emiid-header"
-import { EmiIDMobileNav } from "./emiid-mobile-nav"
 import { cn } from "@/lib/utils"
 
 interface EmiIDLayoutProps {
@@ -42,13 +41,12 @@ export function EmiIDLayout({ children }: EmiIDLayoutProps) {
 
       <div className={cn("transition-all duration-300", sidebarOpen ? "md:pl-[240px]" : "md:pl-[80px]")}>
         <EmiIDHeader sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} setMobileMenuOpen={setMobileMenuOpen} />
-        <main className="p-4 md:p-6 lg:p-8 relative pb-28 md:pb-6">
+        <main className="p-4 md:p-6 lg:p-8 relative">
           {children}
         </main>
       </div>
 
       {/* Contextual FAB Navigation (Mobile & Tablet) */}
-      <EmiIDMobileNav onOpenMenu={() => setMobileMenuOpen(true)} />
 
     </div>
   )
