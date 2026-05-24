@@ -3,6 +3,9 @@
  * @organization Nexus Partners
  * @description Page de messagerie refactorisée et modulaire (Version Complète & Robuste)
  * @created 2026-05-11
+ * @updated 2026-05-24
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
 */
 
 "use client"
@@ -63,16 +66,20 @@ export function MessagesContent() {
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const lastConvIdRef = useRef<string | null>(null)
 
-  const scrollToBottom = useCallback(() => {
+  const scrollToBottom = useCallback((behavior: "smooth" | "auto" = "smooth") => {
     setTimeout(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+      messagesEndRef.current?.scrollIntoView({ behavior })
     }, 100)
   }, [])
 
   useEffect(() => {
-    scrollToBottom()
-  }, [messages, scrollToBottom])
+    if (!selectedConv) return
+    const isSameConv = lastConvIdRef.current === selectedConv.id
+    lastConvIdRef.current = selectedConv.id
+    scrollToBottom(isSameConv ? "smooth" : "auto")
+  }, [messages, selectedConv?.id, scrollToBottom])
 
   // Mark as read
   const markMessagesAsRead = useCallback(async (conversationId: string) => {
@@ -124,8 +131,8 @@ export function MessagesContent() {
             })
             setShowChatMobile(true)
           }
-        } else if (data.length > 0 && !selectedConv) {
-          setSelectedConv(data[0])
+        } else if (data.length > 0) {
+          setSelectedConv(prev => prev || data[0])
         }
       } catch (err) {
         captureError(err, { scope: "messages", action: "fetchConversations" })
@@ -134,7 +141,7 @@ export function MessagesContent() {
       }
     }
     load()
-  }, [currentUserId, contactId, selectedConv])
+  }, [currentUserId, contactId])
 
   // Load Messages
   useEffect(() => {
@@ -155,7 +162,7 @@ export function MessagesContent() {
       }
     }
     load()
-  }, [selectedConv, markMessagesAsRead])
+  }, [selectedConv?.id, markMessagesAsRead])
 
   // Realtime
   const realtime = useMessagesRealtime(currentUserId, {
@@ -163,27 +170,39 @@ export function MessagesContent() {
       // Pour l'instant on ne gère pas visuellement la présence ici
     },
     onNewMessage: (newMsg) => {
+      // 1. Dédoublonner et ajouter le message si c'est la conversation active
       if (selectedConv && newMsg.conversation_id === selectedConv.id) {
-        setMessages(prev => [...prev, newMsg])
+        setMessages(prev => prev.some(m => m.id === newMsg.id) ? prev : [...prev, newMsg])
         markMessagesAsRead(selectedConv.id)
-      } else {
-        setConversations(prev => {
-          const index = prev.findIndex(c => c.id === newMsg.conversation_id)
-          if (index === -1) return prev
-          const next = [...prev]
-          next[index] = {
-            ...next[index],
-            last_message: newMsg.content,
-            last_message_at: newMsg.created_at,
-            unread_count: next[index].unread_count + 1
-          }
-          return next
-        })
       }
+
+      // 2. Mettre à jour les conversations dans la barre latérale
+      setConversations(prev => {
+        const index = prev.findIndex(c => c.id === newMsg.conversation_id)
+        if (index === -1) {
+          // Si la conversation n'est pas dans la liste locale (ex: nouveau contact initié par un tiers),
+          // on recharge la liste depuis le serveur.
+          fetchConversations().then(data => setConversations(data)).catch(console.error)
+          return prev
+        }
+        const next = [...prev]
+        const isCurrent = selectedConv?.id === newMsg.conversation_id
+        next[index] = {
+          ...next[index],
+          last_message: newMsg.content,
+          last_message_at: newMsg.created_at,
+          unread_count: isCurrent ? 0 : next[index].unread_count + 1
+        }
+        return next.sort((a, b) => {
+          const dateA = new Date(a.last_message_at || a.updated_at).getTime()
+          const dateB = new Date(b.last_message_at || b.updated_at).getTime()
+          return dateB - dateA
+        })
+      })
     }
   })
 
-  const sendMessageToDB = async (content: string, receiverId: string) => {
+  const getOrCreateConversationId = async (receiverId: string): Promise<string> => {
     if (!currentUserId) throw new Error("Non authentifié")
     let convId = selectedConv?.id
 
@@ -209,6 +228,11 @@ export function MessagesContent() {
         convId = existingConv.id
       }
     }
+    return convId
+  }
+
+  const sendMessageToDB = async (content: string, receiverId: string, convId: string) => {
+    if (!currentUserId) throw new Error("Non authentifié")
 
     const { data: newMsg, error: msgError } = await supabase
       .from('messages')
@@ -233,7 +257,7 @@ export function MessagesContent() {
     return newMsg
   }
 
-  const handleFileUpload = async (file: File) => {
+  const handleFileUpload = async (file: File, convId: string) => {
     if (!selectedConv || !currentUserId) return
     const type = file.type.startsWith("image/") ? "image" : "file"
     const maxSize = type === "image" ? 5 * 1024 * 1024 : 10 * 1024 * 1024
@@ -246,7 +270,7 @@ export function MessagesContent() {
     const uploadToastId = toast.loading("Envoi du fichier...")
     try {
       const extension = file.name.split(".").pop()
-      const filePath = `messages/${selectedConv.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${extension}`
+      const filePath = `messages/${convId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${extension}`
 
       const { error: uploadError } = await supabase.storage.from("messages").upload(filePath, file)
       if (uploadError) throw uploadError
@@ -254,26 +278,49 @@ export function MessagesContent() {
       const { data: { publicUrl } } = supabase.storage.from("messages").getPublicUrl(filePath)
       const content = type === "image" ? `[Image] ${publicUrl}` : `[Fichier] ${file.name} - ${publicUrl}`
 
-      const newMsg = await sendMessageToDB(content, selectedConv.other_participant.user_id)
-      setMessages(prev => [...prev, newMsg])
+      const newMsg = await sendMessageToDB(content, selectedConv.other_participant.user_id, convId)
+      setMessages(prev => prev.some(m => m.id === newMsg.id) ? prev : [...prev, newMsg])
       toast.success("Fichier envoyé", { id: uploadToastId })
-    } catch {
+      return newMsg
+    } catch (err) {
+      console.error(err)
       toast.error("Échec de l'upload", { id: uploadToastId })
+      throw err
     }
   }
 
   const handleSendMessage = async (content: string, file?: File) => {
     if (!selectedConv || (!content.trim() && !file)) return
     
+    const isNewConv = selectedConv.id.startsWith('new-')
     try {
+      const convId = await getOrCreateConversationId(selectedConv.other_participant.user_id)
+      let newMsg
+
       if (file) {
-        await handleFileUpload(file)
+        newMsg = await handleFileUpload(file, convId)
       } else {
-        const newMsg = await sendMessageToDB(content, selectedConv.other_participant.user_id)
-        setMessages(prev => [...prev, newMsg])
+        newMsg = await sendMessageToDB(content, selectedConv.other_participant.user_id, convId)
+        setMessages(prev => prev.some(m => m.id === newMsg.id) ? prev : [...prev, newMsg])
+      }
+
+      if (isNewConv && newMsg) {
+        // Recharger les conversations pour avoir la vraie conversation créée avec les vrais profils
+        const updatedConvs = await fetchConversations()
+        setConversations(updatedConvs)
+        
+        // Trouver la conversation nouvellement créée
+        const newRealConv = updatedConvs.find(c => c.id === convId)
+        if (newRealConv) {
+          setSelectedConv(newRealConv)
+        } else {
+          // Fallback
+          setSelectedConv(prev => prev ? { ...prev, id: convId } : null)
+        }
       }
       scrollToBottom()
-    } catch {
+    } catch (err) {
+      console.error(err)
       toast.error("Échec de l'envoi")
     }
   }

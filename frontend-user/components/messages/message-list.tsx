@@ -3,6 +3,9 @@
  * @organization Nexus Partners
  * @description Composants pour l'affichage des messages (Bulles et Liste)
  * @created 2026-05-11
+ * @updated 2026-05-24
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
 */
 
 import React from 'react'
@@ -111,7 +114,7 @@ interface MessageListProps {
 
 export const MessageList: React.FC<MessageListProps> = ({ messages, currentUserId, scrollRef }) => {
   return (
-    <div className="flex-1 overflow-y-auto bg-slate-50/50 py-6 scroll-smooth custom-scrollbar">
+    <div className="flex-1 overflow-y-auto bg-slate-50/50 py-6 custom-scrollbar">
       {messages.length > 0 ? (
         messages.map((msg) => (
           <MessageBubble 
