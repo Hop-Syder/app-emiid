@@ -8,6 +8,7 @@ import messageRoutes from './api/routes/messageRoutes'
 import dashboardRoutes from './api/routes/dashboardRoutes'
 import publicRoutes from './api/routes/publicRoutes'
 import webhookRoutes from './api/routes/webhookRoutes'
+import referenceRoutes from './api/routes/referenceRoutes'
 import { errorHandler } from './middlewares/errorMiddleware'
 import { logger } from './utils/logger'
 import { supabaseAdmin } from './config/supabase'
@@ -104,6 +105,7 @@ export function createApp(): Application {
   app.use('/api/dashboard-user', dashboardRoutes)
   app.use('/api/public', publicRoutes)
   app.use('/api/webhooks', webhookRoutes)
+  app.use('/api/reference', referenceRoutes)
 
   app.use(errorHandler)
 
