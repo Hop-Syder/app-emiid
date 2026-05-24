@@ -8,7 +8,7 @@
 
 "use client"
 
-import { Shield, Plus, Check, Star, Globe, MapPin, MoreHorizontal } from "lucide-react"
+import { Shield, Plus, Check, Globe, MapPin, MoreHorizontal } from "lucide-react"
 import { motion } from "framer-motion"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -73,42 +73,50 @@ export function EmiIDProfileCard({
         )}
       >
         {/* Elite Decor */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(245,158,11,0.15),transparent_60%)] z-0" />
-        <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-amber-500/40 to-transparent z-0" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(245,158,11,0.20),transparent_62%)] z-0" />
+        <div className="absolute -bottom-16 -left-16 w-40 h-40 bg-amber-500/10 blur-[60px] rounded-full z-0" />
+        <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-amber-500/50 to-transparent z-0" />
         
-        <div className="relative z-20 h-full flex flex-col p-5 sm:p-4 lg:p-6 text-white text-center">
-           <div className="flex justify-between items-center mb-4">
-              <div className="px-2 py-0.5 rounded-full border border-amber-500/20 bg-amber-500/5">
-                 <span className="text-[8px] font-black tracking-[0.2em] text-amber-500 uppercase">PRÉMIUM</span>
+        <div className="relative z-20 h-full flex flex-col p-5 sm:p-4 lg:p-6 text-white">
+           <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="px-2 py-1 rounded-full border border-amber-500/25 bg-amber-500/10">
+                   <span className="text-[8px] font-black tracking-[0.22em] text-amber-400 uppercase">ELITE</span>
+                </div>
+                <div className="px-2 py-1 rounded-full border border-white/10 bg-white/5">
+                  <span className="text-[8px] font-black tracking-[0.18em] text-white/70 uppercase">{displayCategory}</span>
+                </div>
               </div>
               <MoreHorizontal className="h-4 w-4 text-amber-500/30" />
            </div>
 
-           <div className="relative mx-auto mb-2">
-              <div className="absolute inset-0 rounded-full bg-amber-500/10 blur-md scale-105" />
-              <Avatar className="h-16 w-16 sm:h-18 lg:h-22 ring-1 ring-amber-500/40 p-0.5 bg-black mx-auto">
-                <AvatarImage src={getOptimizedImageUrl(user.avatar, { width: 200, height: 200 })} className="rounded-full object-cover" />
-                <AvatarFallback className="bg-amber-950 text-amber-500 font-bold text-xs">{name[0]}</AvatarFallback>
-              </Avatar>
-              {user.verified && (
-                <div className="absolute -bottom-1 -right-1 bg-amber-500 rounded-full p-0.5 border-2 border-black shadow-lg">
-                  <Shield className="h-2.5 w-2.5 text-black fill-black" />
-                </div>
-              )}
-           </div>
+           <div className="mt-5 flex flex-col items-center text-center">
+              <div className="relative">
+                <div className="absolute inset-0 rounded-full bg-amber-500/15 blur-md scale-110" />
+                <Avatar className="h-[74px] w-[74px] sm:h-[78px] sm:w-[78px] ring-1 ring-amber-500/45 p-0.5 bg-black shadow-[0_18px_40px_rgba(0,0,0,0.55)]">
+                  <AvatarImage src={getOptimizedImageUrl(user.avatar, { width: 220, height: 220 })} className="rounded-full object-cover" />
+                  <AvatarFallback className="bg-amber-950 text-amber-400 font-black text-xl">{name[0]}</AvatarFallback>
+                </Avatar>
+                {user.verified && (
+                  <div className="absolute -bottom-1 -right-1 bg-amber-500 rounded-full p-1 border-2 border-black shadow-lg">
+                    <Shield className="h-3 w-3 text-black fill-black/10" />
+                  </div>
+                )}
+              </div>
 
-           <div className="space-y-1 mb-2 flex flex-col justify-center min-h-[2.5rem]">
-              <h3 className="text-base sm:text-lg lg:text-xl font-bold tracking-tight text-amber-50 font-serif leading-tight">
-                {name}
-              </h3>
-              <p className="text-[10px] sm:text-[10px] font-medium text-amber-500/60 tracking-wider">
-                {role}
-              </p>
+              <div className="mt-3 space-y-1 min-h-[3rem] flex flex-col justify-center">
+                <h3 className="text-base sm:text-lg lg:text-xl font-extrabold tracking-tight text-amber-50 leading-tight line-clamp-2">
+                  {name}
+                </h3>
+                <p className="text-[10px] font-semibold text-amber-400/70 tracking-[0.14em] uppercase line-clamp-2">
+                  {role}
+                </p>
+              </div>
               
               {user.tags && user.tags.length > 0 && (
                 <div className="flex flex-wrap justify-center gap-1 mt-2 w-full px-1">
                    {user.tags.slice(0, 4).map((tag, i) => (
-                      <span key={i} className="text-[8px] font-bold text-amber-400/80 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full max-w-full truncate">
+                      <span key={i} className="text-[8px] font-bold text-amber-300/90 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full max-w-full truncate">
                          {tag}
                       </span>
                    ))}
@@ -116,31 +124,28 @@ export function EmiIDProfileCard({
               )}
            </div>
 
-           <div className="grid grid-cols-2 gap-2 py-2 border-y border-amber-500/10 mb-2 bg-white/5 rounded-xl">
+           <div className="mt-4 grid grid-cols-2 gap-2 py-3 border border-amber-500/10 bg-white/5 rounded-2xl text-center">
               <div>
-                 <p className="text-[7px] text-amber-500/40 font-black uppercase mb-0 tracking-tighter">Abonnés</p>
-                 <p className="text-xs font-bold">{user.followers || '0'}</p>
+                 <p className="text-[9px] text-amber-500/45 font-black uppercase tracking-[0.18em]">Abonnés</p>
+                 <p className="text-base font-extrabold text-amber-50 -mt-0.5">{user.followers || "0"}</p>
               </div>
               <div className="border-l border-amber-500/10">
-                 <p className="text-[7px] text-amber-500/40 font-black uppercase mb-0 tracking-tighter">Activité</p>
-                 <div className="flex justify-center items-center h-4">
-                    <Star className="h-2.5 w-2.5 text-amber-500 fill-amber-500 mr-1" />
-                    <span className="text-[10px] font-bold tracking-tighter">PRO</span>
-                 </div>
+                 <p className="text-[9px] text-amber-500/45 font-black uppercase tracking-[0.18em]">Suivis</p>
+                 <p className="text-base font-extrabold text-amber-50 -mt-0.5">{following}</p>
               </div>
            </div>
 
-           <div className="grid grid-cols-2 gap-2 mt-auto">
+           <div className="grid grid-cols-2 gap-2 mt-auto pt-4">
               <Button 
                 onClick={(e) => { e.stopPropagation(); onAction?.('message') }}
-                className="rounded-xl h-10 bg-amber-500 hover:bg-amber-600 text-black font-black text-[9px] uppercase tracking-tighter"
+                className="rounded-2xl h-11 bg-gradient-to-b from-amber-400 to-amber-600 hover:from-amber-400 hover:to-amber-700 text-black font-black text-[10px] uppercase tracking-[0.18em] shadow-lg shadow-amber-500/15"
               >
                 Message
               </Button>
               <Button 
                 onClick={(e) => { e.stopPropagation(); onAction?.('follow') }}
                 variant="outline"
-                className="rounded-xl h-10 border-amber-500/20 bg-transparent text-amber-500 font-black text-[9px] uppercase tracking-tighter hover:bg-amber-500/10"
+                className="rounded-2xl h-11 border-amber-500/25 bg-transparent text-amber-300 font-black text-[10px] uppercase tracking-[0.18em] hover:bg-amber-500/10"
               >
                 {isFollowed ? 'Abonné' : 'Suivre'}
               </Button>
@@ -157,65 +162,100 @@ export function EmiIDProfileCard({
         whileHover={{ y: -6 }}
         onClick={() => onAction?.('view')}
         className={cn(
-          "relative w-full max-w-[320px] sm:max-w-[280px] lg:max-w-[300px] aspect-[1/1.2] mx-auto rounded-3xl overflow-hidden bg-gradient-to-br from-blue-600/10 to-indigo-950/30 border border-white/20 backdrop-blur-xl shadow-xl hover:shadow-blue-500/20 cursor-pointer group",
+          "relative w-full max-w-[320px] sm:max-w-[280px] lg:max-w-[300px] aspect-[1/1.2] mx-auto rounded-3xl overflow-hidden bg-gradient-to-br from-blue-700/10 via-indigo-950/25 to-slate-950/35 border border-white/15 backdrop-blur-xl shadow-xl hover:shadow-blue-500/20 cursor-pointer group",
           className
         )}
       >
-        <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-blue-500/10 blur-[60px] rounded-full" />
+        {/* Glass decor */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.18),transparent_55%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(99,102,241,0.22),transparent_58%)]" />
+        <div className="absolute -bottom-20 -right-20 w-44 h-44 bg-blue-500/12 blur-[70px] rounded-full" />
+        <div className="absolute -top-24 -left-24 w-44 h-44 bg-indigo-500/10 blur-[70px] rounded-full" />
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
         
         <div className="relative h-full flex flex-col p-6 sm:p-5 text-white">
-          <div className="flex items-center justify-between mb-4">
-             <Globe className="h-4 w-4 text-blue-400 opacity-40" />
-             <div className="px-2 py-0.5 rounded-md bg-blue-500/20 text-[8px] font-bold tracking-widest text-blue-300">MODERN</div>
+          {/* Top bar */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Globe className="h-4 w-4 text-blue-300/60" />
+              <div className="px-2 py-1 rounded-full bg-white/10 border border-white/10 text-[8px] font-black tracking-[0.22em] text-blue-100/80 uppercase">
+                GLASS
+              </div>
+            </div>
+            <div className="px-2 py-1 rounded-full bg-blue-500/15 border border-white/10 text-[8px] font-black tracking-[0.22em] text-blue-200 uppercase">
+              MODERN
+            </div>
           </div>
 
-          <div className="flex flex-col items-center mb-6">
-             <div className="relative">
-                <Avatar className="h-20 w-20 ring-4 ring-blue-500/10 shadow-2xl">
-                  <AvatarImage src={getOptimizedImageUrl(user.avatar, { width: 200, height: 200 })} className="object-cover" />
-                  <AvatarFallback className="bg-blue-600/30">{name[0]}</AvatarFallback>
-                </Avatar>
-                <div className="absolute top-0 right-0 h-3 w-3 bg-green-500 border-2 border-[#12121e] rounded-full" />
-             </div>
-             <div className="mt-3 text-center min-h-[2rem] flex flex-col justify-center">
-                <h3 className="text-lg font-black tracking-tight leading-tight">{name}</h3>
-                <p className="text-[10px] sm:text-[9px] font-bold text-blue-400 uppercase tracking-widest mt-0.5 line-clamp-2">{category}</p>
+          {/* Identity */}
+          <div className="flex flex-col items-center mt-5 mb-4">
+            <div className="relative">
+              <div className="absolute inset-0 rounded-full bg-blue-500/15 blur-md scale-110" />
+              <Avatar className="h-[78px] w-[78px] ring-1 ring-white/20 bg-white/5 shadow-[0_18px_44px_rgba(0,0,0,0.45)]">
+                <AvatarImage src={getOptimizedImageUrl(user.avatar, { width: 220, height: 220 })} className="object-cover" />
+                <AvatarFallback className="bg-blue-600/30 text-blue-100 font-black">{name[0]}</AvatarFallback>
+              </Avatar>
+              <div className="absolute -bottom-1 -right-1 h-3.5 w-3.5 bg-emerald-500 border-2 border-[#0b1020] rounded-full shadow-md" />
+              {user.verified && (
+                <div className="absolute -top-1 -left-1 bg-white/90 rounded-full p-1 shadow-md border border-white/20">
+                  <Shield className="h-3.5 w-3.5 text-blue-700 fill-blue-700/10" />
+                </div>
+              )}
+            </div>
+
+            <div className="mt-3 text-center min-h-[2.25rem] flex flex-col justify-center">
+              <h3 className="text-lg font-extrabold tracking-tight leading-tight line-clamp-2">
+                {name}
+              </h3>
+              <p className="text-[10px] font-black text-blue-200/80 uppercase tracking-[0.22em] mt-1 line-clamp-2">
+                {role}
+              </p>
                 
-                {user.tags && user.tags.length > 0 && (
-                  <div className="flex flex-wrap justify-center gap-1 mt-2 w-full px-1">
-                     {user.tags.slice(0, 4).map((tag, i) => (
-                         <span key={i} className="text-[8px] font-bold text-blue-200 bg-blue-500/20 border border-blue-400/20 px-2 py-0.5 rounded-full max-w-full truncate">
-                            {tag}
-                         </span>
-                     ))}
-                  </div>
-                )}
-             </div>
+              {user.tags && user.tags.length > 0 && (
+                <div className="flex flex-wrap justify-center gap-1.5 mt-3 w-full px-1">
+                  {user.tags.slice(0, 4).map((tag, i) => (
+                    <span
+                      key={i}
+                      className="text-[8px] font-extrabold text-blue-100/90 bg-white/10 border border-white/10 px-2.5 py-1 rounded-full max-w-full truncate"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
-          <div className="flex flex-col gap-3 py-4 border-t border-white/5 flex-1">
-             <div className="flex items-center gap-2 text-[11px] opacity-70">
-                <MapPin className="h-3 w-3 text-blue-400" />
-                <span className="truncate">{location}</span>
-             </div>
-             <div className="h-10 text-[11px] font-medium leading-relaxed opacity-80 italic line-clamp-2">
-                Expertise focalisée sur le {user.specialty || "secteur digital"}.
-             </div>
+          {/* Meta */}
+          <div className="flex flex-col gap-3 py-4 border-t border-white/10 flex-1">
+            <div className="flex items-center gap-2 text-[11px] text-white/75">
+              <MapPin className="h-3.5 w-3.5 text-blue-300/70" />
+              <span className="truncate font-semibold">{location}</span>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+              <div className="text-[10px] font-black tracking-[0.22em] text-blue-100/70 uppercase">
+                Expertise
+              </div>
+              <div className="mt-1 text-[12px] font-semibold text-white/85 line-clamp-2">
+                {user.specialty || "Secteur digital"}
+              </div>
+            </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 mt-auto pt-4 border-t border-white/5">
-             <Button 
-               onClick={(e) => { e.stopPropagation(); onAction?.('message') }}
-               className="rounded-full h-10 bg-white text-blue-900 font-bold text-[10px] tracking-wide hover:scale-105 transition-transform"
-             >
-               MESSAGE
-             </Button>
-             <Button 
-               onClick={(e) => { e.stopPropagation(); onAction?.('follow') }}
-               className="rounded-full h-10 bg-blue-500/20 border border-white/20 font-bold text-[10px] tracking-wide hover:bg-blue-500/40"
-             >
-               {isFollowed ? 'SUIVI' : 'SUIVRE'}
-             </Button>
+          {/* Actions */}
+          <div className="grid grid-cols-2 gap-3 mt-auto pt-4 border-t border-white/10">
+            <Button 
+              onClick={(e) => { e.stopPropagation(); onAction?.('message') }}
+              className="rounded-2xl h-11 bg-white text-blue-950 font-black text-[10px] tracking-[0.18em] uppercase hover:scale-[1.02] transition-transform"
+            >
+              Message
+            </Button>
+            <Button 
+              onClick={(e) => { e.stopPropagation(); onAction?.('follow') }}
+              className="rounded-2xl h-11 bg-blue-500/20 border border-white/15 font-black text-[10px] tracking-[0.18em] uppercase hover:bg-blue-500/35"
+            >
+              {isFollowed ? 'Suivi' : 'Suivre'}
+            </Button>
           </div>
         </div>
       </motion.div>
