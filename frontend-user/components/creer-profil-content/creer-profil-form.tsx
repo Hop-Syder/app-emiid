@@ -319,11 +319,29 @@ export function CreerProfilForm({
                         name="url"
                         autoComplete="url"
                         aria-label="Site Web ou Portfolio"
-                        placeholder="Portfolio ou Site Web (https://...)"
+                        placeholder="Portfolio ou Site Web (ex: monsite.com)"
                         className="h-12 rounded-xl bg-slate-50 border-slate-200"
                         value={formData.website || ""}
                         onChange={(e) => handleInputChange("website", e.target.value)}
+                        onBlur={(e) => {
+                            const value = (e.target.value || "").trim()
+                            if (!value) return
+                            const noSpaces = value.replace(/\s+/g, "")
+                            const withProtocol = /^https?:\/\//i.test(noSpaces) ? noSpaces : `https://${noSpaces}`
+                            try {
+                                const url = new URL(withProtocol)
+                                if (["http:", "https:"].includes(url.protocol) && url.hostname.includes(".")) {
+                                    handleInputChange("website", url.toString())
+                                }
+                            } catch {
+                                // laissé tel quel, la validation affichera l'erreur
+                            }
+                        }}
                     />
+                    <p className="text-[10px] text-muted-foreground ml-1">
+                        Astuce : vous pouvez saisir <span className="font-semibold">monsite.com</span>, on ajoute automatiquement{" "}
+                        <span className="font-semibold">https://</span>.
+                    </p>
                 </div>
 
                 {/* Tags Section */}

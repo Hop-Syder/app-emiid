@@ -292,6 +292,9 @@ export function CreerProfilContent() {
 
             toast.success("Votre profil a été mis à jour avec succès")
             setValidationErrors([])
+            if (payload.website && payload.website !== formData.website.trim()) {
+                setFormData((prev) => ({ ...prev, website: payload.website as string }))
+            }
         } catch (error: any) {
             toast.error(`Échec: ${error.message}`)
         } finally {
@@ -320,6 +323,9 @@ export function CreerProfilContent() {
 
             setIsPublished(true)
             toast.success("Votre carte est maintenant visible dans l'annuaire !")
+            if (payload.website && payload.website !== formData.website.trim()) {
+                setFormData((prev) => ({ ...prev, website: payload.website as string }))
+            }
         } catch (error: any) {
             toast.error(error.message)
         } finally {
@@ -341,6 +347,9 @@ export function CreerProfilContent() {
 
             setIsPublished(false)
             toast.success("Profil masqué avec succès.")
+            if (payload.website && payload.website !== formData.website.trim()) {
+                setFormData((prev) => ({ ...prev, website: payload.website as string }))
+            }
         } catch (error: any) {
             toast.error(error.message)
         } finally {

@@ -24,7 +24,6 @@ import {
     Download,
     ExternalLink,
     Globe,
-    Linkedin,
     Loader2,
     Mail,
     MapPin,
@@ -35,7 +34,6 @@ import {
     Share2,
     Shield,
     Star,
-    Twitter,
     Users,
 } from "lucide-react"
 
