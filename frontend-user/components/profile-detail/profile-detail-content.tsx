@@ -31,7 +31,9 @@ import {
     Twitter,
     Globe,
     Phone,
-    Award
+    Award,
+    Camera,
+    Loader2
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -97,12 +99,91 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
     const [followersCount, setFollowersCount] = useState(0)
     const [scrolled, setScrolled] = useState(false)
     const [joinedDate, setJoinedDate] = useState<string>("...")
+    const [uploadingCover, setUploadingCover] = useState(false)
+    const [isOwnProfile, setIsOwnProfile] = useState(false)
 
     useEffect(() => {
         const handleScroll = () => setScrolled(window.scrollY > 50)
         window.addEventListener("scroll", handleScroll)
         return () => window.removeEventListener("scroll", handleScroll)
     }, [])
+
+    useEffect(() => {
+        const checkCurrentUser = async () => {
+            if (!profile) return
+            try {
+                const supabase = createClient()
+                const { data: { user } } = await supabase.auth.getUser()
+                if (user && user.id === profile.id) {
+                    setIsOwnProfile(true)
+                }
+            } catch (e) {
+                console.error("Erreur check user:", e)
+            }
+        }
+        checkCurrentUser()
+    }, [profile])
+
+    const handleCoverUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        try {
+            if (!event.target.files || event.target.files.length === 0) return
+            const file = event.target.files[0]
+
+            if (!file.type.startsWith("image/")) {
+                toast.error("Veuillez sélectionner une image valide.")
+                return
+            }
+
+            if (file.size > 2 * 1024 * 1024) { // Max 2MB
+                toast.error("L'image est trop lourde (Max 2MB) !")
+                return
+            }
+
+            setUploadingCover(true)
+            const supabase = createClient()
+            
+            const { data: { session } } = await supabase.auth.getSession()
+            if (!session) {
+                toast.error("Vous devez être connecté pour effectuer cette action.")
+                return
+            }
+
+            const user = session.user
+            const fileExt = file.name.split(".").pop()
+            const fileName = `cover_${Date.now()}.${fileExt}`
+            const filePath = `${user.id}/${fileName}`
+
+            // Upload vers le bucket public 'avatars'
+            const { error: uploadError } = await supabase.storage
+                .from("avatars")
+                .upload(filePath, file, {
+                    upsert: true,
+                    contentType: file.type
+                })
+
+            if (uploadError) throw uploadError
+
+            const { data: { publicUrl } } = supabase.storage
+                .from("avatars")
+                .getPublicUrl(filePath)
+
+            // Mise à jour du profil en BDD
+            const { error: updateError } = await supabase
+                .from('user_profiles')
+                .update({ cover_url: publicUrl })
+                .eq('user_id', user.id)
+
+            if (updateError) throw updateError
+
+            setProfile(prev => prev ? { ...prev, coverImage: publicUrl } : null)
+            toast.success("Image de couverture mise à jour !")
+        } catch (error: any) {
+            console.error("Erreur upload couverture:", error)
+            toast.error("Erreur lors de l'upload de la couverture : " + error.message)
+        } finally {
+            setUploadingCover(false)
+        }
+    }
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -192,7 +273,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                 const data = await res.json()
                 setIsFollowed(data.followed)
                 setFollowersCount(prev => data.followed ? prev + 1 : prev - 1)
-                toast.success(data.followed ? "Ajouté au Portfolio" : "Retiré du Portfolio")
+                toast.success(data.followed ? "Vous suivez ce membre" : "Abonnement retiré")
             } else {
                 toast.error("Veuillez vous connecter pour suivre ce membre")
             }
@@ -302,18 +383,50 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                 
                 {/* 1. Header Profile Bento Block */}
                 <div className="bg-white border border-slate-200/60 rounded-[2rem] overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
-                    <div className="relative h-44 sm:h-56">
-                        {/* Premium Cover Banner */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-[#022753] via-[#04336c] to-[#CE1126]/60">
-                            <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 1.5px 1.5px, white 1.5px, transparent 0)', backgroundSize: '20px 20px' }} />
-                        </div>
-                        {profile.coverImage && (
-                            <img 
-                                src={getOptimizedImageUrl(profile.coverImage, { width: 1200, height: 350, quality: 90 })} 
-                                alt="Cover" 
-                                className="w-full h-full object-cover" 
-                            />
+                    <div 
+                        className={cn(
+                            "relative h-44 sm:h-56 overflow-hidden",
+                            isOwnProfile && !uploadingCover ? "cursor-pointer group/cover" : ""
                         )}
+                        onClick={() => {
+                            if (isOwnProfile && !uploadingCover) {
+                                document.getElementById("cover-upload-input")?.click()
+                            }
+                        }}
+                    >
+                        {/* Cover Image */}
+                        <img 
+                            src={profile.coverImage ? getOptimizedImageUrl(profile.coverImage, { width: 1200, height: 350, quality: 90 }) : "/placeholder.jpg"} 
+                            alt="Cover" 
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover/cover:scale-102" 
+                        />
+                        
+                        {/* Shadow Overlay */}
+                        <div className="absolute inset-0 bg-black/10 group-hover/cover:bg-black/20 transition-colors" />
+
+                        {/* Upload Button Overlay */}
+                        {isOwnProfile && (
+                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/cover:opacity-100 transition-opacity duration-300 bg-black/40">
+                                <div className="bg-white/95 text-slate-800 font-extrabold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-md">
+                                    {uploadingCover ? (
+                                        <Loader2 className="h-4 w-4 animate-spin text-slate-700" />
+                                    ) : (
+                                        <Camera className="h-4 w-4 text-slate-700" />
+                                    )}
+                                    {uploadingCover ? "Mise à jour..." : "Modifier la couverture"}
+                                </div>
+                            </div>
+                        )}
+
+                        <input
+                            id="cover-upload-input"
+                            type="file"
+                            accept="image/*"
+                            onChange={handleCoverUpload}
+                            disabled={uploadingCover}
+                            className="hidden"
+                        />
+
                         <div className="absolute top-4 right-4 flex items-center gap-2">
                             {profile.premium && (
                                 <Badge className="bg-amber-400/90 hover:bg-amber-400 text-[#022753] border-none gap-1.5 px-3 py-1 rounded-lg font-bold text-[10px] uppercase tracking-wider backdrop-blur-sm">
@@ -380,7 +493,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                                 onClick={handleFollow}
                             >
                                 <Users className="h-4 w-4" />
-                                {isFollowed ? "Retirer" : "Portfolio"}
+                                {isFollowed ? "Retirer" : "Suivre"}
                             </Button>
                             <Button
                                 variant="outline"
