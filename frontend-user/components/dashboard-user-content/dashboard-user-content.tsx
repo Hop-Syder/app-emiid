@@ -58,7 +58,9 @@ interface DashboardContentProps {
 }
 
 export function DashboardContent({ initialStats = null }: DashboardContentProps) {
-  const [loading, setLoading] = useState(true)
+  const [premiumLoading, setPremiumLoading] = useState(true)
+  const [newLoading, setNewLoading] = useState(true)
+  const [verifiedLoading, setVerifiedLoading] = useState(true)
   const [premiumProfiles, setPremiumProfiles] = useState<EntrepreneurProfile[]>([])
   const [newProfiles, setNewProfiles] = useState<EntrepreneurProfile[]>([])
   const [verifiedProfiles, setVerifiedProfiles] = useState<EntrepreneurProfile[]>([])
@@ -78,75 +80,138 @@ export function DashboardContent({ initialStats = null }: DashboardContentProps)
 
     const loadDashboardData = async (showLoading: boolean) => {
       if (showLoading && isMounted) {
-        setLoading(true)
+        setPremiumLoading(true)
+        setNewLoading(true)
+        setVerifiedLoading(true)
       }
 
       try {
-        // 1. Fetch Premium Profiles
-        const { data: premiumData } = await supabase
-            .from('user_profiles')
-            .select(`*, countries(name), profile_tags(tags(name))`)
-            .eq('is_published', true)
-            .eq('is_premium', true)
-            .limit(3)
+        const selectFields = `
+          id,
+          user_id,
+          first_name,
+          last_name,
+          role,
+          city,
+          avatar_url,
+          specialty,
+          category,
+          is_verified,
+          is_premium,
+          followers_count,
+          countries(name),
+          profile_tags(tags(name))
+        `
 
-        // 2. Fetch New Profiles
-        const { data: newData } = await supabase
-            .from('user_profiles')
-            .select(`*, countries(name), profile_tags(tags(name))`)
-            .eq('is_published', true)
-            .order('created_at', { ascending: false })
-            .limit(6)
+        const premiumQuery = supabase
+          .from("user_profiles")
+          .select(selectFields)
+          .eq("is_published", true)
+          .eq("is_premium", true)
+          .limit(3)
 
-        // 3. Fetch Verified Profiles
-        const { data: verifiedData } = await supabase
-            .from('user_profiles')
-            .select(`*, countries(name), profile_tags(tags(name))`)
-            .eq('is_published', true)
-            .eq('is_verified', true)
-            .limit(4)
+        const newQuery = supabase
+          .from("user_profiles")
+          .select(selectFields)
+          .eq("is_published", true)
+          .order("created_at", { ascending: false })
+          .limit(6)
+
+        const verifiedQuery = supabase
+          .from("user_profiles")
+          .select(selectFields)
+          .eq("is_published", true)
+          .eq("is_verified", true)
+          .limit(4)
 
         const mapProfile = (e: any, follows: string[]) => {
-            const profileId = e.user_id || e.id || "0"
-            return {
-                id: profileId,
-                name: (e.first_name || e.last_name) ? `${e.first_name || ''} ${e.last_name || ''}`.trim() : "Membre EmiID",
-                role: e.role || "Professionnel",
-                location: e.city ? `${e.city}, ${e.countries?.name || ''}` : (e.countries?.name || "Afrique"),
-                avatar: e.avatar_url || "/profil/avatar.jpg",
-                specialty: e.specialty || "Expertise",
-                verified: !!e.is_verified,
-                premium: !!e.is_premium,
-                followers: e.followers_count || 0,
-                isFollowed: follows.includes(profileId),
-                tags: e.profile_tags?.map((pt: any) => pt.tags?.name) || []
-            }
+          const profileId = e.user_id || e.id || "0"
+          return {
+            id: profileId,
+            name: (e.first_name || e.last_name) ? `${e.first_name || ''} ${e.last_name || ''}`.trim() : "Membre EmiID",
+            role: e.role || "Professionnel",
+            location: e.city ? `${e.city}, ${e.countries?.name || ''}` : (e.countries?.name || "Afrique"),
+            avatar: e.avatar_url || "/profil/avatar.jpg",
+            specialty: e.specialty || "Expertise",
+            verified: !!e.is_verified,
+            premium: !!e.is_premium,
+            followers: e.followers_count || 0,
+            isFollowed: follows.includes(profileId),
+            tags: e.profile_tags?.map((pt: any) => pt.tags?.name) || []
+          }
         }
 
         let userFollowsIds: string[] = []
         try {
-            const followsRes = await fetchWithAuth("/api/users/follows")
-            if (followsRes.ok) {
-                const followsData = await followsRes.json()
-                userFollowsIds = followsData.map((f: any) => f.user_id || f.id)
-            }
-        } catch (e) { console.error(e) }
-
-        if (isMounted) {
-            setPremiumProfiles((premiumData || []).map(p => mapProfile(p, userFollowsIds)))
-            setNewProfiles((newData || []).map(p => mapProfile(p, userFollowsIds)))
-            setVerifiedProfiles((verifiedData || []).map(p => mapProfile(p, userFollowsIds)))
-            setLoading(false)
+          const followsRes = await fetchWithAuth("/api/users/follows").catch(() => null)
+          if (followsRes && "ok" in followsRes && followsRes.ok) {
+            const followsData = await followsRes.json()
+            userFollowsIds = followsData.map((f: any) => f.user_id || f.id).filter(Boolean)
+          }
+        } catch {
+          // silencieux
         }
+
+        const premiumPromise = premiumQuery
+          .then(({ data }) => {
+            if (!isMounted) return
+            setPremiumProfiles((data || []).map((p) => mapProfile(p, userFollowsIds)))
+          })
+          .catch((e) => {
+            console.error("Erreur chargement premium:", e)
+            if (!isMounted) return
+            setPremiumProfiles([])
+            setProfilesWarning("Les profils mis en avant n’ont pas pu être chargés pour le moment.")
+          })
+          .finally(() => {
+            if (!isMounted) return
+            setPremiumLoading(false)
+          })
+
+        const newPromise = newQuery
+          .then(({ data }) => {
+            if (!isMounted) return
+            setNewProfiles((data || []).map((p) => mapProfile(p, userFollowsIds)))
+          })
+          .catch((e) => {
+            console.error("Erreur chargement nouveaux profils:", e)
+            if (!isMounted) return
+            setNewProfiles([])
+            setProfilesWarning("Les profils mis en avant n’ont pas pu être chargés pour le moment.")
+          })
+          .finally(() => {
+            if (!isMounted) return
+            setNewLoading(false)
+          })
+
+        const verifiedPromise = verifiedQuery
+          .then(({ data }) => {
+            if (!isMounted) return
+            setVerifiedProfiles((data || []).map((p) => mapProfile(p, userFollowsIds)))
+          })
+          .catch((e) => {
+            console.error("Erreur chargement profils vérifiés:", e)
+            if (!isMounted) return
+            setVerifiedProfiles([])
+            setProfilesWarning("Les profils mis en avant n’ont pas pu être chargés pour le moment.")
+          })
+          .finally(() => {
+            if (!isMounted) return
+            setVerifiedLoading(false)
+          })
+
+        await Promise.allSettled([premiumPromise, newPromise, verifiedPromise])
       } catch (error) {
         console.error("Erreur chargement profils dashboard-user:", error)
-        
+
         if (isMounted) {
           setProfilesWarning("Les profils mis en avant n’ont pas pu être chargés pour le moment.")
         }
       } finally {
         if (showLoading && isMounted) {
-          setLoading(false)
+          setPremiumLoading(false)
+          setNewLoading(false)
+          setVerifiedLoading(false)
         }
       }
     }
@@ -198,42 +263,41 @@ export function DashboardContent({ initialStats = null }: DashboardContentProps)
       {/* Section Premium (Elite) */}
       <div className="space-y-4 py-4 bg-slate-50/50 -mx-4 px-4 sm:-mx-8 sm:px-8">
         <div className="flex items-center justify-between">
-           <div>
-              <h3 className="text-xl font-black text-slate-900 flex items-center gap-2 italic uppercase tracking-tighter">
-                💎 Profils Premium
-              </h3>
-              <p className="text-xs text-slate-500 font-medium">L&apos;excellence de notre réseau</p>
-           </div>
+          <div>
+            <h3 className="text-xl font-black text-slate-900 flex items-center gap-2 italic uppercase tracking-tighter">
+              Profils Premium
+            </h3>
+            <p className="text-xs text-slate-500 font-medium">L&apos;excellence de notre réseau</p>
+          </div>
         </div>
-        <EntrepreneursSection entrepreneursList={premiumProfiles} loading={loading} variant="elite" />
+        <EntrepreneursSection entrepreneursList={premiumProfiles} loading={premiumLoading} variant="elite" />
       </div>
 
       {/* Section Nouveaux Profils (Horizontal) */}
       <div className="space-y-4 py-4 bg-slate-50/50 -mx-4 px-4 sm:-mx-8 sm:px-8">
         <div className="flex items-center justify-between">
-           <div>
-              <h3 className="text-xl font-black text-slate-900 italic uppercase tracking-tighter">
-                ⚡ Nouveaux Arrivants
-              </h3>
-              <p className="text-xs text-slate-500 font-medium">Souhaitez-leur la bienvenue</p>
-           </div>
+          <div>
+            <h3 className="text-xl font-black text-slate-900 italic uppercase tracking-tighter">
+              ⚡ Nouveaux Arrivants
+            </h3>
+            <p className="text-xs text-slate-500 font-medium">Souhaitez-leur la bienvenue</p>
+          </div>
         </div>
-        <EntrepreneursSection entrepreneursList={newProfiles} loading={loading} variant="tech" />
+        <EntrepreneursSection entrepreneursList={newProfiles} loading={newLoading} variant="tech" />
       </div>
 
       {/* Section 100% Vérifiés */}
       <div className="space-y-4 py-4 bg-slate-50/50 -mx-4 px-4 sm:-mx-8 sm:px-8">
         <div className="flex items-center justify-between">
-           <div>
-              <h3 className="text-xl font-black text-slate-900 flex items-center gap-2 italic uppercase tracking-tighter">
-                🛡️ 100% Vérifiés
-              </h3>
-              <p className="text-xs text-slate-500 font-medium">La confiance avant tout</p>
-           </div>
+          <div>
+            <h3 className="text-xl font-black text-slate-900 flex items-center gap-2 italic uppercase tracking-tighter">
+              100% Vérifiés
+            </h3>
+            <p className="text-xs text-slate-500 font-medium">La confiance avant tout</p>
+          </div>
         </div>
-        <EntrepreneursSection entrepreneursList={verifiedProfiles} loading={loading} variant="glass" />
+        <EntrepreneursSection entrepreneursList={verifiedProfiles} loading={verifiedLoading} variant="glass" />
       </div>
     </div>
   )
 }
-

@@ -1,3 +1,13 @@
+/**
+ * @author @hopsyder
+ * @organization Nexus Partners
+ * @description Section d'affichage des entrepreneurs (carrousel horizontal fluide sur tous les écrans).
+ * @created 2026-05-24
+ * @updated 2026-05-24
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+*/
+
 "use client"
 
 import { motion } from "framer-motion"
@@ -80,9 +90,9 @@ export function EntrepreneursSection({ entrepreneursList, loading, variant = "te
     return (
         <section>
             {loading ? (
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div className="flex overflow-x-auto pb-6 gap-6 snap-x no-scrollbar w-full">
                     {Array.from({ length: 3 }).map((_, i) => (
-                        <div key={i} className="space-y-4 p-6 border rounded-xl bg-card">
+                        <div key={i} className="min-w-[280px] space-y-4 p-6 border rounded-xl bg-card">
                             <div className="flex items-center gap-4">
                                 <Skeleton className="h-16 w-16 rounded-full" />
                                 <div className="space-y-2 flex-1">
@@ -99,7 +109,7 @@ export function EntrepreneursSection({ entrepreneursList, loading, variant = "te
                     ))}
                 </div>
             ) : profiles.length > 0 ? (
-                <div className="flex overflow-x-auto pb-6 gap-6 snap-x no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:overflow-visible">
+                <div className="flex overflow-x-auto pb-6 gap-6 snap-x no-scrollbar w-full">
                     {profiles.map((entrepreneur, index) => (
                         <motion.div
                             key={entrepreneur.id}
@@ -141,3 +151,4 @@ export function EntrepreneursSection({ entrepreneursList, loading, variant = "te
         </section>
     )
 }
+
