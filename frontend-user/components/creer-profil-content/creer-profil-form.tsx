@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Formulaire de création de profil
  * @created 2026-01-16
- * @updated 2026-01-16
+ * @updated 2026-05-24
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
 */
@@ -151,6 +151,8 @@ export function CreerProfilForm({
                             <Label htmlFor="name" className="text-xs font-semibold text-muted-foreground ml-1">Nom Complet *</Label>
                             <Input
                                 id="name"
+                                name="name"
+                                autoComplete="name"
                                 placeholder="Prénom et Nom"
                                 className="h-14 rounded-xl bg-slate-50 border-slate-200 focus:ring-primary/20"
                                 value={formData.name || ""}
@@ -161,6 +163,8 @@ export function CreerProfilForm({
                             <Label htmlFor="role" className="text-xs font-semibold text-muted-foreground ml-1">Poste actuel ou Entreprise *</Label>
                             <Input
                                 id="role"
+                                name="organization-title"
+                                autoComplete="organization-title"
                                 placeholder="Ex: Directeur Créatif ou Nom de l'agence"
                                 className="h-14 rounded-xl bg-slate-50 border-slate-200 focus:ring-primary/20"
                                 value={formData.role || ""}
@@ -182,6 +186,8 @@ export function CreerProfilForm({
                         </div>
                         <Input
                             id="slug"
+                            name="slug"
+                            autoComplete="off"
                             placeholder="mon-prenom-nom"
                             className="h-14 border-none bg-transparent shadow-none focus-visible:ring-0 px-4 font-bold text-slate-800 lowercase w-full"
                             value={formData.slug || ""}
@@ -231,6 +237,8 @@ export function CreerProfilForm({
                             <Label htmlFor="specialty" className="text-xs font-semibold text-muted-foreground ml-1">Domaine d&apos;expertise précis *</Label>
                             <Input
                                 id="specialty"
+                                name="specialty"
+                                autoComplete="off"
                                 placeholder="Ex: Développement Web Fullstack ou Menuiserie d'art"
                                 className="h-14 rounded-xl bg-slate-50 border-slate-200 focus:ring-primary/20"
                                 value={formData.specialty || ""}
@@ -248,6 +256,7 @@ export function CreerProfilForm({
                     </Label>
                     <Textarea
                         id="bio"
+                        name="bio"
                         placeholder="Racontez votre parcours, vos plus belles réalisations et ce qui vous passionne. C'est ici que vous convainquez vos futurs clients."
                         className="rounded-xl min-h-[160px] bg-slate-50 border-slate-200 focus:ring-primary/20 p-5 leading-relaxed text-slate-700"
                         value={formData.bio || ""}
@@ -276,6 +285,8 @@ export function CreerProfilForm({
                         <div className="space-y-1">
                             <Input
                                 id="phone"
+                                name="tel"
+                                autoComplete="tel"
                                 placeholder="Téléphone mobile"
                                 className="h-12 rounded-xl bg-slate-50 border-slate-200"
                                 value={formData.phone || ""}
@@ -285,6 +296,8 @@ export function CreerProfilForm({
                         <div className="space-y-1">
                             <Input
                                 id="email"
+                                name="email"
+                                autoComplete="email"
                                 type="email"
                                 placeholder="Contact email professionnel"
                                 className="h-12 rounded-xl bg-slate-50 border-slate-200"
@@ -295,6 +308,8 @@ export function CreerProfilForm({
                     </div>
                     <Input
                         id="website"
+                        name="url"
+                        autoComplete="url"
                         placeholder="Portfolio ou Site Web (https://...)"
                         className="h-12 rounded-xl bg-slate-50 border-slate-200"
                         value={formData.website || ""}
@@ -310,6 +325,9 @@ export function CreerProfilForm({
                     </Label>
                     <div className="flex gap-2">
                         <Input
+                            id="tags-input"
+                            name="tags"
+                            autoComplete="off"
                             placeholder="Appuyez sur Entrée pour ajouter (ex: Marketing, Python...)"
                             className="h-14 rounded-xl bg-slate-50 border-slate-200 shadow-sm"
                             value={tagInput}

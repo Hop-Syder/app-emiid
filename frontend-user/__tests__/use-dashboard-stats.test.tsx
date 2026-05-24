@@ -1,9 +1,19 @@
 /**
+ * @author @hopsyder
+ * @organization Nexus Partners
+ * @description Tests unitaires pour le hook useDashboardStats
+ * @created 2026-03-30
+ * @updated 2026-05-24
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+*/
+
+/**
  * @jest-environment jsdom
  */
 
 import { renderHook, waitFor } from '@testing-library/react'
-import { useDashboardStats, EMPTY_DASHBOARD_STATS } from '@/hooks/use-dashboard-stats'
+import { useDashboardStats, CREDIBLE_FALLBACK_STATS } from '@/hooks/use-dashboard-stats'
 
 describe('useDashboardStats', () => {
     const originalConsoleWarn = console.warn
@@ -33,7 +43,7 @@ describe('useDashboardStats', () => {
 
         // On affiche toujours un dashboard (valeurs à zéro) même quand le backend est injoignable
         expect(result.current.statsLoaded).toBe(true)
-        expect(result.current.stats).toEqual(EMPTY_DASHBOARD_STATS)
+        expect(result.current.stats).toEqual(CREDIBLE_FALLBACK_STATS)
         expect(result.current.statsError).toBe('Impossible de charger les statistiques pour le moment.')
         expect(result.current.isSyncing).toBe(false)
     })
