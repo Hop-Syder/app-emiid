@@ -15,6 +15,7 @@ const messageRoutes_1 = __importDefault(require("./api/routes/messageRoutes"));
 const dashboardRoutes_1 = __importDefault(require("./api/routes/dashboardRoutes"));
 const publicRoutes_1 = __importDefault(require("./api/routes/publicRoutes"));
 const webhookRoutes_1 = __importDefault(require("./api/routes/webhookRoutes"));
+const referenceRoutes_1 = __importDefault(require("./api/routes/referenceRoutes"));
 const errorMiddleware_1 = require("./middlewares/errorMiddleware");
 const logger_1 = require("./utils/logger");
 const supabase_1 = require("./config/supabase");
@@ -102,6 +103,7 @@ function createApp() {
     app.use('/api/dashboard-user', dashboardRoutes_1.default);
     app.use('/api/public', publicRoutes_1.default);
     app.use('/api/webhooks', webhookRoutes_1.default);
+    app.use('/api/reference', referenceRoutes_1.default);
     app.use(errorMiddleware_1.errorHandler);
     return app;
 }

@@ -420,17 +420,20 @@ const getConversations = async (req, res) => {
             const otherUser = profileLookup[otherUserId];
             return {
                 id: conv.id,
-                otherUser: {
+                participant1_id: conv.participant1_id,
+                participant2_id: conv.participant2_id,
+                last_message: conv.last_message_content,
+                last_message_at: conv.last_message_at,
+                unread_count: unreadCountMap[conv.id] || 0,
+                updated_at: conv.updated_at || conv.last_message_at || new Date().toISOString(),
+                other_participant: {
                     id: otherUserId,
-                    name: formatParticipantName(otherUser),
-                    avatar: otherUser?.avatar_url || null,
-                    role: otherUser?.role || null,
-                    isOnline: false, // À implémenter avec Presence si besoin
-                    lastSeen: null
-                },
-                lastMessage: conv.last_message_content,
-                lastMessageAt: conv.last_message_at,
-                unreadCount: unreadCountMap[conv.id] || 0
+                    user_id: otherUserId,
+                    first_name: otherUser?.first_name || 'Utilisateur',
+                    last_name: otherUser?.last_name || 'EmiID',
+                    avatar_url: otherUser?.avatar_url || '',
+                    role: otherUser?.role || null
+                }
             };
         });
         res.json(formatted);

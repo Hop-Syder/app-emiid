@@ -155,6 +155,7 @@ export function CreerProfilContent() {
 
     const loadInitialData = useCallback(async () => {
         setIsLoading(true)
+        let isNewProfile = false
         try {
             // Chargement parallèle des référentiels et du profil
             const [countriesList, profileRes] = await Promise.all([
@@ -169,6 +170,11 @@ export function CreerProfilContent() {
                 
                 // Si l'objet data contient un ID (issu du profil ou de l'auth fallback)
                 if (data && (data.id || data.user_id)) {
+                    // Détecter si c'est un nouveau profil à configurer
+                    if (data.message === "Profil à compléter" || !data.role) {
+                        isNewProfile = true
+                    }
+
                     const fullName = `${data.first_name || ""} ${data.last_name || ""}`.trim()
                     
                     // Résolution précise de la localisation
@@ -209,11 +215,23 @@ export function CreerProfilContent() {
                     if (typeof data.is_published === "boolean") {
                         setIsPublished(data.is_published)
                     }
+
+                    if (isNewProfile) {
+                        toast.info("Remplissez le formulaire pour créer votre carte EmiID")
+                    }
+                }
+            } else {
+                // Si la réponse n'est pas ok (par exemple 404 car profil non créé)
+                if (profileRes.status === 404 || profileRes.status === 400) {
+                    toast.info("Remplissez le formulaire pour créer votre carte EmiID")
+                } else {
+                    toast.error("Impossible de charger les données existantes")
                 }
             }
         } catch (error) {
             console.error("Hydration error:", error)
-            toast.error("Impossible de charger les données existantes")
+            // En cas d'erreur de chargement réseau ou autre pour un nouveau profil
+            toast.info("Remplissez le formulaire pour créer votre carte EmiID")
         } finally {
             setIsLoading(false)
         }
