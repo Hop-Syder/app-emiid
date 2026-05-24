@@ -1,0 +1,262 @@
+<!--
+ * @author @hopsyder
+ * @organization Nexus Partners
+ * @description Template d'email Supabase pour la confirmation de réauthentification (Confirm Reauthentication) de l'écosystème EmiID
+ * @created 2026-05-24
+ * @updated 2026-05-24
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+ ──────────────────────────────────
+-->
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="x-apple-disable-message-reformatting">
+  <title>Confirmez votre identité - EmiID</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap');
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: #f8fafc;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+      width: 100% !important;
+    }
+
+    table {
+      border-collapse: collapse;
+      mso-table-lspace: 0pt;
+      mso-table-rspace: 0pt;
+    }
+
+    img {
+      border: 0;
+      height: auto;
+      line-height: 100%;
+      outline: none;
+      text-decoration: none;
+    }
+
+    .email-container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .card {
+      background-color: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+      overflow: hidden;
+    }
+
+    .header-bar {
+      background: linear-gradient(135deg, #022753 0%, #0d4b8e 100%);
+      padding: 30px;
+      text-align: center;
+    }
+
+    .brand-logo {
+      color: #ffffff;
+      font-family: 'Outfit', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin: 0;
+      text-decoration: none;
+    }
+
+    .brand-tagline {
+      color: #93c5fd;
+      font-size: 12px;
+      margin-top: 5px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-weight: 500;
+    }
+
+    .card-body {
+      padding: 40px 35px;
+    }
+
+    .badge {
+      display: inline-block;
+      background-color: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #166534;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 9999px;
+      margin-bottom: 24px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .title {
+      color: #0f172a;
+      font-family: 'Outfit', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1.3;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+
+    .paragraph {
+      color: #475569;
+      font-size: 15px;
+      line-height: 1.6;
+      margin-top: 0;
+      margin-bottom: 24px;
+    }
+
+    .code-container {
+      background: #f8fafc;
+      border: 2px dashed #cbd5e1;
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+      margin: 32px 0;
+    }
+
+    .code-label {
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    .verification-code {
+      font-family: 'Outfit', 'Courier New', Courier, monospace;
+      font-size: 36px;
+      font-weight: 700;
+      letter-spacing: 6px;
+      color: #022753;
+      margin: 0;
+      padding: 8px 0;
+    }
+
+    .meta-info {
+      background-color: #fffbeb;
+      border-left: 4px solid #f59e0b;
+      padding: 16px;
+      border-radius: 4px;
+      margin-bottom: 24px;
+    }
+
+    .meta-text {
+      color: #b45309;
+      font-size: 13px;
+      line-height: 1.5;
+      margin: 0;
+      font-weight: 500;
+    }
+
+    .divider {
+      border: 0;
+      border-top: 1px solid #e2e8f0;
+      margin: 32px 0 24px 0;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 0 20px;
+    }
+
+    .footer-text {
+      color: #94a3b8;
+      font-size: 12px;
+      line-height: 1.6;
+      margin: 0 0 12px 0;
+    }
+
+    .footer-links a {
+      color: #022753;
+      text-decoration: none;
+      font-weight: 500;
+      margin: 0 10px;
+      font-size: 12px;
+    }
+
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="email-container">
+    <div class="card">
+      <!-- En-tête de la marque -->
+      <div class="header-bar">
+        <a href="{{ .SiteURL }}" style="text-decoration: none; display: block;">
+          <div class="brand-logo">EmiID</div>
+          <div class="brand-tagline">Ton réseau, ta force</div>
+        </a>
+      </div>
+
+      <!-- Contenu principal -->
+      <div class="card-body">
+        <div class="badge">🔒 Sécurité</div>
+        <h1 class="title">Confirmez votre réauthentification</h1>
+        <p class="paragraph">
+          Bonjour {{ if .Data.full_name }}<strong>{{ .Data.full_name }}</strong>{{ else if .Data.name }}<strong>{{ .Data.name }}</strong>{{ else if .Data.first_name }}<strong>{{ .Data.first_name }}</strong>{{ else }}<em>Utilisateur EmiID</em>{{ end }},
+        </p>
+        <p class="paragraph">
+          Une demande de réauthentification a été initiée pour le compte associé à l'adresse <strong>{{ .Email }}</strong>. Pour valider cette action sensible et
+          confirmer votre identité, veuillez utiliser le code de sécurité temporaire ci-dessous :
+        </p>
+
+        <!-- Bloc Code Verification -->
+        <div class="code-container">
+          <div class="code-label">Code de confirmation</div>
+          <div class="verification-code">{{ .Token }}</div>
+        </div>
+
+        <!-- Avertissement de sécurité temporaire -->
+        <div class="meta-info">
+          <p class="meta-text">
+            ⚠️ Ce code est à usage unique et expirera dans 5 minutes. Ne partagez jamais ce code avec quiconque.
+          </p>
+        </div>
+
+        <p class="paragraph" style="margin-bottom: 0;">
+          Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet e-mail en toute sécurité. Votre
+          compte reste protégé.
+        </p>
+
+        <hr class="divider">
+
+        <p class="paragraph" style="font-size: 13px; color: #64748b; margin-bottom: 0;">
+          L'équipe de sécurité EmiID
+        </p>
+      </div>
+    </div>
+
+    <!-- Pied de page -->
+    <div class="footer" style="margin-top: 30px;">
+      <p class="footer-text">
+        &copy; 2026 EmiID. Conçu et propulsé avec excellence par <strong>Nexus Partners</strong>.
+      </p>
+      <p class="footer-text">
+        Si vous avez besoin d'aide, veuillez contacter notre support à l'adresse support@nexuspartners.xyz
+      </p>
+      <div class="footer-links">
+        <a href="https://nexuspartners.xyz">Nexus Partners</a>
+        <a href="{{ .SiteURL }}/privacy">Confidentialité</a>
+        <a href="{{ .SiteURL }}/terms">Conditions d'utilisation</a>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

@@ -331,35 +331,7 @@ export function EmiIDSidebar({ sidebarOpen, setSidebarOpen: _setSidebarOpen, mob
         </div>
       </ScrollArea>
 
-      {/* User Profile Footer */}
-      <div className={cn("mt-auto", isCompactDesktop ? "p-3" : "p-4")}>
-        <Link
-          href="/parametres"
-          title={isCompactDesktop ? "Mon Profil" : undefined}
-          className={cn(
-            "flex w-full items-center rounded-xl transition-all duration-300 bg-slate-50 hover:bg-slate-100 border border-slate-100 hover:shadow-md hover:-translate-y-0.5 group",
-            isCompactDesktop ? "justify-center p-3" : "justify-between p-3"
-          )}
-          onClick={(e) => handleNavClick(e, { requiresAuth: true })}
-        >
-          <div className={cn("flex items-center", isCompactDesktop ? "justify-center" : "gap-3")}>
-            <div className="relative">
-              <Avatar className="h-10 w-10 border-2 border-white shadow-sm transition-transform group-hover:scale-105">
-                <AvatarImage src={currentUser?.avatar_url || "/profil/avatar.jpg"} alt="User" className="object-cover" />
-                <AvatarFallback className="bg-primary/10 text-primary font-bold">{userInitials}</AvatarFallback>
-              </Avatar>
-              <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-white" />
-            </div>
-            {!isCompactDesktop && (
-              <div className="flex flex-col">
-                <span className="text-sm font-bold text-slate-900 line-clamp-1">{userDisplayName}</span>
-                <span className="text-xs font-medium text-slate-500 line-clamp-1">{userSubtitle}</span>
-              </div>
-            )}
-          </div>
-          {!isCompactDesktop && <Settings className="h-5 w-5 text-slate-400 group-hover:text-primary transition-colors group-hover:rotate-45 duration-500" />}
-        </Link>
-      </div>
+
     </div>
     )
   }
