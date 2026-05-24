@@ -13,7 +13,7 @@
 import { useState, useEffect, useMemo } from "react"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { ProfileStats } from "./profile-stats"
-import { ProfileCard } from "./profile-card"
+import { ProfileCardMini } from "./profile-card-mini"
 import { Loader2, Search, SlidersHorizontal, UserPlus } from "lucide-react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
@@ -297,7 +297,7 @@ export function FollowedProfilesContent() {
                                     exit={{ opacity: 0 }}
                                 >
                                     {filteredProfiles.map((profile) => (
-                                        <ProfileCard
+                                        <ProfileCardMini
                                             key={getPortfolioProfileId(profile)}
                                             profile={{
                                                 id: getPortfolioProfileId(profile),
@@ -361,7 +361,7 @@ export function FollowedProfilesContent() {
                                     exit={{ opacity: 0 }}
                                 >
                                     {filteredProfiles.map((profile) => (
-                                        <ProfileCard
+                                        <ProfileCardMini
                                             key={`follower-${getPortfolioProfileId(profile)}`}
                                             profile={{
                                                 id: getPortfolioProfileId(profile),
