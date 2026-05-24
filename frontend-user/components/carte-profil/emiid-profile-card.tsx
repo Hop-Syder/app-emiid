@@ -232,20 +232,35 @@ export function EmiIDProfileCard({
         className
       )}
     >
-      <div className="h-[20%] rounded-[1.5rem] bg-slate-50 relative overflow-visible m-1.5 flex items-center justify-start pl-6">
-         <div className="absolute top-0 right-0 w-24 h-24 bg-orange-500/5 -mr-8 -mt-8 rounded-full blur-xl" />
-         <span className="relative -top-1 text-3xl font-black text-slate-200 select-none tracking-tighter italic">{displayCategory}</span>
-         
-         <Avatar className="absolute left-6 -bottom-10 z-10 h-20 w-20 border-[6px] border-white shadow-lg">
+      <div className="h-[22%] rounded-[1.5rem] bg-gradient-to-br from-slate-50 to-orange-50/40 relative overflow-visible m-1.5 flex items-center justify-start pl-6">
+        <div className="absolute top-0 right-0 w-28 h-28 bg-orange-500/10 -mr-10 -mt-10 rounded-full blur-xl" />
+        <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-white via-white/70 to-transparent pointer-events-none" />
+
+        <span className="relative -top-1 text-3xl font-black text-slate-200 select-none tracking-tighter italic">
+          {displayCategory}
+        </span>
+
+        <div className="absolute left-6 -bottom-9 z-10">
+          <Avatar className="h-20 w-20 border-[6px] border-white shadow-lg">
             <AvatarImage src={getOptimizedImageUrl(user.avatar, { width: 200, height: 200 })} className="object-cover" />
             <AvatarFallback className="bg-orange-500 text-white font-black text-xl">{name[0]}</AvatarFallback>
-         </Avatar>
+          </Avatar>
+          {user.verified && (
+            <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-1 shadow-md border border-slate-100">
+              <Shield className="h-3.5 w-3.5 text-blue-600 fill-blue-600/10" />
+            </div>
+          )}
+        </div>
       </div>
 
-      <div className="flex-1 flex flex-col items-center px-4 pt-8 pb-5">
+      <div className="flex-1 flex flex-col items-center px-4 pt-14 pb-5">
          <div className="text-center space-y-1 w-full flex-1 flex flex-col justify-center min-h-[2.5rem]">
-            <h3 className="relative -top-2 text-lg font-black text-slate-800 tracking-tight leading-tight">{name}</h3>
-            <p className="text-[11px] sm:text-[10px] font-bold text-orange-500 tracking-[0.1em] uppercase line-clamp-2">{role}</p>
+            <h3 className="text-lg font-black text-slate-800 tracking-tight leading-tight line-clamp-2 px-1">
+              {name}
+            </h3>
+            <p className="text-[11px] sm:text-[10px] font-bold text-orange-500 tracking-[0.1em] uppercase line-clamp-2">
+              {role}
+            </p>
 
             {user.tags && user.tags.length > 0 && (
                <div className="flex flex-wrap justify-center gap-1 mt-2 w-full px-2">
