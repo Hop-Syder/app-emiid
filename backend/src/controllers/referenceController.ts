@@ -6,7 +6,8 @@
  * @updated 2026-05-24
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
-*/──────────────────────────────────
+*/
+// ──────────────────────────────────
 
 import { Request, Response } from 'express'
 import { supabaseAdmin } from '../config/supabase'
