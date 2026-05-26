@@ -3,7 +3,10 @@
  * @organization Nexus Partners
  * @description Routes pour la gestion des utilisateurs
  * @created 2026-01-04
-*/
+ * @updated 2026-05-26
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+*/ // ──────────────────────────────────
 
 import { Router } from 'express';
 import {
@@ -16,8 +19,7 @@ import {
   requestPhoneVerification,
   verifyPhone,
   unlockUserPin,
-  requestPinReset,
-  verifyPinResetCode,
+  sendPinResetEmail,
 } from '../../controllers/userController';
 import { getFollowedProfiles, toggleFollowProfile, getFollowers, updateFollowNote } from '../../controllers/followController';
 import { requireAuth, requireAdmin } from '../../middlewares/authMiddleware';
@@ -51,13 +53,9 @@ router.delete('/account', deleteMyAccount);
 // @desc    Vérifier le code PIN
 router.post('/verify-pin', verifyPin);
 
-// @route   POST /api/users/forgot-pin/request
-// @desc    Demander un code de réinitialisation du PIN
-router.post('/forgot-pin/request', requestPinReset);
-
-// @route   POST /api/users/forgot-pin/verify
-// @desc    Vérifier le code de réinitialisation du PIN
-router.post('/forgot-pin/verify', verifyPinResetCode);
+// @route   POST /api/users/forgot-pin/email
+// @desc    Demander un lien de réinitialisation du PIN par email
+router.post('/forgot-pin/email', sendPinResetEmail);
 
 // @route   GET /api/users/follows
 // @desc    Récupérer les profils suivis

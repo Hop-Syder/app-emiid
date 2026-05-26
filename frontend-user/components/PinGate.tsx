@@ -25,8 +25,7 @@ export function PinGate({ children }: { children: React.ReactNode }) {
     const [loading, setLoading] = useState(true)
     
     // Recovery states
-    const [recoveryStep, setRecoveryStep] = useState<"none" | "request" | "verify">("none")
-    const [recoveryCode, setRecoveryCode] = useState("")
+    const [recoveryStep, setRecoveryStep] = useState<"none" | "request" | "sent">("none")
     const [recoveryLoading, setRecoveryLoading] = useState(false)
 
     const router = useRouter()
@@ -101,45 +100,14 @@ export function PinGate({ children }: { children: React.ReactNode }) {
         setRecoveryLoading(true)
         setError("")
         try {
-            const res = await fetchWithAuth("/api/users/forgot-pin/request", {
+            const res = await fetchWithAuth("/api/users/forgot-pin/email", {
                 method: "POST"
             })
             const data = await res.json()
             if (res.ok && data.success) {
-                setRecoveryStep("verify")
-                setRecoveryCode("")
+                setRecoveryStep("sent")
             } else {
-                setError(data.error || "Impossible d'envoyer le code de récupération")
-            }
-        } catch {
-            setError("Erreur de connexion")
-        } finally {
-            setRecoveryLoading(false)
-        }
-    }
-
-    const handleVerifyRecovery = async (codeValue: string) => {
-        setRecoveryCode(codeValue)
-        setError("")
-        if (codeValue.length !== 6) return
-
-        setRecoveryLoading(true)
-        try {
-            const res = await fetchWithAuth("/api/users/forgot-pin/verify", {
-                method: "POST",
-                body: JSON.stringify({ code: codeValue })
-            })
-            const data = await res.json()
-
-            if (res.ok && data.success) {
-                sessionStorage.setItem("emiid_pin_verified", "true")
-                setLocked(false)
-                setIsHardLocked(false)
-                setRecoveryStep("none")
-                router.refresh()
-            } else {
-                setError(data.error || "Code incorrect")
-                setRecoveryCode("")
+                setError(data.error || "Impossible d'envoyer le lien de réinitialisation")
             }
         } catch {
             setError("Erreur de connexion")
@@ -239,7 +207,7 @@ export function PinGate({ children }: { children: React.ReactNode }) {
                                     Code PIN oublié ?
                                 </h2>
                                 <p className="text-sm text-gray-500 px-2 leading-relaxed">
-                                    Nous allons envoyer un code de validation à usage unique sur votre adresse e-mail pour désactiver votre code PIN.
+                                    Nous allons envoyer un lien de réinitialisation sécurisé sur votre adresse e-mail pour désactiver votre code PIN.
                                 </p>
                             </div>
 
@@ -260,7 +228,7 @@ export function PinGate({ children }: { children: React.ReactNode }) {
                                             Envoi en cours...
                                         </div>
                                     ) : (
-                                        "Recevoir le code par e-mail"
+                                        "Recevoir le lien par e-mail"
                                     )}
                                 </Button>
                                 
@@ -278,67 +246,37 @@ export function PinGate({ children }: { children: React.ReactNode }) {
                         </>
                     ) : (
                         <>
-                            <div className="h-16 w-16 rounded-full bg-blue-50 flex items-center justify-center mb-2">
-                                <Mail className="h-7 w-7 text-[#022753]" />
+                            <div className="h-16 w-16 rounded-full bg-emerald-50 flex items-center justify-center mb-2">
+                                <Mail className="h-7 w-7 text-emerald-600 animate-bounce" />
                             </div>
 
                             <div className="text-center space-y-2">
-                                <h2 className="text-xl font-bold text-[#022753]">
-                                    Vérification E-mail
+                                <h2 className="text-xl font-bold text-emerald-600">
+                                    Lien envoyé !
                                 </h2>
-                                <p className="text-sm text-gray-500 px-2">
-                                    Saisissez le code à 6 chiffres reçu par e-mail.
+                                <p className="text-sm text-gray-500 px-2 leading-relaxed">
+                                    Un e-mail contenant un lien sécurisé a été envoyé. Veuillez cliquer sur ce lien pour réinitialiser et désactiver votre code PIN.
                                 </p>
                             </div>
 
-                            <div className="w-full flex flex-col items-center gap-4">
-                                <InputOTP
-                                    id="recovery-otp-code"
-                                    name="recovery_otp_code"
-                                    autoComplete="one-time-code"
-                                    maxLength={6}
-                                    value={recoveryCode}
-                                    onChange={handleVerifyRecovery}
-                                    disabled={recoveryLoading}
-                                >
-                                    <InputOTPGroup className="gap-2">
-                                        <InputOTPSlot index={0} className="w-10 h-12 rounded-lg border-gray-200" />
-                                        <InputOTPSlot index={1} className="w-10 h-12 rounded-lg border-gray-200" />
-                                        <InputOTPSlot index={2} className="w-10 h-12 rounded-lg border-gray-200" />
-                                        <InputOTPSlot index={3} className="w-10 h-12 rounded-lg border-gray-200" />
-                                        <InputOTPSlot index={4} className="w-10 h-12 rounded-lg border-gray-200" />
-                                        <InputOTPSlot index={5} className="w-10 h-12 rounded-lg border-gray-200" />
-                                    </InputOTPGroup>
-                                </InputOTP>
-
-                                <div className="h-6">
-                                    {error && (
-                                        <p className="text-xs font-medium text-red-500 animate-in fade-in slide-in-from-top-1 text-center">
-                                            {error}
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
-
-                            <div className="w-full flex gap-3">
+                            <div className="w-full flex flex-col gap-2">
                                 <Button
-                                    variant="outline"
-                                    className="flex-1 h-11 rounded-xl"
                                     onClick={() => {
-                                        setRecoveryStep("request")
+                                        setRecoveryStep("none")
                                         setError("")
                                     }}
-                                    disabled={recoveryLoading}
+                                    className="w-full h-11 rounded-xl bg-[#022753] hover:bg-[#033a7a]"
                                 >
                                     Retour
                                 </Button>
+                                
                                 <Button
                                     variant="ghost"
-                                    className="flex-1 h-11 rounded-xl text-blue-600 hover:text-blue-700 hover:bg-blue-50 text-xs font-semibold"
+                                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 text-xs font-semibold"
                                     onClick={() => void handleRequestRecovery()}
                                     disabled={recoveryLoading}
                                 >
-                                    Renvoyer
+                                    {recoveryLoading ? "Envoi..." : "Renvoyer l'e-mail"}
                                 </Button>
                             </div>
                         </>

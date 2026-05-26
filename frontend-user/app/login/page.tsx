@@ -3,10 +3,10 @@
  * @organization Nexus Partners
  * @description Page de connexion d'élite avec design Centered Immersive & Glassmorphism
  * @created 2026-04-11
- * @updated 2026-04-11
+ * @updated 2026-05-26
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
-*/
+*/ // ──────────────────────────────────
 
 "use client"
 
@@ -44,10 +44,19 @@ export default function LoginPage() {
     
     try {
       setProviderLoading(provider)
+      
+      const searchParams = new URLSearchParams(window.location.search)
+      const resetPin = searchParams.get("reset_pin") === "true"
+      
+      const callbackUrl = new URL(`${location.origin}/auth/callback`)
+      if (resetPin) {
+        callbackUrl.searchParams.set("reset_pin", "true")
+      }
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${location.origin}/auth/callback`,
+          redirectTo: callbackUrl.toString(),
         },
       })
       if (error) throw error

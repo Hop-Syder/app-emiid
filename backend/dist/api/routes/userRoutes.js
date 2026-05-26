@@ -4,7 +4,10 @@
  * @organization Nexus Partners
  * @description Routes pour la gestion des utilisateurs
  * @created 2026-01-04
-*/
+ * @updated 2026-05-26
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+*/ // ──────────────────────────────────
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const userController_1 = require("../../controllers/userController");
@@ -31,12 +34,9 @@ router.delete('/account', userController_1.deleteMyAccount);
 // @route   POST /api/users/verify-pin
 // @desc    Vérifier le code PIN
 router.post('/verify-pin', userController_1.verifyPin);
-// @route   POST /api/users/forgot-pin/request
-// @desc    Demander un code de réinitialisation du PIN
-router.post('/forgot-pin/request', userController_1.requestPinReset);
-// @route   POST /api/users/forgot-pin/verify
-// @desc    Vérifier le code de réinitialisation du PIN
-router.post('/forgot-pin/verify', userController_1.verifyPinResetCode);
+// @route   POST /api/users/forgot-pin/email
+// @desc    Demander un lien de réinitialisation du PIN par email
+router.post('/forgot-pin/email', userController_1.sendPinResetEmail);
 // @route   GET /api/users/follows
 // @desc    Récupérer les profils suivis
 router.get('/follows', followController_1.getFollowedProfiles);

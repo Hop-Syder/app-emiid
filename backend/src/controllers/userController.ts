@@ -569,19 +569,16 @@ export const verifyPhone = async (req: any, res: Response) => {
   }
 };
 
-// Map de stockage temporaire en mémoire pour les codes de réinitialisation PIN
-const pinResetCodes = new Map<string, { code: string; expiresAt: number }>();
-
 /**
- * Demande un code de réinitialisation du code PIN (envoyé par email)
- * POST /api/users/forgot-pin/request
+ * Demande un lien de réinitialisation du code PIN (envoyé par email)
+ * POST /api/users/forgot-pin/email
  */
-export const requestPinReset = async (req: Request, res: Response) => {
+export const sendPinResetEmail = async (req: Request, res: Response) => {
   const userId = req.user?.id;
   if (!userId) return res.status(401).json({ error: "Non authentifié" });
 
   try {
-    // 1. Récupérer l'email de l'utilisateur
+    // 1. Récupérer l'email et le prénom de l'utilisateur
     const { data: profile, error } = await supabaseAdmin
       .from('user_profiles')
       .select('email, first_name')
@@ -592,94 +589,58 @@ export const requestPinReset = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Email utilisateur introuvable" });
     }
 
-    // 2. Générer un code OTP à 6 chiffres
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = Date.now() + 15 * 60 * 1000; // 15 minutes
+    // 2. Déterminer l'origine de l'application frontend
+    let origin = 'https://app.emiid.com';
+    if (req.headers.origin) {
+      origin = req.headers.origin as string;
+    } else if (req.headers.referer) {
+      try {
+        origin = new URL(req.headers.referer).origin;
+      } catch {
+        // Fallback
+      }
+    }
+    const resetLink = `${origin}/login?reset_pin=true`;
 
-    // 3. Sauvegarder en mémoire
-    pinResetCodes.set(userId, { code, expiresAt });
-
-    // 4. Envoyer l'email via mailService
+    // 3. Envoyer l'email de réinitialisation
     const { sendEmail } = require('../services/mailService');
     const subject = "🔑 Réinitialisation de votre Code PIN EmiID";
     const html = `
-      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
-        <h2 style="color: #022753; margin-bottom: 20px;">EmiID</h2>
-        <p>Bonjour ${profile.first_name || 'membre EmiID'},</p>
-        <p>Vous avez demandé la réinitialisation de votre code PIN de sécurité EmiID.</p>
-        <p>Voici votre code de validation temporaire (valide pendant 15 minutes) :</p>
-        <div style="background-color: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; text-align: center; margin: 20px 0;">
-          <span style="font-size: 28px; font-weight: 900; letter-spacing: 6px; color: #FF4F01;">${code}</span>
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+        <div style="text-align: center; margin-bottom: 25px;">
+          <h2 style="color: #022753; font-size: 26px; font-weight: 900; margin: 0; letter-spacing: -0.5px;">EmiID</h2>
+          <p style="color: #64748b; font-size: 13px; margin: 5px 0 0 0;">Ton réseau, ta force.</p>
         </div>
-        <p>Saisissez ce code sur votre écran de vérification pour débloquer votre accès et réinitialiser votre code PIN.</p>
-        <p style="color: #64748b; font-size: 13px;">Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet email en toute sécurité.</p>
-        <hr style="margin-top: 40px; border: 0; border-top: 1px solid #e2e8f0;" />
-        <p style="font-size: 12px; color: #94a3b8; text-align: center;">
-          © 2026 Nexus Partners · Ton réseau, ta force.
+        <hr style="border: 0; border-top: 1px solid #f1f5f9; margin-bottom: 25px;" />
+        <p style="font-size: 15px; color: #334155; line-height: 1.6;">Bonjour ${profile.first_name || 'membre EmiID'},</p>
+        <p style="font-size: 15px; color: #334155; line-height: 1.6;">Vous avez demandé la réinitialisation de votre code PIN de sécurité EmiID car vous l'avez oublié.</p>
+        <p style="font-size: 15px; color: #334155; line-height: 1.6; margin-bottom: 30px;">Pour déverrouiller votre accès, veuillez cliquer sur le bouton ci-dessous, puis connectez-vous avec votre compte social (Google, LinkedIn ou Apple) afin de confirmer votre identité.</p>
+        
+        <div style="text-align: center; margin: 35px 0;">
+          <a href="${resetLink}" 
+             style="background-color: #FF4F01; color: #ffffff; padding: 14px 30px; text-decoration: none; border-radius: 12px; font-weight: bold; font-size: 14px; display: inline-block; box-shadow: 0 10px 20px rgba(255, 79, 1, 0.15); text-transform: uppercase; letter-spacing: 0.5px;">
+             Réinitialiser mon Code PIN
+          </a>
+        </div>
+        
+        <p style="font-size: 13px; color: #64748b; line-height: 1.5; margin-top: 30px;">Si le bouton ne fonctionne pas, vous pouvez copier et coller ce lien dans votre navigateur :<br/>
+        <a href="${resetLink}" style="color: #3b82f6; text-decoration: underline;">${resetLink}</a></p>
+        
+        <p style="color: #94a3b8; font-size: 12px; margin-top: 35px; border-top: 1px solid #f1f5f9; padding-top: 20px; text-align: center;">
+          Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet email en toute sécurité. Votre compte reste protégé.
+        </p>
+        <p style="font-size: 11px; color: #cbd5e1; text-align: center; margin-top: 10px;">
+          © 2026 Nexus Partners · ceo.nexuspartners.xyz
         </p>
       </div>
     `;
 
     await sendEmail({ to: profile.email, subject, html });
-    logger.info(`Code de réinitialisation PIN envoyé à ${profile.email}`);
+    logger.info(`Lien de réinitialisation PIN envoyé par e-mail à ${profile.email}`);
 
-    return res.json({ success: true, message: "Code envoyé par email" });
+    return res.json({ success: true, message: "Lien de réinitialisation envoyé par e-mail" });
   } catch (err) {
-    logger.error('Erreur requestPinReset', err);
-    return res.status(500).json({ error: "Erreur lors de l'envoi du code de réinitialisation" });
-  }
-};
-
-/**
- * Vérifie le code de réinitialisation et désactive le PIN
- * POST /api/users/forgot-pin/verify
- */
-export const verifyPinResetCode = async (req: Request, res: Response) => {
-  const userId = req.user?.id;
-  if (!userId) return res.status(401).json({ error: "Non authentifié" });
-  const { code } = req.body;
-
-  if (!code || code.length !== 6) {
-    return res.status(400).json({ error: "Code de validation invalide" });
-  }
-
-  const storedData = pinResetCodes.get(userId);
-
-  if (!storedData) {
-    return res.status(400).json({ error: "Aucun code en cours. Veuillez refaire une demande." });
-  }
-
-  if (Date.now() > storedData.expiresAt) {
-    pinResetCodes.delete(userId);
-    return res.status(400).json({ error: "Code expiré. Veuillez refaire une demande." });
-  }
-
-  if (storedData.code !== code) {
-    return res.status(400).json({ error: "Code incorrect" });
-  }
-
-  try {
-    // Code correct ! On désactive le PIN, réinitialise les tentatives et débloque le compte
-    const { error } = await supabaseAdmin
-      .from('user_profiles')
-      .update({
-        pin_enabled: false,
-        pin_code: null,
-        pin_attempts: 0,
-        is_locked: false,
-        locked_at: null
-      })
-      .eq('user_id', userId);
-
-    if (error) throw error;
-
-    // Supprimer le code utilisé
-    pinResetCodes.delete(userId);
-    logger.info(`Code PIN désactivé avec succès suite à une réinitialisation pour ${userId}`);
-
-    return res.json({ success: true, message: "Code PIN réinitialisé et désactivé avec succès" });
-  } catch (err) {
-    logger.error('Erreur verifyPinResetCode', err);
-    return res.status(500).json({ error: "Erreur lors de la réinitialisation du code PIN" });
+    logger.error('Erreur sendPinResetEmail', err);
+    return res.status(500).json({ error: "Erreur lors de l'envoi de l'e-mail de réinitialisation" });
   }
 };
