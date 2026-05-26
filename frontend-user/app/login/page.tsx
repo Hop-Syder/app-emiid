@@ -19,7 +19,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Loader2, ShieldCheck, Sparkles } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 
-type Provider = "google" | "linkedin" | "apple"
+type Provider = "google" | "linkedin_oidc" | "apple"
 
 export default function LoginPage() {
   const supabase = createClient()
@@ -145,29 +145,33 @@ export default function LoginPage() {
             )}
 
             <div className="grid grid-cols-1 gap-4">
-              {(["google", "linkedin", "apple"] as Provider[]).map((provider, index) => (
+              {([
+                { id: "google", name: "Google", icon: "/login/google-icon.svg" },
+                { id: "linkedin_oidc", name: "LinkedIn", icon: "/login/linkedin.svg" },
+                { id: "apple", name: "Apple", icon: "/login/apple.svg" }
+              ] as const).map((providerData, index) => (
                 <motion.div
-                  key={provider}
+                  key={providerData.id}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.4 + index * 0.1 }}
                 >
                   <Button
                     variant="outline"
-                    disabled={providerLoading !== null && providerLoading !== provider}
-                    onClick={() => handleLogin(provider)}
+                    disabled={providerLoading !== null && providerLoading !== providerData.id}
+                    onClick={() => handleLogin(providerData.id)}
                     className="relative w-full h-14 rounded-2xl bg-white/[0.05] border-white/10 hover:bg-white/[0.1] hover:border-white/20 text-white transition-all duration-300 group overflow-hidden"
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                     
                     <div className="flex items-center justify-center gap-3 w-full">
-                      {providerLoading === provider ? (
+                      {providerLoading === providerData.id ? (
                         <Loader2 className="animate-spin size-5" />
                       ) : (
                         <div className="flex items-center gap-3">
-                          <OAuthIcon provider={provider} />
+                          <OAuthIcon iconPath={providerData.icon} name={providerData.name} />
                           <span className="font-bold text-sm tracking-widest uppercase">
-                            Continuer avec {provider}
+                            Continuer avec {providerData.name}
                           </span>
                         </div>
                       )}
@@ -241,13 +245,12 @@ export default function LoginPage() {
   )
 }
 
-function OAuthIcon({ provider }: { provider: Provider }) {
-  const iconPath = provider === "google" ? "/login/google-icon.svg" : `/login/${provider}.svg`
+function OAuthIcon({ iconPath, name }: { iconPath: string, name: string }) {
   return (
     <div className="relative h-6 w-6 flex items-center justify-center brightness-0 invert opacity-80 group-hover:opacity-100 transition-opacity">
       <Image
         src={iconPath}
-        alt={`${provider}`}
+        alt={name}
         width={24}
         height={24}
         className="object-contain"

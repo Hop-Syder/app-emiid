@@ -9,7 +9,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyPhone = exports.requestPhoneVerification = exports.unlockUserPin = exports.verifyPin = exports.deleteMyAccount = exports.deactivateMyAccount = exports.updateMySettings = exports.updateMyProfile = exports.getMyProfile = void 0;
+exports.verifyPinResetCode = exports.requestPinReset = exports.verifyPhone = exports.requestPhoneVerification = exports.unlockUserPin = exports.verifyPin = exports.deleteMyAccount = exports.deactivateMyAccount = exports.updateMySettings = exports.updateMyProfile = exports.getMyProfile = void 0;
 const supabase_1 = require("../config/supabase");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const logger_1 = require("../utils/logger");
@@ -508,3 +508,106 @@ const verifyPhone = async (req, res) => {
     }
 };
 exports.verifyPhone = verifyPhone;
+// Map de stockage temporaire en mémoire pour les codes de réinitialisation PIN
+const pinResetCodes = new Map();
+/**
+ * Demande un code de réinitialisation du code PIN (envoyé par email)
+ * POST /api/users/forgot-pin/request
+ */
+const requestPinReset = async (req, res) => {
+    const userId = req.user?.id;
+    if (!userId)
+        return res.status(401).json({ error: "Non authentifié" });
+    try {
+        // 1. Récupérer l'email de l'utilisateur
+        const { data: profile, error } = await supabase_1.supabaseAdmin
+            .from('user_profiles')
+            .select('email, first_name')
+            .eq('user_id', userId)
+            .single();
+        if (error || !profile || !profile.email) {
+            return res.status(400).json({ error: "Email utilisateur introuvable" });
+        }
+        // 2. Générer un code OTP à 6 chiffres
+        const code = Math.floor(100000 + Math.random() * 900000).toString();
+        const expiresAt = Date.now() + 15 * 60 * 1000; // 15 minutes
+        // 3. Sauvegarder en mémoire
+        pinResetCodes.set(userId, { code, expiresAt });
+        // 4. Envoyer l'email via mailService
+        const { sendEmail } = require('../services/mailService');
+        const subject = "🔑 Réinitialisation de votre Code PIN EmiID";
+        const html = `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
+        <h2 style="color: #022753; margin-bottom: 20px;">EmiID</h2>
+        <p>Bonjour ${profile.first_name || 'membre EmiID'},</p>
+        <p>Vous avez demandé la réinitialisation de votre code PIN de sécurité EmiID.</p>
+        <p>Voici votre code de validation temporaire (valide pendant 15 minutes) :</p>
+        <div style="background-color: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; text-align: center; margin: 20px 0;">
+          <span style="font-size: 28px; font-weight: 900; letter-spacing: 6px; color: #FF4F01;">${code}</span>
+        </div>
+        <p>Saisissez ce code sur votre écran de vérification pour débloquer votre accès et réinitialiser votre code PIN.</p>
+        <p style="color: #64748b; font-size: 13px;">Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet email en toute sécurité.</p>
+        <hr style="margin-top: 40px; border: 0; border-top: 1px solid #e2e8f0;" />
+        <p style="font-size: 12px; color: #94a3b8; text-align: center;">
+          © 2026 Nexus Partners · Ton réseau, ta force.
+        </p>
+      </div>
+    `;
+        await sendEmail({ to: profile.email, subject, html });
+        logger_1.logger.info(`Code de réinitialisation PIN envoyé à ${profile.email}`);
+        return res.json({ success: true, message: "Code envoyé par email" });
+    }
+    catch (err) {
+        logger_1.logger.error('Erreur requestPinReset', err);
+        return res.status(500).json({ error: "Erreur lors de l'envoi du code de réinitialisation" });
+    }
+};
+exports.requestPinReset = requestPinReset;
+/**
+ * Vérifie le code de réinitialisation et désactive le PIN
+ * POST /api/users/forgot-pin/verify
+ */
+const verifyPinResetCode = async (req, res) => {
+    const userId = req.user?.id;
+    if (!userId)
+        return res.status(401).json({ error: "Non authentifié" });
+    const { code } = req.body;
+    if (!code || code.length !== 6) {
+        return res.status(400).json({ error: "Code de validation invalide" });
+    }
+    const storedData = pinResetCodes.get(userId);
+    if (!storedData) {
+        return res.status(400).json({ error: "Aucun code en cours. Veuillez refaire une demande." });
+    }
+    if (Date.now() > storedData.expiresAt) {
+        pinResetCodes.delete(userId);
+        return res.status(400).json({ error: "Code expiré. Veuillez refaire une demande." });
+    }
+    if (storedData.code !== code) {
+        return res.status(400).json({ error: "Code incorrect" });
+    }
+    try {
+        // Code correct ! On désactive le PIN, réinitialise les tentatives et débloque le compte
+        const { error } = await supabase_1.supabaseAdmin
+            .from('user_profiles')
+            .update({
+            pin_enabled: false,
+            pin_code: null,
+            pin_attempts: 0,
+            is_locked: false,
+            locked_at: null
+        })
+            .eq('user_id', userId);
+        if (error)
+            throw error;
+        // Supprimer le code utilisé
+        pinResetCodes.delete(userId);
+        logger_1.logger.info(`Code PIN désactivé avec succès suite à une réinitialisation pour ${userId}`);
+        return res.json({ success: true, message: "Code PIN réinitialisé et désactivé avec succès" });
+    }
+    catch (err) {
+        logger_1.logger.error('Erreur verifyPinResetCode', err);
+        return res.status(500).json({ error: "Erreur lors de la réinitialisation du code PIN" });
+    }
+};
+exports.verifyPinResetCode = verifyPinResetCode;

@@ -31,6 +31,12 @@ router.delete('/account', userController_1.deleteMyAccount);
 // @route   POST /api/users/verify-pin
 // @desc    Vérifier le code PIN
 router.post('/verify-pin', userController_1.verifyPin);
+// @route   POST /api/users/forgot-pin/request
+// @desc    Demander un code de réinitialisation du PIN
+router.post('/forgot-pin/request', userController_1.requestPinReset);
+// @route   POST /api/users/forgot-pin/verify
+// @desc    Vérifier le code de réinitialisation du PIN
+router.post('/forgot-pin/verify', userController_1.verifyPinResetCode);
 // @route   GET /api/users/follows
 // @desc    Récupérer les profils suivis
 router.get('/follows', followController_1.getFollowedProfiles);
