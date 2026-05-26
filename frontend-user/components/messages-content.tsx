@@ -228,6 +228,9 @@ export function MessagesContent() {
         convId = existingConv.id
       }
     }
+    if (!convId) {
+      throw new Error("Impossible de trouver ou créer la conversation")
+    }
     return convId
   }
 
@@ -295,7 +298,7 @@ export function MessagesContent() {
     const isNewConv = selectedConv.id.startsWith('new-')
     try {
       const convId = await getOrCreateConversationId(selectedConv.other_participant.user_id)
-      let newMsg
+      let newMsg: any
 
       if (file) {
         newMsg = await handleFileUpload(file, convId)

@@ -365,7 +365,6 @@ export function EmiIDSidebar({ sidebarOpen, setSidebarOpen: _setSidebarOpen, mob
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full",
         )}
         aria-hidden={!mobileMenuOpen}
-        // @ts-expect-error — inert est un attribut HTML5 standard non encore pleinement typé dans @types/react
         inert={!mobileMenuOpen ? true : undefined}
       >
         <SidebarContent isMobile={true} />

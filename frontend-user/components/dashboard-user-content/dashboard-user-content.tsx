@@ -152,63 +152,44 @@ export function DashboardContent({ initialStats = null }: DashboardContentProps)
           // silencieux
         }
 
-        const premiumPromise = premiumQuery
-          .then(({ data }) => {
-            if (!isMounted) return
-            setPremiumProfiles((data || []).map((p) => mapProfile(p, userFollowsIds)))
-          })
-          .catch((e) => {
-            console.error("Erreur chargement premium:", e)
-            if (!isMounted) return
+        const [premiumRes, newRes, verifiedRes] = await Promise.all([
+          premiumQuery,
+          newQuery,
+          verifiedQuery
+        ])
+
+        if (isMounted) {
+          if (premiumRes.error) {
+            console.error("Erreur chargement premium:", premiumRes.error)
             setPremiumProfiles([])
             setProfilesWarning("Les profils mis en avant n’ont pas pu être chargés pour le moment.")
-          })
-          .finally(() => {
-            if (!isMounted) return
-            setPremiumLoading(false)
-          })
+          } else {
+            setPremiumProfiles((premiumRes.data || []).map((p) => mapProfile(p, userFollowsIds)))
+          }
 
-        const newPromise = newQuery
-          .then(({ data }) => {
-            if (!isMounted) return
-            setNewProfiles((data || []).map((p) => mapProfile(p, userFollowsIds)))
-          })
-          .catch((e) => {
-            console.error("Erreur chargement nouveaux profils:", e)
-            if (!isMounted) return
+          if (newRes.error) {
+            console.error("Erreur chargement nouveaux profils:", newRes.error)
             setNewProfiles([])
             setProfilesWarning("Les profils mis en avant n’ont pas pu être chargés pour le moment.")
-          })
-          .finally(() => {
-            if (!isMounted) return
-            setNewLoading(false)
-          })
+          } else {
+            setNewProfiles((newRes.data || []).map((p) => mapProfile(p, userFollowsIds)))
+          }
 
-        const verifiedPromise = verifiedQuery
-          .then(({ data }) => {
-            if (!isMounted) return
-            setVerifiedProfiles((data || []).map((p) => mapProfile(p, userFollowsIds)))
-          })
-          .catch((e) => {
-            console.error("Erreur chargement profils vérifiés:", e)
-            if (!isMounted) return
+          if (verifiedRes.error) {
+            console.error("Erreur chargement profils vérifiés:", verifiedRes.error)
             setVerifiedProfiles([])
             setProfilesWarning("Les profils mis en avant n’ont pas pu être chargés pour le moment.")
-          })
-          .finally(() => {
-            if (!isMounted) return
-            setVerifiedLoading(false)
-          })
-
-        await Promise.allSettled([premiumPromise, newPromise, verifiedPromise])
+          } else {
+            setVerifiedProfiles((verifiedRes.data || []).map((p) => mapProfile(p, userFollowsIds)))
+          }
+        }
       } catch (error) {
         console.error("Erreur chargement profils dashboard-user:", error)
-
         if (isMounted) {
           setProfilesWarning("Les profils mis en avant n’ont pas pu être chargés pour le moment.")
         }
       } finally {
-        if (showLoading && isMounted) {
+        if (isMounted) {
           setPremiumLoading(false)
           setNewLoading(false)
           setVerifiedLoading(false)
