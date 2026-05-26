@@ -13,6 +13,7 @@
 import { useState, useEffect } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { fetchWithAuth } from "@/lib/apiClient"
+import { createClient } from "@/lib/supabase/client"
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp"
 import { Button } from "@/components/ui/button"
 import { Lock, Mail, KeyRound, Loader2 } from "lucide-react"
@@ -100,17 +101,36 @@ export function PinGate({ children }: { children: React.ReactNode }) {
         setRecoveryLoading(true)
         setError("")
         try {
-            const res = await fetchWithAuth("/api/users/forgot-pin/email", {
-                method: "POST"
-            })
-            const data = await res.json()
-            if (res.ok && data.success) {
-                setRecoveryStep("sent")
-            } else {
-                setError(data.error || "Impossible d'envoyer le lien de réinitialisation")
+            const supabase = createClient()
+
+            // Récupérer l'e-mail de l'utilisateur connecté
+            const { data: { user }, error: userError } = await supabase.auth.getUser()
+            if (userError || !user?.email) {
+                setError("Impossible de récupérer votre adresse e-mail. Veuillez vous reconnecter.")
+                return
             }
+
+            // Construire l'URL de redirection vers le callback avec reset_pin=true
+            const redirectTo = `${window.location.origin}/auth/callback?reset_pin=true`
+
+            // Supabase envoie un Magic Link vers l'e-mail du user
+            // shouldCreateUser: false → ne crée pas de compte si l'e-mail n'existe pas
+            const { error: otpError } = await supabase.auth.signInWithOtp({
+                email: user.email,
+                options: {
+                    shouldCreateUser: false,
+                    emailRedirectTo: redirectTo,
+                }
+            })
+
+            if (otpError) {
+                setError("Impossible d'envoyer le lien de réinitialisation. Réessayez.")
+                return
+            }
+
+            setRecoveryStep("sent")
         } catch {
-            setError("Erreur de connexion")
+            setError("Erreur inattendue. Veuillez réessayer.")
         } finally {
             setRecoveryLoading(false)
         }

@@ -16,11 +16,9 @@ import { usePathname, useRouter } from "next/navigation"
 import {
   ChevronDown,
   Search,
-  Settings,
   X,
 } from "lucide-react"
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -90,10 +88,6 @@ export function EmiIDSidebar({ sidebarOpen, setSidebarOpen: _setSidebarOpen, mob
     Annuaire: true,
     Portefeuille: true,
   })
-
-  const userDisplayName = `${currentUser?.first_name || ""} ${currentUser?.last_name || ""}`.trim() || "Mon Profil"
-  const userSubtitle = currentUser?.email || "Gérer mon compte"
-  const userInitials = `${currentUser?.first_name?.[0] || "U"}${currentUser?.last_name?.[0] || ""}`
 
   const handleNavClick = (e: React.MouseEvent, item: { requiresAuth?: boolean, href?: string }) => {
     if (item.requiresAuth && !session) {

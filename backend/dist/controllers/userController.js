@@ -572,6 +572,7 @@ const sendPinResetEmail = async (req, res) => {
         </p>
       </div>
     `;
+        logger_1.logger.info(`[DEVELOPMENT] Lien de réinitialisation PIN généré pour ${profile.email} : ${resetLink}`);
         await sendEmail({ to: profile.email, subject, html });
         logger_1.logger.info(`Lien de réinitialisation PIN envoyé par e-mail à ${profile.email}`);
         return res.json({ success: true, message: "Lien de réinitialisation envoyé par e-mail" });

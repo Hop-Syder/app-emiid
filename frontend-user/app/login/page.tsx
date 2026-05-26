@@ -45,13 +45,7 @@ export default function LoginPage() {
     try {
       setProviderLoading(provider)
       
-      const searchParams = new URLSearchParams(window.location.search)
-      const resetPin = searchParams.get("reset_pin") === "true"
-      
       const callbackUrl = new URL(`${location.origin}/auth/callback`)
-      if (resetPin) {
-        callbackUrl.searchParams.set("reset_pin", "true")
-      }
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider,

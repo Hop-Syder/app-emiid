@@ -19,7 +19,6 @@ import {
   requestPhoneVerification,
   verifyPhone,
   unlockUserPin,
-  sendPinResetEmail,
 } from '../../controllers/userController';
 import { getFollowedProfiles, toggleFollowProfile, getFollowers, updateFollowNote } from '../../controllers/followController';
 import { requireAuth, requireAdmin } from '../../middlewares/authMiddleware';
@@ -53,9 +52,7 @@ router.delete('/account', deleteMyAccount);
 // @desc    Vérifier le code PIN
 router.post('/verify-pin', verifyPin);
 
-// @route   POST /api/users/forgot-pin/email
-// @desc    Demander un lien de réinitialisation du PIN par email
-router.post('/forgot-pin/email', sendPinResetEmail);
+
 
 // @route   GET /api/users/follows
 // @desc    Récupérer les profils suivis
