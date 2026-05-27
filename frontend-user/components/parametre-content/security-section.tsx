@@ -455,9 +455,9 @@ export function SecuritySection({
             <Dialog open={pinDialogOpen} onOpenChange={setPinDialogOpen}>
                 <DialogContent className="sm:max-w-md">
                     <DialogHeader>
-                        <DialogTitle>Créer votre Code PIN</DialogTitle>
+                        <DialogTitle>{profile.pin_enabled ? "Nouveau Code PIN" : "Créer votre Code PIN"}</DialogTitle>
                         <DialogDescription>
-                            {pinStep === "enter" ? "Choisissez un code à 6 chiffres" : "Confirmez votre code"}
+                            {pinStep === "enter" ? "Saisissez un code à 6 chiffres" : "Confirmez votre code"}
                         </DialogDescription>
                     </DialogHeader>
                     <div className="flex flex-col items-center gap-6 py-4">
@@ -693,7 +693,7 @@ export function SecuritySection({
                             </Button>
                             <Button 
                                 type="submit"
-                                disabled={reauthLoading || !reauthPassword}
+                                disabled={reauthLoading || (profile.pin_enabled ? reauthPin.length !== 6 : !reauthPassword)}
                                 className="flex-[2] h-12 rounded-xl bg-[#022753] hover:bg-[#033a7a] text-white font-bold shadow-lg shadow-blue-900/10"
                             >
                                 {reauthLoading ? (
