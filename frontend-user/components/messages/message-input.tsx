@@ -3,20 +3,28 @@
  * @organization Nexus Partners
  * @description Composant d'entrée de texte pour la messagerie
  * @created 2026-05-11
- * @updated 2026-05-24
+ * @updated 2026-05-27
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
 */
 
 import React, { useState, useRef } from 'react'
-import { Send, Paperclip, Smile } from 'lucide-react'
+import { Send, Paperclip } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
+import { EmojiPickerPopover } from './emoji-picker-popover'
+
+// Détecte si un texte est un emoji unique (ou combinaison simple)
+const isSingleEmoji = (str: string): boolean => {
+  const trimmed = str.trim()
+  const emojiRegex = /^(\p{Emoji_Presentation}|\p{Extended_Pictographic})(\uFE0F|\u200D\p{Emoji})*$/u
+  return emojiRegex.test(trimmed) && trimmed.length <= 8
+}
 
 // === INTERFACES ===
 interface MessageInputProps {
-  onSend: (content: string, file?: File) => void
+  onSend: (content: string, type?: 'text' | 'emoji', file?: File) => void
   isDisabled: boolean
 }
 
@@ -32,9 +40,15 @@ export const MessageInput: React.FC<MessageInputProps> = ({ onSend, isDisabled }
     e.preventDefault()
     if (!text.trim() && !file) return
 
-    onSend(text, file || undefined)
+    const type = isSingleEmoji(text) ? 'emoji' : 'text'
+    onSend(text, type, file || undefined)
     setText('')
     setFile(null)
+  }
+
+  // === INSERTION D'EMOJI ===
+  const handleEmojiSelect = (emoji: string) => {
+    setText((prev) => prev + emoji)
   }
 
   // === RENDU DU COMPOSANT ===
@@ -81,14 +95,10 @@ export const MessageInput: React.FC<MessageInputProps> = ({ onSend, isDisabled }
           disabled={isDisabled}
         />
 
-        <Button 
-          type="button" 
-          variant="ghost" 
-          size="icon" 
-          className="absolute right-1 bottom-1 text-slate-400 hover:text-amber-500 rounded-xl"
-        >
-          <Smile className="h-5 w-5" />
-        </Button>
+        <EmojiPickerPopover
+          onEmojiSelect={handleEmojiSelect}
+          disabled={isDisabled}
+        />
       </div>
 
       <Button 
