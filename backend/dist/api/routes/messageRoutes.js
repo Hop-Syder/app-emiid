@@ -42,4 +42,10 @@ router.get('/conversation/:id', messageController_1.getConversationMessages);
 // @route   DELETE /api/messages/conversation/:id
 // @desc    Supprimer une conversation
 router.delete('/conversation/:id', messageController_1.deleteConversation);
+// @route   POST /api/messages/send
+// @desc    Envoyer un message texte ou emoji
+router.post('/send', messageController_1.sendMessage);
+// @route   POST /api/messages/upload/:conversationId
+// @desc    Uploader une image et envoyer le message image (max 5 Mo, JPG/PNG/GIF/WEBP)
+router.post('/upload/:conversationId', messageController_1.upload.single('image'), messageController_1.uploadMessageImage);
 exports.default = router;

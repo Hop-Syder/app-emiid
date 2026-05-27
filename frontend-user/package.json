@@ -15,6 +15,8 @@
     "dev:admin": "npm run dev --prefix admin"
   },
   "dependencies": {
+    "@emoji-mart/data": "^1.2.1",
+    "@emoji-mart/react": "^1.1.1",
     "@emotion/is-prop-valid": "latest",
     "@hookform/resolvers": "^3.10.0",
     "@radix-ui/react-accordion": "1.2.2",
@@ -54,6 +56,7 @@
     "country-state-city": "^3.2.1",
     "date-fns": "4.1.0",
     "embla-carousel-react": "8.5.1",
+    "emoji-mart": "^5.6.0",
     "framer-motion": "12.23.26",
     "input-otp": "1.4.1",
     "lucide-react": "^0.454.0",

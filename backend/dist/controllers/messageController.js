@@ -5,12 +5,16 @@
  * @description Contrôleur pour la messagerie entre membres EmiID
  * @created 2026-01-25
 */
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteConversation = exports.getConversationMessages = exports.getConversations = exports.markAdminAsRead = exports.updateMediationStatus = exports.replyToMediation = exports.requestMediation = exports.getSupportUser = exports.getAdminDisputes = exports.getAdminConversationMessages = void 0;
+exports.deleteConversation = exports.getConversationMessages = exports.getConversations = exports.markAdminAsRead = exports.updateMediationStatus = exports.replyToMediation = exports.requestMediation = exports.getSupportUser = exports.getAdminDisputes = exports.getAdminConversationMessages = exports.uploadMessageImage = exports.sendMessage = exports.upload = void 0;
 const supabase_1 = require("../config/supabase");
 const logger_1 = require("../utils/logger");
 const zod_1 = require("zod");
 const messageValidations_1 = require("../api/validations/messageValidations");
+const multer_1 = __importDefault(require("multer"));
 const MEDIATION_REQUEST_MARKER = '[MÉDIATION DEMANDÉE]';
 const MEDIATION_STATUS_MARKER = '[MÉDIATION STATUT]';
 const formatParticipantName = (profile) => {
@@ -89,6 +93,144 @@ const formatConversation = (conv, userId, unreadCount, profileLookup) => {
         unreadCount,
     };
 };
+// ─── Stockage en mémoire pour multer (images) ────────────────────────────────
+exports.upload = (0, multer_1.default)({
+    storage: multer_1.default.memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024 }, // max 5 Mo
+    fileFilter: (_req, file, cb) => {
+        const allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        if (allowed.includes(file.mimetype)) {
+            cb(null, true);
+        }
+        else {
+            cb(new Error('Format non supporté. Utilisez JPG, PNG, GIF ou WEBP.'));
+        }
+    },
+});
+// ─── Envoi de messages ────────────────────────────────────────────────────────
+/**
+ * Envoie un message texte ou emoji dans une conversation
+ * POST /api/messages/send
+ */
+const sendMessage = async (req, res) => {
+    const userId = req.user?.id;
+    if (!userId)
+        return res.status(401).json({ error: 'Non authentifié' });
+    try {
+        const { body: { conversation_id, content, message_type } } = messageValidations_1.sendMessageSchema.parse(req);
+        // Vérifier que l'utilisateur est bien participant
+        const { data: conv, error: convError } = await supabase_1.supabaseAdmin
+            .from('conversations')
+            .select('id')
+            .eq('id', conversation_id)
+            .or(`participant1_id.eq.${userId},participant2_id.eq.${userId}`)
+            .single();
+        if (convError || !conv) {
+            return res.status(403).json({ error: 'Accès refusé à cette conversation' });
+        }
+        // Insérer le message
+        const { data: message, error: msgError } = await supabase_1.supabaseAdmin
+            .from('messages')
+            .insert({
+            conversation_id,
+            sender_id: userId,
+            content,
+            message_type,
+            is_read: false,
+        })
+            .select()
+            .single();
+        if (msgError)
+            throw msgError;
+        // Mettre à jour le dernier message de la conversation
+        const preview = message_type === 'emoji' ? content : content.substring(0, 60);
+        await supabase_1.supabaseAdmin
+            .from('conversations')
+            .update({
+            last_message_content: preview,
+            last_message_at: new Date().toISOString(),
+        })
+            .eq('id', conversation_id);
+        return res.status(201).json(message);
+    }
+    catch (err) {
+        logger_1.logger.error('Send message error', err);
+        return res.status(500).json({ error: "Erreur lors de l'envoi du message" });
+    }
+};
+exports.sendMessage = sendMessage;
+/**
+ * Upload une image vers Supabase Storage et envoie le message image
+ * POST /api/messages/upload/:conversationId
+ */
+const uploadMessageImage = async (req, res) => {
+    const userId = req.user?.id;
+    if (!userId)
+        return res.status(401).json({ error: 'Non authentifié' });
+    try {
+        const { params: { conversationId } } = messageValidations_1.imageUploadSchema.parse(req);
+        if (!req.file) {
+            return res.status(400).json({ error: 'Aucun fichier fourni' });
+        }
+        // Vérifier accès à la conversation
+        const { data: conv, error: convError } = await supabase_1.supabaseAdmin
+            .from('conversations')
+            .select('id')
+            .eq('id', conversationId)
+            .or(`participant1_id.eq.${userId},participant2_id.eq.${userId}`)
+            .single();
+        if (convError || !conv) {
+            return res.status(403).json({ error: 'Accès refusé à cette conversation' });
+        }
+        // Générer un nom de fichier unique dans le dossier de l'utilisateur
+        const ext = req.file.originalname.split('.').pop();
+        const fileName = `${userId}/${conversationId}/${Date.now()}.${ext}`;
+        // Upload vers le bucket 'messages'
+        const { error: uploadError } = await supabase_1.supabaseAdmin.storage
+            .from('messages')
+            .upload(fileName, req.file.buffer, {
+            contentType: req.file.mimetype,
+            upsert: false,
+        });
+        if (uploadError)
+            throw uploadError;
+        // Récupérer l'URL signée (valide 7 jours)
+        const { data: signedData, error: signedError } = await supabase_1.supabaseAdmin.storage
+            .from('messages')
+            .createSignedUrl(fileName, 60 * 60 * 24 * 7);
+        if (signedError || !signedData?.signedUrl)
+            throw signedError;
+        // Insérer le message image
+        const { data: message, error: msgError } = await supabase_1.supabaseAdmin
+            .from('messages')
+            .insert({
+            conversation_id: conversationId,
+            sender_id: userId,
+            content: req.body.caption || null,
+            message_type: 'image',
+            media_url: signedData.signedUrl,
+            is_read: false,
+        })
+            .select()
+            .single();
+        if (msgError)
+            throw msgError;
+        // Mettre à jour la conversation
+        await supabase_1.supabaseAdmin
+            .from('conversations')
+            .update({
+            last_message_content: '📷 Image',
+            last_message_at: new Date().toISOString(),
+        })
+            .eq('id', conversationId);
+        return res.status(201).json(message);
+    }
+    catch (err) {
+        logger_1.logger.error('Upload image error', err);
+        return res.status(500).json({ error: "Erreur lors de l'upload de l'image" });
+    }
+};
+exports.uploadMessageImage = uploadMessageImage;
 /**
  * Récupère les messages d'une conversation de médiation pour l'admin
  * GET /api/messages/admin/conversation/:id

@@ -17,6 +17,9 @@ import {
   getConversations,
   getConversationMessages,
   deleteConversation,
+  sendMessage,
+  uploadMessageImage,
+  upload,
 } from '../../controllers/messageController';
 import { requireAuth, requireAdmin } from '../../middlewares/authMiddleware';
 import {
@@ -69,5 +72,13 @@ router.get('/conversation/:id', getConversationMessages);
 // @route   DELETE /api/messages/conversation/:id
 // @desc    Supprimer une conversation
 router.delete('/conversation/:id', deleteConversation);
+
+// @route   POST /api/messages/send
+// @desc    Envoyer un message texte ou emoji
+router.post('/send', sendMessage);
+
+// @route   POST /api/messages/upload/:conversationId
+// @desc    Uploader une image et envoyer le message image (max 5 Mo, JPG/PNG/GIF/WEBP)
+router.post('/upload/:conversationId', upload.single('image'), uploadMessageImage);
 
 export default router;
