@@ -112,7 +112,7 @@ export function MessagesContent() {
         
         if (contactId) {
           const { data: profile } = await supabase
-            .from('user_profiles')
+            .from('public_profiles')
             .select('user_id, first_name, last_name, avatar_url')
             .or(`id.eq.${contactId},user_id.eq.${contactId}`)
             .maybeSingle()
@@ -332,9 +332,9 @@ export function MessagesContent() {
         }
       }
       scrollToBottom()
-    } catch (err) {
+    } catch (err: any) {
       console.error(err)
-      toast.error("Échec de l'envoi")
+      toast.error(`Échec de l'envoi: ${err?.message || JSON.stringify(err)}`)
     }
   }
 
