@@ -40,7 +40,6 @@ export async function subscribeToPushNotifications() {
   try {
     // 1. Enregistrement du Service Worker
     const registration = await navigator.serviceWorker.register('/sw.js');
-    console.log('Service Worker enregistré avec succès');
 
     // 2. Demande de permission
     const permission = await Notification.requestPermission();
@@ -73,7 +72,6 @@ export async function subscribeToPushNotifications() {
 
     if (error) throw error;
 
-    console.log('Souscription push enregistrée dans la base de données');
     return subscription;
   } catch (error) {
     console.error("Erreur lors de l'inscription aux notifications push", error);

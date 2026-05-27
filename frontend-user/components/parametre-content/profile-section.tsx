@@ -19,9 +19,8 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
-import type { UserProfile as GlobalUserProfile } from "@/types"
 
-interface UserProfile extends GlobalUserProfile {
+interface UserProfile {
   phone_verified?: boolean;
   country_code?: string;
   country_name?: string;

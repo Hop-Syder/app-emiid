@@ -14,7 +14,6 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Cookie, X, ShieldCheck, ArrowRight, Settings2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
 
 export function CookieConsent() {
     const [isVisible, setIsVisible] = useState(false)

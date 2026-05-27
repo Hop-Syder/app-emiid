@@ -84,7 +84,7 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
                 images: [ogImageUrl],
             }
         }
-    } catch (e) {
+    } catch (_e) {
         return {
             title: 'Profil | EmiID'
         }

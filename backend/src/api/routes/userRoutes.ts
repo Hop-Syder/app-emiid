@@ -16,6 +16,7 @@ import {
   deactivateMyAccount,
   deleteMyAccount,
   verifyPin,
+  resetMyPin,
   requestPhoneVerification,
   verifyPhone,
   unlockUserPin,
@@ -51,6 +52,10 @@ router.delete('/account', deleteMyAccount);
 // @route   POST /api/users/verify-pin
 // @desc    Vérifier le code PIN
 router.post('/verify-pin', verifyPin);
+
+// @route   POST /api/users/reset-pin
+// @desc    Réinitialiser le code PIN (après vérification d'identité par OTP email)
+router.post('/reset-pin', resetMyPin);
 
 
 

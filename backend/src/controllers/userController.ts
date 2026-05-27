@@ -483,6 +483,41 @@ export const unlockUserPin = async (req: Request, res: Response) => {
 };
 
 /**
+ * Réinitialise le code PIN de l'utilisateur connecté
+ * Appelé après vérification d'identité via Supabase reauthenticate (OTP par email)
+ * POST /api/users/reset-pin
+ */
+export const resetMyPin = async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  if (!userId) return res.status(401).json({ error: "Non authentifié" });
+
+  try {
+    const { error } = await supabaseAdmin
+      .from('user_profiles')
+      .update({
+        pin_enabled: false,
+        pin_code: null,
+        pin_attempts: 0,
+        is_locked: false,
+        locked_at: null,
+        updated_at: new Date().toISOString()
+      })
+      .eq('user_id', userId);
+
+    if (error) {
+      logger.error("Erreur réinitialisation PIN:", error);
+      return res.status(400).json({ error: "Impossible de réinitialiser le PIN" });
+    }
+
+    logger.info(`PIN réinitialisé pour l'utilisateur ${userId}`);
+    return res.json({ success: true, message: "Code PIN désactivé et réinitialisé avec succès" });
+  } catch (err) {
+    logger.error("Erreur serveur réinitialisation PIN:", err);
+    res.status(500).json({ error: "Erreur lors de la réinitialisation du PIN" });
+  }
+};
+
+/**
  * Demande un code OTP pour vérifier le téléphone
  * POST /api/users/phone/request
  */

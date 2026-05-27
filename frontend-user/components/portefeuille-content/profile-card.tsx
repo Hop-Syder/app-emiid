@@ -16,7 +16,7 @@ import { Card } from "@/components/ui/card"
 import { useState } from "react"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion } from "framer-motion"
 
 export interface ProfileData {
     id: string

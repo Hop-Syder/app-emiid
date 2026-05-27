@@ -1,9 +1,9 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Composant PinGate pour la protection par code PIN avec récupération par e-mail
+ * @description Composant PinGate pour la protection par code PIN avec récupération par OTP email (Reauthentication Supabase)
  * @created 2025-12-24
- * @updated 2026-05-26
+ * @updated 2026-05-27
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  * ──────────────────────────────────
@@ -16,7 +16,7 @@ import { fetchWithAuth } from "@/lib/apiClient"
 import { createClient } from "@/lib/supabase/client"
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp"
 import { Button } from "@/components/ui/button"
-import { Lock, Mail, KeyRound, Loader2 } from "lucide-react"
+import { Lock, Mail, KeyRound, Loader2, ShieldCheck } from "lucide-react"
 
 export function PinGate({ children }: { children: React.ReactNode }) {
     const [locked, setLocked] = useState(false)
@@ -25,9 +25,10 @@ export function PinGate({ children }: { children: React.ReactNode }) {
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(true)
     
-    // Recovery states
-    const [recoveryStep, setRecoveryStep] = useState<"none" | "request" | "sent">("none")
+    // Recovery states — flow en 4 étapes : none → request → otp → success
+    const [recoveryStep, setRecoveryStep] = useState<"none" | "request" | "otp" | "success">("none")
     const [recoveryLoading, setRecoveryLoading] = useState(false)
+    const [otpCode, setOtpCode] = useState("")
 
     const router = useRouter()
     const pathname = usePathname()
@@ -97,38 +98,68 @@ export function PinGate({ children }: { children: React.ReactNode }) {
         }
     }
 
+    // Étape 1 : Envoyer un OTP par email via supabase.auth.reauthenticate()
     const handleRequestRecovery = async () => {
         setRecoveryLoading(true)
         setError("")
         try {
             const supabase = createClient()
 
-            // Récupérer l'e-mail de l'utilisateur connecté
-            const { data: { user }, error: userError } = await supabase.auth.getUser()
-            if (userError || !user?.email) {
-                setError("Impossible de récupérer votre adresse e-mail. Veuillez vous reconnecter.")
+            // reauthenticate() envoie un code OTP 6 chiffres à l'email de l'utilisateur connecté
+            const { error: reauthError } = await supabase.auth.reauthenticate()
+
+            if (reauthError) {
+                setError("Impossible d'envoyer le code de vérification. Réessayez.")
+                console.error("Reauthenticate error:", reauthError)
                 return
             }
 
-            // Construire l'URL de redirection vers le callback avec reset_pin=true
-            const redirectTo = `${window.location.origin}/auth/callback?reset_pin=true`
+            setRecoveryStep("otp")
+            setOtpCode("")
+        } catch {
+            setError("Erreur inattendue. Veuillez réessayer.")
+        } finally {
+            setRecoveryLoading(false)
+        }
+    }
 
-            // Supabase envoie un Magic Link vers l'e-mail du user
-            // shouldCreateUser: false → ne crée pas de compte si l'e-mail n'existe pas
-            const { error: otpError } = await supabase.auth.signInWithOtp({
-                email: user.email,
-                options: {
-                    shouldCreateUser: false,
-                    emailRedirectTo: redirectTo,
-                }
+    // Étape 2 : Vérifier le nonce OTP et réinitialiser le PIN
+    const handleVerifyOtpAndResetPin = async (code: string) => {
+        setOtpCode(code)
+        if (code.length !== 6) return
+
+        setRecoveryLoading(true)
+        setError("")
+        try {
+            const supabase = createClient()
+
+            // Le nonce est passé via updateUser pour prouver l'identité
+            // On utilise un champ quelconque qui ne change rien pour valider le nonce
+            const { error: verifyError } = await supabase.auth.updateUser({
+                nonce: code,
+                data: { pin_reset_verified: true }
             })
 
-            if (otpError) {
-                setError("Impossible d'envoyer le lien de réinitialisation. Réessayez.")
+            if (verifyError) {
+                setError("Code incorrect ou expiré. Veuillez réessayer.")
+                setOtpCode("")
                 return
             }
 
-            setRecoveryStep("sent")
+            // Nonce vérifié → appeler l'API backend pour réinitialiser le PIN
+            const res = await fetchWithAuth("/api/users/reset-pin", {
+                method: "POST"
+            })
+
+            if (!res.ok) {
+                const data = await res.json()
+                setError(data.error || "Erreur lors de la réinitialisation du PIN")
+                return
+            }
+
+            // Succès complet
+            sessionStorage.setItem("emiid_pin_verified", "true")
+            setRecoveryStep("success")
         } catch {
             setError("Erreur inattendue. Veuillez réessayer.")
         } finally {
@@ -199,7 +230,7 @@ export function PinGate({ children }: { children: React.ReactNode }) {
 
                             <div className="flex flex-col items-center gap-3 w-full">
                                 <button
-                                    onClick={() => setRecoveryStep("request")}
+                                    onClick={() => { setRecoveryStep("request"); setError(""); }}
                                     className="text-xs font-bold text-blue-600 hover:text-blue-700 underline underline-offset-4"
                                 >
                                     Code PIN oublié ?
@@ -227,7 +258,7 @@ export function PinGate({ children }: { children: React.ReactNode }) {
                                     Code PIN oublié ?
                                 </h2>
                                 <p className="text-sm text-gray-500 px-2 leading-relaxed">
-                                    Nous allons envoyer un lien de réinitialisation sécurisé sur votre adresse e-mail pour désactiver votre code PIN.
+                                    Nous allons envoyer un <span className="font-semibold text-[#022753]">code de vérification à 6 chiffres</span> sur votre adresse e-mail pour confirmer votre identité et réinitialiser votre code PIN.
                                 </p>
                             </div>
 
@@ -248,7 +279,7 @@ export function PinGate({ children }: { children: React.ReactNode }) {
                                             Envoi en cours...
                                         </div>
                                     ) : (
-                                        "Recevoir le lien par e-mail"
+                                        "Recevoir le code par e-mail"
                                     )}
                                 </Button>
                                 
@@ -264,41 +295,104 @@ export function PinGate({ children }: { children: React.ReactNode }) {
                                 </Button>
                             </div>
                         </>
-                    ) : (
+                    ) : recoveryStep === "otp" ? (
                         <>
-                            <div className="h-16 w-16 rounded-full bg-emerald-50 flex items-center justify-center mb-2">
-                                <Mail className="h-7 w-7 text-emerald-600 animate-bounce" />
+                            <div className="h-16 w-16 rounded-full bg-indigo-50 flex items-center justify-center mb-2">
+                                <Mail className="h-7 w-7 text-indigo-600" />
                             </div>
 
                             <div className="text-center space-y-2">
-                                <h2 className="text-xl font-bold text-emerald-600">
-                                    Lien envoyé !
+                                <h2 className="text-xl font-bold text-[#022753]">
+                                    Vérification par e-mail
                                 </h2>
                                 <p className="text-sm text-gray-500 px-2 leading-relaxed">
-                                    Un e-mail contenant un lien sécurisé a été envoyé. Veuillez cliquer sur ce lien pour réinitialiser et désactiver votre code PIN.
+                                    Un code à 6 chiffres a été envoyé sur votre adresse e-mail. Saisissez-le ci-dessous pour réinitialiser votre PIN.
                                 </p>
                             </div>
 
-                            <div className="w-full flex flex-col gap-2">
-                                <Button
-                                    onClick={() => {
-                                        setRecoveryStep("none")
-                                        setError("")
-                                    }}
-                                    className="w-full h-11 rounded-xl bg-[#022753] hover:bg-[#033a7a]"
+                            <div className="w-full flex flex-col items-center gap-4">
+                                <InputOTP
+                                    id="recovery-otp-code"
+                                    name="recovery_otp_code"
+                                    autoComplete="one-time-code"
+                                    maxLength={6}
+                                    value={otpCode}
+                                    onChange={handleVerifyOtpAndResetPin}
                                 >
-                                    Retour
-                                </Button>
-                                
+                                    <InputOTPGroup className="gap-2">
+                                        <InputOTPSlot index={0} className="w-10 h-12 rounded-lg border-indigo-200 focus:border-indigo-500" />
+                                        <InputOTPSlot index={1} className="w-10 h-12 rounded-lg border-indigo-200 focus:border-indigo-500" />
+                                        <InputOTPSlot index={2} className="w-10 h-12 rounded-lg border-indigo-200 focus:border-indigo-500" />
+                                        <InputOTPSlot index={3} className="w-10 h-12 rounded-lg border-indigo-200 focus:border-indigo-500" />
+                                        <InputOTPSlot index={4} className="w-10 h-12 rounded-lg border-indigo-200 focus:border-indigo-500" />
+                                        <InputOTPSlot index={5} className="w-10 h-12 rounded-lg border-indigo-200 focus:border-indigo-500" />
+                                    </InputOTPGroup>
+                                </InputOTP>
+
+                                {recoveryLoading && (
+                                    <div className="flex items-center gap-2 text-sm text-indigo-600">
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                        Vérification en cours...
+                                    </div>
+                                )}
+
+                                <div className="h-6">
+                                    {error && (
+                                        <p className="text-xs font-medium text-red-500 animate-in fade-in slide-in-from-top-1 text-center">
+                                            {error}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="w-full flex flex-col gap-2">
                                 <Button
                                     variant="ghost"
                                     className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 text-xs font-semibold"
                                     onClick={() => void handleRequestRecovery()}
                                     disabled={recoveryLoading}
                                 >
-                                    {recoveryLoading ? "Envoi..." : "Renvoyer l'e-mail"}
+                                    {recoveryLoading ? "Envoi..." : "Renvoyer le code"}
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    onClick={() => {
+                                        setRecoveryStep("none")
+                                        setError("")
+                                        setOtpCode("")
+                                    }}
+                                    className="text-xs text-gray-500"
+                                >
+                                    Annuler
                                 </Button>
                             </div>
+                        </>
+                    ) : (
+                        /* recoveryStep === "success" */
+                        <>
+                            <div className="h-16 w-16 rounded-full bg-emerald-50 flex items-center justify-center mb-2">
+                                <ShieldCheck className="h-7 w-7 text-emerald-600" />
+                            </div>
+
+                            <div className="text-center space-y-2">
+                                <h2 className="text-xl font-bold text-emerald-600">
+                                    PIN réinitialisé !
+                                </h2>
+                                <p className="text-sm text-gray-500 px-2 leading-relaxed">
+                                    Votre code PIN a été désactivé avec succès. Vous pouvez en créer un nouveau depuis vos paramètres de sécurité.
+                                </p>
+                            </div>
+
+                            <Button
+                                onClick={() => {
+                                    setLocked(false)
+                                    setRecoveryStep("none")
+                                    setError("")
+                                }}
+                                className="w-full h-11 rounded-xl bg-[#022753] hover:bg-[#033a7a]"
+                            >
+                                Continuer
+                            </Button>
                         </>
                     )}
                 </div>
@@ -308,3 +402,4 @@ export function PinGate({ children }: { children: React.ReactNode }) {
 
     return <>{children}</>
 }
+
