@@ -8,7 +8,7 @@
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-github"],
       "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "ghp_1J2gS0eC51fG1oR6h5fG1oR6h5fG1oR6h5fG"
+        "GITHUB_PERSONAL_ACCESS_TOKEN": ""
       }
     }
   }

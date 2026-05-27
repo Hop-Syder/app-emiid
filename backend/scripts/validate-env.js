@@ -66,18 +66,18 @@ console.log('\n🔐 Vérifications de sécurité...\n');
 
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (serviceRoleKey && serviceRoleKey.length < 20) {
-    console.error('❌ CRITIQUE: SUPABASE_SERVICE_ROLE_KEY est trop courte');
+    console.error('❌ CRITIQUE: La clé de service Supabase (Service Role Key) est trop courte');
     hasErrors = true;
 } else if (serviceRoleKey) {
-    console.log('✅ SUPABASE_SERVICE_ROLE_KEY: Longueur valide');
+    console.log('✅ Clé de service Supabase: Longueur valide');
 }
 
 const jwtSecret = process.env.SUPABASE_JWT_SECRET;
 if (jwtSecret && jwtSecret.length < 32) {
-    console.error('❌ CRITIQUE: SUPABASE_JWT_SECRET est trop courte (min 32 caractères)');
+    console.error('❌ CRITIQUE: Le secret JWT (Supabase JWT Secret) est trop court (min 32 caractères)');
     hasErrors = true;
 } else if (jwtSecret) {
-    console.log('✅ SUPABASE_JWT_SECRET: Longueur valide');
+    console.log('✅ Secret JWT: Longueur valide');
 }
 
 console.log('\n' + '='.repeat(50));

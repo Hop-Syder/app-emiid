@@ -19,6 +19,12 @@ import {
   deleteConversation,
 } from '../../controllers/messageController';
 import { requireAuth, requireAdmin } from '../../middlewares/authMiddleware';
+import { validateRequest } from '../middlewares/validateRequest';
+import {
+  replyMediationSchema,
+  updateMediationStatusSchema,
+  requestMediationSchema,
+} from '../validations/messageValidations';
 
 const router = Router();
 
@@ -31,11 +37,11 @@ router.get('/admin/disputes', requireAdmin, getAdminDisputes);
 
 // @route   POST /api/messages/admin/reply/:conversationId
 // @desc    Réponse admin dans une médiation
-router.post('/admin/reply/:conversationId', requireAdmin, replyToMediation);
+router.post('/admin/reply/:conversationId', requireAdmin, validateRequest(replyMediationSchema), replyToMediation);
 
 // @route   POST /api/messages/admin/status/:conversationId
 // @desc    Mettre à jour le statut d'une médiation
-router.post('/admin/status/:conversationId', requireAdmin, updateMediationStatus);
+router.post('/admin/status/:conversationId', requireAdmin, validateRequest(updateMediationStatusSchema), updateMediationStatus);
 
 // @route   GET /api/messages/admin/conversation/:id
 // @desc    Récupérer les messages d'une conversation de médiation côté admin
@@ -47,7 +53,7 @@ router.post('/admin/read/:conversationId', requireAdmin, markAdminAsRead);
 
 // @route   POST /api/messages/dispute/:conversationId
 // @desc    Inviter l'Admin pour une médiation
-router.post('/dispute/:conversationId', requestMediation);
+router.post('/dispute/:conversationId', validateRequest(requestMediationSchema), requestMediation);
 
 // @route   GET /api/messages/support
 // @desc    Récupérer le service client
