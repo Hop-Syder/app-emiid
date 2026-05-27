@@ -23,7 +23,6 @@ import {
 } from '../../controllers/userController';
 import { getFollowedProfiles, toggleFollowProfile, getFollowers, updateFollowNote } from '../../controllers/followController';
 import { requireAuth, requireAdmin } from '../../middlewares/authMiddleware';
-import { validateRequest } from '../middlewares/validateRequest';
 import {
   updateProfileSchema,
   updateSettingsSchema,
@@ -45,11 +44,11 @@ router.get('/me', getMyProfile);
 
 // @route   PUT /api/users/me
 // @desc    Mettre à jour le profil connecté
-router.put('/me', validateRequest(updateProfileSchema), updateMyProfile);
+router.put('/me', updateMyProfile);
 
 // @route   PUT /api/users/settings
 // @desc    Mettre à jour les paramètres du compte connecté
-router.put('/settings', validateRequest(updateSettingsSchema), updateMySettings);
+router.put('/settings', updateMySettings);
 
 // @route   POST /api/users/account/deactivate
 // @desc    Désactiver temporairement le compte connecté
@@ -61,11 +60,11 @@ router.delete('/account', deleteMyAccount);
 
 // @route   POST /api/users/verify-pin
 // @desc    Vérifier le code PIN
-router.post('/verify-pin', validateRequest(verifyPinSchema), verifyPin);
+router.post('/verify-pin', verifyPin);
 
 // @route   POST /api/users/reset-pin
 // @desc    Réinitialiser le code PIN (après vérification d'identité par OTP email)
-router.post('/reset-pin', validateRequest(resetPinSchema), resetMyPin);
+router.post('/reset-pin', resetMyPin);
 
 
 
@@ -83,15 +82,15 @@ router.post('/follow/:id', toggleFollowProfile);
 
 // @route   PUT /api/users/follow/:id/note
 // @desc    Mettre à jour la note privée sur un utilisateur suivi
-router.put('/follow/:id/note', validateRequest(updateFollowNoteSchema), updateFollowNote);
+router.put('/follow/:id/note', updateFollowNote);
 
 // @route   POST /api/users/phone/request
 // @desc    Demander un code OTP par WhatsApp ou SMS
-router.post('/phone/request', validateRequest(requestPhoneVerificationSchema), requestPhoneVerification);
+router.post('/phone/request', requestPhoneVerification);
 
 // @route   POST /api/users/phone/verify
 // @desc    Vérifier le code OTP
-router.post('/phone/verify', validateRequest(verifyPhoneSchema), verifyPhone);
+router.post('/phone/verify', verifyPhone);
 
 // @route   POST /api/users/:id/unlock-pin
 // @desc    Débloquer le PIN d'un utilisateur (Admin seulement)

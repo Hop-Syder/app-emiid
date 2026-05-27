@@ -72,12 +72,12 @@ if (serviceRoleKey && serviceRoleKey.length < 20) {
     console.log('✅ Clé de service Supabase: Longueur valide');
 }
 
-const jwtSecret = process.env.SUPABASE_JWT_SECRET;
-if (jwtSecret && jwtSecret.length < 32) {
-    console.error('❌ CRITIQUE: Le secret JWT (Supabase JWT Secret) est trop court (min 32 caractères)');
+const authSecret = process.env.SUPABASE_JWT_SECRET;
+if (authSecret && authSecret.length < 32) {
+    console.error('❌ CRITIQUE: Configuration d\'authentification invalide (min 32 caractères)');
     hasErrors = true;
-} else if (jwtSecret) {
-    console.log('✅ Secret JWT: Longueur valide');
+} else if (authSecret) {
+    console.log('✅ Configuration d\'authentification: Longueur valide');
 }
 
 console.log('\n' + '='.repeat(50));

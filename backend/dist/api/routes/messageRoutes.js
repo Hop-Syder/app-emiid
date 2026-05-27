@@ -9,8 +9,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const messageController_1 = require("../../controllers/messageController");
 const authMiddleware_1 = require("../../middlewares/authMiddleware");
-const validateRequest_1 = require("../middlewares/validateRequest");
-const messageValidations_1 = require("../validations/messageValidations");
 const router = (0, express_1.Router)();
 // Toutes les routes ici nécessitent une authentification
 router.use(authMiddleware_1.requireAuth);
@@ -19,10 +17,10 @@ router.use(authMiddleware_1.requireAuth);
 router.get('/admin/disputes', authMiddleware_1.requireAdmin, messageController_1.getAdminDisputes);
 // @route   POST /api/messages/admin/reply/:conversationId
 // @desc    Réponse admin dans une médiation
-router.post('/admin/reply/:conversationId', authMiddleware_1.requireAdmin, (0, validateRequest_1.validateRequest)(messageValidations_1.replyMediationSchema), messageController_1.replyToMediation);
+router.post('/admin/reply/:conversationId', authMiddleware_1.requireAdmin, messageController_1.replyToMediation);
 // @route   POST /api/messages/admin/status/:conversationId
 // @desc    Mettre à jour le statut d'une médiation
-router.post('/admin/status/:conversationId', authMiddleware_1.requireAdmin, (0, validateRequest_1.validateRequest)(messageValidations_1.updateMediationStatusSchema), messageController_1.updateMediationStatus);
+router.post('/admin/status/:conversationId', authMiddleware_1.requireAdmin, messageController_1.updateMediationStatus);
 // @route   GET /api/messages/admin/conversation/:id
 // @desc    Récupérer les messages d'une conversation de médiation côté admin
 router.get('/admin/conversation/:id', authMiddleware_1.requireAdmin, messageController_1.getAdminConversationMessages);
@@ -31,7 +29,7 @@ router.get('/admin/conversation/:id', authMiddleware_1.requireAdmin, messageCont
 router.post('/admin/read/:conversationId', authMiddleware_1.requireAdmin, messageController_1.markAdminAsRead);
 // @route   POST /api/messages/dispute/:conversationId
 // @desc    Inviter l'Admin pour une médiation
-router.post('/dispute/:conversationId', (0, validateRequest_1.validateRequest)(messageValidations_1.requestMediationSchema), messageController_1.requestMediation);
+router.post('/dispute/:conversationId', messageController_1.requestMediation);
 // @route   GET /api/messages/support
 // @desc    Récupérer le service client
 router.get('/support', messageController_1.getSupportUser);

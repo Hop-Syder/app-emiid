@@ -9,6 +9,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateFollowNote = exports.getFollowers = exports.toggleFollowProfile = exports.getFollowedProfiles = void 0;
 const supabase_1 = require("../config/supabase");
 const logger_1 = require("../utils/logger");
+const zod_1 = require("zod");
+const userValidations_1 = require("../api/validations/userValidations");
 const formatRelativeActivity = (dateValue) => {
     if (!dateValue) {
         return 'Activité récente indisponible';
@@ -96,11 +98,11 @@ exports.getFollowedProfiles = getFollowedProfiles;
  */
 const toggleFollowProfile = async (req, res) => {
     const followerId = req.user.id;
-    const followingId = req.params.id;
-    if (followerId === followingId) {
-        return res.status(400).json({ error: "On ne peut pas se suivre soi-même" });
-    }
     try {
+        const { params: { id: followingId } } = zod_1.z.object({ params: zod_1.z.object({ id: zod_1.z.string() }) }).parse(req);
+        if (followerId === followingId) {
+            return res.status(400).json({ error: "On ne peut pas se suivre soi-même" });
+        }
         // Vérifier si déjà suivi (cet utilisateur spécifique)
         const { data: existing, error: errCheck } = await supabase_1.supabaseAdmin
             .from('user_follows')
@@ -199,9 +201,9 @@ exports.getFollowers = getFollowers;
  */
 const updateFollowNote = async (req, res) => {
     const followerId = req.user.id;
-    const followingId = req.params.id;
-    const { note } = req.body;
     try {
+        const { params: { id: followingId } } = zod_1.z.object({ params: zod_1.z.object({ id: zod_1.z.string() }) }).parse(req);
+        const { body: { note } } = userValidations_1.updateFollowNoteSchema.parse(req);
         const { error } = await supabase_1.supabaseAdmin
             .from('user_follows')
             .update({ notes: note })

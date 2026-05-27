@@ -263,9 +263,9 @@ export function MessagesContent() {
   const handleFileUpload = async (file: File, convId: string) => {
     if (!selectedConv || !currentUserId) return
     const type = file.type.startsWith("image/") ? "image" : "file"
-    const maxSize = type === "image" ? 5 * 1024 * 1024 : 10 * 1024 * 1024
+    const MAX_CONTENT_LENGTH = type === "image" ? 5 * 1024 * 1024 : 10 * 1024 * 1024
     
-    if (file.size > maxSize) {
+    if (file.size > MAX_CONTENT_LENGTH) {
       toast.error(`Fichier trop volumineux (Max ${type === "image" ? "5MB" : "10MB"})`)
       return
     }

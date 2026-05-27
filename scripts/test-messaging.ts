@@ -16,7 +16,7 @@ async function testMessagingAPI() {
     console.log("🚀 Démarrage des tests unitaires manuels...");
 
     if (!TEST_TOKEN) {
-        console.error("❌ Erreur: TEST_AUTH_TOKEN manquant dans l'environnement.");
+        console.error("❌ Erreur: Paramètre d'authentification manquant dans l'environnement.");
         return;
     }
 

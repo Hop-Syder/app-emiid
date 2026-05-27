@@ -6,10 +6,18 @@
 */
 
 import { Request, Response } from 'express';
+import { z } from 'zod';
 import { supabase, supabaseAdmin } from '../config/supabase';
 import bcrypt from 'bcrypt';
 import { logger } from '../utils/logger';
 import { UserProfile } from '../types/models';
+import { 
+  updateProfileSchema, 
+  updateSettingsSchema, 
+  verifyPinSchema, 
+  requestPhoneVerificationSchema, 
+  verifyPhoneSchema 
+} from '../api/validations/userValidations';
 
 const DEFAULT_NOTIFICATION_PREFERENCES = {
   messages: true,
@@ -114,15 +122,17 @@ export const getMyProfile = async (req: Request, res: Response) => {
  */
 export const updateMyProfile = async (req: any, res: Response) => {
   const userId = req.user.id;
-  const { 
-    first_name, last_name, bio, avatar_url,
-    role, specialty, category, activity_domain,
-    country_id, country_code, country_name, city,
-    job_title, industry, pin_enabled, pin_code,
-    phone, website, is_published, tags, card_variant, slug
-  } = req.body;
 
   try {
+    const { body } = updateProfileSchema.parse(req) as { body: any };
+    const { 
+      first_name, last_name, bio, avatar_url,
+      role, specialty, category, activity_domain,
+      country_id, country_code, country_name, city,
+      job_title, industry, pin_enabled, pin_code,
+      phone, website, is_published, tags, card_variant, slug
+    } = body;
+
     let finalCountryId = country_id;
 
     // Si on a un code pays mais pas d'ID, on cherche ou on crée
@@ -247,13 +257,15 @@ export const updateMyProfile = async (req: any, res: Response) => {
 export const updateMySettings = async (req: any, res: Response) => {
   const userId = req.user.id;
   const authUser = req.user;
-  const {
-    notification_preferences,
-    app_preferences,
-    security_preferences,
-  } = req.body || {};
 
   try {
+    const { body } = updateSettingsSchema.parse(req) as { body: any };
+    const {
+      notification_preferences,
+      app_preferences,
+      security_preferences,
+    } = body;
+
     const currentMetadata = authUser.user_metadata || {};
     const mergedAppPreferences = {
       ...DEFAULT_APP_PREFERENCES,
@@ -380,9 +392,9 @@ export const deleteMyAccount = async (req: any, res: Response) => {
 export const verifyPin = async (req: Request, res: Response) => {
   const userId = req.user?.id;
   if (!userId) return res.status(401).json({ error: "Non authentifié" });
-  const { pin } = req.body;
 
   try {
+    const { body: { pin } } = verifyPinSchema.parse(req);
     const { data, error } = await supabaseAdmin
       .from('user_profiles')
       .select('pin_code, pin_attempts, pin_enabled, is_locked, locked_at')
@@ -466,7 +478,7 @@ export const verifyPin = async (req: Request, res: Response) => {
  * POST /api/users/:id/unlock-pin
  */
 export const unlockUserPin = async (req: Request, res: Response) => {
-  const targetUserId = req.params.id as string;
+  const { id: targetUserId } = z.object({ id: z.string().uuid() }).parse(req.params);
 
   try {
     const { error } = await supabaseAdmin
@@ -523,11 +535,11 @@ export const resetMyPin = async (req: Request, res: Response) => {
  */
 export const requestPhoneVerification = async (req: any, res: Response) => {
   const userId = req.user.id;
-  const { phone, method } = req.body; // method: 'whatsapp' | 'sms'
-
-  if (!phone) return res.status(400).json({ error: "Numéro de téléphone requis" });
 
   try {
+    const { body: { phone, method } } = requestPhoneVerificationSchema.parse(req) as { body: any };
+    if (!phone) return res.status(400).json({ error: "Numéro de téléphone requis" });
+
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
@@ -560,9 +572,9 @@ export const requestPhoneVerification = async (req: any, res: Response) => {
  */
 export const verifyPhone = async (req: any, res: Response) => {
   const userId = req.user.id;
-  const { phone, code } = req.body;
 
   try {
+    const { body: { phone, code } } = verifyPhoneSchema.parse(req);
     const { data: verification, error } = await supabaseAdmin
       .from('phone_verifications')
       .select('*')

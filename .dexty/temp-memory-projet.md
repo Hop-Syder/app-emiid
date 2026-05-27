@@ -36,6 +36,9 @@
 - `supabase-automation` — Requêtes et intégration Supabase
 - `nextjs-supabase-auth` — Intégration Supabase SSR dans Next.js
 
+### Sécurité
+- Zod — Validation stricte des schémas de données, type-safety TypeScript, et protection contre les failles d'injection.
+
 ## 📁 Contexte projet
 - **Description courte** : EmiID — "Ton réseau, ta force". Plateforme SaaS segmentée en trois parties : frontend utilisateur, portail admin, et API backend Node.js.
 - **Patterns architecturaux** : Monorepo logique avec exécution concurrente. Séparation de l'API Node/Express des clients Next.js.

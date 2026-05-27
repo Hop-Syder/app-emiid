@@ -35,6 +35,7 @@ wss.on('connection', (socket) => {
   socket.on('close', () => {
     logger.info('Connexion WebSocket fermée')
     clearInterval(pingInterval)
+    socket.removeAllListeners()
   })
 
   socket.on('error', (error) => {

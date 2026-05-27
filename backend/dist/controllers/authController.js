@@ -2,13 +2,14 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.registerUser = void 0;
 const supabase_1 = require("../config/supabase");
+const authValidations_1 = require("../api/validations/authValidations");
 /**
  * @description Gère l'enregistrement d'un utilisateur via le Backend (mode Admin)
  * @route POST /api/auth/register
  */
 const registerUser = async (req, res) => {
-    const { email, password, first_name, last_name, role } = req.body;
     try {
+        const { body: { email, password, first_name, last_name, role } } = authValidations_1.registerSchema.parse(req);
         if (!email || !password) {
             return res.status(400).json({ error: "Email et mot de passe requis" });
         }

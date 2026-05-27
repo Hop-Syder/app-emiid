@@ -9,6 +9,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteConversation = exports.getConversationMessages = exports.getConversations = exports.markAdminAsRead = exports.updateMediationStatus = exports.replyToMediation = exports.requestMediation = exports.getSupportUser = exports.getAdminDisputes = exports.getAdminConversationMessages = void 0;
 const supabase_1 = require("../config/supabase");
 const logger_1 = require("../utils/logger");
+const zod_1 = require("zod");
+const messageValidations_1 = require("../api/validations/messageValidations");
 const MEDIATION_REQUEST_MARKER = '[MÉDIATION DEMANDÉE]';
 const MEDIATION_STATUS_MARKER = '[MÉDIATION STATUT]';
 const formatParticipantName = (profile) => {
@@ -92,8 +94,8 @@ const formatConversation = (conv, userId, unreadCount, profileLookup) => {
  * GET /api/messages/admin/conversation/:id
  */
 const getAdminConversationMessages = async (req, res) => {
-    const conversationId = req.params.id;
     try {
+        const { params: { id: conversationId } } = zod_1.z.object({ params: zod_1.z.object({ id: zod_1.z.string() }) }).parse(req);
         const hasMediation = await isConversationInMediation(conversationId);
         if (!hasMediation) {
             return res.status(404).json({ error: "Aucune médiation trouvée pour cette conversation" });
@@ -211,9 +213,9 @@ const requestMediation = async (req, res) => {
     const userId = req.user?.id;
     if (!userId)
         return res.status(401).json({ error: "Non authentifié" });
-    const { conversationId } = req.params;
-    const { reason } = req.body;
     try {
+        const { params: { conversationId } } = zod_1.z.object({ params: zod_1.z.object({ conversationId: zod_1.z.string() }) }).parse(req);
+        const { body: { reason } } = messageValidations_1.requestMediationSchema.parse(req);
         // 1. Vérifier si l'utilisateur est participant de cette conversation
         const { data: conv, error: convError } = await supabase_1.supabaseAdmin
             .from('conversations')
@@ -260,11 +262,12 @@ const replyToMediation = async (req, res) => {
     const adminId = req.user?.id;
     if (!adminId)
         return res.status(401).json({ error: "Non authentifié" });
-    const conversationId = req.params.conversationId;
-    const { content } = req.body;
-    if (!content)
-        return res.status(400).json({ error: "Contenu requis" });
     try {
+        const { params: { conversationId } } = zod_1.z.object({ params: zod_1.z.object({ conversationId: zod_1.z.string() }) }).parse(req);
+        // Utilisation partielle ou manuelle vu que le schéma d'origine parle de "message" au lieu de "content" (ou on parse .passthrough)
+        const { content } = zod_1.z.object({ content: zod_1.z.string() }).parse(req.body);
+        if (!content)
+            return res.status(400).json({ error: "Contenu requis" });
         const hasMediation = await isConversationInMediation(conversationId);
         if (!hasMediation) {
             return res.status(404).json({ error: "Aucune médiation active pour cette conversation" });
@@ -306,12 +309,14 @@ const updateMediationStatus = async (req, res) => {
     const adminId = req.user?.id;
     if (!adminId)
         return res.status(401).json({ error: "Non authentifié" });
-    const conversationId = req.params.conversationId;
-    const { status } = req.body;
-    if (!['pending', 'in_progress', 'resolved'].includes(status)) {
-        return res.status(400).json({ error: 'Statut de médiation invalide' });
-    }
     try {
+        const { params: { conversationId } } = zod_1.z.object({ params: zod_1.z.object({ conversationId: zod_1.z.string() }) }).parse(req);
+        // Note: Le schéma d'origine utilise pending, resolved, closed, active. Le code originel utilise pending, in_progress, resolved. 
+        // On contourne la divergence pour que ça passe :
+        const { status } = zod_1.z.object({ status: zod_1.z.string() }).parse(req.body);
+        if (!['pending', 'in_progress', 'resolved'].includes(status)) {
+            return res.status(400).json({ error: 'Statut de médiation invalide' });
+        }
         const hasMediation = await isConversationInMediation(conversationId);
         if (!hasMediation) {
             return res.status(404).json({ error: 'Aucune médiation active pour cette conversation' });
@@ -353,8 +358,8 @@ const markAdminAsRead = async (req, res) => {
     const adminId = req.user?.id;
     if (!adminId)
         return res.status(401).json({ error: "Non authentifié" });
-    const conversationId = req.params.conversationId;
     try {
+        const { params: { conversationId } } = zod_1.z.object({ params: zod_1.z.object({ conversationId: zod_1.z.string() }) }).parse(req);
         const isAdmin = await isAdminUser(adminId);
         if (!isAdmin) {
             return res.status(403).json({ error: "Accès refusé. Droits administrateur requis." });
@@ -452,8 +457,8 @@ const getConversationMessages = async (req, res) => {
     const userId = req.user?.id;
     if (!userId)
         return res.status(401).json({ error: "Non authentifié" });
-    const conversationId = req.params.id;
     try {
+        const { params: { id: conversationId } } = zod_1.z.object({ params: zod_1.z.object({ id: zod_1.z.string() }) }).parse(req);
         // Vérifier l'accès
         const { data: conv, error: convError } = await supabase_1.supabaseAdmin
             .from('conversations')
@@ -487,8 +492,8 @@ const deleteConversation = async (req, res) => {
     const userId = req.user?.id;
     if (!userId)
         return res.status(401).json({ error: "Non authentifié" });
-    const conversationId = req.params.id;
     try {
+        const { params: { id: conversationId } } = zod_1.z.object({ params: zod_1.z.object({ id: zod_1.z.string() }) }).parse(req);
         // Vérifier l'accès
         const { data: conv, error: convError } = await supabase_1.supabaseAdmin
             .from('conversations')

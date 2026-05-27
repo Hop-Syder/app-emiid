@@ -10,6 +10,7 @@ import { logger } from '../../utils/logger';
 import { supabaseAdmin } from '../../config/supabase';
 import { sendNewMessageNotification } from '../../services/mailService';
 import { sendPushNotification } from '../../services/pushService';
+import { z } from 'zod';
 
 const router = Router();
 
@@ -24,7 +25,11 @@ const router = Router();
 // @desc    Reçoit les événements de la DB Supabase
 router.post('/supabase', async (req: Request, res: Response) => {
   try {
-    const { type, table, record } = req.body;
+    const { type, table, record } = z.object({
+      type: z.string().optional(),
+      table: z.string().optional(),
+      record: z.any().optional()
+    }).parse(req.body || {});
     logger.info('Webhook reçu depuis Supabase', { type, table });
     
     // 1. Gestion des nouveaux messages

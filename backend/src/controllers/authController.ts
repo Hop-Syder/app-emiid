@@ -1,14 +1,15 @@
 import { Request, Response } from 'express';
 import { supabaseAdmin } from '../config/supabase';
+import { registerSchema } from '../api/validations/authValidations';
 
 /**
  * @description Gère l'enregistrement d'un utilisateur via le Backend (mode Admin)
  * @route POST /api/auth/register
  */
 export const registerUser = async (req: Request, res: Response) => {
-    const { email, password, first_name, last_name, role } = req.body;
-
     try {
+        const { body: { email, password, first_name, last_name, role } } = registerSchema.parse(req);
+
         if (!email || !password) {
             return res.status(400).json({ error: "Email et mot de passe requis" });
         }

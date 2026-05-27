@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import { registerUser } from '../../controllers/authController';
 import { requireAuth } from '../../middlewares/authMiddleware';
-import { validateRequest } from '../middlewares/validateRequest';
 import { registerSchema } from '../validations/authValidations';
 
 const router = Router();
@@ -9,7 +8,7 @@ const router = Router();
 // @route   POST /api/auth/register
 // @desc    Enregistrer un nouvel utilisateur
 // @access  Public
-router.post('/register', validateRequest(registerSchema), registerUser);
+router.post('/register', registerUser);
 
 // @route   GET /api/auth/me
 // @desc    Récupérer les infos de l'utilisateur connecté (Test Relay)

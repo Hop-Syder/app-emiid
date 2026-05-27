@@ -8,6 +8,8 @@
 import { Response } from 'express';
 import { supabase, supabaseAdmin } from '../config/supabase';
 import { logger } from '../utils/logger';
+import { z } from 'zod';
+import { updateFollowNoteSchema } from '../api/validations/userValidations';
 
 const formatRelativeActivity = (dateValue?: string | null) => {
   if (!dateValue) {
@@ -107,13 +109,13 @@ export const getFollowedProfiles = async (req: any, res: Response) => {
  */
 export const toggleFollowProfile = async (req: any, res: Response) => {
   const followerId = req.user.id;
-  const followingId = req.params.id;
-
-  if (followerId === followingId) {
-      return res.status(400).json({ error: "On ne peut pas se suivre soi-même" });
-  }
 
   try {
+    const { params: { id: followingId } } = z.object({ params: z.object({ id: z.string() }) }).parse(req);
+
+    if (followerId === followingId) {
+        return res.status(400).json({ error: "On ne peut pas se suivre soi-même" });
+    }
     // Vérifier si déjà suivi (cet utilisateur spécifique)
     const { data: existing, error: errCheck } = await supabaseAdmin
       .from('user_follows')
@@ -219,10 +221,10 @@ export const getFollowers = async (req: any, res: Response) => {
  */
 export const updateFollowNote = async (req: any, res: Response) => {
   const followerId = req.user.id;
-  const followingId = req.params.id;
-  const { note } = req.body;
 
   try {
+    const { params: { id: followingId } } = z.object({ params: z.object({ id: z.string() }) }).parse(req);
+    const { body: { note } } = updateFollowNoteSchema.parse(req);
     const { error } = await supabaseAdmin
       .from('user_follows')
       .update({ notes: note })
