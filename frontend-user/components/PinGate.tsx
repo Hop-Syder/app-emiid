@@ -126,7 +126,7 @@ export function PinGate({ children }: { children: React.ReactNode }) {
     // Étape 2 : Vérifier le nonce OTP et réinitialiser le PIN
     const handleVerifyOtpAndResetPin = async (code: string) => {
         setOtpCode(code)
-        if (code.length !== 6) return
+        if (code.length !== 8) return
 
         setRecoveryLoading(true)
         setError("")
@@ -315,17 +315,19 @@ export function PinGate({ children }: { children: React.ReactNode }) {
                                     id="recovery-otp-code"
                                     name="recovery_otp_code"
                                     autoComplete="one-time-code"
-                                    maxLength={6}
+                                    maxLength={8}
                                     value={otpCode}
                                     onChange={handleVerifyOtpAndResetPin}
                                 >
-                                    <InputOTPGroup className="gap-2">
-                                        <InputOTPSlot index={0} className="w-10 h-12 rounded-lg border-indigo-200 focus:border-indigo-500" />
-                                        <InputOTPSlot index={1} className="w-10 h-12 rounded-lg border-indigo-200 focus:border-indigo-500" />
-                                        <InputOTPSlot index={2} className="w-10 h-12 rounded-lg border-indigo-200 focus:border-indigo-500" />
-                                        <InputOTPSlot index={3} className="w-10 h-12 rounded-lg border-indigo-200 focus:border-indigo-500" />
-                                        <InputOTPSlot index={4} className="w-10 h-12 rounded-lg border-indigo-200 focus:border-indigo-500" />
-                                        <InputOTPSlot index={5} className="w-10 h-12 rounded-lg border-indigo-200 focus:border-indigo-500" />
+                                    <InputOTPGroup className="gap-1">
+                                        <InputOTPSlot index={0} className="w-9 h-12 rounded-lg border-indigo-200 focus:border-indigo-500" />
+                                        <InputOTPSlot index={1} className="w-9 h-12 rounded-lg border-indigo-200 focus:border-indigo-500" />
+                                        <InputOTPSlot index={2} className="w-9 h-12 rounded-lg border-indigo-200 focus:border-indigo-500" />
+                                        <InputOTPSlot index={3} className="w-9 h-12 rounded-lg border-indigo-200 focus:border-indigo-500" />
+                                        <InputOTPSlot index={4} className="w-9 h-12 rounded-lg border-indigo-200 focus:border-indigo-500" />
+                                        <InputOTPSlot index={5} className="w-9 h-12 rounded-lg border-indigo-200 focus:border-indigo-500" />
+                                        <InputOTPSlot index={6} className="w-9 h-12 rounded-lg border-indigo-200 focus:border-indigo-500" />
+                                        <InputOTPSlot index={7} className="w-9 h-12 rounded-lg border-indigo-200 focus:border-indigo-500" />
                                     </InputOTPGroup>
                                 </InputOTP>
 
