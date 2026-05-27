@@ -240,10 +240,10 @@ export function PinGate({ children }: { children: React.ReactNode }) {
                                     variant="ghost"
                                     className="text-gray-400 hover:text-gray-600 font-normal text-xs mt-2"
                                     onClick={() => {
-                                        router.push('/')
+                                        router.push('/dashboard-public')
                                     }}
                                 >
-                                    Retour à l&apos;accueil
+                                    Retour à l'accueil
                                 </Button>
                             </div>
                         </>
