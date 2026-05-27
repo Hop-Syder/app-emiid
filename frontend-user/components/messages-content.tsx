@@ -55,7 +55,7 @@ export function MessagesContent() {
   const supabase = useMemo(() => createClient(), [])
   const currentUserId = useCurrentUserId()
 
-  // State
+  // === ÉTATS ET RÉFÉRENCES ===
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [selectedConv, setSelectedConv] = useState<Conversation | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
@@ -379,24 +379,24 @@ export function MessagesContent() {
     )
   }, [conversations, searchQuery])
 
+  // === RENDU PRINCIPAL DU COMPOSANT ===
   return (
-    <div className="flex h-[calc(100vh-64px)] bg-slate-50 overflow-hidden rounded-xl shadow-2xl border border-slate-200">
-      {/* Sidebar */}
-      <div className={cn("md:block", showChatMobile ? "hidden" : "block w-full")}>
-        <ChatSidebar
-          conversations={filteredConversations}
-          activeId={selectedConv?.id || null}
-          onSelect={(conv) => {
-            setSelectedConv(conv)
-            setShowChatMobile(true)
-          }}
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          isLoading={loadingConv}
-        />
-      </div>
+    <div className="flex h-[calc(100vh-4rem)] md:h-[calc(100vh-5rem)] bg-slate-50/50">
+      
+      {/* === COLONNE DE GAUCHE : LISTE DES CONVERSATIONS === */}
+      <ChatSidebar 
+        conversations={filteredConversations}
+        activeId={selectedConv?.id || null}
+        onSelect={(conv) => {
+          setSelectedConv(conv)
+          setShowChatMobile(true)
+        }}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        isLoading={loadingConv}
+      />
 
-      {/* Main Chat */}
+      {/* === COLONNE DE DROITE : ZONE DE CHAT === */}
       <div className={cn("flex-1 flex flex-col h-full bg-white relative", !showChatMobile && "hidden md:flex")}>
         {selectedConv ? (
           <>

@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
 
+// === INTERFACES ===
 interface ChatSidebarProps {
   conversations: Conversation[]
   activeId: string | null
@@ -25,6 +26,7 @@ interface ChatSidebarProps {
   isLoading: boolean
 }
 
+// === COMPOSANT SIDEBAR ===
 export const ChatSidebar: React.FC<ChatSidebarProps> = ({
   conversations,
   activeId,
@@ -34,8 +36,11 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
   isLoading,
 }) => {
   const router = useRouter()
+  // === RENDU DU COMPOSANT ===
   return (
     <div className="flex flex-col h-full border-r bg-white w-full md:w-80 lg:w-96">
+      
+      {/* === EN-TÊTE ET RECHERCHE === */}
       <div className="p-4 border-b space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold text-slate-800">Messages</h2>
@@ -64,6 +69,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
         </div>
       </div>
 
+      {/* === LISTE DES CONVERSATIONS === */}
       <div className="flex-1 overflow-y-auto">
         {isLoading ? (
           <div className="p-8 text-center space-y-4">

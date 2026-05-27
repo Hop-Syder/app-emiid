@@ -14,16 +14,20 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
 
+// === INTERFACES ===
 interface MessageInputProps {
   onSend: (content: string, file?: File) => void
   isDisabled: boolean
 }
 
+// === COMPOSANT DE SAISIE DE MESSAGE ===
 export const MessageInput: React.FC<MessageInputProps> = ({ onSend, isDisabled }) => {
+  // === ÉTATS ET RÉFÉRENCES ===
   const [text, setText] = useState('')
   const [file, setFile] = useState<File | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  // === GESTION DE LA SOUMISSION ===
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!text.trim() && !file) return
@@ -33,6 +37,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({ onSend, isDisabled }
     setFile(null)
   }
 
+  // === RENDU DU COMPOSANT ===
   return (
     <form 
       onSubmit={handleSubmit}

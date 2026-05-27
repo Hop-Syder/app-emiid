@@ -16,11 +16,13 @@ import { cn } from '@/lib/utils'
 import { parseMessageContent } from '@/features/messages/messageContent'
 import { FileText } from 'lucide-react'
 
+// === INTERFACES ===
 interface MessageBubbleProps {
   message: Message
   isOwn: boolean
 }
 
+// === COMPOSANTS DE PRÉSENTATION (BULLES) ===
 export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isOwn }) => {
   const parsed = parseMessageContent(message.content)
   const [formattedTime, setFormattedTime] = React.useState<string>("")
@@ -112,6 +114,7 @@ interface MessageListProps {
   scrollRef: React.RefObject<HTMLDivElement | null>
 }
 
+// === LISTE DES MESSAGES (SCROLL ET RENDU) ===
 export const MessageList: React.FC<MessageListProps> = ({ messages, currentUserId, scrollRef }) => {
   return (
     <div className="flex-1 overflow-y-auto bg-slate-50/50 py-6 custom-scrollbar">
