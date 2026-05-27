@@ -242,39 +242,43 @@ export function DashboardContent({ initialStats = null }: DashboardContentProps)
       )}
 
       {/* Section Premium (Elite) */}
-      <div className="space-y-4 py-4 bg-slate-50/50 -mx-4 px-4 sm:-mx-8 sm:px-8">
-        <div className="flex items-center justify-between">
+      <div className="space-y-6 py-8 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border border-slate-800 px-6 sm:px-8 shadow-2xl relative overflow-hidden mt-8">
+        {/* Glow effect */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
+        <div className="flex items-center justify-between relative z-10">
           <div>
-            <h3 className="text-xl font-black text-slate-900 flex items-center gap-2 italic uppercase tracking-tighter">
-              Profils Premium
+            <h3 className="text-2xl font-black text-white flex items-center gap-2 italic uppercase tracking-tighter">
+              <span className="text-amber-400">👑</span> Profils Premium
             </h3>
-            <p className="text-xs text-slate-500 font-medium">L&apos;excellence de notre réseau</p>
+            <p className="text-sm text-slate-400 font-medium mt-1">L&apos;excellence de notre réseau</p>
           </div>
         </div>
-        <EntrepreneursSection entrepreneursList={premiumProfiles} loading={premiumLoading} variant="elite" />
+        <div className="relative z-10">
+          <EntrepreneursSection entrepreneursList={premiumProfiles} loading={premiumLoading} variant="elite" />
+        </div>
       </div>
 
-      {/* Section Nouveaux Profils (Horizontal) */}
-      <div className="space-y-4 py-4 bg-slate-50/50 -mx-4 px-4 sm:-mx-8 sm:px-8">
+      {/* Section Nouveaux Profils (Tech) */}
+      <div className="space-y-6 py-8 bg-white border border-slate-100 rounded-3xl px-6 sm:px-8 shadow-sm mt-8">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-xl font-black text-slate-900 italic uppercase tracking-tighter">
-              ⚡ Nouveaux Arrivants
+            <h3 className="text-2xl font-black text-slate-900 flex items-center gap-2 italic uppercase tracking-tighter">
+              <span className="text-blue-500">⚡</span> Nouveaux Arrivants
             </h3>
-            <p className="text-xs text-slate-500 font-medium">Souhaitez-leur la bienvenue</p>
+            <p className="text-sm text-slate-500 font-medium mt-1">Souhaitez-leur la bienvenue</p>
           </div>
         </div>
         <EntrepreneursSection entrepreneursList={newProfiles} loading={newLoading} variant="tech" />
       </div>
 
-      {/* Section 100% Vérifiés */}
-      <div className="space-y-4 py-4 bg-slate-50/50 -mx-4 px-4 sm:-mx-8 sm:px-8">
+      {/* Section 100% Vérifiés (Glass) */}
+      <div className="space-y-6 py-8 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-3xl px-6 sm:px-8 shadow-sm mt-8 mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-xl font-black text-slate-900 flex items-center gap-2 italic uppercase tracking-tighter">
-              100% Vérifiés
+            <h3 className="text-2xl font-black text-blue-900 flex items-center gap-2 italic uppercase tracking-tighter">
+              <span className="text-blue-600">✓</span> 100% Vérifiés
             </h3>
-            <p className="text-xs text-slate-500 font-medium">La confiance avant tout</p>
+            <p className="text-sm text-blue-700/70 font-medium mt-1">La confiance avant tout</p>
           </div>
         </div>
         <EntrepreneursSection entrepreneursList={verifiedProfiles} loading={verifiedLoading} variant="glass" />
