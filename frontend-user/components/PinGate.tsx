@@ -160,8 +160,9 @@ export function PinGate({ children }: { children: React.ReactNode }) {
             // Succès complet
             sessionStorage.setItem("emiid_pin_verified", "true")
             setRecoveryStep("success")
-        } catch {
-            setError("Erreur inattendue. Veuillez réessayer.")
+        } catch (err: any) {
+            console.error("Erreur détaillée lors de la vérification:", err)
+            setError(`Erreur inattendue: ${err?.message || "Veuillez réessayer."}`)
         } finally {
             setRecoveryLoading(false)
         }
@@ -239,7 +240,10 @@ export function PinGate({ children }: { children: React.ReactNode }) {
                                 <Button
                                     variant="ghost"
                                     className="text-gray-400 hover:text-gray-600 font-normal text-xs mt-2"
-                                    onClick={() => {
+                                    onClick={async () => {
+                                        const supabase = createClient()
+                                        await supabase.auth.signOut()
+                                        sessionStorage.removeItem("emiid_pin_verified")
                                         router.push('/dashboard-public')
                                     }}
                                 >

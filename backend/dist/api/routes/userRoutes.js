@@ -34,9 +34,9 @@ router.delete('/account', userController_1.deleteMyAccount);
 // @route   POST /api/users/verify-pin
 // @desc    Vérifier le code PIN
 router.post('/verify-pin', userController_1.verifyPin);
-// @route   POST /api/users/forgot-pin/email
-// @desc    Demander un lien de réinitialisation du PIN par email
-router.post('/forgot-pin/email', userController_1.sendPinResetEmail);
+// @route   POST /api/users/reset-pin
+// @desc    Réinitialiser le code PIN (après vérification d'identité par OTP email)
+router.post('/reset-pin', userController_1.resetMyPin);
 // @route   GET /api/users/follows
 // @desc    Récupérer les profils suivis
 router.get('/follows', followController_1.getFollowedProfiles);
