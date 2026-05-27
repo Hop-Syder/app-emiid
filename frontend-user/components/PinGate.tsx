@@ -258,7 +258,7 @@ export function PinGate({ children }: { children: React.ReactNode }) {
                                     Code PIN oublié ?
                                 </h2>
                                 <p className="text-sm text-gray-500 px-2 leading-relaxed">
-                                    Nous allons envoyer un <span className="font-semibold text-[#022753]">code de vérification à 6 chiffres</span> sur votre adresse e-mail pour confirmer votre identité et réinitialiser votre code PIN.
+                                    Nous allons envoyer un <span className="font-semibold text-[#022753]">code de vérification</span> sur votre adresse e-mail pour confirmer votre identité et réinitialiser votre code PIN.
                                 </p>
                             </div>
 
@@ -306,7 +306,7 @@ export function PinGate({ children }: { children: React.ReactNode }) {
                                     Vérification par e-mail
                                 </h2>
                                 <p className="text-sm text-gray-500 px-2 leading-relaxed">
-                                    Un code à 6 chiffres a été envoyé sur votre adresse e-mail. Saisissez-le ci-dessous pour réinitialiser votre PIN.
+                                    Un code de vérification a été envoyé sur votre adresse e-mail. Saisissez-le ci-dessous pour réinitialiser votre PIN.
                                 </p>
                             </div>
 
