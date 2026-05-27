@@ -243,7 +243,7 @@ export function PinGate({ children }: { children: React.ReactNode }) {
                                         router.push('/dashboard-public')
                                     }}
                                 >
-                                    Retour à l'accueil
+                                    Retour à l&apos;accueil
                                 </Button>
                             </div>
                         </>
