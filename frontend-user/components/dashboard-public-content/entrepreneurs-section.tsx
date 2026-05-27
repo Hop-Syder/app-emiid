@@ -76,25 +76,32 @@ export function EntrepreneursSection({ entrepreneursList, loading }: Entrepreneu
     }
 
     return (
-        <section>
-            <div className="mb-6 flex items-center justify-between">
+        <section className="space-y-6 py-8 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border border-slate-800 px-6 sm:px-8 shadow-2xl relative overflow-hidden mt-8">
+            {/* Glow effect */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
+            
+            <div className="mb-6 flex items-center justify-between relative z-10">
                 <div>
-                    <h3 className="text-2xl font-bold">Entrepreneurs du Réseau</h3>
-                    <p className="text-sm text-muted-foreground">Découvrez les profils premium du moment</p>
+                    <h3 className="text-2xl font-black text-white flex items-center gap-2 italic uppercase tracking-tighter">
+                        <span className="text-amber-400">👑</span> Entrepreneurs du Réseau
+                    </h3>
+                    <p className="text-sm text-slate-400 font-medium mt-1">Découvrez les profils premium du moment</p>
                 </div>
                 <Button
                     variant="outline"
-                    className="rounded-xl bg-transparent"
+                    className="rounded-xl border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800"
                     onClick={() => router.push("/annuaire")}
                 >
                     Voir Tout
                 </Button>
             </div>
 
+            <div className="relative z-10">
+
             {loading ? (
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div className="flex overflow-x-auto pb-6 gap-6 snap-x no-scrollbar w-full">
                     {Array.from({ length: 6 }).map((_, i) => (
-                        <div key={i} className="space-y-4 p-6 border rounded-xl bg-card">
+                        <div key={i} className="min-w-[280px] space-y-4 p-6 border rounded-xl bg-card snap-center">
                             <div className="flex items-center gap-4">
                                 <Skeleton className="h-16 w-16 rounded-full" />
                                 <div className="space-y-2 flex-1">
@@ -111,13 +118,14 @@ export function EntrepreneursSection({ entrepreneursList, loading }: Entrepreneu
                     ))}
                 </div>
             ) : profiles.length > 0 ? (
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div className="flex overflow-x-auto pb-6 gap-6 snap-x no-scrollbar w-full">
                     {profiles.map((entrepreneur, index) => (
                         <motion.div
                             key={entrepreneur.id}
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ duration: 0.3, delay: index * 0.1 }}
+                            className="min-w-[280px] snap-center"
                         >
                             <EmiIDProfileCard
                                 user={{
@@ -145,6 +153,7 @@ export function EntrepreneursSection({ entrepreneursList, loading }: Entrepreneu
                     <p className="text-muted-foreground">Aucun entrepreneur en vedette pour le moment.</p>
                 </div>
             )}
+            </div>
         </section>
     )
 }
