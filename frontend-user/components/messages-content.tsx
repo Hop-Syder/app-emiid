@@ -18,6 +18,8 @@ import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 import { captureError } from "@/lib/observability"
 
+const MAX_CONTENT_LENGTH = 10 * 1024 * 1024; // 10MB
+
 // Components
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ConfirmActionDialog } from "@/components/ui/confirm-action-dialog"
@@ -263,9 +265,9 @@ export function MessagesContent() {
   const handleFileUpload = async (file: File, convId: string) => {
     if (!selectedConv || !currentUserId) return
     const type = file.type.startsWith("image/") ? "image" : "file"
-    const MAX_CONTENT_LENGTH = type === "image" ? 5 * 1024 * 1024 : 10 * 1024 * 1024
+    const localMaxSize = type === "image" ? 5 * 1024 * 1024 : MAX_CONTENT_LENGTH
     
-    if (file.size > MAX_CONTENT_LENGTH) {
+    if (file.size > localMaxSize) {
       toast.error(`Fichier trop volumineux (Max ${type === "image" ? "5MB" : "10MB"})`)
       return
     }
