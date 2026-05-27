@@ -54,7 +54,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isOwn }) 
           : "bg-white border border-slate-100 text-slate-800 rounded-tl-none"
       )}>
         {parsed.kind === "text" && (
-          <p className="text-sm whitespace-pre-wrap leading-relaxed">
+          <p className="text-sm whitespace-pre-wrap break-words leading-relaxed">
             {parsed.text}
           </p>
         )}

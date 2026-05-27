@@ -111,24 +111,32 @@ export function MessagesContent() {
         setConversations(data)
         
         if (contactId) {
-          const existing = data.find((c: Conversation) => c.other_participant.user_id === contactId)
+          const { data: profile } = await supabase
+            .from('user_profiles')
+            .select('user_id, first_name, last_name, avatar_url')
+            .or(`id.eq.${contactId},user_id.eq.${contactId}`)
+            .maybeSingle()
+
+          const resolvedUserId = profile?.user_id || contactId;
+          const existing = data.find((c: Conversation) => c.other_participant.user_id === resolvedUserId || c.other_participant.id === contactId)
+          
           if (existing) {
             setSelectedConv(existing)
             setShowChatMobile(true)
           } else {
             // New conv placeholder
             setSelectedConv({
-              id: `new-${contactId}`,
+              id: `new-${resolvedUserId}`,
               participant1_id: currentUserId,
-              participant2_id: contactId,
+              participant2_id: resolvedUserId,
               unread_count: 0,
               updated_at: new Date().toISOString(),
               other_participant: {
-                id: contactId,
-                user_id: contactId,
-                first_name: "Nouveau",
-                last_name: "Contact",
-                avatar_url: ""
+                id: resolvedUserId,
+                user_id: resolvedUserId,
+                first_name: profile?.first_name || "Nouveau",
+                last_name: profile?.last_name || "Contact",
+                avatar_url: profile?.avatar_url || ""
               }
             })
             setShowChatMobile(true)
