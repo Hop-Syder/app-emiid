@@ -141,13 +141,13 @@ export default function LoginPage() {
           {/* Prismatic Glow Border Effect */}
           <div className="absolute -inset-[1px] bg-gradient-to-r from-blue-500 via-cyan-400 to-emerald-500 rounded-[2.5rem] opacity-10 blur-sm group-hover:opacity-30 transition-opacity duration-1000" />
           
-          <div className="relative bg-black/40 backdrop-blur-[40px] border border-white/[0.08] rounded-[2.5rem] p-8 lg:p-12 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.8)] overflow-hidden">
+          <div className="relative bg-black/40 backdrop-blur-[40px] border border-white/[0.08] rounded-[2.5rem] p-6 lg:p-8 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.8)] overflow-hidden">
             
             {/* Subtle Internal Reflection */}
             <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
             {/* Header & Logo */}
-            <div className="flex flex-col items-center gap-6 mb-12 text-center">
+            <div className="flex flex-col items-center gap-4 mb-8 text-center">
               <motion.div
                 whileHover={{ scale: 1.05, rotate: 2 }}
                 className="cursor-pointer"
@@ -161,8 +161,8 @@ export default function LoginPage() {
                 />
               </motion.div>
               
-              <div className="space-y-2">
-                <h1 className="text-3xl font-black tracking-tighter text-white">
+              <div className="space-y-1">
+                <h1 className="text-2xl font-black tracking-tighter text-white">
                   Bienvenue au Sommet
                 </h1>
                 <p className="text-zinc-400 font-medium text-sm tracking-wide">
@@ -172,7 +172,7 @@ export default function LoginPage() {
             </div>
 
             {/* Social Auth Grid */}
-            <div className="space-y-6">
+            <div className="space-y-4">
               {authError && (
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
@@ -183,7 +183,7 @@ export default function LoginPage() {
                 </motion.div>
               )}
 
-              <div className="grid grid-cols-1 gap-4">
+              <div className="grid grid-cols-1 gap-3">
                 {([
                   { id: "google", name: "Google", icon: "/login/google-icon.svg" },
                   { id: "linkedin_oidc", name: "LinkedIn", icon: "/login/linkedin.svg" },
@@ -199,7 +199,7 @@ export default function LoginPage() {
                       variant="outline"
                       disabled={providerLoading !== null && providerLoading !== providerData.id}
                       onClick={() => handleLogin(providerData.id)}
-                      className="relative w-full h-14 rounded-2xl bg-white/[0.05] border-white/10 hover:bg-white/[0.1] hover:border-white/20 text-white transition-all duration-300 group overflow-hidden"
+                      className="relative w-full h-12 rounded-2xl bg-white/[0.05] border-white/10 hover:bg-white/[0.1] hover:border-white/20 text-white transition-all duration-300 group overflow-hidden"
                     >
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                       
@@ -221,19 +221,19 @@ export default function LoginPage() {
               </div>
 
               {/* Divider */}
-              <div className="flex items-center gap-4 py-2 text-zinc-600">
+              <div className="flex items-center gap-4 py-1 text-zinc-600">
                 <div className="h-[1px] flex-1 bg-white/5" />
                 <Sparkles className="size-4 opacity-30" />
                 <div className="h-[1px] flex-1 bg-white/5" />
               </div>
 
               {/* Terms & Security */}
-              <div className="space-y-6">
+              <div className="space-y-4">
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={shakeCheckbox ? { x: [-10, 10, -10, 10, 0] } : { opacity: 1 }}
                   transition={shakeCheckbox ? { duration: 0.4 } : { delay: 0.8 }}
-                  className={`flex items-start gap-3 p-4 rounded-2xl bg-white/[0.02] border transition-colors ${shakeCheckbox ? "border-red-500/50 bg-red-500/5" : "border-white/5"}`}
+                  className={`flex items-start gap-3 p-3 rounded-2xl bg-white/[0.02] border transition-colors ${shakeCheckbox ? "border-red-500/50 bg-red-500/5" : "border-white/5"}`}
                 >
                   <Checkbox
                     id="terms"
@@ -242,9 +242,9 @@ export default function LoginPage() {
                       setAcceptedTerms(!!v)
                       if (v) setAuthError(null)
                     }}
-                    className={`mt-1 transition-colors data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 ${shakeCheckbox ? "border-red-500" : "border-white/20"}`}
+                    className={`mt-0.5 transition-colors data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 ${shakeCheckbox ? "border-red-500" : "border-white/20"}`}
                   />
-                  <label htmlFor="terms" className="text-[11px] leading-tight text-zinc-400 cursor-pointer">
+                  <label htmlFor="terms" className="text-[10px] leading-tight text-zinc-400 cursor-pointer">
                     J’accepte les{" "}
                     <Link href="/conditions" className="font-bold text-zinc-300 hover:text-white transition-colors underline underline-offset-2">
                       conditions d’utilisation
@@ -256,7 +256,7 @@ export default function LoginPage() {
                   </label>
                 </motion.div>
 
-                <div className="flex flex-col items-center gap-4">
+                <div className="flex flex-col items-center gap-2">
                   <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.3em] text-zinc-500">
                     <ShieldCheck className="size-3 text-emerald-500" />
                     Sécurité Chiffrée • Nexus Partners
@@ -271,7 +271,7 @@ export default function LoginPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.2 }}
-            className="mt-8 text-center text-zinc-500 text-xs font-medium"
+            className="mt-6 text-center text-zinc-500 text-xs font-medium"
           >
             Besoin d&apos;aide ? <Link href="#" className="text-white hover:underline">Contactez le support</Link>
           </motion.p>

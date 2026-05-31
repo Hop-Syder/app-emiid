@@ -20,7 +20,7 @@ import { CreerProfilPreview } from "./creer-profil-preview"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { getReferenceCountriesCached, type ReferenceCountry } from "@/lib/location-cache"
 import { toast } from "sonner"
-import { Dialog, DialogContent, DialogTrigger, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Eye } from "lucide-react"
 
 interface CreateProfileFormData {
@@ -428,6 +428,7 @@ export function CreerProfilContent() {
                         </DialogTrigger>
                         <DialogContent className="p-0 border-none bg-transparent shadow-none max-w-sm mx-auto h-[80vh] flex flex-col justify-center">
                             <DialogTitle className="sr-only">Aperçu de la carte</DialogTitle>
+                            <DialogDescription className="sr-only">Aperçu en direct de votre carte EmiID.</DialogDescription>
                             <div className="overflow-y-auto w-full no-scrollbar rounded-3xl">
                                 <CreerProfilPreview formData={formData} />
                             </div>
