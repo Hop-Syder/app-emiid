@@ -112,8 +112,11 @@ export function EmiIDProfileCard({
       onClick={() => onAction?.('view')}
       className={cn(
         "relative w-full max-w-[280px] aspect-[1/1.3] mx-auto rounded-3xl cursor-pointer group transition-shadow duration-500",
-        // Base Glassmorphism (Dark)
-        "bg-white/5 backdrop-blur-xl border border-white/10 text-white shadow-xl hover:shadow-2xl overflow-hidden flex flex-col",
+        // Theme conditionally
+        variant === "tech" 
+          ? "bg-slate-900/90 backdrop-blur-xl border-slate-800 shadow-xl hover:shadow-blue-900/20 text-white" 
+          : "bg-white/80 backdrop-blur-xl border border-slate-200/60 text-slate-900 shadow-xl hover:shadow-2xl",
+        "overflow-hidden flex flex-col",
         className
       )}
     >
@@ -125,7 +128,7 @@ export function EmiIDProfileCard({
 
       {/* Top Banner Area (Minimalist) */}
       <div className="pt-6 pb-2 px-6 flex justify-between items-start z-10">
-        <span className="text-[10px] font-semibold tracking-widest uppercase text-white/50 bg-white/5 px-3 py-1 rounded-full border border-white/5">
+        <span className="text-[10px] font-semibold tracking-widest uppercase text-slate-500 bg-slate-100/50 px-3 py-1 rounded-full border border-slate-200/60">
           {category}
         </span>
         {variant !== "tech" && (
@@ -138,12 +141,12 @@ export function EmiIDProfileCard({
       {/* Avatar Section */}
       <div className="flex flex-col items-center mt-2 z-10 px-6">
         <div className="relative">
-          <Avatar className="h-24 w-24 border-2 border-white/10 shadow-2xl ring-4 ring-black/20">
+          <Avatar className="h-24 w-24 border-4 border-white shadow-xl ring-1 ring-slate-200/50">
             <AvatarImage src={getOptimizedImageUrl(user.avatar, { width: 200, height: 200 })} className="object-cover" />
-            <AvatarFallback className="bg-slate-800 text-white font-bold text-2xl">{name[0]}</AvatarFallback>
+            <AvatarFallback className="bg-slate-100 text-slate-900 font-bold text-2xl">{name[0]}</AvatarFallback>
           </Avatar>
           {user.verified && (
-            <div className={cn("absolute bottom-0 right-0 rounded-full p-1 shadow-lg bg-black border-2 border-slate-900", colors.borderAccent)}>
+            <div className={cn("absolute bottom-0 right-0 rounded-full p-1 shadow-lg bg-slate-900 border-2 border-white", colors.borderAccent)}>
               <Shield className={cn("h-4 w-4", colors.accent)} />
             </div>
           )}
@@ -152,23 +155,23 @@ export function EmiIDProfileCard({
 
       {/* Info Section */}
       <div className="flex-1 flex flex-col items-center text-center px-6 pt-4 pb-6 z-10">
-        <h3 className="text-xl font-bold tracking-tight text-white mb-1 line-clamp-1 w-full">
+        <h3 className={cn("text-xl font-bold tracking-tight mb-1 line-clamp-1 w-full", variant === "tech" ? "text-white" : "text-slate-900")}>
           {name}
         </h3>
-        <p className="text-xs font-medium text-white/60 uppercase tracking-widest line-clamp-1 w-full mb-4">
+        <p className={cn("text-xs font-medium uppercase tracking-widest line-clamp-1 w-full mb-4", variant === "tech" ? "text-slate-400" : "text-slate-500")}>
           {role}
         </p>
 
         {/* Minimal Stats */}
         <div className="flex items-center justify-center gap-6 mb-6">
           <div className="flex flex-col items-center">
-            <span className="text-base font-bold text-white">{user.followers || '0'}</span>
-            <span className="text-[9px] text-white/40 uppercase tracking-wider font-semibold">Abonnés</span>
+            <span className={cn("text-base font-bold", variant === "tech" ? "text-white" : "text-slate-900")}>{user.followers || '0'}</span>
+            <span className="text-[9px] text-slate-400 uppercase tracking-wider font-semibold">Abonnés</span>
           </div>
-          <div className="h-8 w-px bg-white/10" />
+          <div className={cn("h-8 w-px", variant === "tech" ? "bg-slate-700" : "bg-slate-200")} />
           <div className="flex flex-col items-center">
-            <span className="text-base font-bold text-white">{following}</span>
-            <span className="text-[9px] text-white/40 uppercase tracking-wider font-semibold">Suivis</span>
+            <span className={cn("text-base font-bold", variant === "tech" ? "text-white" : "text-slate-900")}>{following}</span>
+            <span className="text-[9px] text-slate-400 uppercase tracking-wider font-semibold">Suivis</span>
           </div>
         </div>
 
@@ -191,9 +194,14 @@ export function EmiIDProfileCard({
           <Button
             onClick={(e) => { e.stopPropagation(); onAction?.('message') }}
             variant="ghost"
-            className="flex-1 h-10 rounded-2xl bg-white/5 border border-white/10 hover:bg-blue-500/10 hover:border-blue-500/30 transition-all flex items-center justify-center gap-2 text-xs font-semibold text-white/70 hover:text-blue-400"
+            className={cn(
+              "flex-1 h-10 rounded-2xl border transition-all flex items-center justify-center gap-2 text-xs font-semibold",
+              variant === "tech"
+                ? "bg-slate-800/50 border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white"
+                : "bg-slate-50 border-slate-200/60 hover:bg-blue-50 hover:border-blue-200 text-slate-600 hover:text-blue-600"
+            )}
           >
-            <MessageSquare className="h-4 w-4 text-blue-400" />
+            <MessageSquare className="h-4 w-4 text-blue-500" />
             Message
           </Button>
         </div>

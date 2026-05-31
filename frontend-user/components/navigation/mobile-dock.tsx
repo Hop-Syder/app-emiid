@@ -7,11 +7,11 @@ import { Home, MessageSquare, Wallet, Settings, User, Users, UserPlus, LogIn , B
 
 const privateNavItems = [
   { name: "Hub", href: "/dashboard-user", icon: Home },
+  { name: "Annuaire", href: "/annuaire", icon: Users },
   { name: "Messages", href: "/messages", icon: MessageSquare },
   { name: "Notifications", href: "/notifications", icon: Bell },
   { name: "Portefeuille", href: "/portefeuille", icon: Wallet },
   { name: "Profil", href: "/dashboard-user?view=profile", icon: User },
-  { name: "Paramètres", href: "/parametres", icon: Settings },
 ]
 
 const publicNavItems = [

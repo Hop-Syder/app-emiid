@@ -43,20 +43,20 @@ export function DashboardBentoHeader({ stats, statsLoading }: DashboardBentoHead
     const displayName = userName ? ` ${userName}` : ""
 
     const statsItems = stats ? [
-        { label: "Membres",  value: stats.totalEntrepreneurs || 0, icon: Users,      color: "text-emerald-400", bg: "bg-emerald-400/10", ring: "ring-emerald-400/20" },
-        { label: "Vérifiés", value: stats.verifiedMembers    || 0, icon: BadgeCheck, color: "text-amber-400",   bg: "bg-amber-400/10",   ring: "ring-amber-400/20"   },
-        { label: "Pays",     value: stats.countriesCovered   || 0, icon: Globe,      color: "text-indigo-400",  bg: "bg-indigo-400/10",  ring: "ring-indigo-400/20"  },
-        { label: "Premium",  value: stats.premiumMembers     || 0, icon: Crown,      color: "text-rose-400",    bg: "bg-rose-400/10",    ring: "ring-rose-400/20"    },
+        { label: "Membres", value: stats.totalEntrepreneurs || 0, icon: Users, color: "text-emerald-400", bg: "bg-emerald-400/10", ring: "ring-emerald-400/20" },
+        { label: "Vérifiés", value: stats.verifiedMembers || 0, icon: BadgeCheck, color: "text-amber-400", bg: "bg-amber-400/10", ring: "ring-amber-400/20" },
+        { label: "Pays", value: stats.countriesCovered || 0, icon: Globe, color: "text-indigo-400", bg: "bg-indigo-400/10", ring: "ring-indigo-400/20" },
+        { label: "Premium", value: stats.premiumMembers || 0, icon: Crown, color: "text-rose-400", bg: "bg-rose-400/10", ring: "ring-rose-400/20" },
     ] : []
 
     const containerVariants: Variants = {
         hidden: { opacity: 0 },
-        show:   { opacity: 1, transition: { staggerChildren: 0.08 } }
+        show: { opacity: 1, transition: { staggerChildren: 0.08 } }
     }
 
     const itemVariants: Variants = {
         hidden: { opacity: 0, y: 16 },
-        show:   { opacity: 1, y: 0, transition: { type: "spring", stiffness: 340, damping: 28 } }
+        show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 340, damping: 28 } }
     }
 
     return (
@@ -142,8 +142,11 @@ export function DashboardBentoHeader({ stats, statsLoading }: DashboardBentoHead
                             transition={{ type: "spring", stiffness: 400, damping: 20 }}
                             className={`relative overflow-hidden rounded-2xl bg-[url('/dashboard/background-2.svg')] bg-cover bg-center border border-white/8 px-5 py-4 flex items-center gap-4 shadow-lg cursor-default group ring-1 ${stat.ring}`}
                         >
+                            {/* Filtre noir 50% pour lisibilité */}
+                            <div className="absolute inset-0 bg-black/50 pointer-events-none" />
+
                             {/* Glow au survol */}
-                            <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${stat.bg} blur-2xl scale-150`} />
+                            <div className={`absolute inset-0 opacity-5 group-hover:opacity-100 transition-opacity duration-500 ${stat.bg} blur-2xl scale-150`} />
 
                             {/* Icône colorée */}
                             <div className={`relative shrink-0 p-2 rounded-xl ${stat.bg} ${stat.color} ring-1 ${stat.ring}`}>

@@ -11,6 +11,7 @@
 "use client"
 
 import { Search, X } from "lucide-react"
+import { useEffect, useRef } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -31,6 +32,21 @@ interface AnnuaireFiltersProps {
 }
 
 export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProps) {
+    const searchInputRef = useRef<HTMLInputElement>(null)
+
+    // Intercept Cmd+K / Ctrl+K to focus this search bar when on this page
+    useEffect(() => {
+        const down = (e: KeyboardEvent) => {
+            if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+                e.preventDefault()
+                // Prevent the event from bubbling up to the global Command Palette
+                e.stopPropagation() 
+                searchInputRef.current?.focus()
+            }
+        }
+        document.addEventListener("keydown", down, { capture: true })
+        return () => document.removeEventListener("keydown", down, { capture: true })
+    }, [])
 
     // Wrapper simple pour LocationSelector qui attend un objet {name, isoCode}
     const handleLocationSelect = (country: { name: string, isoCode: string }, city: string) => {
@@ -56,15 +72,21 @@ export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProp
                         <div className="flex-[2] relative group">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-primary transition-colors" />
                             <Input
+                                ref={searchInputRef}
                                 id="annuaire-keyword-search"
                                 name="annuaire_keyword"
                                 autoComplete="off"
-                                placeholder="Rechercher un talent (Nom, Rôle, Bio...)"
+                                placeholder="Recherche intelligente (Nom, Bio, Compétence...)"
                                 aria-label="Rechercher par mot-clé"
-                                className="pl-12 h-12 md:h-14 rounded-full bg-white/80 border-white/40 focus-visible:ring-primary shadow-inner text-base"
+                                className="pl-12 pr-16 h-12 md:h-14 rounded-full bg-white/80 border-white/40 focus-visible:ring-primary shadow-inner text-base"
                                 value={filters.search}
                                 onChange={(e) => onFilterChange("search", e.target.value)}
                             />
+                            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none hidden sm:flex items-center">
+                                <kbd className="inline-flex h-6 select-none items-center gap-1 rounded bg-slate-100 px-2 font-mono text-[11px] font-bold text-slate-500 border border-slate-200">
+                                    <span className="text-sm leading-none">⌘</span>K
+                                </kbd>
+                            </div>
                         </div>
                         <div className="flex-1">
                             <Input
