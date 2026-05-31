@@ -302,7 +302,7 @@ export function MessagesContent() {
     }
   }
 
-  const handleSendMessage = async (content: string, file?: File) => {
+  const handleSendMessage = async (content: string, type?: "text" | "emoji", file?: File) => {
     if (!selectedConv || (!content.trim() && !file)) return
     
     const isNewConv = selectedConv.id.startsWith('new-')
