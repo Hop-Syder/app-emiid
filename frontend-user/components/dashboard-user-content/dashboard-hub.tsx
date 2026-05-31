@@ -16,10 +16,7 @@ import type { PublicProfile } from "@/types"
 
 import { DashboardBentoHeader } from "./dashboard-bento-header"
 import { EntrepreneursSection } from "./entrepreneurs-section"
-
-import { AnnuaireFilters } from "@/components/annuaire-public-content/annuaire-filters"
-import { AnnuaireGrid } from "@/components/annuaire-public-content/annuaire-grid"
-import { Sparkles, Network } from "lucide-react"
+import { Sparkles } from "lucide-react"
 
 interface DashboardHubContentProps {
   initialDirectoryProfiles: PublicProfile[]
@@ -136,40 +133,6 @@ export function DashboardHubContent({
             />
           </div>
         )}
-      </div>
-
-      {/* =========================================
-          SECTION 3 : ANNUAIRE GLOBAL (GRILLE)
-          ========================================= */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-24 mb-12 space-y-6">
-        <div className="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-xl border border-slate-100 relative overflow-hidden">
-          {/* Subtle background decoration */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-slate-50 rounded-full blur-3xl -mr-20 -mt-20"></div>
-
-          <div className="mb-10 relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div>
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl">
-                  <Network className="w-6 h-6" />
-                </div>
-                <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
-                  L'Annuaire Global
-                </h2>
-              </div>
-              <p className="text-slate-500 font-medium text-lg max-w-2xl">
-                Recherchez, filtrez et connectez-vous avec l'ensemble des membres certifiés du réseau EmiID.
-              </p>
-            </div>
-          </div>
-          
-          <div className="relative z-10">
-            <AnnuaireFilters filters={filters} onFilterChange={handleFilterChange} />
-          </div>
-          
-          <div className="mt-10 relative z-10">
-            <AnnuaireGrid filters={filters} initialProfiles={initialDirectoryProfiles} />
-          </div>
-        </div>
       </div>
     </div>
   )
