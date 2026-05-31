@@ -125,9 +125,29 @@ export function AnnuaireGrid({ filters, initialProfiles = [] }: AnnuaireGridProp
 
     if (loading) {
         return (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {Array.from({ length: 12 }).map((_, i) => (
-                    <div key={i} className="aspect-[1/1.4] w-full bg-slate-100 animate-pulse rounded-3xl" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 xl:gap-8 justify-items-center w-full">
+                {Array.from({ length: 8 }).map((_, i) => (
+                    <motion.div 
+                        key={`skeleton-${i}`} 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.05, duration: 0.3 }}
+                        className="w-full max-w-[320px] aspect-[1/1.4] bg-white rounded-[2rem] border border-slate-100/50 shadow-sm overflow-hidden flex flex-col"
+                    >
+                        <div className="h-[100px] w-full bg-slate-200/50 animate-pulse" />
+                        <div className="flex-1 p-5 relative">
+                            <div className="absolute -top-12 left-5 w-20 h-20 rounded-full bg-slate-300/50 animate-pulse border-4 border-white" />
+                            <div className="mt-10 space-y-3">
+                                <div className="h-5 w-3/4 bg-slate-200/60 rounded-md animate-pulse" />
+                                <div className="h-4 w-1/2 bg-slate-200/40 rounded-md animate-pulse" />
+                            </div>
+                            <div className="mt-6 space-y-2">
+                                <div className="h-3 w-full bg-slate-100 rounded-md animate-pulse" />
+                                <div className="h-3 w-full bg-slate-100 rounded-md animate-pulse" />
+                                <div className="h-3 w-2/3 bg-slate-100 rounded-md animate-pulse" />
+                            </div>
+                        </div>
+                    </motion.div>
                 ))}
             </div>
         )
@@ -148,14 +168,20 @@ export function AnnuaireGrid({ filters, initialProfiles = [] }: AnnuaireGridProp
     }
 
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 justify-items-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 xl:gap-8 justify-items-center w-full">
             {profiles.map((profile, index) => (
                 <motion.div
                     key={profile.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: index * 0.05 }}
-                    className="w-full"
+                    initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ 
+                        duration: 0.5, 
+                        delay: index * 0.08,
+                        type: "spring",
+                        stiffness: 100,
+                        damping: 15
+                    }}
+                    className="w-full max-w-[320px]"
                 >
                     <AnnuaireCard profile={profile} />
                 </motion.div>
