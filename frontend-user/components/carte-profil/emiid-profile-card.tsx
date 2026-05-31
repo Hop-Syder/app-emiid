@@ -1,17 +1,6 @@
-/**
- * @author @hopsyder
- * @organization Nexus Partners
- * @description Carte de profil unifiée avec variations de design (Elite, Glass, Tech) - EmiID
- * @created 2026-03-23
- * @updated 2026-05-24
- * 🌐 ceo.nexuspartners.xyz
- * 📧 daoudaabassichristian@gmail.com
- * ──────────────────────────────────
- */
-
 "use client"
 
-import { Shield, Plus, Check, MessageSquare, ArrowRight } from "lucide-react"
+import { Shield, Plus, Check, MessageSquare, ArrowRight, Award } from "lucide-react"
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -41,24 +30,43 @@ interface EmiIDProfileCardProps {
   className?: string
 }
 
-const VARIANT_COLORS = {
+// Configuration visuelle distincte pour chaque variant
+const VARIANT_STYLES = {
   tech: {
-    accent: "text-orange-500",
-    bgAccent: "bg-orange-500",
-    borderAccent: "border-orange-500/20",
-    glow: "rgba(249, 115, 22, 0.15)",
+    // Cyber / Modern Dark
+    wrapper: "bg-slate-900/80 backdrop-blur-2xl border-slate-800 shadow-2xl hover:shadow-blue-500/10 hover:border-slate-700",
+    textPrimary: "text-white",
+    textSecondary: "text-slate-400",
+    divider: "bg-slate-800",
+    glow: "rgba(59, 130, 246, 0.2)",
+    badge: "text-blue-400 bg-blue-500/10 border-blue-500/20",
+    accent: "text-blue-500",
+    btnPrimary: "bg-blue-600 text-white hover:bg-blue-500",
+    btnSecondary: "bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700 hover:text-white"
   },
   glass: {
-    accent: "text-blue-500",
-    bgAccent: "bg-blue-500",
-    borderAccent: "border-blue-500/20",
-    glow: "rgba(59, 130, 246, 0.15)",
+    // Cristal / Frosted Glass (Lisibilité parfaite)
+    wrapper: "bg-white/60 backdrop-blur-3xl border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:shadow-[0_8px_40px_rgb(0,0,0,0.12)] hover:border-white",
+    textPrimary: "text-slate-900",
+    textSecondary: "text-slate-500",
+    divider: "bg-slate-200/60",
+    glow: "rgba(255, 255, 255, 0.8)",
+    badge: "text-emerald-600 bg-emerald-50 border-emerald-100",
+    accent: "text-emerald-500",
+    btnPrimary: "bg-emerald-500 text-white hover:bg-emerald-600",
+    btnSecondary: "bg-white/80 border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-emerald-600"
   },
   elite: {
-    accent: "text-amber-500",
-    bgAccent: "bg-amber-500",
-    borderAccent: "border-amber-500/20",
+    // Obsidian & Gold (Luxe)
+    wrapper: "bg-stone-950/95 backdrop-blur-2xl border-stone-800 shadow-[0_8px_30px_rgba(245,158,11,0.05)] hover:shadow-[0_8px_40px_rgba(245,158,11,0.15)] hover:border-amber-500/40",
+    textPrimary: "text-stone-50",
+    textSecondary: "text-stone-400",
+    divider: "bg-stone-800",
     glow: "rgba(245, 158, 11, 0.15)",
+    badge: "text-amber-400 bg-amber-500/10 border-amber-500/20",
+    accent: "text-amber-500",
+    btnPrimary: "bg-gradient-to-r from-amber-500 to-yellow-500 text-stone-950 hover:from-amber-400 hover:to-yellow-400 font-bold",
+    btnSecondary: "bg-stone-900 border-stone-800 text-stone-300 hover:bg-stone-800 hover:text-amber-400"
   },
 }
 
@@ -74,7 +82,7 @@ export function EmiIDProfileCard({
   const category = user.category || "EmiID"
   const following = user.following || 0
 
-  const colors = VARIANT_COLORS[variant] || VARIANT_COLORS.tech
+  const styles = VARIANT_STYLES[variant] || VARIANT_STYLES.tech
 
   // Framer Motion 3D Tilt Logic
   const x = useMotionValue(0)
@@ -111,43 +119,38 @@ export function EmiIDProfileCard({
       onMouseLeave={handleMouseLeave}
       onClick={() => onAction?.('view')}
       className={cn(
-        "relative w-full max-w-[280px] aspect-[1/1.3] mx-auto rounded-3xl cursor-pointer group transition-shadow duration-500",
-        // Theme conditionally
-        variant === "tech" 
-          ? "bg-slate-900/90 backdrop-blur-xl border-slate-800 shadow-xl hover:shadow-blue-900/20 text-white" 
-          : "bg-white/80 backdrop-blur-xl border border-slate-200/60 text-slate-900 shadow-xl hover:shadow-2xl",
-        "overflow-hidden flex flex-col",
+        "relative w-full max-w-[280px] aspect-[1/1.3] mx-auto rounded-[2rem] cursor-pointer group transition-all duration-500",
+        styles.wrapper,
+        "overflow-hidden flex flex-col border",
         className
       )}
     >
       {/* Subtle Glow Effect */}
       <div 
-        className="absolute top-0 inset-x-0 h-48 opacity-40 blur-3xl pointer-events-none transition-opacity duration-500 group-hover:opacity-60"
-        style={{ background: `radial-gradient(circle at 50% 0%, ${colors.glow}, transparent)` }}
+        className="absolute top-0 inset-x-0 h-48 opacity-40 blur-3xl pointer-events-none transition-opacity duration-500 group-hover:opacity-80"
+        style={{ background: `radial-gradient(circle at 50% 0%, ${styles.glow}, transparent)` }}
       />
 
-      {/* Top Banner Area (Minimalist) */}
+      {/* Top Banner Area */}
       <div className="pt-6 pb-2 px-6 flex justify-between items-start z-10">
-        <span className="text-[10px] font-semibold tracking-widest uppercase text-slate-500 bg-slate-100/50 px-3 py-1 rounded-full border border-slate-200/60">
+        <span className={cn("text-[10px] font-bold tracking-widest uppercase px-3 py-1 rounded-full border", styles.badge)}>
           {category}
         </span>
-        {variant !== "tech" && (
-          <span className={cn("text-[10px] font-bold tracking-widest uppercase", colors.accent)}>
-            {variant}
-          </span>
+        {variant === "elite" && (
+          <Award className="w-5 h-5 text-amber-500 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
         )}
       </div>
 
       {/* Avatar Section */}
       <div className="flex flex-col items-center mt-2 z-10 px-6">
         <div className="relative">
-          <Avatar className="h-24 w-24 border-4 border-white shadow-xl ring-1 ring-slate-200/50">
+          <Avatar className={cn("h-24 w-24 border-4 shadow-xl ring-1 ring-white/10", variant === "elite" ? "border-stone-900" : "border-white")}>
             <AvatarImage src={getOptimizedImageUrl(user.avatar, { width: 200, height: 200 })} className="object-cover" />
             <AvatarFallback className="bg-slate-100 text-slate-900 font-bold text-2xl">{name[0]}</AvatarFallback>
           </Avatar>
           {user.verified && (
-            <div className={cn("absolute bottom-0 right-0 rounded-full p-1 shadow-lg bg-slate-900 border-2 border-white", colors.borderAccent)}>
-              <Shield className={cn("h-4 w-4", colors.accent)} />
+            <div className={cn("absolute bottom-0 right-0 rounded-full p-1 shadow-lg border-2", variant === "elite" ? "bg-stone-900 border-stone-800" : "bg-white border-slate-100")}>
+              <Shield className={cn("h-4 w-4", styles.accent)} />
             </div>
           )}
         </div>
@@ -155,23 +158,23 @@ export function EmiIDProfileCard({
 
       {/* Info Section */}
       <div className="flex-1 flex flex-col items-center text-center px-6 pt-4 pb-6 z-10">
-        <h3 className={cn("text-xl font-bold tracking-tight mb-1 line-clamp-1 w-full", variant === "tech" ? "text-white" : "text-slate-900")}>
+        <h3 className={cn("text-xl font-bold tracking-tight mb-1 line-clamp-1 w-full", styles.textPrimary)}>
           {name}
         </h3>
-        <p className={cn("text-xs font-medium uppercase tracking-widest line-clamp-1 w-full mb-4", variant === "tech" ? "text-slate-400" : "text-slate-500")}>
+        <p className={cn("text-xs font-medium uppercase tracking-widest line-clamp-1 w-full mb-4", styles.textSecondary)}>
           {role}
         </p>
 
         {/* Minimal Stats */}
         <div className="flex items-center justify-center gap-6 mb-6">
           <div className="flex flex-col items-center">
-            <span className={cn("text-base font-bold", variant === "tech" ? "text-white" : "text-slate-900")}>{user.followers || '0'}</span>
-            <span className="text-[9px] text-slate-400 uppercase tracking-wider font-semibold">Abonnés</span>
+            <span className={cn("text-base font-bold", styles.textPrimary)}>{user.followers || '0'}</span>
+            <span className={cn("text-[9px] uppercase tracking-wider font-semibold", styles.textSecondary)}>Abonnés</span>
           </div>
-          <div className={cn("h-8 w-px", variant === "tech" ? "bg-slate-700" : "bg-slate-200")} />
+          <div className={cn("h-8 w-px", styles.divider)} />
           <div className="flex flex-col items-center">
-            <span className={cn("text-base font-bold", variant === "tech" ? "text-white" : "text-slate-900")}>{following}</span>
-            <span className="text-[9px] text-slate-400 uppercase tracking-wider font-semibold">Suivis</span>
+            <span className={cn("text-base font-bold", styles.textPrimary)}>{following}</span>
+            <span className={cn("text-[9px] uppercase tracking-wider font-semibold", styles.textSecondary)}>Suivis</span>
           </div>
         </div>
 
@@ -180,29 +183,26 @@ export function EmiIDProfileCard({
           <Button 
             onClick={(e) => { e.stopPropagation(); onAction?.('follow') }}
             className={cn(
-              "shrink-0 px-4 h-10 rounded-2xl font-bold text-xs transition-all border-none text-white shadow-lg",
-              colors.bgAccent, 
-              "hover:brightness-110"
+              "flex-1 h-10 px-2 rounded-2xl font-bold text-[11px] transition-all border-none shadow-lg",
+              styles.btnPrimary
             )}
           >
             {isFollowed ? (
-              <><Check className="h-3.5 w-3.5 mr-1.5" /> Suivi</>
+              <><Check className="h-3.5 w-3.5 mr-1 shrink-0" /> <span className="truncate">Suivi</span></>
             ) : (
-              <><Plus className="h-3.5 w-3.5 mr-1.5" /> Suivre</>
+              <><Plus className="h-3.5 w-3.5 mr-1 shrink-0" /> <span className="truncate">Suivre</span></>
             )}
           </Button>
           <Button
             onClick={(e) => { e.stopPropagation(); onAction?.('message') }}
             variant="ghost"
             className={cn(
-              "flex-1 h-10 rounded-2xl border transition-all flex items-center justify-center gap-2 text-xs font-semibold",
-              variant === "tech"
-                ? "bg-slate-800/50 border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white"
-                : "bg-slate-50 border-slate-200/60 hover:bg-blue-50 hover:border-blue-200 text-slate-600 hover:text-blue-600"
+              "flex-1 h-10 px-2 rounded-2xl border transition-all flex items-center justify-center gap-1.5 text-[11px] font-semibold",
+              styles.btnSecondary
             )}
           >
-            <MessageSquare className="h-4 w-4 text-blue-500" />
-            Message
+            <MessageSquare className={cn("h-3.5 w-3.5 shrink-0", styles.accent)} />
+            <span className="truncate">Message</span>
           </Button>
         </div>
       </div>

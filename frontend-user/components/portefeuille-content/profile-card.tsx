@@ -119,18 +119,18 @@ export function ProfileCard({ profile, onUnfollow, onViewProfile, onSaveNote, on
                         size="sm"
                         onClick={(e) => { e.stopPropagation(); onMessage?.(profile.id) }}
                         className={cn(
-                            "flex-1 h-10 rounded-xl font-bold text-xs transition-all shadow-md",
+                            "flex-1 h-10 rounded-xl font-bold text-xs transition-all shadow-md px-2",
                             profile.premium ? "bg-amber-500 text-black hover:bg-amber-400" : "bg-blue-600 text-white hover:bg-blue-500"
                         )}
                     >
-                        <Mail className="h-4 w-4 mr-2" /> Message
+                        <Mail className="h-4 w-4 mr-1 shrink-0" /> <span className="truncate">Message</span>
                     </Button>
                     <Button
                         size="icon"
                         variant="outline"
                         onClick={(e) => { e.stopPropagation(); onUnfollow?.(profile.id) }}
                         className={cn(
-                            "h-10 w-10 rounded-xl transition-all",
+                            "h-10 w-10 shrink-0 rounded-xl transition-all",
                             profile.premium ? "border-white/10 text-white/50 hover:bg-white/10" : "border-slate-200 text-slate-400 hover:bg-slate-100"
                         )}
                     >
