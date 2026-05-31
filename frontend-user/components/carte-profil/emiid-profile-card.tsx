@@ -172,28 +172,29 @@ export function EmiIDProfileCard({
           </div>
         </div>
 
-        {/* Action Buttons (Icon-based & Minimal) */}
+        {/* Action Buttons */}
         <div className="w-full flex gap-2 mt-auto">
           <Button 
             onClick={(e) => { e.stopPropagation(); onAction?.('follow') }}
             className={cn(
-              "flex-1 h-10 rounded-2xl font-bold text-xs transition-all border-none text-white shadow-lg",
+              "shrink-0 px-4 h-10 rounded-2xl font-bold text-xs transition-all border-none text-white shadow-lg",
               colors.bgAccent, 
               "hover:brightness-110"
             )}
           >
             {isFollowed ? (
-              <><Check className="h-4 w-4 mr-2" /> Suivi</>
+              <><Check className="h-3.5 w-3.5 mr-1.5" /> Suivi</>
             ) : (
-              <><Plus className="h-4 w-4 mr-2" /> Suivre</>
+              <><Plus className="h-3.5 w-3.5 mr-1.5" /> Suivre</>
             )}
           </Button>
           <Button
             onClick={(e) => { e.stopPropagation(); onAction?.('message') }}
             variant="ghost"
-            className="h-10 w-10 shrink-0 p-0 rounded-2xl bg-white/5 border border-white/10 text-white hover:bg-white/10 hover:text-white transition-colors"
+            className="flex-1 h-10 rounded-2xl bg-white/5 border border-white/10 hover:bg-blue-500/10 hover:border-blue-500/30 transition-all flex items-center justify-center gap-2 text-xs font-semibold text-white/70 hover:text-blue-400"
           >
-            <MessageSquare className="h-4 w-4" />
+            <MessageSquare className="h-4 w-4 text-blue-400" />
+            Message
           </Button>
         </div>
       </div>
