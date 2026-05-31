@@ -1,16 +1,13 @@
-import { PinGate } from "@/components/PinGate"
 import { NavigationShell } from "@/components/navigation/navigation-shell"
 
-export default function DashboardLayout({
+export default function MessagesLayout({
     children,
 }: {
     children: React.ReactNode
 }) {
     return (
         <NavigationShell>
-            <PinGate>
-                {children}
-            </PinGate>
+            {children}
         </NavigationShell>
     )
 }
