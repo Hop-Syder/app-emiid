@@ -96,35 +96,37 @@ export function DashboardBentoHeader({ stats, statsLoading }: DashboardBentoHead
             {/* HERO TILE */}
             <motion.div 
                 variants={itemVariants}
-                className="lg:col-span-2 relative overflow-hidden rounded-[2rem] p-8 md:p-10 text-white flex flex-col justify-center shadow-2xl bg-blue-600 bg-[url('/dashboard/background-1.svg')] bg-cover bg-center"
+                className="lg:col-span-2 relative overflow-hidden rounded-[2.5rem] p-8 md:p-12 text-white min-h-[320px] flex flex-col justify-center shadow-2xl bg-blue-600 bg-[url('/dashboard/background-1.svg')] bg-cover bg-center"
             >
-                <div className="absolute inset-0 bg-blue-900/40 z-0" />
+                {/* Overlay sophistiqué pour la lisibilité et la profondeur */}
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-950/90 via-blue-900/60 to-transparent z-0 mix-blend-multiply" />
+                <div className="absolute inset-0 bg-gradient-to-t from-blue-900/50 to-transparent z-0" />
 
-                <div className="relative z-10 flex flex-col gap-8">
-                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight">
+                <div className="relative z-10 flex flex-col gap-8 w-full max-w-2xl">
+                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter leading-[1.1]">
                         {greeting}{displayName}, <br className="hidden md:block" />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-white">
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-100 to-white drop-shadow-sm">
                             prêt à networker ?
                         </span>
                     </h2>
                     
-                    <div className="flex items-center gap-4">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                         <Button
-                            className="rounded-xl bg-white text-blue-950 hover:bg-slate-100 px-5 h-12 shadow-[0_0_20px_rgba(255,255,255,0.15)] font-bold transition-all hover:scale-[1.02]"
+                            className="rounded-2xl bg-white text-blue-950 hover:bg-slate-50 px-6 h-14 shadow-xl font-extrabold transition-all hover:scale-[1.02] text-base"
                             onClick={() => {
                                 const event = new KeyboardEvent('keydown', { key: 'k', metaKey: true })
                                 document.dispatchEvent(event)
                             }}
                         >
-                            <Search className="w-4 h-4 mr-2" />
+                            <Search className="w-5 h-5 mr-2" />
                             Recherche Rapide
-                            <kbd className="ml-2 pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded bg-slate-200 px-1.5 font-mono text-[10px] font-medium text-slate-600">
+                            <kbd className="ml-3 pointer-events-none inline-flex h-6 select-none items-center gap-1 rounded bg-blue-50 px-2 font-mono text-xs font-bold text-blue-600/70 border border-blue-100">
                                 <span>⌘</span>K
                             </kbd>
                         </Button>
                         <Button
                             variant="outline"
-                            className="rounded-xl bg-slate-900/30 border-white/20 text-white hover:bg-slate-800/50 px-5 h-12 backdrop-blur-md font-bold transition-all hover:border-white/40"
+                            className="rounded-2xl bg-white/5 border-white/20 text-white hover:bg-white/10 px-6 h-14 backdrop-blur-lg font-bold transition-all hover:border-white/40 text-base"
                             onClick={() => router.push("/profil/me")}
                         >
                             Mon Profil
