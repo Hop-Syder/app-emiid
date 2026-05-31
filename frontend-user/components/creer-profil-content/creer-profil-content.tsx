@@ -20,6 +20,8 @@ import { CreerProfilPreview } from "./creer-profil-preview"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { getReferenceCountriesCached, type ReferenceCountry } from "@/lib/location-cache"
 import { toast } from "sonner"
+import { Dialog, DialogContent, DialogTrigger, DialogTitle } from "@/components/ui/dialog"
+import { Eye } from "lucide-react"
 
 interface CreateProfileFormData {
     name: string
@@ -409,7 +411,28 @@ export function CreerProfilContent() {
                         publishing={publishing}
                         unpublishing={unpublishing}
                     />
-                    <CreerProfilPreview formData={formData} />
+                    
+                    {/* Desktop Preview */}
+                    <div className="hidden lg:block">
+                        <CreerProfilPreview formData={formData} />
+                    </div>
+                </div>
+
+                {/* Mobile Floating Action Button for Preview */}
+                <div className="lg:hidden fixed bottom-[90px] right-4 z-[60]">
+                    <Dialog>
+                        <DialogTrigger asChild>
+                            <button className="bg-primary text-primary-foreground p-4 rounded-full shadow-2xl flex items-center justify-center hover:scale-105 transition-transform" aria-label="Voir l'aperçu">
+                                <Eye className="w-6 h-6" />
+                            </button>
+                        </DialogTrigger>
+                        <DialogContent className="p-0 border-none bg-transparent shadow-none max-w-sm mx-auto h-[80vh] flex flex-col justify-center">
+                            <DialogTitle className="sr-only">Aperçu de la carte</DialogTitle>
+                            <div className="overflow-y-auto w-full no-scrollbar rounded-3xl">
+                                <CreerProfilPreview formData={formData} />
+                            </div>
+                        </DialogContent>
+                    </Dialog>
                 </div>
             </motion.div>
         </div>

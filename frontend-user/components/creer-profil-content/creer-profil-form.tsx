@@ -381,7 +381,7 @@ export function CreerProfilForm({
                 </div>
 
                 {/* Major Actions */}
-                <div className="flex flex-col sm:flex-row gap-4 pt-8 border-t border-slate-100">
+                <div className="flex flex-col sm:flex-row gap-4 pt-8 pb-4 lg:pb-0 border-t border-slate-100 sticky bottom-0 z-50 bg-white/80 backdrop-blur-md p-4 lg:static lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
                     <Button
                         onClick={handleSave}
                         variant="outline"
