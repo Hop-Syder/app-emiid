@@ -12,7 +12,7 @@
 
 import { motion } from "framer-motion"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { EmiIDProfileCard, EmiIDCardVariant } from "@/components/carte-profil/emiid-profile-card"
 import { fetchWithAuth } from "@/lib/apiClient"
@@ -21,7 +21,7 @@ import { useCurrentUserProfile } from "@/hooks/use-current-user-profile"
 import type { PublicProfile } from "@/types"
 
 import { EmptyState } from "@/components/EmptyState"
-import { Users } from "lucide-react"
+import { Users, ChevronLeft, ChevronRight } from "lucide-react"
 
 interface EntrepreneursSectionProps {
     entrepreneursList: PublicProfile[]
@@ -33,10 +33,20 @@ export function EntrepreneursSection({ entrepreneursList, loading, variant = "te
     const router = useRouter()
     const { session } = useCurrentUserProfile()
     const [profiles, setProfiles] = useState(entrepreneursList)
+    const scrollRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         setProfiles(entrepreneursList)
     }, [entrepreneursList])
+
+    const scroll = (direction: "left" | "right") => {
+        if (scrollRef.current) {
+            const { current } = scrollRef
+            // Approximate width of card + gap
+            const scrollAmount = direction === "left" ? -300 : 300
+            current.scrollBy({ left: scrollAmount, behavior: "smooth" })
+        }
+    }
 
     const handleCardAction = async (type: 'message' | 'follow' | 'view', entrepreneurId?: string) => {
         if (!entrepreneurId) return
@@ -109,8 +119,20 @@ export function EntrepreneursSection({ entrepreneursList, loading, variant = "te
                     ))}
                 </div>
             ) : profiles.length > 0 ? (
-                <div className="flex overflow-x-auto pb-10 pt-4 px-4 -mx-4 gap-6 snap-x no-scrollbar w-full">
-                    {profiles.map((entrepreneur, index) => (
+                <div className="relative group/carousel">
+                    {/* Flèche gauche */}
+                    <button
+                        onClick={() => scroll("left")}
+                        className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 h-10 w-10 items-center justify-center rounded-full bg-slate-900/90 text-white/90 border border-white/10 shadow-xl opacity-0 group-hover/carousel:opacity-100 transition-all hover:bg-slate-800 hover:text-white backdrop-blur-md"
+                    >
+                        <ChevronLeft className="h-5 w-5" />
+                    </button>
+
+                    <div 
+                        ref={scrollRef}
+                        className="flex overflow-x-auto pb-10 pt-4 px-4 -mx-4 gap-6 snap-x no-scrollbar w-full scroll-smooth"
+                    >
+                        {profiles.map((entrepreneur, index) => (
                         <motion.div
                             key={entrepreneur.id}
                             initial={{ opacity: 0, scale: 0.95 }}
@@ -145,6 +167,15 @@ export function EntrepreneursSection({ entrepreneursList, loading, variant = "te
                             </div>
                         </motion.div>
                     ))}
+                    </div>
+
+                    {/* Flèche droite */}
+                    <button
+                        onClick={() => scroll("right")}
+                        className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 h-10 w-10 items-center justify-center rounded-full bg-slate-900/90 text-white/90 border border-white/10 shadow-xl opacity-0 group-hover/carousel:opacity-100 transition-all hover:bg-slate-800 hover:text-white backdrop-blur-md"
+                    >
+                        <ChevronRight className="h-5 w-5" />
+                    </button>
                 </div>
             ) : (
                 <EmptyState 
