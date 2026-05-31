@@ -87,14 +87,20 @@ export function DashboardBentoHeader({ stats, statsLoading }: DashboardBentoHead
     }
 
     return (
-        <motion.div
-
+        <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            animate="show"
+            className="grid grid-cols-1 lg:grid-cols-3 gap-6"
         >
             {/* HERO TILE */}
-            <motion.div
+            <motion.div 
                 variants={itemVariants}
                 className="lg:col-span-2 relative overflow-hidden rounded-[2.5rem] p-8 md:p-12 text-white min-h-[420px] flex flex-col justify-end pb-12 shadow-2xl border border-white/20 bg-[url('/dashboard/background-1.svg')] bg-cover bg-center"
             >
+                {/* Overlay sophistiqué pour la lisibilité et la profondeur */}
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-950/90 via-blue-900/60 to-transparent z-0 mix-blend-multiply" />
+                <div className="absolute inset-0 bg-gradient-to-t from-blue-900/60 to-transparent z-0" />
 
                 <div className="relative z-10 flex flex-col gap-8 w-full max-w-2xl">
                     <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter leading-[1.1]">
@@ -103,7 +109,7 @@ export function DashboardBentoHeader({ stats, statsLoading }: DashboardBentoHead
                             prêt à networker ?
                         </span>
                     </h2>
-
+                    
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                         <Button
                             className="rounded-2xl bg-white text-blue-950 hover:bg-slate-50 px-6 h-14 shadow-xl font-extrabold transition-all hover:scale-[1.02] text-base"
@@ -130,7 +136,7 @@ export function DashboardBentoHeader({ stats, statsLoading }: DashboardBentoHead
             </motion.div>
 
             {/* STATS BENTO GRID */}
-            <motion.div
+            <motion.div 
                 variants={itemVariants}
                 className="grid grid-cols-2 gap-4 h-full"
             >
@@ -147,7 +153,7 @@ export function DashboardBentoHeader({ stats, statsLoading }: DashboardBentoHead
                         >
                             {/* Inner Glow */}
                             <div className={`absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500 ${stat.bg.replace('/10', '/50')}`} />
-
+                            
                             <div className="z-10 flex flex-col gap-2">
                                 <div className="flex items-center gap-5">
                                     <div className={`p-2.5 rounded-xl ${stat.bg} ${stat.color} ring-1 ring-white/10 shadow-inner`}>

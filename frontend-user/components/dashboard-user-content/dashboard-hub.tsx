@@ -61,7 +61,7 @@ export function DashboardHubContent({
       {/* =========================================
           SECTION 1 : HEADER DARK (STATS & HERO)
           ========================================= */}
-      <div className="bg-slate-950 pb-16 pt-6 rounded-b-[3rem] shadow-2xl relative overflow-hidden z-10 border-b border-slate-800">
+      <div className="pb-16 pt-6 relative overflow-hidden z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 relative z-10">
           <DashboardBentoHeader stats={stats} statsLoading={statsLoading} />
           
