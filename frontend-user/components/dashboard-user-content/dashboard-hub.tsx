@@ -20,7 +20,7 @@ import { Sparkles, MapPin, Target, LayoutGrid } from "lucide-react"
 
 // Nouveaux composants
 import { CategoriesExplorer } from "./categories-explorer"
-import { RecentActivitySection } from "./recent-activity-section"
+import { RecentActivityCta } from "./recent-activity-cta"
 
 interface DashboardHubContentProps {
   initialDirectoryProfiles: PublicProfile[]
@@ -80,10 +80,10 @@ export function DashboardHubContent({
           ========================================= */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full -mt-10 z-20 space-y-16 relative">
         
-        {/* GRILLE TOP : Activité Récente + Nouveaux Talents (Hero) */}
+        {/* GRILLE TOP : CTA Activité + Nouveaux Talents (Hero) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           <div className="lg:col-span-4 h-full">
-            <RecentActivitySection />
+            <RecentActivityCta />
           </div>
           
           <div className="lg:col-span-8 space-y-4">
