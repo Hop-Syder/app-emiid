@@ -69,7 +69,7 @@ export function DashboardBentoHeader({ stats, statsLoading }: DashboardBentoHead
             {/* ── HERO COMPACT ────────────────────────────────── */}
             <motion.div
                 variants={itemVariants}
-                className="relative overflow-hidden rounded-3xl border border-white/10 shadow-xl bg-[url('/dashboard/background-1.svg')] bg-cover bg-center"
+                className="relative overflow-hidden rounded-3xl border border-white/10 shadow-xl bg-[url('/dashboard/background-1.svg')] bg-cover bg-center min-h-[140px]"
             >
                 {/* Overlay en dégradé diagonal pour lisibilité */}
                 <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-900/70 to-slate-900/20" />
@@ -141,10 +141,10 @@ export function DashboardBentoHeader({ stats, statsLoading }: DashboardBentoHead
                             </div>
 
                             <div className="relative flex flex-col min-w-0">
-                                <span className="text-2xl font-black text-white tracking-tighter leading-none">
+                                <span className={`text-2xl font-black tracking-tighter leading-none ${stat.color}`}>
                                     {stat.value.toLocaleString()}
                                 </span>
-                                <span className="text-[10px] font-semibold uppercase tracking-widest text-white/40 mt-0.5 truncate">
+                                <span className={`text-[10px] font-semibold uppercase tracking-widest mt-0.5 truncate ${stat.color} opacity-70`}>
                                     {stat.label}
                                 </span>
                             </div>
