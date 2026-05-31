@@ -115,7 +115,7 @@ export function DashboardPublicContent({ initialStats = null, initialProfiles = 
                             id: profileId,
                             name: (e.first_name || e.last_name) ? `${e.first_name || ''} ${e.last_name || ''}`.trim() : "Utilisateur EmiID",
                             role: e.role || "Membre EmiID",
-                            location: e.city ? `${e.city}, ${e.countries?.name || ''}` : (e.countries?.name || "Afrique de l'Ouest"),
+                            location: e.city ? `${e.city}, ${e.countries?.name || ''}` : (e.countries?.name || "Afrique "),
                             avatar: e.avatar_url || "/profil/avatar.jpg",
                             specialty: e.specialty || "Expertise",
                             category: e.category || "",
@@ -171,7 +171,7 @@ export function DashboardPublicContent({ initialStats = null, initialProfiles = 
             isMounted = false
             window.clearInterval(intervalId)
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [supabase])
 
     return (

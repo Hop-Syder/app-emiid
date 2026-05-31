@@ -57,7 +57,7 @@ async function fetchInitialProfiles(): Promise<EntrepreneurProfile[]> {
                 role: e.role || "Membre EmiID",
                 location: e.city
                     ? `${e.city}, ${e.countries?.name || ""}`
-                    : e.countries?.name || "Afrique de l'Ouest",
+                    : e.countries?.name || "Afrique ",
                 avatar: e.avatar_url || "/profil/avatar.jpg",
                 specialty: e.specialty || "Expertise",
                 category: e.category || "",
@@ -82,12 +82,12 @@ export default async function DashboardPublicPage() {
 
     return (
         <NavigationShell isPublic={true}>
-<div className="flex-1 w-full min-h-screen flex flex-col">
-            <DashboardPublicContent
-                initialStats={initialStats}
-                initialProfiles={initialProfiles}
-            />
-        </div>
-</NavigationShell>
+            <div className="flex-1 w-full min-h-screen flex flex-col">
+                <DashboardPublicContent
+                    initialStats={initialStats}
+                    initialProfiles={initialProfiles}
+                />
+            </div>
+        </NavigationShell>
     )
 }

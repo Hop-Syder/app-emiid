@@ -35,7 +35,7 @@ Ce document est généré par l'**Agent d'Analyse des Fonctionnalités**. Il syn
 
 ### 3. Données de Référence
 
-- **Géo-localisation** : Base de données des pays avec focus sur l'Afrique de l'Ouest.
+- **Géo-localisation** : Base de données des pays avec focus sur l'Afrique .
 - **Taxonomie Professionnelle** : Secteurs d'activité (Artisanat, BTP, Tech) et professions liées.
 
 ### 4. Communication & Messagerie

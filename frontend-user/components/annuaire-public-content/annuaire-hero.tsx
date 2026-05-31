@@ -12,7 +12,7 @@ interface AnnuaireHeroProps {
 }
 
 export function AnnuaireHero({
-    title = "Découvrez les Talents de l'Afrique de l'Ouest",
+    title = "Découvrez les Talents de l'Afrique ",
     description = "Explorez notre réseau dynamique regroupant artisans, commerçants, freelances, entreprises, agences, startups et ONG."
 }: AnnuaireHeroProps) {
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
@@ -37,16 +37,16 @@ export function AnnuaireHero({
         >
             {/* Aurora Background Effects */}
             <div className="absolute inset-0 bg-slate-950" />
-            <div 
+            <div
                 className="absolute inset-0 opacity-40 transition-opacity duration-700 group-hover:opacity-60"
                 style={{
                     backgroundImage: 'radial-gradient(circle at 10% 20%, rgba(30, 64, 175, 0.5) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(245, 158, 11, 0.4) 0%, transparent 40%), radial-gradient(circle at 50% 50%, rgba(125, 211, 252, 0.1) 0%, transparent 60%)',
                     filter: 'blur(60px)'
                 }}
             />
-            
+
             {/* Interactive Glow tracking mouse */}
-            <motion.div 
+            <motion.div
                 className="absolute inset-0 opacity-30 pointer-events-none"
                 animate={{
                     background: `radial-gradient(800px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(255,255,255,0.06), transparent 40%)`
@@ -59,7 +59,7 @@ export function AnnuaireHero({
 
             <div className="relative z-10 flex flex-col items-center text-center space-y-8 max-w-4xl mx-auto">
                 {/* Floating Badge */}
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.2, duration: 0.5, ease: "easeOut" }}
@@ -71,7 +71,7 @@ export function AnnuaireHero({
 
                 {/* Main Content */}
                 <div className="space-y-6">
-                    <motion.h1 
+                    <motion.h1
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3, duration: 0.7 }}
@@ -79,7 +79,7 @@ export function AnnuaireHero({
                     >
                         {title}
                     </motion.h1>
-                    <motion.p 
+                    <motion.p
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.4, duration: 0.7 }}

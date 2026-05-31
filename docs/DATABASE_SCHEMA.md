@@ -18,7 +18,7 @@ La base de données repose sur **PostgreSQL (via Supabase)**. Le fichier `sql/MA
 ## 🏗️ Modèle de Données (Agent Design Document)
 
 ### 1. Référentiels (Statics)
-- `countries` : Liste des pays (Focus Afrique de l'Ouest).
+- `countries` : Liste des pays (Focus Afrique ).
 - `activity_sectors` : Grands domaines (Tech, Artisanat, Santé, etc.).
 - `professions` : Sous-catégories liées aux secteurs.
 - `jobs` & `industries` : Taxonomies additionnelles.

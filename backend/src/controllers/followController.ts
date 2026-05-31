@@ -54,7 +54,7 @@ export const getFollowedProfiles = async (req: any, res: Response) => {
     if (followsError) return res.status(400).json({ error: followsError.message });
 
     if (!follows || follows.length === 0) {
-        return res.json([]);
+      return res.json([]);
     }
 
     const followingIds = follows.map(f => f.following_id);
@@ -84,17 +84,17 @@ export const getFollowedProfiles = async (req: any, res: Response) => {
 
     // Transformer et fusionner les notes
     const profiles = profilesData.map((p: any) => {
-        const followInfo = follows.find(f => f.following_id === p.user_id);
-        return {
-            ...p,
-            name: `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Membre',
-            location: p.city || "Afrique de l'Ouest",
-            followers: p.followers_count || 0,
-            notes: followInfo?.notes || null,
-            followed_at: followInfo?.created_at || null,
-            last_active_at: p.updated_at || p.created_at || null,
-            last_active_label: formatRelativeActivity(p.updated_at || p.created_at),
-        };
+      const followInfo = follows.find(f => f.following_id === p.user_id);
+      return {
+        ...p,
+        name: `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Membre',
+        location: p.city || "Afrique ",
+        followers: p.followers_count || 0,
+        notes: followInfo?.notes || null,
+        followed_at: followInfo?.created_at || null,
+        last_active_at: p.updated_at || p.created_at || null,
+        last_active_label: formatRelativeActivity(p.updated_at || p.created_at),
+      };
     });
 
     res.json(profiles);
@@ -114,7 +114,7 @@ export const toggleFollowProfile = async (req: any, res: Response) => {
     const { params: { id: followingId } } = z.object({ params: z.object({ id: z.string() }) }).parse(req);
 
     if (followerId === followingId) {
-        return res.status(400).json({ error: "On ne peut pas se suivre soi-même" });
+      return res.status(400).json({ error: "On ne peut pas se suivre soi-même" });
     }
     // Vérifier si déjà suivi (cet utilisateur spécifique)
     const { data: existing, error: errCheck } = await supabaseAdmin
@@ -131,18 +131,18 @@ export const toggleFollowProfile = async (req: any, res: Response) => {
         .delete()
         .eq('follower_id', followerId)
         .eq('following_id', followingId);
-        
+
       if (errDel) throw errDel;
-        
+
       return res.json({ followed: false });
     } else {
       // Follow (Ajouter au portefeuille)
       const { error: errIns } = await supabaseAdmin
         .from('user_follows')
         .insert({ follower_id: followerId, following_id: followingId });
-        
+
       if (errIns) throw errIns;
-        
+
       return res.json({ followed: true });
     }
   } catch (err: any) {
@@ -167,7 +167,7 @@ export const getFollowers = async (req: any, res: Response) => {
     if (followsError) return res.status(400).json({ error: followsError.message });
 
     if (!follows || follows.length === 0) {
-        return res.json([]);
+      return res.json([]);
     }
 
     const followerIds = follows.map(f => f.follower_id);
@@ -196,17 +196,17 @@ export const getFollowers = async (req: any, res: Response) => {
     if (profilesError) return res.status(400).json({ error: profilesError.message });
 
     const profiles = profilesData.map((p: any) => {
-        const followInfo = follows.find(f => f.follower_id === p.user_id);
+      const followInfo = follows.find(f => f.follower_id === p.user_id);
 
-        return {
-            ...p,
-            name: `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Membre',
-            location: p.city || "Afrique de l'Ouest",
-            followers: p.followers_count || 0,
-            followed_at: followInfo?.created_at || null,
-            last_active_at: p.updated_at || p.created_at || null,
-            last_active_label: formatRelativeActivity(p.updated_at || p.created_at),
-        };
+      return {
+        ...p,
+        name: `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Membre',
+        location: p.city || "Afrique ",
+        followers: p.followers_count || 0,
+        followed_at: followInfo?.created_at || null,
+        last_active_at: p.updated_at || p.created_at || null,
+        last_active_label: formatRelativeActivity(p.updated_at || p.created_at),
+      };
     });
 
     res.json(profiles);

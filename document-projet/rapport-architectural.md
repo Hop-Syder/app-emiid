@@ -16,7 +16,7 @@ Ce document présente une analyse en profondeur de l'écosystème EmiID, permett
 ## 1. 🎯 OBJECTIF DU PROJET
 
 ### Problématique résolue
-EmiID répond au besoin de structuration et de visibilité de l'écosystème professionnel en Afrique (avec un focus initial sur l'Afrique de l'Ouest). Il résout le problème de la fragmentation des talents et de la difficulté à trouver des prestataires de confiance via une plateforme centralisée et interactive.
+EmiID répond au besoin de structuration et de visibilité de l'écosystème professionnel en Afrique (avec un focus initial sur l'Afrique ). Il résout le problème de la fragmentation des talents et de la difficulté à trouver des prestataires de confiance via une plateforme centralisée et interactive.
 
 ### Cible utilisateur
 - **Indépendants/Artisans** : En quête de clients et d'une vitrine numérique.
@@ -108,7 +108,7 @@ EmiID répond au besoin de structuration et de visibilité de l'écosystème pro
 
 - **Design Premium** : Focus intense sur l'esthétique et les micro-animations (Framer Motion).
 - **Architecture Modulaire** : Séparation stricte entre les interfaces Admin et User.
-- **Optimisation Régionale** : Base de données pré-configurée pour l'Afrique de l'Ouest (Pays/Codes ISO).
+- **Optimisation Régionale** : Base de données pré-configurée pour l'Afrique  (Pays/Codes ISO).
 
 ---
 

@@ -16,7 +16,7 @@ Ce document présente les modèles de données fondamentaux du projet, leurs rel
 ## 1. Référencement Géo-Professionnel
 
 ### 🌍 Pays (`countries`)
-Table stockant les informations géographiques avec focus sur l'Afrique de l'Ouest.
+Table stockant les informations géographiques avec focus sur l'Afrique .
 - `id` : UUID (Primary Key)
 - `name` : VARCHAR (100) - Libellé du pays
 - `iso_code` : CHAR (2) (Unique) - ex. 'ML', 'FR'

@@ -45,7 +45,7 @@ Les opportunités ? Aussi. Mais il manque **une infrastructure de confiance**.
 
 | Réalité                                                  |           Chiffre |
 | :------------------------------------------------------- | ----------------: |
-| Actifs dans l'économie informelle en Afrique de l'Ouest  | **+350 millions** |
+| Actifs dans l'économie informelle en Afrique   | **+350 millions** |
 | Taux de pénétration de LinkedIn en Afrique subsaharienne |  **moins de 4 %** |
 | PME sans outil de recrutement digital structuré          |         **+85 %** |
 | Jeunes diplômés sans visibilité professionnelle en ligne |         **+70 %** |
@@ -98,7 +98,7 @@ Tu deviens une référence dans ton secteur.
 
 ### Marché Serviceable (SAM)
 
-> **+120 millions de professionnels** en Afrique de l'Ouest francophone connectés à internet, dans les secteurs Tech, Artisanat, Commerce, Santé, Éducation.
+> **+120 millions de professionnels** en Afrique  francophone connectés à internet, dans les secteurs Tech, Artisanat, Commerce, Santé, Éducation.
 
 ### Marché Cible Initial (SOM — 3 ans)
 
@@ -255,7 +255,7 @@ Architecture    : Monorepo    · App Router · i18n FR/EN
 
 ### 1. Le timing est parfait
 
-La pénétration mobile en Afrique de l'Ouest explose. La classe moyenne digitale se structure. Le premier à poser l'infrastructure gagne. **Nous sommes déjà là.**
+La pénétration mobile en Afrique  explose. La classe moyenne digitale se structure. Le premier à poser l'infrastructure gagne. **Nous sommes déjà là.**
 
 ### 2. Un produit qui existe, pas un pitch creux
 
