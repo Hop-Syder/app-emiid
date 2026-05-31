@@ -16,7 +16,11 @@ import type { PublicProfile } from "@/types"
 
 import { DashboardBentoHeader } from "./dashboard-bento-header"
 import { EntrepreneursSection } from "./entrepreneurs-section"
-import { Sparkles } from "lucide-react"
+import { Sparkles, MapPin, Target, LayoutGrid } from "lucide-react"
+
+// Nouveaux composants
+import { CategoriesExplorer } from "./categories-explorer"
+import { RecentActivitySection } from "./recent-activity-section"
 
 interface DashboardHubContentProps {
   initialDirectoryProfiles: PublicProfile[]
@@ -72,33 +76,17 @@ export function DashboardHubContent({
       </div>
 
       {/* =========================================
-          SECTION 2 : DÉCOUVERTE (CARROUSELS)
-          Chevauche légèrement la section dark
+          SECTION 2 : DÉCOUVERTE & ACTIVITÉ
           ========================================= */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full -mt-10 z-20 space-y-20 relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full -mt-10 z-20 space-y-16 relative">
         
-        {/* PREMIUM (Elite) */}
-        {initialPremiumProfiles.length > 0 && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between px-2">
-              <h3 className="text-2xl font-black text-slate-800 flex items-center gap-3 tracking-tight">
-                <div className="p-2 bg-amber-100 rounded-xl">
-                  <span className="text-amber-500 text-xl">👑</span>
-                </div>
-                Cercle Premium
-              </h3>
-            </div>
-            <EntrepreneursSection 
-              entrepreneursList={initialPremiumProfiles} 
-              loading={false} 
-              variant="elite" 
-            />
+        {/* GRILLE TOP : Activité Récente + Nouveaux Talents (Hero) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div className="lg:col-span-4 h-full">
+            <RecentActivitySection />
           </div>
-        )}
-
-        {/* NOUVEAUX ARRIVANTS */}
-        {initialNewProfiles.length > 0 && (
-          <div className="space-y-4 pt-4">
+          
+          <div className="lg:col-span-8 space-y-4">
             <div className="flex items-center justify-between px-2">
               <h3 className="text-2xl font-black text-slate-800 flex items-center gap-3 tracking-tight">
                 <div className="p-2 bg-blue-100 rounded-xl">
@@ -108,24 +96,58 @@ export function DashboardHubContent({
               </h3>
             </div>
             <EntrepreneursSection 
-              entrepreneursList={initialNewProfiles} 
+              entrepreneursList={initialNewProfiles.slice(0, 4)} 
               loading={false} 
               variant="tech" 
             />
           </div>
+        </div>
+
+        {/* EXPLORER PAR CATÉGORIE */}
+        <div className="space-y-6 pt-4">
+          <div className="flex items-center justify-between px-2">
+            <h3 className="text-2xl font-black text-slate-800 flex items-center gap-3 tracking-tight">
+              <div className="p-2 bg-purple-100 rounded-xl">
+                <LayoutGrid className="text-purple-500 w-5 h-5" />
+              </div>
+              Explorer par Secteur
+            </h3>
+          </div>
+          <CategoriesExplorer />
+        </div>
+
+        {/* RECOMMANDATIONS SMART MATCH */}
+        {initialPremiumProfiles.length > 0 && (
+          <div className="space-y-4 pt-4">
+            <div className="flex items-center justify-between px-2">
+              <h3 className="text-2xl font-black text-slate-800 flex items-center gap-3 tracking-tight">
+                <div className="p-2 bg-amber-100 rounded-xl">
+                  <Target className="text-amber-500 w-5 h-5" />
+                </div>
+                Recommandé pour vous
+              </h3>
+            </div>
+            {/* On réutilise les profils premium pour l'instant comme suggestions */}
+            <EntrepreneursSection 
+              entrepreneursList={initialPremiumProfiles} 
+              loading={false} 
+              variant="glass" 
+            />
+          </div>
         )}
 
-        {/* 100% VÉRIFIÉS */}
+        {/* TALENTS À PROXIMITÉ */}
         {initialVerifiedProfiles.length > 0 && (
           <div className="space-y-4 pt-4">
             <div className="flex items-center justify-between px-2">
               <h3 className="text-2xl font-black text-slate-800 flex items-center gap-3 tracking-tight">
                 <div className="p-2 bg-emerald-100 rounded-xl">
-                  <span className="text-emerald-500 text-xl">✓</span>
+                  <MapPin className="text-emerald-500 w-5 h-5" />
                 </div>
-                Profils Vérifiés
+                Talents à Proximité
               </h3>
             </div>
+            {/* On réutilise les profils vérifiés pour simuler la géoloc */}
             <EntrepreneursSection 
               entrepreneursList={initialVerifiedProfiles} 
               loading={false} 
@@ -133,6 +155,7 @@ export function DashboardHubContent({
             />
           </div>
         )}
+
       </div>
     </div>
   )
