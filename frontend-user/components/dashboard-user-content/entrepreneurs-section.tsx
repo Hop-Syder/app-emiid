@@ -109,33 +109,40 @@ export function EntrepreneursSection({ entrepreneursList, loading, variant = "te
                     ))}
                 </div>
             ) : profiles.length > 0 ? (
-                <div className="flex overflow-x-auto pb-6 gap-6 snap-x no-scrollbar w-full">
+                <div className="flex overflow-x-auto pb-10 pt-4 px-4 -mx-4 gap-6 snap-x no-scrollbar w-full">
                     {profiles.map((entrepreneur, index) => (
                         <motion.div
                             key={entrepreneur.id}
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
+                            whileHover={{ scale: 1.03, y: -5, rotateY: 2 }}
                             transition={{ duration: 0.3, delay: index * 0.1 }}
-                            className="min-w-[280px] snap-center"
+                            className="min-w-[280px] snap-center relative group perspective-1000"
                         >
-                            <EmiIDProfileCard
-                                user={{
-                                    id: entrepreneur.id,
-                                    name: entrepreneur.name,
-                                    role: entrepreneur.role,
-                                    avatar: entrepreneur.avatar,
-                                    category: entrepreneur.category,
-                                    specialty: entrepreneur.specialty,
-                                    location: entrepreneur.location,
-                                    followers: entrepreneur.followers,
-                                    verified: entrepreneur.verified,
-                                    premium: entrepreneur.premium,
-                                    tags: entrepreneur.tags || [entrepreneur.specialty],
-                                }}
-                                variant={variant}
-                                isFollowed={!!entrepreneur.isFollowed}
-                                onAction={(type) => handleCardAction(type, entrepreneur.id)}
-                            />
+                            {/* Magic glow for Elite (Premium) variant if applicable */}
+                            {variant === "elite" && (
+                                <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-500 to-yellow-300 rounded-2xl blur opacity-0 group-hover:opacity-40 transition duration-500 z-0"></div>
+                            )}
+                            <div className="relative z-10 h-full">
+                                <EmiIDProfileCard
+                                    user={{
+                                        id: entrepreneur.id,
+                                        name: entrepreneur.name,
+                                        role: entrepreneur.role,
+                                        avatar: entrepreneur.avatar,
+                                        category: entrepreneur.category,
+                                        specialty: entrepreneur.specialty,
+                                        location: entrepreneur.location,
+                                        followers: entrepreneur.followers,
+                                        verified: entrepreneur.verified,
+                                        premium: entrepreneur.premium,
+                                        tags: entrepreneur.tags || [entrepreneur.specialty],
+                                    }}
+                                    variant={variant}
+                                    isFollowed={!!entrepreneur.isFollowed}
+                                    onAction={(type) => handleCardAction(type, entrepreneur.id)}
+                                />
+                            </div>
                         </motion.div>
                     ))}
                 </div>

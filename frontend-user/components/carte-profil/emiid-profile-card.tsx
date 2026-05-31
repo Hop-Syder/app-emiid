@@ -12,7 +12,7 @@
 "use client"
 
 import { Shield, Plus, Check } from "lucide-react"
-import { motion } from "framer-motion"
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -127,12 +127,42 @@ export function EmiIDProfileCard({
   const displayCategory = categoryLabelMap[category.toLowerCase()] || category
   const config = VARIANT_CONFIGS[variant] || VARIANT_CONFIGS.tech
 
+  // Framer Motion 3D Tilt Logic
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
+
+  const mouseXSpring = useSpring(x, { stiffness: 300, damping: 20 })
+  const mouseYSpring = useSpring(y, { stiffness: 300, damping: 20 })
+
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["5deg", "-5deg"])
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-5deg", "5deg"])
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const width = rect.width
+    const height = rect.height
+    const mouseX = e.clientX - rect.left
+    const mouseY = e.clientY - rect.top
+    const xPct = mouseX / width - 0.5
+    const yPct = mouseY / height - 0.5
+    x.set(xPct)
+    y.set(yPct)
+  }
+
+  const handleMouseLeave = () => {
+    x.set(0)
+    y.set(0)
+  }
+
   return (
     <motion.div 
+      style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
       whileHover={{ y: -6 }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
       onClick={() => onAction?.('view')}
       className={cn(
-        "relative w-full max-w-[320px] sm:max-w-[280px] lg:max-w-[300px] aspect-[1/1.2] mx-auto rounded-3xl border p-1 flex flex-col cursor-pointer group shadow-xl hover:shadow-2xl transition-all duration-300",
+        "relative w-full max-w-[320px] sm:max-w-[280px] lg:max-w-[300px] aspect-[1/1.2] mx-auto rounded-3xl border p-1 flex flex-col cursor-pointer group shadow-xl hover:shadow-2xl transition-shadow duration-300",
         config.container,
         className
       )}

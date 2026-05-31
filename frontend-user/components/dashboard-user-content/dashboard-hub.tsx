@@ -14,9 +14,7 @@ import { useDashboardStats } from "@/hooks/use-dashboard-stats"
 import { fetchWithAuth } from "@/lib/apiClient"
 import type { PublicProfile } from "@/types"
 
-import { HeroSection } from "./hero-section"
-import { StatsSection } from "./stats-section"
-import { DashboardStatsSkeleton } from "@/components/dashboard-stats-skeleton"
+import { DashboardBentoHeader } from "./dashboard-bento-header"
 import { EntrepreneursSection } from "./entrepreneurs-section"
 
 import { AnnuaireFilters } from "@/components/annuaire-public-content/annuaire-filters"
@@ -69,23 +67,14 @@ export function DashboardHubContent({
         <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-amber-500/10 rounded-full blur-[80px] -ml-20 -mb-20 pointer-events-none"></div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 relative z-10">
-          <div className="text-white">
-            <HeroSection />
-          </div>
-
-          {stats ? (
-            <div className="space-y-2">
-              <StatsSection stats={stats} />
-              {statsError && (
-                <p className="text-xs text-slate-400 flex items-center gap-1.5 px-1" data-testid="stats-sync-indicator">
-                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
-                  Statistiques non synchronisées — nouvelle tentative dans quelques secondes
-                </p>
-              )}
-            </div>
-          ) : statsLoading ? (
-            <DashboardStatsSkeleton />
-          ) : null}
+          <DashboardBentoHeader stats={stats} statsLoading={statsLoading} />
+          
+          {statsError && (
+            <p className="text-xs text-slate-400 flex items-center justify-center gap-1.5 px-1 pt-4" data-testid="stats-sync-indicator">
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+              Statistiques non synchronisées — nouvelle tentative dans quelques secondes
+            </p>
+          )}
         </div>
       </div>
 

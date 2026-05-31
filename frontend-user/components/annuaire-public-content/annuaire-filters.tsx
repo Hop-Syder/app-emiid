@@ -48,82 +48,83 @@ export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProp
     }
 
     return (
-        <Card className="rounded-xl border-none shadow-sm mb-6 bg-white/50 backdrop-blur-sm">
-            <CardContent className="p-6 space-y-6">
-                {/* Top Bar: Search & Tags */}
-                <div className="flex flex-col lg:flex-row gap-4">
-                    <div className="flex-[2] relative">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                        <Input
-                            id="annuaire-keyword-search"
-                            name="annuaire_keyword"
-                            autoComplete="off"
-                            placeholder="Rechercher un talent (Nom, Rôle, Bio...)"
-                            aria-label="Rechercher par mot-clé"
-                            className="pl-12 h-12 rounded-xl bg-white border-muted focus-visible:ring-primary shadow-sm"
-                            value={filters.search}
-                            onChange={(e) => onFilterChange("search", e.target.value)}
-                        />
+        <div className="sticky top-[80px] z-[40] mb-8">
+            <div className="rounded-[2rem] border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.08)] bg-white/60 backdrop-blur-2xl p-4 md:p-6 transition-all duration-300">
+                <div className="space-y-4">
+                    {/* Top Bar: Search & Tags */}
+                    <div className="flex flex-col lg:flex-row gap-3">
+                        <div className="flex-[2] relative group">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-primary transition-colors" />
+                            <Input
+                                id="annuaire-keyword-search"
+                                name="annuaire_keyword"
+                                autoComplete="off"
+                                placeholder="Rechercher un talent (Nom, Rôle, Bio...)"
+                                aria-label="Rechercher par mot-clé"
+                                className="pl-12 h-12 md:h-14 rounded-full bg-white/80 border-white/40 focus-visible:ring-primary shadow-inner text-base"
+                                value={filters.search}
+                                onChange={(e) => onFilterChange("search", e.target.value)}
+                            />
+                        </div>
+                        <div className="flex-1">
+                            <Input
+                                id="annuaire-tags-filter"
+                                name="annuaire_tags"
+                                autoComplete="off"
+                                placeholder="Filtrer par Tags (Ex: React...)"
+                                aria-label="Filtrer par tags"
+                                className="h-12 md:h-14 rounded-full bg-white/80 border-white/40 shadow-inner text-base px-6"
+                                value={filters.tags}
+                                onChange={(e) => onFilterChange("tags", e.target.value)}
+                            />
+                        </div>
                     </div>
-                    <div className="flex-1">
-                        <Input
-                            id="annuaire-tags-filter"
-                            name="annuaire_tags"
-                            autoComplete="off"
-                            placeholder="Filtrer par Tags (Ex: React, BTP...)"
-                            aria-label="Filtrer par tags"
-                            className="h-12 rounded-xl bg-white border-muted shadow-sm"
-                            value={filters.tags}
-                            onChange={(e) => onFilterChange("tags", e.target.value)}
-                        />
+
+                    {/* Filters Row */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 items-end">
+                        {/* Catégorie */}
+                        <div className="space-y-1">
+                            <label htmlFor="category-select" className="text-xs font-bold uppercase tracking-wider ml-3 text-slate-500">Secteur</label>
+                            <Select onValueChange={(val) => onFilterChange("category", val)} value={filters.category}>
+                                <SelectTrigger id="category-select" className="h-12 rounded-full bg-white/80 border-white/40 px-5 font-medium text-slate-700">
+                                    <SelectValue placeholder="Catégorie" />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-2xl border-white/50 bg-white/90 backdrop-blur-xl">
+                                    <SelectItem value="all">Tous les secteurs</SelectItem>
+                                    <SelectItem value="artisan">Artisans</SelectItem>
+                                    <SelectItem value="commerçante">Commerçants</SelectItem>
+                                    <SelectItem value="freelance">Freelances</SelectItem>
+                                    <SelectItem value="entreprise">Entreprises</SelectItem>
+                                    <SelectItem value="agence">Agences</SelectItem>
+                                    <SelectItem value="startup">Startup</SelectItem>
+                                    <SelectItem value="ong">ONG</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {/* Location Selector (Pays/Ville) intégrés */}
+                        <div className="lg:col-span-2">
+                            <LocationSelector
+                                onLocationSelect={handleLocationSelect}
+                                defaultCountryCode={filters.country !== "all" ? filters.country : undefined}
+                                defaultCity={filters.city}
+                            />
+                        </div>
+
+                        {/* Actions / Reset */}
+                        <div className="flex items-end pb-0.5">
+                            <Button
+                                variant="ghost"
+                                onClick={resetFilters}
+                                className="w-full text-slate-500 hover:bg-slate-200/50 hover:text-slate-800 rounded-full h-12 font-bold"
+                            >
+                                <X className="mr-2 h-4 w-4" />
+                                Réinitialiser
+                            </Button>
+                        </div>
                     </div>
                 </div>
-
-                {/* Filters Row */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
-
-                    {/* Catégorie */}
-                    <div className="space-y-2">
-                        <label htmlFor="category-select" className="text-sm font-medium ml-1 text-muted-foreground">Secteur</label>
-                        <Select onValueChange={(val) => onFilterChange("category", val)} value={filters.category}>
-                            <SelectTrigger id="category-select" className="h-12 rounded-xl bg-white border-muted">
-                                <SelectValue placeholder="Catégorie" />
-                            </SelectTrigger>
-                            <SelectContent className="rounded-xl">
-                                <SelectItem value="all">Tous les secteurs</SelectItem>
-                                <SelectItem value="artisan">Artisans</SelectItem>
-                                <SelectItem value="commerçante">Commerçants</SelectItem>
-                                <SelectItem value="freelance">Freelances</SelectItem>
-                                <SelectItem value="entreprise">Entreprises</SelectItem>
-                                <SelectItem value="agence">Agences</SelectItem>
-                                <SelectItem value="startup">Startup</SelectItem>
-                                <SelectItem value="ong">ONG</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    {/* Location Selector (Pays/Ville) intégrés */}
-                    <div className="lg:col-span-2">
-                        <LocationSelector
-                            onLocationSelect={handleLocationSelect}
-                            defaultCountryCode={filters.country !== "all" ? filters.country : undefined}
-                            defaultCity={filters.city}
-                        />
-                    </div>
-
-                    {/* Actions / Reset */}
-                    <div className="flex items-end pb-1">
-                        <Button
-                            variant="ghost"
-                            onClick={resetFilters}
-                            className="w-full text-muted-foreground hover:bg-muted/50 rounded-xl h-12"
-                        >
-                            <X className="mr-2 h-4 w-4" />
-                            Réinitialiser
-                        </Button>
-                    </div>
-                </div>
-            </CardContent>
-        </Card>
+            </div>
+        </div>
     )
 }

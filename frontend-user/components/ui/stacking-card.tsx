@@ -124,7 +124,7 @@ export const StackingCards = forwardRef<HTMLElement, StackingCardsProps>(({ card
       <main className='bg-transparent relative' ref={container}>
         
         {/* Intro Section */}
-        <section className='text-white h-[65vh] w-full flex flex-col items-center justify-end pb-8 relative overflow-hidden'>
+        <section className='text-white h-[10vh] w-full flex flex-col items-center justify-end pb-8 relative overflow-hidden'>
           <div className='absolute bottom-0 left-0 right-0 top-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:54px_54px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]'></div>
           
           <div className="relative z-10 px-8 text-center space-y-6">
