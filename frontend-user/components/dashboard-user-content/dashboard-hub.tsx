@@ -57,7 +57,7 @@ export function DashboardHubContent({
 
   // === RENDU DU COMPOSANT ===
   return (
-    <div className="flex flex-col min-h-screen pb-12 bg-slate-50">
+    <div className="flex flex-col min-h-screen pb-12">
       {/* =========================================
           SECTION 1 : HEADER DARK (STATS & HERO)
           ========================================= */}
