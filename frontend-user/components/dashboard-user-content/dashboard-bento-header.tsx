@@ -96,7 +96,7 @@ export function DashboardBentoHeader({ stats, statsLoading }: DashboardBentoHead
             {/* HERO TILE */}
             <motion.div 
                 variants={itemVariants}
-                className="lg:col-span-2 relative overflow-hidden rounded-[2.5rem] p-8 md:p-12 text-white min-h-[420px] flex flex-col justify-end pb-12 shadow-2xl bg-blue-600 bg-[url('/dashboard/background-1.svg')] bg-cover bg-center"
+                className="lg:col-span-2 relative overflow-hidden rounded-[2.5rem] p-8 md:p-12 text-white min-h-[420px] flex flex-col justify-end pb-12 shadow-2xl border border-white/20 bg-[url('/dashboard/background-1.svg')] bg-cover bg-center"
             >
                 {/* Overlay sophistiqué pour la lisibilité et la profondeur */}
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-950/90 via-blue-900/60 to-transparent z-0 mix-blend-multiply" />
