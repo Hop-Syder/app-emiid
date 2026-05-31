@@ -142,9 +142,6 @@ export function DashboardBentoHeader({ stats, statsLoading }: DashboardBentoHead
                             transition={{ type: "spring", stiffness: 400, damping: 20 }}
                             className={`relative overflow-hidden rounded-2xl bg-[url('/dashboard/background-2.svg')] bg-cover bg-center border border-white/8 px-5 py-4 flex items-center gap-4 shadow-lg cursor-default group ring-1 ${stat.ring}`}
                         >
-                            {/* Overlay sombre pour lisibilité */}
-                            <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" />
-
                             {/* Glow au survol */}
                             <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${stat.bg} blur-2xl scale-150`} />
 
