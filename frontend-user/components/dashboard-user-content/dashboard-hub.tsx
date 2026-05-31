@@ -78,29 +78,28 @@ export function DashboardHubContent({
       {/* =========================================
           SECTION 2 : DÉCOUVERTE & ACTIVITÉ
           ========================================= */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full -mt-10 z-20 space-y-16 relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full -mt-10 z-20 space-y-12 relative">
         
-        {/* GRILLE TOP : CTA Activité + Nouveaux Talents (Hero) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <div className="lg:col-span-4 h-full">
-            <RecentActivityCta />
+        {/* BANNIÈRE HORIZONTALE CTA ACTIVITÉ RÉCENTE */}
+        <div className="w-full">
+          <RecentActivityCta />
+        </div>
+
+        {/* NOUVEAUX TALENTS */}
+        <div className="space-y-4 pt-4">
+          <div className="flex items-center justify-between px-2">
+            <h3 className="text-2xl font-black text-slate-800 flex items-center gap-3 tracking-tight">
+              <div className="p-2 bg-blue-100 rounded-xl">
+                <Sparkles className="text-blue-500 w-5 h-5" />
+              </div>
+              Nouveaux Talents
+            </h3>
           </div>
-          
-          <div className="lg:col-span-8 space-y-4">
-            <div className="flex items-center justify-between px-2">
-              <h3 className="text-2xl font-black text-slate-800 flex items-center gap-3 tracking-tight">
-                <div className="p-2 bg-blue-100 rounded-xl">
-                  <Sparkles className="text-blue-500 w-5 h-5" />
-                </div>
-                Nouveaux Talents
-              </h3>
-            </div>
-            <EntrepreneursSection 
-              entrepreneursList={initialNewProfiles.slice(0, 4)} 
-              loading={false} 
-              variant="tech" 
-            />
-          </div>
+          <EntrepreneursSection 
+            entrepreneursList={initialNewProfiles} 
+            loading={false} 
+            variant="tech" 
+          />
         </div>
 
         {/* EXPLORER PAR CATÉGORIE */}
