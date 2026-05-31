@@ -3,6 +3,8 @@ import { AdminLayout } from "@/components/admin-layout"
 import { requireAdminSession } from "@/lib/supabase/server"
 import { getModerationCounts } from "@/lib/actions/admin"
 
+export const dynamic = "force-dynamic"
+
 export default async function ProtectedLayout({
   children,
 }: Readonly<{
@@ -14,6 +16,8 @@ export default async function ProtectedLayout({
   try {
     adminSession = await requireAdminSession()
   } catch (err: any) {
+    if (err?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
+    
     console.error("Erreur d'initialisation session admin (Variables d'env ?):", err)
     initError = err.message || "Erreur Supabase"
   }
