@@ -1,8 +1,9 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Header Bento Grid asymétrique pour le Dashboard (Hero + Stats) avec style 21st
+ * @description Header Dashboard — Hero compact + Stats pills. Design Premium 2025.
  * @created 2026-05-31
+ * @updated 2026-05-31
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -10,10 +11,9 @@
 "use client"
 
 import { motion, Variants } from "framer-motion"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
-import { BadgeCheck, Crown, Globe, Users, Search } from "lucide-react"
+import { BadgeCheck, Crown, Globe, Users, Search, ArrowRight } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useCurrentUserProfile } from "@/hooks/use-current-user-profile"
 
@@ -43,47 +43,20 @@ export function DashboardBentoHeader({ stats, statsLoading }: DashboardBentoHead
     const displayName = userName ? ` ${userName}` : ""
 
     const statsItems = stats ? [
-        {
-            label: "Membres",
-            value: stats.totalEntrepreneurs || 0,
-            icon: Users,
-            color: "text-emerald-400",
-            bg: "bg-emerald-400/10",
-        },
-        {
-            label: "Vérifiés",
-            value: stats.verifiedMembers || 0,
-            icon: BadgeCheck,
-            color: "text-amber-400",
-            bg: "bg-amber-400/10",
-        },
-        {
-            label: "Pays",
-            value: stats.countriesCovered || 0,
-            icon: Globe,
-            color: "text-indigo-400",
-            bg: "bg-indigo-400/10",
-        },
-        {
-            label: "Premium",
-            value: stats.premiumMembers || 0,
-            icon: Crown,
-            color: "text-rose-400",
-            bg: "bg-rose-400/10",
-        },
+        { label: "Membres",   value: stats.totalEntrepreneurs || 0, icon: Users,      color: "text-emerald-400", bg: "bg-emerald-400/10", ring: "ring-emerald-400/20" },
+        { label: "Vérifiés",  value: stats.verifiedMembers    || 0, icon: BadgeCheck, color: "text-amber-400",   bg: "bg-amber-400/10",   ring: "ring-amber-400/20"   },
+        { label: "Pays",      value: stats.countriesCovered   || 0, icon: Globe,      color: "text-indigo-400",  bg: "bg-indigo-400/10",  ring: "ring-indigo-400/20"  },
+        { label: "Premium",   value: stats.premiumMembers     || 0, icon: Crown,      color: "text-rose-400",    bg: "bg-rose-400/10",    ring: "ring-rose-400/20"    },
     ] : []
 
     const containerVariants: Variants = {
         hidden: { opacity: 0 },
-        show: {
-            opacity: 1,
-            transition: { staggerChildren: 0.1 }
-        }
+        show:   { opacity: 1, transition: { staggerChildren: 0.08 } }
     }
 
     const itemVariants: Variants = {
-        hidden: { opacity: 0, y: 20 },
-        show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+        hidden: { opacity: 0, y: 16 },
+        show:   { opacity: 1, y: 0, transition: { type: "spring", stiffness: 340, damping: 28 } }
     }
 
     return (
@@ -91,78 +64,89 @@ export function DashboardBentoHeader({ stats, statsLoading }: DashboardBentoHead
             variants={containerVariants}
             initial="hidden"
             animate="show"
-            className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+            className="flex flex-col gap-4"
         >
-            {/* HERO TILE */}
+            {/* ── HERO COMPACT ────────────────────────────────── */}
             <motion.div
                 variants={itemVariants}
-                className="lg:col-span-2 relative overflow-hidden rounded-[2.5rem] p-8 md:p-12 text-white min-h-[420px] flex flex-col justify-end pb-12 shadow-2xl border border-white/20 bg-[url('/dashboard/background-1.svg')] bg-cover bg-center"
+                className="relative overflow-hidden rounded-3xl border border-white/10 shadow-xl bg-[url('/dashboard/background-1.svg')] bg-cover bg-center"
             >
+                {/* Overlay en dégradé diagonal pour lisibilité */}
+                <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-900/70 to-slate-900/20" />
 
-                <div className="relative z-10 flex flex-col gap-8 w-full max-w-2xl">
-                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter leading-[1.1]">
-                        {greeting}{displayName}, <br className="hidden md:block" />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-100 to-white drop-shadow-sm">
-                            prêt à networker ?
-                        </span>
-                    </h2>
+                <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 px-8 py-7">
+                    {/* Gauche — Identité */}
+                    <div className="flex flex-col gap-1">
+                        <p className="text-xs font-semibold tracking-widest uppercase text-white/40">
+                            {greeting}{displayName}
+                        </p>
+                        <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight leading-snug">
+                            Prêt à{" "}
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-blue-200 to-white">
+                                networker ?
+                            </span>
+                        </h1>
+                    </div>
 
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                    {/* Droite — Actions */}
+                    <div className="flex items-center gap-3 shrink-0">
                         <Button
-                            className="rounded-2xl bg-white text-blue-950 hover:bg-slate-50 px-6 h-14 shadow-xl font-extrabold transition-all hover:scale-[1.02] text-base"
+                            size="sm"
+                            className="rounded-2xl bg-white/10 hover:bg-white/20 border border-white/15 text-white backdrop-blur-md font-semibold px-4 h-10 transition-all hover:border-white/30 text-sm"
+                            onClick={() => router.push("/profil/me")}
+                        >
+                            Mon Profil
+                            <ArrowRight className="w-3.5 h-3.5 ml-2 opacity-60" />
+                        </Button>
+                        <Button
+                            size="sm"
+                            className="rounded-2xl bg-white text-slate-900 hover:bg-slate-100 font-bold px-4 h-10 shadow-lg transition-all hover:scale-[1.02] text-sm"
                             onClick={() => {
                                 const event = new KeyboardEvent('keydown', { key: 'k', metaKey: true })
                                 document.dispatchEvent(event)
                             }}
                         >
-                            <Search className="w-5 h-5 mr-2" />
-                            Recherche Rapide
-                            <kbd className="ml-3 pointer-events-none inline-flex h-6 select-none items-center gap-1 rounded bg-blue-50 px-2 font-mono text-xs font-bold text-blue-600/70 border border-blue-100">
-                                <span>⌘</span>K
+                            <Search className="w-3.5 h-3.5 mr-2" />
+                            Rechercher
+                            <kbd className="ml-2 pointer-events-none inline-flex h-5 select-none items-center rounded bg-slate-100 px-1.5 font-mono text-[10px] font-bold text-slate-500">
+                                ⌘K
                             </kbd>
-                        </Button>
-                        <Button
-                            variant="outline"
-                            className="rounded-2xl bg-white/5 border-white/20 text-white hover:bg-white/10 px-6 h-14 backdrop-blur-lg font-bold transition-all hover:border-white/40 text-base"
-                            onClick={() => router.push("/profil/me")}
-                        >
-                            Mon Profil
                         </Button>
                     </div>
                 </div>
             </motion.div>
 
-            {/* STATS BENTO GRID */}
+            {/* ── STATS ROW ───────────────────────────────────── */}
             <motion.div
                 variants={itemVariants}
-                className="grid grid-cols-2 gap-4 h-full"
+                className="grid grid-cols-2 md:grid-cols-4 gap-3"
             >
                 {statsLoading || !stats ? (
                     Array.from({ length: 4 }).map((_, i) => (
-                        <div key={i} className="rounded-[1.5rem] bg-slate-900/40 animate-pulse border border-white/5 backdrop-blur-sm h-[100px]"></div>
+                        <div key={i} className="rounded-2xl bg-white/5 animate-pulse border border-white/5 h-[76px]" />
                     ))
                 ) : (
                     statsItems.map((stat, i) => (
                         <motion.div
                             key={i}
-                            whileHover={{ scale: 1.02, y: -2 }}
-                            className="relative overflow-hidden rounded-[1.5rem] bg-slate-950/60 border border-white/10 backdrop-blur-xl p-5 flex flex-col justify-center shadow-xl group cursor-default transition-all duration-300"
+                            whileHover={{ y: -3, scale: 1.01 }}
+                            transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                            className={`relative overflow-hidden rounded-2xl bg-white/5 border border-white/8 backdrop-blur-md px-5 py-4 flex items-center gap-4 shadow-lg cursor-default group ring-1 ${stat.ring}`}
                         >
-                            {/* Inner Glow */}
-                            <div className={`absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500 ${stat.bg.replace('/10', '/50')}`} />
+                            {/* Glow hover */}
+                            <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${stat.bg} blur-2xl scale-150`} />
 
-                            <div className="z-10 flex flex-col gap-2">
-                                <div className="flex items-center gap-5">
-                                    <div className={`p-2.5 rounded-xl ${stat.bg} ${stat.color} ring-1 ring-white/10 shadow-inner`}>
-                                        <stat.icon className="w-5 h-5" />
-                                    </div>
-                                    <span className="text-3xl font-black text-white tracking-tighter">
-                                        {stat.value.toLocaleString()}
-                                    </span>
-                                </div>
-                                <p className="text-sm font-semibold text-slate-400 mt-1 tracking-wide uppercase text-xs">
+                            <div className={`relative shrink-0 p-2 rounded-xl ${stat.bg} ${stat.color} ring-1 ${stat.ring}`}>
+                                <stat.icon className="w-4 h-4" />
+                            </div>
+
+                            <div className="relative flex flex-col min-w-0">
+                                <span className="text-2xl font-black text-white tracking-tighter leading-none">
+                                    {stat.value.toLocaleString()}
+                                </span>
+                                <span className="text-[10px] font-semibold uppercase tracking-widest text-white/40 mt-0.5 truncate">
                                     {stat.label}
-                                </p>
+                                </span>
                             </div>
                         </motion.div>
                     ))
