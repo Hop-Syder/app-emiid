@@ -100,7 +100,7 @@ export function DashboardBentoHeader({ stats, statsLoading }: DashboardBentoHead
                             <Button
                                 size="sm"
                                 className="rounded-xl bg-white/8 hover:bg-white/15 border border-white/12 text-white/90 backdrop-blur-md font-semibold px-4 h-10 transition-all hover:border-white/25 text-sm"
-                                onClick={() => router.push("/profil/me")}
+                                onClick={() => router.push(session?.user?.id ? `/profil/${session.user.id}` : "/profil/me")}
                             >
                                 Mon Profil
                                 <ArrowRight className="w-3.5 h-3.5 ml-1.5 opacity-50" />
@@ -140,8 +140,11 @@ export function DashboardBentoHeader({ stats, statsLoading }: DashboardBentoHead
                             key={i}
                             whileHover={{ y: -3, scale: 1.01 }}
                             transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                            className={`relative overflow-hidden rounded-2xl bg-white/5 border border-white/8 backdrop-blur-md px-5 py-4 flex items-center gap-4 shadow-lg cursor-default group ring-1 ${stat.ring}`}
+                            className={`relative overflow-hidden rounded-2xl bg-[url('/dashboard/background-2.svg')] bg-cover bg-center border border-white/8 px-5 py-4 flex items-center gap-4 shadow-lg cursor-default group ring-1 ${stat.ring}`}
                         >
+                            {/* Overlay sombre pour lisibilité */}
+                            <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" />
+
                             {/* Glow au survol */}
                             <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${stat.bg} blur-2xl scale-150`} />
 
