@@ -1,3 +1,4 @@
+import { NavigationShell } from "@/components/navigation/navigation-shell"
 /**
  * @author @hopsyder
  * @organization Nexus Partners
@@ -12,7 +13,6 @@
  */
 
 import { createClient } from "@/lib/supabase/server"
-import { EmiIDLayout } from "@/components/menu/emiid-layout"
 import { DashboardPublicContent } from "@/components/dashboard-public-content/dashboard-public-content"
 import type { EntrepreneurProfile } from "@/components/dashboard-public-content/dashboard-public-content"
 import type { DashboardStats } from "@/types"
@@ -81,11 +81,13 @@ export default async function DashboardPublicPage() {
     ])
 
     return (
-        <EmiIDLayout>
+        <NavigationShell isPublic={true}>
+<div className="flex-1 w-full min-h-screen flex flex-col">
             <DashboardPublicContent
                 initialStats={initialStats}
                 initialProfiles={initialProfiles}
             />
-        </EmiIDLayout>
+        </div>
+</NavigationShell>
     )
 }

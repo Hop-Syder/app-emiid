@@ -8,7 +8,6 @@
  * 📧 daoudaabassichristian@gmail.com
 */
 
-import { EmiIDLayout } from "@/components/menu/emiid-layout"
 import { DashboardHubContent } from "@/components/dashboard-user-content/dashboard-hub"
 import { createClient } from "@/lib/supabase/server"
 
@@ -82,13 +81,13 @@ export default async function DashboardPage() {
     ])
 
     return (
-        <EmiIDLayout>
+        <div className="flex-1 w-full min-h-screen flex flex-col">
             <DashboardHubContent 
                 initialDirectoryProfiles={initialDirectoryProfiles} 
                 initialPremiumProfiles={premiumProfiles}
                 initialNewProfiles={newProfiles}
                 initialVerifiedProfiles={verifiedProfiles}
             />
-        </EmiIDLayout>
+        </div>
     )
 }

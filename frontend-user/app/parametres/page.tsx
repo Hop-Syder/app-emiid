@@ -1,10 +1,9 @@
-import { EmiIDLayout } from "@/components/menu/emiid-layout"
 import { ParametresContent } from "@/components/parametre-content"
 
 export default function ParametresPage() {
   return (
-    <EmiIDLayout>
+    <div className="flex-1 w-full min-h-screen flex flex-col">
       <ParametresContent />
-    </EmiIDLayout>
+    </div>
   )
 }

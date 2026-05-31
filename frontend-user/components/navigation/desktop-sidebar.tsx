@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { motion } from "framer-motion"
-import { Home, MessageSquare, Wallet, Settings, LogOut, User } from "lucide-react"
+import { Home, MessageSquare, Wallet, Settings, LogOut, User, Users, UserPlus, LogIn , Bell} from "lucide-react"
 import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
@@ -17,14 +17,22 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
-const navItems = [
+const privateNavItems = [
   { name: "Hub", href: "/dashboard-user", icon: Home },
   { name: "Messages", href: "/messages", icon: MessageSquare },
+  { name: "Notifications", href: "/notifications", icon: Bell },
   { name: "Portefeuille", href: "/portefeuille", icon: Wallet },
   { name: "Paramètres", href: "/parametres", icon: Settings },
 ]
 
-export function DesktopSidebar() {
+const publicNavItems = [
+  { name: "Accueil", href: "/", icon: Home },
+  { name: "Annuaire", href: "/dashboard-public", icon: Users },
+  { name: "S'inscrire", href: "/creer-profil", icon: UserPlus },
+  { name: "Se connecter", href: "/login", icon: LogIn },
+]
+
+export function DesktopSidebar({ isPublic = false }: { isPublic?: boolean }) {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
@@ -71,7 +79,7 @@ export function DesktopSidebar() {
 
       {/* Nav Links */}
       <div className="flex-1 flex flex-col gap-2 px-4 py-8">
-        {navItems.map((item) => {
+        {(isPublic ? publicNavItems : privateNavItems).map((item) => {
           const isActive = pathname === item.href
           
           return (
@@ -80,7 +88,7 @@ export function DesktopSidebar() {
                 className={`flex items-center h-12 rounded-2xl transition-all duration-200 ${
                   isActive
                     ? "bg-blue-600/20 text-blue-400"
-                    : "text-slate-400 hover:bg-white/5 hover:text-white"
+                    : "text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-white"
                 }`}
               >
                 {isActive && (
@@ -102,40 +110,41 @@ export function DesktopSidebar() {
         })}
       </div>
 
-      {/* Profile Dropdown */}
-      <div className="p-4 mb-4">
-        <DropdownMenu>
-          <DropdownMenuTrigger className="w-full outline-none">
-            <div className="flex items-center h-14 rounded-2xl hover:bg-white/5 transition-colors cursor-pointer border border-transparent hover:border-white/10 px-2">
-              <Avatar className="size-10 rounded-xl border border-white/20 shrink-0">
-                <AvatarImage src={profile?.avatar_url || ""} />
-                <AvatarFallback className="bg-slate-800 text-white rounded-xl">
-                  {profile?.full_name?.substring(0, 2).toUpperCase() || <User className="size-5" />}
-                </AvatarFallback>
-              </Avatar>
-              <div className="ml-3 flex-1 text-left overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <p className="text-sm font-bold text-white truncate">
-                  {profile?.full_name || "Profil"}
-                </p>
-                <p className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">
-                  Compte Élite
-                </p>
+      {!isPublic && (
+        <div className="p-4 mb-4">
+          <DropdownMenu>
+            <DropdownMenuTrigger className="w-full outline-none">
+              <div className="flex items-center h-14 rounded-2xl hover:bg-white/5 transition-colors cursor-pointer border border-transparent hover:border-white/10 px-2">
+                <Avatar className="size-10 rounded-xl border border-white/20 shrink-0">
+                  <AvatarImage src={profile?.avatar_url || ""} />
+                  <AvatarFallback className="bg-slate-800 text-white rounded-xl">
+                    {profile?.full_name?.substring(0, 2).toUpperCase() || <User className="size-5" />}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="ml-3 flex-1 text-left overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <p className="text-sm font-bold text-white truncate">
+                    {profile?.full_name || "Profil"}
+                  </p>
+                  <p className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">
+                    Compte Élite
+                  </p>
+                </div>
               </div>
-            </div>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" side="right" sideOffset={10} className="w-56 bg-slate-900 border-slate-800 text-slate-200 rounded-2xl p-2 shadow-2xl">
-            <DropdownMenuItem asChild className="rounded-xl cursor-pointer hover:bg-slate-800 focus:bg-slate-800">
-              <Link href="/dashboard-user" className="flex items-center">
-                <User className="mr-2 size-4" /> Mon Profil Public
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator className="bg-slate-800 my-2" />
-            <DropdownMenuItem onClick={handleLogout} className="rounded-xl cursor-pointer text-red-400 hover:text-red-300 hover:bg-red-500/10 focus:text-red-300 focus:bg-red-500/10">
-              <LogOut className="mr-2 size-4" /> Déconnexion
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" side="right" sideOffset={10} className="w-56 bg-slate-900 border-slate-800 text-slate-200 rounded-2xl p-2 shadow-2xl">
+              <DropdownMenuItem asChild className="rounded-xl cursor-pointer hover:bg-slate-800 focus:bg-slate-800">
+                <Link href="/dashboard-user" className="flex items-center">
+                  <User className="mr-2 size-4" /> Mon Profil Public
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="bg-slate-800 my-2" />
+              <DropdownMenuItem onClick={handleLogout} className="rounded-xl cursor-pointer text-red-400 hover:text-red-300 hover:bg-red-500/10 focus:text-red-300 focus:bg-red-500/10">
+                <LogOut className="mr-2 size-4" /> Déconnexion
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      )}
     </div>
   )
 }

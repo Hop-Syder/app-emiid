@@ -1,13 +1,12 @@
-import { EmiIDLayout } from "@/components/menu/emiid-layout"
 import { MessagesContent } from "@/components/messages-content"
 import { Suspense } from "react"
 
 export default function MessagesPage() {
   return (
-    <EmiIDLayout>
+    <div className="flex-1 w-full min-h-screen flex flex-col">
       <Suspense fallback={<div className="flex h-screen items-center justify-center">Chargement...</div>}>
         <MessagesContent />
       </Suspense>
-    </EmiIDLayout>
+    </div>
   )
 }

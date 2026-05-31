@@ -8,14 +8,13 @@
  * 📧 daoudaabassichristian@gmail.com
 */
 
-import { EmiIDLayout } from "@/components/menu/emiid-layout"
 import { CreerProfilContent } from "@/components/creer-profil-content"
 
 export default function CreateProfilePage() {
   return (
-    <EmiIDLayout>
+    <div className="flex-1 w-full min-h-screen flex flex-col">
       <CreerProfilContent />
-    </EmiIDLayout>
+    </div>
   )
 }
 

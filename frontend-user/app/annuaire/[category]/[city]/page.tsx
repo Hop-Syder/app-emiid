@@ -1,5 +1,5 @@
+import { NavigationShell } from "@/components/navigation/navigation-shell"
 import { Metadata } from "next"
-import { EmiIDLayout } from "@/components/menu/emiid-layout"
 import { AnnuairePublicContent } from "@/components/annuaire-public-content/annuaire-main"
 
 interface CityPageProps {
@@ -23,8 +23,10 @@ export default async function CityPage({ params }: CityPageProps) {
     const cityName = city.replace(/-/g, ' ')
     
     return (
-        <EmiIDLayout>
+        <NavigationShell isPublic={true}>
+<div className="flex-1 w-full min-h-screen flex flex-col">
             <AnnuairePublicContent initialCategory={category} initialCity={cityName} />
-        </EmiIDLayout>
+        </div>
+</NavigationShell>
     )
 }

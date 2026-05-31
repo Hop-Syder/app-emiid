@@ -3,17 +3,25 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { motion } from "framer-motion"
-import { Home, MessageSquare, Wallet, Settings, User } from "lucide-react"
+import { Home, MessageSquare, Wallet, Settings, User, Users, UserPlus, LogIn , Bell} from "lucide-react"
 
-const navItems = [
+const privateNavItems = [
   { name: "Hub", href: "/dashboard-user", icon: Home },
   { name: "Messages", href: "/messages", icon: MessageSquare },
+  { name: "Notifications", href: "/notifications", icon: Bell },
   { name: "Portefeuille", href: "/portefeuille", icon: Wallet },
   { name: "Profil", href: "/dashboard-user?view=profile", icon: User },
   { name: "Paramètres", href: "/parametres", icon: Settings },
 ]
 
-export function MobileDock() {
+const publicNavItems = [
+  { name: "Accueil", href: "/", icon: Home },
+  { name: "Annuaire", href: "/dashboard-public", icon: Users },
+  { name: "S'inscrire", href: "/creer-profil", icon: UserPlus },
+  { name: "Se connecter", href: "/login", icon: LogIn },
+]
+
+export function MobileDock({ isPublic = false }: { isPublic?: boolean }) {
   const pathname = usePathname()
 
   return (
@@ -23,7 +31,7 @@ export function MobileDock() {
         {/* Lueur interne globale */}
         <div className="absolute inset-0 rounded-full border border-white/5 pointer-events-none" />
 
-        {navItems.map((item) => {
+        {(isPublic ? publicNavItems : privateNavItems).map((item) => {
           // Simplification pour le mode demo:
           // Le bouton Profil redirige vers dashboard-user?view=profile ou similaire.
           const isActive = pathname === item.href && item.name !== "Profil"

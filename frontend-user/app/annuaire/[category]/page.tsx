@@ -1,5 +1,5 @@
+import { NavigationShell } from "@/components/navigation/navigation-shell"
 import { Metadata } from "next"
-import { EmiIDLayout } from "@/components/menu/emiid-layout"
 import { AnnuairePublicContent } from "@/components/annuaire-public-content/annuaire-main"
 
 interface CategoryPageProps {
@@ -20,8 +20,10 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 export default async function CategoryPage({ params }: CategoryPageProps) {
     const { category } = await params
     return (
-        <EmiIDLayout>
+        <NavigationShell isPublic={true}>
+<div className="flex-1 w-full min-h-screen flex flex-col">
             <AnnuairePublicContent initialCategory={category} />
-        </EmiIDLayout>
+        </div>
+</NavigationShell>
     )
 }

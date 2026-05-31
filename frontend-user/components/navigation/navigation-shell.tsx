@@ -5,13 +5,14 @@ import { MobileDock } from "./mobile-dock"
 
 interface NavigationShellProps {
   children: React.ReactNode
+  isPublic?: boolean
 }
 
-export function NavigationShell({ children }: NavigationShellProps) {
+export function NavigationShell({ children, isPublic = false }: NavigationShellProps) {
   return (
     <div className="relative min-h-screen bg-slate-50 w-full flex">
       {/* Sidebar pour Desktop */}
-      <DesktopSidebar />
+      <DesktopSidebar isPublic={isPublic} />
 
       {/* 
         Conteneur principal: 
@@ -23,7 +24,7 @@ export function NavigationShell({ children }: NavigationShellProps) {
       </main>
 
       {/* Dock pour Mobile */}
-      <MobileDock />
+      <MobileDock isPublic={isPublic} />
     </div>
   )
 }
