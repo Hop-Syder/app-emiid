@@ -19,7 +19,7 @@ import { EntrepreneursSection } from "./entrepreneurs-section"
 
 import { AnnuaireFilters } from "@/components/annuaire-public-content/annuaire-filters"
 import { AnnuaireGrid } from "@/components/annuaire-public-content/annuaire-grid"
-import { AlertTriangle } from "lucide-react"
+import { Sparkles, Network } from "lucide-react"
 
 interface DashboardHubContentProps {
   initialDirectoryProfiles: PublicProfile[]
@@ -61,18 +61,14 @@ export function DashboardHubContent({
       {/* =========================================
           SECTION 1 : HEADER DARK (STATS & HERO)
           ========================================= */}
-      <div className="bg-slate-900 border-b border-slate-800 pb-12 pt-6 rounded-b-[2.5rem] shadow-xl relative overflow-hidden z-10">
-        {/* Effet lumineux en arrière-plan */}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[100px] -mr-32 -mt-32 pointer-events-none"></div>
-        <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-amber-500/10 rounded-full blur-[80px] -ml-20 -mb-20 pointer-events-none"></div>
-
+      <div className="bg-slate-950 pb-16 pt-6 rounded-b-[3rem] shadow-2xl relative overflow-hidden z-10 border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 relative z-10">
           <DashboardBentoHeader stats={stats} statsLoading={statsLoading} />
           
           {statsError && (
-            <p className="text-xs text-slate-400 flex items-center justify-center gap-1.5 px-1 pt-4" data-testid="stats-sync-indicator">
-              <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
-              Statistiques non synchronisées — nouvelle tentative dans quelques secondes
+            <p className="text-xs text-rose-400 flex items-center justify-center gap-2 px-1 pt-4 font-medium" data-testid="stats-sync-indicator">
+              <span className="inline-block h-2 w-2 rounded-full bg-rose-500 animate-pulse" />
+              Connexion en direct interrompue — tentative de reconnexion...
             </p>
           )}
         </div>
@@ -82,14 +78,17 @@ export function DashboardHubContent({
           SECTION 2 : DÉCOUVERTE (CARROUSELS)
           Chevauche légèrement la section dark
           ========================================= */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full -mt-6 z-20 space-y-8 relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full -mt-10 z-20 space-y-10 relative">
         
         {/* PREMIUM (Elite) */}
         {initialPremiumProfiles.length > 0 && (
           <div className="space-y-4">
             <div className="flex items-center justify-between px-2">
-              <h3 className="text-xl font-black text-slate-800 flex items-center gap-2 italic uppercase tracking-tighter">
-                <span className="text-amber-500">👑</span> Premium
+              <h3 className="text-2xl font-black text-slate-800 flex items-center gap-3 tracking-tight">
+                <div className="p-2 bg-amber-100 rounded-xl">
+                  <span className="text-amber-500 text-xl">👑</span>
+                </div>
+                Cercle Premium
               </h3>
             </div>
             <EntrepreneursSection 
@@ -102,10 +101,13 @@ export function DashboardHubContent({
 
         {/* NOUVEAUX ARRIVANTS */}
         {initialNewProfiles.length > 0 && (
-          <div className="space-y-4">
+          <div className="space-y-4 pt-4">
             <div className="flex items-center justify-between px-2">
-              <h3 className="text-xl font-black text-slate-800 flex items-center gap-2 italic uppercase tracking-tighter">
-                <span className="text-blue-500">⚡</span> Nouveaux Arrivants
+              <h3 className="text-2xl font-black text-slate-800 flex items-center gap-3 tracking-tight">
+                <div className="p-2 bg-blue-100 rounded-xl">
+                  <Sparkles className="text-blue-500 w-5 h-5" />
+                </div>
+                Nouveaux Talents
               </h3>
             </div>
             <EntrepreneursSection 
@@ -118,10 +120,13 @@ export function DashboardHubContent({
 
         {/* 100% VÉRIFIÉS */}
         {initialVerifiedProfiles.length > 0 && (
-          <div className="space-y-4">
+          <div className="space-y-4 pt-4">
             <div className="flex items-center justify-between px-2">
-              <h3 className="text-xl font-black text-slate-800 flex items-center gap-2 italic uppercase tracking-tighter">
-                <span className="text-indigo-500">✓</span> 100% Vérifiés
+              <h3 className="text-2xl font-black text-slate-800 flex items-center gap-3 tracking-tight">
+                <div className="p-2 bg-emerald-100 rounded-xl">
+                  <span className="text-emerald-500 text-xl">✓</span>
+                </div>
+                Profils Vérifiés
               </h3>
             </div>
             <EntrepreneursSection 
@@ -136,20 +141,32 @@ export function DashboardHubContent({
       {/* =========================================
           SECTION 3 : ANNUAIRE GLOBAL (GRILLE)
           ========================================= */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-12 space-y-6">
-        <div className="pt-8 border-t border-slate-200">
-          <div className="mb-8">
-            <h2 className="text-3xl sm:text-4xl font-black text-[#022753] uppercase tracking-tight">
-              Explorer le Réseau
-            </h2>
-            <p className="text-slate-500 mt-2 font-medium">
-              Trouvez des partenaires, clients ou prestataires parmi tous nos membres.
-            </p>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-16 space-y-6">
+        <div className="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-xl border border-slate-100 relative overflow-hidden">
+          {/* Subtle background decoration */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-slate-50 rounded-full blur-3xl -mr-20 -mt-20"></div>
+
+          <div className="mb-10 relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl">
+                  <Network className="w-6 h-6" />
+                </div>
+                <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
+                  L'Annuaire Global
+                </h2>
+              </div>
+              <p className="text-slate-500 font-medium text-lg max-w-2xl">
+                Recherchez, filtrez et connectez-vous avec l'ensemble des membres certifiés du réseau EmiID.
+              </p>
+            </div>
           </div>
           
-          <AnnuaireFilters filters={filters} onFilterChange={handleFilterChange} />
+          <div className="relative z-10">
+            <AnnuaireFilters filters={filters} onFilterChange={handleFilterChange} />
+          </div>
           
-          <div className="mt-8">
+          <div className="mt-10 relative z-10">
             <AnnuaireGrid filters={filters} initialProfiles={initialDirectoryProfiles} />
           </div>
         </div>

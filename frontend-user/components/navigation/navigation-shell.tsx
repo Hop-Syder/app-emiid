@@ -2,6 +2,7 @@
 
 import { DesktopSidebar } from "./desktop-sidebar"
 import { MobileDock } from "./mobile-dock"
+import { CommandPalette } from "@/components/command-palette"
 
 interface NavigationShellProps {
   children: React.ReactNode
@@ -25,6 +26,9 @@ export function NavigationShell({ children, isPublic = false }: NavigationShellP
 
       {/* Dock pour Mobile */}
       <MobileDock isPublic={isPublic} />
+
+      {/* Palette de commandes (CMD+K) */}
+      <CommandPalette />
     </div>
   )
 }
