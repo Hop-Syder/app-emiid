@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import { BadgeCheck, Crown, Globe, Users, Search } from "lucide-react"
 import { useEffect, useState } from "react"
+import { useCurrentUserProfile } from "@/hooks/use-current-user-profile"
 
 interface DashboardBentoHeaderProps {
     stats: {
@@ -28,6 +29,7 @@ interface DashboardBentoHeaderProps {
 
 export function DashboardBentoHeader({ stats, statsLoading }: DashboardBentoHeaderProps) {
     const router = useRouter()
+    const { session } = useCurrentUserProfile()
     const [greeting, setGreeting] = useState("Bonjour")
 
     useEffect(() => {
@@ -36,6 +38,9 @@ export function DashboardBentoHeader({ stats, statsLoading }: DashboardBentoHead
         else if (hour < 18) setGreeting("Bon après-midi")
         else setGreeting("Bonsoir")
     }, [])
+
+    const userName = session?.user?.user_metadata?.first_name || session?.user?.user_metadata?.name || ""
+    const displayName = userName ? ` ${userName}` : ""
 
     const statsItems = stats ? [
         {
@@ -91,50 +96,39 @@ export function DashboardBentoHeader({ stats, statsLoading }: DashboardBentoHead
             {/* HERO TILE */}
             <motion.div 
                 variants={itemVariants}
-                className="lg:col-span-2 relative overflow-hidden rounded-[2.5rem] p-8 md:p-10 text-white min-h-[340px] flex flex-col justify-center border border-white/10 shadow-2xl backdrop-blur-3xl bg-slate-950"
+                className="lg:col-span-2 relative overflow-hidden rounded-[2rem] p-8 md:p-10 text-white flex flex-col justify-center shadow-2xl bg-blue-600 bg-[url('/dashboard/background-1.svg')] bg-cover bg-center"
             >
-                {/* Aurora effect backgrounds */}
-                <div className="absolute -top-24 -left-24 w-96 h-96 bg-indigo-500/30 rounded-full blur-[80px]" />
-                <div className="absolute bottom-0 right-0 w-80 h-80 bg-rose-500/20 rounded-full blur-[80px]" />
-                <div className="absolute inset-0 bg-gradient-to-br from-slate-950/80 via-slate-950/60 to-transparent z-0" />
+                <div className="absolute inset-0 bg-blue-900/40 z-0" />
 
-                <div className="relative z-10 flex flex-col gap-6">
-                    <div className="space-y-4">
-                        <Badge className="bg-white/5 text-slate-300 hover:bg-white/10 backdrop-blur-md rounded-full px-4 py-1.5 border border-white/10 font-medium">
-                            ✨ L'Élite du Réseau
-                        </Badge>
-                        <h2 className="text-4xl md:text-6xl font-black tracking-tight leading-tight">
-                            {greeting}, <br className="hidden md:block" />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-rose-400">
-                                prêt à networker ?
-                            </span>
-                        </h2>
-                        <p className="max-w-[480px] text-slate-400 text-lg font-medium leading-relaxed">
-                            Explorez des profils exclusifs, étendez votre influence et développez vos affaires au sein d'EmiID.
-                        </p>
-                        
-                        <div className="flex flex-wrap gap-4 pt-6">
-                            <Button
-                                className="rounded-2xl bg-white text-slate-950 hover:bg-slate-200 px-6 h-14 shadow-[0_0_30px_rgba(255,255,255,0.2)] font-bold transition-all hover:scale-[1.02] text-base"
-                                onClick={() => {
-                                    const event = new KeyboardEvent('keydown', { key: 'k', metaKey: true })
-                                    document.dispatchEvent(event)
-                                }}
-                            >
-                                <Search className="w-5 h-5 mr-2" />
-                                Recherche Rapide
-                                <kbd className="ml-3 pointer-events-none inline-flex h-6 select-none items-center gap-1 rounded bg-slate-200 px-2 font-mono text-sm font-medium text-slate-600 opacity-100">
-                                    <span className="text-xs">⌘</span>K
-                                </kbd>
-                            </Button>
-                            <Button
-                                variant="outline"
-                                className="rounded-2xl bg-slate-900/40 border-white/10 text-white hover:bg-slate-800/60 px-6 h-14 backdrop-blur-md font-bold transition-all hover:border-white/20 text-base"
-                                onClick={() => router.push("/profil/me")}
-                            >
-                                Mon Profil
-                            </Button>
-                        </div>
+                <div className="relative z-10 flex flex-col gap-8">
+                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight">
+                        {greeting}{displayName}, <br className="hidden md:block" />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-white">
+                            prêt à networker ?
+                        </span>
+                    </h2>
+                    
+                    <div className="flex items-center gap-4">
+                        <Button
+                            className="rounded-xl bg-white text-blue-950 hover:bg-slate-100 px-5 h-12 shadow-[0_0_20px_rgba(255,255,255,0.15)] font-bold transition-all hover:scale-[1.02]"
+                            onClick={() => {
+                                const event = new KeyboardEvent('keydown', { key: 'k', metaKey: true })
+                                document.dispatchEvent(event)
+                            }}
+                        >
+                            <Search className="w-4 h-4 mr-2" />
+                            Recherche Rapide
+                            <kbd className="ml-2 pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded bg-slate-200 px-1.5 font-mono text-[10px] font-medium text-slate-600">
+                                <span>⌘</span>K
+                            </kbd>
+                        </Button>
+                        <Button
+                            variant="outline"
+                            className="rounded-xl bg-slate-900/30 border-white/20 text-white hover:bg-slate-800/50 px-5 h-12 backdrop-blur-md font-bold transition-all hover:border-white/40"
+                            onClick={() => router.push("/profil/me")}
+                        >
+                            Mon Profil
+                        </Button>
                     </div>
                 </div>
             </motion.div>
@@ -146,29 +140,28 @@ export function DashboardBentoHeader({ stats, statsLoading }: DashboardBentoHead
             >
                 {statsLoading || !stats ? (
                     Array.from({ length: 4 }).map((_, i) => (
-                        <div key={i} className="rounded-[2rem] bg-slate-900/40 animate-pulse border border-white/5 backdrop-blur-sm h-[160px]"></div>
+                        <div key={i} className="rounded-[1.5rem] bg-slate-900/40 animate-pulse border border-white/5 backdrop-blur-sm h-[100px]"></div>
                     ))
                 ) : (
                     statsItems.map((stat, i) => (
                         <motion.div
                             key={i}
-                            whileHover={{ scale: 1.03, y: -4 }}
-                            className="relative overflow-hidden rounded-[2rem] bg-slate-950/50 border border-white/10 backdrop-blur-2xl p-6 flex flex-col justify-between shadow-2xl group cursor-default transition-all duration-300"
+                            whileHover={{ scale: 1.02, y: -2 }}
+                            className="relative overflow-hidden rounded-[1.5rem] bg-slate-950/60 border border-white/10 backdrop-blur-xl p-5 flex flex-col justify-center shadow-xl group cursor-default transition-all duration-300"
                         >
                             {/* Inner Glow */}
                             <div className={`absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500 ${stat.bg.replace('/10', '/50')}`} />
                             
-                            <div className="flex items-center justify-between z-10">
-                                <div className={`p-3 rounded-2xl ${stat.bg} ${stat.color} ring-1 ring-white/5 shadow-inner`}>
-                                    <stat.icon className="w-6 h-6" />
+                            <div className="z-10 flex flex-col gap-1.5">
+                                <div className="flex items-center gap-3">
+                                    <div className={`p-2 rounded-xl ${stat.bg} ${stat.color} ring-1 ring-white/10 shadow-inner`}>
+                                        <stat.icon className="w-5 h-5" />
+                                    </div>
+                                    <span className="text-3xl font-black text-white tracking-tighter">
+                                        {stat.value.toLocaleString()}
+                                    </span>
                                 </div>
-                            </div>
-                            
-                            <div className="z-10 mt-4">
-                                <div className="text-4xl font-black text-white tracking-tighter">
-                                    {stat.value.toLocaleString()}
-                                </div>
-                                <p className="text-sm font-medium text-slate-400 mt-1">
+                                <p className="text-sm font-semibold text-slate-400 mt-1 tracking-wide uppercase text-xs">
                                     {stat.label}
                                 </p>
                             </div>

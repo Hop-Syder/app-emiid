@@ -78,7 +78,7 @@ export function DashboardHubContent({
           SECTION 2 : DÉCOUVERTE (CARROUSELS)
           Chevauche légèrement la section dark
           ========================================= */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full -mt-10 z-20 space-y-10 relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full -mt-10 z-20 space-y-20 relative">
         
         {/* PREMIUM (Elite) */}
         {initialPremiumProfiles.length > 0 && (
@@ -141,7 +141,7 @@ export function DashboardHubContent({
       {/* =========================================
           SECTION 3 : ANNUAIRE GLOBAL (GRILLE)
           ========================================= */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-16 space-y-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-24 mb-12 space-y-6">
         <div className="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-xl border border-slate-100 relative overflow-hidden">
           {/* Subtle background decoration */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-slate-50 rounded-full blur-3xl -mr-20 -mt-20"></div>
