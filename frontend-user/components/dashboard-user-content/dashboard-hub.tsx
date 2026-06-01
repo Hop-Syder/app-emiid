@@ -133,6 +133,9 @@ export function DashboardHubContent({
               </div>
               Talents à Proximité
             </h3>
+            <Link href="/annuaire?filter=verified" className="text-sm font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-1 group">
+              Voir tout <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
           </div>
           {/* On réutilise les profils vérifiés pour simuler la géoloc */}
           <EntrepreneursSection

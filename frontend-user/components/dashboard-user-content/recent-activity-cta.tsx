@@ -50,7 +50,7 @@ export function RecentActivityCta() {
               </div>
             </div>
             <div className="flex items-center">
-              <span className="text-xs font-semibold text-slate-600 bg-slate-100 px-2 py-1 rounded-full">+3 nouvelles</span>
+              <span className="text-xs font-semibold text-slate-600 bg-slate-100 px-2 py-1 rounded-full">Nouveau</span>
             </div>
           </div>
 

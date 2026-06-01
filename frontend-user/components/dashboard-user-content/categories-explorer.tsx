@@ -7,6 +7,7 @@
 
 "use client"
 
+import Link from "next/link"
 import { Briefcase, Code, Palette, LineChart, Camera, Music, Globe, Database } from "lucide-react"
 
 const categories = [
@@ -26,8 +27,9 @@ export function CategoriesExplorer() {
       {categories.map((cat, idx) => {
         const Icon = cat.icon
         return (
-          <button
+          <Link
             key={idx}
+            href={`/annuaire?category=${encodeURIComponent(cat.name)}`}
             className={`group relative flex flex-col p-5 rounded-2xl border ${cat.bg} hover:shadow-md transition-all duration-300 text-left overflow-hidden`}
           >
             {/* Décoration d'arrière-plan */}
@@ -40,7 +42,7 @@ export function CategoriesExplorer() {
             </div>
             <h4 className="font-bold text-slate-800 text-lg tracking-tight z-10">{cat.name}</h4>
             <span className="text-sm font-medium text-slate-500 z-10 mt-1">{cat.count} profils</span>
-          </button>
+          </Link>
         )
       })}
     </div>
