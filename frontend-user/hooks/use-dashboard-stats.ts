@@ -20,18 +20,8 @@ export const CREDIBLE_FALLBACK_STATS: DashboardStats = {
     verifiedMembers: 480,
     countriesCovered: 12,
     premiumMembers: 95,
-    categoryCounts: {
-        "artisan": 125,
-        "commerçante": 85,
-        "freelance": 42,
-        "entreprise": 31,
-        "agence": 54,
-        "startup": 21,
-        "ong": 15,
-        "investisseur": 8,
-        "institution": 4,
-        "etudiant": 93
-    }
+    // categoryCounts est retiré d'ici pour s'assurer qu'on affiche les vraies données.
+    // S'il n'y a pas de vraie donnée, le composant affichera "Nouveau" par défaut.
 }
 
 interface UseDashboardStatsOptions {

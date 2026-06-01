@@ -25,21 +25,21 @@ const categories = [
   { id: "etudiant", label: "Étudiant / Jeune Diplômé", desc: "Pour la recherche de stage/emploi", icon: GraduationCap, color: "text-orange-500", bg: "bg-orange-50 border-orange-100", count: "930+" },
 ]
 
-const CategoryCard = ({ cat, idx, count }: { cat: any, idx: number, count?: number }) => {
+const CategoryCard = ({ cat, idx, categoryCounts }: { cat: any, idx: number, categoryCounts?: Record<string, number> }) => {
   const Icon = cat.icon
 
   // Format de l'affichage intelligent :
-  // Si on a un vrai compte :
-  // - count > 100 : "X profils" (ex: "125 profils")
-  // - count < 100 et > 0 : "X profils (Nouveau)"
+  // Si on a l'objet des vraies stats (categoryCounts existe) :
+  // - count > 100 : "X profils"
+  // - count < 100 et > 0 : "X profils"
   // - count === 0 : "Nouveau"
-  // Si pas de compte (fallback) : cat.count
+  // Si pas de données backend (fallback) : cat.count
   let displayCount = cat.count
-  if (count !== undefined) {
-    if (count > 100) {
-      displayCount = `${count}`
-    } else if (count > 0) {
-      displayCount = `${count}`
+  
+  if (categoryCounts !== undefined) {
+    const realCount = categoryCounts[cat.id] || 0;
+    if (realCount > 0) {
+      displayCount = `${realCount}`
     } else {
       displayCount = "Nouveau"
     }
@@ -92,14 +92,14 @@ export function CategoriesExplorer({ categoryCounts }: CategoriesExplorerProps =
       {/* LIGNE 1 */}
       <div className="flex overflow-x-auto gap-4 pb-2 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {row1.map((cat, idx) => (
-          <CategoryCard key={idx} cat={cat} idx={idx} count={categoryCounts?.[cat.id]} />
+          <CategoryCard key={idx} cat={cat} idx={idx} categoryCounts={categoryCounts} />
         ))}
       </div>
       
       {/* LIGNE 2 */}
       <div className="flex overflow-x-auto gap-4 pb-4 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {row2.map((cat, idx) => (
-          <CategoryCard key={idx} cat={cat} idx={idx} count={categoryCounts?.[cat.id]} />
+          <CategoryCard key={idx} cat={cat} idx={idx} categoryCounts={categoryCounts} />
         ))}
       </div>
     </div>

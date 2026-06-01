@@ -40,19 +40,29 @@ export async function GET() {
             return NextResponse.json({ error: "Erreur de base de données" }, { status: 500 })
         }
 
-        // 4. Calcul des pays couverts
+        // 4. Calcul des pays couverts et statistiques par catégories
         // Option la plus optimisée côté frontend/API Supabase JS sans RPC (Stored Procedure) : 
-        // Récupérer uniquement les `country_id` pour faire un Set. 
-        // C'est rapide même avec des milliers de lignes car la colonne est toute petite.
+        // Récupérer uniquement les `country_id` et `category` pour faire un Set et un Map. 
+        // C'est rapide même avec des milliers de lignes car les colonnes sont toutes petites.
         let countriesCovered = 0
-        const { data: countriesData, error: err4 } = await supabase
+        const categoryCounts: Record<string, number> = {}
+        
+        const { data: profilesData, error: err4 } = await supabase
             .from('public_profiles')
-            .select('country_id')
+            .select('country_id, category')
             .eq('is_published', true)
-            .not('country_id', 'is', null)
 
-        if (!err4 && countriesData) {
-            const uniqueCountries = new Set(countriesData.map(c => c.country_id))
+        if (!err4 && profilesData) {
+            const uniqueCountries = new Set()
+            for (const profile of profilesData) {
+                if (profile.country_id) {
+                    uniqueCountries.add(profile.country_id)
+                }
+                if (profile.category) {
+                    const normalizedCategory = profile.category.toLowerCase().trim()
+                    categoryCounts[normalizedCategory] = (categoryCounts[normalizedCategory] || 0) + 1
+                }
+            }
             countriesCovered = uniqueCountries.size
         }
 
@@ -62,6 +72,7 @@ export async function GET() {
             verifiedMembers: verifiedMembers || 0,
             countriesCovered: countriesCovered || 0,
             premiumMembers: premiumMembers || 0,
+            categoryCounts,
         })
 
     } catch (error) {
