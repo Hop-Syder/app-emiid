@@ -102,6 +102,25 @@ export function DashboardHubContent({
           />
         </div>
 
+        {/* RECOMMANDATIONS SMART MATCH (PROFILS PREMIUM) */}
+        {initialPremiumProfiles.length > 0 && (
+          <div className="space-y-4 pt-4">
+            <div className="flex items-center justify-between px-2">
+              <h3 className="text-2xl font-black text-slate-800 flex items-center gap-3 tracking-tight">
+                <div className="p-2 bg-amber-100 rounded-xl">
+                  <Target className="text-amber-500 w-5 h-5" />
+                </div>
+                Recommandé pour vous
+              </h3>
+            </div>
+            <EntrepreneursSection 
+              entrepreneursList={initialPremiumProfiles} 
+              loading={false} 
+              variant="glass" 
+            />
+          </div>
+        )}
+
         {/* EXPLORER PAR CATÉGORIE */}
         <div className="space-y-6 pt-4">
           <div className="flex items-center justify-between px-2">
@@ -114,26 +133,6 @@ export function DashboardHubContent({
           </div>
           <CategoriesExplorer />
         </div>
-
-        {/* RECOMMANDATIONS SMART MATCH */}
-        {initialPremiumProfiles.length > 0 && (
-          <div className="space-y-4 pt-4">
-            <div className="flex items-center justify-between px-2">
-              <h3 className="text-2xl font-black text-slate-800 flex items-center gap-3 tracking-tight">
-                <div className="p-2 bg-amber-100 rounded-xl">
-                  <Target className="text-amber-500 w-5 h-5" />
-                </div>
-                Recommandé pour vous
-              </h3>
-            </div>
-            {/* On réutilise les profils premium pour l'instant comme suggestions */}
-            <EntrepreneursSection 
-              entrepreneursList={initialPremiumProfiles} 
-              loading={false} 
-              variant="glass" 
-            />
-          </div>
-        )}
 
         {/* TALENTS À PROXIMITÉ */}
         {initialVerifiedProfiles.length > 0 && (
