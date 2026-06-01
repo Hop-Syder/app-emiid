@@ -29,7 +29,7 @@ interface DashboardHubContentProps {
   initialVerifiedProfiles: PublicProfile[]
 }
 
-export function DashboardHubContent({ 
+export function DashboardHubContent({
   initialDirectoryProfiles,
   initialPremiumProfiles,
   initialNewProfiles,
@@ -65,7 +65,7 @@ export function DashboardHubContent({
       <div className="pb-16 pt-6 relative overflow-hidden z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 relative z-10">
           <DashboardBentoHeader stats={stats} statsLoading={statsLoading} />
-          
+
           {statsError && (
             <p className="text-xs text-rose-400 flex items-center justify-center gap-2 px-1 pt-4 font-medium" data-testid="stats-sync-indicator">
               <span className="inline-block h-2 w-2 rounded-full bg-rose-500 animate-pulse" />
@@ -79,7 +79,7 @@ export function DashboardHubContent({
           SECTION 2 : DÉCOUVERTE & ACTIVITÉ
           ========================================= */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full -mt-10 z-20 space-y-12 relative">
-        
+
         {/* BANNIÈRE HORIZONTALE CTA ACTIVITÉ RÉCENTE */}
         <div className="w-full">
           <RecentActivityCta />
@@ -95,31 +95,30 @@ export function DashboardHubContent({
               Nouveaux Talents
             </h3>
           </div>
-          <EntrepreneursSection 
-            entrepreneursList={initialNewProfiles} 
-            loading={false} 
-            variant="tech" 
+          <EntrepreneursSection
+            entrepreneursList={initialNewProfiles}
+            loading={false}
+            variant="tech"
           />
         </div>
 
         {/* RECOMMANDATIONS SMART MATCH (PROFILS PREMIUM) */}
-        {initialPremiumProfiles.length > 0 && (
-          <div className="space-y-4 pt-4">
-            <div className="flex items-center justify-between px-2">
-              <h3 className="text-2xl font-black text-slate-800 flex items-center gap-3 tracking-tight">
-                <div className="p-2 bg-amber-100 rounded-xl">
-                  <Target className="text-amber-500 w-5 h-5" />
-                </div>
-                Recommandé pour vous
-              </h3>
-            </div>
-            <EntrepreneursSection 
-              entrepreneursList={initialPremiumProfiles} 
-              loading={false} 
-              variant="glass" 
-            />
+
+        <div className="space-y-4 pt-4">
+          <div className="flex items-center justify-between px-2">
+            <h3 className="text-2xl font-black text-slate-800 flex items-center gap-3 tracking-tight">
+              <div className="p-2 bg-amber-100 rounded-xl">
+                <Target className="text-amber-500 w-5 h-5" />
+              </div>
+              Recommandé pour vous
+            </h3>
           </div>
-        )}
+          <EntrepreneursSection
+            entrepreneursList={initialPremiumProfiles}
+            loading={false}
+            variant="glass"
+          />
+        </div>
 
         {/* EXPLORER PAR CATÉGORIE */}
         <div className="space-y-6 pt-4">
@@ -135,24 +134,22 @@ export function DashboardHubContent({
         </div>
 
         {/* TALENTS À PROXIMITÉ */}
-        {initialVerifiedProfiles.length > 0 && (
-          <div className="space-y-4 pt-4">
-            <div className="flex items-center justify-between px-2">
-              <h3 className="text-2xl font-black text-slate-800 flex items-center gap-3 tracking-tight">
-                <div className="p-2 bg-emerald-100 rounded-xl">
-                  <MapPin className="text-emerald-500 w-5 h-5" />
-                </div>
-                Talents à Proximité
-              </h3>
-            </div>
-            {/* On réutilise les profils vérifiés pour simuler la géoloc */}
-            <EntrepreneursSection 
-              entrepreneursList={initialVerifiedProfiles} 
-              loading={false} 
-              variant="glass" 
-            />
+        <div className="space-y-4 pt-4">
+          <div className="flex items-center justify-between px-2">
+            <h3 className="text-2xl font-black text-slate-800 flex items-center gap-3 tracking-tight">
+              <div className="p-2 bg-emerald-100 rounded-xl">
+                <MapPin className="text-emerald-500 w-5 h-5" />
+              </div>
+              Talents à Proximité
+            </h3>
           </div>
-        )}
+          {/* On réutilise les profils vérifiés pour simuler la géoloc */}
+          <EntrepreneursSection
+            entrepreneursList={initialVerifiedProfiles}
+            loading={false}
+            variant="glass"
+          />
+        </div>
 
       </div>
     </div>
