@@ -1,7 +1,8 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { EntrepreneursSection } from "./entrepreneurs-section"
-import { MapPin, ArrowRight } from "lucide-react"
+import { MapPin, ArrowRight, Loader2 } from "lucide-react"
 import Link from "next/link"
 import type { PublicProfile } from "@/types"
 
@@ -11,24 +12,108 @@ interface ProximitySectionProps {
 }
 
 export function ProximitySection({ fallbackLocation, initialProfiles = [] }: ProximitySectionProps) {
-  let locationName = "à Proximité"
-  if (fallbackLocation?.city) {
-    locationName = `autour de ${fallbackLocation.city}`
-  } else if (fallbackLocation?.country_name) {
-    locationName = `en ${fallbackLocation.country_name}`
-  } else if (fallbackLocation === null) {
-    locationName = "Internationaux"
-  }
+  const [profiles, setProfiles] = useState<PublicProfile[]>(initialProfiles)
+  // On met le loader si on va chercher la position, ou si on n'a rien au départ
+  const [loading, setLoading] = useState(false)
+  const [locationName, setLocationName] = useState<string | null>(null)
+
+  // Initialiser le nom de la localisation avec le fallback en attendant le GPS
+  useEffect(() => {
+    if (!locationName) {
+      if (fallbackLocation?.city) {
+        setLocationName(`autour de ${fallbackLocation.city}`)
+      } else if (fallbackLocation?.country_name) {
+        setLocationName(`en ${fallbackLocation.country_name}`)
+      } else {
+        setLocationName("Internationaux")
+      }
+    }
+  }, [fallbackLocation, locationName])
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function fetchProfiles(params: URLSearchParams) {
+      try {
+        setLoading(true)
+        const res = await fetch(`/api/dashboard-user/proximity?${params.toString()}`)
+        if (res.ok) {
+          const data = await res.json()
+          if (isMounted && data.profiles && data.profiles.length > 0) {
+            setProfiles(data.profiles)
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch proximity profiles", err)
+      } finally {
+        if (isMounted) setLoading(false)
+      }
+    }
+
+    async function handleGeolocation(position: GeolocationPosition) {
+      const lat = position.coords.latitude
+      const lon = position.coords.longitude
+      
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=fr`)
+        if (res.ok) {
+          const data = await res.json()
+          const city = data.address.city || data.address.town || data.address.village || data.address.state
+          const country = data.address.country
+          
+          if (isMounted) setLocationName(city ? `autour de ${city}` : `en ${country}`)
+          
+          const params = new URLSearchParams()
+          if (city) params.append('city', city)
+          if (country) params.append('country_name', country)
+          
+          fetchProfiles(params)
+          return
+        }
+      } catch (e) {
+        console.error("Geocoding failed", e)
+      }
+      useFallback()
+    }
+
+    function useFallback() {
+      // S'il refuse le GPS, on affiche CARREMENT les profils de son pays (on ignore la ville)
+      const params = new URLSearchParams()
+      if (fallbackLocation?.country_id) {
+        params.append('country_id', fallbackLocation.country_id)
+        if (isMounted) setLocationName(`en ${fallbackLocation.country_name}`)
+      }
+      
+      // On fetch avec uniquement le country_id (et donc route.ts fera un match sur le pays)
+      fetchProfiles(params)
+    }
+
+    // On lance la demande GPS uniquement si on est côté client
+    if (navigator.geolocation) {
+      setLoading(true)
+      navigator.geolocation.getCurrentPosition(
+        handleGeolocation, 
+        useFallback, 
+        { timeout: 5000 }
+      )
+    }
+
+    return () => {
+      isMounted = false
+    }
+  }, [fallbackLocation])
 
   return (
     <div className="space-y-4 pt-4">
       <div className="flex flex-row items-center justify-between px-1 sm:px-2 gap-2">
         <h3 className="text-lg sm:text-2xl font-black text-slate-800 flex items-center gap-2 sm:gap-3 tracking-tight">
           <div className="p-1.5 sm:p-2 bg-emerald-100 rounded-xl shrink-0 relative overflow-hidden">
+            {loading && <div className="absolute inset-0 bg-emerald-200/50 animate-ping rounded-xl" />}
             <MapPin className="text-emerald-500 w-4 h-4 sm:w-5 sm:h-5 relative z-10" />
           </div>
           <span className="truncate flex items-center gap-2">
-            Talents {locationName}
+            Talents {locationName || "à Proximité"}
+            {loading && <Loader2 className="w-4 h-4 animate-spin text-emerald-500" />}
           </span>
         </h3>
         <Link href="/annuaire?filter=verified" className="text-xs sm:text-sm font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-1 group shrink-0">
@@ -36,10 +121,10 @@ export function ProximitySection({ fallbackLocation, initialProfiles = [] }: Pro
         </Link>
       </div>
       
-      {/* On utilise les profils générés par l'algo de proximité (lieu d'inscription) */}
+      {/* On utilise les profils générés par l'algo de proximité (lieu d'inscription ou GPS) */}
       <EntrepreneursSection 
-        entrepreneursList={initialProfiles} 
-        loading={false} 
+        entrepreneursList={profiles} 
+        loading={loading && profiles.length === 0} 
         variant="glass" 
       />
     </div>
