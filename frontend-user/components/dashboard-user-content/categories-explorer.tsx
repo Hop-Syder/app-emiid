@@ -25,41 +25,41 @@ const categories = [
   { id: "etudiant_junior", label: "Étudiants", icon: GraduationCap, color: "text-orange-500", bg: "bg-orange-50 border-orange-100", count: "930+" },
 ]
 
+const CategoryCard = ({ cat, idx }: { cat: any, idx: number }) => {
+  const Icon = cat.icon
+  return (
+    <Link
+      key={idx}
+      href={`/annuaire?category=${cat.id}`}
+      className={`snap-start shrink-0 w-[70%] sm:w-[45%] md:w-[22%] lg:w-[19%] group relative flex flex-col p-5 rounded-2xl border ${cat.bg} hover:shadow-xl hover:-translate-y-1 transition-all duration-500 text-left overflow-hidden bg-white/40 backdrop-blur-md`}
+    >
+      {/* Décoration d'arrière-plan avec glow doux */}
+      <div className={`absolute -right-6 -bottom-6 w-32 h-32 rounded-full blur-3xl opacity-20 group-hover:opacity-40 transition-opacity duration-500 ${cat.bg.replace('bg-', 'bg-gradient-to-br from-white to-')}`} />
+      
+      {/* Icône géante en filigrane */}
+      <div className="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-500 pointer-events-none transform group-hover:scale-125 group-hover:rotate-6">
+        <Icon className="w-28 h-28" />
+      </div>
+
+      <div className="p-3 bg-white/80 backdrop-blur-xl w-max rounded-xl mb-4 border border-white/60 shadow-sm group-hover:scale-110 transition-transform duration-300">
+        <Icon className={`w-6 h-6 ${cat.color}`} />
+      </div>
+      <h4 className="font-bold text-slate-800 text-lg tracking-tight z-10 group-hover:text-slate-950 transition-colors">{cat.label}</h4>
+      <span className="text-sm font-medium text-slate-500 z-10 mt-1">{cat.count} profils</span>
+      
+      {/* Petit indicateur interactif */}
+      <div className="absolute top-4 right-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+        <div className="w-6 h-6 rounded-full bg-white/50 backdrop-blur-sm flex items-center justify-center border border-white/50">
+          <Icon className={`w-3 h-3 ${cat.color}`} />
+        </div>
+      </div>
+    </Link>
+  )
+}
+
 export function CategoriesExplorer() {
   const row1 = categories.slice(0, 5)
   const row2 = categories.slice(5, 10)
-
-  const CategoryCard = ({ cat, idx }: { cat: any, idx: number }) => {
-    const Icon = cat.icon
-    return (
-      <Link
-        key={idx}
-        href={`/annuaire?category=${cat.id}`}
-        className={`snap-start shrink-0 w-[60%] sm:w-[40%] md:w-[18.5%] group relative flex flex-col p-5 rounded-2xl border ${cat.bg} hover:shadow-xl hover:-translate-y-1 transition-all duration-500 text-left overflow-hidden bg-white/40 backdrop-blur-md`}
-      >
-        {/* Décoration d'arrière-plan avec glow doux */}
-        <div className={`absolute -right-6 -bottom-6 w-32 h-32 rounded-full blur-3xl opacity-20 group-hover:opacity-40 transition-opacity duration-500 ${cat.bg.replace('bg-', 'bg-gradient-to-br from-white to-')}`} />
-        
-        {/* Icône géante en filigrane */}
-        <div className="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-500 pointer-events-none transform group-hover:scale-125 group-hover:rotate-6">
-          <Icon className="w-28 h-28" />
-        </div>
-
-        <div className="p-3 bg-white/80 backdrop-blur-xl w-max rounded-xl mb-4 border border-white/60 shadow-sm group-hover:scale-110 transition-transform duration-300">
-          <Icon className={`w-6 h-6 ${cat.color}`} />
-        </div>
-        <h4 className="font-bold text-slate-800 text-lg tracking-tight z-10 group-hover:text-slate-950 transition-colors">{cat.label}</h4>
-        <span className="text-sm font-medium text-slate-500 z-10 mt-1">{cat.count} profils</span>
-        
-        {/* Petit indicateur interactif */}
-        <div className="absolute top-4 right-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
-          <div className="w-6 h-6 rounded-full bg-white/50 backdrop-blur-sm flex items-center justify-center border border-white/50">
-            <Icon className={`w-3 h-3 ${cat.color}`} />
-          </div>
-        </div>
-      </Link>
-    )
-  }
 
   return (
     <div className="flex flex-col gap-4">
