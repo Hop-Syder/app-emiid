@@ -21,8 +21,8 @@ const categories = [
   { id: "startup", label: "Startup", icon: Rocket, color: "text-rose-500", bg: "bg-rose-50 border-rose-100", count: "210+" },
   { id: "ong", label: "ONG", icon: Globe, color: "text-cyan-500", bg: "bg-cyan-50 border-cyan-100", count: "150+" },
   { id: "investisseur", label: "Investisseurs", icon: TrendingUp, color: "text-indigo-500", bg: "bg-indigo-50 border-indigo-100", count: "85+" },
-  { id: "institution_publique", label: "Institutions Pub.", icon: Landmark, color: "text-teal-600", bg: "bg-teal-50 border-teal-100", count: "40+" },
-  { id: "etudiant_junior", label: "Étudiants", icon: GraduationCap, color: "text-orange-500", bg: "bg-orange-50 border-orange-100", count: "930+" },
+  { id: "institution", label: "Institutions Pub.", icon: Landmark, color: "text-teal-600", bg: "bg-teal-50 border-teal-100", count: "40+" },
+  { id: "etudiant", label: "Étudiants", icon: GraduationCap, color: "text-orange-500", bg: "bg-orange-50 border-orange-100", count: "930+" },
 ]
 
 const CategoryCard = ({ cat, idx }: { cat: any, idx: number }) => {

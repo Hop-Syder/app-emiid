@@ -13,15 +13,23 @@ import { createClient } from "@/lib/supabase/server"
 
 export const revalidate = 60 // ISR 60s
 
-async function fetchInitialProfiles() {
+async function fetchInitialProfiles(category: string, activityDomain: string) {
     try {
         const supabase = await createClient()
-        const { data, error } = await supabase
+        let query = supabase
             .from("public_profiles")
             .select("*, countries(name, iso_code), profile_tags(tags(name))")
             .eq("is_published", true)
             .order("created_at", { ascending: false })
-            .limit(12)
+
+        if (category && category !== "all") {
+            query = query.ilike("category", category)
+        }
+        if (activityDomain && activityDomain !== "all") {
+            query = query.ilike("activity_domain", activityDomain)
+        }
+
+        const { data, error } = await query.limit(12)
 
         if (error || !data) return []
 
@@ -51,13 +59,20 @@ async function fetchInitialProfiles() {
     }
 }
 
-export default async function AnnuairePage() {
-    const initialProfiles = await fetchInitialProfiles()
+export default async function AnnuairePage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
+    const category = typeof searchParams.category === 'string' ? searchParams.category : "all"
+    const activityDomain = typeof searchParams.activity_domain === 'string' ? searchParams.activity_domain : "all"
+    
+    const initialProfiles = await fetchInitialProfiles(category, activityDomain)
 
     return (
         <NavigationShell isPublic={false}>
             <div className="flex-1 w-full min-h-screen flex flex-col pt-8">
-                <AnnuairePublicContent initialProfiles={initialProfiles} />
+                <AnnuairePublicContent 
+                    initialProfiles={initialProfiles} 
+                    initialCategory={category}
+                    initialActivityDomain={activityDomain}
+                />
             </div>
         </NavigationShell>
     )

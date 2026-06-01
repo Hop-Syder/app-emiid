@@ -17,11 +17,17 @@ import { motion } from "framer-motion"
 
 interface AnnuairePublicContentProps {
     initialCategory?: string
+    initialActivityDomain?: string
     initialCity?: string
     initialProfiles?: any[]
 }
 
-export function AnnuairePublicContent({ initialCategory = "all", initialCity = "", initialProfiles = [] }: AnnuairePublicContentProps) {
+export function AnnuairePublicContent({ 
+    initialCategory = "all", 
+    initialActivityDomain = "all",
+    initialCity = "", 
+    initialProfiles = [] 
+}: AnnuairePublicContentProps) {
     const [filters, setFilters] = useState({
         search: "",
         category: initialCategory,
@@ -29,7 +35,7 @@ export function AnnuairePublicContent({ initialCategory = "all", initialCity = "
         city: initialCity,
         tags: "",
         status: "all",
-        activity_domain: "all"
+        activity_domain: initialActivityDomain
     })
 
     const handleFilterChange = (key: string, value: string) => {
