@@ -71,15 +71,15 @@ export function DashboardHubContent({
 
         {/* NOUVEAUX TALENTS */}
         <div className="space-y-4 pt-4">
-          <div className="flex items-center justify-between px-2">
-            <h3 className="text-2xl font-black text-slate-800 flex items-center gap-3 tracking-tight">
-              <div className="p-2 bg-blue-100 rounded-xl">
-                <Sparkles className="text-blue-500 w-5 h-5" />
+          <div className="flex flex-row items-center justify-between px-1 sm:px-2 gap-2">
+            <h3 className="text-lg sm:text-2xl font-black text-slate-800 flex items-center gap-2 sm:gap-3 tracking-tight">
+              <div className="p-1.5 sm:p-2 bg-blue-100 rounded-xl shrink-0">
+                <Sparkles className="text-blue-500 w-4 h-4 sm:w-5 sm:h-5" />
               </div>
-              Nouveaux Talents
+              <span className="truncate">Nouveaux Talents</span>
             </h3>
-            <Link href="/annuaire?filter=new" className="text-sm font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1 group">
-              Voir tout <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            <Link href="/annuaire?filter=new" className="text-xs sm:text-sm font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1 group shrink-0">
+              Voir tout <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
           <EntrepreneursSection 
@@ -92,17 +92,17 @@ export function DashboardHubContent({
         {/* RECOMMANDATIONS SMART MATCH (PROFILS PREMIUM) */}
         {initialPremiumProfiles.length > 0 && (
           <div className="space-y-4 pt-4">
-            <div className="flex items-center justify-between px-2">
-              <h3 className="text-2xl font-black text-slate-800 flex items-center gap-3 tracking-tight">
-                <div className="p-2 bg-amber-100 rounded-xl">
-                  <Target className="text-amber-500 w-5 h-5" />
-                </div>
-                Recommandé pour vous
-              </h3>
-              <Link href="/annuaire?filter=premium" className="text-sm font-semibold text-amber-600 hover:text-amber-700 flex items-center gap-1 group">
-                Voir tout <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </div>
+            <div className="flex flex-row items-center justify-between px-1 sm:px-2 gap-2">
+            <h3 className="text-lg sm:text-2xl font-black text-slate-800 flex items-center gap-2 sm:gap-3 tracking-tight">
+              <div className="p-1.5 sm:p-2 bg-amber-100 rounded-xl shrink-0">
+                <Target className="text-amber-500 w-4 h-4 sm:w-5 sm:h-5" />
+              </div>
+              <span className="truncate">Recommandé pour vous</span>
+            </h3>
+            <Link href="/annuaire?filter=premium" className="text-xs sm:text-sm font-semibold text-amber-600 hover:text-amber-700 flex items-center gap-1 group shrink-0">
+              Voir tout <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
             <EntrepreneursSection 
               entrepreneursList={initialPremiumProfiles.slice(0, 8)} 
               loading={false} 
@@ -113,12 +113,12 @@ export function DashboardHubContent({
 
         {/* EXPLORER PAR CATÉGORIE */}
         <div className="space-y-6 pt-4">
-          <div className="flex items-center justify-between px-2">
-            <h3 className="text-2xl font-black text-slate-800 flex items-center gap-3 tracking-tight">
-              <div className="p-2 bg-purple-100 rounded-xl">
-                <LayoutGrid className="text-purple-500 w-5 h-5" />
+          <div className="flex flex-row items-center justify-between px-1 sm:px-2 gap-2">
+            <h3 className="text-lg sm:text-2xl font-black text-slate-800 flex items-center gap-2 sm:gap-3 tracking-tight">
+              <div className="p-1.5 sm:p-2 bg-purple-100 rounded-xl shrink-0">
+                <LayoutGrid className="text-purple-500 w-4 h-4 sm:w-5 sm:h-5" />
               </div>
-              Explorer par Secteur
+              <span className="truncate">Explorer par Secteur</span>
             </h3>
           </div>
           <CategoriesExplorer />
@@ -126,15 +126,15 @@ export function DashboardHubContent({
 
         {/* TALENTS À PROXIMITÉ */}
         <div className="space-y-4 pt-4">
-          <div className="flex items-center justify-between px-2">
-            <h3 className="text-2xl font-black text-slate-800 flex items-center gap-3 tracking-tight">
-              <div className="p-2 bg-emerald-100 rounded-xl">
-                <MapPin className="text-emerald-500 w-5 h-5" />
+          <div className="flex flex-row items-center justify-between px-1 sm:px-2 gap-2">
+            <h3 className="text-lg sm:text-2xl font-black text-slate-800 flex items-center gap-2 sm:gap-3 tracking-tight">
+              <div className="p-1.5 sm:p-2 bg-emerald-100 rounded-xl shrink-0">
+                <MapPin className="text-emerald-500 w-4 h-4 sm:w-5 sm:h-5" />
               </div>
-              Talents à Proximité
+              <span className="truncate">Talents à Proximité</span>
             </h3>
-            <Link href="/annuaire?filter=verified" className="text-sm font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-1 group">
-              Voir tout <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            <Link href="/annuaire?filter=verified" className="text-xs sm:text-sm font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-1 group shrink-0">
+              Voir tout <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
           {/* On réutilise les profils vérifiés pour simuler la géoloc */}
