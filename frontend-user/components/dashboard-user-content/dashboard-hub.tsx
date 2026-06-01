@@ -103,7 +103,6 @@ export function DashboardHubContent({
         </div>
 
         {/* RECOMMANDATIONS SMART MATCH (PROFILS PREMIUM) */}
-
         <div className="space-y-4 pt-4">
           <div className="flex items-center justify-between px-2">
             <h3 className="text-2xl font-black text-slate-800 flex items-center gap-3 tracking-tight">

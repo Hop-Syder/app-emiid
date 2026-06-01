@@ -28,14 +28,25 @@ async function fetchCuratedProfiles(supabase: any, filter: string, limit: number
     let query = supabase
         .from('public_profiles')
         .select(`*, countries(name, iso_code), profile_tags(tags(name))`)
-        .limit(limit)
 
     if (filter === 'premium') {
-        query = query.eq('is_premium', true)
+        // Les 30 derniers profils premium, du plus récent au plus ancien
+        query = query
+            .eq('is_premium', true)
+            .order('created_at', { ascending: false })
+            .limit(30)
     } else if (filter === 'new') {
-        query = query.order('created_at', { ascending: false })
+        const thirtyDaysAgo = new Date()
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+        
+        query = query
+            .gte('created_at', thirtyDaysAgo.toISOString())
+            .order('created_at', { ascending: false })
+            // Pas de .limit() pour afficher TOUS les profils des 30 derniers jours
     } else if (filter === 'verified') {
-        query = query.eq('is_verified', true)
+        query = query.eq('is_verified', true).limit(limit)
+    } else {
+        query = query.limit(limit)
     }
 
     const { data, error } = await query
