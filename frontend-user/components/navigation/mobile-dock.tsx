@@ -3,14 +3,13 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { motion } from "framer-motion"
-import { Home, MessageSquare, Wallet, Settings, User, Users, UserPlus, LogIn , Bell} from "lucide-react"
+import { Home, MessageSquare, Wallet, Settings, User, Users, UserPlus, LogIn } from "lucide-react"
 
 const privateNavItems = [
   { name: "Hub", href: "/dashboard-user", icon: Home },
   { name: "Annuaire", href: "/annuaire", icon: Users },
   { name: "Créer Profil", href: "/creer-profil", icon: UserPlus },
   { name: "Messages", href: "/messages", icon: MessageSquare },
-  { name: "Notifications", href: "/notifications", icon: Bell },
   { name: "Profil", href: "/dashboard-user?view=profile", icon: User },
 ]
 
