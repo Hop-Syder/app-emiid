@@ -33,7 +33,7 @@ export function AnnuaireHero({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="relative overflow-hidden rounded-[2rem] p-8 md:p-14 mb-10 text-white min-h-[400px] flex flex-col justify-center bg-slate-950 border border-white/10 group"
+            className="relative overflow-hidden rounded-3xl px-8 md:px-12 py-8 md:py-10 mb-8 text-white min-h-[200px] flex flex-col justify-center bg-slate-950 border border-white/10 group"
         >
             {/* Aurora Background Effects */}
             <div className="absolute inset-0 bg-slate-950" />
@@ -57,25 +57,25 @@ export function AnnuaireHero({
             {/* Grid Pattern overlay */}
             <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
 
-            <div className="relative z-10 flex flex-col items-center text-center space-y-8 max-w-4xl mx-auto">
+            <div className="relative z-10 flex flex-col items-center text-center space-y-6 max-w-3xl mx-auto">
                 {/* Floating Badge */}
                 <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.2, duration: 0.5, ease: "easeOut" }}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-2xl"
+                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-2xl"
                 >
-                    <Sparkles className="w-4 h-4 text-amber-400" />
-                    <span className="font-bold uppercase tracking-widest text-xs text-slate-300">Annuaire Elite EmiID</span>
+                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                    <span className="font-bold uppercase tracking-widest text-[10px] text-slate-300">Annuaire Elite EmiID</span>
                 </motion.div>
 
                 {/* Main Content */}
-                <div className="space-y-6">
+                <div className="space-y-3">
                     <motion.h1
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3, duration: 0.7 }}
-                        className="text-5xl md:text-7xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-white/40 leading-tight"
+                        className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-white/40 leading-[1.1]"
                     >
                         {title}
                     </motion.h1>
@@ -83,7 +83,7 @@ export function AnnuaireHero({
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.4, duration: 0.7 }}
-                        className="max-w-2xl mx-auto text-slate-400 text-lg md:text-xl font-medium leading-relaxed"
+                        className="max-w-2xl mx-auto text-slate-400 text-sm md:text-base font-medium leading-relaxed"
                     >
                         {description}
                     </motion.p>
