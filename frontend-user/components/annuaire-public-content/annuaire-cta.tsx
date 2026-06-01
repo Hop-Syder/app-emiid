@@ -31,10 +31,33 @@ export function AnnuaireCTA() {
                     Rejoignez l'annuaire EmiID et gagnez en visibilité auprès de milliers d'entreprises et de clients potentiels. Mettez en valeur votre expertise.
                 </p>
                 
-                <Link href="/auth/register" className="group relative inline-flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-indigo-500 text-white font-bold text-lg overflow-hidden transition-all hover:bg-indigo-400 hover:scale-105 active:scale-95 shadow-[0_0_40px_rgba(99,102,241,0.5)]">
-                    <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
-                    <span className="relative z-10">Créer mon profil</span>
-                    <ArrowRight className="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform" />
+                <Link 
+                    href="/auth/register" 
+                    className="group relative inline-flex items-center justify-center gap-3 px-10 py-5 rounded-2xl overflow-hidden transition-all duration-500 hover:scale-105 active:scale-95 shadow-[0_0_40px_rgba(99,102,241,0.4)] hover:shadow-[0_0_60px_rgba(99,102,241,0.6)]"
+                >
+                    {/* Glowing Borders & Background Layers */}
+                    <div className="absolute inset-0 rounded-2xl p-[2px] bg-gradient-to-b from-blue-400 via-indigo-600 to-purple-900">
+                        <div className="absolute inset-0 bg-slate-950 rounded-2xl opacity-90" />
+                    </div>
+
+                    <div className="absolute inset-[2px] bg-slate-950 rounded-2xl opacity-95" />
+                    <div className="absolute inset-[2px] bg-gradient-to-r from-slate-950 via-indigo-950/80 to-slate-950 rounded-2xl opacity-90" />
+                    <div className="absolute inset-[2px] bg-gradient-to-b from-blue-500/30 via-indigo-950 to-purple-900/30 rounded-2xl opacity-80" />
+                    <div className="absolute inset-[2px] bg-gradient-to-br from-indigo-400/20 via-slate-950 to-blue-900/40 rounded-2xl" />
+                    
+                    {/* Inner Shadow / Glow */}
+                    <div className="absolute inset-[2px] shadow-[inset_0_0_20px_rgba(99,102,241,0.3)] rounded-2xl" />
+
+                    {/* Hover State Glow */}
+                    <div className="absolute inset-[2px] opacity-0 transition-opacity duration-500 bg-gradient-to-r from-blue-500/20 via-indigo-400/20 to-purple-500/20 group-hover:opacity-100 rounded-2xl" />
+
+                    {/* Content */}
+                    <div className="relative z-10 flex items-center justify-center gap-3">
+                        <span className="text-xl font-bold bg-gradient-to-b from-white to-indigo-200 bg-clip-text text-transparent drop-shadow-[0_0_12px_rgba(165,180,252,0.8)] tracking-wide">
+                            Créer mon profil
+                        </span>
+                        <ArrowRight className="w-6 h-6 text-indigo-300 relative z-10 group-hover:translate-x-1.5 transition-transform duration-300" />
+                    </div>
                 </Link>
             </div>
         </motion.div>
