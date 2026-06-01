@@ -88,32 +88,9 @@ export function DashboardHubContent({
           <EntrepreneursSection
             entrepreneursList={initialNewProfiles.slice(0, 8)}
             loading={false}
-            variant="glass"
+            variant="glass-blue"
           />
         </div>
-
-        {/* RECOMMANDATIONS SMART MATCH (PROFILS PREMIUM) */}
-        {initialPremiumProfiles.length > 0 && (
-          <div className="space-y-4 pt-4">
-            <div className="flex flex-row items-center justify-between px-1 sm:px-2 gap-2">
-              <h3 className="text-lg sm:text-2xl font-black text-slate-800 flex items-center gap-2 sm:gap-3 tracking-tight">
-                <div className="p-1.5 sm:p-2 bg-amber-100 rounded-xl shrink-0">
-                  <Target className="text-amber-500 w-4 h-4 sm:w-5 sm:h-5" />
-                </div>
-                <span className="truncate">Recommandé pour vous</span>
-              </h3>
-              <Link href="/annuaire?filter=premium" className="text-xs sm:text-sm font-semibold text-amber-600 hover:text-amber-700 flex items-center gap-1 group shrink-0">
-                Voir tout <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </div>
-            <EntrepreneursSection
-              entrepreneursList={initialPremiumProfiles.slice(0, 8)}
-              loading={false}
-              variant="elite"
-            />
-          </div>
-        )}
-
 
         {/* TALENTS À PROXIMITÉ (Temps Réel + Fallback) */}
         <ProximitySection fallbackLocation={userLocation} initialProfiles={initialProximityProfiles} />
@@ -131,7 +108,7 @@ export function DashboardHubContent({
               <span className="truncate">Explorer par Type de Profil</span>
             </h3>
           </div>
-          <CategoriesExplorer />
+          <CategoriesExplorer categoryCounts={stats?.categoryCounts} />
         </div>
 
       </div>

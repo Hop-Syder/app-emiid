@@ -25,8 +25,26 @@ const categories = [
   { id: "etudiant", label: "Étudiant / Jeune Diplômé", desc: "Pour la recherche de stage/emploi", icon: GraduationCap, color: "text-orange-500", bg: "bg-orange-50 border-orange-100", count: "930+" },
 ]
 
-const CategoryCard = ({ cat, idx }: { cat: any, idx: number }) => {
+const CategoryCard = ({ cat, idx, count }: { cat: any, idx: number, count?: number }) => {
   const Icon = cat.icon
+
+  // Format de l'affichage intelligent :
+  // Si on a un vrai compte :
+  // - count > 100 : "X profils" (ex: "125 profils")
+  // - count < 100 et > 0 : "X profils (Nouveau)"
+  // - count === 0 : "Nouveau"
+  // Si pas de compte (fallback) : cat.count
+  let displayCount = cat.count
+  if (count !== undefined) {
+    if (count > 100) {
+      displayCount = `${count}`
+    } else if (count > 0) {
+      displayCount = `${count}`
+    } else {
+      displayCount = "Nouveau"
+    }
+  }
+
   return (
     <Link
       key={idx}
@@ -46,7 +64,10 @@ const CategoryCard = ({ cat, idx }: { cat: any, idx: number }) => {
       </div>
       <h4 className="font-bold text-slate-800 text-base md:text-lg tracking-tight z-10 group-hover:text-slate-950 transition-colors leading-tight">{cat.label}</h4>
       <p className="text-xs text-slate-500 z-10 mt-2 mb-1 line-clamp-2 leading-relaxed">{cat.desc}</p>
-      <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400 z-10 mt-auto pt-2">{cat.count} profils</span>
+      
+      <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400 z-10 mt-auto pt-2">
+        {displayCount} {displayCount !== "Nouveau" && "profils"}
+      </span>
       
       {/* Petit indicateur interactif */}
       <div className="absolute top-4 right-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
@@ -58,7 +79,11 @@ const CategoryCard = ({ cat, idx }: { cat: any, idx: number }) => {
   )
 }
 
-export function CategoriesExplorer() {
+interface CategoriesExplorerProps {
+  categoryCounts?: Record<string, number>;
+}
+
+export function CategoriesExplorer({ categoryCounts }: CategoriesExplorerProps = {}) {
   const row1 = categories.slice(0, 5)
   const row2 = categories.slice(5, 10)
 
@@ -67,14 +92,14 @@ export function CategoriesExplorer() {
       {/* LIGNE 1 */}
       <div className="flex overflow-x-auto gap-4 pb-2 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {row1.map((cat, idx) => (
-          <CategoryCard key={idx} cat={cat} idx={idx} />
+          <CategoryCard key={idx} cat={cat} idx={idx} count={categoryCounts?.[cat.id]} />
         ))}
       </div>
       
       {/* LIGNE 2 */}
       <div className="flex overflow-x-auto gap-4 pb-4 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {row2.map((cat, idx) => (
-          <CategoryCard key={idx} cat={cat} idx={idx} />
+          <CategoryCard key={idx} cat={cat} idx={idx} count={categoryCounts?.[cat.id]} />
         ))}
       </div>
     </div>

@@ -157,6 +157,7 @@ export interface DashboardStats {
     verifiedMembers: number;
     countriesCovered: number;
     premiumMembers: number;
+    categoryCounts?: Record<string, number>;
 }
 
 export interface EntrepreneurStats {

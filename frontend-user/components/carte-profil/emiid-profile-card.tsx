@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { getOptimizedImageUrl } from "@/lib/image-optimization"
 
-export type EmiIDCardVariant = "elite" | "glass" | "tech"
+export type EmiIDCardVariant = "elite" | "glass" | "glass-blue" | "tech"
 
 interface EmiIDProfileCardProps {
   user: {
@@ -45,7 +45,7 @@ const VARIANT_STYLES = {
     btnSecondary: "bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700 hover:text-white"
   },
   glass: {
-    // Cristal / Frosted Glass (Lisibilité parfaite)
+    // Cristal / Frosted Glass (Lisibilité parfaite) - Emerald
     wrapper: "bg-white/60 backdrop-blur-3xl border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:shadow-[0_8px_40px_rgb(0,0,0,0.12)] hover:border-white",
     textPrimary: "text-slate-900",
     textSecondary: "text-slate-500",
@@ -55,6 +55,18 @@ const VARIANT_STYLES = {
     accent: "text-emerald-500",
     btnPrimary: "bg-emerald-500 text-white hover:bg-emerald-600",
     btnSecondary: "bg-white/80 border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-emerald-600"
+  },
+  "glass-blue": {
+    // Cristal / Frosted Glass - Blue
+    wrapper: "bg-white/60 backdrop-blur-3xl border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:shadow-[0_8px_40px_rgb(0,0,0,0.12)] hover:border-white",
+    textPrimary: "text-slate-900",
+    textSecondary: "text-slate-500",
+    divider: "bg-slate-200/60",
+    glow: "rgba(255, 255, 255, 0.8)",
+    badge: "text-blue-600 bg-blue-50 border-blue-100",
+    accent: "text-blue-500",
+    btnPrimary: "bg-blue-500 text-white hover:bg-blue-600",
+    btnSecondary: "bg-white/80 border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-blue-600"
   },
   elite: {
     // Obsidian & Gold (Luxe)
