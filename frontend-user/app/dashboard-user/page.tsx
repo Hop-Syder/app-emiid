@@ -51,19 +51,19 @@ async function fetchCuratedProfiles(supabase: any, filter: string, limit: number
             .gte('created_at', thirtyDaysAgo.toISOString())
             .order('created_at', { ascending: false })
 
-        // 2. Fallback : S'il y a très peu de premium récents, on prend les 50 derniers globaux et on mélange
-        if (!premiumError && recentPremium && recentPremium.length < 8) {
-            const { data: fallbackPremium } = await supabase
+        // 2. Fallback : S'il y a très peu de premium récents, ou une erreur sur la date, on prend les 50 derniers globaux
+        if (premiumError || !recentPremium || recentPremium.length < 8) {
+            const { data: fallbackPremium, error: fallbackError } = await supabase
                 .from('public_profiles')
                 .select(`*, countries(name, iso_code), profile_tags(tags(name))`)
                 .eq('is_premium', true)
                 .order('created_at', { ascending: false })
                 .limit(50)
             
-            return mapProfiles(shuffleArray(fallbackPremium || []))
+            if (fallbackError || !fallbackPremium) return []
+            return mapProfiles(shuffleArray(fallbackPremium))
         }
 
-        if (premiumError || !recentPremium) return []
         return mapProfiles(recentPremium)
 
     } else if (filter === 'new') {
@@ -77,18 +77,18 @@ async function fetchCuratedProfiles(supabase: any, filter: string, limit: number
             .gte('created_at', thirtyDaysAgo.toISOString())
             .order('created_at', { ascending: false })
 
-        // 2. Fallback : S'il y a très peu d'inscrits récents, on prend les 50 derniers globaux et on mélange
-        if (!recentError && recentData && recentData.length < 8) {
-            const { data: fallbackData } = await supabase
+        // 2. Fallback : S'il y a très peu d'inscrits récents, ou une erreur sur la date, on prend les 50 derniers globaux
+        if (recentError || !recentData || recentData.length < 8) {
+            const { data: fallbackData, error: fallbackError } = await supabase
                 .from('public_profiles')
                 .select(`*, countries(name, iso_code), profile_tags(tags(name))`)
                 .order('created_at', { ascending: false })
                 .limit(50)
             
-            return mapProfiles(shuffleArray(fallbackData || []))
+            if (fallbackError || !fallbackData) return []
+            return mapProfiles(shuffleArray(fallbackData))
         }
 
-        if (recentError || !recentData) return []
         return mapProfiles(recentData)
 
     } else if (filter === 'verified') {
