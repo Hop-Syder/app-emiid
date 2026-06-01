@@ -1,7 +1,7 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Filtres pour l'annuaire - Refonte avec Spotlight Command Menu et Floating Pill
+ * @description Filtres pour l'annuaire - Refonte Responsive Mobile (Floating Bottom Dock) & Spotlight Fullscreen
  * @created 2026-01-25
  * @updated 2026-06-01
  * 🌐 ceo.nexuspartners.xyz
@@ -10,7 +10,7 @@
 
 "use client"
 
-import { Search, X, MapPin, Loader2, Command, Sparkles, Briefcase, Tag, Target } from "lucide-react"
+import { Search, X, MapPin, Loader2, Command, Sparkles, Briefcase, Tag, Filter } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { Input } from "@/components/ui/input"
 import { LocationSelector } from "@/components/LocationSelector"
@@ -82,14 +82,26 @@ export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProp
         return () => document.removeEventListener("keydown", down)
     }, [])
 
-    // Focus input when modal opens
+    // Focus input when modal opens & Scroll-lock body
     useEffect(() => {
         if (isCommandOpen) {
-            setTimeout(() => {
+            document.body.style.overflow = "hidden"
+            // Wait for animation to finish before focusing to avoid scroll jumps on mobile
+            const timer = setTimeout(() => {
                 modalInputRef.current?.focus()
-            }, 100) // small delay for animation
+            }, 300) 
+            return () => clearTimeout(timer)
+        } else {
+            document.body.style.overflow = ""
         }
     }, [isCommandOpen])
+
+    // Cleanup scroll lock on unmount
+    useEffect(() => {
+        return () => {
+            document.body.style.overflow = ""
+        }
+    }, [])
 
     const handleProximitySearch = () => {
         if (!navigator.geolocation) {
@@ -148,109 +160,127 @@ export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProp
 
     return (
         <>
-            {/* FLOATING PILL (Dock) */}
-            <div className="sticky top-[20px] lg:top-[40px] z-[40] mb-12 flex justify-center pointer-events-none">
+            {/* 
+                FLOATING PILL (Dock) 
+                - Mobile: fixed bottom 
+                - Desktop: sticky top
+            */}
+            <div className="fixed bottom-6 left-0 right-0 px-4 md:static md:sticky md:top-[40px] z-[40] md:mb-12 flex justify-center pointer-events-none">
                 <motion.div 
-                    initial={{ opacity: 0, y: -20 }}
+                    initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                    className="pointer-events-auto flex items-center p-1.5 bg-white/80 backdrop-blur-2xl border border-white/80 shadow-[0_8px_32px_rgba(0,0,0,0.08)] rounded-full transition-all hover:shadow-[0_8px_40px_rgba(0,0,0,0.12)]"
+                    className="pointer-events-auto flex items-center justify-between w-full max-w-[400px] md:w-auto p-1.5 md:p-1.5 bg-white/85 backdrop-blur-2xl border border-white/80 shadow-[0_12px_40px_-10px_rgba(0,0,0,0.2)] md:shadow-[0_8px_32px_rgba(0,0,0,0.08)] rounded-[2rem] transition-all hover:shadow-[0_16px_50px_-10px_rgba(0,0,0,0.25)]"
                 >
                     {/* Search Trigger */}
                     <button 
                         onClick={() => setIsCommandOpen(true)}
-                        className="flex items-center h-12 px-4 md:px-6 text-slate-500 hover:text-slate-800 transition-colors rounded-full hover:bg-slate-100/60"
+                        className="flex-1 md:flex-none flex items-center h-12 md:h-12 px-4 md:px-6 text-slate-500 hover:text-slate-800 transition-colors rounded-full hover:bg-slate-100/60"
                     >
-                        <Search className="w-5 h-5 mr-3 text-blue-500" />
-                        <span className="font-medium mr-4 hidden sm:inline-block">
-                            {filters.search ? filters.search : "Rechercher un talent, une compétence..."}
+                        <Search className="w-5 h-5 mr-3 text-blue-500 shrink-0" />
+                        <span className="font-medium mr-4 hidden md:inline-block whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px]">
+                            {filters.search ? filters.search : "Rechercher un talent..."}
                         </span>
-                        <span className="font-medium mr-2 sm:hidden">Rechercher...</span>
-                        <kbd className="hidden md:inline-flex h-6 items-center gap-1 rounded bg-slate-200/50 px-2 font-mono text-[11px] font-bold text-slate-500 border border-slate-200/50">
+                        <span className="font-medium mr-2 md:hidden text-left truncate flex-1 text-sm">
+                            {filters.search ? filters.search : "Rechercher..."}
+                        </span>
+                        <kbd className="hidden md:inline-flex h-6 shrink-0 items-center gap-1 rounded bg-slate-200/50 px-2 font-mono text-[11px] font-bold text-slate-500 border border-slate-200/50">
                             ⌘K
                         </kbd>
                     </button>
 
-                    <div className="w-px h-6 bg-slate-200 mx-1" />
+                    <div className="w-px h-6 bg-slate-200 mx-1 shrink-0" />
 
                     {/* Proximity Button */}
                     <button
                         onClick={handleProximitySearch}
                         disabled={isLocating}
-                        className="flex items-center h-12 px-4 text-emerald-600 hover:text-emerald-700 transition-colors rounded-full hover:bg-emerald-50"
+                        className="flex items-center justify-center h-12 w-12 md:w-auto md:px-4 text-emerald-600 hover:text-emerald-700 transition-colors rounded-full hover:bg-emerald-50 shrink-0"
                     >
                         {isLocating ? (
                             <Loader2 className="w-5 h-5 animate-spin" />
                         ) : (
                             <MapPin className="w-5 h-5" />
                         )}
-                        <span className="font-bold text-sm ml-2 hidden lg:inline-block">Autour de moi</span>
+                        <span className="font-bold text-sm ml-2 hidden lg:inline-block">Autour</span>
                     </button>
 
-                    <div className="w-px h-6 bg-slate-200 mx-1 hidden sm:block" />
+                    <div className="w-px h-6 bg-slate-200 mx-1 shrink-0" />
 
                     {/* Advanced Filters Trigger */}
                     <button
                         onClick={() => setIsCommandOpen(true)}
                         className={cn(
-                            "hidden sm:flex items-center h-12 px-5 transition-colors rounded-full font-bold text-sm",
+                            "flex items-center justify-center h-12 w-12 md:w-auto md:px-5 transition-colors rounded-full font-bold text-sm shrink-0 relative",
                             hasActiveFilters ? "bg-slate-900 text-white hover:bg-slate-800" : "text-slate-600 hover:bg-slate-100/60"
                         )}
                     >
-                        <Command className="w-4 h-4 mr-2" />
-                        Filtres {hasActiveFilters && "actifs"}
+                        <Filter className="w-5 h-5 md:w-4 md:h-4 md:mr-2" />
+                        {hasActiveFilters && (
+                            <span className="absolute top-3 right-3 w-2 h-2 rounded-full bg-blue-500 md:hidden" />
+                        )}
+                        <span className="hidden md:inline-block">Filtres {hasActiveFilters && "actifs"}</span>
                     </button>
                 </motion.div>
             </div>
 
-            {/* COMMAND MENU (Spotlight Modal) */}
+            {/* 
+                COMMAND MENU (Spotlight Modal) 
+                - Mobile: Bottom Sheet (slides up, 95vh)
+                - Desktop: Centered Modal
+            */}
             <AnimatePresence>
                 {isCommandOpen && (
-                    <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[10vh] px-4">
+                    <div className="fixed inset-0 z-[100] flex items-end md:items-start justify-center md:pt-[10vh] px-0 md:px-4">
                         {/* Backdrop */}
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.2 }}
-                            className="absolute inset-0 bg-slate-900/20 backdrop-blur-md"
+                            className="absolute inset-0 bg-slate-900/40 md:bg-slate-900/20 backdrop-blur-md"
                             onClick={() => setIsCommandOpen(false)}
                         />
                         
                         {/* Modal Body */}
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                            transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                            className="relative w-full max-w-3xl bg-white/95 backdrop-blur-2xl rounded-[2rem] shadow-[0_20px_80px_-15px_rgba(0,0,0,0.4)] border border-white/60 overflow-hidden flex flex-col max-h-[85vh]"
+                            initial={{ opacity: 0, y: "100%", scale: 1 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: "100%", scale: 0.95 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                            className="relative w-full h-[95vh] md:h-auto md:max-h-[85vh] max-w-3xl bg-white/95 backdrop-blur-2xl rounded-t-[2rem] md:rounded-[2rem] shadow-[0_-20px_80px_-15px_rgba(0,0,0,0.4)] md:shadow-[0_20px_80px_-15px_rgba(0,0,0,0.4)] border-t border-white/60 md:border overflow-hidden flex flex-col"
                         >
+                            {/* Drag indicator (Mobile only) */}
+                            <div className="w-full flex justify-center py-3 md:hidden absolute top-0 z-50">
+                                <div className="w-12 h-1.5 rounded-full bg-slate-300/60" />
+                            </div>
+
                             {/* Main Search Input */}
-                            <div className="flex items-center px-6 py-5 border-b border-slate-200/50 bg-white/50">
-                                <Search className="w-6 h-6 text-blue-500" />
+                            <div className="flex items-center px-4 md:px-6 pt-10 md:pt-5 pb-5 border-b border-slate-200/50 bg-white/50 relative z-40">
+                                <Search className="w-6 h-6 text-blue-500 shrink-0" />
                                 <input
                                     ref={modalInputRef}
                                     type="text"
-                                    placeholder="Que recherchez-vous ? (Nom, compétence, métier...)"
-                                    className="flex-1 bg-transparent border-none text-xl font-medium text-slate-800 placeholder:text-slate-400 focus:ring-0 px-4 h-12 outline-none"
+                                    placeholder="Métier, compétence..."
+                                    className="flex-1 w-full bg-transparent border-none text-xl font-medium text-slate-800 placeholder:text-slate-400 focus:ring-0 px-3 md:px-4 h-12 outline-none"
                                     value={filters.search}
                                     onChange={(e) => onFilterChange("search", e.target.value)}
                                 />
                                 {filters.search && (
                                     <button 
                                         onClick={() => onFilterChange("search", "")}
-                                        className="p-1 rounded-full hover:bg-slate-200 text-slate-400 mr-2"
+                                        className="p-1.5 rounded-full hover:bg-slate-200 text-slate-400 mr-1 md:mr-2 shrink-0"
                                     >
                                         <X className="w-5 h-5" />
                                     </button>
                                 )}
-                                <kbd className="hidden sm:inline-flex h-6 items-center gap-1 rounded bg-slate-100 px-2 font-mono text-[11px] font-bold text-slate-500 border border-slate-200">
+                                <kbd className="hidden md:inline-flex h-6 shrink-0 items-center gap-1 rounded bg-slate-100 px-2 font-mono text-[11px] font-bold text-slate-500 border border-slate-200">
                                     ESC
                                 </kbd>
                             </div>
 
                             {/* Filters Content Area */}
-                            <div className="p-6 md:p-8 overflow-y-auto no-scrollbar flex-1 bg-gradient-to-b from-white/30 to-slate-50/50">
+                            <div className="p-4 md:p-8 overflow-y-auto custom-scrollbar flex-1 bg-gradient-to-b from-white/30 to-slate-50/50 pb-24 md:pb-8">
                                 <div className="space-y-8">
                                     
                                     {/* Types de Profils (Chips) */}
@@ -268,7 +298,7 @@ export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProp
                                                         "px-4 py-2 rounded-xl text-sm font-semibold transition-all border",
                                                         filters.category === cat.id 
                                                             ? "bg-slate-900 text-white border-slate-900 shadow-md scale-105" 
-                                                            : "bg-white text-slate-600 border-slate-200 hover:border-blue-300 hover:bg-blue-50/50"
+                                                            : "bg-white text-slate-600 border-slate-200 hover:border-blue-300 hover:bg-blue-50/50 active:scale-95"
                                                     )}
                                                 >
                                                     {cat.label}
@@ -292,7 +322,7 @@ export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProp
                                                         "px-4 py-2 rounded-xl text-sm font-semibold transition-all border",
                                                         filters.activity_domain === sec.id 
                                                             ? "bg-blue-600 text-white border-blue-600 shadow-md scale-105" 
-                                                            : "bg-white text-slate-600 border-slate-200 hover:border-blue-300 hover:bg-blue-50/50"
+                                                            : "bg-white text-slate-600 border-slate-200 hover:border-blue-300 hover:bg-blue-50/50 active:scale-95"
                                                     )}
                                                 >
                                                     {sec.label}
@@ -322,7 +352,7 @@ export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProp
                                             </div>
                                             <Input
                                                 placeholder="Ex: React, Marketing, Menuiserie..."
-                                                className="h-12 rounded-xl bg-white border-slate-200 shadow-sm font-medium px-4 focus-visible:ring-blue-500/30"
+                                                className="h-12 rounded-xl bg-white border-slate-200 shadow-sm font-medium px-4 focus-visible:ring-blue-500/30 text-base"
                                                 value={filters.tags}
                                                 onChange={(e) => onFilterChange("tags", e.target.value)}
                                             />
@@ -331,20 +361,20 @@ export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProp
                                 </div>
                             </div>
 
-                            {/* Footer Actions */}
-                            <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200/50 bg-slate-50/80">
+                            {/* Footer Actions (Sticky bottom on mobile) */}
+                            <div className="absolute bottom-0 left-0 right-0 md:relative flex items-center justify-between px-4 md:px-6 py-4 md:py-4 border-t border-slate-200/50 bg-slate-50/95 backdrop-blur-md">
                                 <Button
                                     variant="ghost"
                                     onClick={resetFilters}
-                                    className="text-slate-500 hover:bg-slate-200/50 rounded-xl font-bold"
+                                    className="text-slate-500 hover:bg-slate-200/50 rounded-xl font-bold px-4"
                                 >
-                                    Réinitialiser
+                                    Effacer
                                 </Button>
                                 <Button
                                     onClick={() => setIsCommandOpen(false)}
-                                    className="bg-slate-900 text-white hover:bg-slate-800 rounded-xl px-8 font-bold shadow-lg shadow-slate-900/20"
+                                    className="bg-slate-900 text-white hover:bg-slate-800 rounded-xl px-6 md:px-8 font-bold shadow-lg shadow-slate-900/20 flex-1 md:flex-none ml-4"
                                 >
-                                    Afficher les résultats
+                                    Afficher ({hasActiveFilters ? "Filtres actifs" : "Tout"})
                                 </Button>
                             </div>
                         </motion.div>

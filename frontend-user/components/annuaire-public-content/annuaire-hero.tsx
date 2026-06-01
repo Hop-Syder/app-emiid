@@ -69,7 +69,6 @@ export function AnnuaireHero({
                         className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-2xl"
                     >
                         <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                        <span className="font-bold uppercase tracking-widest text-[10px] text-slate-300">Réseau Elite EmiID</span>
                     </motion.div>
 
                     {/* Main Content */}
@@ -122,7 +121,7 @@ export function AnnuaireHero({
             >
                 {/* Background Glow */}
                 <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-500/20 rounded-full blur-[60px] group-hover:bg-indigo-400/30 transition-colors duration-500" />
-                
+
                 <div className="relative z-10 flex items-center justify-between mb-4">
                     <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-300">
                         <TrendingUp className="w-3.5 h-3.5" />

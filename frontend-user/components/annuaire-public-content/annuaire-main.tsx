@@ -43,7 +43,7 @@ export function AnnuairePublicContent({
     }
 
     return (
-        <div className="w-full relative overflow-hidden bg-slate-50/50 min-h-screen pb-20">
+        <div className="w-full relative overflow-x-clip bg-slate-50/50 min-h-screen pb-20">
             {/* Ambient Background Glow for Bento Grid aesthetic */}
             <div className="absolute top-[40%] left-0 w-96 h-96 bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
             <div className="absolute top-[60%] right-0 w-96 h-96 bg-purple-500/10 rounded-full blur-[120px] pointer-events-none" />
