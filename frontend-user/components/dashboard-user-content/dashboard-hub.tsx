@@ -109,7 +109,7 @@ export function DashboardHubContent({
             <EntrepreneursSection
               entrepreneursList={initialPremiumProfiles.slice(0, 8)}
               loading={false}
-              variant="premium"
+              variant="elite"
             />
           </div>
         )}
