@@ -10,13 +10,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { motion } from "framer-motion"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { createClient } from "@/lib/supabase/client"
 import { AnnuaireCard } from "./annuaire-card"
 import { EmptyState } from "@/components/EmptyState"
-import { Search } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight } from "lucide-react"
 import type { EntrepreneurStats, PublicProfile } from "@/types"
 
 interface AnnuaireGridProps {
@@ -33,9 +33,18 @@ interface AnnuaireGridProps {
 }
 
 export function AnnuaireGrid({ filters, initialProfiles = [] }: AnnuaireGridProps) {
-    const [loading, setLoading] = useState(!initialProfiles.length)
     const [profiles, setProfiles] = useState<PublicProfile[]>(initialProfiles)
+    const [loading, setLoading] = useState(!initialProfiles.length)
     const [isFirstRender, setIsFirstRender] = useState(true)
+    const scrollRef = useRef<HTMLDivElement>(null)
+
+    const scroll = (direction: "left" | "right") => {
+        if (scrollRef.current) {
+            const { current } = scrollRef
+            const scrollAmount = direction === "left" ? -400 : 400
+            current.scrollBy({ left: scrollAmount, behavior: "smooth" })
+        }
+    }
 
     useEffect(() => {
         // Skip first fetch if we have initial profiles and filters are default
@@ -127,14 +136,14 @@ export function AnnuaireGrid({ filters, initialProfiles = [] }: AnnuaireGridProp
 
     if (loading) {
         return (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 xl:gap-8 justify-items-center w-full">
+            <div className="grid grid-rows-2 grid-flow-col gap-6 xl:gap-8 overflow-x-auto snap-x no-scrollbar w-full pb-8 pt-4 px-4 -mx-4 scroll-smooth">
                 {Array.from({ length: 8 }).map((_, i) => (
                     <motion.div 
                         key={`skeleton-${i}`} 
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.05, duration: 0.3 }}
-                        className="w-full max-w-[320px] aspect-[1/1.4] bg-white rounded-[2rem] border border-slate-100/50 shadow-sm overflow-hidden flex flex-col"
+                        className="w-[280px] sm:w-[320px] aspect-[1/1.4] bg-white rounded-[2rem] border border-slate-100/50 shadow-sm overflow-hidden flex flex-col snap-center"
                     >
                         <div className="h-[100px] w-full bg-slate-200/50 animate-pulse" />
                         <div className="flex-1 p-5 relative">
@@ -170,24 +179,45 @@ export function AnnuaireGrid({ filters, initialProfiles = [] }: AnnuaireGridProp
     }
 
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 xl:gap-8 justify-items-center w-full">
-            {profiles.map((profile, index) => (
-                <motion.div
-                    key={profile.id}
-                    initial={{ opacity: 0, y: 30, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    transition={{ 
-                        duration: 0.5, 
-                        delay: index * 0.08,
-                        type: "spring",
-                        stiffness: 100,
-                        damping: 15
-                    }}
-                    className="w-full max-w-[320px]"
-                >
-                    <AnnuaireCard profile={profile} />
-                </motion.div>
-            ))}
+        <div className="relative group/carousel">
+            {/* Flèche gauche */}
+            <button
+                onClick={() => scroll("left")}
+                className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 h-10 w-10 items-center justify-center rounded-full bg-slate-900/90 text-white/90 border border-white/10 shadow-xl opacity-0 group-hover/carousel:opacity-100 transition-all hover:bg-slate-800 hover:text-white backdrop-blur-md"
+            >
+                <ChevronLeft className="h-5 w-5" />
+            </button>
+
+            <div 
+                ref={scrollRef}
+                className="grid grid-rows-2 grid-flow-col gap-6 xl:gap-8 overflow-x-auto snap-x no-scrollbar w-full pb-10 pt-4 px-4 -mx-4 scroll-smooth items-start justify-start"
+            >
+                {profiles.slice(0, 50).map((profile, index) => (
+                    <motion.div
+                        key={profile.id}
+                        initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        transition={{ 
+                            duration: 0.5, 
+                            delay: Math.min(index, 10) * 0.08, // Cap delay to avoid excessive wait times for later items
+                            type: "spring",
+                            stiffness: 100,
+                            damping: 15
+                        }}
+                        className="w-[280px] sm:w-[320px] snap-center"
+                    >
+                        <AnnuaireCard profile={profile} />
+                    </motion.div>
+                ))}
+            </div>
+
+            {/* Flèche droite */}
+            <button
+                onClick={() => scroll("right")}
+                className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 h-10 w-10 items-center justify-center rounded-full bg-slate-900/90 text-white/90 border border-white/10 shadow-xl opacity-0 group-hover/carousel:opacity-100 transition-all hover:bg-slate-800 hover:text-white backdrop-blur-md"
+            >
+                <ChevronRight className="h-5 w-5" />
+            </button>
         </div>
     )
 }
