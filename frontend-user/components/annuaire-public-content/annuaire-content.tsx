@@ -18,7 +18,8 @@ export function AnnuaireContent({ profiles: _initialProfiles, category }: Annuai
         country: "all",
         city: "",
         tags: "",
-        status: "all"
+        status: "all",
+        activity_domain: "all"
     })
 
     const handleFilterChange = (key: string, value: string) => {
