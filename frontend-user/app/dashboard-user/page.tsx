@@ -30,19 +30,58 @@ async function fetchCuratedProfiles(supabase: any, filter: string, limit: number
         .select(`*, countries(name, iso_code), profile_tags(tags(name))`)
 
     if (filter === 'premium') {
-        // Les 30 derniers profils premium, du plus récent au plus ancien
-        query = query
+        const thirtyDaysAgo = new Date()
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+        
+        // 1. On tente de récupérer tous les profils premium des 30 derniers jours
+        const { data: recentPremium, error: premiumError } = await supabase
+            .from('public_profiles')
+            .select(`*, countries(name, iso_code), profile_tags(tags(name))`)
             .eq('is_premium', true)
+            .gte('created_at', thirtyDaysAgo.toISOString())
             .order('created_at', { ascending: false })
-            .limit(30)
+
+        // 2. Fallback : S'il y a très peu de premium récents, on prend les 30 derniers globaux
+        if (!premiumError && recentPremium && recentPremium.length < 8) {
+            const { data: fallbackPremium } = await supabase
+                .from('public_profiles')
+                .select(`*, countries(name, iso_code), profile_tags(tags(name))`)
+                .eq('is_premium', true)
+                .order('created_at', { ascending: false })
+                .limit(30)
+            
+            return mapProfiles(fallbackPremium || [])
+        }
+
+        if (premiumError || !recentPremium) return []
+        return mapProfiles(recentPremium)
+
     } else if (filter === 'new') {
         const thirtyDaysAgo = new Date()
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
         
-        query = query
+        // 1. On tente de récupérer tous les profils des 30 derniers jours
+        const { data: recentData, error: recentError } = await supabase
+            .from('public_profiles')
+            .select(`*, countries(name, iso_code), profile_tags(tags(name))`)
             .gte('created_at', thirtyDaysAgo.toISOString())
             .order('created_at', { ascending: false })
-            // Pas de .limit() pour afficher TOUS les profils des 30 derniers jours
+
+        // 2. Fallback : S'il y a très peu d'inscrits récents (ex: moins de 8),
+        // on récupère simplement les 30 derniers inscrits globaux au moins.
+        if (!recentError && recentData && recentData.length < 8) {
+            const { data: fallbackData } = await supabase
+                .from('public_profiles')
+                .select(`*, countries(name, iso_code), profile_tags(tags(name))`)
+                .order('created_at', { ascending: false })
+                .limit(30)
+            
+            return mapProfiles(fallbackData || [])
+        }
+
+        if (recentError || !recentData) return []
+        return mapProfiles(recentData)
+
     } else if (filter === 'verified') {
         query = query.eq('is_verified', true).limit(limit)
     } else {
