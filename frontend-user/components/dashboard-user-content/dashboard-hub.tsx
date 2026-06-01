@@ -136,7 +136,7 @@ export function DashboardHubContent({
           </div>
           {/* On réutilise les profils vérifiés pour simuler la géoloc */}
           <EntrepreneursSection
-            entrepreneursList={initialVerifiedProfiles}
+            entrepreneursList={initialVerifiedProfiles.slice(0, 8)}
             loading={false}
             variant="glass"
           />

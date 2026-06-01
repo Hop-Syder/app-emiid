@@ -93,6 +93,17 @@ async function fetchCuratedProfiles(supabase: any, filter: string, limit: number
 
     } else if (filter === 'verified') {
         query = query.eq('is_verified', true).limit(limit)
+        const { data, error } = await query
+        
+        if (error || !data || data.length < 8) {
+            const { data: fallbackData } = await supabase
+                .from('public_profiles')
+                .select(`*, countries(name, iso_code), profile_tags(tags(name))`)
+                .order('created_at', { ascending: false })
+                .limit(50)
+            return mapProfiles(shuffleArray(fallbackData || []))
+        }
+        return mapProfiles(data)
     } else {
         query = query.limit(limit)
     }
