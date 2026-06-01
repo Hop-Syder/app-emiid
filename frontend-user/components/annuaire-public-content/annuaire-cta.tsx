@@ -32,7 +32,7 @@ export function AnnuaireCTA() {
                 </p>
                 
                 <Link 
-                    href="/auth/register" 
+                    href="/creer-profil" 
                     className="group relative inline-flex items-center justify-center gap-3 px-10 py-5 rounded-2xl overflow-hidden transition-all duration-500 hover:scale-105 active:scale-95 shadow-[0_0_40px_rgba(99,102,241,0.4)] hover:shadow-[0_0_60px_rgba(99,102,241,0.6)]"
                 >
                     {/* Glowing Borders & Background Layers */}
