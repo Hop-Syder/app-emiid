@@ -14,9 +14,10 @@ import { useDashboardStats } from "@/hooks/use-dashboard-stats"
 import { fetchWithAuth } from "@/lib/apiClient"
 import type { PublicProfile } from "@/types"
 
+import Link from "next/link"
 import { DashboardBentoHeader } from "./dashboard-bento-header"
 import { EntrepreneursSection } from "./entrepreneurs-section"
-import { Sparkles, MapPin, Target, LayoutGrid } from "lucide-react"
+import { Sparkles, MapPin, Target, LayoutGrid, ArrowRight } from "lucide-react"
 
 // Nouveaux composants
 import { CategoriesExplorer } from "./categories-explorer"
@@ -94,30 +95,38 @@ export function DashboardHubContent({
               </div>
               Nouveaux Talents
             </h3>
+            <Link href="/annuaire?filter=new" className="text-sm font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1 group">
+              Voir tout <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
           </div>
-          <EntrepreneursSection
-            entrepreneursList={initialNewProfiles}
-            loading={false}
-            variant="tech"
+          <EntrepreneursSection 
+            entrepreneursList={initialNewProfiles.slice(0, 8)} 
+            loading={false} 
+            variant="tech" 
           />
         </div>
 
         {/* RECOMMANDATIONS SMART MATCH (PROFILS PREMIUM) */}
-        <div className="space-y-4 pt-4">
-          <div className="flex items-center justify-between px-2">
-            <h3 className="text-2xl font-black text-slate-800 flex items-center gap-3 tracking-tight">
-              <div className="p-2 bg-amber-100 rounded-xl">
-                <Target className="text-amber-500 w-5 h-5" />
-              </div>
-              Recommandé pour vous
-            </h3>
+        {initialPremiumProfiles.length > 0 && (
+          <div className="space-y-4 pt-4">
+            <div className="flex items-center justify-between px-2">
+              <h3 className="text-2xl font-black text-slate-800 flex items-center gap-3 tracking-tight">
+                <div className="p-2 bg-amber-100 rounded-xl">
+                  <Target className="text-amber-500 w-5 h-5" />
+                </div>
+                Recommandé pour vous
+              </h3>
+              <Link href="/annuaire?filter=premium" className="text-sm font-semibold text-amber-600 hover:text-amber-700 flex items-center gap-1 group">
+                Voir tout <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+            <EntrepreneursSection 
+              entrepreneursList={initialPremiumProfiles.slice(0, 8)} 
+              loading={false} 
+              variant="glass" 
+            />
           </div>
-          <EntrepreneursSection
-            entrepreneursList={initialPremiumProfiles}
-            loading={false}
-            variant="glass"
-          />
-        </div>
+        )}
 
         {/* EXPLORER PAR CATÉGORIE */}
         <div className="space-y-6 pt-4">

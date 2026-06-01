@@ -24,6 +24,16 @@ async function fetchInitialDirectoryProfiles(supabase: any) {
     return mapProfiles(data)
 }
 
+// Utilitaire pour mélanger un tableau
+function shuffleArray(array: any[]) {
+    const newArr = [...array]
+    for (let i = newArr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
+    }
+    return newArr;
+}
+
 async function fetchCuratedProfiles(supabase: any, filter: string, limit: number) {
     let query = supabase
         .from('public_profiles')
@@ -41,16 +51,16 @@ async function fetchCuratedProfiles(supabase: any, filter: string, limit: number
             .gte('created_at', thirtyDaysAgo.toISOString())
             .order('created_at', { ascending: false })
 
-        // 2. Fallback : S'il y a très peu de premium récents, on prend les 30 derniers globaux
+        // 2. Fallback : S'il y a très peu de premium récents, on prend les 50 derniers globaux et on mélange
         if (!premiumError && recentPremium && recentPremium.length < 8) {
             const { data: fallbackPremium } = await supabase
                 .from('public_profiles')
                 .select(`*, countries(name, iso_code), profile_tags(tags(name))`)
                 .eq('is_premium', true)
                 .order('created_at', { ascending: false })
-                .limit(30)
+                .limit(50)
             
-            return mapProfiles(fallbackPremium || [])
+            return mapProfiles(shuffleArray(fallbackPremium || []))
         }
 
         if (premiumError || !recentPremium) return []
@@ -67,16 +77,15 @@ async function fetchCuratedProfiles(supabase: any, filter: string, limit: number
             .gte('created_at', thirtyDaysAgo.toISOString())
             .order('created_at', { ascending: false })
 
-        // 2. Fallback : S'il y a très peu d'inscrits récents (ex: moins de 8),
-        // on récupère simplement les 30 derniers inscrits globaux au moins.
+        // 2. Fallback : S'il y a très peu d'inscrits récents, on prend les 50 derniers globaux et on mélange
         if (!recentError && recentData && recentData.length < 8) {
             const { data: fallbackData } = await supabase
                 .from('public_profiles')
                 .select(`*, countries(name, iso_code), profile_tags(tags(name))`)
                 .order('created_at', { ascending: false })
-                .limit(30)
+                .limit(50)
             
-            return mapProfiles(fallbackData || [])
+            return mapProfiles(shuffleArray(fallbackData || []))
         }
 
         if (recentError || !recentData) return []
