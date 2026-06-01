@@ -13,6 +13,8 @@ import { useState } from "react"
 import { AnnuaireHero } from "./annuaire-hero"
 import { AnnuaireFilters } from "./annuaire-filters"
 import { AnnuaireGrid } from "./annuaire-grid"
+import { AnnuaireProcess } from "./annuaire-process"
+import { AnnuaireCTA } from "./annuaire-cta"
 import { motion } from "framer-motion"
 
 interface AnnuairePublicContentProps {
@@ -76,6 +78,18 @@ export function AnnuairePublicContent({
                         <AnnuaireGrid filters={filters} initialProfiles={initialProfiles} />
                     </div>
                 </motion.div>
+
+                {/* --- NOUVELLES SECTIONS --- */}
+                <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-100px" }}
+                    transition={{ duration: 0.6 }}
+                >
+                    <AnnuaireProcess />
+                </motion.div>
+
+                <AnnuaireCTA />
             </div>
         </div>
     )
