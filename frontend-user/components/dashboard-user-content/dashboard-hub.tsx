@@ -9,7 +9,6 @@
 
 "use client"
 
-import { useState } from "react"
 import { useDashboardStats } from "@/hooks/use-dashboard-stats"
 import { fetchWithAuth } from "@/lib/apiClient"
 import type { PublicProfile } from "@/types"
@@ -24,14 +23,12 @@ import { CategoriesExplorer } from "./categories-explorer"
 import { RecentActivityCta } from "./recent-activity-cta"
 
 interface DashboardHubContentProps {
-  initialDirectoryProfiles: PublicProfile[]
   initialPremiumProfiles: PublicProfile[]
   initialNewProfiles: PublicProfile[]
   initialVerifiedProfiles: PublicProfile[]
 }
 
 export function DashboardHubContent({
-  initialDirectoryProfiles,
   initialPremiumProfiles,
   initialNewProfiles,
   initialVerifiedProfiles
@@ -42,20 +39,6 @@ export function DashboardHubContent({
     fetcher: fetchWithAuth,
     refreshIntervalMs: 30000,
   })
-
-  // === 2. ÉTATS DES FILTRES DE L'ANNUAIRE ===
-  const [filters, setFilters] = useState({
-    search: "",
-    category: "all",
-    country: "all",
-    city: "",
-    tags: "",
-    status: "all"
-  })
-
-  const handleFilterChange = (key: string, value: string) => {
-    setFilters(prev => ({ ...prev, [key]: value }))
-  }
 
   // === RENDU DU COMPOSANT ===
   return (

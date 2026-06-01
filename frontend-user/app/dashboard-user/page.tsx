@@ -128,24 +128,21 @@ export default async function DashboardPage() {
 
     // Requêtes en parallèle pour éviter le waterfall
     const [
-        initialDirectoryProfiles,
-        premiumProfiles,
-        newProfiles,
-        verifiedProfiles
+        initialPremiumProfiles,
+        initialNewProfiles,
+        initialVerifiedProfiles
     ] = await Promise.all([
-        fetchInitialDirectoryProfiles(supabase),
-        fetchCuratedProfiles(supabase, 'premium', 6),
-        fetchCuratedProfiles(supabase, 'new', 6),
-        fetchCuratedProfiles(supabase, 'verified', 6),
+        fetchCuratedProfiles(supabase, 'premium', 8),
+        fetchCuratedProfiles(supabase, 'new', 8),
+        fetchCuratedProfiles(supabase, 'verified', 8)
     ])
 
     return (
-        <div className="flex-1 w-full min-h-screen flex flex-col">
+        <div className="min-h-screen bg-slate-50">
             <DashboardHubContent 
-                initialDirectoryProfiles={initialDirectoryProfiles} 
-                initialPremiumProfiles={premiumProfiles}
-                initialNewProfiles={newProfiles}
-                initialVerifiedProfiles={verifiedProfiles}
+                initialPremiumProfiles={initialPremiumProfiles} 
+                initialNewProfiles={initialNewProfiles}
+                initialVerifiedProfiles={initialVerifiedProfiles}
             />
         </div>
     )
