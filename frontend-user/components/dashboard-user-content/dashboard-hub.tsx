@@ -26,12 +26,14 @@ import { ProximitySection } from "./proximity-section"
 interface DashboardHubContentProps {
   initialPremiumProfiles: PublicProfile[]
   initialNewProfiles: PublicProfile[]
+  initialProximityProfiles?: PublicProfile[]
   userLocation?: { city: string; country_id: string; country_name: string } | null
 }
 
 export function DashboardHubContent({
   initialPremiumProfiles,
   initialNewProfiles,
+  initialProximityProfiles = [],
   userLocation
 }: DashboardHubContentProps) {
   // === 1. HOOKS ET ÉTATS STATISTIQUES ===
@@ -114,7 +116,7 @@ export function DashboardHubContent({
 
 
         {/* TALENTS À PROXIMITÉ (Temps Réel + Fallback) */}
-        <ProximitySection fallbackLocation={userLocation} />
+        <ProximitySection fallbackLocation={userLocation} initialProfiles={initialProximityProfiles} />
 
         {/* EXPLORER PAR TYPE DE PROFIL */}
         <div className="space-y-6 pt-8 pb-10 px-4 sm:px-8 -mx-4 sm:-mx-8 bg-slate-50/80 rounded-[2.5rem] border border-slate-100/80 shadow-sm relative overflow-hidden">

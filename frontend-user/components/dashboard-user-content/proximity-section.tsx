@@ -8,11 +8,12 @@ import type { PublicProfile } from "@/types"
 
 interface ProximitySectionProps {
   fallbackLocation?: { city: string; country_id: string; country_name: string } | null
+  initialProfiles?: PublicProfile[]
 }
 
-export function ProximitySection({ fallbackLocation }: ProximitySectionProps) {
-  const [profiles, setProfiles] = useState<PublicProfile[]>([])
-  const [loading, setLoading] = useState(true)
+export function ProximitySection({ fallbackLocation, initialProfiles = [] }: ProximitySectionProps) {
+  const [profiles, setProfiles] = useState<PublicProfile[]>(initialProfiles)
+  const [loading, setLoading] = useState(initialProfiles.length === 0)
   const [locationName, setLocationName] = useState<string | null>(null)
 
   useEffect(() => {
