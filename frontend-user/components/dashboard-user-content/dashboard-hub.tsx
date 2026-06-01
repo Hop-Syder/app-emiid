@@ -23,6 +23,10 @@ import { CategoriesExplorer } from "./categories-explorer"
 import { RecentActivityCta } from "./recent-activity-cta"
 import { ProximitySection } from "./proximity-section"
 
+// Sections Annuaire importées
+import { AnnuaireProcess } from "../annuaire-public-content/annuaire-process"
+import { AnnuaireCTA } from "../annuaire-public-content/annuaire-cta"
+
 interface DashboardHubContentProps {
   initialPremiumProfiles: PublicProfile[]
   initialNewProfiles: PublicProfile[]
@@ -110,6 +114,12 @@ export function DashboardHubContent({
             </h3>
           </div>
           <CategoriesExplorer categoryCounts={stats?.categoryCounts} />
+        </div>
+
+        {/* PROCESS ET CTA */}
+        <div className="pt-8">
+          <AnnuaireProcess />
+          <AnnuaireCTA />
         </div>
 
       </div>

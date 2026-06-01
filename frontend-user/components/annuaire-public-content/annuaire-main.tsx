@@ -24,11 +24,11 @@ interface AnnuairePublicContentProps {
     initialProfiles?: any[]
 }
 
-export function AnnuairePublicContent({ 
-    initialCategory = "all", 
+export function AnnuairePublicContent({
+    initialCategory = "all",
     initialActivityDomain = "all",
-    initialCity = "", 
-    initialProfiles = [] 
+    initialCity = "",
+    initialProfiles = []
 }: AnnuairePublicContentProps) {
     const [filters, setFilters] = useState({
         search: "",
@@ -52,10 +52,10 @@ export function AnnuairePublicContent({
 
             <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-12">
                 <AnnuaireHero />
-                
+
                 <AnnuaireFilters filters={filters} onFilterChange={handleFilterChange} />
 
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.2 }}
@@ -73,13 +73,13 @@ export function AnnuairePublicContent({
                             <p className="text-xs font-bold uppercase tracking-widest text-slate-400">Mise à jour en direct</p>
                         </div>
                     </div>
-                    
+
                     <div className="pt-4">
                         <AnnuaireGrid filters={filters} initialProfiles={initialProfiles} />
                     </div>
                 </motion.div>
 
-                {/* --- NOUVELLES SECTIONS --- */}
+                {/* --- NOUVELLES SECTIONS 
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -89,7 +89,10 @@ export function AnnuairePublicContent({
                     <AnnuaireProcess />
                 </motion.div>
 
-                <AnnuaireCTA />
+                <AnnuaireCTA /> --- */}
+
+
+
             </div>
         </div>
     )
