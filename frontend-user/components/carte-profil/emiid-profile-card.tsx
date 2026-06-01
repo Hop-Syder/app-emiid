@@ -81,16 +81,16 @@ const VARIANT_STYLES = {
     btnSecondary: "bg-white/80 border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-orange-600"
   },
   elite: {
-    // Obsidian & Gold (Luxe Glassmorphism)
-    wrapper: "bg-stone-950/60 backdrop-blur-3xl border-stone-800/60 shadow-[0_8px_32px_rgba(0,0,0,0.4)] hover:shadow-[0_16px_48px_rgba(245,158,11,0.2)] hover:border-amber-500/50",
-    textPrimary: "text-stone-50",
-    textSecondary: "text-stone-300",
-    divider: "bg-stone-800/60",
-    glow: "rgba(245, 158, 11, 0.25)",
-    badge: "text-amber-300 bg-amber-500/15 border-amber-500/30",
-    accent: "text-amber-400",
-    btnPrimary: "bg-gradient-to-r from-amber-500/90 to-yellow-500/90 text-stone-950 hover:from-amber-400 hover:to-yellow-400 font-bold shadow-[0_0_20px_rgba(245,158,11,0.4)]",
-    btnSecondary: "bg-stone-900/50 border-stone-800/60 text-stone-200 hover:bg-stone-800/80 hover:text-amber-400"
+    // Obsidian & Vibrant Gold (Luxe Glassmorphism Premium)
+    wrapper: "bg-gradient-to-b from-stone-900/90 to-black/90 backdrop-blur-3xl border-stone-800/80 shadow-[0_8px_40px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.1)] hover:shadow-[0_20px_50px_rgba(250,204,21,0.25),inset_0_1px_1px_rgba(250,204,21,0.3)] hover:border-yellow-500/60 ring-1 ring-white/5 hover:ring-yellow-500/40",
+    textPrimary: "text-white drop-shadow-sm",
+    textSecondary: "text-stone-400 font-medium",
+    divider: "bg-gradient-to-b from-stone-800 to-transparent",
+    glow: "rgba(250, 204, 21, 0.35)",
+    badge: "text-yellow-400 bg-yellow-500/10 border-yellow-500/30 shadow-[0_0_15px_rgba(250,204,21,0.2)] backdrop-blur-md",
+    accent: "text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.6)]",
+    btnPrimary: "bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-400 text-black font-extrabold shadow-[0_0_20px_rgba(250,204,21,0.4)] hover:shadow-[0_0_30px_rgba(250,204,21,0.6)] hover:scale-[1.02] active:scale-[0.98]",
+    btnSecondary: "bg-stone-900/60 border-stone-700/50 text-stone-300 hover:bg-stone-800 hover:text-yellow-400 hover:border-yellow-500/30 shadow-inner"
   },
 }
 
@@ -168,7 +168,7 @@ export function EmiIDProfileCard({
       {/* Avatar Section */}
       <div className="flex flex-col items-center mt-2 z-10 px-6">
         <div className="relative">
-          <Avatar className={cn("h-24 w-24 border-4 shadow-xl ring-1 ring-white/10", variant === "elite" ? "border-stone-900" : "border-white")}>
+          <Avatar className={cn("h-24 w-24 border-4 shadow-xl ring-1 ring-white/10", variant === "elite" ? "border-stone-900 shadow-[0_0_25px_rgba(250,204,21,0.2)]" : "border-white")}>
             <AvatarImage src={getOptimizedImageUrl(user.avatar, { width: 200, height: 200 })} className="object-cover" />
             <AvatarFallback className="bg-slate-100 text-slate-900 font-bold text-2xl">{name[0]}</AvatarFallback>
           </Avatar>
