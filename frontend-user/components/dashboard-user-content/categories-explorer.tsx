@@ -8,17 +8,17 @@
 "use client"
 
 import Link from "next/link"
-import { Briefcase, Code, Palette, LineChart, Camera, Music, Globe, Database } from "lucide-react"
+import { Hammer, Store, Laptop, Briefcase, Megaphone, Rocket, Globe, TrendingUp } from "lucide-react"
 
 const categories = [
-  { name: "Technologie", icon: Code, color: "text-blue-500", bg: "bg-blue-50 border-blue-100", count: "1.2k+" },
-  { name: "Business", icon: Briefcase, color: "text-emerald-500", bg: "bg-emerald-50 border-emerald-100", count: "850+" },
-  { name: "Créatif & Art", icon: Palette, color: "text-purple-500", bg: "bg-purple-50 border-purple-100", count: "420+" },
-  { name: "Finance", icon: LineChart, color: "text-amber-500", bg: "bg-amber-50 border-amber-100", count: "310+" },
-  { name: "Média & Image", icon: Camera, color: "text-rose-500", bg: "bg-rose-50 border-rose-100", count: "540+" },
-  { name: "Musique", icon: Music, color: "text-indigo-500", bg: "bg-indigo-50 border-indigo-100", count: "210+" },
-  { name: "International", icon: Globe, color: "text-cyan-500", bg: "bg-cyan-50 border-cyan-100", count: "900+" },
-  { name: "Data & IA", icon: Database, color: "text-slate-700", bg: "bg-slate-100 border-slate-200", count: "150+" },
+  { id: "artisan", label: "Artisans", icon: Hammer, color: "text-amber-600", bg: "bg-amber-50 border-amber-100", count: "1.2k+" },
+  { id: "commerçante", label: "Commerçants", icon: Store, color: "text-emerald-500", bg: "bg-emerald-50 border-emerald-100", count: "850+" },
+  { id: "freelance", label: "Freelances", icon: Laptop, color: "text-blue-500", bg: "bg-blue-50 border-blue-100", count: "420+" },
+  { id: "entreprise", label: "Entreprises", icon: Briefcase, color: "text-slate-700", bg: "bg-slate-100 border-slate-200", count: "310+" },
+  { id: "agence", label: "Agences", icon: Megaphone, color: "text-purple-500", bg: "bg-purple-50 border-purple-100", count: "540+" },
+  { id: "startup", label: "Startup", icon: Rocket, color: "text-rose-500", bg: "bg-rose-50 border-rose-100", count: "210+" },
+  { id: "ong", label: "ONG", icon: Globe, color: "text-cyan-500", bg: "bg-cyan-50 border-cyan-100", count: "150+" },
+  { id: "investisseur", label: "Investisseurs", icon: TrendingUp, color: "text-indigo-500", bg: "bg-indigo-50 border-indigo-100", count: "85+" },
 ]
 
 export function CategoriesExplorer() {
@@ -29,7 +29,7 @@ export function CategoriesExplorer() {
         return (
           <Link
             key={idx}
-            href={`/annuaire?category=${encodeURIComponent(cat.name)}`}
+            href={`/annuaire?category=${cat.id}`}
             className={`group relative flex flex-col p-5 rounded-2xl border ${cat.bg} hover:shadow-xl hover:-translate-y-1 transition-all duration-500 text-left overflow-hidden bg-white/40 backdrop-blur-md`}
           >
             {/* Décoration d'arrière-plan avec glow doux */}
@@ -43,7 +43,7 @@ export function CategoriesExplorer() {
             <div className="p-3 bg-white/80 backdrop-blur-xl w-max rounded-xl mb-4 border border-white/60 shadow-sm group-hover:scale-110 transition-transform duration-300">
               <Icon className={`w-6 h-6 ${cat.color}`} />
             </div>
-            <h4 className="font-bold text-slate-800 text-lg tracking-tight z-10 group-hover:text-slate-950 transition-colors">{cat.name}</h4>
+            <h4 className="font-bold text-slate-800 text-lg tracking-tight z-10 group-hover:text-slate-950 transition-colors">{cat.label}</h4>
             <span className="text-sm font-medium text-slate-500 z-10 mt-1">{cat.count} profils</span>
             
             {/* Petit indicateur interactif */}

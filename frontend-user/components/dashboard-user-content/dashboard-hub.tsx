@@ -116,7 +116,7 @@ export function DashboardHubContent({
         {/* TALENTS À PROXIMITÉ (Temps Réel + Fallback) */}
         <ProximitySection fallbackLocation={userLocation} />
 
-        {/* EXPLORER PAR CATÉGORIE */}
+        {/* EXPLORER PAR TYPE DE PROFIL */}
         <div className="space-y-6 pt-8 pb-10 px-4 sm:px-8 -mx-4 sm:-mx-8 bg-slate-50/80 rounded-[2.5rem] border border-slate-100/80 shadow-sm relative overflow-hidden">
           {/* Décoration d'arrière-plan abstraite */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/5 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
@@ -126,7 +126,7 @@ export function DashboardHubContent({
               <div className="p-1.5 sm:p-2 bg-purple-100 rounded-xl shrink-0">
                 <LayoutGrid className="text-purple-500 w-4 h-4 sm:w-5 sm:h-5" />
               </div>
-              <span className="truncate">Explorer par Secteur</span>
+              <span className="truncate">Explorer par Type de Profil</span>
             </h3>
           </div>
           <CategoriesExplorer />

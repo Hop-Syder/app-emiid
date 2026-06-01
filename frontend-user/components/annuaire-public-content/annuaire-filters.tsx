@@ -27,6 +27,7 @@ interface AnnuaireFiltersProps {
         city: string
         tags: string
         status: string
+        activity_domain: string
     }
     onFilterChange: (key: string, value: string) => void
     currentCategory?: string
@@ -39,8 +40,27 @@ const CATEGORIES = [
     { id: "freelance", label: "Freelances" },
     { id: "entreprise", label: "Entreprises" },
     { id: "agence", label: "Agences" },
-    { id: "startup", label: "Startup" },
-    { id: "ong", label: "ONG" },
+    { id: "startup", label: "Startups" },
+    { id: "ong", label: "ONG / Associations" },
+    { id: "investisseur", label: "Investisseurs" },
+    { id: "institution", label: "Institutions Publiques" },
+    { id: "etudiant", label: "Étudiants" },
+]
+
+const SECTORS = [
+    { id: "all", label: "Tous les secteurs" },
+    { id: "tech", label: "Tech & Digital" },
+    { id: "agro", label: "Agroalimentaire" },
+    { id: "btp", label: "BTP & Construction" },
+    { id: "finance", label: "Finance & Assurance" },
+    { id: "sante", label: "Santé & Bien-être" },
+    { id: "education", label: "Éducation & Formation" },
+    { id: "creatif", label: "Arts & Créativité" },
+    { id: "commerce", label: "Commerce & Distribution" },
+    { id: "transport", label: "Transport & Logistique" },
+    { id: "tourisme", label: "Tourisme & Hôtellerie" },
+    { id: "energie", label: "Énergie & Environnement" },
+    { id: "b2b", label: "Services B2B" },
 ]
 
 export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProps) {
@@ -72,6 +92,7 @@ export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProp
         onFilterChange("city", "")
         onFilterChange("tags", "")
         onFilterChange("status", "all")
+        onFilterChange("activity_domain", "all")
     }
 
     return (
@@ -154,15 +175,31 @@ export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProp
                     >
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-end">
                             <div className="space-y-2">
-                                <label className="text-xs font-bold uppercase tracking-widest text-slate-400 ml-1">Secteur</label>
+                                <label className="text-xs font-bold uppercase tracking-widest text-slate-400 ml-1">Type de Profil</label>
                                 <Select onValueChange={(val) => onFilterChange("category", val)} value={filters.category}>
                                     <SelectTrigger className="h-12 rounded-2xl bg-white border-slate-200/60 px-5 font-semibold text-slate-700 shadow-sm">
-                                        <SelectValue placeholder="Catégorie" />
+                                        <SelectValue placeholder="Profil" />
                                     </SelectTrigger>
                                     <SelectContent className="rounded-2xl border-white/80 bg-white/95 backdrop-blur-xl shadow-xl">
                                         {CATEGORIES.map(cat => (
                                             <SelectItem key={cat.id} value={cat.id} className="rounded-xl font-medium cursor-pointer">
                                                 {cat.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-xs font-bold uppercase tracking-widest text-slate-400 ml-1">Secteur d'activité</label>
+                                <Select onValueChange={(val) => onFilterChange("activity_domain", val)} value={filters.activity_domain}>
+                                    <SelectTrigger className="h-12 rounded-2xl bg-white border-slate-200/60 px-5 font-semibold text-slate-700 shadow-sm">
+                                        <SelectValue placeholder="Secteur" />
+                                    </SelectTrigger>
+                                    <SelectContent className="rounded-2xl border-white/80 bg-white/95 backdrop-blur-xl shadow-xl">
+                                        {SECTORS.map(sec => (
+                                            <SelectItem key={sec.id} value={sec.id} className="rounded-xl font-medium cursor-pointer">
+                                                {sec.label}
                                             </SelectItem>
                                         ))}
                                     </SelectContent>

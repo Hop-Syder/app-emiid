@@ -109,7 +109,7 @@ export function CreerProfilForm({
                 <div className="space-y-3">
                     <Label htmlFor="category" className="text-sm font-bold flex items-center gap-2">
                         <Badge variant="outline" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-[10px] border-primary text-primary">1</Badge>
-                        Catégorie de compte *
+                        Type de Profil (Catégorie) *
                     </Label>
                     <Select value={formData.category || ""} onValueChange={(value) => handleInputChange("category", value)}>
                         <SelectTrigger id="category" className="h-14 rounded-xl bg-slate-50 border-slate-200 focus:ring-2 focus:ring-primary/20 transition-all">
@@ -117,12 +117,42 @@ export function CreerProfilForm({
                         </SelectTrigger>
                         <SelectContent className="rounded-xl border-slate-200 shadow-xl">
                             <SelectItem value="artisan" className="rounded-xl py-3 cursor-pointer">🎨 Artisan</SelectItem>
-                            <SelectItem value="commerçante" className="rounded-xl py-3 cursor-pointer">🛒 Commerçante</SelectItem>
+                            <SelectItem value="commerçante" className="rounded-xl py-3 cursor-pointer">🛒 Commerçant(e)</SelectItem>
                             <SelectItem value="freelance" className="rounded-xl py-3 cursor-pointer">💻 Freelance</SelectItem>
                             <SelectItem value="entreprise" className="rounded-xl py-3 cursor-pointer">🏢 Entreprise</SelectItem>
                             <SelectItem value="agence" className="rounded-xl py-3 cursor-pointer">📣 Agence</SelectItem>
                             <SelectItem value="startup" className="rounded-xl py-3 cursor-pointer">🚀 Startup</SelectItem>
-                            <SelectItem value="ong" className="rounded-xl py-3 cursor-pointer">🌍 ONG</SelectItem>
+                            <SelectItem value="ong" className="rounded-xl py-3 cursor-pointer">🌍 ONG / Association</SelectItem>
+                            <SelectItem value="investisseur" className="rounded-xl py-3 cursor-pointer">📈 Investisseur</SelectItem>
+                            <SelectItem value="institution" className="rounded-xl py-3 cursor-pointer">🏛️ Institution Publique</SelectItem>
+                            <SelectItem value="etudiant" className="rounded-xl py-3 cursor-pointer">🎓 Étudiant / Junior</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+
+                {/* Secteur d'activité */}
+                <div className="space-y-3">
+                    <Label htmlFor="activity_domain" className="text-sm font-bold flex items-center gap-2">
+                        <Badge variant="outline" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-[10px] border-primary text-primary">1b</Badge>
+                        Secteur d'activité *
+                    </Label>
+                    <Select value={formData.activity_domain || ""} onValueChange={(value) => handleInputChange("activity_domain", value)}>
+                        <SelectTrigger id="activity_domain" className="h-14 rounded-xl bg-slate-50 border-slate-200 focus:ring-2 focus:ring-primary/20 transition-all">
+                            <SelectValue placeholder="Choisissez votre secteur d'activité..." />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-xl border-slate-200 shadow-xl max-h-60">
+                            <SelectItem value="tech" className="rounded-xl py-3 cursor-pointer">💻 Tech & Digital</SelectItem>
+                            <SelectItem value="agro" className="rounded-xl py-3 cursor-pointer">🌾 Agroalimentaire</SelectItem>
+                            <SelectItem value="btp" className="rounded-xl py-3 cursor-pointer">🏗️ BTP & Construction</SelectItem>
+                            <SelectItem value="finance" className="rounded-xl py-3 cursor-pointer">💰 Finance & Assurance</SelectItem>
+                            <SelectItem value="sante" className="rounded-xl py-3 cursor-pointer">🏥 Santé & Bien-être</SelectItem>
+                            <SelectItem value="education" className="rounded-xl py-3 cursor-pointer">📚 Éducation & Formation</SelectItem>
+                            <SelectItem value="creatif" className="rounded-xl py-3 cursor-pointer">🎨 Arts & Créativité</SelectItem>
+                            <SelectItem value="commerce" className="rounded-xl py-3 cursor-pointer">🛍️ Commerce & Distribution</SelectItem>
+                            <SelectItem value="transport" className="rounded-xl py-3 cursor-pointer">🚚 Transport & Logistique</SelectItem>
+                            <SelectItem value="tourisme" className="rounded-xl py-3 cursor-pointer">✈️ Tourisme & Hôtellerie</SelectItem>
+                            <SelectItem value="energie" className="rounded-xl py-3 cursor-pointer">⚡ Énergie & Environnement</SelectItem>
+                            <SelectItem value="b2b" className="rounded-xl py-3 cursor-pointer">🤝 Services B2B</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>

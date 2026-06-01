@@ -27,6 +27,7 @@ interface AnnuaireGridProps {
         city: string
         tags: string
         status: string
+        activity_domain: string
     }
     initialProfiles?: PublicProfile[]
 }
@@ -62,6 +63,7 @@ export function AnnuaireGrid({ filters, initialProfiles = [] }: AnnuaireGridProp
                     .order('created_at', { ascending: false })
 
                 if (filters?.category && filters.category !== "all") query = query.ilike('category', filters.category)
+                if (filters?.activity_domain && filters.activity_domain !== "all") query = query.ilike('activity_domain', filters.activity_domain)
                 if (filters?.country && filters.country !== "all") query = query.eq('countries.iso_code', filters.country)
                 if (filters?.city) query = query.ilike('city', `%${filters.city}%`)
                 if (filters?.search) query = query.or(`first_name.ilike.%${filters.search}%,last_name.ilike.%${filters.search}%,bio.ilike.%${filters.search}%,role.ilike.%${filters.search}%,specialty.ilike.%${filters.search}%`)

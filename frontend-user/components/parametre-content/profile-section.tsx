@@ -151,6 +151,88 @@ export function ProfileSection({
             </div>
           </div>
 
+          {/* Professional Information */}
+          <div className="grid gap-4 md:gap-6 md:grid-cols-2 pt-4 md:pt-6 border-t border-slate-100">
+            <div className="space-y-2 md:space-y-3">
+              <Label htmlFor="category" className="text-xs font-semibold text-muted-foreground ml-1">Type de Profil (Catégorie)</Label>
+              <select
+                id="category"
+                value={profile.category || ""}
+                onChange={(e) => setProfile({ ...profile, category: e.target.value })}
+                className="w-full h-12 md:h-14 px-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-primary/20 transition-all font-medium text-slate-900"
+              >
+                <option value="artisan">🎨 Artisan</option>
+                <option value="commerçante">🛒 Commerçant(e)</option>
+                <option value="freelance">💻 Freelance</option>
+                <option value="entreprise">🏢 Entreprise</option>
+                <option value="agence">📣 Agence</option>
+                <option value="startup">🚀 Startup</option>
+                <option value="ong">🌍 ONG / Association</option>
+                <option value="investisseur">📈 Investisseur</option>
+                <option value="institution">🏛️ Institution Publique</option>
+                <option value="etudiant">🎓 Étudiant / Junior</option>
+              </select>
+            </div>
+
+            <div className="space-y-2 md:space-y-3">
+              <Label htmlFor="activity_domain" className="text-xs font-semibold text-muted-foreground ml-1">Secteur d'activité</Label>
+              <select
+                id="activity_domain"
+                value={profile.activity_domain || ""}
+                onChange={(e) => setProfile({ ...profile, activity_domain: e.target.value })}
+                className="w-full h-12 md:h-14 px-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-primary/20 transition-all font-medium text-slate-900"
+              >
+                <option value="" disabled>Choisissez votre secteur...</option>
+                <option value="tech">💻 Tech & Digital</option>
+                <option value="agro">🌾 Agroalimentaire</option>
+                <option value="btp">🏗️ BTP & Construction</option>
+                <option value="finance">💰 Finance & Assurance</option>
+                <option value="sante">🏥 Santé & Bien-être</option>
+                <option value="education">📚 Éducation & Formation</option>
+                <option value="creatif">🎨 Arts & Créativité</option>
+                <option value="commerce">🛍️ Commerce & Distribution</option>
+                <option value="transport">🚚 Transport & Logistique</option>
+                <option value="tourisme">✈️ Tourisme & Hôtellerie</option>
+                <option value="energie">⚡ Énergie & Environnement</option>
+                <option value="b2b">🤝 Services B2B</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:gap-6 md:grid-cols-2">
+            <div className="space-y-2 md:space-y-3">
+              <Label htmlFor="role" className="text-xs font-semibold text-muted-foreground ml-1">Poste actuel ou Entreprise</Label>
+              <Input
+                id="role"
+                value={profile.role || ""}
+                onChange={(e) => setProfile({ ...profile, role: e.target.value })}
+                className="h-12 md:h-14 rounded-xl bg-slate-50 border-slate-200 focus:ring-primary/20 transition-all font-medium text-slate-900"
+                placeholder="Ex: Directeur Créatif ou Nom de l'agence"
+              />
+            </div>
+            <div className="space-y-2 md:space-y-3">
+              <Label htmlFor="specialty" className="text-xs font-semibold text-muted-foreground ml-1">Spécialité</Label>
+              <Input
+                id="specialty"
+                value={profile.specialty || ""}
+                onChange={(e) => setProfile({ ...profile, specialty: e.target.value })}
+                className="h-12 md:h-14 rounded-xl bg-slate-50 border-slate-200 focus:ring-primary/20 transition-all font-medium text-slate-900"
+                placeholder="Ex: Développement Web, Menuiserie d'art..."
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2 md:space-y-3">
+            <Label htmlFor="bio" className="text-xs font-semibold text-muted-foreground ml-1">Votre Histoire (Bio)</Label>
+            <textarea
+              id="bio"
+              value={profile.bio || ""}
+              onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
+              className="w-full min-h-[120px] p-4 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-primary/20 transition-all font-medium text-slate-900 resize-y"
+              placeholder="Racontez votre parcours, vos plus belles réalisations..."
+            />
+          </div>
+
 
           <div className="grid gap-4 md:gap-6 md:grid-cols-2 pt-4 md:pt-6 border-t border-slate-100">
               <div className="space-y-2 md:space-y-3">

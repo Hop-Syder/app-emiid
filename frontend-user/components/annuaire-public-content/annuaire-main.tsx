@@ -28,7 +28,8 @@ export function AnnuairePublicContent({ initialCategory = "all", initialCity = "
         country: "all",
         city: initialCity,
         tags: "",
-        status: "all"
+        status: "all",
+        activity_domain: "all"
     })
 
     const handleFilterChange = (key: string, value: string) => {
