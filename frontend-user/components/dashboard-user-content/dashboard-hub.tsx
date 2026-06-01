@@ -16,22 +16,23 @@ import type { PublicProfile } from "@/types"
 import Link from "next/link"
 import { DashboardBentoHeader } from "./dashboard-bento-header"
 import { EntrepreneursSection } from "./entrepreneurs-section"
-import { Sparkles, MapPin, Target, LayoutGrid, ArrowRight } from "lucide-react"
+import { Sparkles, Target, LayoutGrid, ArrowRight } from "lucide-react"
 
 // Nouveaux composants
 import { CategoriesExplorer } from "./categories-explorer"
 import { RecentActivityCta } from "./recent-activity-cta"
+import { ProximitySection } from "./proximity-section"
 
 interface DashboardHubContentProps {
   initialPremiumProfiles: PublicProfile[]
   initialNewProfiles: PublicProfile[]
-  initialVerifiedProfiles: PublicProfile[]
+  userLocation?: { city: string; country_id: string; country_name: string } | null
 }
 
 export function DashboardHubContent({
   initialPremiumProfiles,
   initialNewProfiles,
-  initialVerifiedProfiles
+  userLocation
 }: DashboardHubContentProps) {
   // === 1. HOOKS ET ÉTATS STATISTIQUES ===
   const { stats, statsLoading, statsError } = useDashboardStats({
@@ -85,7 +86,7 @@ export function DashboardHubContent({
           <EntrepreneursSection 
             entrepreneursList={initialNewProfiles.slice(0, 8)} 
             loading={false} 
-            variant="tech" 
+            variant="glass" 
           />
         </div>
 
@@ -106,7 +107,7 @@ export function DashboardHubContent({
             <EntrepreneursSection 
               entrepreneursList={initialPremiumProfiles.slice(0, 8)} 
               loading={false} 
-              variant="glass" 
+              variant="premium" 
             />
           </div>
         )}
@@ -127,26 +128,8 @@ export function DashboardHubContent({
           <CategoriesExplorer />
         </div>
 
-        {/* TALENTS À PROXIMITÉ */}
-        <div className="space-y-4 pt-4">
-          <div className="flex flex-row items-center justify-between px-1 sm:px-2 gap-2">
-            <h3 className="text-lg sm:text-2xl font-black text-slate-800 flex items-center gap-2 sm:gap-3 tracking-tight">
-              <div className="p-1.5 sm:p-2 bg-emerald-100 rounded-xl shrink-0">
-                <MapPin className="text-emerald-500 w-4 h-4 sm:w-5 sm:h-5" />
-              </div>
-              <span className="truncate">Talents à Proximité</span>
-            </h3>
-            <Link href="/annuaire?filter=verified" className="text-xs sm:text-sm font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-1 group shrink-0">
-              Voir tout <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </div>
-          {/* On réutilise les profils vérifiés pour simuler la géoloc */}
-          <EntrepreneursSection
-            entrepreneursList={initialVerifiedProfiles.slice(0, 8)}
-            loading={false}
-            variant="glass"
-          />
-        </div>
+        {/* TALENTS À PROXIMITÉ (Temps Réel + Fallback) */}
+        <ProximitySection fallbackLocation={userLocation} />
 
       </div>
     </div>

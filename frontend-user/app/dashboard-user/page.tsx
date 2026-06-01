@@ -137,15 +137,79 @@ function mapProfiles(data: any[]) {
 export default async function DashboardPage() {
     const supabase = await createClient()
 
-    // Requêtes en parallèle pour éviter le waterfall
+    // 1. Récupérer l'utilisateur courant et sa localisation
+    const { data: { user } } = await supabase.auth.getUser()
+    let userLocation = null;
+    let proximityProfiles: any[] = [];
+    
+    if (user) {
+        const { data: userProfile } = await supabase
+            .from('public_profiles')
+            .select('city, country_id, countries(name)')
+            .eq('id', user.id)
+            .single()
+            
+        if (userProfile && (userProfile.city || userProfile.country_id)) {
+            userLocation = { 
+                city: userProfile.city, 
+                country_id: userProfile.country_id,
+                country_name: userProfile.countries?.name
+            };
+            
+            // Niveau 1 : Même Ville & Pays
+            if (userLocation.city && userLocation.country_id) {
+                const { data: cityData } = await supabase
+                    .from('public_profiles')
+                    .select(`*, countries(name, iso_code), profile_tags(tags(name))`)
+                    .eq('country_id', userLocation.country_id)
+                    .ilike('city', userLocation.city)
+                    .neq('id', user.id)
+                    .limit(20)
+                if (cityData) proximityProfiles = [...cityData]
+            }
+            
+            // Niveau 2 : Même Pays (si Niveau 1 < 8)
+            if (proximityProfiles.length < 8 && userLocation.country_id) {
+                const excludeIds = [user.id, ...proximityProfiles.map(p => p.id || p.user_id)]
+                const { data: countryData } = await supabase
+                    .from('public_profiles')
+                    .select(`*, countries(name, iso_code), profile_tags(tags(name))`)
+                    .eq('country_id', userLocation.country_id)
+                    .not('id', 'in', `(${excludeIds.join(',')})`)
+                    .order('is_premium', { ascending: false }) // Priorité aux premium
+                    .limit(20)
+                if (countryData) proximityProfiles = [...proximityProfiles, ...countryData]
+            }
+        }
+    }
+    
+    // Niveau 3 : Fallback Global (si < 8 ou pas de localisation)
+    if (proximityProfiles.length < 8) {
+        const excludeIds = user ? [user.id, ...proximityProfiles.map(p => p.id || p.user_id)] : proximityProfiles.map(p => p.id || p.user_id)
+        let fallbackQuery = supabase
+            .from('public_profiles')
+            .select(`*, countries(name, iso_code), profile_tags(tags(name))`)
+            .eq('is_verified', true)
+            .order('created_at', { ascending: false })
+            .limit(30)
+            
+        if (excludeIds.length > 0) {
+             fallbackQuery = fallbackQuery.not('id', 'in', `(${excludeIds.join(',')})`)
+        }
+        
+        const { data: fallbackData } = await fallbackQuery
+        if (fallbackData) proximityProfiles = [...proximityProfiles, ...fallbackData]
+    }
+    
+    const initialProximityProfiles = mapProfiles(shuffleArray(proximityProfiles).slice(0, 8))
+
+    // Requêtes en parallèle pour les autres sections (sans bloquer)
     const [
         initialPremiumProfiles,
-        initialNewProfiles,
-        initialVerifiedProfiles
+        initialNewProfiles
     ] = await Promise.all([
         fetchCuratedProfiles(supabase, 'premium', 8),
-        fetchCuratedProfiles(supabase, 'new', 8),
-        fetchCuratedProfiles(supabase, 'verified', 8)
+        fetchCuratedProfiles(supabase, 'new', 8)
     ])
 
     return (
@@ -153,7 +217,8 @@ export default async function DashboardPage() {
             <DashboardHubContent 
                 initialPremiumProfiles={initialPremiumProfiles} 
                 initialNewProfiles={initialNewProfiles}
-                initialVerifiedProfiles={initialVerifiedProfiles}
+                initialProximityProfiles={initialProximityProfiles}
+                userLocation={userLocation}
             />
         </div>
     )
