@@ -79,9 +79,10 @@ export function DashboardBentoHeader({ stats, statsLoading }: DashboardBentoHead
                 {/* Layout vertical : salutation en haut, titre+actions en bas */}
                 <div className="relative z-10 flex flex-col justify-between h-full px-8 md:px-12 pt-8 pb-8 gap-6">
 
-                    {/* Ligne haute — salutation contextuelle */}
-                    <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-white/30 select-none">
-                        {greeting}{displayName}
+                    {/* Ligne haute — sous-titre contextuel */}
+                    <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-white/30 select-none flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                        Espace Membre
                     </p>
 
                     {/* Ligne basse — titre grand + CTA alignés */}
@@ -89,9 +90,9 @@ export function DashboardBentoHeader({ stats, statsLoading }: DashboardBentoHead
 
                         {/* Titre plein écran */}
                         <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white tracking-tight leading-[1.05]">
-                            Prêt à{" "}
+                            {greeting}{" "}
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-sky-200 to-white">
-                                networker ?
+                                {userName || "Talent"}
                             </span>
                         </h1>
 

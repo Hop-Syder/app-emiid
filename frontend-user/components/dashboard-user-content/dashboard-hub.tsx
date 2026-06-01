@@ -112,8 +112,11 @@ export function DashboardHubContent({
         )}
 
         {/* EXPLORER PAR CATÉGORIE */}
-        <div className="space-y-6 pt-4">
-          <div className="flex flex-row items-center justify-between px-1 sm:px-2 gap-2">
+        <div className="space-y-6 pt-8 pb-10 px-4 sm:px-8 -mx-4 sm:-mx-8 bg-slate-50/80 rounded-[2.5rem] border border-slate-100/80 shadow-sm relative overflow-hidden">
+          {/* Décoration d'arrière-plan abstraite */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/5 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
+          
+          <div className="relative z-10 flex flex-row items-center justify-between px-1 sm:px-2 gap-2">
             <h3 className="text-lg sm:text-2xl font-black text-slate-800 flex items-center gap-2 sm:gap-3 tracking-tight">
               <div className="p-1.5 sm:p-2 bg-purple-100 rounded-xl shrink-0">
                 <LayoutGrid className="text-purple-500 w-4 h-4 sm:w-5 sm:h-5" />

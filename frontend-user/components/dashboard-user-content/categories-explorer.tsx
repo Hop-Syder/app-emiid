@@ -30,18 +30,28 @@ export function CategoriesExplorer() {
           <Link
             key={idx}
             href={`/annuaire?category=${encodeURIComponent(cat.name)}`}
-            className={`group relative flex flex-col p-5 rounded-2xl border ${cat.bg} hover:shadow-md transition-all duration-300 text-left overflow-hidden`}
+            className={`group relative flex flex-col p-5 rounded-2xl border ${cat.bg} hover:shadow-xl hover:-translate-y-1 transition-all duration-500 text-left overflow-hidden bg-white/40 backdrop-blur-md`}
           >
-            {/* Décoration d'arrière-plan */}
-            <div className="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity duration-300 pointer-events-none transform group-hover:scale-110">
-              <Icon className="w-24 h-24" />
+            {/* Décoration d'arrière-plan avec glow doux */}
+            <div className={`absolute -right-6 -bottom-6 w-32 h-32 rounded-full blur-3xl opacity-20 group-hover:opacity-40 transition-opacity duration-500 ${cat.bg.replace('bg-', 'bg-gradient-to-br from-white to-')}`} />
+            
+            {/* Icône géante en filigrane */}
+            <div className="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-500 pointer-events-none transform group-hover:scale-125 group-hover:rotate-6">
+              <Icon className="w-28 h-28" />
             </div>
 
-            <div className="p-3 bg-white/60 backdrop-blur-sm w-max rounded-xl mb-4 border border-white/50 shadow-sm">
+            <div className="p-3 bg-white/80 backdrop-blur-xl w-max rounded-xl mb-4 border border-white/60 shadow-sm group-hover:scale-110 transition-transform duration-300">
               <Icon className={`w-6 h-6 ${cat.color}`} />
             </div>
-            <h4 className="font-bold text-slate-800 text-lg tracking-tight z-10">{cat.name}</h4>
+            <h4 className="font-bold text-slate-800 text-lg tracking-tight z-10 group-hover:text-slate-950 transition-colors">{cat.name}</h4>
             <span className="text-sm font-medium text-slate-500 z-10 mt-1">{cat.count} profils</span>
+            
+            {/* Petit indicateur interactif */}
+            <div className="absolute top-4 right-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+              <div className="w-6 h-6 rounded-full bg-white/50 backdrop-blur-sm flex items-center justify-center border border-white/50">
+                <Icon className={`w-3 h-3 ${cat.color}`} />
+              </div>
+            </div>
           </Link>
         )
       })}
