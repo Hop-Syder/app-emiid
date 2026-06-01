@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { getOptimizedImageUrl } from "@/lib/image-optimization"
 
-export type EmiIDCardVariant = "elite" | "glass" | "glass-blue" | "tech"
+export type EmiIDCardVariant = "elite" | "glass" | "glass-blue" | "glass-orange" | "tech"
 
 interface EmiIDProfileCardProps {
   user: {
@@ -67,6 +67,18 @@ const VARIANT_STYLES = {
     accent: "text-blue-500",
     btnPrimary: "bg-blue-500 text-white hover:bg-blue-600 shadow-[0_0_15px_rgba(59,130,246,0.3)]",
     btnSecondary: "bg-white/80 border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-blue-600"
+  },
+  "glass-orange": {
+    // Cristal / Frosted Glass - Orange
+    wrapper: "bg-white/60 backdrop-blur-3xl border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:shadow-[0_8px_40px_rgb(0,0,0,0.12)] hover:border-white",
+    textPrimary: "text-slate-900",
+    textSecondary: "text-slate-500",
+    divider: "bg-slate-200/60",
+    glow: "rgba(255, 255, 255, 0.8)",
+    badge: "text-orange-600 bg-orange-50 border-orange-100",
+    accent: "text-orange-500",
+    btnPrimary: "bg-orange-500 text-white hover:bg-orange-600 shadow-[0_0_15px_rgba(249,115,22,0.3)]",
+    btnSecondary: "bg-white/80 border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-orange-600"
   },
   elite: {
     // Obsidian & Gold (Luxe Glassmorphism)

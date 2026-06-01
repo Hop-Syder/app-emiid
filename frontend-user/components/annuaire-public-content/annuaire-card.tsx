@@ -89,7 +89,7 @@ export function AnnuaireCard({ profile }: AnnuaireCardProps) {
         tags: [profile.specialty]
     }
 
-    const activeVariant = profile.premium ? "elite" : "glass-blue"
+    const activeVariant = profile.premium ? "elite" : "glass-orange"
 
     return (
         <EmiIDProfileCard 
