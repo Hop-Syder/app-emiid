@@ -170,7 +170,7 @@ export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProp
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                    className="pointer-events-auto flex items-center justify-between w-full max-w-[400px] md:w-auto p-1.5 md:p-1.5 bg-white/85 backdrop-blur-2xl border border-white/80 shadow-[0_12px_40px_-10px_rgba(0,0,0,0.2)] md:shadow-[0_8px_32px_rgba(0,0,0,0.08)] rounded-[2rem] transition-all hover:shadow-[0_16px_50px_-10px_rgba(0,0,0,0.25)]"
+                    className="pointer-events-auto flex items-center justify-between w-full max-w-[400px] md:max-w-none md:w-auto p-1.5 md:p-1.5 bg-white/85 backdrop-blur-2xl border border-white/80 shadow-[0_12px_40px_-10px_rgba(0,0,0,0.2)] md:shadow-[0_8px_32px_rgba(0,0,0,0.08)] rounded-[2rem] transition-all hover:shadow-[0_16px_50px_-10px_rgba(0,0,0,0.25)]"
                 >
                     {/* Search Trigger */}
                     <button 
