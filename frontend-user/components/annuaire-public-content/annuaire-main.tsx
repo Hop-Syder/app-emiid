@@ -51,9 +51,7 @@ export function AnnuairePublicContent({
             <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-12">
                 <AnnuaireHero />
                 
-                <div className="relative">
-                    <AnnuaireFilters filters={filters} onFilterChange={handleFilterChange} />
-                </div>
+                <AnnuaireFilters filters={filters} onFilterChange={handleFilterChange} />
 
                 <motion.div 
                     initial={{ opacity: 0, y: 20 }}
