@@ -33,16 +33,16 @@ interface EmiIDProfileCardProps {
 // Configuration visuelle distincte pour chaque variant
 const VARIANT_STYLES = {
   tech: {
-    // Cyber / Modern Dark
-    wrapper: "bg-slate-900/80 backdrop-blur-2xl border-slate-800 shadow-2xl hover:shadow-blue-500/10 hover:border-slate-700",
+    // Cyber / Modern Dark (Glassmorphism)
+    wrapper: "bg-slate-900/40 backdrop-blur-3xl border-slate-700/50 shadow-[0_8px_32px_rgba(0,0,0,0.2)] hover:shadow-[0_16px_48px_rgba(59,130,246,0.15)] hover:border-slate-600/80",
     textPrimary: "text-white",
-    textSecondary: "text-slate-400",
-    divider: "bg-slate-800",
-    glow: "rgba(59, 130, 246, 0.2)",
-    badge: "text-blue-400 bg-blue-500/10 border-blue-500/20",
-    accent: "text-blue-500",
-    btnPrimary: "bg-blue-600 text-white hover:bg-blue-500",
-    btnSecondary: "bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700 hover:text-white"
+    textSecondary: "text-slate-300",
+    divider: "bg-slate-700/50",
+    glow: "rgba(59, 130, 246, 0.3)",
+    badge: "text-blue-300 bg-blue-500/20 border-blue-500/30",
+    accent: "text-blue-400",
+    btnPrimary: "bg-blue-600/90 hover:bg-blue-500 text-white shadow-[0_0_15px_rgba(59,130,246,0.4)]",
+    btnSecondary: "bg-slate-800/50 border-slate-700/50 text-slate-200 hover:bg-slate-700/70 hover:text-white"
   },
   glass: {
     // Cristal / Frosted Glass (Lisibilité parfaite) - Emerald
@@ -53,7 +53,7 @@ const VARIANT_STYLES = {
     glow: "rgba(255, 255, 255, 0.8)",
     badge: "text-emerald-600 bg-emerald-50 border-emerald-100",
     accent: "text-emerald-500",
-    btnPrimary: "bg-emerald-500 text-white hover:bg-emerald-600",
+    btnPrimary: "bg-emerald-500 text-white hover:bg-emerald-600 shadow-[0_0_15px_rgba(16,185,129,0.3)]",
     btnSecondary: "bg-white/80 border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-emerald-600"
   },
   "glass-blue": {
@@ -65,20 +65,20 @@ const VARIANT_STYLES = {
     glow: "rgba(255, 255, 255, 0.8)",
     badge: "text-blue-600 bg-blue-50 border-blue-100",
     accent: "text-blue-500",
-    btnPrimary: "bg-blue-500 text-white hover:bg-blue-600",
+    btnPrimary: "bg-blue-500 text-white hover:bg-blue-600 shadow-[0_0_15px_rgba(59,130,246,0.3)]",
     btnSecondary: "bg-white/80 border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-blue-600"
   },
   elite: {
-    // Obsidian & Gold (Luxe)
-    wrapper: "bg-stone-950/95 backdrop-blur-2xl border-stone-800 shadow-[0_8px_30px_rgba(245,158,11,0.05)] hover:shadow-[0_8px_40px_rgba(245,158,11,0.15)] hover:border-amber-500/40",
+    // Obsidian & Gold (Luxe Glassmorphism)
+    wrapper: "bg-stone-950/60 backdrop-blur-3xl border-stone-800/60 shadow-[0_8px_32px_rgba(0,0,0,0.4)] hover:shadow-[0_16px_48px_rgba(245,158,11,0.2)] hover:border-amber-500/50",
     textPrimary: "text-stone-50",
-    textSecondary: "text-stone-400",
-    divider: "bg-stone-800",
-    glow: "rgba(245, 158, 11, 0.15)",
-    badge: "text-amber-400 bg-amber-500/10 border-amber-500/20",
-    accent: "text-amber-500",
-    btnPrimary: "bg-gradient-to-r from-amber-500 to-yellow-500 text-stone-950 hover:from-amber-400 hover:to-yellow-400 font-bold",
-    btnSecondary: "bg-stone-900 border-stone-800 text-stone-300 hover:bg-stone-800 hover:text-amber-400"
+    textSecondary: "text-stone-300",
+    divider: "bg-stone-800/60",
+    glow: "rgba(245, 158, 11, 0.25)",
+    badge: "text-amber-300 bg-amber-500/15 border-amber-500/30",
+    accent: "text-amber-400",
+    btnPrimary: "bg-gradient-to-r from-amber-500/90 to-yellow-500/90 text-stone-950 hover:from-amber-400 hover:to-yellow-400 font-bold shadow-[0_0_20px_rgba(245,158,11,0.4)]",
+    btnSecondary: "bg-stone-900/50 border-stone-800/60 text-stone-200 hover:bg-stone-800/80 hover:text-amber-400"
   },
 }
 
@@ -131,9 +131,9 @@ export function EmiIDProfileCard({
       onMouseLeave={handleMouseLeave}
       onClick={() => onAction?.('view')}
       className={cn(
-        "relative w-full max-w-[280px] aspect-[1/1.3] mx-auto rounded-[2rem] cursor-pointer group transition-all duration-500",
+        "relative w-full max-w-[280px] h-full min-h-[380px] mx-auto rounded-[2rem] cursor-pointer group transition-all duration-500",
         styles.wrapper,
-        "overflow-hidden flex flex-col border",
+        "overflow-hidden flex flex-col justify-between border",
         className
       )}
     >
