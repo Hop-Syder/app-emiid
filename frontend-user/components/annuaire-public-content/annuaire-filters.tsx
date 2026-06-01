@@ -10,7 +10,7 @@
 
 "use client"
 
-import { Search, X, Filter } from "lucide-react"
+import { Search, X, Filter, MapPin, Loader2 } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -66,6 +66,47 @@ const SECTORS = [
 export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProps) {
     const searchInputRef = useRef<HTMLInputElement>(null)
     const [showAdvanced, setShowAdvanced] = useState(false)
+    const [isLocating, setIsLocating] = useState(false)
+
+    const handleProximitySearch = () => {
+        if (!navigator.geolocation) {
+            alert("La géolocalisation n'est pas supportée par votre navigateur.")
+            return
+        }
+
+        setIsLocating(true)
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                const lat = position.coords.latitude
+                const lon = position.coords.longitude
+                
+                try {
+                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=fr`)
+                    if (res.ok) {
+                        const data = await res.json()
+                        const city = data.address.city || data.address.town || data.address.village || data.address.state
+                        const countryCode = data.address.country_code?.toUpperCase()
+                        
+                        if (countryCode) onFilterChange("country", countryCode)
+                        if (city) onFilterChange("city", city)
+                        
+                        // Si le panneau avancé n'est pas ouvert, l'ouvrir pour montrer que la loc a changé
+                        if (!showAdvanced) setShowAdvanced(true)
+                    }
+                } catch (e) {
+                    console.error("Geocoding failed", e)
+                } finally {
+                    setIsLocating(false)
+                }
+            },
+            (error) => {
+                console.error("Geolocation error:", error)
+                alert("Impossible de récupérer votre position. Vérifiez les autorisations de votre navigateur.")
+                setIsLocating(false)
+            },
+            { timeout: 10000 }
+        )
+    }
 
     // Intercept Cmd+K / Ctrl+K
     useEffect(() => {
@@ -144,20 +185,38 @@ export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProp
                         ))}
                     </div>
 
-                    {/* Filter Toggle Button */}
-                    <div className="w-full md:w-auto flex items-center justify-end px-2">
+                    {/* Action Buttons */}
+                    <div className="w-full md:w-auto flex items-center justify-end px-2 gap-2">
+                        <Button
+                            variant="ghost"
+                            onClick={handleProximitySearch}
+                            disabled={isLocating}
+                            className={cn(
+                                "rounded-full h-10 md:h-12 px-4 font-bold text-sm transition-all border",
+                                "bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100 hover:text-emerald-700"
+                            )}
+                        >
+                            {isLocating ? (
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            ) : (
+                                <MapPin className="w-4 h-4 mr-2" />
+                            )}
+                            <span className="hidden sm:inline">Autour de moi</span>
+                            <span className="inline sm:hidden">Proche</span>
+                        </Button>
+
                         <Button
                             variant="ghost"
                             onClick={() => setShowAdvanced(!showAdvanced)}
                             className={cn(
-                                "rounded-full h-10 md:h-12 px-6 font-bold text-sm transition-all border",
+                                "rounded-full h-10 md:h-12 px-4 sm:px-6 font-bold text-sm transition-all border",
                                 showAdvanced 
                                     ? "bg-blue-50 text-blue-600 border-blue-200" 
                                     : "bg-white/60 text-slate-600 border-white/80 hover:bg-white hover:text-slate-900"
                             )}
                         >
-                            <Filter className="w-4 h-4 mr-2" />
-                            Filtres {showAdvanced ? "actifs" : ""}
+                            <Filter className="w-4 h-4 mr-0 sm:mr-2" />
+                            <span className="hidden sm:inline">Filtres {showAdvanced ? "actifs" : ""}</span>
                         </Button>
                     </div>
                 </div>
