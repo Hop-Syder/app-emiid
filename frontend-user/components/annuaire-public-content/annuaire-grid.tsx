@@ -30,9 +30,10 @@ interface AnnuaireGridProps {
         activity_domain: string
     }
     initialProfiles?: PublicProfile[]
+    onlyPremium?: boolean
 }
 
-export function AnnuaireGrid({ filters, initialProfiles = [] }: AnnuaireGridProps) {
+export function AnnuaireGrid({ filters, initialProfiles = [], onlyPremium = false }: AnnuaireGridProps) {
     const [profiles, setProfiles] = useState<PublicProfile[]>(initialProfiles)
     const [loading, setLoading] = useState(!initialProfiles.length)
     const [isFirstRender, setIsFirstRender] = useState(true)
@@ -78,6 +79,10 @@ export function AnnuaireGrid({ filters, initialProfiles = [] }: AnnuaireGridProp
                 if (filters?.country && filters.country !== "all") query = query.eq('countries.iso_code', filters.country)
                 if (filters?.city) query = query.ilike('city', `%${filters.city}%`)
                 if (filters?.search) query = query.or(`first_name.ilike.%${filters.search}%,last_name.ilike.%${filters.search}%,bio.ilike.%${filters.search}%,role.ilike.%${filters.search}%,specialty.ilike.%${filters.search}%`)
+                
+                if (onlyPremium) {
+                    query = query.eq('is_premium', true)
+                }
 
                 const { data, error: profilesError } = await query
                 let profilesData = data

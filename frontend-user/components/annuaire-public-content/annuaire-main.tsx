@@ -58,6 +58,30 @@ export function AnnuairePublicContent({
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.1 }}
+                    className="space-y-6"
+                >
+                    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-amber-200/30 pb-4">
+                        <div>
+                            <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
+                                Profils <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-600">Premium</span>
+                            </h2>
+                            <p className="text-slate-500 font-medium mt-1">L'élite de notre réseau, des professionnels certifiés d'exception.</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <span className="flex h-2 w-2 rounded-full bg-amber-500 animate-pulse"></span>
+                            <p className="text-xs font-bold uppercase tracking-widest text-amber-500">Mise en avant</p>
+                        </div>
+                    </div>
+
+                    <div className="pt-4">
+                        <AnnuaireGrid filters={filters} onlyPremium={true} />
+                    </div>
+                </motion.div>
+
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.2 }}
                     className="space-y-6"
                 >
