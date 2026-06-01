@@ -38,77 +38,41 @@ async function fetchCuratedProfiles(supabase: any, filter: string, limit: number
     let query = supabase
         .from('public_profiles')
         .select(`*, countries(name, iso_code), profile_tags(tags(name))`)
+        .eq('is_published', true)
 
     if (filter === 'premium') {
-        const thirtyDaysAgo = new Date()
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-        
-        // 1. On tente de récupérer tous les profils premium des 30 derniers jours
-        const { data: recentPremium, error: premiumError } = await supabase
-            .from('public_profiles')
-            .select(`*, countries(name, iso_code), profile_tags(tags(name))`)
+        const { data: premiumData, error } = await query
             .eq('is_premium', true)
-            .gte('created_at', thirtyDaysAgo.toISOString())
             .order('created_at', { ascending: false })
-
-        // 2. Fallback : S'il y a très peu de premium récents, ou une erreur sur la date, on prend les 50 derniers globaux
-        if (premiumError || !recentPremium || recentPremium.length < 8) {
-            const { data: fallbackPremium, error: fallbackError } = await supabase
-                .from('public_profiles')
-                .select(`*, countries(name, iso_code), profile_tags(tags(name))`)
-                .eq('is_premium', true)
-                .order('created_at', { ascending: false })
-                .limit(50)
+            .limit(50)
             
-            if (fallbackError || !fallbackPremium) return []
-            return mapProfiles(shuffleArray(fallbackPremium))
-        }
-
-        return mapProfiles(recentPremium)
+        if (error || !premiumData) return []
+        // On mélange seulement les premium pour avoir de la variété, mais on prend juste la limite
+        return mapProfiles(shuffleArray(premiumData).slice(0, limit))
 
     } else if (filter === 'new') {
-        const thirtyDaysAgo = new Date()
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-        
-        // 1. On tente de récupérer tous les profils des 30 derniers jours
-        const { data: recentData, error: recentError } = await supabase
-            .from('public_profiles')
-            .select(`*, countries(name, iso_code), profile_tags(tags(name))`)
-            .gte('created_at', thirtyDaysAgo.toISOString())
+        // Pour "Nouveaux Talents", on veut TOUJOURS les plus récents, sans aucun mélange
+        const { data: newData, error } = await query
             .order('created_at', { ascending: false })
-
-        // 2. Fallback : S'il y a très peu d'inscrits récents, ou une erreur sur la date, on prend les 50 derniers globaux
-        if (recentError || !recentData || recentData.length < 8) {
-            const { data: fallbackData, error: fallbackError } = await supabase
-                .from('public_profiles')
-                .select(`*, countries(name, iso_code), profile_tags(tags(name))`)
-                .order('created_at', { ascending: false })
-                .limit(50)
+            .limit(limit)
             
-            if (fallbackError || !fallbackData) return []
-            return mapProfiles(shuffleArray(fallbackData))
-        }
-
-        return mapProfiles(recentData)
+        if (error || !newData) return []
+        return mapProfiles(newData)
 
     } else if (filter === 'verified') {
-        query = query.eq('is_verified', true).limit(limit)
-        const { data, error } = await query
-        
-        if (error || !data || data.length < 8) {
-            const { data: fallbackData } = await supabase
-                .from('public_profiles')
-                .select(`*, countries(name, iso_code), profile_tags(tags(name))`)
-                .order('created_at', { ascending: false })
-                .limit(50)
-            return mapProfiles(shuffleArray(fallbackData || []))
-        }
-        return mapProfiles(data)
-    } else {
-        query = query.limit(limit)
+        const { data: verifiedData, error } = await query
+            .eq('is_verified', true)
+            .order('created_at', { ascending: false })
+            .limit(50)
+            
+        if (error || !verifiedData) return []
+        return mapProfiles(shuffleArray(verifiedData).slice(0, limit))
     }
 
     const { data, error } = await query
+        .order('created_at', { ascending: false })
+        .limit(limit)
+        
     if (error || !data) return []
     return mapProfiles(data)
 }
@@ -189,7 +153,7 @@ export default async function DashboardPage() {
         let fallbackQuery = supabase
             .from('public_profiles')
             .select(`*, countries(name, iso_code), profile_tags(tags(name))`)
-            .eq('is_verified', true)
+            .eq('is_published', true)
             .order('created_at', { ascending: false })
             .limit(30)
             
@@ -201,7 +165,8 @@ export default async function DashboardPage() {
         if (fallbackData) proximityProfiles = [...proximityProfiles, ...fallbackData]
     }
     
-    const initialProximityProfiles = mapProfiles(shuffleArray(proximityProfiles).slice(0, 8))
+    // On peut mélanger le fallback de proximité, mais on prend d'abord les plus proches
+    const initialProximityProfiles = mapProfiles(proximityProfiles.slice(0, 8))
 
     // Requêtes en parallèle pour les autres sections (sans bloquer)
     const [
