@@ -36,11 +36,13 @@ export function AnnuaireGrid({ filters, initialProfiles = [] }: AnnuaireGridProp
     const [profiles, setProfiles] = useState<PublicProfile[]>(initialProfiles)
     const [loading, setLoading] = useState(!initialProfiles.length)
     const [isFirstRender, setIsFirstRender] = useState(true)
-    const scrollRef = useRef<HTMLDivElement>(null)
+    const scrollRef1 = useRef<HTMLDivElement>(null)
+    const scrollRef2 = useRef<HTMLDivElement>(null)
 
-    const scroll = (direction: "left" | "right") => {
-        if (scrollRef.current) {
-            const { current } = scrollRef
+    const scroll = (row: 1 | 2, direction: "left" | "right") => {
+        const targetRef = row === 1 ? scrollRef1 : scrollRef2
+        if (targetRef.current) {
+            const { current } = targetRef
             const scrollAmount = direction === "left" ? -400 : 400
             current.scrollBy({ left: scrollAmount, behavior: "smooth" })
         }
@@ -179,45 +181,78 @@ export function AnnuaireGrid({ filters, initialProfiles = [] }: AnnuaireGridProp
     }
 
     return (
-        <div className="relative group/carousel">
-            {/* Flèche gauche */}
-            <button
-                onClick={() => scroll("left")}
-                className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 h-10 w-10 items-center justify-center rounded-full bg-slate-900/90 text-white/90 border border-white/10 shadow-xl opacity-0 group-hover/carousel:opacity-100 transition-all hover:bg-slate-800 hover:text-white backdrop-blur-md"
-            >
-                <ChevronLeft className="h-5 w-5" />
-            </button>
-
-            <div 
-                ref={scrollRef}
-                className="grid grid-rows-2 grid-flow-col gap-6 xl:gap-8 overflow-x-auto snap-x no-scrollbar w-full pb-10 pt-4 px-4 -mx-4 scroll-smooth items-start justify-start"
-            >
-                {profiles.slice(0, 50).map((profile, index) => (
-                    <motion.div
-                        key={profile.id}
-                        initial={{ opacity: 0, y: 30, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        transition={{ 
-                            duration: 0.5, 
-                            delay: Math.min(index, 10) * 0.08, // Cap delay to avoid excessive wait times for later items
-                            type: "spring",
-                            stiffness: 100,
-                            damping: 15
-                        }}
-                        className="w-[280px] sm:w-[320px] snap-center"
+        <div className="space-y-8">
+            {/* --- LIGNE 1 --- */}
+            {profiles.length > 0 && (
+                <div className="relative group/carousel1">
+                    <button
+                        onClick={() => scroll(1, "left")}
+                        className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 h-10 w-10 items-center justify-center rounded-full bg-slate-900/90 text-white/90 border border-white/10 shadow-xl opacity-0 group-hover/carousel1:opacity-100 transition-all hover:bg-slate-800 hover:text-white backdrop-blur-md"
                     >
-                        <AnnuaireCard profile={profile} />
-                    </motion.div>
-                ))}
-            </div>
+                        <ChevronLeft className="h-5 w-5" />
+                    </button>
 
-            {/* Flèche droite */}
-            <button
-                onClick={() => scroll("right")}
-                className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 h-10 w-10 items-center justify-center rounded-full bg-slate-900/90 text-white/90 border border-white/10 shadow-xl opacity-0 group-hover/carousel:opacity-100 transition-all hover:bg-slate-800 hover:text-white backdrop-blur-md"
-            >
-                <ChevronRight className="h-5 w-5" />
-            </button>
+                    <div 
+                        ref={scrollRef1}
+                        className="flex gap-6 xl:gap-8 overflow-x-auto snap-x no-scrollbar w-full pb-6 pt-4 px-4 -mx-4 scroll-smooth"
+                    >
+                        {profiles.slice(0, 25).map((profile, index) => (
+                            <motion.div
+                                key={`row1-${profile.id}`}
+                                initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                transition={{ duration: 0.5, delay: Math.min(index, 10) * 0.08, type: "spring", stiffness: 100, damping: 15 }}
+                                className="w-[280px] sm:w-[320px] shrink-0 snap-center"
+                            >
+                                <AnnuaireCard profile={profile} />
+                            </motion.div>
+                        ))}
+                    </div>
+
+                    <button
+                        onClick={() => scroll(1, "right")}
+                        className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 h-10 w-10 items-center justify-center rounded-full bg-slate-900/90 text-white/90 border border-white/10 shadow-xl opacity-0 group-hover/carousel1:opacity-100 transition-all hover:bg-slate-800 hover:text-white backdrop-blur-md"
+                    >
+                        <ChevronRight className="h-5 w-5" />
+                    </button>
+                </div>
+            )}
+
+            {/* --- LIGNE 2 --- */}
+            {profiles.length > 25 && (
+                <div className="relative group/carousel2">
+                    <button
+                        onClick={() => scroll(2, "left")}
+                        className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 h-10 w-10 items-center justify-center rounded-full bg-slate-900/90 text-white/90 border border-white/10 shadow-xl opacity-0 group-hover/carousel2:opacity-100 transition-all hover:bg-slate-800 hover:text-white backdrop-blur-md"
+                    >
+                        <ChevronLeft className="h-5 w-5" />
+                    </button>
+
+                    <div 
+                        ref={scrollRef2}
+                        className="flex gap-6 xl:gap-8 overflow-x-auto snap-x no-scrollbar w-full pb-6 pt-4 px-4 -mx-4 scroll-smooth"
+                    >
+                        {profiles.slice(25, 50).map((profile, index) => (
+                            <motion.div
+                                key={`row2-${profile.id}`}
+                                initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                transition={{ duration: 0.5, delay: Math.min(index, 10) * 0.08, type: "spring", stiffness: 100, damping: 15 }}
+                                className="w-[280px] sm:w-[320px] shrink-0 snap-center"
+                            >
+                                <AnnuaireCard profile={profile} />
+                            </motion.div>
+                        ))}
+                    </div>
+
+                    <button
+                        onClick={() => scroll(2, "right")}
+                        className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 h-10 w-10 items-center justify-center rounded-full bg-slate-900/90 text-white/90 border border-white/10 shadow-xl opacity-0 group-hover/carousel2:opacity-100 transition-all hover:bg-slate-800 hover:text-white backdrop-blur-md"
+                    >
+                        <ChevronRight className="h-5 w-5" />
+                    </button>
+                </div>
+            )}
         </div>
     )
 }
