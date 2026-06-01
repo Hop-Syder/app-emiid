@@ -114,10 +114,13 @@ export default async function DashboardPage() {
             .single()
             
         if (userProfile && (userProfile.city || userProfile.country_id)) {
+            const countryData: any = userProfile.countries;
+            const countryName = Array.isArray(countryData) ? countryData[0]?.name : countryData?.name;
+            
             userLocation = { 
                 city: userProfile.city, 
                 country_id: userProfile.country_id,
-                country_name: userProfile.countries?.name
+                country_name: countryName
             };
             
             // Niveau 1 : Même Ville & Pays
