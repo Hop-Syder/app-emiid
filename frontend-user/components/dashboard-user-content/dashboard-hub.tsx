@@ -16,7 +16,7 @@ import type { PublicProfile } from "@/types"
 import Link from "next/link"
 import { DashboardBentoHeader } from "./dashboard-bento-header"
 import { EntrepreneursSection } from "./entrepreneurs-section"
-import { Sparkles, Target, LayoutGrid, ArrowRight } from "lucide-react"
+import { Sparkles, LayoutGrid, ArrowRight } from "lucide-react"
 
 // Nouveaux composants
 import { CategoriesExplorer } from "./categories-explorer"
@@ -45,6 +45,7 @@ export function DashboardHubContent({
 
   // === RENDU DU COMPOSANT ===
   return (
+
     <div className="flex flex-col min-h-screen pb-12">
       {/* =========================================
           SECTION 1 : HEADER DARK (STATS & HERO)

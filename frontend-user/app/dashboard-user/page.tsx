@@ -13,16 +13,6 @@ import { createClient } from "@/lib/supabase/server"
 
 export const revalidate = 60 // ISR 60s
 
-async function fetchInitialDirectoryProfiles(supabase: any) {
-    const { data, error } = await supabase
-        .from('public_profiles')
-        .select(`*, countries(name, iso_code), profile_tags(tags(name))`)
-        .order('created_at', { ascending: false })
-        .limit(20)
-
-    if (error || !data) return []
-    return mapProfiles(data)
-}
 
 // Utilitaire pour mélanger un tableau
 function shuffleArray(array: any[]) {
