@@ -31,9 +31,10 @@ interface AnnuaireGridProps {
     }
     initialProfiles?: PublicProfile[]
     onlyPremium?: boolean
+    theme?: "default" | "red"
 }
 
-export function AnnuaireGrid({ filters, initialProfiles = [], onlyPremium = false }: AnnuaireGridProps) {
+export function AnnuaireGrid({ filters, initialProfiles = [], onlyPremium = false, theme = "default" }: AnnuaireGridProps) {
     const [profiles, setProfiles] = useState<PublicProfile[]>(initialProfiles)
     const [loading, setLoading] = useState(!initialProfiles.length)
     const [isFirstRender, setIsFirstRender] = useState(true)
@@ -181,6 +182,7 @@ export function AnnuaireGrid({ filters, initialProfiles = [], onlyPremium = fals
                     description="Nous n'avons trouvé aucun profil correspondant à vos critères de recherche. Essayez d'autres filtres."
                     actionText="Réinitialiser les filtres"
                     onAction={() => window.location.href = "/annuaire"}
+                    colorTheme={theme}
                 />
             </div>
         )
@@ -193,7 +195,7 @@ export function AnnuaireGrid({ filters, initialProfiles = [], onlyPremium = fals
                 <div className="relative group/carousel1">
                     <button
                         onClick={() => scroll(1, "left")}
-                        className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 h-10 w-10 items-center justify-center rounded-full bg-slate-900/90 text-white/90 border border-white/10 shadow-xl opacity-0 group-hover/carousel1:opacity-100 transition-all hover:bg-slate-800 hover:text-white backdrop-blur-md"
+                        className={`hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 h-10 w-10 items-center justify-center rounded-full shadow-xl opacity-0 group-hover/carousel1:opacity-100 transition-all backdrop-blur-md ${theme === 'red' ? 'bg-red-600/90 text-white/90 border border-red-500/50 hover:bg-red-700' : 'bg-slate-900/90 text-white/90 border border-white/10 hover:bg-slate-800'}`}
                     >
                         <ChevronLeft className="h-5 w-5" />
                     </button>
@@ -217,7 +219,7 @@ export function AnnuaireGrid({ filters, initialProfiles = [], onlyPremium = fals
 
                     <button
                         onClick={() => scroll(1, "right")}
-                        className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 h-10 w-10 items-center justify-center rounded-full bg-slate-900/90 text-white/90 border border-white/10 shadow-xl opacity-0 group-hover/carousel1:opacity-100 transition-all hover:bg-slate-800 hover:text-white backdrop-blur-md"
+                        className={`hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 h-10 w-10 items-center justify-center rounded-full shadow-xl opacity-0 group-hover/carousel1:opacity-100 transition-all backdrop-blur-md ${theme === 'red' ? 'bg-red-600/90 text-white/90 border border-red-500/50 hover:bg-red-700' : 'bg-slate-900/90 text-white/90 border border-white/10 hover:bg-slate-800'}`}
                     >
                         <ChevronRight className="h-5 w-5" />
                     </button>
@@ -229,7 +231,7 @@ export function AnnuaireGrid({ filters, initialProfiles = [], onlyPremium = fals
                 <div className="relative group/carousel2">
                     <button
                         onClick={() => scroll(2, "left")}
-                        className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 h-10 w-10 items-center justify-center rounded-full bg-slate-900/90 text-white/90 border border-white/10 shadow-xl opacity-0 group-hover/carousel2:opacity-100 transition-all hover:bg-slate-800 hover:text-white backdrop-blur-md"
+                        className={`hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 h-10 w-10 items-center justify-center rounded-full shadow-xl opacity-0 group-hover/carousel2:opacity-100 transition-all backdrop-blur-md ${theme === 'red' ? 'bg-red-600/90 text-white/90 border border-red-500/50 hover:bg-red-700' : 'bg-slate-900/90 text-white/90 border border-white/10 hover:bg-slate-800'}`}
                     >
                         <ChevronLeft className="h-5 w-5" />
                     </button>
@@ -253,7 +255,7 @@ export function AnnuaireGrid({ filters, initialProfiles = [], onlyPremium = fals
 
                     <button
                         onClick={() => scroll(2, "right")}
-                        className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 h-10 w-10 items-center justify-center rounded-full bg-slate-900/90 text-white/90 border border-white/10 shadow-xl opacity-0 group-hover/carousel2:opacity-100 transition-all hover:bg-slate-800 hover:text-white backdrop-blur-md"
+                        className={`hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 h-10 w-10 items-center justify-center rounded-full shadow-xl opacity-0 group-hover/carousel2:opacity-100 transition-all backdrop-blur-md ${theme === 'red' ? 'bg-red-600/90 text-white/90 border border-red-500/50 hover:bg-red-700' : 'bg-slate-900/90 text-white/90 border border-white/10 hover:bg-slate-800'}`}
                     >
                         <ChevronRight className="h-5 w-5" />
                     </button>
