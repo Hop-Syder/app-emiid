@@ -38,7 +38,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
   const router = useRouter()
   // === RENDU DU COMPOSANT ===
   return (
-    <div className="flex flex-col h-full border-r border-white/50 bg-white/40 backdrop-blur-md w-full md:w-80 lg:w-96 z-20 shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)]">
+    <div className="flex flex-col h-full border-r border-white/50 bg-white/40 backdrop-blur-md w-full z-20 shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)]">
       
       {/* === EN-TÊTE ET RECHERCHE === */}
       <div className="p-5 border-b border-white/50 space-y-5 bg-white/20">

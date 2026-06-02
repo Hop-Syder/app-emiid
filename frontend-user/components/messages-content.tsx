@@ -413,17 +413,22 @@ export function MessagesContent() {
       <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-indigo-100/40 blur-3xl opacity-50 mix-blend-multiply pointer-events-none" />
 
       {/* === COLONNE DE GAUCHE : LISTE DES CONVERSATIONS === */}
-      <ChatSidebar 
-        conversations={filteredConversations}
-        activeId={selectedConv?.id || null}
-        onSelect={(conv) => {
-          setSelectedConv(conv)
-          setShowChatMobile(true)
-        }}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        isLoading={loadingConv}
-      />
+      <div className={cn(
+        "h-full md:block shrink-0", 
+        showChatMobile ? "hidden md:w-80 lg:w-96" : "w-full md:w-80 lg:w-96"
+      )}>
+        <ChatSidebar 
+          conversations={filteredConversations}
+          activeId={selectedConv?.id || null}
+          onSelect={(conv) => {
+            setSelectedConv(conv)
+            setShowChatMobile(true)
+          }}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          isLoading={loadingConv}
+        />
+      </div>
 
       {/* === COLONNE DE DROITE : ZONE DE CHAT === */}
       <div className={cn("flex-1 flex flex-col h-full relative z-10", !showChatMobile && "hidden md:flex")}>
