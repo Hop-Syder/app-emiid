@@ -1,5 +1,7 @@
 "use client"
 
+import { useRef } from "react"
+
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { 
@@ -40,14 +42,34 @@ const VISUAL_SECTORS = [
 ]
 
 export function AnnuaireCategories({ filters, onFilterChange }: AnnuaireCategoriesProps) {
+    const scrollRef = useRef<HTMLDivElement>(null)
+
+    const scroll = (direction: "left" | "right") => {
+        if (scrollRef.current) {
+            const scrollAmount = direction === "left" ? -300 : 300
+            scrollRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" })
+        }
+    }
+
     return (
         <div className="w-full">
             <div className="flex items-center justify-between mb-4 px-1">
                 <h3 className="text-lg font-bold text-slate-800 tracking-tight">Explorer par domaine d'activité</h3>
             </div>
             
-            {/* Scroll horizontal masqué mais fonctionnel sur mobile */}
-            <div className="flex overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 gap-3 sm:gap-4 no-scrollbar snap-x">
+            {/* Scroll horizontal masqué mais fonctionnel sur mobile, flèches sur desktop */}
+            <div className="relative group/categoriesCarousel">
+                <button
+                    onClick={() => scroll("left")}
+                    className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 h-10 w-10 items-center justify-center rounded-full shadow-xl transition-all backdrop-blur-md bg-white/90 text-slate-800 border border-slate-200 hover:bg-white hover:scale-105 opacity-80 hover:opacity-100"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                </button>
+
+                <div 
+                    ref={scrollRef}
+                    className="flex overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 gap-3 sm:gap-4 no-scrollbar snap-x scroll-smooth"
+                >
                 {VISUAL_SECTORS.map((sector, index) => {
                     const isActive = filters.activity_domain === sector.id;
                     const Icon = sector.icon;
