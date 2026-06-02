@@ -122,28 +122,6 @@ export function CreerProfilForm({
                             />
                         </div>
                     </div>
-
-                    <div className="space-y-4">
-                        <Label htmlFor="card_variant" className="text-sm font-bold text-slate-700 flex items-center justify-between">
-                            <span>Design de la Carte *</span>
-                            <Badge variant="secondary" className="text-[9px] uppercase tracking-wider bg-primary/10 text-primary">Preview</Badge>
-                        </Label>
-                        <Select value={formData.card_variant || "tech"} onValueChange={(value) => handleInputChange("card_variant", value)}>
-                            <SelectTrigger id="card_variant" className={inputClasses}>
-                                <SelectValue placeholder="Choisissez le design..." />
-                            </SelectTrigger>
-                            <SelectContent className="rounded-2xl border-slate-200 shadow-2xl p-2">
-                                <SelectItem value="glass-red" className="rounded-xl py-3 cursor-pointer mb-1 focus:bg-red-50 focus:text-red-700 transition-colors">🔴 EmiID Glass Red (Moderne & Rouge)</SelectItem>
-                                <SelectItem value="glass-orange" className="rounded-xl py-3 cursor-pointer mb-1 focus:bg-orange-50 focus:text-orange-700 transition-colors">🟠 EmiID Glass Orange (Moderne & Orange)</SelectItem>
-                                <SelectItem value="glass-blue" className="rounded-xl py-3 cursor-pointer mb-1 focus:bg-blue-50 focus:text-blue-700 transition-colors">🔵 EmiID Glass Blue (Moderne & Bleu)</SelectItem>
-                                <SelectItem value="tech" className="rounded-xl py-3 cursor-pointer mb-1 focus:bg-slate-100 transition-colors">⬛ EmiID Tech (Minimaliste & Sombre)</SelectItem>
-                                <SelectItem value="elite" className="rounded-xl py-3 cursor-pointer focus:bg-amber-50 focus:text-amber-700 transition-colors">⭐ EmiID Elite (Premium & Or)</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        <p className="text-xs text-muted-foreground leading-relaxed">
-                            Ce design définit l'apparence de votre carte virtuelle au sein de l'annuaire et sur votre page publique.
-                        </p>
-                    </div>
                 </div>
             </FormSection>
 
