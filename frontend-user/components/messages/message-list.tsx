@@ -15,6 +15,7 @@ import { Message } from './types'
 import { parseMessageContent } from '@/features/messages/messageContent'
 import { FileText } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { cn } from '@/lib/utils'
 
 // === INTERFACES ===
 interface MessageBubbleProps {

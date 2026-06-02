@@ -12,7 +12,7 @@
 
 import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { useSearchParams } from "next/navigation"
-import { ArrowLeft, MoreHorizontal, Gavel, Trash2 } from "lucide-react"
+import { ArrowLeft, MoreHorizontal, Gavel, Trash2, MessageSquare } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"

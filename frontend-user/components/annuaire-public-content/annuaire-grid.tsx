@@ -7,17 +7,14 @@
  * 📧 daoudaabassichristian@gmail.com
 */
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-"use client"
-
 import { useState, useEffect, useRef } from "react"
 import { motion } from "framer-motion"
 import { fetchWithAuth } from "@/lib/apiClient"
-import { createClient } from "@/lib/supabase/client"
 import { AnnuaireCard } from "./annuaire-card"
 import { EmptyState } from "@/components/EmptyState"
+import { Button } from "@/components/ui/button"
 import { Search, ChevronLeft, ChevronRight } from "lucide-react"
-import type { EntrepreneurStats, PublicProfile } from "@/types"
+import type { PublicProfile } from "@/types"
 
 interface AnnuaireGridProps {
     filters?: {
@@ -36,8 +33,12 @@ interface AnnuaireGridProps {
 
 export function AnnuaireGrid({ filters, initialProfiles = [], onlyPremium = false, theme = "default" }: AnnuaireGridProps) {
     const [profiles, setProfiles] = useState<PublicProfile[]>(initialProfiles)
-    const [loading, setLoading] = useState(!initialProfiles.length)
+    const [loading, setLoading] = useState(false)
     const [isFirstRender, setIsFirstRender] = useState(true)
+    const [page, setPage] = useState(1)
+    const [totalCount, setTotalCount] = useState(initialProfiles.length)
+    const limit = 24
+
     const scrollRef1 = useRef<HTMLDivElement>(null)
     const scrollRef2 = useRef<HTMLDivElement>(null)
 
@@ -50,6 +51,11 @@ export function AnnuaireGrid({ filters, initialProfiles = [], onlyPremium = fals
         }
     }
 
+    // Reset page on filter change
+    useEffect(() => {
+        setPage(1)
+    }, [filters])
+
     useEffect(() => {
         // Skip first fetch if we have initial profiles and filters are default
         const isDefaultFilters = !filters || (
@@ -61,7 +67,7 @@ export function AnnuaireGrid({ filters, initialProfiles = [], onlyPremium = fals
             !filters.tags
         )
 
-        if (isFirstRender && isDefaultFilters && initialProfiles.length > 0) {
+        if (isFirstRender && isDefaultFilters && initialProfiles.length > 0 && page === 1) {
             setIsFirstRender(false)
             return
         }
@@ -69,33 +75,25 @@ export function AnnuaireGrid({ filters, initialProfiles = [], onlyPremium = fals
         const loadProfiles = async () => {
             setLoading(true)
             try {
-                const supabase = createClient()
-                // On utilise la vue public_profiles pour plus de sécurité et de conformité au schéma
-                let query = supabase
-                    .from('public_profiles')
-                    .select(`*, countries(name, iso_code), profile_tags(tags(name))`)
-                    .order('created_at', { ascending: false })
-
-                if (filters?.category && filters.category !== "all") query = query.ilike('category', `%${filters.category}%`)
-                if (filters?.activity_domain && filters.activity_domain !== "all") query = query.ilike('activity_domain', `%${filters.activity_domain}%`)
-                if (filters?.country && filters.country !== "all") query = query.eq('countries.iso_code', filters.country)
-                if (filters?.city) query = query.ilike('city', `%${filters.city}%`)
-                if (filters?.search) query = query.or(`first_name.ilike.%${filters.search}%,last_name.ilike.%${filters.search}%,bio.ilike.%${filters.search}%,role.ilike.%${filters.search}%,specialty.ilike.%${filters.search}%`)
+                const params = new URLSearchParams()
+                params.append("page", page.toString())
+                params.append("limit", limit.toString())
                 
-                if (onlyPremium) {
-                    query = query.eq('is_premium', true)
-                }
+                if (filters?.search) params.append("search", filters.search)
+                if (filters?.category && filters.category !== "all") params.append("category", filters.category)
+                if (filters?.activity_domain && filters.activity_domain !== "all") params.append("activity_domain", filters.activity_domain)
+                if (filters?.country && filters.country !== "all") params.append("country", filters.country)
+                if (filters?.city) params.append("city", filters.city)
+                if (filters?.tags) params.append("tags", filters.tags)
+                if (onlyPremium) params.append("onlyPremium", "true")
 
-                const { data, error: profilesError } = await query
-                let profilesData = data
-
-                if (filters?.tags && profilesData) {
-                    const tagSearch = filters.tags.toLowerCase()
-                    profilesData = profilesData.filter((profile: any) => 
-                        profile.profile_tags?.some((pt: any) => pt.tags?.name?.toLowerCase().includes(tagSearch))
-                    )
-                }
-
+                const res = await fetch(`/api/annuaire?${params.toString()}`)
+                if (!res.ok) throw new Error("Failed to fetch")
+                
+                const result = await res.json()
+                const fetchedProfiles = result.profiles || []
+                
+                // Get follows to mark isFollowed
                 let userFollowsIds: string[] = []
                 try {
                     const followsRes = await fetchWithAuth("/api/users/follows")
@@ -104,35 +102,16 @@ export function AnnuaireGrid({ filters, initialProfiles = [], onlyPremium = fals
                         userFollowsIds = followsData.map((f: { user_id?: string; id?: string }) => f.user_id || f.id)
                     }
                 } catch {
-                    // Silent failure - follows are optional
                     console.warn("Failed to load follows in annuaire")
                 }
 
-                if (!profilesError && profilesData) {
-                    // Nettoyage de la structure pour correspondre à l'ancienne API
-                    const data = profilesData.map((p: any) => ({
-                        ...p,
-                        tags: p.profile_tags?.map((pt: any) => pt.tags?.name) || []
-                    }))
-                    setProfiles(data.map((e: EntrepreneurStats) => {
-                        const profileId = e.user_id || e.id
-                        return {
-                            id: profileId,
-                            name: `${e.first_name || ''} ${e.last_name || ''}`.trim() || 'Utilisateur EmiID',
-                            role: e.role || "Membre EmiID",
-                            location: e.city ? `${e.city}, ${e.countries?.name || ''}` : (e.countries?.name || "Afrique"),
-                            avatar: e.avatar_url || "/profil/avatar.jpg",
-                            specialty: e.specialty || "Expertise",
-                            category: e.category || "",
-                            verified: !!e.is_verified,
-                            premium: !!e.is_premium,
-                            card_variant: e.card_variant, // PASS THE VARIANT
-                            followers: e.followers_count || 0,
-                            isFollowed: userFollowsIds.includes(profileId),
-                            tags: e.tags || []
-                        }
-                    }))
-                }
+                const updatedProfiles = fetchedProfiles.map((p: PublicProfile) => ({
+                    ...p,
+                    isFollowed: userFollowsIds.includes(p.id)
+                }))
+
+                setProfiles(updatedProfiles)
+                setTotalCount(result.count || 0)
             } catch (error) {
                 console.error("Erreur chargement annuaire:", error)
             } finally {
@@ -140,8 +119,11 @@ export function AnnuaireGrid({ filters, initialProfiles = [], onlyPremium = fals
                 setIsFirstRender(false)
             }
         }
+        
         loadProfiles()
-    }, [filters, initialProfiles.length, isFirstRender])
+    }, [filters, page, onlyPremium, isFirstRender, initialProfiles.length])
+
+    const totalPages = Math.ceil(totalCount / limit)
 
     if (loading) {
         return (
@@ -188,10 +170,15 @@ export function AnnuaireGrid({ filters, initialProfiles = [], onlyPremium = fals
         )
     }
 
+    // Répartition équitable des profils sur les deux lignes horizontales
+    const half = Math.ceil(profiles.length / 2)
+    const row1 = profiles.slice(0, half)
+    const row2 = profiles.slice(half)
+
     return (
         <div className="space-y-8">
             {/* --- LIGNE 1 --- */}
-            {profiles.length > 0 && (
+            {row1.length > 0 && (
                 <div className="relative group/carousel1">
                     <button
                         onClick={() => scroll(1, "left")}
@@ -204,7 +191,7 @@ export function AnnuaireGrid({ filters, initialProfiles = [], onlyPremium = fals
                         ref={scrollRef1}
                         className="flex gap-6 xl:gap-8 overflow-x-auto snap-x no-scrollbar w-full pb-6 pt-4 px-4 -mx-4 scroll-smooth"
                     >
-                        {profiles.slice(0, 25).map((profile, index) => (
+                        {row1.map((profile, index) => (
                             <motion.div
                                 key={`row1-${profile.id}`}
                                 initial={{ opacity: 0, y: 30, scale: 0.95 }}
@@ -227,7 +214,7 @@ export function AnnuaireGrid({ filters, initialProfiles = [], onlyPremium = fals
             )}
 
             {/* --- LIGNE 2 --- */}
-            {profiles.length > 25 && (
+            {row2.length > 0 && (
                 <div className="relative group/carousel2">
                     <button
                         onClick={() => scroll(2, "left")}
@@ -240,7 +227,7 @@ export function AnnuaireGrid({ filters, initialProfiles = [], onlyPremium = fals
                         ref={scrollRef2}
                         className="flex gap-6 xl:gap-8 overflow-x-auto snap-x no-scrollbar w-full pb-6 pt-4 px-4 -mx-4 scroll-smooth"
                     >
-                        {profiles.slice(25, 50).map((profile, index) => (
+                        {row2.map((profile, index) => (
                             <motion.div
                                 key={`row2-${profile.id}`}
                                 initial={{ opacity: 0, y: 30, scale: 0.95 }}
@@ -259,6 +246,31 @@ export function AnnuaireGrid({ filters, initialProfiles = [], onlyPremium = fals
                     >
                         <ChevronRight className="h-5 w-5" />
                     </button>
+                </div>
+            )}
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-4 pt-6">
+                    <Button
+                        variant="outline"
+                        onClick={() => setPage(p => Math.max(1, p - 1))}
+                        disabled={page === 1}
+                        className={theme === 'red' ? 'hover:bg-red-50 hover:text-red-600' : theme === 'orange' ? 'hover:bg-orange-50 hover:text-orange-600' : 'hover:bg-slate-100'}
+                    >
+                        <ChevronLeft className="w-4 h-4 mr-2" /> Précédent
+                    </Button>
+                    <span className="text-sm font-semibold text-slate-500 select-none">
+                        Page <span className={theme === 'red' ? 'text-red-600 font-bold' : theme === 'orange' ? 'text-orange-600 font-bold' : 'text-slate-800 font-bold'}>{page}</span> sur {totalPages}
+                    </span>
+                    <Button
+                        variant="outline"
+                        onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                        disabled={page === totalPages}
+                        className={theme === 'red' ? 'hover:bg-red-50 hover:text-red-600' : theme === 'orange' ? 'hover:bg-orange-50 hover:text-orange-600' : 'hover:bg-slate-100'}
+                    >
+                        Suivant <ChevronRight className="w-4 h-4 ml-2" />
+                    </Button>
                 </div>
             )}
         </div>
