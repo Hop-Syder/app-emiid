@@ -24,9 +24,10 @@ export interface Profile {
 
 interface AnnuaireCardProps {
     profile: Profile
+    theme?: 'default' | 'red'
 }
 
-export function AnnuaireCard({ profile }: AnnuaireCardProps) {
+export function AnnuaireCard({ profile, theme = 'default' }: AnnuaireCardProps) {
     const router = useRouter()
     const { session } = useCurrentUserProfile()
     const [isFollowed, setIsFollowed] = useState(!!profile.isFollowed)
@@ -89,7 +90,7 @@ export function AnnuaireCard({ profile }: AnnuaireCardProps) {
         tags: [profile.specialty]
     }
 
-    const activeVariant = profile.premium ? "elite" : "glass-orange"
+    const activeVariant = profile.premium ? "elite" : (theme === 'red' ? "glass-red" : "glass-orange")
 
     return (
         <EmiIDProfileCard 
