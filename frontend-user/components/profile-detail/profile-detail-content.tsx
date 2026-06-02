@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Page de détail de profil utilisateur EmiID (refonte UI pro + partage avancé).
  * @created 2026-05-24
- * @updated 2026-05-24
+ * @updated 2026-06-02
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -161,12 +161,19 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                 const { data, error } = await query.single()
 
                 if (data && !error) {
+                    const countriesData = data.countries as unknown as { name: string }[] | { name: string } | null
+                    const countryName = countriesData
+                        ? (Array.isArray(countriesData)
+                            ? countriesData[0]?.name
+                            : (countriesData as { name: string }).name)
+                        : ""
+
                     const mappedProfile: ProfileData = {
                         id: data.user_id || data.id,
                         name: `${data.first_name || ""} ${data.last_name || ""}`.trim() || "Utilisateur EmiID",
                         role: data.role || "Membre EmiID",
                         bio: data.bio || "Ce membre n'a pas encore rédigé sa biographie professionnelle.",
-                        location: data.city ? `${data.city}, ${data.countries?.name || ""}` : data.countries?.name || "Afrique",
+                        location: data.city ? `${data.city}, ${countryName || ""}` : countryName || "Afrique",
                         avatar: data.avatar_url || "/profil/avatar.jpg",
                         coverImage: data.cover_url || undefined,
                         specialty: data.specialty || "Expertise",
