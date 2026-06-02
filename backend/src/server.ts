@@ -3,12 +3,14 @@
  * @author @hopsyder
  * @organization Nexus Partners
  * @description Point d'entrée du serveur EmiID Backend
- * @updated 2026-05-07
+ * @created 2026-05-07
+ * @updated 2026-06-02
  */
 
 import dotenv from 'dotenv'
 import http from 'http'
 import ws from 'ws'
+import './config/supabase' // Force l'exécution immédiate du diagnostic de clé au boot
 import { app, allowedOrigins } from './app'
 import { logger } from './utils/logger'
 
