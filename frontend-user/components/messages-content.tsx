@@ -127,8 +127,6 @@ export function MessagesContent() {
             })
             setShowChatMobile(true)
           }
-        } else if (data.length > 0) {
-          setSelectedConv(prev => prev || data[0])
         }
       } catch (err) {
         captureError(err, { scope: "messages", action: "fetchConversations" })

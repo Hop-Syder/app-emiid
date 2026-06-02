@@ -181,7 +181,17 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, currentUserI
   // Faire défiler vers le bas
   const scrollToBottom = (behavior: 'smooth' | 'auto' = 'smooth') => {
     setTimeout(() => {
-      bottomRef.current?.scrollIntoView({ behavior })
+      const container = containerRef.current
+      if (!container) return
+      
+      if (behavior === 'smooth') {
+        container.scrollTo({
+          top: container.scrollHeight,
+          behavior: 'smooth'
+        })
+      } else {
+        container.scrollTop = container.scrollHeight
+      }
     }, 50)
   }
 
