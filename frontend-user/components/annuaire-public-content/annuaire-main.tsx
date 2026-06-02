@@ -15,6 +15,7 @@ import { AnnuaireFilters } from "./annuaire-filters"
 import { AnnuaireGrid } from "./annuaire-grid"
 import { AnnuaireProcess } from "./annuaire-process"
 import { AnnuaireCTA } from "./annuaire-cta"
+import { AnnuaireStats } from "./annuaire-stats"
 import { motion } from "framer-motion"
 
 interface AnnuairePublicContentProps {
@@ -103,17 +104,24 @@ export function AnnuairePublicContent({
                     </div>
                 </motion.div>
 
-                {/* --- NOUVELLES SECTIONS 
+                {/* --- SECTIONS SOCIAL PROOF & ACQUISITION --- */}
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-100px" }}
+                    viewport={{ once: true, margin: "-50px" }}
                     transition={{ duration: 0.6 }}
                 >
-                    <AnnuaireProcess />
+                    <AnnuaireStats />
                 </motion.div>
 
-                <AnnuaireCTA /> --- */}
+                <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-50px" }}
+                    transition={{ duration: 0.6 }}
+                >
+                    <AnnuaireCTA />
+                </motion.div>
 
 
 
