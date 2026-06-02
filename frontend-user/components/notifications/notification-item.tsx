@@ -150,7 +150,7 @@ export function NotificationItem({ notification, onMarkAsRead, onDelete }: Notif
       </div>
 
       {/* Boutons d'action rapides */}
-      <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity shrink-0 pt-0.5">
+      <div className="flex items-center gap-1.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 focus-within:opacity-100 transition-opacity shrink-0 pt-0.5">
         {!notification.is_read && (
           <button
             onClick={(e) => {
@@ -158,7 +158,7 @@ export function NotificationItem({ notification, onMarkAsRead, onDelete }: Notif
               onMarkAsRead(notification.id)
             }}
             title="Marquer comme lu"
-            className="p-2 rounded-xl bg-slate-50 text-slate-400 hover:text-blue-500 hover:bg-blue-50/50 transition-colors border border-slate-100 shadow-sm"
+            className="p-2 rounded-xl bg-slate-50 text-slate-400 hover:text-blue-500 hover:bg-blue-50/50 transition-colors border border-slate-100 shadow-sm active:scale-95"
           >
             <Check className="w-4 h-4" />
           </button>
@@ -169,7 +169,7 @@ export function NotificationItem({ notification, onMarkAsRead, onDelete }: Notif
             onDelete(notification.id)
           }}
           title="Supprimer"
-          className="p-2 rounded-xl bg-slate-50 text-slate-400 hover:text-rose-500 hover:bg-rose-50/50 transition-colors border border-slate-100 shadow-sm"
+          className="p-2 rounded-xl bg-slate-50 text-slate-400 hover:text-rose-500 hover:bg-rose-50/50 transition-colors border border-slate-100 shadow-sm active:scale-95"
         >
           <Trash2 className="w-4 h-4" />
         </button>

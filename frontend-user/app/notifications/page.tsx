@@ -136,20 +136,20 @@ export default function NotificationsPage() {
         
         {/* HEADER BENTO */}
         <div className="bg-white/80 backdrop-blur-md rounded-[2.5rem] border border-slate-200/60 p-6 md:p-8 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="flex items-center gap-4">
-            <div className="p-4 bg-gradient-to-tr from-blue-500 to-indigo-600 rounded-[1.75rem] text-white shadow-lg shadow-blue-500/20">
+          <div className="flex items-start md:items-center gap-4">
+            <div className="p-4 bg-gradient-to-tr from-blue-500 to-indigo-600 rounded-[1.75rem] text-white shadow-lg shadow-blue-500/20 shrink-0">
               <Bell className="w-6 h-6 animate-pulse" />
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+              <h1 className="text-xl md:text-3xl font-black text-slate-900 tracking-tight flex flex-wrap items-center gap-2 md:gap-3">
                 Centre d'Alertes
                 {unreadCount > 0 && (
-                  <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-blue-100 text-blue-600 border border-blue-200/50">
+                  <span className="text-[10px] md:text-xs font-bold px-2.5 py-1 rounded-full bg-blue-100 text-blue-600 border border-blue-200/50 whitespace-nowrap">
                     {unreadCount} non lue{unreadCount > 1 ? "s" : ""}
                   </span>
                 )}
               </h1>
-              <p className="text-slate-500 text-sm font-medium mt-1">
+              <p className="text-slate-500 text-xs md:text-sm font-medium mt-1 leading-relaxed max-w-lg">
                 Gérez vos notifications système, messages et l'activité de votre réseau en temps réel.
               </p>
             </div>
@@ -158,7 +158,7 @@ export default function NotificationsPage() {
           <button
             onClick={handleMarkAllAsRead}
             disabled={unreadCount === 0}
-            className="flex items-center justify-center gap-2 h-12 px-6 rounded-2xl bg-white border border-slate-200 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed text-xs font-black uppercase tracking-widest text-slate-700 transition-all shadow-sm hover:scale-[1.02] active:scale-[0.98]"
+            className="w-full md:w-auto flex items-center justify-center gap-2 h-12 px-6 rounded-2xl bg-white border border-slate-200 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-700 transition-all shadow-sm hover:scale-[1.02] active:scale-[0.98] shrink-0"
           >
             <CheckCheck className="w-4 h-4 text-blue-500" />
             Tout marquer comme lu
@@ -166,40 +166,40 @@ export default function NotificationsPage() {
         </div>
 
         {/* TABS / FILTRES */}
-        <div className="flex justify-start md:justify-center">
+        <div className="flex justify-start md:justify-center -mx-4 px-4 md:mx-0 md:px-0">
           <Tabs 
             value={activeTab} 
             onValueChange={(val) => setActiveTab(val as FilterType)}
             className="w-full md:w-auto"
           >
-            <TabsList className="h-14 p-1.5 bg-white/80 backdrop-blur-md rounded-2xl border border-slate-200/50 w-full md:w-auto min-w-[320px] flex overflow-x-auto gap-1">
+            <TabsList className="h-auto md:h-14 p-1.5 bg-white/80 md:bg-white/80 backdrop-blur-md rounded-2xl md:border md:border-slate-200/50 w-full md:w-auto flex overflow-x-auto gap-2 no-scrollbar bg-transparent border-0 snap-x">
               <TabsTrigger 
                 value="all" 
-                className="flex-1 md:flex-initial px-5 rounded-xl font-bold text-xs capitalize data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all duration-300 h-10"
+                className="flex-shrink-0 px-4 md:px-5 py-2.5 md:py-0 rounded-xl font-bold text-[11px] md:text-xs capitalize data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all duration-300 md:h-10 border border-slate-200/50 md:border-0 snap-start"
               >
                 Tout ({notifications.length})
               </TabsTrigger>
               <TabsTrigger 
                 value="message" 
-                className="flex-1 md:flex-initial px-5 rounded-xl font-bold text-xs capitalize data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all duration-300 h-10"
+                className="flex-shrink-0 px-4 md:px-5 py-2.5 md:py-0 rounded-xl font-bold text-[11px] md:text-xs capitalize data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all duration-300 md:h-10 border border-slate-200/50 md:border-0 snap-start"
               >
                 Messages ({notifications.filter(n => n.type === "message").length})
               </TabsTrigger>
               <TabsTrigger 
                 value="follow" 
-                className="flex-1 md:flex-initial px-5 rounded-xl font-bold text-xs capitalize data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all duration-300 h-10"
+                className="flex-shrink-0 px-4 md:px-5 py-2.5 md:py-0 rounded-xl font-bold text-[11px] md:text-xs capitalize data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all duration-300 md:h-10 border border-slate-200/50 md:border-0 snap-start"
               >
                 Suivis ({notifications.filter(n => n.type === "follow").length})
               </TabsTrigger>
               <TabsTrigger 
                 value="view" 
-                className="flex-1 md:flex-initial px-5 rounded-xl font-bold text-xs capitalize data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all duration-300 h-10"
+                className="flex-shrink-0 px-4 md:px-5 py-2.5 md:py-0 rounded-xl font-bold text-[11px] md:text-xs capitalize data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all duration-300 md:h-10 border border-slate-200/50 md:border-0 snap-start"
               >
                 Visites ({notifications.filter(n => n.type === "view").length})
               </TabsTrigger>
               <TabsTrigger 
                 value="system" 
-                className="flex-1 md:flex-initial px-5 rounded-xl font-bold text-xs capitalize data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all duration-300 h-10"
+                className="flex-shrink-0 px-4 md:px-5 py-2.5 md:py-0 rounded-xl font-bold text-[11px] md:text-xs capitalize data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all duration-300 md:h-10 border border-slate-200/50 md:border-0 snap-start"
               >
                 Système ({notifications.filter(n => n.type === "system" || n.type === "security").length})
               </TabsTrigger>
