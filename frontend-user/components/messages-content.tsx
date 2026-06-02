@@ -404,7 +404,7 @@ export function MessagesContent() {
 
   // === RENDU PRINCIPAL DU COMPOSANT ===
   return (
-    <div className="flex h-[calc(100vh-4rem)] md:h-[calc(100vh-5rem)] bg-gradient-to-br from-slate-50 via-white to-blue-50/30 overflow-hidden relative">
+    <div className="flex h-[calc(100vh-4rem)] bg-gradient-to-br from-slate-50 via-white to-blue-50/30 overflow-hidden relative">
       
       {/* Background decorations for Glassmorphism */}
       <div className="absolute top-0 right-0 -mr-20 -mt-20 w-72 h-72 rounded-full bg-blue-100/40 blur-3xl opacity-50 mix-blend-multiply pointer-events-none" />
