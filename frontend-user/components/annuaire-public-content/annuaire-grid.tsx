@@ -212,7 +212,7 @@ export function AnnuaireGrid({ filters, initialProfiles = [], onlyPremium = fals
                                 transition={{ duration: 0.5, delay: Math.min(index, 10) * 0.08, type: "spring", stiffness: 100, damping: 15 }}
                                 className="w-[280px] sm:w-[320px] shrink-0 snap-center"
                             >
-                                <AnnuaireCard profile={profile} />
+                                <AnnuaireCard profile={profile} theme={theme} />
                             </motion.div>
                         ))}
                     </div>
@@ -248,7 +248,7 @@ export function AnnuaireGrid({ filters, initialProfiles = [], onlyPremium = fals
                                 transition={{ duration: 0.5, delay: Math.min(index, 10) * 0.08, type: "spring", stiffness: 100, damping: 15 }}
                                 className="w-[280px] sm:w-[320px] shrink-0 snap-center"
                             >
-                                <AnnuaireCard profile={profile} />
+                                <AnnuaireCard profile={profile} theme={theme} />
                             </motion.div>
                         ))}
                     </div>
