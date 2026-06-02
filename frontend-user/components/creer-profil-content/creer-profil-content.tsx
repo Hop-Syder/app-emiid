@@ -386,10 +386,10 @@ export function CreerProfilContent() {
     return (
         <div className="space-y-6">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-                <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+                <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 px-2 md:px-6">
                     <div>
-                        <h1 className="text-4xl font-black tracking-tighter text-slate-900">Configurez votre Identité</h1>
-                        <p className="text-muted-foreground font-medium">Votre carte est votre premier contact avec le réseau.</p>
+                        <h1 className="text-3xl md:text-4xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-primary to-slate-800">Configurez votre Identité</h1>
+                        <p className="text-sm md:text-base text-muted-foreground font-medium">Votre carte est votre premier contact avec le réseau.</p>
                     </div>
                     <AnimatePresence mode="wait">
                         <motion.div
@@ -410,7 +410,7 @@ export function CreerProfilContent() {
                     </AnimatePresence>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="flex flex-col lg:grid lg:grid-cols-3 gap-8">
                     <CreerProfilForm
                         formData={formData}
                         setFormData={setFormData}
@@ -428,8 +428,10 @@ export function CreerProfilContent() {
                     />
                     
                     {/* Desktop Preview */}
-                    <div className="hidden lg:block">
-                        <CreerProfilPreview formData={formData} />
+                    <div className="hidden lg:block relative">
+                        <div className="sticky top-24 pt-4">
+                            <CreerProfilPreview formData={formData} />
+                        </div>
                     </div>
                 </div>
 

@@ -61,15 +61,6 @@ export function AnnuaireHero({
                 <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
 
                 <div className="relative z-10 flex flex-col items-start text-left space-y-6 max-w-2xl">
-                    {/* Floating Badge */}
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.2, duration: 0.5, ease: "easeOut" }}
-                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-2xl"
-                    >
-                        <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                    </motion.div>
 
                     {/* Main Content */}
                     <div className="space-y-3">

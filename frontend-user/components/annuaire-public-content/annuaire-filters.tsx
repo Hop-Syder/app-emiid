@@ -248,7 +248,7 @@ export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProp
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: "100%", scale: 0.95 }}
                             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                            className="relative w-full h-[95vh] md:h-auto md:max-h-[85vh] max-w-3xl bg-white/95 backdrop-blur-2xl rounded-t-[2rem] md:rounded-[2rem] shadow-[0_-20px_80px_-15px_rgba(0,0,0,0.4)] md:shadow-[0_20px_80px_-15px_rgba(0,0,0,0.4)] border-t border-white/60 md:border overflow-hidden flex flex-col"
+                            className="relative w-full h-[90dvh] md:h-auto md:max-h-[85vh] max-w-3xl bg-white/95 backdrop-blur-2xl rounded-t-[2rem] md:rounded-[2rem] shadow-[0_-20px_80px_-15px_rgba(0,0,0,0.4)] md:shadow-[0_20px_80px_-15px_rgba(0,0,0,0.4)] border-t border-white/60 md:border overflow-hidden flex flex-col"
                         >
                             {/* Drag indicator (Mobile only) */}
                             <div className="w-full flex justify-center py-3 md:hidden absolute top-0 z-50">
@@ -256,7 +256,7 @@ export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProp
                             </div>
 
                             {/* Main Search Input */}
-                            <div className="flex items-center px-4 md:px-6 pt-10 md:pt-5 pb-5 border-b border-slate-200/50 bg-white/50 relative z-40">
+                            <div className="flex-none flex items-center px-4 md:px-6 pt-10 md:pt-5 pb-5 border-b border-slate-200/50 bg-white/50 relative z-40">
                                 <Search className="w-6 h-6 text-blue-500 shrink-0" />
                                 <input
                                     ref={modalInputRef}
@@ -280,7 +280,7 @@ export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProp
                             </div>
 
                             {/* Filters Content Area */}
-                            <div className="p-4 md:p-8 overflow-y-auto custom-scrollbar flex-1 bg-gradient-to-b from-white/30 to-slate-50/50 pb-24 md:pb-8">
+                            <div className="p-4 md:p-8 overflow-y-auto custom-scrollbar flex-1 bg-gradient-to-b from-white/30 to-slate-50/50">
                                 <div className="space-y-8">
                                     
                                     {/* Types de Profils (Chips) */}
@@ -361,8 +361,8 @@ export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProp
                                 </div>
                             </div>
 
-                            {/* Footer Actions (Sticky bottom on mobile) */}
-                            <div className="absolute bottom-0 left-0 right-0 md:relative flex items-center justify-between px-4 md:px-6 py-4 md:py-4 border-t border-slate-200/50 bg-slate-50/95 backdrop-blur-md">
+                            {/* Footer Actions (Flex bottom instead of absolute) */}
+                            <div className="flex-none flex items-center justify-between px-4 md:px-6 py-4 border-t border-slate-200/50 bg-white md:bg-slate-50/95 md:backdrop-blur-md">
                                 <Button
                                     variant="ghost"
                                     onClick={resetFilters}
@@ -372,9 +372,9 @@ export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProp
                                 </Button>
                                 <Button
                                     onClick={() => setIsCommandOpen(false)}
-                                    className="bg-slate-900 text-white hover:bg-slate-800 rounded-xl px-6 md:px-8 font-bold shadow-lg shadow-slate-900/20 flex-1 md:flex-none ml-4"
+                                    className="bg-slate-900 text-white hover:bg-slate-800 rounded-xl px-6 md:px-8 font-bold shadow-lg shadow-slate-900/20 flex-1 ml-4 md:flex-none"
                                 >
-                                    Afficher ({hasActiveFilters ? "Filtres actifs" : "Tout"})
+                                    Valider
                                 </Button>
                             </div>
                         </motion.div>
