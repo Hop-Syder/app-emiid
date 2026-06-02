@@ -1,3 +1,15 @@
+/**
+ * @author @hopsyder
+ * @organization Nexus Partners
+ * @description Styles globaux de l'application avec configuration des polices de la charte (Satoshi & General Sans)
+ * @created 2026-06-02
+ * @updated 2026-06-02
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+ */
+
+@import url('https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700,900&f[]=general-sans@300,400,500,600,700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -17,7 +29,8 @@
 
 @layer base {
   :root {
-    --font-sans: 'Inter', system-ui, sans-serif;
+    --font-sans: 'General Sans', 'Inter', system-ui, sans-serif;
+    --font-heading: 'Satoshi', sans-serif;
     --font-mono: ui-monospace, monospace;
 
     /* Background - Soft Lavender #FAF5FF */
@@ -148,4 +161,7 @@
     padding-right: env(safe-area-inset-right);
   }
 
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
 }

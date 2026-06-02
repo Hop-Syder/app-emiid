@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Layout racine de l'application EmiID avec métadonnées SEO
  * @created 2026-04-18
- * @updated 2026-05-20
+ * @updated 2026-06-02
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  * ──────────────────────────────────
@@ -26,13 +26,13 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://app.emiid.com'),
-  title: 'EmiID — Ton réseau, ta force',
+  title: 'EmiID — Votre empreinte numérique professionnelle',
   description: 'La plateforme de networking intelligente pour les professionnels africains. Créez votre carte de visite numérique et développez votre réseau.',
   generator: 'Next.js',
   keywords: ['networking', 'professionnel', 'Afrique', 'carte de visite', 'EmiID'],
   authors: [{ name: 'Nexus Partners' }],
   openGraph: {
-    title: 'EmiID — Ton réseau, ta force',
+    title: 'EmiID — Votre empreinte numérique professionnelle',
     description: 'La plateforme de networking intelligente pour les professionnels.',
     url: 'https://app.emiid.com',
     siteName: 'EmiID',
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'EmiID — Ton réseau, ta force',
+    title: 'EmiID — Votre empreinte numérique professionnelle',
     description: 'La plateforme de networking intelligente pour les professionnels.',
     creator: '@hopsyder',
   },

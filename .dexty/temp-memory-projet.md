@@ -6,7 +6,7 @@
 - **Nom** : EmiID
 - **Type** : SaaS (Web App + Backend API + Admin)
 - **Initialisé le** : 2026-05-27
-- **Dernière mise à jour** : 2026-05-27
+- **Dernière mise à jour** : 2026-06-02
 
 ## 🛠️ Stack détectée
 - **Frontend** : Next.js, React 19, TailwindCSS, Radix UI
@@ -40,7 +40,7 @@
 - Zod — Validation stricte des schémas de données, type-safety TypeScript, et protection contre les failles d'injection.
 
 ## 📁 Contexte projet
-- **Description courte** : EmiID — "Ton réseau, ta force". Plateforme SaaS segmentée en trois parties : frontend utilisateur, portail admin, et API backend Node.js.
+- **Description courte** : EmiID — "Votre empreinte numérique professionnelle". Plateforme SaaS segmentée en trois parties : frontend utilisateur, portail admin, et API backend Node.js.
 - **Patterns architecturaux** : Monorepo logique avec exécution concurrente. Séparation de l'API Node/Express des clients Next.js.
 - **Dépendances critiques** : `@supabase/ssr`, `express`, `ws` pour les fonctionnalités en temps réel.
 
@@ -51,3 +51,5 @@
 - [2026-06-02] Remplacement de l'upsert par un update d'abord avec un insert conditionnel en fallback pour l'enregistrement du profil dans `userController.ts`.
 - [2026-06-02] Résolution de l'erreur HTTP 400 au chargement des profils en changeant `supabase` pour `supabaseAdmin` dans `getMyProfile` et en spécifiant explicitement les colonnes publiques dans `profile-detail-content.tsx` (évite la restriction SELECT sur les colonnes PIN).
 - [2026-06-02] Correction du type TypeScript pour la relation `countries` (qui est inférée comme un tableau) dans `profile-detail-content.tsx` pour résoudre l'échec de build Vercel.
+- [2026-06-02] Intégration des polices officielles de la charte graphique (`Satoshi` pour les titres et `General Sans` pour le corps) via le CDN Fontshare dans `globals.css` et `tailwind.config.ts`.
+

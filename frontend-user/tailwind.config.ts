@@ -1,3 +1,13 @@
+/**
+ * @author @hopsyder
+ * @organization Nexus Partners
+ * @description Configuration Tailwind CSS avec polices personnalisées de la charte graphique
+ * @created 2026-06-02
+ * @updated 2026-06-02
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+ */
+
 import type { Config } from 'tailwindcss'
 
 // all in fixtures is set to tailwind v3 as interims solutions
@@ -12,6 +22,10 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['var(--font-sans)', 'sans-serif'],
+        heading: ['var(--font-heading)', 'sans-serif'],
+      },
       colors: {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',

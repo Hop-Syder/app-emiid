@@ -2,14 +2,13 @@
  * @author @hopsyder
  * @organization Nexus Partners
  * @description MASTER SCHEMA FINAL - EmiID (SSoT)
- * @version 1.2.1
- * @updated 2026-04-19
+ * @version 1.2.3
+ * @updated 2026-06-02
  * 
  * 📖 Documentation détaillée : docs/DATABASE_SCHEMA.md
  * 
- * CHANGE LOG v1.2.1:
- * - Rebranding global : EmiID -> EmiID.
- * - Ton réseau, ta force.
+ * CHANGE LOG v1.2.3:
+ * - Mise à jour du slogan : Votre empreinte numérique professionnelle.
  */
 
 -- ==========================================
@@ -468,4 +467,4 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON public.phone_verifications TO authentica
 GRANT SELECT, INSERT ON public.profile_views TO anon, authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.connections TO authenticated;
 
-SELECT '✅ EmiID Master Schema v1.2.2 déployé. Ton réseau, ta force.' as status;
+SELECT '✅ EmiID Master Schema v1.2.3 déployé. Votre empreinte numérique professionnelle.' as status;

@@ -3,7 +3,7 @@
   @organization Nexus Partners
   @description EMIID — Investor & User Pitch Deck
   @created 2026-04-18
-  @updated 2026-04-19
+  @updated 2026-06-02
   🌐 ceo.nexuspartners.xyz
   📧 daoudaabassichristian@gmail.com
 -->
@@ -12,7 +12,7 @@
 
 # 🌌 EMIID
 
-### _Ton réseau, ta force._
+### _Votre empreinte numérique professionnelle._
 
 **🚀 Rejoignez la prochaine infrastructure professionnelle du continent.**
 
