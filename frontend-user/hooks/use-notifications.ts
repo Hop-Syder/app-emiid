@@ -112,5 +112,50 @@ export function useNotifications() {
         }
     }
 
-    return { notifications, unreadCount, markAsRead }
+    const markAllAsRead = async () => {
+        if (!userId) {
+            return
+        }
+
+        const { error } = await supabase
+            .from('notifications')
+            .update({ is_read: true })
+            .eq('user_id', userId)
+            .eq('is_read', false)
+
+        if (!error) {
+            setNotifications((prev) => prev.map((notification) => ({
+                ...notification,
+                is_read: true
+            })))
+            setUnreadCount(0)
+        }
+    }
+
+    const deleteNotification = async (id: string) => {
+        const toDelete = notifications.find(n => n.id === id)
+        const wasUnread = toDelete ? !toDelete.is_read : false
+
+        const { error } = await supabase
+            .from('notifications')
+            .delete()
+            .eq('id', id)
+
+        if (!error) {
+            setNotifications((prev) => prev.filter((notification) => notification.id !== id))
+            if (wasUnread) {
+                setUnreadCount((prev) => Math.max(0, prev - 1))
+            }
+        }
+    }
+
+    return { 
+        notifications, 
+        unreadCount, 
+        markAsRead, 
+        markAllAsRead, 
+        deleteNotification,
+        isLoading: userId === null && notifications.length === 0
+    }
 }
+

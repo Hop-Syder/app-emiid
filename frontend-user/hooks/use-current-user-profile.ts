@@ -1,8 +1,19 @@
+/**
+ * @author @hopsyder
+ * @organization Nexus Partners
+ * @description Hook personnalisé pour récupérer les informations de profil de l'utilisateur connecté via l'API backend
+ * @created 2026-01-16
+ * @updated 2026-06-02
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+ */
+
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
 import type { Session } from "@supabase/supabase-js"
 import { createClient } from "@/lib/supabase/client"
+import { fetchWithAuth } from "@/lib/apiClient"
 
 interface CurrentUserProfile {
     first_name: string
@@ -47,15 +58,13 @@ export function useCurrentUserProfile() {
             setCurrentUser(fallbackProfile)
 
             try {
-                const { data, error } = await supabase
-                    .from('user_profiles')
-                    .select('first_name, last_name, email, avatar_url, slug, is_published')
-                    .eq('user_id', nextSession.user.id)
-                    .single()
-
-                if (error) {
-                    throw error
+                const response = await fetchWithAuth("/api/users/me")
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error ${response.status}`)
                 }
+
+                const data = await response.json()
 
                 if (!isMounted) {
                     return
@@ -75,7 +84,7 @@ export function useCurrentUserProfile() {
                     is_published: data?.is_published,
                 })
             } catch (error) {
-                console.error("Erreur chargement profil connecté (Supabase):", error)
+                console.error("Erreur chargement profil connecté (Backend API):", error)
 
                 if (isMounted) {
                     setCurrentUser(fallbackProfile)
