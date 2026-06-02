@@ -127,9 +127,7 @@ export function AnnuairePublicContent({
                         </div>
                     </div>
                     
-                    <AnnuaireCategories filters={filters} onFilterChange={handleFilterChange} />
-                    
-                    <div className="pt-6">
+                    <div className="pt-2">
                         <AnnuaireGrid filters={filters} />
                     </div>
                 </motion.div>
