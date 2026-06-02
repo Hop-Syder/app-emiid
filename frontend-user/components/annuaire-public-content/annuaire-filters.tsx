@@ -162,10 +162,10 @@ export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProp
         <>
             {/* 
                 FLOATING PILL (Dock) 
-                - Mobile: fixed bottom 
+                - Mobile: fixed bottom (above mobile dock)
                 - Desktop: sticky top
             */}
-            <div className="fixed bottom-6 left-0 right-0 px-4 md:sticky md:top-[40px] z-[40] md:mb-12 flex justify-center pointer-events-none">
+            <div className="fixed bottom-28 left-0 right-0 px-4 md:sticky md:top-[40px] z-[40] md:mb-12 flex justify-center pointer-events-none">
                 <motion.div 
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}

@@ -267,7 +267,22 @@ export function CreerProfilContent() {
 
     const handleInputChange = (field: string, value: any) => {
         if (validationErrors.length > 0) setValidationErrors([])
-        setFormData((prev) => ({ ...prev, [field]: value }))
+        setFormData((prev) => {
+            const updates: any = { [field]: value }
+            
+            // Auto-génération du slug si vide quand on tape le nom
+            if (field === "name" && !prev.slug) {
+                // Remplace les caractères spéciaux, espaces, accents par des tirets
+                updates.slug = value
+                    .toLowerCase()
+                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Enlève les accents
+                    .replace(/[^a-z0-9-]/g, "-")
+                    .replace(/-+/g, "-")
+                    .replace(/^-|-$/g, "")
+            }
+            
+            return { ...prev, ...updates }
+        })
     }
 
     const handleSave = async () => {

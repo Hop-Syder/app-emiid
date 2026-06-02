@@ -126,24 +126,11 @@ export function AnnuairePublicContent({
                             <p className="text-slate-500 font-medium mt-1">Trouvez les profils correspondants à votre domaine d'activité.</p>
                         </div>
                     </div>
-                    
+
                     <div className="pt-2">
                         <AnnuaireGrid filters={filters} theme="red" />
                     </div>
                 </motion.div>
-
-                {/* --- 6. SECTIONS D'ACQUISITION (Stats, Process, CTA) --- */}
-                <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-50px" }}
-                    transition={{ duration: 0.6 }}
-                >
-                    <AnnuaireStats />
-                </motion.div>
-
-
-
 
 
             </div>

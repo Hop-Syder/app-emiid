@@ -168,9 +168,11 @@ export function CreerProfilForm({
                             <SelectValue placeholder="Choisissez le design de votre carte..." />
                         </SelectTrigger>
                         <SelectContent className="rounded-xl border-slate-200 shadow-xl">
-                            <SelectItem value="tech" className="rounded-xl py-3 cursor-pointer">🟠 EmiID Tech (Minimalist & Orange)</SelectItem>
-                            <SelectItem value="glass" className="rounded-xl py-3 cursor-pointer">🔵 EmiID Glass (Modern & Blue)</SelectItem>
-                            <SelectItem value="elite" className="rounded-xl py-3 cursor-pointer">⭐ EmiID Elite (Premium & Gold)</SelectItem>
+                            <SelectItem value="glass-red" className="rounded-xl py-3 cursor-pointer">🔴 EmiID Glass Red (Moderne & Rouge)</SelectItem>
+                            <SelectItem value="glass-orange" className="rounded-xl py-3 cursor-pointer">🟠 EmiID Glass Orange (Moderne & Orange)</SelectItem>
+                            <SelectItem value="glass-blue" className="rounded-xl py-3 cursor-pointer">🔵 EmiID Glass Blue (Moderne & Bleu)</SelectItem>
+                            <SelectItem value="tech" className="rounded-xl py-3 cursor-pointer">⬛ EmiID Tech (Minimaliste & Sombre)</SelectItem>
+                            <SelectItem value="elite" className="rounded-xl py-3 cursor-pointer">⭐ EmiID Elite (Premium & Or)</SelectItem>
                         </SelectContent>
                     </Select>
                     <p className="text-[10px] text-muted-foreground ml-1">Ce design sera visible dans l&apos;annuaire au survol de votre profil.</p>
@@ -228,7 +230,12 @@ export function CreerProfilForm({
                             className="h-14 border-none bg-transparent shadow-none focus-visible:ring-0 px-4 font-bold text-slate-800 lowercase w-full"
                             value={formData.slug || ""}
                             onChange={(e) => {
-                                const val = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "");
+                                const val = e.target.value
+                                    .toLowerCase()
+                                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Enlève les accents
+                                    .replace(/\s+/g, "-") // Remplace les espaces par des tirets
+                                    .replace(/[^a-z0-9-]/g, "") // Garde seulement alphanumérique et tirets
+                                    .replace(/-+/g, "-"); // Évite les doubles tirets
                                 handleInputChange("slug", val);
                             }}
                         />
