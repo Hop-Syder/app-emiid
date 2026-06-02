@@ -218,13 +218,27 @@ export const updateMyProfile = async (req: any, res: Response) => {
       updates.pin_attempts = 0;
     }
 
-    const { data, error } = await supabaseAdmin
+    // Tenter d'abord une mise à jour via UPDATE
+    let { data, error } = await supabaseAdmin
       .from('user_profiles')
-      .upsert(updates, { onConflict: 'user_id' })
+      .update(updates)
+      .eq('user_id', userId)
       .select()
-      .single();
+      .maybeSingle();
 
-    if (error) return res.status(400).json({ error: error.message });
+    // S'il n'y avait aucun enregistrement existant, procéder à une insertion (INSERT)
+    if (!error && !data) {
+      const { data: insertedData, error: insertError } = await supabaseAdmin
+        .from('user_profiles')
+        .insert(updates)
+        .select()
+        .single();
+      
+      data = insertedData;
+      error = insertError;
+    }
+
+    if (error || !data) return res.status(400).json({ error: error?.message || "Impossible de sauvegarder le profil" });
     
     // --- TAGS LOGIC ---
     if (tags && Array.isArray(tags)) {
