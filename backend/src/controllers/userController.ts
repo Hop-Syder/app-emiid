@@ -3,7 +3,8 @@
  * @organization Nexus Partners
  * @description Contrôleur pour la gestion des profils utilisateurs
  * @created 2026-01-04
-*/
+ * @updated 2026-06-02
+ */
 
 import { Request, Response } from 'express';
 import { z } from 'zod';
@@ -96,6 +97,13 @@ export const getMyProfile = async (req: Request, res: Response) => {
            message: "Profil à compléter" 
          });
       }
+      logger.error('Supabase getMyProfile error details:', {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        userId
+      });
       return res.status(400).json({ error: error.message });
     }
 
@@ -238,7 +246,16 @@ export const updateMyProfile = async (req: any, res: Response) => {
       error = insertError;
     }
 
-    if (error || !data) return res.status(400).json({ error: error?.message || "Impossible de sauvegarder le profil" });
+    if (error || !data) {
+      logger.error('Supabase updateMyProfile error details:', {
+        code: error?.code,
+        message: error?.message,
+        details: error?.details,
+        hint: error?.hint,
+        userId
+      });
+      return res.status(400).json({ error: error?.message || "Impossible de sauvegarder le profil" });
+    }
     
     // --- TAGS LOGIC ---
     if (tags && Array.isArray(tags)) {
