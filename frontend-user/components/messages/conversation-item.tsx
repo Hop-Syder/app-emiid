@@ -3,6 +3,9 @@
  * @organization Nexus Partners
  * @description Composant d'affichage d'une conversation dans la liste latérale
  * @created 2026-05-11
+ * @updated 2026-06-02
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
 */
 
 import React from 'react'
@@ -10,8 +13,8 @@ import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { Conversation } from './types'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
+import { CheckCheck } from 'lucide-react'
 
 interface ConversationItemProps {
   conversation: Conversation
@@ -36,52 +39,80 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
 
   const p = conversation.other_participant
   const fullName = `${p?.first_name || ''} ${p?.last_name || ''}`.trim() || 'Utilisateur'
-  const initials = fullName.substring(0, 2).toUpperCase()
+  const initials = fullName.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()
+  const hasUnread = conversation.unread_count > 0
 
   return (
     <button
       onClick={() => onClick(conversation)}
       className={cn(
-        "w-full flex items-center gap-3 p-3.5 transition-all duration-300 rounded-2xl border mb-1",
-        isActive 
-          ? "bg-white shadow-md border-primary/20 ring-1 ring-primary/10" 
-          : "bg-transparent border-transparent hover:bg-white/60 hover:shadow-sm hover:border-white/50"
+        "w-full flex items-center gap-3 px-3 py-2.5 transition-all duration-200 rounded-xl border relative overflow-hidden group",
+        isActive
+          ? "bg-primary/8 border-primary/15 shadow-sm ring-1 ring-primary/10"
+          : "bg-transparent border-transparent hover:bg-slate-50/80 hover:border-slate-100"
       )}
     >
-      <div className="relative">
-        <Avatar className="h-12 w-12 border-2 border-white shadow-sm ring-2 ring-transparent transition-all group-hover:ring-primary/20">
+      {/* Active accent bar */}
+      {isActive && (
+        <span className="absolute left-0 top-2 bottom-2 w-0.5 bg-primary rounded-full" />
+      )}
+
+      {/* Avatar avec indicateur en ligne */}
+      <div className="relative shrink-0">
+        <Avatar className={cn(
+          "h-11 w-11 border-2 transition-all duration-200",
+          isActive ? "border-primary/20 shadow-sm" : "border-white shadow-sm group-hover:border-slate-200"
+        )}>
           <AvatarImage src={p?.avatar_url || ''} alt={fullName} />
-          <AvatarFallback className="bg-primary/10 text-primary font-bold">
+          <AvatarFallback className={cn(
+            "font-bold text-sm",
+            isActive
+              ? "bg-primary/15 text-primary"
+              : "bg-gradient-to-br from-slate-100 to-slate-200 text-slate-600"
+          )}>
             {initials}
           </AvatarFallback>
         </Avatar>
-        {conversation.unread_count > 0 && (
-          <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-gradient-to-br from-red-500 to-rose-600 text-white border-2 border-white shadow-sm animate-in zoom-in">
-            {conversation.unread_count}
-          </Badge>
-        )}
+        {/* Indicateur online */}
+        <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full shadow-sm" />
       </div>
 
+      {/* Texte */}
       <div className="flex-1 min-w-0 text-left">
-        <div className="flex justify-between items-baseline mb-1">
+        <div className="flex justify-between items-baseline mb-0.5">
           <h3 className={cn(
-            "text-sm font-semibold truncate",
-            conversation.unread_count > 0 ? "text-slate-900" : "text-slate-700"
+            "text-sm truncate leading-snug",
+            hasUnread ? "font-bold text-slate-900" : "font-semibold text-slate-700"
           )}>
             {fullName}
           </h3>
           {formattedDate && (
-            <span className="text-[10px] text-slate-400">
+            <span className={cn(
+              "text-[10px] ml-2 shrink-0",
+              hasUnread ? "text-primary font-semibold" : "text-slate-400"
+            )}>
               {formattedDate}
             </span>
           )}
         </div>
-        <p className={cn(
-          "text-xs truncate",
-          conversation.unread_count > 0 ? "text-primary font-semibold" : "text-slate-500 font-medium"
-        )}>
-          {conversation.last_message || "Démarrer la discussion..."}
-        </p>
+        <div className="flex items-center justify-between gap-1">
+          <p className={cn(
+            "text-xs truncate flex items-center gap-1",
+            hasUnread ? "text-slate-700 font-medium" : "text-slate-400 font-normal"
+          )}>
+            {!hasUnread && <CheckCheck className="h-3 w-3 text-primary/60 shrink-0" />}
+            {conversation.last_message || "Démarrer la discussion..."}
+          </p>
+          {hasUnread && (
+            <span className={cn(
+              "shrink-0 min-w-[18px] h-[18px] flex items-center justify-center",
+              "bg-primary text-white text-[10px] font-bold rounded-full px-1 shadow-sm",
+              "animate-in zoom-in duration-200"
+            )}>
+              {conversation.unread_count > 99 ? '99+' : conversation.unread_count}
+            </span>
+          )}
+        </div>
       </div>
     </button>
   )

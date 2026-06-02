@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Page de messagerie refactorisée et modulaire (Version Complète & Robuste)
  * @created 2026-05-11
- * @updated 2026-05-24
+ * @updated 2026-06-02
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
 */
@@ -12,7 +12,7 @@
 
 import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { useSearchParams } from "next/navigation"
-import { ArrowLeft, MoreHorizontal, Gavel, Trash2, MessageSquare } from "lucide-react"
+import { ArrowLeft, MoreHorizontal, Gavel, Trash2, MessageSquare, Phone, Video, Search } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
@@ -433,49 +433,58 @@ export function MessagesContent() {
         {selectedConv ? (
           <>
             {/* Header */}
-            <div className="px-6 py-4 border-b border-white/40 flex items-center justify-between bg-white/70 backdrop-blur-xl z-20 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)]">
+            <div className="px-4 py-3 border-b border-white/40 flex items-center justify-between bg-white/70 backdrop-blur-xl z-20 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] shrink-0">
               <div className="flex items-center gap-3">
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="md:hidden -ml-2 hover:bg-slate-100/50"
+                  className="md:hidden -ml-2 hover:bg-slate-100/50 h-8 w-8"
                   onClick={() => setShowChatMobile(false)}
                 >
-                  <ArrowLeft className="h-5 w-5" />
+                  <ArrowLeft className="h-4 w-4" />
                 </Button>
-                <Avatar className="h-10 w-10 ring-2 ring-indigo-50">
-                  <AvatarImage src={selectedConv.other_participant.avatar_url} />
-                  <AvatarFallback className="bg-indigo-100 text-indigo-700 font-bold">
-                    {selectedConv.other_participant.first_name[0]}
-                  </AvatarFallback>
-                </Avatar>
+                <div className="relative cursor-pointer group">
+                  <Avatar className="h-10 w-10 ring-2 ring-indigo-100 transition-transform group-hover:scale-105">
+                    <AvatarImage src={selectedConv.other_participant.avatar_url} />
+                    <AvatarFallback className="bg-gradient-to-br from-indigo-400 to-primary text-white font-bold text-sm">
+                      {selectedConv.other_participant.first_name[0]}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full" />
+                </div>
                 <div>
-                  <h2 className="text-sm font-bold text-slate-800">
+                  <h2 className="text-sm font-bold text-slate-800 leading-tight">
                     {selectedConv.other_participant.first_name} {selectedConv.other_participant.last_name}
                   </h2>
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className="text-[10px] text-slate-500 font-medium">En ligne</span>
-                  </div>
+                  <span className="text-[11px] text-emerald-600 font-semibold">En ligne</span>
                 </div>
               </div>
 
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-0.5">
+                <Button variant="ghost" size="icon" className="text-slate-400 hover:text-primary hover:bg-primary/5 h-9 w-9 rounded-xl hidden md:flex" title="Appel vidéo">
+                  <Video className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="icon" className="text-slate-400 hover:text-primary hover:bg-primary/5 h-9 w-9 rounded-xl hidden md:flex" title="Appel audio">
+                  <Phone className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="icon" className="text-slate-400 hover:text-primary hover:bg-primary/5 h-9 w-9 rounded-xl hidden md:flex" title="Rechercher dans la discussion">
+                  <Search className="h-4 w-4" />
+                </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="text-slate-400">
+                    <Button variant="ghost" size="icon" className="text-slate-400 hover:text-slate-600 hover:bg-slate-100/50 h-9 w-9 rounded-xl">
                       <MoreHorizontal className="h-5 w-5" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48 rounded-xl shadow-xl border-slate-100">
+                  <DropdownMenuContent align="end" className="w-52 rounded-xl shadow-xl border-slate-100">
                     <DropdownMenuItem
-                      className="text-amber-600 focus:text-amber-700 focus:bg-amber-50"
+                      className="text-amber-600 focus:text-amber-700 focus:bg-amber-50 rounded-lg"
                       onClick={() => setIsMediationOpen(true)}
                     >
                       <Gavel className="mr-2 h-4 w-4" /> Demander médiation
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      className="text-red-600 focus:text-red-700 focus:bg-red-50"
+                      className="text-red-600 focus:text-red-700 focus:bg-red-50 rounded-lg"
                       onClick={handleDeleteConversation}
                     >
                       <Trash2 className="mr-2 h-4 w-4" /> Supprimer discussion

@@ -278,14 +278,17 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, currentUserI
       <div 
         ref={containerRef}
         onScroll={handleScroll}
-        className="flex-1 overflow-y-auto bg-transparent py-4 px-2 custom-scrollbar flex flex-col"
+        className="flex-1 overflow-y-auto py-4 px-2 custom-scrollbar flex flex-col"
+        style={{
+          background: 'linear-gradient(135deg, #f0f4ff 0%, #f8faff 30%, #fff 60%, #f5f8ff 100%)'
+        }}
       >
         {enrichedMessages.length > 0 ? (
           enrichedMessages.map((msg) => (
             <React.Fragment key={msg.id}>
               {msg.dateSeparator && (
                 <div className="flex justify-center my-4">
-                  <span className="bg-slate-200/60 backdrop-blur-md text-slate-600 text-[11px] font-bold px-3 py-1 rounded-full shadow-sm">
+                  <span className="bg-white/70 backdrop-blur-md text-slate-500 text-[11px] font-semibold px-4 py-1.5 rounded-full shadow-sm border border-slate-100/80">
                     {msg.dateSeparator}
                   </span>
                 </div>

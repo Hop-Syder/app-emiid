@@ -11,6 +11,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Send, Paperclip } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import { EmojiPickerPopover } from './emoji-picker-popover'
 
@@ -82,10 +83,10 @@ export const MessageInput: React.FC<MessageInputProps> = ({ onSend, isDisabled }
 
   // === RENDU DU COMPOSANT ===
   return (
-    <div className="p-4 bg-transparent pb-safe">
+    <div className="px-4 py-3 bg-white/80 backdrop-blur-xl border-t border-slate-100/80 shrink-0">
       <form 
         onSubmit={handleSubmit}
-        className="flex items-end gap-3 max-w-4xl mx-auto bg-white/80 backdrop-blur-xl p-2 rounded-[28px] shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-white"
+        className="flex items-end gap-2.5 bg-slate-50/80 p-1.5 rounded-[24px] border border-slate-200/60 transition-all focus-within:border-primary/30 focus-within:shadow-[0_0_0_3px_rgba(79,70,229,0.08)] focus-within:bg-white"
       >
         <div className="flex-1 relative bg-slate-50/50 rounded-[20px] transition-all focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/20 flex items-end">
           <input 
@@ -140,9 +141,14 @@ export const MessageInput: React.FC<MessageInputProps> = ({ onSend, isDisabled }
           type="submit" 
           size="icon" 
           disabled={isDisabled || (!text.trim() && !file)}
-          className="h-11 w-11 rounded-[20px] bg-primary hover:bg-primary/90 shadow-md transition-transform hover:scale-105 active:scale-95 shrink-0"
+          className={cn(
+            "h-9 w-9 rounded-full shadow-sm transition-all duration-200 shrink-0",
+            text.trim() || file
+              ? "bg-primary hover:bg-primary/90 text-white scale-100 hover:scale-105 active:scale-95 shadow-primary/30"
+              : "bg-slate-200 text-slate-400 cursor-not-allowed"
+          )}
         >
-          <Send className="h-4 w-4 ml-0.5" />
+          <Send className="h-3.5 w-3.5 ml-0.5" />
         </Button>
 
         {file && (
