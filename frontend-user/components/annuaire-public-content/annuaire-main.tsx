@@ -59,17 +59,9 @@ export function AnnuairePublicContent({
                 {/* --- 2. BARRE DE RECHERCHE & FILTRES --- */}
                 <AnnuaireFilters filters={filters} onFilterChange={handleFilterChange} />
 
-                {/* --- 3. EXPLORATEUR DE CATÉGORIES --- */}
-                <motion.div
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.05 }}
-                    className="pt-2"
-                >
-                    <AnnuaireCategories filters={filters} onFilterChange={handleFilterChange} />
-                </motion.div>
 
-                {/* --- 4. GRILLE DES PROFILS PREMIUM --- */}
+
+                {/* --- 3. GRILLE DES PROFILS PREMIUM --- */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -94,7 +86,7 @@ export function AnnuairePublicContent({
                     </div>
                 </motion.div>
 
-                {/* --- 5. GRILLE DES PROFILS RECOMMANDÉS --- */}
+                {/* --- 4. GRILLE DES PROFILS RECOMMANDÉS --- */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -116,6 +108,29 @@ export function AnnuairePublicContent({
 
                     <div className="pt-4">
                         <AnnuaireGrid filters={filters} initialProfiles={initialProfiles} />
+                    </div>
+                </motion.div>
+
+                {/* --- 5. EXPLORATEUR DE CATÉGORIES & RÉSULTATS --- */}
+                <motion.div
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.25 }}
+                    className="space-y-6 pt-4"
+                >
+                    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-200/50 pb-4">
+                        <div>
+                            <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
+                                Explorer par <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Catégorie</span>
+                            </h2>
+                            <p className="text-slate-500 font-medium mt-1">Trouvez les profils correspondants à votre domaine d'activité.</p>
+                        </div>
+                    </div>
+                    
+                    <AnnuaireCategories filters={filters} onFilterChange={handleFilterChange} />
+                    
+                    <div className="pt-6">
+                        <AnnuaireGrid filters={filters} />
                     </div>
                 </motion.div>
 
