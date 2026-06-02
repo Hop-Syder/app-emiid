@@ -121,7 +121,7 @@ export function AnnuairePublicContent({
                     <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-200/50 pb-4">
                         <div>
                             <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
-                                Explorer par <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Catégorie</span>
+                                Explorer par <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-rose-600">Catégorie</span>
                             </h2>
                             <p className="text-slate-500 font-medium mt-1">Trouvez les profils correspondants à votre domaine d'activité.</p>
                         </div>
