@@ -47,3 +47,4 @@
 ## ⚠️ Notes importantes
 - Le backend utilise des WebSockets (`ws`) pour le temps réel.
 - Deux applications Next.js distinctes (`frontend-user` et `frontend-admin`) accèdent aux mêmes bases de données / APIs.
+- [2026-06-02] Refonte complète de la page de détail de profil utilisateur (`profile-detail-content.tsx`) vers une esthétique Luxury Editorial & Glassmorphism.

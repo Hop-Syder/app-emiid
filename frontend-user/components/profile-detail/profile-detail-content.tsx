@@ -467,13 +467,26 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
         )
     }
 
+    const getSkillBadgeStyles = (idx: number) => {
+        const presets = [
+            "from-blue-500/10 to-indigo-500/10 text-blue-700 border-blue-200/50 hover:bg-blue-100/20",
+            "from-[#CE1126]/5 to-[#CE1126]/10 text-[#CE1126] border-[#CE1126]/20 hover:bg-[#CE1126]/15",
+            "from-emerald-500/10 to-teal-500/10 text-emerald-700 border-emerald-200/50 hover:bg-emerald-100/20",
+            "from-amber-500/10 to-orange-500/10 text-amber-700 border-amber-200/50 hover:bg-amber-100/20",
+            "from-purple-500/10 to-pink-500/10 text-purple-700 border-purple-200/50 hover:bg-purple-100/20",
+        ]
+        return presets[idx % presets.length]
+    }
+
     return (
-        <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white text-slate-900 antialiased selection:bg-[#022753]/10 selection:text-[#022753]">
+        <div className="min-h-screen bg-gradient-to-tr from-[#022753]/5 via-[#f8fafc] to-[#CE1126]/5 text-slate-900 antialiased selection:bg-[#022753]/10 selection:text-[#022753]">
             {/* Header */}
             <div
                 className={cn(
-                    "sticky top-0 z-50 border-b transition-all",
-                    scrolled ? "bg-white/80 backdrop-blur-xl border-slate-200/70" : "bg-white/50 backdrop-blur-md border-transparent",
+                    "sticky top-0 z-50 transition-all duration-300",
+                    scrolled 
+                        ? "bg-white/70 backdrop-blur-xl border-b border-slate-200/50 shadow-sm shadow-slate-100/50" 
+                        : "bg-transparent border-b border-transparent",
                 )}
             >
                 <div className="container max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
@@ -481,10 +494,10 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                         variant="ghost"
                         size="sm"
                         onClick={() => router.back()}
-                        className="gap-2 rounded-xl hover:bg-slate-100 active:scale-95"
+                        className="gap-2 rounded-xl hover:bg-slate-100 active:scale-95 transition-all"
                     >
                         <ArrowLeft className="h-4 w-4 text-slate-700" />
-                        <span className="font-semibold text-slate-800">Retour</span>
+                        <span className="font-bold text-slate-800">Retour</span>
                     </Button>
 
                     <div className="flex items-center gap-2">
@@ -492,9 +505,9 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                             variant="outline"
                             size="sm"
                             onClick={handleShare}
-                            className="rounded-xl gap-2 border-slate-200 bg-white hover:bg-slate-50 active:scale-95"
+                            className="rounded-xl gap-2 border-white/60 bg-white/60 backdrop-blur-md hover:bg-white active:scale-95 transition-all shadow-sm"
                         >
-                            <Share2 className="h-4 w-4" />
+                            <Share2 className="h-4 w-4 text-slate-600" />
                             Partager
                         </Button>
 
@@ -504,22 +517,22 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                                     variant="ghost"
                                     size="icon"
                                     aria-label="Plus d'options"
-                                    className="rounded-xl hover:bg-slate-100 active:scale-95"
+                                    className="rounded-xl hover:bg-slate-100 active:scale-95 transition-all"
                                 >
                                     <MoreHorizontal className="h-5 w-5 text-slate-700" />
                                 </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="rounded-xl shadow-xl border-slate-100 w-52 p-1">
+                            <DropdownMenuContent align="end" className="rounded-2xl shadow-xl border-slate-100/60 bg-white/95 backdrop-blur-md w-52 p-1.5 animate-in fade-in slide-in-from-top-2 duration-200">
                                 <DropdownMenuItem
-                                    className="rounded-lg font-medium py-2 cursor-pointer hover:bg-slate-50"
+                                    className="rounded-xl font-bold py-2.5 cursor-pointer hover:bg-slate-50 text-xs text-slate-700"
                                     onClick={() => setIsShareModalOpen(true)}
                                 >
                                     Outils de partage
                                 </DropdownMenuItem>
-                                <DropdownMenuItem className="rounded-lg font-medium py-2 cursor-pointer hover:bg-slate-50">
+                                <DropdownMenuItem className="rounded-xl font-bold py-2.5 cursor-pointer hover:bg-slate-50 text-xs text-slate-700">
                                     Signaler
                                 </DropdownMenuItem>
-                                <DropdownMenuItem className="rounded-lg font-medium py-2 text-red-600 cursor-pointer hover:bg-red-50">
+                                <DropdownMenuItem className="rounded-xl font-bold py-2.5 text-red-600 cursor-pointer hover:bg-red-50 text-xs">
                                     Bloquer
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
@@ -528,9 +541,9 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                 </div>
             </div>
 
-            <main className="container max-w-6xl mx-auto px-4 pb-24 pt-6">
-                {/* Hero */}
-                <section className="rounded-3xl overflow-hidden border border-slate-200 bg-white shadow-sm">
+            <main className="container max-w-6xl mx-auto px-4 pb-24 pt-4">
+                {/* Hero Card */}
+                <section className="bg-white/80 backdrop-blur-xl border border-white/60 shadow-xl shadow-slate-200/40 rounded-[32px] overflow-hidden">
                     <div
                         className={cn(
                             "relative h-44 sm:h-56 md:h-64 overflow-hidden",
@@ -547,13 +560,13 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                                     : "/placeholder.jpg"
                             }
                             alt="Couverture"
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover transition-transform duration-700 hover:scale-102"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent" />
 
                         {isOwnProfile && (
                             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/cover:opacity-100 transition-opacity duration-300 bg-black/30">
-                                <div className="bg-white/95 text-slate-800 font-semibold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-md">
+                                <div className="bg-white/95 text-slate-800 font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-md">
                                     {uploadingCover ? (
                                         <Loader2 className="h-4 w-4 animate-spin text-slate-700" />
                                     ) : (
@@ -572,143 +585,160 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                             disabled={uploadingCover}
                             className="hidden"
                         />
+                    </div>
 
-                        <div className="absolute left-5 bottom-5 sm:left-8 sm:bottom-7 flex items-end gap-4">
-                            <Avatar className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl ring-4 ring-white shadow-md">
+                    {/* Profile Meta Section (Overlapping Avatar) */}
+                    <div className="relative px-6 sm:px-8 pb-6 pt-16">
+                        {/* Avatar wrapper */}
+                        <div className="absolute -top-12 sm:-top-16 left-6 sm:left-8 flex items-end gap-4">
+                            <Avatar className="h-24 w-24 sm:h-32 sm:w-32 rounded-full border-4 border-white shadow-xl relative z-10 transition-transform duration-500 hover:scale-105 bg-white">
                                 <AvatarImage
                                     src={getOptimizedImageUrl(profile.avatar || "/profil/avatar.jpg", { width: 240, height: 240 })}
                                     alt={profile.name}
-                                    className="object-cover"
+                                    className="object-cover rounded-full"
                                 />
-                                <AvatarFallback className="bg-slate-100 text-slate-600 text-xl font-extrabold rounded-2xl">
+                                <AvatarFallback className="bg-gradient-to-br from-[#022753] to-[#022753]/80 text-white text-3xl font-black rounded-full flex items-center justify-center">
                                     {initials}
                                 </AvatarFallback>
                             </Avatar>
+                        </div>
 
-                            <div className="text-white pb-1">
+                        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+                            <div className="space-y-2">
                                 <div className="flex items-center gap-2 flex-wrap">
-                                    <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight">{profile.name}</h1>
+                                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-slate-900 leading-none">
+                                        {profile.name}
+                                    </h1>
                                     {profile.verified && (
-                                        <span className="inline-flex items-center gap-1 rounded-full bg-white/15 px-2 py-1 text-[11px] font-semibold backdrop-blur">
-                                            <Shield className="h-3.5 w-3.5 text-white" />
+                                        <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 border border-blue-200/50 px-2.5 py-1 text-[11px] font-bold text-blue-600 shadow-sm shadow-blue-100/50">
+                                            <Shield className="h-3.5 w-3.5 text-blue-500 fill-blue-500/10 animate-pulse" />
                                             Vérifié
                                         </span>
                                     )}
                                     {profile.premium && (
-                                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-300/20 px-2 py-1 text-[11px] font-semibold backdrop-blur">
-                                            <Star className="h-3.5 w-3.5 text-amber-200 fill-amber-200" />
+                                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 border border-amber-200/50 px-2.5 py-1 text-[11px] font-bold text-amber-700 shadow-sm shadow-amber-100/50 animate-pulse">
+                                            <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
                                             Premium
                                         </span>
                                     )}
                                 </div>
-                                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-xs sm:text-sm text-white/90">
-                                    <span className="inline-flex items-center gap-1.5">
-                                        <Users className="h-4 w-4 text-white/80" />
-                                        <span className="font-semibold">{profile.specialty}</span>
+                                <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs sm:text-sm text-slate-600 font-semibold">
+                                    <span className="inline-flex items-center gap-1.5 bg-slate-100/80 px-2.5 py-1 rounded-lg">
+                                        <Users className="h-3.5 w-3.5 text-[#CE1126]" />
+                                        <span>{profile.specialty}</span>
                                     </span>
-                                    <span className="h-1 w-1 rounded-full bg-white/40 hidden sm:inline" />
-                                    <span className="inline-flex items-center gap-1.5">
-                                        <MapPin className="h-4 w-4 text-white/80" />
-                                        <span className="font-semibold">{profile.location}</span>
+                                    <span className="h-1.5 w-1.5 rounded-full bg-slate-300 hidden sm:inline" />
+                                    <span className="inline-flex items-center gap-1.5 bg-slate-100/80 px-2.5 py-1 rounded-lg">
+                                        <MapPin className="h-3.5 w-3.5 text-[#022753]" />
+                                        <span>{profile.location}</span>
                                     </span>
                                 </div>
                             </div>
-                        </div>
-                    </div>
 
-                    <div className="px-5 sm:px-8 py-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                        <div className="grid grid-cols-3 gap-2 md:flex md:gap-3">
-                            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-center">
-                                <div className="text-lg font-extrabold text-[#022753] leading-none">{followersCount}</div>
-                                <div className="text-[10px] font-semibold text-slate-500 uppercase mt-1">Abonnés</div>
-                            </div>
-                            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-center">
-                                <div className="text-lg font-extrabold text-[#022753] leading-none">{profile.following}</div>
-                                <div className="text-[10px] font-semibold text-slate-500 uppercase mt-1">Suivis</div>
-                            </div>
-                            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-center">
-                                <div className="text-lg font-extrabold text-[#022753] leading-none">{profile.skills.length}</div>
-                                <div className="text-[10px] font-semibold text-slate-500 uppercase mt-1">Skills</div>
-                            </div>
-                        </div>
+                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between md:justify-end gap-4 w-full md:w-auto border-t border-slate-100 md:border-transparent pt-4 md:pt-0">
+                                {/* Stats Block */}
+                                <div className="flex items-center gap-3">
+                                    <div className="flex-1 sm:flex-initial rounded-2xl border border-slate-200/60 bg-slate-50/50 px-4 py-2 text-center min-w-[75px] shadow-sm hover:scale-105 transition-transform duration-300">
+                                        <div className="text-lg font-black text-[#022753] leading-none">{followersCount}</div>
+                                        <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mt-1">Abonnés</div>
+                                    </div>
+                                    <div className="flex-1 sm:flex-initial rounded-2xl border border-slate-200/60 bg-slate-50/50 px-4 py-2 text-center min-w-[75px] shadow-sm hover:scale-105 transition-transform duration-300">
+                                        <div className="text-lg font-black text-[#022753] leading-none">{profile.following}</div>
+                                        <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mt-1">Suivis</div>
+                                    </div>
+                                    <div className="flex-1 sm:flex-initial rounded-2xl border border-slate-200/60 bg-slate-50/50 px-4 py-2 text-center min-w-[75px] shadow-sm hover:scale-105 transition-transform duration-300">
+                                        <div className="text-lg font-black text-[#022753] leading-none">{profile.skills.length}</div>
+                                        <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mt-1">Skills</div>
+                                    </div>
+                                </div>
 
-                        <div className="flex gap-3 w-full md:w-auto">
-                            <Button
-                                size="lg"
-                                className="flex-1 md:flex-initial rounded-2xl h-11 text-xs gap-2 font-extrabold bg-[#022753] hover:bg-[#022753]/95 shadow-md shadow-[#022753]/10 transition-all active:scale-95"
-                                onClick={handleFollow}
-                            >
-                                <Users className="h-4 w-4" />
-                                {isFollowed ? "Abonné" : "Suivre"}
-                            </Button>
-                            <Button
-                                variant="outline"
-                                size="lg"
-                                className="flex-1 md:flex-initial rounded-2xl h-11 text-xs gap-2 font-extrabold border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all active:scale-95"
-                                asChild
-                            >
-                                <Link href={`/messages?contact=${profile.id}`}>
-                                    <MessageCircle className="h-4 w-4 text-slate-700" />
-                                    Message
-                                </Link>
-                            </Button>
-                            <Button
-                                variant="outline"
-                                size="lg"
-                                className="hidden sm:flex md:flex-initial rounded-2xl h-11 text-xs gap-2 font-extrabold border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all active:scale-95"
-                                onClick={handleShare}
-                            >
-                                <Share2 className="h-4 w-4 text-slate-700" />
-                                Partager
-                            </Button>
+                                {/* Actions buttons */}
+                                <div className="flex gap-2.5 shrink-0">
+                                    <Button
+                                        size="lg"
+                                        className="flex-1 sm:flex-initial rounded-2xl h-11 text-xs gap-2 font-black bg-[#022753] hover:bg-[#022753]/95 shadow-md shadow-[#022753]/10 transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-95 text-white"
+                                        onClick={handleFollow}
+                                    >
+                                        <Users className="h-4 w-4" />
+                                        {isFollowed ? "Abonné" : "Suivre"}
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="lg"
+                                        className="flex-1 sm:flex-initial rounded-2xl h-11 text-xs gap-2 font-black border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 shadow-sm transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-95"
+                                        asChild
+                                    >
+                                        <Link href={`/messages?contact=${profile.id}`}>
+                                            <MessageCircle className="h-4 w-4 text-slate-700" />
+                                            Message
+                                        </Link>
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="lg"
+                                        className="hidden sm:flex md:flex-initial rounded-2xl h-11 text-xs gap-2 font-black border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 shadow-sm transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-95"
+                                        onClick={handleShare}
+                                    >
+                                        <Share2 className="h-4 w-4 text-slate-700" />
+                                        Partager
+                                    </Button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </section>
 
                 <section className="mt-6 grid lg:grid-cols-12 gap-6 items-start">
                     <div className="lg:col-span-8 space-y-6">
-                        <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm">
-                            <h2 className="text-sm font-extrabold text-slate-900 flex items-center gap-2">
+                        {/* About card */}
+                        <div className="bg-white/70 backdrop-blur-xl border border-white/50 rounded-[32px] p-6 sm:p-8 shadow-xl shadow-slate-100/40 relative overflow-hidden group">
+                            {/* Decorative element */}
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-[#CE1126]/5 to-transparent rounded-bl-full pointer-events-none" />
+                            <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
                                 <Award className="h-4 w-4 text-[#CE1126]" />
-                                À propos
+                                À propos de moi
                             </h2>
-                            <p className="mt-4 text-slate-600 leading-relaxed text-sm sm:text-base whitespace-pre-line">
+                            <p className="mt-5 text-slate-700 leading-relaxed text-sm sm:text-base whitespace-pre-line font-medium">
                                 {profile.bio}
                             </p>
                         </div>
 
-                        <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm">
+                        {/* Tabs content card */}
+                        <div className="bg-white/70 backdrop-blur-xl border border-white/50 rounded-[32px] p-6 sm:p-8 shadow-xl shadow-slate-100/40">
                             <Tabs defaultValue="skills" className="w-full">
-                                <TabsList className="bg-slate-100/70 border border-slate-200 w-full justify-start h-auto p-1.5 mb-6 gap-2 rounded-2xl">
+                                <TabsList className="bg-slate-100/50 border border-slate-200/50 w-full justify-start h-auto p-1.5 mb-6 gap-2 rounded-2xl backdrop-blur-sm">
                                     <TabsTrigger
                                         value="skills"
-                                        className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-[#022753] data-[state=active]:shadow-sm bg-transparent px-4 py-2 text-xs sm:text-sm font-bold text-slate-600 transition-all"
+                                        className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-[#022753] data-[state=active]:shadow-md data-[state=active]:border-white/80 bg-transparent px-5 py-2.5 text-xs sm:text-sm font-black text-slate-500 transition-all duration-300"
                                     >
                                         Compétences
                                     </TabsTrigger>
                                     <TabsTrigger
                                         value="experience"
-                                        className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-[#022753] data-[state=active]:shadow-sm bg-transparent px-4 py-2 text-xs sm:text-sm font-bold text-slate-600 transition-all"
+                                        className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-[#022753] data-[state=active]:shadow-md data-[state=active]:border-white/80 bg-transparent px-5 py-2.5 text-xs sm:text-sm font-black text-slate-500 transition-all duration-300"
                                     >
-                                        Parcours
+                                        Parcours & Expériences
                                     </TabsTrigger>
                                 </TabsList>
 
                                 <TabsContent value="skills" className="animate-in fade-in duration-300 focus-visible:outline-none">
-                                    <div className="flex flex-wrap gap-2">
+                                    <div className="flex flex-wrap gap-2.5">
                                         {profile.skills.length > 0 ? (
                                             profile.skills.map((skill, idx) => (
                                                 <Badge
                                                     key={idx}
-                                                    variant="secondary"
-                                                    className="px-3.5 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-800 font-semibold border border-slate-200 transition-all text-xs"
+                                                    variant="outline"
+                                                    className={cn(
+                                                        "px-4 py-2 rounded-xl bg-gradient-to-r font-bold border transition-all text-xs hover:-translate-y-0.5 duration-300 shadow-sm",
+                                                        getSkillBadgeStyles(idx)
+                                                    )}
                                                 >
                                                     {skill}
                                                 </Badge>
                                             ))
                                         ) : (
                                             <div className="p-8 border border-dashed border-slate-200 text-center w-full rounded-2xl bg-slate-50/50">
-                                                <p className="text-slate-500 font-medium text-xs">Aucune compétence listée pour le moment.</p>
+                                                <p className="text-slate-500 font-bold text-xs">Aucune compétence spécifiée pour le moment.</p>
                                             </div>
                                         )}
                                     </div>
@@ -719,13 +749,13 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                                         {profile.experiences.length > 0 ? (
                                             <div className="relative border-l-2 border-slate-200 pl-6 ml-3 space-y-6 py-2">
                                                 {profile.experiences.map((exp, idx) => (
-                                                    <div key={idx} className="relative">
-                                                        <div className="absolute -left-[31px] top-1 h-3.5 w-3.5 rounded-full bg-white border-2 border-[#022753] flex items-center justify-center">
+                                                    <div key={idx} className="relative group">
+                                                        <div className="absolute -left-[31px] top-1 h-3.5 w-3.5 rounded-full bg-white border-2 border-[#022753] flex items-center justify-center transition-all duration-300 group-hover:scale-110">
                                                             <div className="h-1 w-1 rounded-full bg-[#022753]" />
                                                         </div>
-                                                        <div>
+                                                        <div className="transition-all duration-300 group-hover:translate-x-1">
                                                             <h4 className="text-sm font-extrabold text-slate-900">{exp.title}</h4>
-                                                            <p className="text-xs font-semibold text-slate-500 mt-1">
+                                                            <p className="text-xs font-bold text-slate-500 mt-1">
                                                                 {exp.company} • {exp.period}
                                                             </p>
                                                         </div>
@@ -733,10 +763,10 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                                                 ))}
                                             </div>
                                         ) : (
-                                            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4">
-                                                <p className="text-sm font-semibold text-slate-700">Parcours non renseigné.</p>
+                                            <div className="rounded-2xl border border-slate-200 bg-slate-50/40 p-5">
+                                                <p className="text-sm font-bold text-slate-700">Parcours non renseigné.</p>
                                                 <p className="text-xs text-slate-500 mt-1">
-                                                    Ce membre est actif sur EmiID et ouvert aux opportunités.
+                                                    Ce membre est actif sur EmiID et ouvert aux opportunités de collaboration.
                                                 </p>
                                             </div>
                                         )}
@@ -747,37 +777,38 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                     </div>
 
                     <aside className="lg:col-span-4 space-y-6">
-                        <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
-                            <h3 className="text-sm font-extrabold text-slate-900 flex items-center gap-2">
+                        {/* Coordinates card */}
+                        <div className="bg-white/70 backdrop-blur-xl border border-white/50 rounded-[32px] p-6 shadow-xl shadow-slate-100/40 relative overflow-hidden">
+                            <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
                                 <Globe className="h-4 w-4 text-[#022753]" />
                                 Coordonnées
                             </h3>
 
-                            <div className="mt-4 space-y-3 text-sm">
-                                <div className="flex items-start gap-3 text-slate-700">
+                            <div className="mt-5 space-y-4 text-sm">
+                                <div className="flex items-start gap-3.5 text-slate-700 hover:bg-slate-50/50 p-2 -mx-2 rounded-xl transition-colors duration-200">
                                     <Calendar className="h-4 w-4 text-slate-400 shrink-0 mt-0.5" />
                                     <div>
-                                        <div className="text-xs font-semibold text-slate-500">Membre depuis</div>
-                                        <div className="font-semibold">{joinedDate}</div>
+                                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Membre depuis</div>
+                                        <div className="font-extrabold text-slate-800">{joinedDate}</div>
                                     </div>
                                 </div>
 
                                 {profile.email && (
-                                    <div className="flex items-start gap-3 text-slate-700">
+                                    <div className="flex items-start gap-3.5 text-slate-700 hover:bg-slate-50/50 p-2 -mx-2 rounded-xl transition-colors duration-200">
                                         <Mail className="h-4 w-4 text-slate-400 shrink-0 mt-0.5" />
-                                        <div className="min-w-0">
-                                            <div className="text-xs font-semibold text-slate-500">Email</div>
-                                            <div className="font-semibold break-words">{profile.email}</div>
+                                        <div className="min-w-0 flex-1">
+                                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Email</div>
+                                            <div className="font-extrabold text-slate-800 break-all">{profile.email}</div>
                                         </div>
                                     </div>
                                 )}
 
                                 {profile.phone && (
-                                    <div className="flex items-start gap-3 text-slate-700">
+                                    <div className="flex items-start gap-3.5 text-slate-700 hover:bg-slate-50/50 p-2 -mx-2 rounded-xl transition-colors duration-200">
                                         <Phone className="h-4 w-4 text-slate-400 shrink-0 mt-0.5" />
                                         <div className="min-w-0">
-                                            <div className="text-xs font-semibold text-slate-500">Téléphone</div>
-                                            <div className="font-semibold break-words">{profile.phone}</div>
+                                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Téléphone</div>
+                                            <div className="font-extrabold text-slate-800 break-words">{profile.phone}</div>
                                         </div>
                                     </div>
                                 )}
@@ -787,7 +818,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                                 <Button
                                     asChild
                                     variant="outline"
-                                    className="w-full mt-4 h-11 rounded-2xl text-xs font-extrabold border-slate-200 hover:bg-slate-50 gap-2"
+                                    className="w-full mt-5 h-11 rounded-2xl text-xs font-black border-slate-200 bg-white/80 hover:bg-slate-50 gap-2 shadow-sm transition-all duration-300 hover:-translate-y-0.5"
                                 >
                                     <a href={profile.website} target="_blank" rel="noopener noreferrer">
                                         Visiter le site <ExternalLink className="h-4 w-4" />
@@ -796,44 +827,45 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                             )}
                         </div>
 
-                        <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
-                            <h3 className="text-sm font-extrabold text-slate-900 flex items-center gap-2">
+                        {/* Share card */}
+                        <div className="bg-white/70 backdrop-blur-xl border border-white/50 rounded-[32px] p-6 shadow-xl shadow-slate-100/40">
+                            <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
                                 <Share2 className="h-4 w-4 text-[#022753]" />
                                 Partage
                             </h3>
 
-                            <div className="mt-4 space-y-3">
+                            <div className="mt-5 space-y-4">
                                 <div className="flex items-center gap-2">
                                     <Input
                                         readOnly
                                         value={profileUrl}
-                                        className="h-11 bg-slate-50 border-slate-200 text-slate-700 font-mono text-xs focus-visible:ring-0 rounded-2xl"
+                                        className="h-11 bg-slate-50/70 border-slate-200 text-slate-700 font-mono text-xs focus-visible:ring-0 rounded-2xl font-semibold select-all"
                                     />
                                     <Button
                                         size="icon"
                                         variant="outline"
-                                        className="h-11 w-11 rounded-2xl shrink-0 border-slate-200"
+                                        className="h-11 w-11 rounded-2xl shrink-0 border-slate-200 bg-white/80 hover:bg-slate-50 transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm"
                                         onClick={() => copyToClipboard(profileUrl)}
                                     >
-                                        {copiedLink === profileUrl ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4 text-slate-700" />}
+                                        {copiedLink === profileUrl ? <Check className="h-4 w-4 text-green-600 animate-in zoom-in duration-200" /> : <Copy className="h-4 w-4 text-slate-700" />}
                                     </Button>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-2">
                                     <Button
                                         variant="outline"
-                                        className="h-11 rounded-2xl border-slate-200 font-extrabold text-xs gap-2"
+                                        className="h-11 rounded-2xl border-slate-200 bg-white/80 hover:bg-slate-50 font-black text-xs gap-2 transition-all duration-300 hover:-translate-y-0.5 shadow-sm"
                                         onClick={() => setIsShareModalOpen(true)}
                                     >
-                                        <Share className="h-4 w-4" />
-                                        Ouvrir
+                                        <Share className="h-4 w-4 text-[#022753]" />
+                                        Partager
                                     </Button>
                                     <Button
                                         variant="outline"
-                                        className="h-11 rounded-2xl border-slate-200 font-extrabold text-xs gap-2"
+                                        className="h-11 rounded-2xl border-slate-200 bg-white/80 hover:bg-slate-50 font-black text-xs gap-2 transition-all duration-300 hover:-translate-y-0.5 shadow-sm"
                                         onClick={downloadVCard}
                                     >
-                                        <Download className="h-4 w-4" />
+                                        <Download className="h-4 w-4 text-[#CE1126]" />
                                         vCard
                                     </Button>
                                 </div>
@@ -845,19 +877,19 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
 
             {/* Share Dialog */}
             <Dialog open={isShareModalOpen} onOpenChange={setIsShareModalOpen}>
-                <DialogContent className="sm:max-w-md rounded-[32px] border border-slate-100 bg-white/95 backdrop-blur-xl shadow-2xl p-6 overflow-hidden">
-                    <DialogHeader className="pb-4 border-b border-slate-50">
+                <DialogContent className="sm:max-w-md rounded-[32px] border border-slate-100 bg-white/95 backdrop-blur-xl shadow-2xl p-6 overflow-hidden animate-in fade-in duration-300">
+                    <DialogHeader className="pb-4 border-b border-slate-100">
                         <DialogTitle className="text-xl font-black tracking-tight text-slate-900">Partager le profil</DialogTitle>
-                        <DialogDescription className="text-xs text-slate-500 font-medium mt-1">
+                        <DialogDescription className="text-xs text-slate-500 font-bold mt-1">
                             Faites découvrir le profil de <span className="font-extrabold text-slate-700">{profile?.name}</span> à votre réseau professionnel.
                         </DialogDescription>
                     </DialogHeader>
 
                     <div className="space-y-6 py-4">
-                        {/* Lien du profil */}
+                        {/* Profile custom link */}
                         <div className="space-y-2.5">
-                            <span className="text-xs font-extrabold text-slate-500 uppercase tracking-wider ml-1">Lien personnalisé</span>
-                            <div className="flex items-center gap-2 p-1.5 bg-slate-50 border border-slate-200/60 rounded-2xl transition-all focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10">
+                            <span className="text-xs font-black text-slate-400 uppercase tracking-wider ml-1">Lien personnalisé</span>
+                            <div className="flex items-center gap-2 p-1.5 bg-slate-50 border border-slate-200/60 rounded-2xl transition-all focus-within:border-[#022753]/30 focus-within:ring-2 focus-within:ring-[#022753]/5">
                                 <span className="pl-3 text-xs text-slate-400 font-bold select-none">app.emiid.com/profil/</span>
                                 <Input
                                     readOnly
@@ -886,9 +918,9 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                             )}
                         </div>
 
-                        {/* Partage rapide (Boutons circulaires) */}
+                        {/* Quick share button icons */}
                         <div className="space-y-3 pt-2 border-t border-slate-100">
-                            <span className="text-xs font-extrabold text-slate-500 uppercase tracking-wider ml-1">Partage rapide</span>
+                            <span className="text-xs font-black text-slate-400 uppercase tracking-wider ml-1">Partage rapide</span>
                             <div className="flex justify-around items-center py-2">
                                 <button
                                     className="flex flex-col items-center gap-2 group outline-none"
@@ -936,16 +968,16 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                             </div>
                         </div>
 
-                        {/* Widget Carte de visite (vCard) */}
+                        {/* Business card widget (vCard) */}
                         <div className="pt-4 border-t border-slate-100 space-y-3">
-                            <span className="text-xs font-extrabold text-slate-500 uppercase tracking-wider ml-1">Carte de contact (vCard)</span>
+                            <span className="text-xs font-black text-slate-400 uppercase tracking-wider ml-1">Carte de contact (vCard)</span>
                             <div className="p-4 bg-slate-50/80 border border-slate-200/40 rounded-2xl flex items-center justify-between gap-4">
                                 <div className="flex items-center gap-3 min-w-0 flex-1">
                                     <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 text-white flex items-center justify-center font-black shadow-md shadow-indigo-200/50 shrink-0">
                                         {initials}
                                     </div>
                                     <div className="min-w-0 flex-1">
-                                        <h4 className="text-xs font-extrabold text-slate-800 line-clamp-1">{profile?.name}</h4>
+                                        <h4 className="text-xs font-black text-slate-800 line-clamp-1">{profile?.name}</h4>
                                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight line-clamp-1">{profile?.role}</p>
                                     </div>
                                 </div>
@@ -979,17 +1011,17 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
 
 function ProfileSkeleton() {
     return (
-        <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white animate-pulse">
+        <div className="min-h-screen bg-gradient-to-tr from-[#022753]/5 via-[#f8fafc] to-[#CE1126]/5 animate-pulse">
             <div className="h-16 container max-w-6xl mx-auto px-4 flex items-center justify-between py-6">
-                <div className="h-10 w-24 bg-slate-200 rounded-xl" />
-                <div className="h-10 w-28 bg-slate-200 rounded-xl" />
+                <div className="h-10 w-24 bg-slate-200 rounded-2xl" />
+                <div className="h-10 w-28 bg-slate-200 rounded-2xl" />
             </div>
 
             <div className="container max-w-6xl mx-auto px-4">
-                <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
+                <div className="bg-white border border-slate-200 rounded-[32px] overflow-hidden shadow-sm">
                     <div className="h-48 sm:h-56 bg-slate-200" />
                     <div className="p-6 sm:p-8 flex flex-col md:flex-row gap-6 md:gap-8 items-center md:items-end">
-                        <div className="h-20 w-20 bg-slate-200 rounded-2xl ring-4 ring-white" />
+                        <div className="h-24 w-24 bg-slate-200 rounded-full ring-4 ring-white" />
                         <div className="flex-1 space-y-3 w-full">
                             <div className="h-7 w-1/3 bg-slate-200 rounded-xl" />
                             <div className="h-5 w-1/2 bg-slate-200 rounded-lg" />
@@ -1003,12 +1035,12 @@ function ProfileSkeleton() {
 
                 <div className="mt-6 grid lg:grid-cols-12 gap-6">
                     <div className="lg:col-span-8 space-y-6">
-                        <div className="h-40 bg-white border border-slate-200 rounded-3xl" />
-                        <div className="h-64 bg-white border border-slate-200 rounded-3xl" />
+                        <div className="h-40 bg-white border border-slate-200 rounded-[32px]" />
+                        <div className="h-64 bg-white border border-slate-200 rounded-[32px]" />
                     </div>
                     <div className="lg:col-span-4 space-y-6">
-                        <div className="h-44 bg-white border border-slate-200 rounded-3xl" />
-                        <div className="h-44 bg-white border border-slate-200 rounded-3xl" />
+                        <div className="h-44 bg-white border border-slate-200 rounded-[32px]" />
+                        <div className="h-44 bg-white border border-slate-200 rounded-[32px]" />
                     </div>
                 </div>
             </div>
