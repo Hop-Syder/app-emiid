@@ -78,8 +78,8 @@ export function MessagesContent() {
         .update({ is_read: true })
         .eq('conversation_id', conversationId)
         .neq('sender_id', currentUserId)
-      
-      setConversations(prev => prev.map(c => 
+
+      setConversations(prev => prev.map(c =>
         c.id === conversationId ? { ...c, unread_count: 0 } : c
       ))
     } catch (err) {
@@ -95,7 +95,7 @@ export function MessagesContent() {
       try {
         const data = await fetchConversations()
         setConversations(data)
-        
+
         if (contactId) {
           const { data: profile } = await supabase
             .from('public_profiles')
@@ -105,7 +105,7 @@ export function MessagesContent() {
 
           const resolvedUserId = profile?.user_id || contactId;
           const existing = data.find((c: Conversation) => c.other_participant.user_id === resolvedUserId || c.other_participant.id === contactId)
-          
+
           if (existing) {
             setSelectedConv(existing)
             setShowChatMobile(true)
@@ -258,7 +258,7 @@ export function MessagesContent() {
     if (!selectedConv || !currentUserId) return
     const type = file.type.startsWith("image/") ? "image" : "file"
     const localMaxSize = type === "image" ? 5 * 1024 * 1024 : MAX_CONTENT_LENGTH
-    
+
     if (file.size > localMaxSize) {
       toast.error(`Fichier trop volumineux (Max ${type === "image" ? "5MB" : "10MB"})`)
       return
@@ -287,10 +287,10 @@ export function MessagesContent() {
 
   const handleSendMessage = async (content: string, type?: "text" | "emoji", file?: File) => {
     if (!selectedConv || (!content.trim() && !file) || !currentUserId) return
-    
+
     const isNewConv = selectedConv.id.startsWith('new-')
     const optimisticId = `optimistic-${Date.now()}`
-    
+
     // Message temporaire pour l'optimistic UI
     const tempMsg: Message = {
       id: optimisticId,
@@ -343,7 +343,7 @@ export function MessagesContent() {
       if (isNewConv && newMsg) {
         const updatedConvs = await fetchConversations()
         setConversations(updatedConvs)
-        
+
         const newRealConv = updatedConvs.find(c => c.id === convId)
         if (newRealConv) {
           setSelectedConv(newRealConv)
@@ -351,7 +351,7 @@ export function MessagesContent() {
           setSelectedConv(prev => prev ? { ...prev, id: convId } : null)
         }
       }
-      
+
 
     } catch (err: any) {
       console.error(err)
@@ -395,7 +395,7 @@ export function MessagesContent() {
 
   const filteredConversations = useMemo(() => {
     if (!searchQuery) return conversations
-    return conversations.filter(c => 
+    return conversations.filter(c =>
       `${c.other_participant.first_name} ${c.other_participant.last_name}`
         .toLowerCase()
         .includes(searchQuery.toLowerCase())
@@ -404,18 +404,18 @@ export function MessagesContent() {
 
   // === RENDU PRINCIPAL DU COMPOSANT ===
   return (
-    <div className="flex h-[calc(100vh-4rem)] bg-gradient-to-br from-slate-50 via-white to-blue-50/30 overflow-hidden relative">
-      
+    <div className="flex h-[calc(100vh)] bg-gradient-to-br from-slate-50 via-white to-blue-50/30 overflow-hidden relative">
+
       {/* Background decorations for Glassmorphism */}
       <div className="absolute top-0 right-0 -mr-20 -mt-20 w-72 h-72 rounded-full bg-blue-100/40 blur-3xl opacity-50 mix-blend-multiply pointer-events-none" />
       <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-indigo-100/40 blur-3xl opacity-50 mix-blend-multiply pointer-events-none" />
 
       {/* === COLONNE DE GAUCHE : LISTE DES CONVERSATIONS === */}
       <div className={cn(
-        "h-full md:block shrink-0", 
+        "h-full md:block shrink-0",
         showChatMobile ? "hidden md:w-80 lg:w-96" : "w-full md:w-80 lg:w-96"
       )}>
-        <ChatSidebar 
+        <ChatSidebar
           conversations={filteredConversations}
           activeId={selectedConv?.id || null}
           onSelect={(conv) => {
@@ -435,10 +435,10 @@ export function MessagesContent() {
             {/* Header */}
             <div className="px-6 py-4 border-b border-white/40 flex items-center justify-between bg-white/70 backdrop-blur-xl z-20 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)]">
               <div className="flex items-center gap-3">
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="md:hidden -ml-2 hover:bg-slate-100/50" 
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="md:hidden -ml-2 hover:bg-slate-100/50"
                   onClick={() => setShowChatMobile(false)}
                 >
                   <ArrowLeft className="h-5 w-5" />
@@ -468,13 +468,13 @@ export function MessagesContent() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48 rounded-xl shadow-xl border-slate-100">
-                    <DropdownMenuItem 
+                    <DropdownMenuItem
                       className="text-amber-600 focus:text-amber-700 focus:bg-amber-50"
                       onClick={() => setIsMediationOpen(true)}
                     >
                       <Gavel className="mr-2 h-4 w-4" /> Demander médiation
                     </DropdownMenuItem>
-                    <DropdownMenuItem 
+                    <DropdownMenuItem
                       className="text-red-600 focus:text-red-700 focus:bg-red-50"
                       onClick={handleDeleteConversation}
                     >
@@ -492,16 +492,16 @@ export function MessagesContent() {
                 <p className="text-sm text-slate-500 font-medium">Chargement des messages...</p>
               </div>
             ) : (
-              <MessageList 
-                messages={messages} 
-                currentUserId={currentUserId || ''} 
+              <MessageList
+                messages={messages}
+                currentUserId={currentUserId || ''}
               />
             )}
 
             {/* Input */}
-            <MessageInput 
-              onSend={handleSendMessage} 
-              isDisabled={!realtime.realtimeConnected} 
+            <MessageInput
+              onSend={handleSendMessage}
+              isDisabled={!realtime.realtimeConnected}
             />
           </>
         ) : (
