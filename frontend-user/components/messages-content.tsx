@@ -381,8 +381,12 @@ export function MessagesContent() {
 
   // === RENDU PRINCIPAL DU COMPOSANT ===
   return (
-    <div className="flex h-[calc(100vh-4rem)] md:h-[calc(100vh-5rem)] bg-slate-50/50">
+    <div className="flex h-[calc(100vh-4rem)] md:h-[calc(100vh-5rem)] bg-gradient-to-br from-slate-50 via-white to-blue-50/30 overflow-hidden relative">
       
+      {/* Background decorations for Glassmorphism */}
+      <div className="absolute top-0 right-0 -mr-20 -mt-20 w-72 h-72 rounded-full bg-blue-100/40 blur-3xl opacity-50 mix-blend-multiply pointer-events-none" />
+      <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-indigo-100/40 blur-3xl opacity-50 mix-blend-multiply pointer-events-none" />
+
       {/* === COLONNE DE GAUCHE : LISTE DES CONVERSATIONS === */}
       <ChatSidebar 
         conversations={filteredConversations}
@@ -397,16 +401,16 @@ export function MessagesContent() {
       />
 
       {/* === COLONNE DE DROITE : ZONE DE CHAT === */}
-      <div className={cn("flex-1 flex flex-col h-full bg-white relative", !showChatMobile && "hidden md:flex")}>
+      <div className={cn("flex-1 flex flex-col h-full relative z-10", !showChatMobile && "hidden md:flex")}>
         {selectedConv ? (
           <>
             {/* Header */}
-            <div className="p-4 border-b flex items-center justify-between bg-white z-10 shadow-sm">
+            <div className="px-6 py-4 border-b border-white/40 flex items-center justify-between bg-white/70 backdrop-blur-xl z-20 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)]">
               <div className="flex items-center gap-3">
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="md:hidden" 
+                  className="md:hidden -ml-2 hover:bg-slate-100/50" 
                   onClick={() => setShowChatMobile(false)}
                 >
                   <ArrowLeft className="h-5 w-5" />
@@ -455,9 +459,9 @@ export function MessagesContent() {
 
             {/* Messages */}
             {loadingMsgs ? (
-              <div className="flex-1 flex flex-col items-center justify-center gap-3 bg-slate-50/30">
-                <div className="animate-spin h-8 w-8 border-4 border-indigo-600 border-t-transparent rounded-full" />
-                <p className="text-sm text-slate-500 font-medium italic">Chargement de vos messages...</p>
+              <div className="flex-1 flex flex-col items-center justify-center gap-3 bg-slate-50/10 backdrop-blur-sm">
+                <div className="animate-spin h-8 w-8 border-4 border-primary/20 border-t-primary rounded-full" />
+                <p className="text-sm text-slate-500 font-medium">Chargement des messages...</p>
               </div>
             ) : (
               <MessageList 
@@ -474,13 +478,13 @@ export function MessagesContent() {
             />
           </>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center bg-slate-50/50 p-8 text-center">
-            <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mb-6">
-              <Avatar className="h-12 w-12 text-indigo-400" />
+          <div className="flex-1 flex flex-col items-center justify-center bg-slate-50/30 backdrop-blur-md p-8 text-center h-full">
+            <div className="w-24 h-24 bg-white shadow-xl shadow-indigo-100/50 rounded-full flex items-center justify-center mb-6 border border-slate-100">
+              <MessageSquare className="h-10 w-10 text-primary/60" />
             </div>
-            <h2 className="text-xl font-bold text-slate-800 mb-2">Vos Messages</h2>
-            <p className="text-slate-500 max-w-xs text-sm">
-              Sélectionnez une conversation pour commencer à échanger avec votre réseau.
+            <h2 className="text-2xl font-bold text-slate-800 mb-3">Vos Messages</h2>
+            <p className="text-slate-500 max-w-sm text-sm leading-relaxed">
+              Sélectionnez une conversation dans le panneau latéral pour commencer à échanger avec votre réseau.
             </p>
           </div>
         )}

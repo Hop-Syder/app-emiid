@@ -53,11 +53,12 @@ export const MessageInput: React.FC<MessageInputProps> = ({ onSend, isDisabled }
 
   // === RENDU DU COMPOSANT ===
   return (
-    <form 
-      onSubmit={handleSubmit}
-      className="p-4 bg-white border-t flex items-end gap-3 shadow-[0_-4px_10px_-5px_rgba(0,0,0,0.05)]"
-    >
-      <div className="flex-1 relative bg-slate-50 rounded-2xl border border-slate-100 transition-all focus-within:border-indigo-300 focus-within:ring-2 focus-within:ring-indigo-100">
+    <div className="p-4 bg-transparent pb-safe">
+      <form 
+        onSubmit={handleSubmit}
+        className="flex items-end gap-3 max-w-4xl mx-auto bg-white/80 backdrop-blur-xl p-2 rounded-[28px] shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-white"
+      >
+        <div className="flex-1 relative bg-slate-50/50 rounded-[20px] transition-all focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/20">
         <input 
           id="message-file-input"
           name="message_file"
@@ -78,18 +79,18 @@ export const MessageInput: React.FC<MessageInputProps> = ({ onSend, isDisabled }
           type="button" 
           variant="ghost" 
           size="icon" 
-          className="absolute left-1 bottom-1 text-slate-400 hover:text-indigo-600 rounded-xl"
+          className="absolute left-1 bottom-1 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl h-9 w-9"
           onClick={() => fileInputRef.current?.click()}
         >
-          <Paperclip className="h-5 w-5" />
+          <Paperclip className="h-4 w-4" />
         </Button>
 
         <Input 
           id="message-text-input"
           name="message_text"
           autoComplete="off"
-          placeholder="Écrivez votre message..." 
-          className="border-none bg-transparent pl-12 pr-12 h-11 focus-visible:ring-0 shadow-none"
+          placeholder="Message..." 
+          className="border-none bg-transparent pl-11 pr-11 h-11 focus-visible:ring-0 shadow-none font-medium text-[15px]"
           value={text}
           onChange={(e) => setText(e.target.value)}
           disabled={isDisabled}
@@ -105,28 +106,29 @@ export const MessageInput: React.FC<MessageInputProps> = ({ onSend, isDisabled }
         type="submit" 
         size="icon" 
         disabled={isDisabled || (!text.trim() && !file)}
-        className="h-11 w-11 rounded-xl bg-indigo-600 hover:bg-indigo-700 shadow-md transition-transform hover:scale-105 active:scale-95 shrink-0"
+        className="h-11 w-11 rounded-[20px] bg-primary hover:bg-primary/90 shadow-md transition-transform hover:scale-105 active:scale-95 shrink-0"
       >
-        <Send className="h-5 w-5" />
+        <Send className="h-4 w-4 ml-0.5" />
       </Button>
 
       {file && (
-        <div className="absolute bottom-20 left-4 bg-white border rounded-lg p-2 flex items-center gap-2 shadow-lg animate-in slide-in-from-bottom-2">
-          <div className="w-8 h-8 bg-indigo-100 rounded flex items-center justify-center text-indigo-700 text-xs">
+        <div className="absolute bottom-24 left-4 right-4 md:left-auto md:right-auto md:w-80 bg-white/95 backdrop-blur-md border border-white shadow-xl rounded-2xl p-3 flex items-center gap-3 animate-in slide-in-from-bottom-2">
+          <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary font-bold text-xs">
             {file.name.split('.').pop()?.toUpperCase()}
           </div>
-          <span className="text-xs text-slate-600 truncate max-w-[150px]">{file.name}</span>
+          <span className="text-sm font-medium text-slate-700 flex-1 truncate">{file.name}</span>
           <Button 
             type="button" 
             variant="ghost" 
             size="icon" 
-            className="h-6 w-6 text-slate-400"
+            className="h-8 w-8 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
             onClick={() => setFile(null)}
           >
             &times;
           </Button>
         </div>
       )}
-    </form>
+      </form>
+    </div>
   )
 }

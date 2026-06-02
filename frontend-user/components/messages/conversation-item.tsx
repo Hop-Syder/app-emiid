@@ -42,19 +42,21 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
     <button
       onClick={() => onClick(conversation)}
       className={cn(
-        "w-full flex items-center gap-3 p-4 transition-all hover:bg-slate-50 border-l-4",
-        isActive ? "bg-indigo-50/50 border-indigo-600" : "border-transparent"
+        "w-full flex items-center gap-3 p-3.5 transition-all duration-300 rounded-2xl border mb-1",
+        isActive 
+          ? "bg-white shadow-md border-primary/20 ring-1 ring-primary/10" 
+          : "bg-transparent border-transparent hover:bg-white/60 hover:shadow-sm hover:border-white/50"
       )}
     >
       <div className="relative">
-        <Avatar className="h-12 w-12 border-2 border-white shadow-sm">
+        <Avatar className="h-12 w-12 border-2 border-white shadow-sm ring-2 ring-transparent transition-all group-hover:ring-primary/20">
           <AvatarImage src={p?.avatar_url || ''} alt={fullName} />
-          <AvatarFallback className="bg-indigo-100 text-indigo-700 font-bold">
+          <AvatarFallback className="bg-primary/10 text-primary font-bold">
             {initials}
           </AvatarFallback>
         </Avatar>
         {conversation.unread_count > 0 && (
-          <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-red-500 border-2 border-white">
+          <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-gradient-to-br from-red-500 to-rose-600 text-white border-2 border-white shadow-sm animate-in zoom-in">
             {conversation.unread_count}
           </Badge>
         )}
@@ -76,7 +78,7 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
         </div>
         <p className={cn(
           "text-xs truncate",
-          conversation.unread_count > 0 ? "text-indigo-600 font-medium" : "text-slate-500"
+          conversation.unread_count > 0 ? "text-primary font-semibold" : "text-slate-500 font-medium"
         )}>
           {conversation.last_message || "Démarrer la discussion..."}
         </p>

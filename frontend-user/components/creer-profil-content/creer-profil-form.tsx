@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import { Save, Eye, EyeOff, X, Loader2, Camera, User, Briefcase, MapPin, Link as LinkIcon, MessageSquare, Tags, Palette } from "lucide-react"
+import { Save, Eye, EyeOff, X, Loader2, Camera, User, Briefcase, MapPin, Link as LinkIcon, MessageSquare, Tags, Palette, Sparkles } from "lucide-react"
 import { LocationSelector } from "@/components/LocationSelector"
 import { useState } from "react"
 import { Badge } from "@/components/ui/badge"
@@ -86,11 +86,55 @@ export function CreerProfilForm({
         handleInputChange("tags", tags.filter(t => t !== tagToRemove) as any)
     }
 
+    const calculateProgress = () => {
+        let score = 0;
+        const total = 9;
+        
+        if (formData.name?.trim()) score++;
+        if (formData.role?.trim()) score++;
+        if (formData.category) score++;
+        if (formData.specialty?.trim()) score++;
+        if (formData.bio?.trim()) score++;
+        if (formData.city?.trim()) score++;
+        if (formData.slug?.trim()) score++;
+        if (formData.avatar && !formData.avatar.includes("avatar.jpg")) score++;
+        if (tags && tags.length > 0) score++;
+        
+        return Math.round((score / total) * 100);
+    }
+    const progress = calculateProgress();
+
     const inputClasses = "h-14 rounded-2xl bg-white/50 border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all duration-300 shadow-sm"
 
     return (
         <div className="lg:col-span-2 space-y-6 pb-32">
             
+            {/* JAUGE DE PROGRESSION */}
+            <motion.div 
+                initial={{ opacity: 0, y: -10 }} 
+                animate={{ opacity: 1, y: 0 }} 
+                className="bg-white/80 backdrop-blur-xl border border-white shadow-sm rounded-3xl p-5 md:p-6"
+            >
+                <div className="flex justify-between items-end mb-3">
+                    <div>
+                        <h3 className="font-bold text-slate-800">Complétion du profil</h3>
+                        <p className="text-xs text-slate-500 font-medium">Un profil complet inspire plus de confiance.</p>
+                    </div>
+                    <span className="text-2xl font-black text-primary">{progress}%</span>
+                </div>
+                <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden border border-slate-200/50">
+                    <motion.div 
+                        initial={{ width: 0 }} 
+                        animate={{ width: `${progress}%` }} 
+                        transition={{ duration: 0.8, ease: "easeOut" }}
+                        className={cn(
+                            "h-full rounded-full transition-all",
+                            progress === 100 ? "bg-emerald-500" : "bg-gradient-to-r from-primary/60 to-primary"
+                        )}
+                    />
+                </div>
+            </motion.div>
+
             {validationErrors.length > 0 && (
                 <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="rounded-3xl border border-rose-200 bg-rose-50/80 backdrop-blur-md px-6 py-5 shadow-lg shadow-rose-100/50">
                     <p className="text-sm font-bold text-rose-900 flex items-center gap-2">
@@ -120,6 +164,18 @@ export function CreerProfilForm({
                                 currentAvatarUrl={formData.avatar || null}
                                 onUploadComplete={(newUrl: string) => handleInputChange("avatar", newUrl)}
                             />
+                        </div>
+                    </div>
+                    
+                    <div className="hidden md:flex flex-col justify-center items-start space-y-3 p-6 bg-gradient-to-br from-blue-50 to-indigo-50/30 rounded-3xl border border-blue-100/50">
+                        <div className="p-2.5 bg-blue-100/80 rounded-xl text-blue-600">
+                            <Sparkles className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <h4 className="font-bold text-blue-900 mb-1">Le secret d'un bon profil</h4>
+                            <p className="text-sm text-blue-800/80 leading-relaxed font-medium">
+                                Une photo claire, professionnelle et souriante augmente vos chances d'être contacté de <strong className="text-blue-900">70%</strong>. C'est la première impression que vous donnez !
+                            </p>
                         </div>
                     </div>
                 </div>

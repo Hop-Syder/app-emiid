@@ -12,9 +12,9 @@ import React from 'react'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { Message } from './types'
-import { cn } from '@/lib/utils'
 import { parseMessageContent } from '@/features/messages/messageContent'
 import { FileText } from 'lucide-react'
+import { motion } from 'framer-motion'
 
 // === INTERFACES ===
 interface MessageBubbleProps {
@@ -48,15 +48,19 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isOwn }) 
   }
 
   return (
-    <div className={cn("flex w-full mb-4 px-4", isOwn ? "justify-end" : "justify-start")}>
+    <motion.div 
+      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      className={cn("flex w-full mb-4 px-4", isOwn ? "justify-end" : "justify-start")}
+    >
       <div className={cn(
-        "max-w-[80%] md:max-w-[70%] rounded-2xl p-3 shadow-sm relative group transition-all",
+        "max-w-[85%] md:max-w-[70%] rounded-2xl p-3.5 shadow-sm relative group transition-all",
         isOwn 
-          ? "bg-indigo-600 text-white rounded-tr-none" 
-          : "bg-white border border-slate-100 text-slate-800 rounded-tl-none"
+          ? "bg-gradient-to-br from-primary to-indigo-600 text-white rounded-tr-sm shadow-primary/20" 
+          : "bg-white/90 backdrop-blur-sm border border-white/60 text-slate-800 rounded-tl-sm shadow-slate-200/50"
       )}>
         {parsed.kind === "text" && (
-          <p className="text-sm whitespace-pre-wrap break-words leading-relaxed">
+          <p className="text-[14px] whitespace-pre-wrap break-words leading-relaxed font-medium">
             {parsed.text}
           </p>
         )}
@@ -104,7 +108,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isOwn }) 
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }
 
@@ -117,7 +121,7 @@ interface MessageListProps {
 // === LISTE DES MESSAGES (SCROLL ET RENDU) ===
 export const MessageList: React.FC<MessageListProps> = ({ messages, currentUserId, scrollRef }) => {
   return (
-    <div className="flex-1 overflow-y-auto bg-slate-50/50 py-6 custom-scrollbar">
+    <div className="flex-1 overflow-y-auto bg-transparent py-6 px-2 custom-scrollbar">
       {messages.length > 0 ? (
         messages.map((msg) => (
           <MessageBubble 
