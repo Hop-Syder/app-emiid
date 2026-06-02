@@ -54,6 +54,7 @@ export function AnnuaireGrid({ filters, initialProfiles = [], onlyPremium = fals
         const isDefaultFilters = !filters || (
             !filters.search && 
             (!filters.category || filters.category === "all") && 
+            (!filters.activity_domain || filters.activity_domain === "all") && 
             (!filters.country || filters.country === "all") && 
             !filters.city && 
             !filters.tags
@@ -74,8 +75,8 @@ export function AnnuaireGrid({ filters, initialProfiles = [], onlyPremium = fals
                     .select(`*, countries(name, iso_code), profile_tags(tags(name))`)
                     .order('created_at', { ascending: false })
 
-                if (filters?.category && filters.category !== "all") query = query.ilike('category', filters.category)
-                if (filters?.activity_domain && filters.activity_domain !== "all") query = query.ilike('activity_domain', filters.activity_domain)
+                if (filters?.category && filters.category !== "all") query = query.ilike('category', `%${filters.category}%`)
+                if (filters?.activity_domain && filters.activity_domain !== "all") query = query.ilike('activity_domain', `%${filters.activity_domain}%`)
                 if (filters?.country && filters.country !== "all") query = query.eq('countries.iso_code', filters.country)
                 if (filters?.city) query = query.ilike('city', `%${filters.city}%`)
                 if (filters?.search) query = query.or(`first_name.ilike.%${filters.search}%,last_name.ilike.%${filters.search}%,bio.ilike.%${filters.search}%,role.ilike.%${filters.search}%,specialty.ilike.%${filters.search}%`)

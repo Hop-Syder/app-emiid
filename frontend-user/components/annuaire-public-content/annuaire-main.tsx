@@ -13,6 +13,7 @@ import { useState } from "react"
 import { AnnuaireHero } from "./annuaire-hero"
 import { AnnuaireFilters } from "./annuaire-filters"
 import { AnnuaireGrid } from "./annuaire-grid"
+import { AnnuaireCategories } from "./annuaire-categories"
 import { AnnuaireProcess } from "./annuaire-process"
 import { AnnuaireCTA } from "./annuaire-cta"
 import { AnnuaireStats } from "./annuaire-stats"
@@ -52,10 +53,23 @@ export function AnnuairePublicContent({
             <div className="absolute top-[60%] right-0 w-96 h-96 bg-purple-500/10 rounded-full blur-[120px] pointer-events-none" />
 
             <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-12">
+                {/* --- 1. HERO SECTION --- */}
                 <AnnuaireHero />
 
+                {/* --- 2. BARRE DE RECHERCHE & FILTRES --- */}
                 <AnnuaireFilters filters={filters} onFilterChange={handleFilterChange} />
 
+                {/* --- 3. EXPLORATEUR DE CATÉGORIES --- */}
+                <motion.div
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.05 }}
+                    className="pt-2"
+                >
+                    <AnnuaireCategories filters={filters} onFilterChange={handleFilterChange} />
+                </motion.div>
+
+                {/* --- 4. GRILLE DES PROFILS PREMIUM --- */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -80,6 +94,7 @@ export function AnnuairePublicContent({
                     </div>
                 </motion.div>
 
+                {/* --- 5. GRILLE DES PROFILS RECOMMANDÉS --- */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -104,7 +119,7 @@ export function AnnuairePublicContent({
                     </div>
                 </motion.div>
 
-                {/* --- SECTIONS SOCIAL PROOF & ACQUISITION --- */}
+                {/* --- 6. SECTIONS D'ACQUISITION (Stats, Process, CTA) --- */}
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -114,14 +129,7 @@ export function AnnuairePublicContent({
                     <AnnuaireStats />
                 </motion.div>
 
-                <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-50px" }}
-                    transition={{ duration: 0.6 }}
-                >
-                    <AnnuaireCTA />
-                </motion.div>
+
 
 
 

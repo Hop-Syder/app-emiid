@@ -5,16 +5,18 @@ import { BadgeCheck, Crown, Globe, Users } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
+import { useDashboardStats, CREDIBLE_FALLBACK_STATS } from "@/hooks/use-dashboard-stats"
+
+const fetcher = (url: string) => fetch(url, { next: { revalidate: 60 } })
+
 export function AnnuaireStats() {
-    // TODO: Connecter à la vraie API de stats si nécessaire
-    // Pour l'instant on utilise des valeurs statiques de "Social Proof" 
-    // qui montrent une plateforme active et crédible.
-    const [stats, setStats] = useState({
-        totalEntrepreneurs: 1250,
-        verifiedMembers: 840,
-        countriesCovered: 15,
-        premiumMembers: 320
+    const { stats: fetchedStats, statsLoading } = useDashboardStats({
+        endpoint: "/api/dashboard-user/stats",
+        fetcher,
+        refreshIntervalMs: 60000,
     })
+
+    const stats = fetchedStats || CREDIBLE_FALLBACK_STATS
 
     const statsItems = [
         { label: "Membres", value: stats.totalEntrepreneurs, icon: Users, color: "text-emerald-400", bg: "bg-emerald-400/10", ring: "ring-emerald-400/20" },
