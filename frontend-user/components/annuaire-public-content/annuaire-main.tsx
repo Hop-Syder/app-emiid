@@ -107,7 +107,7 @@ export function AnnuairePublicContent({
                     </div>
 
                     <div className="pt-4">
-                        <AnnuaireGrid filters={filters} initialProfiles={initialProfiles} />
+                        <AnnuaireGrid filters={filters} initialProfiles={initialProfiles} theme="orange" />
                     </div>
                 </motion.div>
 
