@@ -245,10 +245,15 @@ export function CreerProfilContent() {
                 }
             } else {
                 // Si la réponse n'est pas ok (par exemple 404 car profil non créé)
-                if (profileRes.status === 404 || profileRes.status === 400) {
-                    toast.info("Remplissez le formulaire pour créer votre carte EmiID")
+                if (profileRes.status === 400) {
+                    const errData = await profileRes.json().catch(() => null);
+                    const errMsg = errData?.error || "Erreur de base de données";
+                    toast.error(`Erreur de chargement du profil : ${errMsg}`);
+                    console.error("Détails de l'erreur 400 :", errData);
+                } else if (profileRes.status === 404) {
+                    toast.info("Remplissez le formulaire pour créer votre carte EmiID");
                 } else {
-                    toast.error("Impossible de charger les données existantes")
+                    toast.error("Impossible de charger les données existantes");
                 }
             }
         } catch (error) {
