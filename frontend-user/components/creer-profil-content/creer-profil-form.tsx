@@ -458,7 +458,7 @@ export function CreerProfilForm({
             </FormSection>
 
             {/* ACTION DOCK (Floating) */}
-            <div className="fixed bottom-4 md:bottom-6 left-0 right-0 z-50 px-3 md:px-4 pointer-events-none flex justify-center">
+            <div className="fixed bottom-[96px] md:bottom-6 left-0 right-0 z-50 px-3 md:px-4 pointer-events-none flex justify-center">
                 <motion.div 
                     initial={{ y: 50, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}

@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Wrapper principal pour le contenu de création de profil avec hydratation robuste
  * @created 2026-01-16
- * @updated 2026-04-11
+ * @updated 2026-06-02
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
 */
@@ -436,7 +436,7 @@ export function CreerProfilContent() {
                 </div>
 
                 {/* Mobile Floating Action Button for Preview */}
-                <div className="lg:hidden fixed bottom-[90px] right-4 z-[60]">
+                <div className="lg:hidden fixed bottom-[160px] right-4 z-[60]">
                     <Dialog>
                         <DialogTrigger asChild>
                             <button className="bg-primary text-primary-foreground p-4 rounded-full shadow-2xl flex items-center justify-center hover:scale-105 transition-transform" aria-label="Voir l'aperçu">
