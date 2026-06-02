@@ -8,10 +8,9 @@
  * 📧 daoudaabassichristian@gmail.com
 */
 
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { Send, Paperclip } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
 import { EmojiPickerPopover } from './emoji-picker-popover'
 
@@ -34,21 +33,51 @@ export const MessageInput: React.FC<MessageInputProps> = ({ onSend, isDisabled }
   const [text, setText] = useState('')
   const [file, setFile] = useState<File | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  // Ajuster la hauteur du textarea en fonction du contenu
+  const adjustHeight = () => {
+    const textarea = textareaRef.current
+    if (!textarea) return
+    textarea.style.height = '24px' // Hauteur de base interne
+    const scrollHeight = textarea.scrollHeight
+    // Limite à 140px de hauteur max
+    textarea.style.height = `${Math.min(scrollHeight, 140)}px`
+  }
+
+  useEffect(() => {
+    adjustHeight()
+  }, [text])
 
   // === GESTION DE LA SOUMISSION ===
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent | React.KeyboardEvent) => {
     e.preventDefault()
     if (!text.trim() && !file) return
 
     const type = isSingleEmoji(text) ? 'emoji' : 'text'
-    onSend(text, type, file || undefined)
+    onSend(text.trim(), type, file || undefined)
     setText('')
     setFile(null)
+    
+    // Réinitialiser la hauteur
+    if (textareaRef.current) {
+      textareaRef.current.style.height = '24px'
+    }
   }
 
   // === INSERTION D'EMOJI ===
   const handleEmojiSelect = (emoji: string) => {
     setText((prev) => prev + emoji)
+    // Placer le focus après l'insertion
+    textareaRef.current?.focus()
+  }
+
+  // Soumission via la touche Enter (sans Shift)
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleSubmit(e)
+    }
   }
 
   // === RENDU DU COMPOSANT ===
@@ -58,76 +87,81 @@ export const MessageInput: React.FC<MessageInputProps> = ({ onSend, isDisabled }
         onSubmit={handleSubmit}
         className="flex items-end gap-3 max-w-4xl mx-auto bg-white/80 backdrop-blur-xl p-2 rounded-[28px] shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-white"
       >
-        <div className="flex-1 relative bg-slate-50/50 rounded-[20px] transition-all focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/20">
-        <input 
-          id="message-file-input"
-          name="message_file"
-          type="file" 
-          ref={fileInputRef} 
-          className="hidden" 
-          onChange={(e) => {
-            const selectedFile = e.target.files?.[0]
-            if (selectedFile && selectedFile.size > 10 * 1024 * 1024) {
-              toast.error("Le fichier est trop volumineux (max 10 Mo)")
-              return
-            }
-            setFile(selectedFile || null)
-          }}
-        />
-        
-        <Button 
-          type="button" 
-          variant="ghost" 
-          size="icon" 
-          className="absolute left-1 bottom-1 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl h-9 w-9"
-          onClick={() => fileInputRef.current?.click()}
-        >
-          <Paperclip className="h-4 w-4" />
-        </Button>
-
-        <Input 
-          id="message-text-input"
-          name="message_text"
-          autoComplete="off"
-          placeholder="Message..." 
-          className="border-none bg-transparent pl-11 pr-11 h-11 focus-visible:ring-0 shadow-none font-medium text-[15px]"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          disabled={isDisabled}
-        />
-
-        <EmojiPickerPopover
-          onEmojiSelect={handleEmojiSelect}
-          disabled={isDisabled}
-        />
-      </div>
-
-      <Button 
-        type="submit" 
-        size="icon" 
-        disabled={isDisabled || (!text.trim() && !file)}
-        className="h-11 w-11 rounded-[20px] bg-primary hover:bg-primary/90 shadow-md transition-transform hover:scale-105 active:scale-95 shrink-0"
-      >
-        <Send className="h-4 w-4 ml-0.5" />
-      </Button>
-
-      {file && (
-        <div className="absolute bottom-24 left-4 right-4 md:left-auto md:right-auto md:w-80 bg-white/95 backdrop-blur-md border border-white shadow-xl rounded-2xl p-3 flex items-center gap-3 animate-in slide-in-from-bottom-2">
-          <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary font-bold text-xs">
-            {file.name.split('.').pop()?.toUpperCase()}
-          </div>
-          <span className="text-sm font-medium text-slate-700 flex-1 truncate">{file.name}</span>
+        <div className="flex-1 relative bg-slate-50/50 rounded-[20px] transition-all focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/20 flex items-end">
+          <input 
+            id="message-file-input"
+            name="message_file"
+            type="file" 
+            ref={fileInputRef} 
+            className="hidden" 
+            onChange={(e) => {
+              const selectedFile = e.target.files?.[0]
+              if (selectedFile && selectedFile.size > 10 * 1024 * 1024) {
+                toast.error("Le fichier est trop volumineux (max 10 Mo)")
+                return
+              }
+              setFile(selectedFile || null)
+            }}
+          />
+          
           <Button 
             type="button" 
             variant="ghost" 
             size="icon" 
-            className="h-8 w-8 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
-            onClick={() => setFile(null)}
+            className="text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl h-9 w-9 m-1 shrink-0"
+            onClick={() => fileInputRef.current?.click()}
           >
-            &times;
+            <Paperclip className="h-4 w-4" />
           </Button>
+
+          <textarea 
+            ref={textareaRef}
+            id="message-text-input"
+            name="message_text"
+            rows={1}
+            placeholder="Message..." 
+            className="flex-1 border-none bg-transparent pl-2 pr-11 py-3 focus:outline-none focus:ring-0 shadow-none font-medium text-[15px] resize-none overflow-y-auto max-h-[140px] leading-relaxed text-slate-800 self-center"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            onKeyDown={handleKeyDown}
+            disabled={isDisabled}
+            style={{ height: '24px' }}
+          />
+
+          <div className="absolute right-1 bottom-1">
+            <EmojiPickerPopover
+              onEmojiSelect={handleEmojiSelect}
+              disabled={isDisabled}
+            />
+          </div>
         </div>
-      )}
+
+        <Button 
+          type="submit" 
+          size="icon" 
+          disabled={isDisabled || (!text.trim() && !file)}
+          className="h-11 w-11 rounded-[20px] bg-primary hover:bg-primary/90 shadow-md transition-transform hover:scale-105 active:scale-95 shrink-0"
+        >
+          <Send className="h-4 w-4 ml-0.5" />
+        </Button>
+
+        {file && (
+          <div className="absolute bottom-24 left-4 right-4 md:left-auto md:right-auto md:w-80 bg-white/95 backdrop-blur-md border border-white shadow-xl rounded-2xl p-3 flex items-center gap-3 animate-in slide-in-from-bottom-2">
+            <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary font-bold text-xs">
+              {file.name.split('.').pop()?.toUpperCase()}
+            </div>
+            <span className="text-sm font-medium text-slate-700 flex-1 truncate">{file.name}</span>
+            <Button 
+              type="button" 
+              variant="ghost" 
+              size="icon" 
+              className="h-8 w-8 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
+              onClick={() => setFile(null)}
+            >
+              &times;
+            </Button>
+          </div>
+        )}
       </form>
     </div>
   )

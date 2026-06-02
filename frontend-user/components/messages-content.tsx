@@ -67,21 +67,7 @@ export function MessagesContent() {
   const [isMediationLoading, setIsMediationLoading] = useState(false)
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false)
 
-  const messagesEndRef = useRef<HTMLDivElement>(null)
-  const lastConvIdRef = useRef<string | null>(null)
 
-  const scrollToBottom = useCallback((behavior: "smooth" | "auto" = "smooth") => {
-    setTimeout(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior })
-    }, 100)
-  }, [])
-
-  useEffect(() => {
-    if (!selectedConv) return
-    const isSameConv = lastConvIdRef.current === selectedConv.id
-    lastConvIdRef.current = selectedConv.id
-    scrollToBottom(isSameConv ? "smooth" : "auto")
-  }, [messages, selectedConv?.id, scrollToBottom])
 
   // Mark as read
   const markMessagesAsRead = useCallback(async (conversationId: string) => {
@@ -292,7 +278,6 @@ export function MessagesContent() {
       const content = type === "image" ? `[Image] ${publicUrl}` : `[Fichier] ${file.name} - ${publicUrl}`
 
       const newMsg = await sendMessageToDB(content, selectedConv.other_participant.user_id, convId)
-      setMessages(prev => prev.some(m => m.id === newMsg.id) ? prev : [...prev, newMsg])
       toast.success("Fichier envoyé", { id: uploadToastId })
       return newMsg
     } catch (err) {
@@ -303,9 +288,25 @@ export function MessagesContent() {
   }
 
   const handleSendMessage = async (content: string, type?: "text" | "emoji", file?: File) => {
-    if (!selectedConv || (!content.trim() && !file)) return
+    if (!selectedConv || (!content.trim() && !file) || !currentUserId) return
     
     const isNewConv = selectedConv.id.startsWith('new-')
+    const optimisticId = `optimistic-${Date.now()}`
+    
+    // Message temporaire pour l'optimistic UI
+    const tempMsg: Message = {
+      id: optimisticId,
+      conversation_id: selectedConv.id,
+      sender_id: currentUserId,
+      content: file ? `[Fichier] ${file.name}` : content,
+      is_read: false,
+      is_mediation: false,
+      created_at: new Date().toISOString(),
+      status: 'pending'
+    }
+
+    setMessages(prev => [...prev, tempMsg])
+
     try {
       const convId = await getOrCreateConversationId(selectedConv.other_participant.user_id)
       let newMsg: any
@@ -314,27 +315,51 @@ export function MessagesContent() {
         newMsg = await handleFileUpload(file, convId)
       } else {
         newMsg = await sendMessageToDB(content, selectedConv.other_participant.user_id, convId)
-        setMessages(prev => prev.some(m => m.id === newMsg.id) ? prev : [...prev, newMsg])
+      }
+
+      if (newMsg) {
+        // Remplacer le message temporaire par le vrai message Supabase
+        setMessages(prev => prev.map(m => m.id === optimisticId ? { ...newMsg, status: 'sent' as const } : m))
+
+        // Mettre à jour la conversation dans la liste de gauche
+        setConversations(prev => {
+          return prev.map(c => {
+            if (c.id === selectedConv.id || c.id === convId) {
+              return {
+                ...c,
+                id: convId,
+                last_message: file ? `[Fichier] ${file.name}` : content,
+                last_message_at: newMsg.created_at,
+                updated_at: newMsg.created_at
+              }
+            }
+            return c
+          }).sort((a, b) => {
+            const dateA = new Date(a.last_message_at || a.updated_at).getTime()
+            const dateB = new Date(b.last_message_at || b.updated_at).getTime()
+            return dateB - dateA
+          })
+        })
       }
 
       if (isNewConv && newMsg) {
-        // Recharger les conversations pour avoir la vraie conversation créée avec les vrais profils
         const updatedConvs = await fetchConversations()
         setConversations(updatedConvs)
         
-        // Trouver la conversation nouvellement créée
         const newRealConv = updatedConvs.find(c => c.id === convId)
         if (newRealConv) {
           setSelectedConv(newRealConv)
         } else {
-          // Fallback
           setSelectedConv(prev => prev ? { ...prev, id: convId } : null)
         }
       }
-      scrollToBottom()
+      
+
     } catch (err: any) {
       console.error(err)
-      toast.error(`Échec de l'envoi: ${err?.message || JSON.stringify(err)}`)
+      // Marquer le message comme en erreur
+      setMessages(prev => prev.map(m => m.id === optimisticId ? { ...m, status: 'error' as const } : m))
+      toast.error(`Échec de l'envoi : ${err?.message || "Erreur réseau"}`)
     }
   }
 
@@ -467,7 +492,6 @@ export function MessagesContent() {
               <MessageList 
                 messages={messages} 
                 currentUserId={currentUserId || ''} 
-                scrollRef={messagesEndRef} 
               />
             )}
 

@@ -82,6 +82,13 @@ export function CreerProfilForm({
         }
     }
 
+    const addSuggestedTag = (tag: string) => {
+        const normalized = tag.trim().toLowerCase()
+        if (!tags.includes(normalized)) {
+            handleInputChange("tags", [...tags, normalized] as any)
+        }
+    }
+
     const removeTag = (tagToRemove: string) => {
         handleInputChange("tags", tags.filter(t => t !== tagToRemove) as any)
     }
@@ -403,6 +410,32 @@ export function CreerProfilForm({
                             onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
                         />
                         <Button type="button" onClick={addTag} variant="secondary" className="h-14 rounded-2xl px-6 font-bold shadow-sm w-full sm:w-auto">Ajouter</Button>
+                    </div>
+
+                    {/* Exemples de compétences */}
+                    <div className="space-y-2">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Suggestions :</span>
+                        <div className="flex flex-wrap gap-1.5">
+                            {["React", "TypeScript", "UI/UX", "Marketing", "Photographie", "BTP", "Comptabilité", "Couture", "Vente", "Gestion de Projet"].map((suggestedTag) => {
+                                const isAlreadyAdded = tags.includes(suggestedTag.toLowerCase())
+                                return (
+                                    <button
+                                        key={suggestedTag}
+                                        type="button"
+                                        disabled={isAlreadyAdded}
+                                        onClick={() => addSuggestedTag(suggestedTag)}
+                                        className={cn(
+                                            "text-xs px-3 py-1.5 rounded-xl transition-all border font-semibold",
+                                            isAlreadyAdded
+                                                ? "bg-slate-50 text-slate-300 border-slate-100 cursor-not-allowed"
+                                                : "bg-white text-slate-600 border-slate-200 hover:border-primary/30 hover:bg-primary/5 active:scale-95"
+                                        )}
+                                    >
+                                        + {suggestedTag}
+                                    </button>
+                                )
+                            })}
+                        </div>
                     </div>
                     <div className="flex flex-wrap gap-2 min-h-[40px] pt-2">
                         {tags && tags.length > 0 ? tags.map((tag) => (

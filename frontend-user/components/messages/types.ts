@@ -23,6 +23,7 @@ export interface Message {
   is_mediation: boolean
   created_at: string
   attachment_url?: string
+  status?: 'pending' | 'sent' | 'error'
 }
 
 export interface Conversation {
