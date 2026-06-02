@@ -141,7 +141,9 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
                 <Clock className="h-3 w-3 animate-pulse opacity-80" />
               )}
               {message.status === 'error' && (
-                <AlertCircle className="h-3 w-3 text-red-300" title="Échec de l'envoi" />
+                <span title="Échec de l'envoi">
+                  <AlertCircle className="h-3 w-3 text-red-300" />
+                </span>
               )}
               {(!message.status || message.status === 'sent') && (
                 message.is_read ? (
