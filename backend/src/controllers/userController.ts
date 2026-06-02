@@ -79,7 +79,7 @@ export const getMyProfile = async (req: Request, res: Response) => {
   };
 
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('user_profiles')
       .select('*, countries(name, iso_code), profile_tags(tags(name))')
       .eq('user_id', userId)

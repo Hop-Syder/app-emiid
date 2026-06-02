@@ -150,7 +150,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
 
                 let query = supabase
                     .from("user_profiles")
-                    .select("*, countries(name), profile_tags(tags(name))")
+                    .select("id, user_id, first_name, last_name, bio, city, avatar_url, cover_url, specialty, category, slug, is_verified, is_premium, followers_count, following_count, created_at, email, phone, website, role, countries(name), profile_tags(tags(name))")
 
                 if (isUUID) {
                     query = query.or(`slug.eq.${cleanProfileId},user_id.eq.${cleanProfileId}`)
