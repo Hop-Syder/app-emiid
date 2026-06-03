@@ -796,22 +796,22 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                         {/* Tabs content card */}
                         <div className="bg-white/70 backdrop-blur-xl border border-white/50 rounded-[32px] p-6 sm:p-8 shadow-xl shadow-slate-100/40">
                             <Tabs defaultValue="skills" className="w-full">
-                                <TabsList className="bg-slate-100/50 border border-slate-200/50 w-full justify-start h-auto p-1.5 mb-6 gap-2 rounded-2xl backdrop-blur-sm">
+                                <TabsList className="bg-slate-100/50 border border-slate-200/50 w-full justify-start h-auto p-1.5 mb-6 gap-2 rounded-2xl backdrop-blur-sm flex overflow-x-auto no-scrollbar snap-x whitespace-nowrap">
                                     <TabsTrigger
                                         value="skills"
-                                        className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-[#022753] data-[state=active]:shadow-md data-[state=active]:border-white/80 bg-transparent px-5 py-2.5 text-xs sm:text-sm font-black text-slate-500 transition-all duration-300"
+                                        className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-[#022753] data-[state=active]:shadow-md data-[state=active]:border-white/80 bg-transparent px-5 py-2.5 text-xs sm:text-sm font-black text-slate-500 transition-all duration-300 snap-start shrink-0"
                                     >
                                         Compétences
                                     </TabsTrigger>
                                     <TabsTrigger
                                         value="portfolio"
-                                        className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-[#022753] data-[state=active]:shadow-md data-[state=active]:border-white/80 bg-transparent px-5 py-2.5 text-xs sm:text-sm font-black text-slate-500 transition-all duration-300"
+                                        className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-[#022753] data-[state=active]:shadow-md data-[state=active]:border-white/80 bg-transparent px-5 py-2.5 text-xs sm:text-sm font-black text-slate-500 transition-all duration-300 snap-start shrink-0"
                                     >
                                         Portfolio & Réalisations
                                     </TabsTrigger>
                                     <TabsTrigger
                                         value="experience"
-                                        className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-[#022753] data-[state=active]:shadow-md data-[state=active]:border-white/80 bg-transparent px-5 py-2.5 text-xs sm:text-sm font-black text-slate-500 transition-all duration-300"
+                                        className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-[#022753] data-[state=active]:shadow-md data-[state=active]:border-white/80 bg-transparent px-5 py-2.5 text-xs sm:text-sm font-black text-slate-500 transition-all duration-300 snap-start shrink-0"
                                     >
                                         Parcours & Expériences
                                     </TabsTrigger>
