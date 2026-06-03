@@ -30,7 +30,10 @@ export default function ProfilRedirectPage() {
 
         // Si l'utilisateur est chargé
         if (currentUser) {
-            if (currentUser.has_profile) {
+            // Détection résiliente : s'il a un profil configuré ou des informations essentielles (prénom, nom, slug)
+            const hasProfileConfigured = currentUser.has_profile || !!currentUser.slug || !!currentUser.first_name || !!currentUser.last_name;
+            
+            if (hasProfileConfigured) {
                 const targetIdentifier = currentUser.slug || session?.user?.id
                 router.replace(`/profil/${targetIdentifier}`)
             } else {
