@@ -127,6 +127,8 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
     const [scrolled, setScrolled] = useState(false)
     const [uploadingCover, setUploadingCover] = useState(false)
     const [isOwnProfile, setIsOwnProfile] = useState(false)
+    const [gallery, setGallery] = useState<Array<{ id: string; title: string; description: string; imageUrl: string; status?: string }>>([])
+    const [loadingGallery, setLoadingGallery] = useState(false)
 
     const [isShareModalOpen, setIsShareModalOpen] = useState(false)
     const [copiedLink, setCopiedLink] = useState<string | null>(null)
@@ -232,6 +234,37 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                     setProfile(mappedProfile)
                     setFollowersCount(mappedProfile.followers)
                     setJoinedDate(mappedProfile.joinedDate)
+
+                    // 3. Charger le portfolio / la galerie de projets
+                    setLoadingGallery(true)
+                    try {
+                        let galleryQuery = supabase
+                            .from("project_gallery")
+                            .select("id, title, description, image_url, status")
+                            .eq("profile_id", data.id)
+
+                        // Si ce n'est pas le profil de l'utilisateur connecté, filtrer pour masquer les projets non validés
+                        const { data: { user: currentUser } } = await supabase.auth.getUser()
+                        const isOwnerProfile = currentUser && currentUser.id === (data.user_id || data.id)
+                        if (!isOwnerProfile) {
+                            galleryQuery = galleryQuery.eq("status", "approved")
+                        }
+
+                        const { data: galleryData, error: galleryError } = await galleryQuery.order("order_index", { ascending: true })
+                        if (!galleryError && galleryData) {
+                            setGallery(galleryData.map(item => ({
+                                id: item.id,
+                                title: item.title || "",
+                                description: item.description || "",
+                                imageUrl: item.image_url,
+                                status: item.status
+                            })))
+                        }
+                    } catch (ge) {
+                        console.error("Erreur chargement galerie projets:", ge)
+                    } finally {
+                        setLoadingGallery(false)
+                    }
 
                     try {
                         const followRes = await fetchWithAuth("/api/users/follows")
@@ -752,6 +785,12 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                                         Compétences
                                     </TabsTrigger>
                                     <TabsTrigger
+                                        value="portfolio"
+                                        className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-[#022753] data-[state=active]:shadow-md data-[state=active]:border-white/80 bg-transparent px-5 py-2.5 text-xs sm:text-sm font-black text-slate-500 transition-all duration-300"
+                                    >
+                                        Portfolio & Réalisations
+                                    </TabsTrigger>
+                                    <TabsTrigger
                                         value="experience"
                                         className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-[#022753] data-[state=active]:shadow-md data-[state=active]:border-white/80 bg-transparent px-5 py-2.5 text-xs sm:text-sm font-black text-slate-500 transition-all duration-300"
                                     >
@@ -780,6 +819,51 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                                             </div>
                                         )}
                                     </div>
+                                </TabsContent>
+
+                                <TabsContent value="portfolio" className="animate-in fade-in duration-300 focus-visible:outline-none">
+                                    {loadingGallery ? (
+                                        <div className="flex flex-col items-center justify-center p-12 text-center">
+                                            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#022753] mb-4"></div>
+                                            <p className="text-slate-500 text-xs font-bold">Chargement du portfolio...</p>
+                                        </div>
+                                    ) : gallery.length > 0 ? (
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+                                            {gallery.map((item) => (
+                                                <div
+                                                    key={item.id}
+                                                    className="group bg-white/50 backdrop-blur-md border border-slate-200/50 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 relative"
+                                                >
+                                                    <div className="aspect-video w-full overflow-hidden bg-slate-100 relative">
+                                                        <img
+                                                            src={item.imageUrl}
+                                                            alt={item.title}
+                                                            className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
+                                                        />
+                                                        {item.status === "pending" && (
+                                                            <div className="absolute top-2 right-2 bg-amber-500/90 backdrop-blur-md text-white text-[10px] font-black px-2.5 py-1 rounded-lg border border-amber-400/30">
+                                                                En attente de validation
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <div className="p-5">
+                                                        <h4 className="text-sm font-extrabold text-slate-900 group-hover:text-[#022753] transition-colors duration-300">
+                                                            {item.title}
+                                                        </h4>
+                                                        {item.description && (
+                                                            <p className="text-xs text-slate-500 font-medium mt-1.5 line-clamp-2">
+                                                                {item.description}
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="p-8 border border-dashed border-slate-200 text-center w-full rounded-2xl bg-slate-50/50">
+                                            <p className="text-slate-500 font-bold text-xs">Aucune réalisation publiée pour le moment.</p>
+                                        </div>
+                                    )}
                                 </TabsContent>
 
                                 <TabsContent value="experience" className="animate-in fade-in duration-300 focus-visible:outline-none">

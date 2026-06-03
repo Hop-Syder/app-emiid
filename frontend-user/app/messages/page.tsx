@@ -81,13 +81,6 @@ function MessagesContent() {
                 if (activeConversationId) sendMessage(activeConversationId, content)
               }}
               onBack={handleBack}
-              activeConnection={activeConnection}
-              onSendConnectionRequest={(receiverId) => {
-                sendConnectionRequest(receiverId)
-              }}
-              onRespondConnection={(connectionId, status) => {
-                respondToConnection(connectionId, status)
-              }}
             />
           </div>
         </div>
