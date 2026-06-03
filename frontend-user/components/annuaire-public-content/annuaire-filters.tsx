@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Filtres pour l'annuaire - Refonte Responsive Mobile (Floating Bottom Dock) & Spotlight Fullscreen
  * @created 2026-01-25
- * @updated 2026-06-01
+ * @updated 2026-06-03
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
 */
@@ -165,7 +165,7 @@ export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProp
                 - Mobile: fixed bottom (above mobile dock)
                 - Desktop: sticky top
             */}
-            <div className="fixed bottom-28 left-0 right-0 px-4 md:sticky md:top-[40px] z-[40] md:mb-12 flex justify-center pointer-events-none">
+             <div className="sticky top-4 md:top-[40px] w-full px-4 z-[40] mb-6 md:mb-12 flex justify-center pointer-events-none">
                 <motion.div 
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -274,6 +274,12 @@ export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProp
                                         <X className="w-5 h-5" />
                                     </button>
                                 )}
+                                <Button
+                                    onClick={() => setIsCommandOpen(false)}
+                                    className="md:hidden bg-slate-900 text-white hover:bg-slate-800 rounded-xl px-4 py-2 font-bold text-xs shrink-0 ml-2 h-10 flex items-center justify-center shadow-md shadow-slate-950/10"
+                                >
+                                    Valider
+                                </Button>
                                 <kbd className="hidden md:inline-flex h-6 shrink-0 items-center gap-1 rounded bg-slate-100 px-2 font-mono text-[11px] font-bold text-slate-500 border border-slate-200">
                                     ESC
                                 </kbd>
@@ -366,13 +372,13 @@ export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProp
                                 <Button
                                     variant="ghost"
                                     onClick={resetFilters}
-                                    className="text-slate-500 hover:bg-slate-200/50 rounded-xl font-bold px-4"
+                                    className="text-slate-500 hover:bg-slate-200/50 rounded-xl font-bold px-4 flex-1 md:flex-none"
                                 >
                                     Effacer
                                 </Button>
                                 <Button
                                     onClick={() => setIsCommandOpen(false)}
-                                    className="bg-slate-900 text-white hover:bg-slate-800 rounded-xl px-6 md:px-8 font-bold shadow-lg shadow-slate-900/20 flex-1 ml-4 md:flex-none"
+                                    className="hidden md:flex bg-slate-900 text-white hover:bg-slate-800 rounded-xl px-6 md:px-8 font-bold shadow-lg shadow-slate-900/20 ml-4 md:flex-none"
                                 >
                                     Valider
                                 </Button>

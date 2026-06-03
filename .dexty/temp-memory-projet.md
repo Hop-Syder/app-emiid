@@ -61,6 +61,9 @@
 - [2026-06-03] Harmonisation des routes de navigation publique ("Accueil" -> `/dashboard-public`, "Annuaire" -> `/annuaire`) et intégration de la détection dynamique d'authentification (Supabase) dans `NavigationShell` pour adapter automatiquement l'affichage du menu.
 - [2026-06-03] Refonte complète de `/dashboard-public` : alignement sur le design Luxury Bento / Glassmorphism du hub connecté via `PublicBentoHeader`, intégration de la capture de lead `ProximityLockSection` (cartes floutées), ajout de l'exploration de catégories et harmonisation de la liste des entrepreneurs en vedette.
 - [2026-06-03] Résolution de l'échec de compilation Vercel (TypeScript) en désactivant la vérification de type sur le fichier de messagerie mort `components/messages-content.tsx` via la directive `// @ts-nocheck`.
+- [2026-06-03] Ajustement de l'alignement de la liste des filtres de notifications sur mobile (ajout de `px-6 md:px-1.5`) pour éviter que l'onglet \"Tout\" ne soit collé ou masqué à gauche.
+- [2026-06-03] Déplacement du bouton "Valider" de la modale de filtres de l'annuaire (`annuaire-filters.tsx`) vers le haut à droite du champ de recherche sur mobile, et masquage du bouton en bas pour une ergonomie optimale.
+- [2026-06-03] Positionnement de la barre de filtres de l'annuaire (`annuaire-filters.tsx`) en `sticky top-4` sur mobile (au lieu de `fixed bottom-28`) pour rester collée en haut au défilement et libérer l'espace inférieur au-dessus du MobileDock.
 
 
 

@@ -169,7 +169,7 @@ export default function NotificationsPage() {
             onValueChange={(val) => setActiveTab(val as FilterType)}
             className="w-full md:w-auto"
           >
-            <TabsList className="h-auto md:h-14 p-1.5 bg-white/80 md:bg-white/80 backdrop-blur-md rounded-2xl md:border md:border-slate-200/50 w-full md:w-auto flex overflow-x-auto gap-2 no-scrollbar bg-transparent border-0 snap-x">
+            <TabsList className="h-auto md:h-14 p-1.5 px-6 md:px-1.5 bg-white/80 md:bg-white/80 backdrop-blur-md rounded-2xl md:border md:border-slate-200/50 w-full md:w-auto flex overflow-x-auto gap-2 no-scrollbar bg-transparent border-0 snap-x">
               <TabsTrigger 
                 value="all" 
                 className="flex-shrink-0 px-4 md:px-5 py-2.5 md:py-0 rounded-xl font-bold text-slate-500 hover:text-slate-900 text-[11px] md:text-xs capitalize data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all duration-300 md:h-10 border border-slate-200/50 md:border-0 snap-start bg-white md:bg-transparent"
