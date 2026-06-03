@@ -9,6 +9,9 @@ import { cn } from '@/lib/utils'
 import { Message, Conversation } from '@/hooks/use-chat'
 import Image from 'next/image'
 
+import { Connection } from '@/hooks/use-chat'
+import { UserPlus, Clock, Check, X, ShieldAlert } from 'lucide-react'
+
 interface ChatWindowProps {
   conversation: Conversation | null
   messages: Message[]
@@ -16,6 +19,9 @@ interface ChatWindowProps {
   loading: boolean
   onSendMessage: (content: string) => void
   onBack: () => void
+  activeConnection: Connection | null | undefined
+  onSendConnectionRequest: (receiverId: string) => void
+  onRespondConnection: (connectionId: string, status: 'accepted' | 'declined') => void
   className?: string
 }
 
@@ -26,6 +32,9 @@ export function ChatWindow({
   loading,
   onSendMessage,
   onBack,
+  activeConnection,
+  onSendConnectionRequest,
+  onRespondConnection,
   className
 }: ChatWindowProps) {
   const [inputValue, setInputValue] = useState('')
@@ -133,32 +142,106 @@ export function ChatWindow({
         )}
       </div>
 
-      {/* Input Area */}
+      {/* Connection restrictions / Input Area */}
       <div className="p-3 md:p-4 bg-white border-t border-slate-100 shrink-0">
-        <form onSubmit={handleSend} className="flex items-end gap-2 max-w-4xl mx-auto">
-          <div className="flex-1 flex items-center gap-2 bg-slate-100 rounded-2xl px-3 py-2 border border-slate-200/50 focus-within:border-blue-300 focus-within:ring-4 focus-within:ring-blue-100/50 transition-all">
-            <button type="button" className="p-1.5 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-200 transition-colors">
-              <Smile className="w-5 h-5" />
-            </button>
-            <input
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Écrivez votre message..."
-              className="flex-1 bg-transparent border-none focus:outline-none text-slate-700 placeholder:text-slate-400 text-sm py-1.5"
-            />
-            <button type="button" className="p-1.5 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-200 transition-colors">
-              <ImageIcon className="w-5 h-5" />
+        {activeConnection === undefined ? (
+          <div className="flex items-center justify-center py-4 text-slate-400 text-xs font-semibold">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-slate-400 mr-2"></div>
+            Vérification de la connexion...
+          </div>
+        ) : activeConnection === null || activeConnection.status === 'declined' ? (
+          // Cas 1 : Aucune connexion établie
+          <div className="max-w-xl mx-auto p-4 md:p-6 bg-slate-50 border border-slate-200/60 rounded-3xl text-center space-y-4 shadow-sm animate-in fade-in duration-300">
+            <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto">
+              <UserPlus className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-slate-900">Pas encore connecté(e)</h4>
+              <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1 leading-relaxed">
+                Vous devez faire partie du réseau professionnel de <strong className="text-slate-800">{conversation.other_participant ? `${conversation.other_participant.first_name} ${conversation.other_participant.last_name}` : 'ce membre'}</strong> pour pouvoir échanger des messages.
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                const otherId = conversation.participant1_id === currentUserId 
+                  ? conversation.participant2_id 
+                  : conversation.participant1_id
+                onSendConnectionRequest(otherId)
+              }}
+              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs uppercase tracking-widest rounded-2xl shadow-lg shadow-blue-500/10 hover:shadow-blue-500/20 active:scale-95 transition-all inline-flex items-center gap-2"
+            >
+              <UserPlus className="w-4 h-4" /> Envoyer une demande de connexion
             </button>
           </div>
-          <button 
-            type="submit" 
-            disabled={!inputValue.trim()}
-            className="p-3.5 bg-blue-600 text-white rounded-2xl hover:bg-blue-700 disabled:opacity-50 disabled:hover:bg-blue-600 transition-colors shadow-sm flex items-center justify-center"
-          >
-            <Send className="w-5 h-5" />
-          </button>
-        </form>
+        ) : activeConnection.status === 'pending' && activeConnection.sender_id === currentUserId ? (
+          // Cas 2 : Demande envoyée par nous
+          <div className="max-w-xl mx-auto p-4 md:p-5 bg-slate-50 border border-slate-200/40 rounded-3xl text-center space-y-3 shadow-sm animate-in fade-in duration-300">
+            <div className="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center mx-auto">
+              <Clock className="w-5 h-5 animate-pulse" />
+            </div>
+            <div>
+              <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Demande de connexion envoyée</h4>
+              <p className="text-xs text-slate-500 mt-1 max-w-xs mx-auto leading-relaxed">
+                Dès que {conversation.other_participant?.first_name || 'ce membre'} aura accepté votre invitation, vous pourrez lui envoyer des messages.
+              </p>
+            </div>
+          </div>
+        ) : activeConnection.status === 'pending' && activeConnection.receiver_id === currentUserId ? (
+          // Cas 3 : Demande reçue par nous
+          <div className="max-w-xl mx-auto p-4 md:p-5 bg-slate-50 border border-slate-200 rounded-3xl space-y-4 shadow-sm animate-in fade-in duration-300">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center shrink-0">
+                <ShieldAlert className="w-5 h-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="text-sm font-bold text-slate-900 truncate">Demande de connexion reçue</h4>
+                <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                  {conversation.other_participant ? `${conversation.other_participant.first_name} ${conversation.other_participant.last_name}` : 'Ce membre'} souhaite rejoindre votre réseau de contacts professionnels.
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => onRespondConnection(activeConnection.id, 'accepted')}
+                className="flex-1 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs uppercase tracking-widest rounded-2xl flex items-center justify-center gap-1.5 active:scale-95 shadow-md shadow-emerald-500/10 hover:shadow-emerald-500/20 transition-all"
+              >
+                <Check className="w-4 h-4" /> Accepter
+              </button>
+              <button
+                onClick={() => onRespondConnection(activeConnection.id, 'declined')}
+                className="flex-1 py-3 bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 font-black text-xs uppercase tracking-widest rounded-2xl flex items-center justify-center gap-1.5 active:scale-95 transition-all"
+              >
+                <X className="w-4 h-4" /> Ignorer
+              </button>
+            </div>
+          </div>
+        ) : (
+          // Cas 4 : Connectés (accepted)
+          <form onSubmit={handleSend} className="flex items-end gap-2 max-w-4xl mx-auto animate-in fade-in duration-300">
+            <div className="flex-1 flex items-center gap-2 bg-slate-100 rounded-2xl px-3 py-2 border border-slate-200/50 focus-within:border-blue-300 focus-within:ring-4 focus-within:ring-blue-100/50 transition-all">
+              <button type="button" className="p-1.5 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-200 transition-colors">
+                <Smile className="w-5 h-5" />
+              </button>
+              <input
+                type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                placeholder="Écrivez votre message..."
+                className="flex-1 bg-transparent border-none focus:outline-none text-slate-700 placeholder:text-slate-400 text-sm py-1.5"
+              />
+              <button type="button" className="p-1.5 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-200 transition-colors">
+                <ImageIcon className="w-5 h-5" />
+              </button>
+            </div>
+            <button 
+              type="submit" 
+              disabled={!inputValue.trim()}
+              className="p-3.5 bg-blue-600 text-white rounded-2xl hover:bg-blue-700 disabled:opacity-50 disabled:hover:bg-blue-600 transition-colors shadow-sm flex items-center justify-center"
+            >
+              <Send className="w-5 h-5" />
+            </button>
+          </form>
+        )}
       </div>
     </div>
   )

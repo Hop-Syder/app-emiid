@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
     try {
         const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(cleanId);
         let query = supabase
-            .from('user_profiles')
+            .from('public_profiles')
             .select(`
                 first_name, 
                 last_name, 
@@ -23,7 +23,6 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
                 bio,
                 profile_tags(tags(name))
             `)
-            .eq('is_published', true)
 
         if (isUUID) {
             query = query.or(`slug.eq.${cleanId},user_id.eq.${cleanId}`)
@@ -99,9 +98,8 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     // Fetch base info for JSON-LD (deduped by Next.js/Supabase SSR)
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(cleanId);
     let query = supabase
-        .from('user_profiles')
+        .from('public_profiles')
         .select(`first_name, last_name, specialty, role, city, bio`)
-        .eq('is_published', true)
 
     if (isUUID) {
         query = query.or(`slug.eq.${cleanId},user_id.eq.${cleanId}`)

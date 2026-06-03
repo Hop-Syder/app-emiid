@@ -151,9 +151,13 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                 const isUUID =
                     /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(cleanProfileId)
 
+                let data = null
+                let error = null
+
+                // 1. Tenter de lire directement la table user_profiles (fonctionnera si c'est le profil de l'utilisateur connecté grâce aux RLS)
                 let query = supabase
                     .from("user_profiles")
-                    .select("id, user_id, first_name, last_name, bio, city, avatar_url, cover_url, specialty, category, slug, is_verified, is_premium, followers_count, following_count, created_at, email, phone, website, role, countries(name), profile_tags(tags(name))")
+                    .select("id, user_id, first_name, last_name, bio, city, avatar_url, cover_url, specialty, category, slug, is_published, is_verified, is_premium, followers_count, following_count, created_at, email, phone, website, role, countries(name), profile_tags(tags(name))")
 
                 if (isUUID) {
                     query = query.or(`slug.eq.${cleanProfileId},user_id.eq.${cleanProfileId}`)
@@ -161,7 +165,31 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                     query = query.eq("slug", cleanProfileId)
                 }
 
-                const { data, error } = await query.single()
+                const res = await query.single()
+                data = res.data
+                error = res.error
+
+                // 2. Si non trouvé ou erreur (ex: RLS bloquant l'accès à user_profiles pour les tiers), tenter la vue public_profiles
+                if (error || !data) {
+                    let publicQuery = supabase
+                        .from("public_profiles")
+                        .select("id, user_id, first_name, last_name, bio, city, avatar_url, cover_url, specialty, category, slug, is_published, is_verified, is_premium, followers_count, following_count, created_at, email, phone, website, role, countries(name), profile_tags(tags(name))")
+
+                    if (isUUID) {
+                        publicQuery = publicQuery.or(`slug.eq.${cleanProfileId},user_id.eq.${cleanProfileId}`)
+                    } else {
+                        publicQuery = publicQuery.eq("slug", cleanProfileId)
+                    }
+
+                    const publicRes = await publicQuery.single()
+                    if (publicRes.data && !publicRes.error) {
+                        data = publicRes.data
+                        error = null
+                    } else {
+                        // Conserver la dernière erreur si les deux échouent
+                        error = publicRes.error || error
+                    }
+                }
 
                 if (data && !error) {
                     const countriesData = data.countries as unknown as { name: string }[] | { name: string } | null

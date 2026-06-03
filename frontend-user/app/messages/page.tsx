@@ -20,9 +20,11 @@ function MessagesContent() {
     connections,
     messages,
     activeConversationId,
+    activeConnection,
     loadMessages,
     sendMessage,
     startConversation,
+    sendConnectionRequest,
     respondToConnection,
     clearActiveConversation
   } = useChat()
@@ -79,6 +81,13 @@ function MessagesContent() {
                 if (activeConversationId) sendMessage(activeConversationId, content)
               }}
               onBack={handleBack}
+              activeConnection={activeConnection}
+              onSendConnectionRequest={(receiverId) => {
+                sendConnectionRequest(receiverId)
+              }}
+              onRespondConnection={(connectionId, status) => {
+                respondToConnection(connectionId, status)
+              }}
             />
           </div>
         </div>

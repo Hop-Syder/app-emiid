@@ -193,7 +193,6 @@ export const updateMyProfile = async (req: any, res: Response) => {
     }
 
     // --- PIN SECURITY LOGIC ---
-    // Construction sécurisée de l'objet updates pour éviter les erreurs de colonnes inexistantes
     const updates: any = { 
         user_id: userId,
         first_name, 
@@ -210,6 +209,7 @@ export const updateMyProfile = async (req: any, res: Response) => {
         website,
         is_published,
         card_variant,
+        has_profile: true,
         updated_at: new Date().toISOString()
     };
     

@@ -22,6 +22,7 @@ interface CurrentUserProfile {
     avatar_url?: string
     slug?: string
     is_published?: boolean
+    has_profile?: boolean
 }
 
 function getSessionFallback(session: Session): CurrentUserProfile {
@@ -82,6 +83,7 @@ export function useCurrentUserProfile() {
                     avatar_url: finalAvatar,
                     slug: data?.slug,
                     is_published: data?.is_published,
+                    has_profile: !!data?.has_profile,
                 })
             } catch (error) {
                 console.error("Erreur chargement profil connecté (Backend API):", error)
