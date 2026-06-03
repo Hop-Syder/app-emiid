@@ -226,7 +226,7 @@ export function FollowedProfilesContent() {
     const activeTodayCount = followedProfiles.filter(isActiveToday).length
 
     return (
-        <div className="space-y-10 pb-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full space-y-10 pb-20 pt-8">
             <ProfileStats
                 total={followedProfiles.length}
                 updates={totalUpdates}
@@ -236,16 +236,16 @@ export function FollowedProfilesContent() {
             <Tabs defaultValue="following" onValueChange={setActiveTab} className="w-full">
                 <div className="flex flex-col space-y-6">
                     <div className="flex flex-col md:flex-row gap-6 items-center justify-between">
-                        <TabsList className="h-14 p-1.5 bg-slate-100/50 backdrop-blur-md rounded-2xl border border-slate-200/50 w-full md:w-auto min-w-[320px]">
+                        <TabsList className="h-14 p-1.5 bg-slate-100/40 dark:bg-zinc-900/55 backdrop-blur-md rounded-2xl border border-slate-200/40 dark:border-zinc-800/80 w-full md:w-auto min-w-[320px]">
                             <TabsTrigger 
                                 value="following" 
-                                className="flex-1 rounded-xl font-black text-[10px] uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-lg transition-all duration-300"
+                                className="flex-1 rounded-xl font-bold text-[10px] uppercase tracking-widest text-muted-foreground data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-850 data-[state=active]:text-foreground data-[state=active]:shadow-md transition-all duration-300"
                             >
                                 Favoris ({followedProfiles.length})
                             </TabsTrigger>
                             <TabsTrigger 
                                 value="followers" 
-                                className="flex-1 rounded-xl font-black text-[10px] uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-lg transition-all duration-300"
+                                className="flex-1 rounded-xl font-bold text-[10px] uppercase tracking-widest text-muted-foreground data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-850 data-[state=active]:text-foreground data-[state=active]:shadow-md transition-all duration-300"
                             >
                                 Abonnés ({followers.length})
                             </TabsTrigger>
@@ -253,10 +253,10 @@ export function FollowedProfilesContent() {
 
                         <div className="flex items-center gap-3 w-full md:w-auto">
                             <div className="relative flex-1 md:w-80">
-                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
                                 <Input
                                     placeholder={activeTab === "following" ? "Rechercher un profil..." : "Rechercher un abonné..."}
-                                    className="h-14 pl-12 rounded-2xl bg-white/80 border-none shadow-sm focus-visible:ring-2 focus-visible:ring-blue-500/20 text-sm font-medium transition-all"
+                                    className="h-14 pl-12 rounded-2xl bg-card/65 border-border shadow-sm focus-visible:ring-2 focus-visible:ring-primary/20 text-sm font-medium transition-all"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                 />
@@ -264,19 +264,19 @@ export function FollowedProfilesContent() {
 
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="outline" className="h-14 px-6 rounded-2xl gap-3 border-none bg-white shadow-sm hover:bg-slate-50 transition-all">
-                                        <SlidersHorizontal className="h-4 w-4 text-blue-500" />
-                                        <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">
+                                    <Button variant="outline" className="h-14 px-6 rounded-2xl gap-3 border border-border bg-card/65 shadow-sm hover:bg-muted transition-all">
+                                        <SlidersHorizontal className="h-4 w-4 text-primary dark:text-secondary" />
+                                        <span className="text-[10px] font-bold uppercase tracking-widest hidden sm:inline">
                                             {sortBy === "name" ? "Nom" : sortBy === "followers" ? "Abonnés" : "Récents"}
                                         </span>
                                     </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="rounded-2xl p-2 min-w-[200px] border-none shadow-2xl">
+                                <DropdownMenuContent align="end" className="rounded-2xl p-2 min-w-[200px] border border-border bg-card shadow-xl">
                                     <DropdownMenuLabel className="text-[9px] font-black uppercase tracking-widest opacity-40 px-3 py-2">Trier par</DropdownMenuLabel>
-                                    <DropdownMenuSeparator className="bg-slate-100" />
-                                    <DropdownMenuItem className="rounded-xl font-bold text-sm py-3 px-4 focus:bg-blue-50 focus:text-blue-600 transition-colors" onClick={() => setSortBy("recent")}>Plus récents</DropdownMenuItem>
-                                    <DropdownMenuItem className="rounded-xl font-bold text-sm py-3 px-4 focus:bg-blue-50 focus:text-blue-600 transition-colors" onClick={() => setSortBy("name")}>Nom alphabétique</DropdownMenuItem>
-                                    <DropdownMenuItem className="rounded-xl font-bold text-sm py-3 px-4 focus:bg-blue-50 focus:text-blue-600 transition-colors" onClick={() => setSortBy("followers")}>Nombre d&apos;abonnés</DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem className="rounded-xl font-bold text-sm py-3 px-4 focus:bg-muted focus:text-primary transition-colors cursor-pointer" onClick={() => setSortBy("recent")}>Plus récents</DropdownMenuItem>
+                                    <DropdownMenuItem className="rounded-xl font-bold text-sm py-3 px-4 focus:bg-muted focus:text-primary transition-colors cursor-pointer" onClick={() => setSortBy("name")}>Nom alphabétique</DropdownMenuItem>
+                                    <DropdownMenuItem className="rounded-xl font-bold text-sm py-3 px-4 focus:bg-muted focus:text-primary transition-colors cursor-pointer" onClick={() => setSortBy("followers")}>Nombre d&apos;abonnés</DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </div>
@@ -308,7 +308,8 @@ export function FollowedProfilesContent() {
                                                 premium: !!profile.is_premium,
                                                 card_variant: profile.card_variant,
                                                 verified: !!profile.is_verified,
-                                                notes: profile.notes || undefined
+                                                notes: profile.notes || undefined,
+                                                isActiveToday: isActiveToday(profile)
                                             }}
                                             onUnfollow={handleUnfollow}
                                             onViewProfile={handleViewProfile}
@@ -321,15 +322,15 @@ export function FollowedProfilesContent() {
                                 <motion.div 
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    className="flex flex-col items-center justify-center py-32 bg-white/50 backdrop-blur-sm rounded-[2.5rem] border-2 border-dashed border-slate-200"
+                                    className="flex flex-col items-center justify-center py-32 bg-card/45 backdrop-blur-md rounded-[2.5rem] border-2 border-dashed border-border"
                                 >
-                                    <div className="p-6 rounded-full bg-slate-50 mb-6">
-                                        <UserPlus className="h-12 w-12 text-slate-300" />
+                                    <div className="p-6 rounded-full bg-muted mb-6">
+                                        <UserPlus className="h-12 w-12 text-muted-foreground/60" />
                                     </div>
-                                    <h3 className="text-xl font-black tracking-tight text-slate-900 mb-2">
+                                    <h3 className="text-xl font-bold tracking-tight text-foreground mb-2">
                                         {searchQuery ? "Aucun résultat trouvé" : "Votre portefeuille est vide"}
                                     </h3>
-                                    <p className="text-slate-500 font-medium text-center max-w-sm">
+                                    <p className="text-muted-foreground font-medium text-center max-w-sm text-sm">
                                         {searchQuery 
                                             ? `Nous n'avons trouvé aucun profil correspondant à "${searchQuery}" dans vos favoris.` 
                                             : "Commencez à suivre des membres inspirants pour les retrouver rapidement ici et gérer vos notes."}
@@ -337,7 +338,7 @@ export function FollowedProfilesContent() {
                                     {!searchQuery && (
                                         <Button 
                                             onClick={() => router.push('/annuaire')}
-                                            className="mt-8 h-12 px-8 rounded-2xl bg-blue-600 text-white font-black text-[10px] uppercase tracking-widest shadow-xl shadow-blue-500/20 hover:scale-105 transition-all"
+                                            className="mt-8 h-12 px-8 rounded-2xl bg-primary text-primary-foreground font-bold text-[10px] uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 transition-all"
                                         >
                                             Explorer la communauté
                                         </Button>
@@ -372,7 +373,8 @@ export function FollowedProfilesContent() {
                                                 followers: profile.followers || profile.followers_count || 0,
                                                 premium: !!profile.is_premium,
                                                 card_variant: profile.card_variant,
-                                                verified: !!profile.is_verified
+                                                verified: !!profile.is_verified,
+                                                isActiveToday: isActiveToday(profile)
                                             }}
                                             onViewProfile={handleViewProfile}
                                             onMessage={handleMessage}
@@ -383,13 +385,13 @@ export function FollowedProfilesContent() {
                                 <motion.div 
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    className="flex flex-col items-center justify-center py-32 bg-white/50 backdrop-blur-sm rounded-[2.5rem] border-2 border-dashed border-slate-200"
+                                    className="flex flex-col items-center justify-center py-32 bg-card/45 backdrop-blur-md rounded-[2.5rem] border-2 border-dashed border-border"
                                 >
-                                    <div className="p-6 rounded-full bg-slate-50 mb-6">
-                                        <Loader2 className="h-12 w-12 text-slate-300" />
+                                    <div className="p-6 rounded-full bg-muted mb-6">
+                                        <Loader2 className="h-12 w-12 text-muted-foreground/60" />
                                     </div>
-                                    <h3 className="text-xl font-black tracking-tight text-slate-900 mb-2">Vous n&apos;avez pas encore d&apos;abonnés</h3>
-                                    <p className="text-slate-500 font-medium text-center max-w-sm">
+                                    <h3 className="text-xl font-bold tracking-tight text-foreground mb-2">Vous n&apos;avez pas encore d&apos;abonnés</h3>
+                                    <p className="text-muted-foreground font-medium text-center max-w-sm text-sm">
                                         Partagez votre profil EmiID pour attirer de nouveaux membres et développer votre réseau.
                                     </p>
                                 </motion.div>
@@ -399,5 +401,5 @@ export function FollowedProfilesContent() {
                 </div>
             </Tabs>
         </div>
-    )
+    );
 }

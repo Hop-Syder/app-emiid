@@ -1,205 +1,241 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Carte de profil miniature pour le portefeuille
+ * @description Carte de profil miniature pour le portefeuille avec style Luxury Glassmorphism
  * @created 2026-05-24
+ * @updated 2026-06-03
  * 🌐 ceo.nexuspartners.xyz
-*/
+ */
 
-"use client"
+"use client";
 
-import { StickyNote, Loader2, CheckCircle2, UserMinus, Mail, MapPin, ExternalLink } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { useState } from "react"
-import { Textarea } from "@/components/ui/textarea"
-import { cn } from "@/lib/utils"
-import { motion } from "framer-motion"
+import { StickyNote, Loader2, CheckCircle2, UserMinus, Mail, MapPin, ExternalLink, Save } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { useState } from "react";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 export interface ProfileData {
-    id: string
-    slug?: string
-    name: string
-    role: string
-    location: string
-    avatar: string
-    lastActive: string
-    newUpdates: number
-    lastUpdate: string
-    followers: number
-    premium?: boolean
-    verified?: boolean
-    specialty?: string
-    notes?: string
-    card_variant?: string
+  id: string;
+  slug?: string;
+  name: string;
+  role: string;
+  location: string;
+  avatar: string;
+  lastActive: string;
+  newUpdates: number;
+  lastUpdate: string;
+  followers: number;
+  premium?: boolean;
+  verified?: boolean;
+  specialty?: string;
+  notes?: string;
+  card_variant?: string;
+  isActiveToday?: boolean;
 }
 
 interface ProfileCardMiniProps {
-    profile: ProfileData
-    onUnfollow?: (id: string) => void
-    onViewProfile?: (id: string) => void
-    onSaveNote?: (id: string, note: string) => void
-    onMessage?: (id: string) => void
+  profile: ProfileData;
+  onUnfollow?: (id: string) => void;
+  onViewProfile?: (id: string) => void;
+  onSaveNote?: (id: string, note: string) => void;
+  onMessage?: (id: string) => void;
 }
 
 export function ProfileCardMini({ profile, onUnfollow, onViewProfile, onSaveNote, onMessage }: ProfileCardMiniProps) {
-    const [localNote, setLocalNote] = useState(profile.notes || "")
-    const [isSaving, setIsSaving] = useState(false)
+  const [localNote, setLocalNote] = useState(profile.notes || "");
+  const [isSaving, setIsSaving] = useState(false);
 
-    const handleSave = async () => {
-        setIsSaving(true)
-        try {
-            await onSaveNote?.(profile.id, localNote)
-        } finally {
-            setIsSaving(false)
-        }
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await onSaveNote?.(profile.id, localNote);
+    } finally {
+      setIsSaving(false);
     }
+  };
 
-    const cardBg = profile.premium ? "bg-slate-950/80 text-white border-white/10" : "bg-white/80 text-slate-900 border-slate-200/50"
-    const accentColor = profile.premium ? "text-amber-500" : "text-blue-500"
-    const bgAccent = profile.premium ? "bg-amber-500" : "bg-blue-500"
+  const isPremium = !!profile.premium;
 
-    return (
-        <motion.div 
-            layout
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.98 }}
-            className="group w-full flex flex-col lg:flex-row gap-3 items-stretch"
-        >
-            {/* Bloc Identité (Miniature Minimaliste) */}
-            <Card 
-                className={cn(
-                    "relative w-full lg:w-[350px] rounded-2xl p-4 cursor-pointer overflow-hidden transition-all duration-300 backdrop-blur-xl shadow-sm hover:shadow-md flex flex-col justify-between group/id",
-                    cardBg
-                )}
-                onClick={() => onViewProfile?.(profile.slug || profile.id)}
-            >
-                {profile.premium && (
-                    <div className="absolute top-0 right-0 p-2 opacity-30 pointer-events-none">
-                        <div className="w-16 h-16 bg-amber-500/20 blur-2xl rounded-full" />
-                    </div>
-                )}
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.98 }}
+      transition={{ duration: 0.3 }}
+      className="group w-full flex flex-col lg:flex-row gap-4 items-stretch"
+    >
+      {/* ─── Identity Block ─── */}
+      <Card
+        className={cn(
+          "relative w-full lg:w-[360px] rounded-2xl p-5 cursor-pointer overflow-hidden transition-all duration-300 backdrop-blur-md flex flex-col justify-between group/id shadow-sm border",
+          isPremium
+            ? "bg-slate-950/45 dark:bg-black/50 border-amber-500/25 hover:border-amber-500/50 shadow-[0_0_20px_rgba(212,175,55,0.08)] text-white"
+            : "bg-card/75 border-border hover:border-foreground/20 text-foreground"
+        )}
+        onClick={() => onViewProfile?.(profile.slug || profile.id)}
+      >
+        {isPremium && (
+          <div className="absolute top-0 right-0 p-3 opacity-20 pointer-events-none">
+            <div className="w-20 h-20 bg-amber-500/30 blur-2xl rounded-full" />
+          </div>
+        )}
 
-                <div className="relative z-10 flex flex-row items-center gap-4">
-                    <div className="relative group/avatar shrink-0">
-                        <img 
-                            src={profile.avatar} 
-                            alt={profile.name}
-                            className="relative h-16 w-16 rounded-full object-cover shadow-lg transition-transform duration-300 group-hover/avatar:scale-105"
-                        />
-                        {profile.verified && (
-                            <div className={cn("absolute -bottom-1 -right-1 rounded-full p-1 shadow-sm border-2", profile.premium ? "bg-black border-amber-900" : "bg-white border-blue-100")}>
-                                <CheckCircle2 className={cn("h-3 w-3", accentColor)} />
-                            </div>
-                        )}
-                    </div>
+        <div className="relative z-10 flex flex-row items-center gap-4">
+          <div className="relative shrink-0 group/avatar">
+            <img
+              src={profile.avatar}
+              alt={profile.name}
+              className={cn(
+                "relative h-16 w-16 rounded-full object-cover shadow-md transition-transform duration-300 group-hover/avatar:scale-105",
+                isPremium ? "ring-2 ring-amber-500/30" : "ring-1 ring-border"
+              )}
+            />
+            {profile.verified && (
+              <div className={cn(
+                "absolute -bottom-1 -right-1 rounded-full p-0.5 shadow-sm border-2",
+                isPremium ? "bg-black border-amber-500" : "bg-background border-primary/20"
+              )}>
+                <CheckCircle2 className={cn("h-3.5 w-3.5", isPremium ? "text-amber-500" : "text-primary")} />
+              </div>
+            )}
+          </div>
 
-                    <div className="flex flex-col flex-1 min-w-0">
-                        <h3 className="text-lg font-bold tracking-tight truncate group-hover/id:opacity-80 transition-opacity">
-                            {profile.name}
-                        </h3>
-                        <span className={cn("text-[10px] font-bold uppercase tracking-widest truncate", accentColor)}>
-                            {profile.role}
-                        </span>
-                        <div className="flex items-center gap-1 opacity-50 mt-1 truncate">
-                            <MapPin className="h-3 w-3 shrink-0" />
-                            <span className="text-[10px] font-medium truncate">{profile.location}</span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Actions Rapides - Compactes */}
-                <div className="relative z-10 flex items-center gap-2 mt-4">
-                    <Button
-                        size="sm"
-                        onClick={(e) => { e.stopPropagation(); onMessage?.(profile.id) }}
-                        className={cn(
-                            "flex-1 h-9 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all shadow-sm",
-                            profile.premium ? "bg-amber-500 text-black hover:bg-amber-400" : "bg-blue-600 text-white hover:bg-blue-500"
-                        )}
-                    >
-                        <Mail className="h-3.5 w-3.5 mr-1.5" /> Message
-                    </Button>
-                    <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={(e) => { e.stopPropagation(); onUnfollow?.(profile.id) }}
-                        className={cn(
-                            "h-9 w-9 p-0 rounded-xl transition-all shrink-0",
-                            profile.premium ? "border-white/10 text-white/50 hover:bg-white/10" : "border-slate-200 text-slate-400 hover:bg-slate-100"
-                        )}
-                        title="Ne plus suivre"
-                    >
-                        <UserMinus className="h-4 w-4" />
-                    </Button>
-                    <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={(e) => { e.stopPropagation(); onViewProfile?.(profile.slug || profile.id) }}
-                        className="h-9 w-9 p-0 rounded-xl opacity-50 hover:opacity-100 shrink-0"
-                        title="Voir le profil"
-                    >
-                        <ExternalLink className="h-4 w-4" />
-                    </Button>
-                </div>
-            </Card>
-
-            {/* Bloc CRM Notes - Miniature */}
-            <Card className={cn(
-                "flex-1 p-4 rounded-2xl shadow-sm flex flex-col transition-all duration-300 relative overflow-hidden backdrop-blur-xl",
-                profile.premium ? "bg-slate-900/50 border-white/5 text-white" : "bg-slate-50/80 border-slate-200/50 text-slate-900"
+          <div className="flex flex-col flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <h3 className="text-base font-bold tracking-tight truncate group-hover/id:text-primary dark:group-hover/id:text-secondary transition-colors">
+                {profile.name}
+              </h3>
+              {profile.isActiveToday && (
+                <span className="relative flex h-2 w-2 shrink-0">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                </span>
+              )}
+            </div>
+            
+            <span className={cn(
+              "text-[10px] font-bold uppercase tracking-widest mt-0.5 truncate",
+              isPremium ? "text-amber-400" : "text-primary"
             )}>
-                <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                        <div className="p-1.5 rounded-lg bg-current/5">
-                            <StickyNote className="h-3.5 w-3.5 opacity-70" />
-                        </div>
-                        <span className="text-[10px] font-bold tracking-wider opacity-80">Notes Privées</span>
-                    </div>
-                    {isSaving ? (
-                        <Loader2 className="h-3 w-3 animate-spin opacity-50" />
-                    ) : (
-                        <motion.div 
-                            animate={localNote !== (profile.notes || "") ? { opacity: [0.5, 1, 0.5] } : {}}
-                            transition={{ repeat: Infinity, duration: 2 }}
-                            className={cn(
-                                "h-1.5 w-1.5 rounded-full",
-                                localNote !== (profile.notes || "") ? bgAccent : "bg-green-500/50"
-                            )} 
-                        />
-                    )}
-                </div>
+              {profile.role}
+            </span>
+            <div className="flex items-center gap-1.5 opacity-60 mt-1.5 truncate">
+              <MapPin className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+              <span className="text-[11px] font-medium truncate">{profile.location}</span>
+            </div>
+          </div>
+        </div>
 
-                <div className="flex-1 relative mt-1">
-                    <Textarea
-                        value={localNote}
-                        onChange={(e) => setLocalNote(e.target.value)}
-                        placeholder="Vos observations..."
-                        className="w-full h-full min-h-[60px] text-sm resize-none bg-transparent border-0 focus-visible:ring-0 p-0 shadow-none placeholder:opacity-30 font-medium leading-relaxed"
-                    />
-                </div>
+        {/* Action Buttons */}
+        <div className="relative z-10 flex items-center gap-2 mt-5">
+          <Button
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              onMessage?.(profile.id);
+            }}
+            className={cn(
+              "flex-1 h-9 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all",
+              isPremium
+                ? "bg-amber-500 text-black hover:bg-amber-400"
+                : "bg-primary text-primary-foreground hover:opacity-90"
+            )}
+          >
+            <Mail className="h-3.5 w-3.5 mr-1.5" /> Message
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={(e) => {
+              e.stopPropagation();
+              onUnfollow?.(profile.id);
+            }}
+            className={cn(
+              "h-9 w-9 p-0 rounded-xl transition-all shrink-0 border-border bg-background hover:bg-muted",
+              isPremium ? "text-white/60 hover:text-white" : "text-muted-foreground hover:text-foreground"
+            )}
+            title="Ne plus suivre"
+          >
+            <UserMinus className="h-4 w-4" />
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={(e) => {
+              e.stopPropagation();
+              onViewProfile?.(profile.slug || profile.id);
+            }}
+            className="h-9 w-9 p-0 rounded-xl opacity-60 hover:opacity-100 hover:bg-muted shrink-0 text-muted-foreground"
+            title="Voir le profil"
+          >
+            <ExternalLink className="h-4 w-4" />
+          </Button>
+        </div>
+      </Card>
 
-                <div className="flex items-center justify-between mt-3 pt-3 border-t border-current/10">
-                    <span className="text-[9px] font-medium opacity-50 truncate max-w-[120px]">
-                        {profile.lastUpdate || "Jamais"}
-                    </span>
-                    
-                    <Button
-                        size="sm"
-                        onClick={handleSave}
-                        disabled={isSaving || localNote === (profile.notes || "")}
-                        className={cn(
-                            "h-7 px-4 rounded-lg font-bold text-[9px] uppercase tracking-wider transition-all",
-                            localNote !== (profile.notes || "") 
-                                ? "bg-slate-900 text-white shadow-md hover:bg-slate-800 dark:bg-white dark:text-black" 
-                                : "bg-current/5 text-current/30 cursor-not-allowed"
-                        )}
-                    >
-                        Enregistrer
-                    </Button>
-                </div>
-            </Card>
-        </motion.div>
-    )
+      {/* ─── CRM Notes Block ─── */}
+      <Card className={cn(
+        "flex-1 p-5 rounded-2xl flex flex-col justify-between transition-all duration-300 relative overflow-hidden backdrop-blur-md border shadow-sm",
+        isPremium
+          ? "bg-slate-900/35 border-white/5 text-white"
+          : "bg-card/45 border-border text-foreground"
+      )}>
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 rounded-lg bg-foreground/5">
+                <StickyNote className="h-4 w-4 opacity-75 text-primary dark:text-secondary" />
+              </div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Notes Privées</span>
+            </div>
+            {isSaving ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin opacity-50" />
+            ) : (
+              <div
+                className={cn(
+                  "h-1.5 w-1.5 rounded-full",
+                  localNote !== (profile.notes || "")
+                    ? "bg-primary dark:bg-secondary animate-pulse"
+                    : "bg-green-500/50"
+                )}
+              />
+            )}
+          </div>
+
+          <div className="relative mt-2">
+            <Textarea
+              value={localNote}
+              onChange={(e) => setLocalNote(e.target.value)}
+              placeholder="Ajouter des observations privées sur ce contact..."
+              className="w-full min-h-[60px] text-xs resize-none bg-transparent border-0 focus-visible:ring-0 p-0 shadow-none placeholder:text-muted-foreground/35 font-medium leading-relaxed"
+            />
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/60">
+          <span className="text-[10px] font-semibold text-muted-foreground truncate max-w-[150px]">
+            {profile.lastUpdate || "Aucune note"}
+          </span>
+
+          <Button
+            size="sm"
+            onClick={handleSave}
+            disabled={isSaving || localNote === (profile.notes || "")}
+            className={cn(
+              "h-8 px-4 rounded-xl font-bold text-[9px] uppercase tracking-wider transition-all",
+              localNote !== (profile.notes || "")
+                ? "bg-foreground text-background hover:opacity-90"
+                : "bg-muted text-muted-foreground/50 cursor-not-allowed"
+            )}
+          >
+            <Save className="h-3 w-3 mr-1.5" /> Enregistrer
+          </Button>
+        </div>
+      </Card>
+    </motion.div>
+  );
 }
