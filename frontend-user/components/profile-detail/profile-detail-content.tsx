@@ -159,7 +159,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                 // 1. Tenter de lire directement la table user_profiles (fonctionnera si c'est le profil de l'utilisateur connecté grâce aux RLS)
                 let query = supabase
                     .from("user_profiles")
-                    .select("id, user_id, first_name, last_name, bio, city, avatar_url, cover_url, specialty, category, slug, is_published, is_verified, is_premium, followers_count, following_count, created_at, email, phone, website, role, countries(name), profile_tags(tags(name))")
+                    .select("id, user_id, first_name, last_name, bio, city, avatar_url, cover_url, specialty, category, slug, is_published, is_verified, is_premium, followers_count, created_at, email, phone, website, role, countries(name), profile_tags(tags(name))")
 
                  if (isUUID) {
                     query = query.or(`slug.eq.${cleanProfileId},user_id.eq.${cleanProfileId},id.eq.${cleanProfileId}`)
@@ -179,7 +179,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                 if (error || !data) {
                     let publicQuery = supabase
                         .from("public_profiles")
-                        .select("id, user_id, first_name, last_name, bio, city, avatar_url, cover_url, specialty, category, slug, is_published, is_verified, is_premium, followers_count, following_count, created_at, email, phone, website, role, countries(name), profile_tags(tags(name))")
+                        .select("id, user_id, first_name, last_name, bio, city, avatar_url, cover_url, specialty, category, slug, is_published, is_verified, is_premium, followers_count, created_at, email, phone, website, role, countries(name), profile_tags(tags(name))")
 
                     if (isUUID) {
                         publicQuery = publicQuery.or(`slug.eq.${cleanProfileId},user_id.eq.${cleanProfileId},id.eq.${cleanProfileId}`)
@@ -206,6 +206,20 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                             : (countriesData as { name: string }).name)
                         : ""
 
+                    // Calcul dynamique du nombre de followings (personnes suivies) via la table user_follows
+                    let followingCountVal = 0;
+                    try {
+                        const { count: fCount, error: fErr } = await supabase
+                            .from("user_follows")
+                            .select("*", { count: "exact", head: true })
+                            .eq("follower_id", data.user_id || data.id);
+                        if (!fErr && fCount !== null) {
+                            followingCountVal = fCount;
+                        }
+                    } catch (fe) {
+                        // ignore
+                    }
+
                     const mappedProfile: ProfileData = {
                         id: data.user_id || data.id,
                         name: `${data.first_name || ""} ${data.last_name || ""}`.trim() || "Utilisateur EmiID",
@@ -220,7 +234,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                         verified: !!data.is_verified,
                         premium: !!data.is_premium,
                         followers: data.followers_count || 0,
-                        following: data.following_count || 0,
+                        following: followingCountVal,
                         isOnline: false,
                         isFollowed: false,
                         joinedDate: data.created_at
