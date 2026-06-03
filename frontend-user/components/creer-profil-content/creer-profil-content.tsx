@@ -20,8 +20,8 @@ import { CreerProfilPreview } from "./creer-profil-preview"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { getReferenceCountriesCached, type ReferenceCountry } from "@/lib/location-cache"
 import { toast } from "sonner"
-import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { Eye } from "lucide-react"
+import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog"
+import { Eye, X } from "lucide-react"
 
 interface CreateProfileFormData {
     name: string
@@ -497,11 +497,15 @@ export function CreerProfilContent() {
                                 <Eye className="w-6 h-6" />
                             </button>
                         </DialogTrigger>
-                        <DialogContent className="p-0 border-none bg-transparent shadow-none max-w-sm mx-auto h-[80vh] flex flex-col justify-center">
+                        <DialogContent showCloseButton={false} className="p-0 border-none bg-transparent shadow-none max-w-sm mx-auto h-[80vh] flex flex-col justify-center">
                             <DialogTitle className="sr-only">Aperçu de la carte</DialogTitle>
                             <DialogDescription className="sr-only">Aperçu en direct de votre carte EmiID.</DialogDescription>
-                            <div className="overflow-y-auto w-full no-scrollbar rounded-3xl">
+                            <div className="relative overflow-y-auto w-full no-scrollbar rounded-3xl">
                                 <CreerProfilPreview formData={formData} />
+                                <DialogClose className="absolute top-4 right-4 z-[70] bg-white text-rose-600 hover:text-rose-700 hover:scale-105 active:scale-95 transition-all p-2.5 rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.15)] border border-slate-100 flex items-center justify-center focus:outline-none">
+                                    <X className="w-5 h-5 stroke-[3]" />
+                                    <span className="sr-only">Fermer l'aperçu</span>
+                                </DialogClose>
                             </div>
                         </DialogContent>
                     </Dialog>
