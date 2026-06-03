@@ -64,6 +64,8 @@
 - [2026-06-03] Ajustement de l'alignement de la liste des filtres de notifications sur mobile (ajout de `px-6 md:px-1.5`) pour éviter que l'onglet \"Tout\" ne soit collé ou masqué à gauche.
 - [2026-06-03] Déplacement du bouton "Valider" de la modale de filtres de l'annuaire (`annuaire-filters.tsx`) vers le haut à droite du champ de recherche sur mobile, et masquage du bouton en bas pour une ergonomie optimale.
 - [2026-06-03] Positionnement de la barre de filtres de l'annuaire (`annuaire-filters.tsx`) en `sticky top-4` sur mobile (au lieu de `fixed bottom-28`) pour rester collée en haut au défilement et libérer l'espace inférieur au-dessus du MobileDock.
+- [2026-06-03] Correction de la redirection automatique de `/profil` (`app/profil/page.tsx`) : redirection vers `/creer-profil` (au lieu de `/profil/[uuid]`) si l'utilisateur n'a pas encore configuré de lien unique personnalisé (`slug` absent), évitant l'affichage intempestif de l'erreur "Profil introuvable".
+- [2026-06-03] Ajout de la synchronisation forcée de la session Supabase (`supabase.auth.getSession()`) avant le fetch du profil dans `ProfileDetailContent` pour s'assurer que le token JWT est injecté dans les requêtes et éviter que les règles RLS ne bloquent l'accès aux profils non publiés de l'utilisateur connecté.
 
 
 

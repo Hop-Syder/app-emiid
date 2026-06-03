@@ -30,9 +30,8 @@ export default function ProfilRedirectPage() {
 
         // Si l'utilisateur est chargé
         if (currentUser) {
-            const targetIdentifier = currentUser.slug || session.user.id
-            if (targetIdentifier) {
-                router.replace(`/profil/${targetIdentifier}`)
+            if (currentUser.slug) {
+                router.replace(`/profil/${currentUser.slug}`)
             } else {
                 toast.info("Veuillez d'abord configurer votre profil.")
                 router.replace("/creer-profil")

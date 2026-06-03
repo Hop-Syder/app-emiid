@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Page de détail de profil utilisateur EmiID (refonte UI pro + partage avancé).
  * @created 2026-05-24
- * @updated 2026-06-02
+ * @updated 2026-06-03
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -144,6 +144,9 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
             setLoading(true)
             try {
                 const supabase = createClient()
+                // Garantir l'initialisation et la synchronisation de la session Supabase avant le fetch pour injecter le token JWT
+                await supabase.auth.getSession()
+                
                 const cleanProfileId = profileId.toLowerCase()
                 const isUUID =
                     /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(cleanProfileId)
