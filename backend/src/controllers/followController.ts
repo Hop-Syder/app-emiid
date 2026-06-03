@@ -63,6 +63,7 @@ export const getFollowedProfiles = async (req: any, res: Response) => {
       .from('user_profiles')
       .select(`
           user_id,
+          slug,
           first_name,
           last_name,
           role,
@@ -176,6 +177,7 @@ export const getFollowers = async (req: any, res: Response) => {
       .from('user_profiles')
       .select(`
           user_id,
+          slug,
           first_name,
           last_name,
           role,

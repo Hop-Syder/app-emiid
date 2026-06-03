@@ -49,7 +49,7 @@ export async function middleware(request: NextRequest) {
   // --- ROUTING ---
   // Public sans session: login, callback auth, dashboard public, annuaire et profils publics directs.
   // /profil seul reste privé car il redirige vers le profil du compte connecté.
-  const publicRoutes = new Set(['/login', '/auth/callback', '/dashboard-public'])
+  const publicRoutes = new Set(['/login', '/auth/callback', '/dashboard-public', '/conditions', '/confidentialite'])
   const publicPrefixes = ['/auth/', '/annuaire']
   const isPublicProfileDetail = /^\/profil\/[^/]+\/?$/.test(path)
 

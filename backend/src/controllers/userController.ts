@@ -330,6 +330,45 @@ export const updateMyProfile = async (req: any, res: Response) => {
         }
     }
 
+    // Récupérer le profil complet mis à jour pour le renvoyer de manière cohérente avec le GET
+    try {
+      const { data: updatedProfile, error: refetchError } = await supabaseAdmin
+        .from('user_profiles')
+        .select('*, countries(name, iso_code), profile_tags(tags(name))')
+        .eq('user_id', userId)
+        .single();
+
+      if (!refetchError && updatedProfile) {
+        updatedProfile.tags = updatedProfile.profile_tags?.map((pt: any) => pt.tags?.name).filter(Boolean) || [];
+        delete updatedProfile.profile_tags;
+        
+        // Compléter avec les données d'authentification fallback
+        const authFallback = {
+          first_name: req.user.user_metadata?.first_name || req.user.user_metadata?.given_name || null,
+          last_name: req.user.user_metadata?.last_name || req.user.user_metadata?.family_name || null,
+          email: req.user.email || null,
+          phone: req.user.phone || null,
+          avatar_url: req.user.user_metadata?.avatar_url || null,
+        };
+
+        updatedProfile.first_name = updatedProfile.first_name || authFallback.first_name;
+        updatedProfile.last_name = updatedProfile.last_name || authFallback.last_name;
+        updatedProfile.email = updatedProfile.email || authFallback.email;
+        updatedProfile.phone = updatedProfile.phone || authFallback.phone;
+        updatedProfile.avatar_url = updatedProfile.avatar_url || authFallback.avatar_url;
+        
+        Object.assign(updatedProfile, buildUserSettings(req.user, !!updatedProfile.is_published));
+        
+        return res.json(updatedProfile);
+      }
+      
+      if (refetchError) {
+        logger.error('Erreur lors du refetch complet du profil mis à jour:', refetchError);
+      }
+    } catch (refetchErr) {
+      logger.error('Exception lors du refetch du profil mis à jour:', refetchErr);
+    }
+
     res.json(data);
   } catch (err) {
     res.status(500).json({ error: "Erreur interne lors de la mise à jour du profil" });

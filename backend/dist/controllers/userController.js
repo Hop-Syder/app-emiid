@@ -4,7 +4,8 @@
  * @organization Nexus Partners
  * @description Contrôleur pour la gestion des profils utilisateurs
  * @created 2026-01-04
-*/
+ * @updated 2026-06-03
+ */
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -69,7 +70,7 @@ const getMyProfile = async (req, res) => {
         avatar_url: authUser.user_metadata?.avatar_url || null,
     };
     try {
-        const { data, error } = await supabase_1.supabase
+        const { data, error } = await supabase_1.supabaseAdmin
             .from('user_profiles')
             .select('*, countries(name, iso_code), profile_tags(tags(name))')
             .eq('user_id', userId)
@@ -85,6 +86,13 @@ const getMyProfile = async (req, res) => {
                     message: "Profil à compléter"
                 });
             }
+            logger_1.logger.error('Supabase getMyProfile error details:', {
+                code: error.code,
+                message: error.message,
+                details: error.details,
+                hint: error.hint,
+                userId
+            });
             return res.status(400).json({ error: error.message });
         }
         if (data) {
@@ -154,13 +162,12 @@ const updateMyProfile = async (req, res) => {
         if (finalRole) {
             await supabase_1.supabaseAdmin.from('jobs').upsert({ name: finalRole }, { onConflict: 'name' });
         }
-        // On utilise 'activity_domain' ou 'industry' pour 'industries'
-        const finalDomain = activity_domain || industry;
+        // activity_domain est la source canonique; industry reste un fallback legacy.
+        const finalDomain = activity_domain !== undefined ? activity_domain : industry;
         if (finalDomain) {
             await supabase_1.supabaseAdmin.from('industries').upsert({ name: finalDomain }, { onConflict: 'name' });
         }
         // --- PIN SECURITY LOGIC ---
-        // Construction sécurisée de l'objet updates pour éviter les erreurs de colonnes inexistantes
         const updates = {
             user_id: userId,
             first_name,
@@ -177,6 +184,7 @@ const updateMyProfile = async (req, res) => {
             website,
             is_published,
             card_variant,
+            has_profile: true,
             updated_at: new Date().toISOString()
         };
         // On autorise la suppression du slug si finalSlug est null
@@ -190,28 +198,131 @@ const updateMyProfile = async (req, res) => {
             updates.pin_code = await bcrypt_1.default.hash(pin_code, salt);
             updates.pin_attempts = 0;
         }
-        const { data, error } = await supabase_1.supabaseAdmin
+        // Tenter d'abord une mise à jour via UPDATE
+        let { data, error } = await supabase_1.supabaseAdmin
             .from('user_profiles')
-            .upsert(updates, { onConflict: 'user_id' })
+            .update(updates)
+            .eq('user_id', userId)
             .select()
-            .single();
-        if (error)
-            return res.status(400).json({ error: error.message });
+            .maybeSingle();
+        // S'il n'y avait aucun enregistrement existant, procéder à une insertion (INSERT)
+        if (!error && !data) {
+            const { data: insertedData, error: insertError } = await supabase_1.supabaseAdmin
+                .from('user_profiles')
+                .insert(updates)
+                .select()
+                .single();
+            data = insertedData;
+            error = insertError;
+        }
+        if (error || !data) {
+            logger_1.logger.error('Supabase updateMyProfile error details:', {
+                code: error?.code,
+                message: error?.message,
+                details: error?.details,
+                hint: error?.hint,
+                userId
+            });
+            return res.status(400).json({ error: error?.message || "Impossible de sauvegarder le profil" });
+        }
         // --- TAGS LOGIC ---
         if (tags && Array.isArray(tags)) {
             const profileId = data.id;
-            // Supprimer les anciens tags
-            await supabase_1.supabaseAdmin.from('profile_tags').delete().eq('profile_id', profileId);
-            for (const tagName of tags) {
-                const cleanTag = tagName.toLowerCase().trim();
-                if (cleanTag) {
-                    // Upsert tag
-                    const { data: tagData } = await supabase_1.supabaseAdmin.from('tags').upsert({ name: cleanTag }, { onConflict: 'name' }).select('id').single();
-                    if (tagData) {
-                        await supabase_1.supabaseAdmin.from('profile_tags').insert({ profile_id: profileId, tag_id: tagData.id });
+            try {
+                // Supprimer les anciens tags
+                const { error: deleteError } = await supabase_1.supabaseAdmin.from('profile_tags').delete().eq('profile_id', profileId);
+                if (deleteError) {
+                    logger_1.logger.error('Erreur lors de la suppression des anciennes liaisons profile_tags:', deleteError);
+                }
+                // Filtrer pour éliminer les doublons éventuels du tableau
+                const uniqueTags = Array.from(new Set(tags));
+                for (const tagName of uniqueTags) {
+                    const cleanTag = tagName.toLowerCase().trim();
+                    if (cleanTag) {
+                        // Étape 1 : Récupérer le tag s'il existe déjà
+                        const { data: existingTag, error: selectError } = await supabase_1.supabaseAdmin
+                            .from('tags')
+                            .select('id')
+                            .eq('name', cleanTag)
+                            .maybeSingle();
+                        let finalTagId = existingTag?.id;
+                        if (selectError) {
+                            logger_1.logger.error(`Erreur lors de la recherche du tag "${cleanTag}":`, selectError);
+                        }
+                        // Étape 2 : Si le tag n'existe pas, on tente de l'insérer
+                        if (!finalTagId) {
+                            const { data: newTag, error: insertError } = await supabase_1.supabaseAdmin
+                                .from('tags')
+                                .insert({ name: cleanTag })
+                                .select('id')
+                                .maybeSingle();
+                            finalTagId = newTag?.id;
+                            // Étape 3 : Si conflit d'unicité concurrent (insertError de type duplicate key), on ré-essaie de le lire
+                            if (insertError) {
+                                if (insertError.code === '23505') {
+                                    const { data: retryTag } = await supabase_1.supabaseAdmin
+                                        .from('tags')
+                                        .select('id')
+                                        .eq('name', cleanTag)
+                                        .maybeSingle();
+                                    finalTagId = retryTag?.id;
+                                }
+                                else {
+                                    logger_1.logger.error(`Erreur d'insertion du tag "${cleanTag}":`, insertError);
+                                }
+                            }
+                        }
+                        // Étape 4 : Lier le tag au profil (un simple insert est suffisant et beaucoup plus robuste)
+                        if (finalTagId) {
+                            const { error: ptError } = await supabase_1.supabaseAdmin
+                                .from('profile_tags')
+                                .insert({ profile_id: profileId, tag_id: finalTagId });
+                            if (ptError) {
+                                logger_1.logger.error(`Erreur lors de la liaison du tag "${cleanTag}" (ID: ${finalTagId}) au profil (ID: ${profileId}):`, ptError);
+                            }
+                        }
+                        else {
+                            logger_1.logger.error(`Impossible d'obtenir un ID de tag valide pour "${cleanTag}"`);
+                        }
                     }
                 }
             }
+            catch (tagsCatchErr) {
+                logger_1.logger.error('Exception capturée durant la sauvegarde des tags du profil:', tagsCatchErr);
+            }
+        }
+        // Récupérer le profil complet mis à jour pour le renvoyer de manière cohérente avec le GET
+        try {
+            const { data: updatedProfile, error: refetchError } = await supabase_1.supabaseAdmin
+                .from('user_profiles')
+                .select('*, countries(name, iso_code), profile_tags(tags(name))')
+                .eq('user_id', userId)
+                .single();
+            if (!refetchError && updatedProfile) {
+                updatedProfile.tags = updatedProfile.profile_tags?.map((pt) => pt.tags?.name).filter(Boolean) || [];
+                delete updatedProfile.profile_tags;
+                // Compléter avec les données d'authentification fallback
+                const authFallback = {
+                    first_name: req.user.user_metadata?.first_name || req.user.user_metadata?.given_name || null,
+                    last_name: req.user.user_metadata?.last_name || req.user.user_metadata?.family_name || null,
+                    email: req.user.email || null,
+                    phone: req.user.phone || null,
+                    avatar_url: req.user.user_metadata?.avatar_url || null,
+                };
+                updatedProfile.first_name = updatedProfile.first_name || authFallback.first_name;
+                updatedProfile.last_name = updatedProfile.last_name || authFallback.last_name;
+                updatedProfile.email = updatedProfile.email || authFallback.email;
+                updatedProfile.phone = updatedProfile.phone || authFallback.phone;
+                updatedProfile.avatar_url = updatedProfile.avatar_url || authFallback.avatar_url;
+                Object.assign(updatedProfile, buildUserSettings(req.user, !!updatedProfile.is_published));
+                return res.json(updatedProfile);
+            }
+            if (refetchError) {
+                logger_1.logger.error('Erreur lors du refetch complet du profil mis à jour:', refetchError);
+            }
+        }
+        catch (refetchErr) {
+            logger_1.logger.error('Exception lors du refetch du profil mis à jour:', refetchErr);
         }
         res.json(data);
     }

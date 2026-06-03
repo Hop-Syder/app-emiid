@@ -18,6 +18,7 @@ import { motion } from "framer-motion"
 
 export interface ProfileData {
     id: string
+    slug?: string
     name: string
     role: string
     location: string
@@ -72,7 +73,7 @@ export function ProfileCardMini({ profile, onUnfollow, onViewProfile, onSaveNote
                     "relative w-full lg:w-[350px] rounded-2xl p-4 cursor-pointer overflow-hidden transition-all duration-300 backdrop-blur-xl shadow-sm hover:shadow-md flex flex-col justify-between group/id",
                     cardBg
                 )}
-                onClick={() => onViewProfile?.(profile.id)}
+                onClick={() => onViewProfile?.(profile.slug || profile.id)}
             >
                 {profile.premium && (
                     <div className="absolute top-0 right-0 p-2 opacity-30 pointer-events-none">
@@ -135,7 +136,7 @@ export function ProfileCardMini({ profile, onUnfollow, onViewProfile, onSaveNote
                     <Button
                         size="sm"
                         variant="ghost"
-                        onClick={(e) => { e.stopPropagation(); onViewProfile?.(profile.id) }}
+                        onClick={(e) => { e.stopPropagation(); onViewProfile?.(profile.slug || profile.id) }}
                         className="h-9 w-9 p-0 rounded-xl opacity-50 hover:opacity-100 shrink-0"
                         title="Voir le profil"
                     >

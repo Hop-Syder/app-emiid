@@ -4,7 +4,8 @@
  * @author @hopsyder
  * @organization Nexus Partners
  * @description Point d'entrée du serveur EmiID Backend
- * @updated 2026-05-07
+ * @created 2026-05-07
+ * @updated 2026-06-02
  */
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -13,6 +14,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const dotenv_1 = __importDefault(require("dotenv"));
 const http_1 = __importDefault(require("http"));
 const ws_1 = __importDefault(require("ws"));
+require("./config/supabase"); // Force l'exécution immédiate du diagnostic de clé au boot
 const app_1 = require("./app");
 const logger_1 = require("./utils/logger");
 dotenv_1.default.config();

@@ -20,6 +20,7 @@ import { motion } from "framer-motion"
 
 export interface ProfileData {
     id: string
+    slug?: string
     name: string
     role: string
     location: string
@@ -75,7 +76,7 @@ export function ProfileCard({ profile, onUnfollow, onViewProfile, onSaveNote, on
                     "relative w-full lg:w-[320px] rounded-3xl p-6 cursor-pointer overflow-hidden transition-all duration-300 backdrop-blur-xl shadow-lg hover:shadow-xl flex flex-col justify-between group/id",
                     cardBg
                 )}
-                onClick={() => onViewProfile?.(profile.id)}
+                onClick={() => onViewProfile?.(profile.slug || profile.id)}
             >
                 {profile.premium && (
                     <div className="absolute top-0 right-0 p-4 opacity-30 pointer-events-none">
@@ -192,7 +193,7 @@ export function ProfileCard({ profile, onUnfollow, onViewProfile, onSaveNote, on
                         <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => onViewProfile?.(profile.id)}
+                            onClick={() => onViewProfile?.(profile.slug || profile.id)}
                             className="h-9 px-3 rounded-lg font-bold text-[10px] uppercase tracking-wider opacity-60 hover:opacity-100"
                         >
                             <ExternalLink className="h-4 w-4 mr-2" /> Profil

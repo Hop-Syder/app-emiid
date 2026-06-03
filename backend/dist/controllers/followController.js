@@ -53,6 +53,7 @@ const getFollowedProfiles = async (req, res) => {
             .from('user_profiles')
             .select(`
           user_id,
+          slug,
           first_name,
           last_name,
           role,
@@ -77,7 +78,7 @@ const getFollowedProfiles = async (req, res) => {
             return {
                 ...p,
                 name: `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Membre',
-                location: p.city || "Afrique de l'Ouest",
+                location: p.city || "Afrique ",
                 followers: p.followers_count || 0,
                 notes: followInfo?.notes || null,
                 followed_at: followInfo?.created_at || null,
@@ -158,6 +159,7 @@ const getFollowers = async (req, res) => {
             .from('user_profiles')
             .select(`
           user_id,
+          slug,
           first_name,
           last_name,
           role,
@@ -181,7 +183,7 @@ const getFollowers = async (req, res) => {
             return {
                 ...p,
                 name: `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Membre',
-                location: p.city || "Afrique de l'Ouest",
+                location: p.city || "Afrique ",
                 followers: p.followers_count || 0,
                 followed_at: followInfo?.created_at || null,
                 last_active_at: p.updated_at || p.created_at || null,

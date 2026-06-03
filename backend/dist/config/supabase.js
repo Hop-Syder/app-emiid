@@ -4,7 +4,7 @@
  * @organization Nexus Partners
  * @description Configuration du client Supabase pour le Backend avec support WebSocket
  * @created 2026-01-04
- * @updated 2026-05-07
+ * @updated 2026-06-02
 */
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -30,6 +30,19 @@ function requireEnv(name) {
 const supabaseUrl = requireEnv('SUPABASE_URL');
 const supabaseAnonKey = requireEnv('SUPABASE_ANON_KEY');
 const supabaseServiceRoleKey = requireEnv('SUPABASE_SERVICE_ROLE_KEY');
+try {
+    const parts = supabaseServiceRoleKey.split('.');
+    if (parts.length === 3) {
+        const payload = Buffer.from(parts[1], 'base64').toString('utf-8');
+        logger_1.logger.info(`[Supabase Admin Key Role]: ${payload}`);
+    }
+    else {
+        logger_1.logger.warn('[Supabase Admin Key]: Format de clé invalide (pas 3 parties JWT)');
+    }
+}
+catch (e) {
+    logger_1.logger.error('[Supabase Admin Key]: Impossible de décoder le JWT', e);
+}
 if (supabaseUrl && !supabaseUrl.startsWith('https://')) {
     logger_1.logger.error('Configuration invalide: SUPABASE_URL doit commencer par https://.', supabaseUrl);
     throw new Error('Configuration Supabase invalide: SUPABASE_URL');

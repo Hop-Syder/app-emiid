@@ -13,24 +13,42 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
 
     try {
         const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(cleanId);
-        let query = supabase
-            .from('public_profiles')
-            .select(`
-                first_name, 
-                last_name, 
-                specialty,
-                role,
-                bio,
-                profile_tags(tags(name))
-            `)
+        const profileSelect = `
+            first_name, 
+            last_name, 
+            specialty,
+            role,
+            bio,
+            profile_tags(tags(name))
+        `
+
+        let ownerQuery = supabase
+            .from('user_profiles')
+            .select(profileSelect)
 
         if (isUUID) {
-            query = query.or(`slug.eq.${cleanId},user_id.eq.${cleanId}`)
+            ownerQuery = ownerQuery.or(`slug.eq.${cleanId},user_id.eq.${cleanId}`)
         } else {
-            query = query.eq('slug', cleanId)
+            ownerQuery = ownerQuery.eq('slug', cleanId)
         }
 
-        const { data } = await query.single()
+        const ownerRes = await ownerQuery.maybeSingle()
+        let data = ownerRes.data
+
+        if (!data) {
+            let publicQuery = supabase
+                .from('public_profiles')
+                .select(profileSelect)
+
+            if (isUUID) {
+                publicQuery = publicQuery.or(`slug.eq.${cleanId},user_id.eq.${cleanId}`)
+            } else {
+                publicQuery = publicQuery.eq('slug', cleanId)
+            }
+
+            const publicRes = await publicQuery.maybeSingle()
+            data = publicRes.data
+        }
 
         if (!data) {
             return {
@@ -39,10 +57,7 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
         }
 
         const fullName = `${data.first_name || ''} ${data.last_name || ''}`.trim()
-        
-        // Extraction des tags pour enrichir le SEO
         const tagsList = data.profile_tags?.map((pt: any) => pt.tags?.name).filter(Boolean) || []
-        
         const seoKeywords = [
             fullName,
             data.specialty,
@@ -95,19 +110,58 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     const cleanId = id.toLowerCase()
     const supabase = await createClient()
     
-    // Fetch base info for JSON-LD (deduped by Next.js/Supabase SSR)
-    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(cleanId);
-    let query = supabase
-        .from('public_profiles')
-        .select(`first_name, last_name, specialty, role, city, bio`)
+    let data;
+    try {
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(cleanId);
+        
+        // 1. Tenter de lire directement la table user_profiles (fonctionnera si c'est le profil du propriétaire connecté)
+        let query = supabase
+            .from('user_profiles')
+            .select(`
+                first_name, 
+                last_name, 
+                specialty,
+                role,
+                bio,
+                city,
+                profile_tags(tags(name))
+            `)
 
-    if (isUUID) {
-        query = query.or(`slug.eq.${cleanId},user_id.eq.${cleanId}`)
-    } else {
-        query = query.eq('slug', cleanId)
+        if (isUUID) {
+            query = query.or(`slug.eq.${cleanId},user_id.eq.${cleanId}`)
+        } else {
+            query = query.eq('slug', cleanId)
+        }
+
+        let { data: userData, error } = await query.single()
+        data = userData
+
+        // 2. Repli sur la vue public_profiles pour les tiers ou visiteurs anonymes
+        if (error || !data) {
+            let publicQuery = supabase
+                .from('public_profiles')
+                .select(`
+                    first_name, 
+                    last_name, 
+                    specialty,
+                    role,
+                    bio,
+                    city,
+                    profile_tags(tags(name))
+                `)
+
+            if (isUUID) {
+                publicQuery = publicQuery.or(`slug.eq.${cleanId},user_id.eq.${cleanId}`)
+            } else {
+                publicQuery = publicQuery.eq('slug', cleanId)
+            }
+
+            const { data: publicData } = await publicQuery.single()
+            data = publicData
+        }
+    } catch (e) {
+        // Handle error silently
     }
-
-    const { data } = await query.single()
 
     const jsonLd = data ? {
         '@context': 'https://schema.org',

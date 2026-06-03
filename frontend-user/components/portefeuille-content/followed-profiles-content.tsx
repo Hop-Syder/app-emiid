@@ -35,6 +35,7 @@ import { motion, AnimatePresence } from "framer-motion"
 interface PortfolioProfile {
     id?: string
     user_id?: string
+    slug?: string
     name: string
     role?: string
     location?: string
@@ -52,6 +53,7 @@ interface PortfolioProfile {
 }
 
 const getPortfolioProfileId = (profile: PortfolioProfile) => profile.user_id || profile.id || ""
+const getPortfolioProfileSlug = (profile: PortfolioProfile) => profile.slug || getPortfolioProfileId(profile)
 
 const getProfileLastActive = (profile: PortfolioProfile) => profile.last_active_label || "Activité récente"
 
@@ -208,8 +210,8 @@ export function FollowedProfilesContent() {
         }
     }
 
-    const handleViewProfile = (profileId: string) => {
-        router.push(`/profil/${profileId}`)
+    const handleViewProfile = (profileIdentifier: string) => {
+        router.push(`/profil/${profileIdentifier}`)
     }
 
     const handleMessage = (profileId: string) => {
@@ -294,6 +296,7 @@ export function FollowedProfilesContent() {
                                             key={getPortfolioProfileId(profile)}
                                             profile={{
                                                 id: getPortfolioProfileId(profile),
+                                                slug: getPortfolioProfileSlug(profile),
                                                 name: profile.name,
                                                 role: profile.role || "Membre",
                                                 location: profile.location || "Non renseigné",
@@ -358,6 +361,7 @@ export function FollowedProfilesContent() {
                                             key={`follower-${getPortfolioProfileId(profile)}`}
                                             profile={{
                                                 id: getPortfolioProfileId(profile),
+                                                slug: getPortfolioProfileSlug(profile),
                                                 name: profile.name,
                                                 role: profile.role || "Abonné",
                                                 location: profile.location || "N/A",
