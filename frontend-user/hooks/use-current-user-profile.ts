@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Hook personnalisé pour récupérer les informations de profil de l'utilisateur connecté via l'API backend
  * @created 2026-01-16
- * @updated 2026-06-02
+ * @updated 2026-06-03
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -36,7 +36,7 @@ function getSessionFallback(session: Session): CurrentUserProfile {
 
 export function useCurrentUserProfile() {
     const supabase = useMemo(() => createClient(), [])
-    const [session, setSession] = useState<Session | null>(null)
+    const [session, setSession] = useState<Session | null | undefined>(undefined)
     const [currentUser, setCurrentUser] = useState<CurrentUserProfile | null>(null)
 
     useEffect(() => {
