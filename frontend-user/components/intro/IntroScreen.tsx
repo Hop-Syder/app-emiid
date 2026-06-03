@@ -1,12 +1,12 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Splash screen d'onboarding EmiID avec animations et gestion de l'état d'affichage unique
+ * @description Splash screen d'onboarding EmiID avec animations et gestion de l'état d'affichage unique (couleurs harmonisées avec les variables de thème)
  * @created 2026-05-20
- * @updated 2026-05-20
+ * @updated 2026-06-03
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
-*/
+ */
 // ──────────────────────────────────────────────────────────────────
 
 "use client";
@@ -72,7 +72,7 @@ export default function IntroScreen() {
 
   return (
     <main
-      className="relative flex min-h-screen flex-col items-center justify-between bg-[#0A0A0F] px-6 py-8 overflow-hidden"
+      className="relative flex min-h-screen flex-col items-center justify-between bg-background px-6 py-8 overflow-hidden transition-colors duration-300"
       role="main"
       aria-label={`Introduction EmiID — étape ${currentIndex + 1} sur ${introSlides.length}`}
     >
@@ -81,10 +81,10 @@ export default function IntroScreen() {
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 overflow-hidden"
       >
-        {/* Halo doré subtil */}
-        <div className="absolute -top-32 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-[#D4AF37]/10 blur-3xl" />
+        {/* Halo principal */}
+        <div className="absolute -top-32 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-primary/10 dark:bg-secondary/10 blur-3xl" />
         {/* Halo bas */}
-        <div className="absolute -bottom-20 right-0 h-64 w-64 rounded-full bg-[#1a6b4a]/15 blur-3xl" />
+        <div className="absolute -bottom-20 right-0 h-64 w-64 rounded-full bg-accent/5 dark:bg-accent/15 blur-3xl" />
       </div>
 
       {/* ─── Header : Logo + Skip ─── */}
@@ -97,14 +97,14 @@ export default function IntroScreen() {
             width={100}
             height={32}
             priority
-            className="h-8 w-auto object-contain"
+            className="h-8 w-auto object-contain dark:brightness-100"
           />
         </div>
 
         {/* Bouton Skip — accessible et visible */}
         <button
           onClick={handleSkip}
-          className="rounded-full border border-white/10 px-4 py-1.5 text-sm text-white/50 transition-all duration-200 hover:border-white/30 hover:text-white/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50"
+          className="rounded-full border border-border bg-card/50 backdrop-blur-md px-4 py-1.5 text-sm text-muted-foreground transition-all duration-200 hover:border-foreground/30 hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           aria-label="Passer l'introduction et accéder à la plateforme"
         >
           Passer
@@ -124,7 +124,7 @@ export default function IntroScreen() {
         {/* Illustration */}
         <div
           aria-hidden="true"
-          className="mb-8 flex h-24 w-24 items-center justify-center rounded-full bg-white/5 overflow-hidden ring-1 ring-white/10 relative"
+          className="mb-8 flex h-24 w-24 items-center justify-center rounded-full bg-card shadow-sm border border-border overflow-hidden relative"
         >
           {currentSlide.illustration.startsWith("/") ? (
             <Image
@@ -141,17 +141,17 @@ export default function IntroScreen() {
         </div>
 
         {/* Eyebrow */}
-        <p className="mb-3 text-sm font-medium uppercase tracking-widest text-[#D4AF37]">
+        <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-primary dark:text-secondary">
           {currentSlide.eyebrow}
         </p>
 
-        {/* Headline — typo grande, tutoiement */}
-        <h1 className="mb-4 whitespace-pre-line text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl">
+        {/* Headline — typo grande */}
+        <h1 className="mb-4 whitespace-pre-line text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl">
           {currentSlide.headline}
         </h1>
 
         {/* Corps */}
-        <p className="max-w-sm text-base leading-relaxed text-white/60">
+        <p className="max-w-sm text-base leading-relaxed text-muted-foreground">
           {currentSlide.body}
         </p>
       </section>
@@ -171,21 +171,21 @@ export default function IntroScreen() {
               aria-selected={i === currentIndex}
               aria-label={`Étape ${i + 1}`}
               onClick={() => i < currentIndex && goTo(i)}
-              className={`h-1.5 rounded-full transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50 ${
+              className={`h-1.5 rounded-full transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
                 i === currentIndex
-                  ? "w-8 bg-[#D4AF37]"
+                  ? "w-8 bg-primary dark:bg-secondary"
                   : i < currentIndex
-                  ? "w-1.5 cursor-pointer bg-white/40 hover:bg-white/60"
-                  : "w-1.5 bg-white/20"
+                  ? "w-1.5 cursor-pointer bg-foreground/40 hover:bg-foreground/60"
+                  : "w-1.5 bg-foreground/20"
               }`}
             />
           ))}
         </div>
 
-        {/* CTA principal — orienté bénéfice */}
+        {/* CTA principal */}
         <button
           onClick={handleNext}
-          className="w-full rounded-2xl bg-[#D4AF37] px-8 py-4 text-base font-semibold text-[#0A0A0F] transition-all duration-200 hover:bg-[#e6c84a] hover:scale-[1.02] active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#D4AF37]"
+          className="w-full rounded-2xl bg-primary text-primary-foreground dark:bg-secondary dark:text-secondary-foreground px-8 py-4 text-base font-semibold transition-all duration-200 hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           aria-label={
             isLastSlide
               ? "Créer mon profil gratuit et accéder à EmiID"
@@ -196,7 +196,7 @@ export default function IntroScreen() {
         </button>
 
         {/* Compteur discret */}
-        <p className="text-xs text-white/30" aria-hidden="true">
+        <p className="text-xs text-muted-foreground/50" aria-hidden="true">
           {currentIndex + 1} / {introSlides.length}
         </p>
       </footer>
