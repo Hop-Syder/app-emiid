@@ -84,17 +84,31 @@ export function useChat() {
 
       if (convError) throw convError
 
-      // Récupérer les profils pour chaque interlocuteur
-      const enrichedConvs = await Promise.all((convData || []).map(async (conv) => {
-        const otherId = conv.participant1_id === userId ? conv.participant2_id : conv.participant1_id
-        const { data: profile } = await supabase
+      // Récupérer les profils pour chaque interlocuteur en une seule requête (Batching)
+      const otherUserIds = [...new Set((convData || []).map(conv => 
+        conv.participant1_id === userId ? conv.participant2_id : conv.participant1_id
+      ))]
+
+      let profilesMap: Record<string, any> = {}
+      if (otherUserIds.length > 0) {
+        const { data: profiles } = await supabase
           .from('user_profiles')
           .select('user_id, first_name, last_name, avatar_url, professional_title')
-          .eq('user_id', otherId)
-          .single()
+          .in('user_id', otherUserIds)
         
-        return { ...conv, other_participant: profile } as Conversation
-      }))
+        if (profiles) {
+          profilesMap = profiles.reduce((acc, p) => {
+            acc[p.user_id] = p
+            return acc
+          }, {} as Record<string, any>)
+        }
+      }
+
+      const enrichedConvs = (convData || []).map(conv => {
+        const otherId = conv.participant1_id === userId ? conv.participant2_id : conv.participant1_id
+        return { ...conv, other_participant: profilesMap[otherId] } as Conversation
+      })
+      
       setConversations(enrichedConvs)
 
       // -- B. Charger les Connexions (Demandes en attente) --
@@ -107,16 +121,30 @@ export function useChat() {
 
       if (connError) throw connError
 
-      const enrichedConns = await Promise.all((connData || []).map(async (conn) => {
-        const otherId = conn.sender_id === userId ? conn.receiver_id : conn.sender_id
-        const { data: profile } = await supabase
+      const otherConnUserIds = [...new Set((connData || []).map(conn => 
+        conn.sender_id === userId ? conn.receiver_id : conn.sender_id
+      ))]
+
+      let connProfilesMap: Record<string, any> = {}
+      if (otherConnUserIds.length > 0) {
+        const { data: connProfiles } = await supabase
           .from('user_profiles')
           .select('user_id, first_name, last_name, avatar_url, professional_title')
-          .eq('user_id', otherId)
-          .single()
+          .in('user_id', otherConnUserIds)
         
-        return { ...conn, profile } as Connection
-      }))
+        if (connProfiles) {
+          connProfilesMap = connProfiles.reduce((acc, p) => {
+            acc[p.user_id] = p
+            return acc
+          }, {} as Record<string, any>)
+        }
+      }
+
+      const enrichedConns = (connData || []).map(conn => {
+        const otherId = conn.sender_id === userId ? conn.receiver_id : conn.sender_id
+        return { ...conn, profile: connProfilesMap[otherId] } as Connection
+      })
+      
       setConnections(enrichedConns)
 
     } catch (err) {
