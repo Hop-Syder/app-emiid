@@ -66,7 +66,7 @@ export default async function AnnuairePage({ searchParams }: { searchParams: { [
     const initialProfiles = await fetchInitialProfiles(category, activityDomain)
 
     return (
-        <NavigationShell isPublic={false}>
+        <NavigationShell isPublic={true}>
             <div className="flex-1 w-full min-h-screen flex flex-col pt-8">
                 <AnnuairePublicContent 
                     initialProfiles={initialProfiles} 

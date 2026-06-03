@@ -1,5 +1,7 @@
 "use client"
 
+import { useState, useEffect } from "react"
+import { createClient } from "@/lib/supabase/client"
 import { DesktopSidebar } from "./desktop-sidebar"
 import { MobileDock } from "./mobile-dock"
 import { CommandPalette } from "@/components/command-palette"
@@ -10,10 +12,33 @@ interface NavigationShellProps {
 }
 
 export function NavigationShell({ children, isPublic = false }: NavigationShellProps) {
+  const [effectiveIsPublic, setEffectiveIsPublic] = useState(isPublic)
+
+  useEffect(() => {
+    const supabase = createClient()
+    
+    // Vérification initiale de la session
+    async function checkAuth() {
+      const { data: { session } } = await supabase.auth.getSession()
+      setEffectiveIsPublic(!session)
+    }
+    
+    void checkAuth()
+
+    // Écouter les changements d'état d'authentification
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setEffectiveIsPublic(!session)
+    })
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [])
+
   return (
     <div className="relative min-h-screen bg-slate-50 w-full flex">
       {/* Sidebar pour Desktop */}
-      <DesktopSidebar isPublic={isPublic} />
+      <DesktopSidebar isPublic={effectiveIsPublic} />
 
       {/* 
         Conteneur principal: 
@@ -25,7 +50,7 @@ export function NavigationShell({ children, isPublic = false }: NavigationShellP
       </main>
 
       {/* Dock pour Mobile */}
-      <MobileDock isPublic={isPublic} />
+      <MobileDock isPublic={effectiveIsPublic} />
 
       {/* Palette de commandes (CMD+K) */}
       <CommandPalette />

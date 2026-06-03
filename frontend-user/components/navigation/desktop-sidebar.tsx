@@ -38,8 +38,8 @@ const privateNavItems = [
 ]
 
 const publicNavItems = [
-  { name: "Accueil", href: "/", icon: Home },
-  { name: "Annuaire", href: "/dashboard-public", icon: Users },
+  { name: "Accueil", href: "/dashboard-public", icon: Home },
+  { name: "Annuaire", href: "/annuaire", icon: Users },
   { name: "S'inscrire", href: "/creer-profil", icon: UserPlus },
   { name: "Se connecter", href: "/login", icon: LogIn },
 ]
