@@ -239,7 +239,7 @@ export function ParametresContent() {
     }
 
     return (
-        <div className="max-w-5xl mx-auto space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
             {/* Header de la page */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 bg-white/60 backdrop-blur-xl p-5 md:p-8 rounded-xl md:rounded-xl shadow-xl shadow-slate-200/40 border border-white">
                 <div className="space-y-1.5 md:space-y-2">

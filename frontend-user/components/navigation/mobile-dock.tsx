@@ -11,10 +11,11 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
-import { Home, MessageSquare, Settings, User, Users, UserPlus, LogIn } from "lucide-react"
+import { Home, MessageSquare, Settings, User, Users, UserPlus, LogIn, LogOut } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
+import { createClient } from "@/lib/supabase/client"
 
 const privateNavItems = [
   { name: "Hub", href: "/dashboard-user", icon: Home },
@@ -32,8 +33,16 @@ const publicNavItems = [
 
 export function MobileDock({ isPublic = false }: { isPublic?: boolean }) {
   const pathname = usePathname()
+  const router = useRouter()
+  const supabase = createClient()
   const [showUserMenu, setShowUserMenu] = useState(false)
   const dockRef = useRef<HTMLDivElement>(null)
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    sessionStorage.removeItem("emiid_pin_verified")
+    router.push("/login")
+  }
 
   // Fermer le menu lors d'un clic en dehors
   useEffect(() => {
@@ -71,10 +80,10 @@ export function MobileDock({ isPublic = false }: { isPublic?: boolean }) {
             {/* Lien Mon Profil Public */}
             <Link 
               href="/profil"
-              className="flex items-center gap-2 text-slate-300 hover:text-white px-3 py-1.5 rounded-xl hover:bg-white/5 transition-all outline-none"
+              className="flex items-center gap-1.5 text-slate-300 hover:text-white px-2 py-1.5 rounded-xl hover:bg-white/5 transition-all outline-none"
             >
-              <User className="size-4 text-blue-400" />
-              <span className="text-[10px] font-black uppercase tracking-wider">Profil Public</span>
+              <User className="size-3.5 text-blue-400" />
+              <span className="text-[9px] font-black uppercase tracking-wider">Profil</span>
             </Link>
 
             {/* Séparateur minimaliste */}
@@ -83,11 +92,23 @@ export function MobileDock({ isPublic = false }: { isPublic?: boolean }) {
             {/* Lien Paramètres */}
             <Link 
               href="/parametres"
-              className="flex items-center gap-2 text-slate-300 hover:text-white px-3 py-1.5 rounded-xl hover:bg-white/5 transition-all outline-none"
+              className="flex items-center gap-1.5 text-slate-300 hover:text-white px-2 py-1.5 rounded-xl hover:bg-white/5 transition-all outline-none"
             >
-              <Settings className="size-4 text-emerald-400" />
-              <span className="text-[10px] font-black uppercase tracking-wider">Paramètres</span>
+              <Settings className="size-3.5 text-emerald-400" />
+              <span className="text-[9px] font-black uppercase tracking-wider">Paramètres</span>
             </Link>
+
+            {/* Séparateur minimaliste */}
+            <div className="h-5 w-px bg-white/10" />
+
+            {/* Déconnexion */}
+            <button 
+              onClick={handleLogout}
+              className="flex items-center gap-1.5 text-red-400 hover:text-red-300 px-2 py-1.5 rounded-xl hover:bg-white/5 transition-all outline-none cursor-pointer"
+            >
+              <LogOut className="size-3.5" />
+              <span className="text-[9px] font-black uppercase tracking-wider">Quitter</span>
+            </button>
           </motion.div>
         )}
       </AnimatePresence>

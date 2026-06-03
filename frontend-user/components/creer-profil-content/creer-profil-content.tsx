@@ -388,7 +388,7 @@ export function CreerProfilContent() {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full space-y-6 pb-20">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
                 <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 px-2 md:px-6">
                     <div>
