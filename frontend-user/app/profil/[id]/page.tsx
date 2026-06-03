@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
             .select(profileSelect)
 
         if (isUUID) {
-            ownerQuery = ownerQuery.or(`slug.eq.${cleanId},user_id.eq.${cleanId}`)
+            ownerQuery = ownerQuery.or(`slug.eq.${cleanId},user_id.eq.${cleanId},id.eq.${cleanId}`)
         } else {
             ownerQuery = ownerQuery.eq('slug', cleanId)
         }
@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
                 .select(profileSelect)
 
             if (isUUID) {
-                publicQuery = publicQuery.or(`slug.eq.${cleanId},user_id.eq.${cleanId}`)
+                publicQuery = publicQuery.or(`slug.eq.${cleanId},user_id.eq.${cleanId},id.eq.${cleanId}`)
             } else {
                 publicQuery = publicQuery.eq('slug', cleanId)
             }
@@ -128,7 +128,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
             `)
 
         if (isUUID) {
-            query = query.or(`slug.eq.${cleanId},user_id.eq.${cleanId}`)
+            query = query.or(`slug.eq.${cleanId},user_id.eq.${cleanId},id.eq.${cleanId}`)
         } else {
             query = query.eq('slug', cleanId)
         }
@@ -151,7 +151,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                 `)
 
             if (isUUID) {
-                publicQuery = publicQuery.or(`slug.eq.${cleanId},user_id.eq.${cleanId}`)
+                publicQuery = publicQuery.or(`slug.eq.${cleanId},user_id.eq.${cleanId},id.eq.${cleanId}`)
             } else {
                 publicQuery = publicQuery.eq('slug', cleanId)
             }

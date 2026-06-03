@@ -161,8 +161,8 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                     .from("user_profiles")
                     .select("id, user_id, first_name, last_name, bio, city, avatar_url, cover_url, specialty, category, slug, is_published, is_verified, is_premium, followers_count, following_count, created_at, email, phone, website, role, countries(name), profile_tags(tags(name))")
 
-                if (isUUID) {
-                    query = query.or(`slug.eq.${cleanProfileId},user_id.eq.${cleanProfileId}`)
+                 if (isUUID) {
+                    query = query.or(`slug.eq.${cleanProfileId},user_id.eq.${cleanProfileId},id.eq.${cleanProfileId}`)
                 } else {
                     query = query.eq("slug", cleanProfileId)
                 }
@@ -171,6 +171,10 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                 data = res.data
                 error = res.error
 
+                if (error) {
+                    console.log("[ProfileDetailContent] Échec de lecture user_profiles, tentative public_profiles...", error.message);
+                }
+
                 // 2. Si non trouvé ou erreur (ex: RLS bloquant l'accès à user_profiles pour les tiers), tenter la vue public_profiles
                 if (error || !data) {
                     let publicQuery = supabase
@@ -178,7 +182,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                         .select("id, user_id, first_name, last_name, bio, city, avatar_url, cover_url, specialty, category, slug, is_published, is_verified, is_premium, followers_count, following_count, created_at, email, phone, website, role, countries(name), profile_tags(tags(name))")
 
                     if (isUUID) {
-                        publicQuery = publicQuery.or(`slug.eq.${cleanProfileId},user_id.eq.${cleanProfileId}`)
+                        publicQuery = publicQuery.or(`slug.eq.${cleanProfileId},user_id.eq.${cleanProfileId},id.eq.${cleanProfileId}`)
                     } else {
                         publicQuery = publicQuery.eq("slug", cleanProfileId)
                     }
@@ -188,6 +192,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                         data = publicRes.data
                         error = null
                     } else {
+                        console.error("[ProfileDetailContent] Échec final de chargement du profil:", publicRes.error);
                         // Conserver la dernière erreur si les deux échouent
                         error = publicRes.error || error
                     }
