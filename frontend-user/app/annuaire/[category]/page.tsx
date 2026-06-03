@@ -21,9 +21,9 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     const { category } = await params
     return (
         <NavigationShell isPublic={true}>
-<div className="flex-1 w-full min-h-screen flex flex-col">
-            <AnnuairePublicContent initialCategory={category} />
-        </div>
-</NavigationShell>
+            <div className="flex-1 w-full min-h-screen flex flex-col">
+                <AnnuairePublicContent initialCategory={category} />
+            </div>
+        </NavigationShell>
     )
 }

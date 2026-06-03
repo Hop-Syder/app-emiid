@@ -1,4 +1,4 @@
-import { NavigationShell } from "@/components/navigation/navigation-shell"
+import { ProtectedShell } from "@/components/navigation/protected-shell"
 
 export default function PortefeuilleLayout({
     children,
@@ -6,8 +6,6 @@ export default function PortefeuilleLayout({
     children: React.ReactNode
 }) {
     return (
-        <NavigationShell>
-            {children}
-        </NavigationShell>
+        <ProtectedShell>{children}</ProtectedShell>
     )
 }

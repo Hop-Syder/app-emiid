@@ -186,8 +186,8 @@ export const updateMyProfile = async (req: any, res: Response) => {
     if (finalRole) {
       await supabaseAdmin.from('jobs').upsert({ name: finalRole }, { onConflict: 'name' });
     }
-    // On utilise 'activity_domain' ou 'industry' pour 'industries'
-    const finalDomain = activity_domain || industry;
+    // activity_domain est la source canonique; industry reste un fallback legacy.
+    const finalDomain = activity_domain !== undefined ? activity_domain : industry;
     if (finalDomain) {
       await supabaseAdmin.from('industries').upsert({ name: finalDomain }, { onConflict: 'name' });
     }
@@ -701,5 +701,4 @@ export const verifyPhone = async (req: any, res: Response) => {
     res.status(500).json({ error: "Erreur lors de la vérification" });
   }
 };
-
 

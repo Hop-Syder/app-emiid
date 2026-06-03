@@ -48,10 +48,10 @@ export function EntrepreneursSection({ entrepreneursList, loading, variant = "te
         }
     }
 
-    const handleCardAction = async (type: 'message' | 'follow' | 'view', entrepreneurId?: string) => {
+    const handleCardAction = async (type: 'message' | 'follow' | 'view', entrepreneurId?: string, profileIdentifier?: string) => {
         if (!entrepreneurId) return
         if (type === "view") {
-            router.push(`/profil/${entrepreneurId}`)
+            router.push(`/profil/${profileIdentifier || entrepreneurId}`)
             return
         }
         if (type === "follow") {
@@ -162,7 +162,7 @@ export function EntrepreneursSection({ entrepreneursList, loading, variant = "te
                                     }}
                                     variant={variant}
                                     isFollowed={!!entrepreneur.isFollowed}
-                                    onAction={(type) => handleCardAction(type, entrepreneur.id)}
+                                    onAction={(type) => handleCardAction(type, entrepreneur.id, entrepreneur.slug)}
                                 />
                             </div>
                         </motion.div>
@@ -189,4 +189,3 @@ export function EntrepreneursSection({ entrepreneursList, loading, variant = "te
         </section>
     )
 }
-

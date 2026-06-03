@@ -9,15 +9,14 @@
 */
 
 import { CreerProfilContent } from "@/components/creer-profil-content"
-import { NavigationShell } from "@/components/navigation/navigation-shell"
+import { ProtectedShell } from "@/components/navigation/protected-shell"
 
 export default function CreateProfilePage() {
   return (
-    <NavigationShell isPublic={false}>
+    <ProtectedShell>
       <div className="flex-1 w-full min-h-screen flex flex-col pt-8">
         <CreerProfilContent />
       </div>
-    </NavigationShell>
+    </ProtectedShell>
   )
 }
-

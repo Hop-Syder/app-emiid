@@ -8,7 +8,7 @@
  * 📧 daoudaabassichristian@gmail.com
  */
 
-import { NavigationShell } from "@/components/navigation/navigation-shell"
+import { ProtectedShell } from "@/components/navigation/protected-shell"
 
 export default function NotificationsLayout({
   children,
@@ -16,8 +16,6 @@ export default function NotificationsLayout({
   children: React.ReactNode
 }) {
   return (
-    <NavigationShell>
-      {children}
-    </NavigationShell>
+    <ProtectedShell>{children}</ProtectedShell>
   )
 }

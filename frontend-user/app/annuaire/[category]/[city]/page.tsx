@@ -24,9 +24,9 @@ export default async function CityPage({ params }: CityPageProps) {
     
     return (
         <NavigationShell isPublic={true}>
-<div className="flex-1 w-full min-h-screen flex flex-col">
-            <AnnuairePublicContent initialCategory={category} initialCity={cityName} />
-        </div>
-</NavigationShell>
+            <div className="flex-1 w-full min-h-screen flex flex-col">
+                <AnnuairePublicContent initialCategory={category} initialCity={cityName} />
+            </div>
+        </NavigationShell>
     )
 }

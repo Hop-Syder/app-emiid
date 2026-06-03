@@ -13,7 +13,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
-import { Home, MessageSquare, Wallet, Settings, User, Users, UserPlus, LogIn } from "lucide-react"
+import { Home, MessageSquare, Settings, User, Users, UserPlus, LogIn } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 
 const privateNavItems = [
@@ -27,7 +27,6 @@ const privateNavItems = [
 const publicNavItems = [
   { name: "Accueil", href: "/dashboard-public", icon: Home },
   { name: "Annuaire", href: "/annuaire", icon: Users },
-  { name: "S'inscrire", href: "/creer-profil", icon: UserPlus },
   { name: "Se connecter", href: "/login", icon: LogIn },
 ]
 

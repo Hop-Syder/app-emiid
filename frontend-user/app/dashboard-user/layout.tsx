@@ -1,5 +1,4 @@
-import { PinGate } from "@/components/PinGate"
-import { NavigationShell } from "@/components/navigation/navigation-shell"
+import { ProtectedShell } from "@/components/navigation/protected-shell"
 
 export default function DashboardLayout({
     children,
@@ -7,10 +6,6 @@ export default function DashboardLayout({
     children: React.ReactNode
 }) {
     return (
-        <NavigationShell>
-            <PinGate>
-                {children}
-            </PinGate>
-        </NavigationShell>
+        <ProtectedShell>{children}</ProtectedShell>
     )
 }

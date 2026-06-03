@@ -1,6 +1,6 @@
 "use client"
 
-import { EmiIDProfileCard, EmiIDCardVariant } from "@/components/carte-profil/emiid-profile-card"
+import { EmiIDProfileCard } from "@/components/carte-profil/emiid-profile-card"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { useState, useEffect } from "react"
@@ -18,6 +18,7 @@ export interface Profile {
     projects?: number
     premium?: boolean
     id?: string
+    slug?: string
     card_variant?: string
     isFollowed?: boolean
 }
@@ -44,7 +45,8 @@ export function AnnuaireCard({ profile, theme = 'default' }: AnnuaireCardProps) 
 
     const handleAction = async (type: 'message' | 'follow' | 'view') => {
         if (type === 'view') {
-            if (profile.id) router.push(`/profil/${profile.id}`)
+            const profileIdentifier = profile.slug || profile.id
+            if (profileIdentifier) router.push(`/profil/${profileIdentifier}`)
             return
         }
 

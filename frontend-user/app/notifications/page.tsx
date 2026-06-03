@@ -14,7 +14,7 @@ import { useState, useMemo, useEffect } from "react"
 import { useNotifications } from "@/hooks/use-notifications"
 import { NotificationItem } from "@/components/notifications/notification-item"
 import { NotificationSettings } from "@/components/notifications/notification-settings"
-import { Bell, CheckCheck, Sparkles, AlertCircle, Inbox } from "lucide-react"
+import { Bell, CheckCheck, Inbox } from "lucide-react"
 import { Preloader } from "@/components/Preloader"
 import { motion, AnimatePresence } from "framer-motion"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -30,7 +30,8 @@ export default function NotificationsPage() {
     markAsRead, 
     markAllAsRead, 
     deleteNotification,
-    isLoading 
+    isLoading,
+    error,
   } = useNotifications()
   
   const [activeTab, setActiveTab] = useState<FilterType>("all")
@@ -49,6 +50,12 @@ export default function NotificationsPage() {
     })
   }, [supabase])
 
+  useEffect(() => {
+    if (error) {
+      toast.error("Impossible de charger les notifications.")
+    }
+  }, [error])
+
   // Filtrage des notifications selon l'onglet actif
   const filteredNotifications = useMemo(() => {
     if (activeTab === "all") return notifications
@@ -60,7 +67,7 @@ export default function NotificationsPage() {
     })
   }, [notifications, activeTab])
 
-  // Groupement des notifications par période (Aujourd'hui, Hier, Plus ancien)
+  // Groupement des notifications par période (Aujourd&apos;hui, Hier, Plus ancien)
   const groupedNotifications = useMemo(() => {
     const today: typeof notifications = []
     const yesterday: typeof notifications = []
@@ -139,7 +146,7 @@ export default function NotificationsPage() {
             </div>
             <div>
               <h1 className="text-xl md:text-3xl font-black text-slate-900 tracking-tight flex flex-wrap items-center gap-2 md:gap-3">
-                Centre d'Alertes
+                Centre d&apos;Alertes
                 {unreadCount > 0 && (
                   <span className="text-[10px] md:text-xs font-bold px-2.5 py-1 rounded-full bg-blue-100 text-blue-600 border border-blue-200/50 whitespace-nowrap">
                     {unreadCount} non lue{unreadCount > 1 ? "s" : ""}
@@ -147,7 +154,7 @@ export default function NotificationsPage() {
                 )}
               </h1>
               <p className="text-slate-500 text-xs md:text-sm font-medium mt-1 leading-relaxed max-w-lg">
-                Gérez vos notifications système, messages et l'activité de votre réseau en temps réel.
+                Gérez vos notifications système, messages et l&apos;activité de votre réseau en temps réel.
               </p>
             </div>
           </div>
@@ -211,10 +218,10 @@ export default function NotificationsPage() {
           <div className="lg:col-span-8 space-y-8">
             {totalFilteredCount > 0 ? (
               <div className="space-y-8">
-                {/* Aujourd'hui */}
+                {/* Aujourd&apos;hui */}
                 {groupedNotifications.today.length > 0 && (
                   <div className="space-y-4">
-                    <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 pl-2">Aujourd'hui</h3>
+                    <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 pl-2">Aujourd&apos;hui</h3>
                     <div className="space-y-4">
                       <AnimatePresence mode="popLayout">
                         {groupedNotifications.today.map((notif) => (

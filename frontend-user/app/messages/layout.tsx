@@ -1,4 +1,4 @@
-import { NavigationShell } from "@/components/navigation/navigation-shell"
+import { ProtectedShell } from "@/components/navigation/protected-shell"
 
 export default function MessagesLayout({
     children,
@@ -6,10 +6,10 @@ export default function MessagesLayout({
     children: React.ReactNode
 }) {
     return (
-        <NavigationShell>
+        <ProtectedShell>
             <div className="h-[calc(100vh-80px)] md:h-screen w-full bg-slate-50 overflow-hidden flex flex-col">
                 {children}
             </div>
-        </NavigationShell>
+        </ProtectedShell>
     )
 }

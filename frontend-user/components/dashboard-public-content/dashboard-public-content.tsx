@@ -117,6 +117,7 @@ export function DashboardPublicContent({ initialStats = null, initialProfiles = 
                         const profileId = e.user_id || e.id || "0"
                         return {
                             id: profileId,
+                            slug: e.slug || undefined,
                             name: (e.first_name || e.last_name) ? `${e.first_name || ''} ${e.last_name || ''}`.trim() : "Utilisateur EmiID",
                             role: e.role || "Membre EmiID",
                             location: e.city ? `${e.city}, ${e.countries?.name || ''}` : (e.countries?.name || "Afrique "),

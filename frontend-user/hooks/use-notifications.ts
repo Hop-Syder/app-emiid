@@ -26,12 +26,17 @@ export function useNotifications() {
     const [notifications, setNotifications] = useState<Notification[]>([])
     const [unreadCount, setUnreadCount] = useState(0)
     const [userId, setUserId] = useState<string | null>(null)
+    const [isLoading, setIsLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
     const supabase = useMemo(() => createClient(), [])
 
     useEffect(() => {
         let isMounted = true
 
         const loadNotifications = async () => {
+            setIsLoading(true)
+            setError(null)
+
             const { data: { user } } = await supabase.auth.getUser()
             if (!isMounted) {
                 return
@@ -41,6 +46,7 @@ export function useNotifications() {
                 setUserId(null)
                 setNotifications([])
                 setUnreadCount(0)
+                setIsLoading(false)
                 return
             }
 
@@ -57,10 +63,17 @@ export function useNotifications() {
                 return
             }
 
-            if (!error && data) {
-                setNotifications(data)
-                setUnreadCount(data.filter((notification) => !notification.is_read).length)
+            if (error) {
+                setError(error.message)
+                setNotifications([])
+                setUnreadCount(0)
+            } else {
+                const nextNotifications = data || []
+                setNotifications(nextNotifications)
+                setUnreadCount(nextNotifications.filter((notification) => !notification.is_read).length)
             }
+
+            setIsLoading(false)
         }
 
         void loadNotifications()
@@ -87,7 +100,12 @@ export function useNotifications() {
                 },
                 (payload) => {
                     const newNotif = payload.new as Notification
-                    setNotifications((prev) => [newNotif, ...prev])
+                    setNotifications((prev) => {
+                        if (prev.some((notification) => notification.id === newNotif.id)) {
+                            return prev
+                        }
+                        return [newNotif, ...prev]
+                    })
                     setUnreadCount((prev) => prev + (newNotif.is_read ? 0 : 1))
                 }
             )
@@ -105,10 +123,13 @@ export function useNotifications() {
             .eq('id', id)
 
         if (!error) {
+            const wasUnread = notifications.some((notification) => notification.id === id && !notification.is_read)
             setNotifications((prev) => prev.map((notification) =>
                 notification.id === id ? { ...notification, is_read: true } : notification
             ))
-            setUnreadCount((prev) => Math.max(0, prev - 1))
+            if (wasUnread) {
+                setUnreadCount((prev) => Math.max(0, prev - 1))
+            }
         }
     }
 
@@ -155,7 +176,7 @@ export function useNotifications() {
         markAsRead, 
         markAllAsRead, 
         deleteNotification,
-        isLoading: userId === null && notifications.length === 0
+        isLoading,
+        error,
     }
 }
-

@@ -32,6 +32,7 @@ export interface UserProfile {
 
 export interface PublicProfile {
     id: string;
+    slug?: string;
     name: string;
     role: string;
     location: string;

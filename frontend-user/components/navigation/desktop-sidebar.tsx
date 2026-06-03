@@ -40,7 +40,6 @@ const privateNavItems = [
 const publicNavItems = [
   { name: "Accueil", href: "/dashboard-public", icon: Home },
   { name: "Annuaire", href: "/annuaire", icon: Users },
-  { name: "S'inscrire", href: "/creer-profil", icon: UserPlus },
   { name: "Se connecter", href: "/login", icon: LogIn },
 ]
 
@@ -68,6 +67,7 @@ export function DesktopSidebar({ isPublic = false }: { isPublic?: boolean }) {
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
+    sessionStorage.removeItem("emiid_pin_verified")
     router.push("/login")
   }
 

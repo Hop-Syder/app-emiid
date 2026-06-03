@@ -114,6 +114,7 @@ export async function GET(request: NextRequest) {
             const profileId = e.user_id || e.id || "0"
             return {
                 id: profileId,
+                slug: e.slug || undefined,
                 name: (e.first_name || e.last_name)
                     ? `${e.first_name || ""} ${e.last_name || ""}`.trim()
                     : "Utilisateur EmiID",

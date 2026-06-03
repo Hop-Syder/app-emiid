@@ -46,11 +46,11 @@ export function EntrepreneursSection({ entrepreneursList, loading }: Entrepreneu
         }
     }
 
-    const handleCardAction = async (type: 'message' | 'follow' | 'view', entrepreneurId?: string) => {
+    const handleCardAction = async (type: 'message' | 'follow' | 'view', entrepreneurId?: string, profileIdentifier?: string) => {
         if (!entrepreneurId) return
 
         if (type === "view") {
-            router.push(`/profil/${entrepreneurId}`)
+            router.push(`/profil/${profileIdentifier || entrepreneurId}`)
             return
         }
 
@@ -185,7 +185,7 @@ export function EntrepreneursSection({ entrepreneursList, loading }: Entrepreneu
                                         }}
                                         variant="tech"
                                         isFollowed={!!entrepreneur.isFollowed}
-                                        onAction={(type) => handleCardAction(type, entrepreneur.id)}
+                                        onAction={(type) => handleCardAction(type, entrepreneur.id, entrepreneur.slug)}
                                     />
                                 </div>
                             </motion.div>
