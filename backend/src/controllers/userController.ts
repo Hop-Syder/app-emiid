@@ -263,7 +263,10 @@ export const updateMyProfile = async (req: any, res: Response) => {
         // Supprimer les anciens tags
         await supabaseAdmin.from('profile_tags').delete().eq('profile_id', profileId);
         
-        for (const tagName of tags) {
+        // Filtrer pour éliminer les doublons éventuels du tableau
+        const uniqueTags = Array.from(new Set(tags));
+        
+        for (const tagName of uniqueTags) {
             const cleanTag = tagName.toLowerCase().trim();
             if (cleanTag) {
                 // Upsert tag
@@ -288,7 +291,8 @@ export const updateMyProfile = async (req: any, res: Response) => {
                 }
 
                 if (finalTagId) {
-                    await supabaseAdmin.from('profile_tags').insert({ profile_id: profileId, tag_id: finalTagId });
+                    // Utiliser upsert au lieu d'insert pour éviter toute erreur de clé primaire dupliquée sur profile_tags
+                    await supabaseAdmin.from('profile_tags').upsert({ profile_id: profileId, tag_id: finalTagId });
                 }
             }
         }
