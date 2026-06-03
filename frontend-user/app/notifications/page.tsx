@@ -14,7 +14,8 @@ import { useState, useMemo, useEffect } from "react"
 import { useNotifications } from "@/hooks/use-notifications"
 import { NotificationItem } from "@/components/notifications/notification-item"
 import { NotificationSettings } from "@/components/notifications/notification-settings"
-import { Bell, CheckCheck, Loader2, Sparkles, AlertCircle, Inbox } from "lucide-react"
+import { Bell, CheckCheck, Sparkles, AlertCircle, Inbox } from "lucide-react"
+import { Preloader } from "@/components/Preloader"
 import { motion, AnimatePresence } from "framer-motion"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { toast } from "sonner"
@@ -116,15 +117,11 @@ export default function NotificationsPage() {
 
   if (isLoading || !userChecked) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[70vh] gap-6">
-        <div className="relative">
-          <div className="h-20 w-20 rounded-full border-4 border-blue-500/10 border-t-blue-500 animate-spin" />
-          <Bell className="absolute inset-0 m-auto h-8 w-8 text-blue-500 animate-pulse" />
-        </div>
-        <p className="text-slate-400 font-bold text-sm tracking-widest uppercase animate-pulse">
-          Chargement de vos alertes...
-        </p>
-      </div>
+      <Preloader 
+        text="Chargement de vos alertes..." 
+        subtext="Synchronisation avec le flux de notifications EmiID"
+        minHeight="min-h-[70vh]" 
+      />
     )
   }
 

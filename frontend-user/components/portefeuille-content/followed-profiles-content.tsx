@@ -14,7 +14,8 @@ import { useState, useEffect, useMemo } from "react"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { ProfileStats } from "./profile-stats"
 import { ProfileCardMini } from "./profile-card-mini"
-import { Loader2, Search, SlidersHorizontal, UserPlus } from "lucide-react"
+import { Search, SlidersHorizontal, UserPlus } from "lucide-react"
+import { Preloader } from "@/components/Preloader"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
@@ -216,15 +217,7 @@ export function FollowedProfilesContent() {
     }
 
     if (loading) {
-        return (
-            <div className="flex flex-col items-center justify-center py-32 gap-6">
-                <div className="relative">
-                    <div className="h-20 w-20 rounded-full border-4 border-primary/10 border-t-primary animate-spin" />
-                    <Loader2 className="absolute inset-0 m-auto h-8 w-8 text-primary animate-pulse" />
-                </div>
-                <p className="text-muted-foreground font-black text-xl tracking-widest uppercase animate-pulse">Initialisation...</p>
-            </div>
-        )
+        return <Preloader text="Chargement de votre portefeuille" minHeight="min-h-[400px]" />
     }
 
     const totalUpdates = 0

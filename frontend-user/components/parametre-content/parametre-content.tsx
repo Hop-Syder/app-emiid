@@ -11,7 +11,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Loader2, User, Shield, Bell, Settings, Star } from "lucide-react"
+import { User, Shield, Bell, Settings, Star } from "lucide-react"
+import { Preloader } from "@/components/Preloader"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { toast } from "sonner"
@@ -229,16 +230,11 @@ export function ParametresContent() {
 
     if (loading) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-[500px] gap-6 animate-in fade-in duration-500">
-                <div className="relative flex items-center justify-center">
-                    <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse" />
-                    <Loader2 className="h-12 w-12 animate-spin text-primary relative z-10" />
-                </div>
-                <div className="space-y-1 text-center">
-                    <p className="text-xl font-bold text-slate-900">Préparation de votre espace</p>
-                    <p className="text-sm font-medium text-slate-500">Chargement de vos paramètres de compte...</p>
-                </div>
-            </div>
+            <Preloader 
+                text="Préparation de votre espace" 
+                subtext="Chargement de vos paramètres de compte..." 
+                minHeight="min-h-[500px]" 
+            />
         )
     }
 
