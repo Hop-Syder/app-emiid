@@ -61,7 +61,6 @@ export function useChat() {
   const [loading, setLoading] = useState(true)
   const [messagesLoading, setMessagesLoading] = useState(false)
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null)
-  const [activeConnection, setActiveConnection] = useState<Connection | null | undefined>(undefined)
 
   // 1. Initialiser l'utilisateur courant
   useEffect(() => {
@@ -209,58 +208,13 @@ export function useChat() {
       })
       .subscribe()
 
-  // Écoute des nouvelles connexions et modifications
+    // Écoute des nouvelles connexions
     const connectionChannel = supabase.channel('connections-changes')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'connections' }, (payload) => {
-        const newConn = payload.new as Connection
-        if (currentUser && (newConn.receiver_id === currentUser || newConn.sender_id === currentUser)) {
-          loadInitialData(currentUser)
-          // Si le changement concerne la conversation active, rafraîchir
-          if (activeConversationId) {
-            const conversation = conversations.find(c => c.id === activeConversationId)
-            if (conversation) {
-              const otherId = conversation.participant1_id === currentUser 
-                ? conversation.participant2_id 
-                : conversation.participant1_id
-              if (newConn.sender_id === otherId || newConn.receiver_id === otherId) {
-                setActiveConnection(newConn)
-              }
-            }
-          }
-        }
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'connections', filter: `receiver_id=eq.${currentUser}` }, () => {
+        loadInitialData(currentUser)
       })
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'connections' }, (payload) => {
-        const updatedConn = payload.new as Connection
-        if (currentUser && (updatedConn.receiver_id === currentUser || updatedConn.sender_id === currentUser)) {
-          loadInitialData(currentUser)
-          // Si le changement concerne la conversation active, rafraîchir
-          if (activeConversationId) {
-            const conversation = conversations.find(c => c.id === activeConversationId)
-            if (conversation) {
-              const otherId = conversation.participant1_id === currentUser 
-                ? conversation.participant2_id 
-                : conversation.participant1_id
-              if (updatedConn.sender_id === otherId || updatedConn.receiver_id === otherId) {
-                setActiveConnection(updatedConn)
-              }
-            }
-          }
-        }
-      })
-      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'connections' }, (payload) => {
-        const deletedConn = payload.old as Connection
-        if (activeConversationId) {
-          const conversation = conversations.find(c => c.id === activeConversationId)
-          if (conversation) {
-            const otherId = conversation.participant1_id === currentUser 
-              ? conversation.participant2_id 
-              : conversation.participant1_id
-            if (deletedConn.sender_id === otherId || deletedConn.receiver_id === otherId || deletedConn.id === activeConnection?.id) {
-              setActiveConnection(null)
-            }
-          }
-        }
-        if (currentUser) loadInitialData(currentUser)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'connections' }, () => {
+        loadInitialData(currentUser)
       })
       .subscribe()
 
@@ -268,44 +222,7 @@ export function useChat() {
       supabase.removeChannel(messageChannel)
       supabase.removeChannel(connectionChannel)
     }
-  }, [currentUser, activeConversationId, supabase, loadInitialData, conversations, activeConnection])
-
-  // -- VÉRIFICATION STATUT DE CONNEXION AVEC UN COLLÈGUE --
-
-  const checkConnectionStatus = useCallback(async (otherId: string) => {
-    if (!currentUser) return null
-    try {
-      const { data, error } = await supabase
-        .from('connections')
-        .select('*')
-        .or(`and(sender_id.eq.${currentUser},receiver_id.eq.${otherId}),and(sender_id.eq.${otherId},receiver_id.eq.${currentUser})`)
-        .maybeSingle()
-
-      if (error) throw error
-      return data as Connection | null
-    } catch (err) {
-      console.error("Erreur lors de la vérification de la connexion:", err)
-      return null
-    }
-  }, [currentUser, supabase])
-
-  // Charger le statut de connexion dès qu'une conversation devient active
-  useEffect(() => {
-    if (activeConversationId && currentUser) {
-      const conversation = conversations.find(c => c.id === activeConversationId)
-      if (conversation) {
-        const otherId = conversation.participant1_id === currentUser 
-          ? conversation.participant2_id 
-          : conversation.participant1_id
-        
-        checkConnectionStatus(otherId).then(conn => {
-          setActiveConnection(conn)
-        })
-      }
-    } else {
-      setActiveConnection(undefined)
-    }
-  }, [activeConversationId, currentUser, conversations, checkConnectionStatus])
+  }, [currentUser, activeConversationId, supabase, loadInitialData])
 
 
   // -- ACTIONS --
@@ -363,31 +280,6 @@ export function useChat() {
     return null
   }
 
-  const sendConnectionRequest = async (receiverId: string) => {
-    if (!currentUser) return null
-    try {
-      const { data, error } = await supabase
-        .from('connections')
-        .insert({
-          sender_id: currentUser,
-          receiver_id: receiverId,
-          status: 'pending'
-        })
-        .select()
-        .single()
-
-      if (error) throw error
-      
-      // Mettre à jour les données locales
-      loadInitialData(currentUser)
-      setActiveConnection(data as Connection)
-      return data
-    } catch (err) {
-      console.error("Erreur envoi demande de connexion:", err)
-      return null
-    }
-  }
-
   const respondToConnection = async (connectionId: string, status: 'accepted' | 'declined') => {
     const { error } = await supabase
       .from('connections')
@@ -396,17 +288,7 @@ export function useChat() {
       
     if (!error) {
       setConnections(prev => prev.filter(c => c.id !== connectionId))
-      
-      // Si la connexion modifiée est la connexion active de la conversation courante, on la met à jour
-      if (activeConnection && activeConnection.id === connectionId) {
-        if (status === 'accepted') {
-          setActiveConnection(prev => prev ? { ...prev, status } : null)
-        } else {
-          setActiveConnection(null)
-        }
-      }
-
-      if (currentUser) {
+      if (status === 'accepted' && currentUser) {
         loadInitialData(currentUser)
       }
     }
@@ -415,7 +297,6 @@ export function useChat() {
   const clearActiveConversation = () => {
     setActiveConversationId(null)
     setMessages([])
-    setActiveConnection(undefined)
   }
 
   return {
@@ -426,13 +307,10 @@ export function useChat() {
     connections,
     messages,
     activeConversationId,
-    activeConnection,
     loadMessages,
     sendMessage,
     startConversation,
-    sendConnectionRequest,
     respondToConnection,
     clearActiveConversation
   }
 }
-

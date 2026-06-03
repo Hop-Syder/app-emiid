@@ -20,11 +20,9 @@ function MessagesContent() {
     connections,
     messages,
     activeConversationId,
-    activeConnection,
     loadMessages,
     sendMessage,
     startConversation,
-    sendConnectionRequest,
     respondToConnection,
     clearActiveConversation
   } = useChat()

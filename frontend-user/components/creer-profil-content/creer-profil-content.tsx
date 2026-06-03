@@ -1,9 +1,9 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Wrapper principal pour le contenu de création de profil avec hydratation robuste
+ * @description Wrapper principal pour le contenu de création de profil avec hydratation robuste et support des tags et secteurs
  * @created 2026-01-16
- * @updated 2026-06-02
+ * @updated 2026-06-03
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
 */
@@ -27,6 +27,7 @@ interface CreateProfileFormData {
     name: string
     role: string
     category: string
+    activity_domain: string
     card_variant: string
     country_id: string
     country_code: string
@@ -70,6 +71,7 @@ const buildProfilePayload = (formData: CreateProfileFormData, isPublished: boole
         last_name: nameParts.slice(1).join(" ") || "",
         role: formData.role.trim(),
         category: formData.category,
+        activity_domain: formData.activity_domain,
         specialty: formData.specialty.trim(),
         bio: formData.bio.trim(),
         phone: formData.phone.trim(),
@@ -161,6 +163,7 @@ export function CreerProfilContent() {
         name: "",
         role: "",
         category: "",
+        activity_domain: "",
         card_variant: "glass-blue",
         country_id: "",
         country_code: "",
@@ -220,6 +223,7 @@ export function CreerProfilContent() {
                         name: fullName || "",
                         role: data.role || data.job_title || "",
                         category: data.category || "",
+                        activity_domain: data.activity_domain || "",
                         card_variant: data.card_variant || "glass-blue",
                         specialty: data.specialty || "",
                         bio: data.bio || "",

@@ -260,41 +260,73 @@ export const updateMyProfile = async (req: any, res: Response) => {
     // --- TAGS LOGIC ---
     if (tags && Array.isArray(tags)) {
         const profileId = data.id;
-        // Supprimer les anciens tags
-        await supabaseAdmin.from('profile_tags').delete().eq('profile_id', profileId);
-        
-        // Filtrer pour éliminer les doublons éventuels du tableau
-        const uniqueTags = Array.from(new Set(tags));
-        
-        for (const tagName of uniqueTags) {
-            const cleanTag = tagName.toLowerCase().trim();
-            if (cleanTag) {
-                // Upsert tag
-                const { data: tagData, error: tagError } = await supabaseAdmin
-                    .from('tags')
-                    .upsert({ name: cleanTag }, { onConflict: 'name' })
-                    .select('id')
-                    .maybeSingle(); // maybeSingle évite de lever une exception si rien n'est retourné
-
-                let finalTagId = tagData?.id;
-
-                // Fallback : Si l'upsert n'a pas retourné l'ID (conflit d'unicité sans mise à jour), on récupère le tag par son nom
-                if (!finalTagId || tagError) {
-                    const { data: existingTag } = await supabaseAdmin
+        try {
+            // Supprimer les anciens tags
+            const { error: deleteError } = await supabaseAdmin.from('profile_tags').delete().eq('profile_id', profileId);
+            if (deleteError) {
+                logger.error('Erreur lors de la suppression des anciennes liaisons profile_tags:', deleteError);
+            }
+            
+            // Filtrer pour éliminer les doublons éventuels du tableau
+            const uniqueTags = Array.from(new Set(tags));
+            
+            for (const tagName of uniqueTags) {
+                const cleanTag = tagName.toLowerCase().trim();
+                if (cleanTag) {
+                    // Étape 1 : Récupérer le tag s'il existe déjà
+                    const { data: existingTag, error: selectError } = await supabaseAdmin
                         .from('tags')
                         .select('id')
                         .eq('name', cleanTag)
                         .maybeSingle();
-                    if (existingTag) {
-                        finalTagId = existingTag.id;
+
+                    let finalTagId = existingTag?.id;
+
+                    if (selectError) {
+                        logger.error(`Erreur lors de la recherche du tag "${cleanTag}":`, selectError);
+                    }
+
+                    // Étape 2 : Si le tag n'existe pas, on tente de l'insérer
+                    if (!finalTagId) {
+                        const { data: newTag, error: insertError } = await supabaseAdmin
+                            .from('tags')
+                            .insert({ name: cleanTag })
+                            .select('id')
+                            .maybeSingle();
+
+                        finalTagId = newTag?.id;
+
+                        // Étape 3 : Si conflit d'unicité concurrent (insertError de type duplicate key), on ré-essaie de le lire
+                        if (insertError) {
+                            if (insertError.code === '23505') {
+                                const { data: retryTag } = await supabaseAdmin
+                                    .from('tags')
+                                    .select('id')
+                                    .eq('name', cleanTag)
+                                    .maybeSingle();
+                                finalTagId = retryTag?.id;
+                            } else {
+                                logger.error(`Erreur d'insertion du tag "${cleanTag}":`, insertError);
+                            }
+                        }
+                    }
+
+                    // Étape 4 : Lier le tag au profil (un simple insert est suffisant et beaucoup plus robuste)
+                    if (finalTagId) {
+                        const { error: ptError } = await supabaseAdmin
+                            .from('profile_tags')
+                            .insert({ profile_id: profileId, tag_id: finalTagId });
+                        
+                        if (ptError) {
+                            logger.error(`Erreur lors de la liaison du tag "${cleanTag}" (ID: ${finalTagId}) au profil (ID: ${profileId}):`, ptError);
+                        }
+                    } else {
+                        logger.error(`Impossible d'obtenir un ID de tag valide pour "${cleanTag}"`);
                     }
                 }
-
-                if (finalTagId) {
-                    // Utiliser upsert au lieu d'insert pour éviter toute erreur de clé primaire dupliquée sur profile_tags
-                    await supabaseAdmin.from('profile_tags').upsert({ profile_id: profileId, tag_id: finalTagId });
-                }
             }
+        } catch (tagsCatchErr) {
+            logger.error('Exception capturée durant la sauvegarde des tags du profil:', tagsCatchErr);
         }
     }
 

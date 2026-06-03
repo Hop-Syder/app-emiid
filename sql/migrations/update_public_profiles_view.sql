@@ -43,5 +43,12 @@ WHERE is_published = TRUE;
 
 -- 2. Ré-accorder les privilèges de lecture sur la vue pour tout le monde (anonymes et connectés)
 GRANT SELECT ON public.public_profiles TO anon, authenticated;
+GRANT SELECT ON public.tags TO anon, authenticated;
+GRANT SELECT ON public.profile_tags TO anon, authenticated;
 
-SELECT '✅ Migration de la vue public_profiles (ajout slug, email, phone) appliquée avec succès' as status;
+-- 3. Rétrocompatibilité : marquer has_profile à true pour tous les profils existants déjà configurés
+UPDATE public.user_profiles
+SET has_profile = TRUE
+WHERE has_profile = FALSE AND (first_name IS NOT NULL OR last_name IS NOT NULL OR slug IS NOT NULL);
+
+SELECT '✅ Migration de la vue public_profiles et correction rétroactive de has_profile appliquées avec succès' as status;
