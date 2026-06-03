@@ -1,9 +1,20 @@
+/**
+ * @author @hopsyder
+ * @organization Nexus Partners
+ * @description Barre de navigation mobile flottante (Mobile Dock) avec sous-menu interactif
+ * @created 2026-01-16
+ * @updated 2026-06-03
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+ */
+
 "use client"
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { Home, MessageSquare, Wallet, Settings, User, Users, UserPlus, LogIn } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
 
 const privateNavItems = [
   { name: "Hub", href: "/dashboard-user", icon: Home },
@@ -22,24 +33,116 @@ const publicNavItems = [
 
 export function MobileDock({ isPublic = false }: { isPublic?: boolean }) {
   const pathname = usePathname()
+  const [showUserMenu, setShowUserMenu] = useState(false)
+  const dockRef = useRef<HTMLDivElement>(null)
+
+  // Fermer le menu lors d'un clic en dehors
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dockRef.current && !dockRef.current.contains(event.target as Node)) {
+        setShowUserMenu(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [])
+
+  // Fermer le menu lors du changement de route
+  useEffect(() => {
+    setShowUserMenu(false)
+  }, [pathname])
 
   return (
-    <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-sm">
-      <div className="relative flex items-center justify-around h-16 bg-slate-900/80 backdrop-blur-2xl border border-white/10 rounded-full px-2 shadow-[0_16px_32px_-8px_rgba(0,0,0,0.5)]">
-        
+    <div 
+      ref={dockRef}
+      className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-sm flex flex-col gap-3"
+    >
+      {/* SOUS-MENU INTERACTIF FLOTTANT AU-DESSUS */}
+      <AnimatePresence>
+        {showUserMenu && !isPublic && (
+          <motion.div
+            initial={{ opacity: 0, y: 15, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 15, scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 350, damping: 25 }}
+            className="flex items-center justify-around h-16 bg-slate-900/90 backdrop-blur-3xl border border-white/10 rounded-full px-4 shadow-[0_16px_32px_-8px_rgba(0,0,0,0.6)] w-full"
+          >
+            {/* Lien Mon Profil Public */}
+            <Link 
+              href="/profil"
+              className="flex items-center gap-2 text-slate-300 hover:text-white px-3 py-1.5 rounded-xl hover:bg-white/5 transition-all outline-none"
+            >
+              <User className="size-4 text-blue-400" />
+              <span className="text-[10px] font-black uppercase tracking-wider">Profil Public</span>
+            </Link>
+
+            {/* Séparateur minimaliste */}
+            <div className="h-5 w-px bg-white/10" />
+
+            {/* Lien Paramètres */}
+            <Link 
+              href="/parametres"
+              className="flex items-center gap-2 text-slate-300 hover:text-white px-3 py-1.5 rounded-xl hover:bg-white/5 transition-all outline-none"
+            >
+              <Settings className="size-4 text-emerald-400" />
+              <span className="text-[10px] font-black uppercase tracking-wider">Paramètres</span>
+            </Link>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* DOCK PRINCIPAL DE NAVIGATION */}
+      <div className="relative flex items-center justify-around h-16 bg-slate-900/80 backdrop-blur-2xl border border-white/10 rounded-full px-2 shadow-[0_16px_32px_-8px_rgba(0,0,0,0.5)] w-full">
         {/* Lueur interne globale */}
         <div className="absolute inset-0 rounded-full border border-white/5 pointer-events-none" />
 
         {(isPublic ? publicNavItems : privateNavItems).map((item) => {
-          // Simplification pour le mode demo:
-          // Le bouton Profil redirige vers dashboard-user?view=profile ou similaire.
-          const isActive = pathname === item.href && item.name !== "Profil"
+          const isProfilButton = item.name === "Profil" && !isPublic
+          const isActive = pathname === item.href && !isProfilButton
           
+          // Rendu du bouton d'action pour le Profil (connecté)
+          if (isProfilButton) {
+            return (
+              <button 
+                key={item.name} 
+                onClick={() => setShowUserMenu(!showUserMenu)}
+                className="relative flex flex-col items-center justify-center w-12 h-12 outline-none group"
+                aria-expanded={showUserMenu}
+                aria-label="Menu profil et paramètres"
+              >
+                {showUserMenu && (
+                  <motion.div
+                    layoutId="mobile-active-indicator"
+                    className="absolute inset-0 bg-blue-600/20 rounded-full"
+                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                  />
+                )}
+                
+                <item.icon 
+                  className={`size-5 transition-colors duration-300 z-10 ${
+                    showUserMenu ? "text-blue-400" : "text-slate-400 group-hover:text-slate-200"
+                  }`} 
+                />
+                
+                {showUserMenu && (
+                  <motion.div
+                    layoutId="mobile-active-dot"
+                    className="absolute -bottom-1 size-1 bg-blue-400 rounded-full shadow-[0_0_8px_rgba(96,165,250,0.8)]"
+                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                  />
+                )}
+              </button>
+            )
+          }
+
+          // Rendu des liens de navigation classiques
           return (
             <Link 
               key={item.name} 
               href={item.href}
-              className="relative flex flex-col items-center justify-center w-12 h-12 outline-none group"
+              className="relative flex flex-col items-center justify-center w-12 h-12 outline-none group animate-in fade-in duration-300"
             >
               {isActive && (
                 <motion.div
@@ -55,7 +158,6 @@ export function MobileDock({ isPublic = false }: { isPublic?: boolean }) {
                 }`} 
               />
               
-              {/* Petit point d'activité */}
               {isActive && (
                 <motion.div
                   layoutId="mobile-active-dot"

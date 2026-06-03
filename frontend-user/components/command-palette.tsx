@@ -1,3 +1,13 @@
+/**
+ * @author @hopsyder
+ * @organization Nexus Partners
+ * @description Palette de commande intelligente (Command Palette) avec raccourcis de navigation
+ * @created 2026-05-20
+ * @updated 2026-06-03
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+ */
+
 "use client"
 
 import * as React from "react"
@@ -119,7 +129,7 @@ export function CommandPalette() {
         <div className="p-2 space-y-2">
           <CommandGroup heading={<span className="text-xs font-bold uppercase tracking-wider text-slate-500 px-2">Gestion du Compte</span>}>
             <CommandItem 
-              onSelect={() => runCommand(() => router.push("/profil/me"))}
+              onSelect={() => runCommand(() => router.push("/profil"))}
               className="data-[selected=true]:bg-white/10 data-[selected=true]:text-white text-slate-300 rounded-xl transition-all cursor-pointer py-3 my-1"
             >
               <div className="p-2 rounded-lg bg-rose-500/20 text-rose-400 mr-3">

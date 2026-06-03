@@ -1,136 +1,145 @@
-/**
- * @author @hopsyder
- * @organization Nexus Partners
- * @description Composant Sidebar pour la liste des conversations
- * @created 2026-05-11
- * @updated 2026-06-02
- * 🌐 ceo.nexuspartners.xyz
- * 📧 daoudaabassichristian@gmail.com
-*/
+"use client"
 
-import React, { useMemo } from 'react'
-import { Search, Plus, MessageSquareDot } from 'lucide-react'
-import { Conversation } from './types'
-import { ConversationItem } from './conversation-item'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { formatDistanceToNow } from 'date-fns'
+import { fr } from 'date-fns/locale'
+import { Check, X, UserPlus, MessageCircle, User } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { Conversation, Connection } from '@/hooks/use-chat'
+import Image from 'next/image'
 
-// === INTERFACES ===
 interface ChatSidebarProps {
   conversations: Conversation[]
-  activeId: string | null
-  onSelect: (conv: Conversation) => void
-  searchQuery: string
-  onSearchChange: (query: string) => void
-  isLoading: boolean
+  connections: Connection[]
+  activeConversationId: string | null
+  onSelectConversation: (id: string) => void
+  onRespondConnection: (id: string, status: 'accepted' | 'declined') => void
+  className?: string
 }
 
-// === COMPOSANT SIDEBAR ===
-export const ChatSidebar: React.FC<ChatSidebarProps> = ({
+export function ChatSidebar({
   conversations,
-  activeId,
-  onSelect,
-  searchQuery,
-  onSearchChange,
-  isLoading,
-}) => {
-  const router = useRouter()
+  connections,
+  activeConversationId,
+  onSelectConversation,
+  onRespondConnection,
+  className
+}: ChatSidebarProps) {
+  const [activeTab, setActiveTab] = useState<'messages' | 'requests'>('messages')
 
-  const totalUnread = useMemo(
-    () => conversations.reduce((acc, c) => acc + (c.unread_count || 0), 0),
-    [conversations]
-  )
-
-  // === RENDU DU COMPOSANT ===
   return (
-    <div className="flex flex-col h-full border-r border-white/50 bg-white/50 backdrop-blur-xl w-full z-20 shadow-[4px_0_24px_-12px_rgba(0,0,0,0.08)]">
-      
-      {/* === EN-TÊTE === */}
-      <div className="px-4 pt-5 pb-3 border-b border-slate-100/80 bg-white/30 space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <h2 className="text-lg font-bold text-slate-800 tracking-tight">Messages</h2>
-            {totalUnread > 0 && (
-              <span className={cn(
-                "min-w-[20px] h-5 flex items-center justify-center",
-                "bg-primary text-white text-[10px] font-bold rounded-full px-1.5 shadow-sm",
-                "animate-in zoom-in duration-300"
-              )}>
-                {totalUnread > 99 ? '99+' : totalUnread}
+    <div className={cn("flex flex-col h-full bg-white border-r border-slate-200 shadow-sm z-10 w-full md:w-80 lg:w-96 shrink-0", className)}>
+      <div className="p-4 md:p-6 border-b border-slate-100 flex flex-col gap-4">
+        <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">Messagerie</h2>
+        
+        {/* Toggle Tabs */}
+        <div className="flex bg-slate-100 p-1 rounded-xl">
+          <button 
+            onClick={() => setActiveTab('messages')}
+            className={cn("flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-bold transition-all", activeTab === 'messages' ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700")}
+          >
+            <MessageCircle className="w-4 h-4" />
+            Discussions
+          </button>
+          <button 
+            onClick={() => setActiveTab('requests')}
+            className={cn("flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-bold transition-all relative", activeTab === 'requests' ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700")}
+          >
+            <UserPlus className="w-4 h-4" />
+            Demandes
+            {connections.length > 0 && (
+              <span className="absolute top-1.5 right-2 flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
               </span>
             )}
-          </div>
-          <Button 
-            size="icon" 
-            variant="ghost" 
-            className="rounded-xl h-8 w-8 text-slate-500 hover:text-primary hover:bg-primary/8 transition-colors"
-            onClick={() => router.push('/annuaire')}
-            title="Démarrer une nouvelle discussion"
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
-        </div>
-        
-        {/* Recherche */}
-        <div className="relative group">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 group-focus-within:text-primary transition-colors pointer-events-none" />
-          <Input 
-            id="chat-search-input"
-            name="chat_search"
-            autoComplete="off"
-            placeholder="Rechercher une conversation..." 
-            className="pl-9 h-9 text-sm bg-slate-50/80 border-slate-200/60 focus-visible:ring-primary/20 rounded-xl transition-all focus-visible:bg-white shadow-none"
-            value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
-          />
+          </button>
         </div>
       </div>
 
-      {/* === LISTE DES CONVERSATIONS === */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar">
-        {isLoading ? (
-          <div className="p-6 space-y-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="flex items-center gap-3 px-3 py-2.5 animate-pulse">
-                <div className="h-11 w-11 rounded-full bg-slate-200/80 shrink-0" />
-                <div className="flex-1 space-y-2">
-                  <div className="h-3 bg-slate-200/80 rounded-full w-3/4" />
-                  <div className="h-2.5 bg-slate-100 rounded-full w-1/2" />
+      <div className="flex-1 overflow-y-auto no-scrollbar p-2">
+        <AnimatePresence mode="wait">
+          {activeTab === 'messages' ? (
+            <motion.div key="messages" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="flex flex-col gap-1">
+              {conversations.length === 0 ? (
+                <div className="p-6 text-center text-slate-500 text-sm mt-10">
+                  <MessageCircle className="w-12 h-12 mx-auto text-slate-300 mb-3" />
+                  <p>Aucune conversation active. Allez dans l'annuaire pour vous connecter à d'autres membres.</p>
                 </div>
-              </div>
-            ))}
-          </div>
-        ) : conversations.length > 0 ? (
-          <div className="flex flex-col gap-0.5 p-2">
-            {conversations.map((conv) => (
-              <ConversationItem
-                key={conv.id}
-                conversation={conv}
-                isActive={activeId === conv.id}
-                onClick={onSelect}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center p-12 gap-3 text-center">
-            <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center">
-              <MessageSquareDot className="h-5 w-5 text-slate-400" />
-            </div>
-            <p className="text-sm text-slate-400 font-medium">
-              {searchQuery ? 'Aucun résultat trouvé.' : 'Aucune conversation pour le moment.'}
-            </p>
-            {!searchQuery && (
-              <button
-                onClick={() => router.push('/annuaire')}
-                className="text-xs text-primary font-semibold hover:underline"
-              >
-                Démarrer une discussion →
-              </button>
-            )}
-          </div>
-        )}
+              ) : (
+                conversations.map((conv) => (
+                  <button
+                    key={conv.id}
+                    onClick={() => onSelectConversation(conv.id)}
+                    className={cn(
+                      "flex items-center gap-3 p-3 rounded-2xl transition-all text-left w-full",
+                      activeConversationId === conv.id ? "bg-blue-50/80 shadow-sm border border-blue-100/50" : "hover:bg-slate-50 border border-transparent"
+                    )}
+                  >
+                    <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 border border-slate-200 bg-slate-100 flex items-center justify-center relative">
+                      {conv.other_participant?.avatar_url ? (
+                        <Image src={conv.other_participant.avatar_url} alt="Avatar" fill className="object-cover" />
+                      ) : (
+                        <User className="w-5 h-5 text-slate-400" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-baseline mb-0.5">
+                        <h4 className="font-bold text-slate-900 text-sm truncate pr-2">
+                          {conv.other_participant ? `${conv.other_participant.first_name} ${conv.other_participant.last_name}` : 'Utilisateur inconnu'}
+                        </h4>
+                        <span className="text-[10px] font-semibold text-slate-400 shrink-0">
+                          {conv.last_message_at ? formatDistanceToNow(new Date(conv.last_message_at), { locale: fr }) : ''}
+                        </span>
+                      </div>
+                      <p className={cn("text-xs truncate", activeConversationId === conv.id ? "text-blue-600 font-medium" : "text-slate-500")}>
+                        {conv.last_message_content || 'Nouvelle conversation'}
+                      </p>
+                    </div>
+                  </button>
+                ))
+              )}
+            </motion.div>
+          ) : (
+            <motion.div key="requests" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="flex flex-col gap-2 p-2">
+              {connections.length === 0 ? (
+                <div className="p-6 text-center text-slate-500 text-sm mt-10">
+                  <UserPlus className="w-12 h-12 mx-auto text-slate-300 mb-3" />
+                  <p>Vous n'avez aucune demande de connexion en attente.</p>
+                </div>
+              ) : (
+                connections.map(conn => (
+                  <div key={conn.id} className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-slate-200 bg-slate-100 flex items-center justify-center relative">
+                        {conn.profile?.avatar_url ? (
+                          <Image src={conn.profile.avatar_url} alt="Avatar" fill className="object-cover" />
+                        ) : (
+                          <User className="w-5 h-5 text-slate-400" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-bold text-slate-900 text-sm truncate">
+                          {conn.profile ? `${conn.profile.first_name} ${conn.profile.last_name}` : 'Utilisateur'}
+                        </h4>
+                        <p className="text-[11px] text-slate-500 truncate">{conn.profile?.professional_title || 'Membre Emiid'}</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={() => onRespondConnection(conn.id, 'accepted')} className="flex-1 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 font-bold text-xs py-2 rounded-xl flex items-center justify-center gap-1 transition-colors">
+                        <Check className="w-3.5 h-3.5" /> Accepter
+                      </button>
+                      <button onClick={() => onRespondConnection(conn.id, 'declined')} className="flex-1 bg-slate-50 text-slate-500 hover:bg-rose-50 hover:text-rose-500 font-bold text-xs py-2 rounded-xl flex items-center justify-center gap-1 transition-colors">
+                        <X className="w-3.5 h-3.5" /> Ignorer
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   )

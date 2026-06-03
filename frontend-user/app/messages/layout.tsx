@@ -7,7 +7,9 @@ export default function MessagesLayout({
 }) {
     return (
         <NavigationShell>
-            {children}
+            <div className="h-[calc(100vh-80px)] md:h-screen w-full bg-slate-50 overflow-hidden flex flex-col">
+                {children}
+            </div>
         </NavigationShell>
     )
 }

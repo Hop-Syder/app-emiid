@@ -1,3 +1,13 @@
+/**
+ * @author @hopsyder
+ * @organization Nexus Partners
+ * @description Barre de navigation latérale pour ordinateur (Desktop Sidebar)
+ * @created 2026-01-16
+ * @updated 2026-06-03
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+ */
+
 "use client"
 
 import Link from "next/link"
@@ -135,7 +145,7 @@ export function DesktopSidebar({ isPublic = false }: { isPublic?: boolean }) {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" side="right" sideOffset={10} className="w-56 bg-slate-900 border-slate-800 text-slate-200 rounded-2xl p-2 shadow-2xl">
               <DropdownMenuItem asChild className="rounded-xl cursor-pointer hover:bg-slate-800 focus:bg-slate-800">
-                <Link href="/dashboard-user" className="flex items-center">
+                <Link href="/profil" className="flex items-center">
                   <User className="mr-2 size-4" /> Mon Profil Public
                 </Link>
               </DropdownMenuItem>

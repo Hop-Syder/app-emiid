@@ -57,6 +57,8 @@
 - [2026-06-02] Ajout d'un système de décodage et logging du rôle JWT de `SUPABASE_SERVICE_ROLE_KEY` dans `supabase.ts` pour diagnostiquer les erreurs de permissions sur Railway.
 - [2026-06-02] Import à effet de bord explicite de `supabase.ts` dans `server.ts` pour garantir son exécution et l'écriture du log de diagnostic au démarrage.
 - [2026-06-03] Création et factorisation du composant global Preloader.tsx (Luxury Editorial & Glassmorphism) pour homogénéiser tous les écrans de chargement de l'application (Créer profil, Paramètres, Notifications, Portefeuille).
+- [2026-06-03] Ajout d'une page de routage dynamique `/profil/page.tsx` pour rediriger automatiquement l'utilisateur connecté vers son URL publique (/profil/[slug]), et mise à jour de la barre latérale desktop et de la palette de commandes vers ce lien.
+
 
 
 
