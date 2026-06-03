@@ -76,14 +76,9 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  if (!user && path === '/') {
-    url.pathname = '/dashboard-public'
-    return NextResponse.redirect(url)
-  }
-
   // CAS 2 : L'utilisateur N'EST PAS CONNECTÉ (Inconnu)
   // S'il essaie d'aller sur une page privée (ex: /dashboard-user, /messages, /parametres...)
-  // -> On le force à aller sur l'Onboarding (/)
+  // -> On le force à aller sur l'Onboarding (/) ou le Login
   if (!user && (isProtected || !isExplicitPublic)) {
     url.pathname = '/login'
     url.searchParams.set('next', `${path}${url.search}`)
