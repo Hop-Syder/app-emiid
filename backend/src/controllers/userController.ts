@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Contrôleur pour la gestion des profils utilisateurs
  * @created 2026-01-04
- * @updated 2026-06-02
+ * @updated 2026-06-03
  */
 
 import { Request, Response } from 'express';
@@ -267,9 +267,28 @@ export const updateMyProfile = async (req: any, res: Response) => {
             const cleanTag = tagName.toLowerCase().trim();
             if (cleanTag) {
                 // Upsert tag
-                const { data: tagData } = await supabaseAdmin.from('tags').upsert({ name: cleanTag }, { onConflict: 'name' }).select('id').single();
-                if (tagData) {
-                    await supabaseAdmin.from('profile_tags').insert({ profile_id: profileId, tag_id: tagData.id });
+                const { data: tagData, error: tagError } = await supabaseAdmin
+                    .from('tags')
+                    .upsert({ name: cleanTag }, { onConflict: 'name' })
+                    .select('id')
+                    .maybeSingle(); // maybeSingle évite de lever une exception si rien n'est retourné
+
+                let finalTagId = tagData?.id;
+
+                // Fallback : Si l'upsert n'a pas retourné l'ID (conflit d'unicité sans mise à jour), on récupère le tag par son nom
+                if (!finalTagId || tagError) {
+                    const { data: existingTag } = await supabaseAdmin
+                        .from('tags')
+                        .select('id')
+                        .eq('name', cleanTag)
+                        .maybeSingle();
+                    if (existingTag) {
+                        finalTagId = existingTag.id;
+                    }
+                }
+
+                if (finalTagId) {
+                    await supabaseAdmin.from('profile_tags').insert({ profile_id: profileId, tag_id: finalTagId });
                 }
             }
         }
