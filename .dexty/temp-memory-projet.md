@@ -76,6 +76,8 @@
 - [2026-06-03] Résolution de la redirection abusive vers `/creer-profil` : modification de `app/profil/page.tsx` pour valider l'existence du profil de manière résiliente via `has_profile`, l'existence d'un `slug` ou de champs d'identité (`first_name` / `last_name`). Ajout de la rétrocompatibilité des données dans la migration `20260603_update_public_profiles_view.sql` en mettant à jour la colonne `has_profile` à `true` pour tous les profils existants déjà configurés.
 - [2026-06-03] Correction de l'erreur TypeScript dans `app/profil/page.tsx` liée à la possibilité que `session` soit `undefined` lors de la redirection.
 - [2026-06-03] Correction du bug de création de profil : ajout de la persistance d'`activity_domain` (Secteur d'activité) dans le frontend (`creer-profil-content.tsx`) pour qu'il soit correctement hydraté, sauvegardé et envoyé au backend.
+- [2026-06-03] Restauration complète de la version WhatsApp fonctionnelle de la messagerie : suppression du hook alternatif `use-chat.ts` et du composant `chat-window.tsx` pour réactiver le composant autonome `messages-content.tsx` et ses fichiers associés.
+
 
 - [2026-06-03] Correction de la sauvegarde de `activity_domain` : ajout du champ dans l'interface `CreateProfileFormData`, l'état initial, le chargeur d'hydratation et le payload envoyé à l'API backend dans `creer-profil-content.tsx`.
 - [2026-06-03] Stabilisation de la logique des tags dans `userController.ts` : remplacement du upsert de tags PostgREST par un flux SELECT -> INSERT -> SELECT de repli en cas de concurrence, et remplacement de l'upsert de liaison composite de `profile_tags` par un simple `insert` après nettoyage par `delete`.
