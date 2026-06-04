@@ -34,6 +34,12 @@ export async function middleware(request: NextRequest) {
   const url = request.nextUrl.clone()
   const path = url.pathname
 
+  // Rediriger le dashboard public vers la racine pour centraliser le trafic public
+  if (path === '/dashboard-public') {
+    url.pathname = '/'
+    return NextResponse.redirect(url)
+  }
+
   if (path.startsWith('/api')) {
     return response
   }
@@ -47,9 +53,9 @@ export async function middleware(request: NextRequest) {
   }
 
   // --- ROUTING ---
-  // Public sans session: login, callback auth, dashboard public, annuaire et profils publics directs.
+  // Public sans session: racine, login, callback auth, dashboard public (redirigé), annuaire et profils publics directs.
   // /profil seul reste privé car il redirige vers le profil du compte connecté.
-  const publicRoutes = new Set(['/login', '/auth/callback', '/dashboard-public', '/conditions', '/confidentialite'])
+  const publicRoutes = new Set(['/', '/login', '/auth/callback', '/dashboard-public', '/conditions', '/confidentialite'])
   const publicPrefixes = ['/auth/', '/annuaire']
   const isPublicProfileDetail = /^\/profil\/[^/]+\/?$/.test(path)
 

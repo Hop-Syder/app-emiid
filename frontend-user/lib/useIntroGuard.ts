@@ -34,8 +34,8 @@ export function useIntroGuard() {
 
       const seen = localStorage.getItem(INTRO_KEY);
       if (seen) {
-        // Déjà vu → redirection immédiate vers le dashboard
-        router.replace("/dashboard-public");
+        // Déjà vu → redirection immédiate vers le dashboard public
+        router.replace("/");
       } else {
         setShouldShow(true);
       }

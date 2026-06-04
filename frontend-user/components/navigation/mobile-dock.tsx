@@ -26,7 +26,7 @@ const privateNavItems = [
 ]
 
 const publicNavItems = [
-  { name: "Accueil", href: "/dashboard-public", icon: Home },
+  { name: "Accueil", href: "/", icon: Home },
   { name: "Annuaire", href: "/annuaire", icon: Users },
   { name: "Se connecter", href: "/login", icon: LogIn },
 ]

@@ -244,7 +244,7 @@ export function PinGate({ children }: { children: React.ReactNode }) {
                                         const supabase = createClient()
                                         await supabase.auth.signOut()
                                         sessionStorage.removeItem("emiid_pin_verified")
-                                        router.push('/dashboard-public')
+                                        router.push('/')
                                     }}
                                 >
                                     Retour à l&apos;accueil

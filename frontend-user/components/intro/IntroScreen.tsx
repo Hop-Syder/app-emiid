@@ -46,7 +46,7 @@ export default function IntroScreen() {
   const handleNext = useCallback(() => {
     if (isLastSlide) {
       markIntroSeen();
-      router.push("/dashboard-public");
+      router.push("/");
     } else {
       goTo(currentIndex + 1);
     }
@@ -54,7 +54,7 @@ export default function IntroScreen() {
 
   const handleSkip = useCallback(() => {
     markIntroSeen();
-    router.push("/dashboard-public");
+    router.push("/");
   }, [markIntroSeen, router]);
 
   // Support navigation clavier (→ pour avancer, Echap pour passer)
