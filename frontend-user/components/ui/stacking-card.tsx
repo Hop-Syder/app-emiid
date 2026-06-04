@@ -3,17 +3,16 @@
  * @organization Nexus Partners
  * @description Stacking Cards Component (Basé sur 21st.dev)
  * @created 2026-05-31
- * @updated 2026-06-04
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
 
 'use client';
-import { ReactLenis, useLenis } from 'lenis/react';
+import { ReactLenis } from 'lenis/react';
 import { useTransform, motion, useScroll, MotionValue } from 'framer-motion';
 import { useRef, forwardRef } from 'react';
 import Image from 'next/image';
-import { ArrowUpRight, ChevronUp, ChevronDown } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 
 export interface CardData {
   title: string;
@@ -57,7 +56,6 @@ const Card = ({
 
   return (
     <div
-      id={`stacking-card-${i}`}
       ref={container}
       className='h-screen flex items-center justify-center sticky top-0'
     >
@@ -121,70 +119,12 @@ export const StackingCards = forwardRef<HTMLElement, StackingCardsProps>(({ card
     offset: ['start start', 'end end'],
   });
 
-  const handleScrollTo = (direction: 'up' | 'down') => {
-    const elements = [
-      document.getElementById('stacking-cards-intro'),
-      ...cards.map((_, i) => document.getElementById(`stacking-card-${i}`)),
-      document.getElementById('stacking-cards-footer')
-    ].filter(Boolean);
-
-    if (elements.length === 0) return;
-
-    const scrollContainer = document.getElementById('stacking-cards-intro')?.parentElement;
-    if (!scrollContainer) return;
-
-    const containerRect = scrollContainer.getBoundingClientRect();
-    
-    let currentIndex = 0;
-    let minDiff = Infinity;
-
-    elements.forEach((el, index) => {
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      const diff = Math.abs(rect.top - containerRect.top);
-      if (diff < minDiff) {
-        minDiff = diff;
-        currentIndex = index;
-      }
-    });
-
-    let targetIndex = currentIndex;
-    if (direction === 'down' && currentIndex < elements.length - 1) {
-      targetIndex = currentIndex + 1;
-    } else if (direction === 'up' && currentIndex > 0) {
-      targetIndex = currentIndex - 1;
-    }
-
-    const targetElement = elements[targetIndex];
-    if (targetElement) {
-      targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
-
   return (
     <ReactLenis root>
       <main className='bg-transparent relative' ref={container}>
         
-        {/* Navigation Arrows floating panel */}
-        <div className="fixed bottom-8 left-6 z-50 flex flex-col gap-2.5">
-          <button
-            onClick={() => handleScrollTo('up')}
-            className="p-3 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 text-white backdrop-blur-md transition-all active:scale-95 shadow-lg group hover:border-white/30 cursor-pointer"
-            aria-label="Card précédente"
-          >
-            <ChevronUp className="w-5 h-5 transition-transform group-hover:-translate-y-0.5" />
-          </button>
-          <button
-            onClick={() => handleScrollTo('down')}
-            className="p-3 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 text-white backdrop-blur-md transition-all active:scale-95 shadow-lg group hover:border-white/30 cursor-pointer"
-            aria-label="Card suivante"
-          >
-            <ChevronDown className="w-5 h-5 transition-transform group-hover:translate-y-0.5" />
-          </button>
-        </div>
-        
         {/* Intro Section */}
-        <section id="stacking-cards-intro" className='text-white h-[40vh] w-full flex flex-col items-center justify-center relative overflow-hidden'>
+        <section className='text-white h-[40vh] w-full flex flex-col items-center justify-center relative overflow-hidden'>
           <div className='absolute bottom-0 left-0 right-0 top-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:54px_54px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]'></div>
           
           <div className="relative z-10 px-8 text-center space-y-6">
@@ -222,7 +162,7 @@ export const StackingCards = forwardRef<HTMLElement, StackingCardsProps>(({ card
         </section>
 
         {/* Footer spacer for scroll */}
-        <footer id="stacking-cards-footer" className='h-[10vh] relative z-10 grid place-content-center'>
+        <footer className='h-[10vh] relative z-10 grid place-content-center'>
             <p className="text-white/20 font-bold uppercase tracking-widest text-sm">
               Connect & Lead
             </p>
