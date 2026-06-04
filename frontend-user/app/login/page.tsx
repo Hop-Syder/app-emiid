@@ -89,7 +89,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative min-h-screen w-full flex overflow-x-hidden bg-[#020617] font-sans">
+    <div className="relative min-h-screen w-full flex overflow-hidden bg-[#020617] font-sans">
       
       {/* --- BACKGROUND NEURAL SYSTEM (Coherent with Onboarding) --- */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
@@ -126,12 +126,12 @@ export default function LoginPage() {
       </div>
 
       {/* --- LEFT COLUMN: STACKING CARDS (Hidden on mobile) --- */}
-      <div className="hidden lg:block relative z-10 w-1/2">
+      <div className="hidden lg:block relative z-10 w-1/2 h-screen overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         <StackingCards cards={featureCards} />
       </div>
 
       {/* --- RIGHT COLUMN: LOGIN FORM --- */}
-      <div className="relative lg:sticky lg:top-0 z-10 w-full lg:w-1/2 h-screen flex items-center justify-center p-4 sm:p-8">
+      <div className="relative z-10 w-full lg:w-1/2 h-screen overflow-y-auto flex items-center justify-center p-4 sm:p-8">
         <motion.div
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
