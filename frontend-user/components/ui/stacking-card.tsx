@@ -155,8 +155,9 @@ export const StackingCards = forwardRef<HTMLElement, StackingCardsProps>(({ card
       targetIndex = currentIndex - 1;
     }
 
-    if (elements[targetIndex]) {
-      elements[targetIndex].scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const targetElement = elements[targetIndex];
+    if (targetElement) {
+      targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
 
