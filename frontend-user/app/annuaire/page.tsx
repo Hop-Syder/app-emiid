@@ -60,9 +60,10 @@ async function fetchInitialProfiles(category: string, activityDomain: string) {
     }
 }
 
-export default async function AnnuairePage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
-    const category = typeof searchParams.category === 'string' ? searchParams.category : "all"
-    const activityDomain = typeof searchParams.activity_domain === 'string' ? searchParams.activity_domain : "all"
+export default async function AnnuairePage({ searchParams }: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
+    const resolvedSearchParams = await searchParams
+    const category = typeof resolvedSearchParams.category === 'string' ? resolvedSearchParams.category : "all"
+    const activityDomain = typeof resolvedSearchParams.activity_domain === 'string' ? resolvedSearchParams.activity_domain : "all"
     
     const initialProfiles = await fetchInitialProfiles(category, activityDomain)
 
