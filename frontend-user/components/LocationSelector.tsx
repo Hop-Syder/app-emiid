@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Sélecteur de pays et de villes intelligent utilisant country-state-city
  * @created 2026-01-05
- * @updated 2026-05-24
+ * @updated 2026-06-05
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
 */
@@ -34,7 +34,7 @@ interface LocationSelectorProps {
     defaultCity?: string
 }
 
-export function LocationSelector({
+export const LocationSelector = React.memo(function LocationSelector({
     onLocationSelect,
     defaultCountryCode,
     defaultCity

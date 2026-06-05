@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Wrapper principal pour le contenu de création de profil avec hydratation robuste et support des tags et secteurs
  * @created 2026-01-16
- * @updated 2026-06-03
+ * @updated 2026-06-05
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
 */
@@ -152,7 +152,7 @@ const validateProfileForm = (formData: CreateProfileFormData, mode: "draft" | "p
 }
 
 export function CreerProfilContent() {
-    const [isLoading, setIsLoading] = useState(true)
+    const [loadingStatus, setLoadingStatus] = useState<'loading' | 'success' | 'error'>('loading')
     const [isPublished, setIsPublished] = useState(false)
     const [countries, setCountries] = useState<ReferenceCountry[]>([])
     const [validationErrors, setValidationErrors] = useState<string[]>([])
@@ -180,7 +180,7 @@ export function CreerProfilContent() {
     })
 
     const loadInitialData = useCallback(async () => {
-        setIsLoading(true)
+        setLoadingStatus('loading')
         let isNewProfile = false
         try {
             // Chargement parallèle des référentiels et du profil
@@ -247,6 +247,7 @@ export function CreerProfilContent() {
                         toast.info("Remplissez le formulaire pour créer votre carte EmiID")
                     }
                 }
+                setLoadingStatus('success')
             } else {
                 // Si la réponse n'est pas ok (par exemple 404 car profil non créé)
                 if (profileRes.status === 400) {
@@ -254,18 +255,19 @@ export function CreerProfilContent() {
                     const errMsg = errData?.error || "Erreur de base de données";
                     toast.error(`Erreur de chargement du profil : ${errMsg}`);
                     console.error("Détails de l'erreur 400 :", errData);
+                    setLoadingStatus('error')
                 } else if (profileRes.status === 404) {
                     toast.info("Remplissez le formulaire pour créer votre carte EmiID");
+                    setLoadingStatus('success')
                 } else {
                     toast.error("Impossible de charger les données existantes");
+                    setLoadingStatus('error')
                 }
             }
         } catch (error) {
             console.error("Hydration error:", error)
-            // En cas d'erreur de chargement réseau ou autre pour un nouveau profil
-            toast.info("Remplissez le formulaire pour créer votre carte EmiID")
-        } finally {
-            setIsLoading(false)
+            toast.error("Erreur de connexion au serveur")
+            setLoadingStatus('error')
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []) // Dependency array empty ensures it runs once on mount properly
@@ -274,7 +276,7 @@ export function CreerProfilContent() {
         loadInitialData()
     }, [loadInitialData])
 
-    const handleInputChange = (field: string, value: any) => {
+    const handleInputChange = useCallback((field: string, value: any) => {
         if (validationErrors.length > 0) setValidationErrors([])
         setFormData((prev) => {
             const updates: any = { [field]: value }
@@ -292,9 +294,9 @@ export function CreerProfilContent() {
             
             return { ...prev, ...updates }
         })
-    }
+    }, [validationErrors])
 
-    const handleSave = async () => {
+    const handleSave = useCallback(async () => {
         if (saving) return
         try {
             setSaving(true)
@@ -326,9 +328,9 @@ export function CreerProfilContent() {
         } finally {
             setSaving(false)
         }
-    }
+    }, [formData, isPublished, saving])
 
-    const handlePublish = async () => {
+    const handlePublish = useCallback(async () => {
         if (publishing) return
         const errors = validateProfileForm(formData, "publish")
         if (errors.length > 0) {
@@ -357,9 +359,9 @@ export function CreerProfilContent() {
         } finally {
             setPublishing(false)
         }
-    }
+    }, [formData, publishing])
 
-    const handleUnpublish = async () => {
+    const handleUnpublish = useCallback(async () => {
         if (unpublishing) return
         try {
             setUnpublishing(true)
@@ -381,10 +383,33 @@ export function CreerProfilContent() {
         } finally {
             setUnpublishing(false)
         }
+    }, [formData, unpublishing])
+
+    if (loadingStatus === 'loading') {
+        return <Preloader text="Initialisation du profil" />
     }
 
-    if (isLoading) {
-        return <Preloader text="Initialisation du profil" />
+    if (loadingStatus === 'error') {
+        return (
+            <div className="max-w-xl mx-auto px-4 py-16 text-center space-y-6">
+                <div className="bg-white/60 backdrop-blur-xl border border-red-100 rounded-3xl p-8 shadow-xl relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 rounded-full blur-2xl" />
+                    <div className="mx-auto w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mb-6">
+                        <X className="h-8 w-8 text-rose-600 stroke-[2.5]" />
+                    </div>
+                    <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-2">Impossible de charger le profil</h2>
+                    <p className="text-sm text-slate-500 font-medium leading-relaxed mb-6">
+                        Une erreur est survenue lors de la récupération de vos données de profil. Veuillez vérifier votre connexion ou réessayer ultérieurement.
+                    </p>
+                    <button
+                        onClick={loadInitialData}
+                        className="inline-flex items-center gap-2 rounded-full px-8 py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold transition-all shadow-lg active:scale-95 duration-200"
+                    >
+                        Réessayer le chargement
+                    </button>
+                </div>
+            </div>
+        )
     }
 
     return (

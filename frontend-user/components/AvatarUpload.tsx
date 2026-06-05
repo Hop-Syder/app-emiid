@@ -3,14 +3,14 @@
  * @organization Nexus Partners
  * @description Composant d'upload d'avatar vers Supabase Storage avec déclenchement par ref
  * @created 2026-01-05
- * @updated 2026-05-24
+ * @updated 2026-06-05
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
 */
 
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Camera, Loader2, User } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -25,7 +25,7 @@ interface AvatarUploadProps {
     disabled?: boolean
 }
 
-export function AvatarUpload({ currentAvatarUrl, onUploadComplete, disabled }: AvatarUploadProps) {
+export const AvatarUpload = React.memo(function AvatarUpload({ currentAvatarUrl, onUploadComplete, disabled }: AvatarUploadProps) {
     const [uploading, setUploading] = useState(false)
     const [preview, setPreview] = useState<string | null>(currentAvatarUrl)
     const fileInputRef = useRef<HTMLInputElement>(null)

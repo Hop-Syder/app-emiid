@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Main shell for Settings, integrating modular sections
  * @created 2026-01-16
- * @updated 2026-01-16
+ * @updated 2026-06-05
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
 */
@@ -11,7 +11,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { User, Shield, Bell, Settings, Star } from "lucide-react"
+import { User, Shield, Bell, Settings, Star, X } from "lucide-react"
 import { Preloader } from "@/components/Preloader"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { fetchWithAuth } from "@/lib/apiClient"
@@ -45,7 +45,7 @@ import { NotificationsSection } from "./notifications-section"
 import { PreferencesSection } from "./preferences-section"
 
 export function ParametresContent() {
-    const [loading, setLoading] = useState(true)
+    const [loadingStatus, setLoadingStatus] = useState<'loading' | 'success' | 'error'>('loading')
     const [saving, setSaving] = useState(false)
     const [profile, setProfile] = useState({
         id: "",
@@ -76,7 +76,7 @@ export function ParametresContent() {
 
     const loadUserProfile = async () => {
         try {
-            setLoading(true)
+            setLoadingStatus('loading')
             const [response, authUserResponse] = await Promise.all([
                 fetchWithAuth("/api/users/me"),
                 supabase.auth.getUser(),
@@ -127,6 +127,7 @@ export function ParametresContent() {
                     ...defaultSecuritySettings,
                     ...(data.security_preferences || {}),
                 })
+                setLoadingStatus('success')
             } else if (authUser) {
                 setProfile((prev) => ({
                     ...prev,
@@ -136,12 +137,14 @@ export function ParametresContent() {
                     phone: authUser.phone || prev.phone,
                     avatar_url: authUser.user_metadata?.avatar_url || prev.avatar_url,
                 }))
+                setLoadingStatus('success')
+            } else {
+                setLoadingStatus('error')
             }
         } catch (error) {
             console.error("Erreur chargement profil:", error)
             toast.error("Impossible de charger votre profil")
-        } finally {
-            setLoading(false)
+            setLoadingStatus('error')
         }
     }
 
@@ -228,13 +231,36 @@ export function ParametresContent() {
         }
     }
 
-    if (loading) {
+    if (loadingStatus === 'loading') {
         return (
             <Preloader 
                 text="Préparation de votre espace" 
                 subtext="Chargement de vos paramètres de compte..." 
                 minHeight="min-h-[500px]" 
             />
+        )
+    }
+
+    if (loadingStatus === 'error') {
+        return (
+            <div className="max-w-xl mx-auto px-4 py-16 text-center space-y-6">
+                <div className="bg-white/60 backdrop-blur-xl border border-red-100 rounded-3xl p-8 shadow-xl relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 rounded-full blur-2xl" />
+                    <div className="mx-auto w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mb-6">
+                        <X className="h-8 w-8 text-rose-600 stroke-[2.5]" />
+                    </div>
+                    <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-2">Impossible de charger les paramètres</h2>
+                    <p className="text-sm text-slate-500 font-medium leading-relaxed mb-6">
+                        Une erreur est survenue lors de la récupération de vos paramètres utilisateur. Veuillez vérifier votre connexion ou réessayer ultérieurement.
+                    </p>
+                    <button
+                        onClick={loadUserProfile}
+                        className="inline-flex items-center gap-2 rounded-full px-8 py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold transition-all shadow-lg active:scale-95 duration-200"
+                    >
+                        Réessayer le chargement
+                    </button>
+                </div>
+            </div>
         )
     }
 

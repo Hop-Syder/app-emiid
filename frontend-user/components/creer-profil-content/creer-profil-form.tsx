@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Formulaire de création de profil - Onboarding Step-by-Step (Wizard)
  * @created 2026-01-16
- * @updated 2026-06-03
+ * @updated 2026-06-05
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
 */
@@ -18,7 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button"
 import { Save, Eye, EyeOff, X, Loader2, Camera, User, Briefcase, MapPin, Tags, Sparkles, ArrowRight, ArrowLeft, CheckCircle2 } from "lucide-react"
 import { LocationSelector } from "@/components/LocationSelector"
-import { useState } from "react"
+import React, { useState, useCallback } from "react"
 import { Badge } from "@/components/ui/badge"
 import { motion, AnimatePresence } from "framer-motion"
 import { AvatarUpload } from "@/components/AvatarUpload"
@@ -57,7 +57,7 @@ const StepWrapper = ({ children, isActive, direction }: { children: React.ReactN
     )
 }
 
-export function CreerProfilForm({
+export const CreerProfilForm = React.memo(function CreerProfilForm({
     formData,
     setFormData,
     handleInputChange,
@@ -75,6 +75,21 @@ export function CreerProfilForm({
     const [tagInput, setTagInput] = useState("")
     const [currentStep, setCurrentStep] = useState(0)
     const [direction, setDirection] = useState(1) // 1 pour avancer, -1 pour reculer
+
+    const handleAvatarUploadComplete = useCallback((newUrl: string) => {
+        handleInputChange("avatar", newUrl)
+    }, [handleInputChange])
+
+    const handleLocationSelect = useCallback((countryInfo: { name: string, isoCode: string }, cityName: string) => {
+        const localCountry = countries.find((c: any) => c.iso_code === countryInfo.isoCode);
+        setFormData((prev: any) => ({
+            ...prev,
+            country_id: localCountry?.id || "",
+            country_code: countryInfo.isoCode,
+            country_name: countryInfo.name,
+            city: cityName
+        }));
+    }, [countries, setFormData])
 
     const steps = [
         { id: 0, title: "Identité", icon: Camera, subtitle: "Votre présentation de base" },
@@ -216,7 +231,7 @@ export function CreerProfilForm({
                                     <div className="rounded-3xl border-2 border-dashed border-slate-200 bg-slate-50/50 hover:bg-slate-50 hover:border-primary/30 transition-all p-4">
                                         <AvatarUpload
                                             currentAvatarUrl={formData.avatar || null}
-                                            onUploadComplete={(newUrl: string) => handleInputChange("avatar", newUrl)}
+                                            onUploadComplete={handleAvatarUploadComplete}
                                         />
                                     </div>
                                 </div>
@@ -386,16 +401,7 @@ export function CreerProfilForm({
                                         <LocationSelector
                                             defaultCountryCode={formData.country_code}
                                             defaultCity={formData.city}
-                                            onLocationSelect={(countryInfo, cityName) => {
-                                                const localCountry = countries.find((c: any) => c.iso_code === countryInfo.isoCode);
-                                                setFormData((prev: any) => ({
-                                                    ...prev,
-                                                    country_id: localCountry?.id || "",
-                                                    country_code: countryInfo.isoCode,
-                                                    country_name: countryInfo.name,
-                                                    city: cityName
-                                                }));
-                                            }}
+                                            onLocationSelect={handleLocationSelect}
                                         />
                                     </div>
                                 </div>
