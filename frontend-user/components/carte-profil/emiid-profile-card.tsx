@@ -28,6 +28,7 @@ interface EmiIDProfileCardProps {
   onAction?: (type: 'message' | 'follow' | 'view') => void
   isFollowed?: boolean
   className?: string
+  isLoggedIn?: boolean
 }
 
 // Configuration visuelle distincte pour chaque variant
@@ -111,7 +112,8 @@ export function EmiIDProfileCard({
   variant = "tech", 
   onAction,
   isFollowed = false,
-  className
+  className,
+  isLoggedIn = false
 }: EmiIDProfileCardProps) {
   const name = user.name || "Membre EmiID"
   const role = user.role || "Professionnel"
@@ -229,17 +231,19 @@ export function EmiIDProfileCard({
               <><Plus className="h-3.5 w-3.5 mr-1 shrink-0" /> <span className="truncate">Suivre</span></>
             )}
           </Button>
-          <Button
-            onClick={(e) => { e.stopPropagation(); onAction?.('message') }}
-            variant="ghost"
-            className={cn(
-              "flex-1 h-10 px-2 rounded-2xl border transition-all flex items-center justify-center gap-1.5 text-[11px] font-semibold",
-              styles.btnSecondary
-            )}
-          >
-            <MessageSquare className={cn("h-3.5 w-3.5 shrink-0", styles.accent)} />
-            <span className="truncate">Message</span>
-          </Button>
+          {isLoggedIn && (
+            <Button
+              onClick={(e) => { e.stopPropagation(); onAction?.('message') }}
+              variant="ghost"
+              className={cn(
+                "flex-1 h-10 px-2 rounded-2xl border transition-all flex items-center justify-center gap-1.5 text-[11px] font-semibold",
+                styles.btnSecondary
+              )}
+            >
+              <MessageSquare className={cn("h-3.5 w-3.5 shrink-0", styles.accent)} />
+              <span className="truncate">Message</span>
+            </Button>
+          )}
         </div>
       </div>
     </motion.div>

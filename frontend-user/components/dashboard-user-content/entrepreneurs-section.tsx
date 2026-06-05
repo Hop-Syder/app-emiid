@@ -163,6 +163,7 @@ export function EntrepreneursSection({ entrepreneursList, loading, variant = "te
                                     variant={variant}
                                     isFollowed={!!entrepreneur.isFollowed}
                                     onAction={(type) => handleCardAction(type, entrepreneur.id, entrepreneur.slug)}
+                                    isLoggedIn={!!session}
                                 />
                             </div>
                         </motion.div>

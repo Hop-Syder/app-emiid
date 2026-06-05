@@ -64,25 +64,27 @@ export function NavigationShell({ children, isPublic = false }: NavigationShellP
     }
   }, [])
 
+  const isMessagePage = pathname === "/messages"
+
   return (
     <div className="relative min-h-screen bg-slate-50 w-full flex">
       <Suspense fallback={null}>
         <ChatActiveWatcher pathname={pathname} onChange={setIsMessageChatActive} />
       </Suspense>
 
-      {/* Sidebar pour Desktop */}
-      <DesktopSidebar isPublic={effectiveIsPublic} />
+      {/* Sidebar pour Desktop (masquée si conversation active) */}
+      {!isMessageChatActive && <DesktopSidebar isPublic={effectiveIsPublic} />}
 
       {/* 
         Conteneur principal: 
-        - padding-left de 88px sur lg pour ne pas passer sous la sidebar (w-[88px])
-        - padding-bottom sur mobile pour ne pas être caché par le dock flottant (sauf si chat actif)
+        - padding-left de 88px sur lg pour ne pas passer sous la sidebar (w-[88px]) uniquement si elle est affichée
+        - padding-bottom sur mobile pour ne pas être caché par le dock flottant (sauf si chat actif ou page messages)
       */}
-      <main className={`flex-1 w-full min-w-0 transition-all duration-300 lg:pl-[88px] lg:pb-0 ${isMessageChatActive ? "pb-0" : "pb-24"}`}>
+      <main className={`flex-1 w-full min-w-0 transition-all duration-300 ${!isMessageChatActive ? "lg:pl-[88px]" : "lg:pl-0"} lg:pb-0 ${isMessagePage ? "pb-0" : "pb-24"}`}>
         {children}
       </main>
 
-      {/* Dock pour Mobile */}
+      {/* Dock pour Mobile (masqué si conversation active) */}
       {!isMessageChatActive && <MobileDock isPublic={effectiveIsPublic} />}
 
       {/* Palette de commandes (CMD+K) */}

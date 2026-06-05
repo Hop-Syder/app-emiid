@@ -87,5 +87,9 @@
 - [2026-06-05] Intégration des balises de métadonnées SEO complètes (OpenGraph, Twitter preview cards, descriptions, images de couverture) au niveau du layout global de l'application (`app/layout.tsx`).
 - [2026-06-05] Création de l'icône de l'application `public/icon.svg` (design moderne et épuré avec dégradé indigo/violet et lettre E de l'identité de marque) pour résoudre l'erreur 404 lors du chargement des favicons de l'application.
 - [2026-06-05] Correction de l'affichage mobile de la messagerie : remplacement de la hauteur rigide `h-[calc(100vh)]` par `h-full w-full` dans `MessagesContent` pour hériter dynamiquement de la hauteur fluide gérée par `MessagesLayout`, évitant ainsi le masquage de la zone de saisie de messages et des boutons d'upload sur mobile.
+- [2026-06-05] Affichage conditionnel des boutons "Message" : masquage des boutons de contact/messagerie sur la carte `EmiIDProfileCard` et la page `ProfileDetailContent` si l'utilisateur visiteur n'est pas connecté.
+- [2026-06-05] Indicateurs de statut des messages : implémentation du style de lecture WhatsApp dans `message-list.tsx` (simple coche pour envoyé, double coche bleu ciel pour lu, avec infobulles contextuelles).
+- [2026-06-05] Stabilisation de la conversation de messagerie : ajustement de la structure flexbox dans `app/messages/page.tsx` (`h-full max-h-full overflow-hidden` au lieu de `min-h-screen`) et retrait du padding-bottom global de `NavigationShell` sur `/messages` pour figer l'input de texte et d'upload au bas de l'écran, faisant de la zone des messages le seul conteneur scrollable.
+- [2026-06-05] Masquage intelligent des menus de navigation : configuration de `NavigationShell` pour masquer le menu mobile (`MobileDock`) et la barre latérale desktop (`DesktopSidebar`) uniquement lorsqu'une conversation de chat est active (présence de paramètres d'URL), et les réafficher sur la vue générale de la messagerie.
 
 

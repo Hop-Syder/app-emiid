@@ -100,6 +100,7 @@ export function AnnuaireCard({ profile, theme = 'default' }: AnnuaireCardProps) 
             variant={activeVariant}
             isFollowed={isFollowed}
             onAction={handleAction}
+            isLoggedIn={!!session}
         />
     )
 }

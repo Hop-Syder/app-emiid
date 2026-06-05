@@ -127,12 +127,22 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
     const [scrolled, setScrolled] = useState(false)
     const [uploadingCover, setUploadingCover] = useState(false)
     const [isOwnProfile, setIsOwnProfile] = useState(false)
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
     const [gallery, setGallery] = useState<Array<{ id: string; title: string; description: string; imageUrl: string; status?: string }>>([])
     const [loadingGallery, setLoadingGallery] = useState(false)
 
     const [isShareModalOpen, setIsShareModalOpen] = useState(false)
     const [copiedLink, setCopiedLink] = useState<string | null>(null)
     const [copiedVCard, setCopiedVCard] = useState(false)
+
+    useEffect(() => {
+        const checkAuth = async () => {
+            const supabase = createClient()
+            const { data: { session } } = await supabase.auth.getSession()
+            setIsLoggedIn(!!session)
+        }
+        checkAuth()
+    }, [])
 
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 16)
@@ -752,17 +762,19 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                                         <Users className="h-4 w-4" />
                                         {isFollowed ? "Abonné" : "Suivre"}
                                     </Button>
-                                    <Button
-                                        variant="outline"
-                                        size="lg"
-                                        className="flex-1 sm:flex-initial rounded-2xl h-11 text-xs gap-2 font-black border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 shadow-sm transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-95"
-                                        asChild
-                                    >
-                                        <Link href={`/messages?contact=${profile.id}`}>
-                                            <MessageCircle className="h-4 w-4 text-slate-700" />
-                                            Message
-                                        </Link>
-                                    </Button>
+                                    {isLoggedIn && (
+                                        <Button
+                                            variant="outline"
+                                            size="lg"
+                                            className="flex-1 sm:flex-initial rounded-2xl h-11 text-xs gap-2 font-black border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 shadow-sm transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-95"
+                                            asChild
+                                        >
+                                            <Link href={`/messages?contact=${profile.id}`}>
+                                                <MessageCircle className="h-4 w-4 text-slate-700" />
+                                                Message
+                                            </Link>
+                                        </Button>
+                                    )}
                                     <Button
                                         variant="outline"
                                         size="lg"

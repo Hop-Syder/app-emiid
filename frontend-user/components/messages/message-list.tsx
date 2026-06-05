@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Composants pour l'affichage des messages (Bulles et Liste)
  * @created 2026-05-11
- * @updated 2026-05-24
+ * @updated 2026-06-05
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
 */
@@ -147,9 +147,9 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
               )}
               {(!message.status || message.status === 'sent') && (
                 message.is_read ? (
-                  <CheckCheck className="h-3.5 w-3.5 text-blue-200" />
+                  <CheckCheck className="h-3.5 w-3.5 text-sky-300 drop-shadow-[0_1px_2px_rgba(0,0,0,0.1)]" title="Lu" />
                 ) : (
-                  <Check className="h-3.5 w-3.5 opacity-70" />
+                  <Check className="h-3.5 w-3.5 text-indigo-200/60" title="Envoyé" />
                 )
               )}
             </span>
