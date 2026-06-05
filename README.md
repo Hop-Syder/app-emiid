@@ -1,14 +1,3 @@
-/**
- * @author @hopsyder
- * @organization Nexus Partners
- * @description Documentation racine de l'écosystème EmiID
- * @created 2026-01-04
- * @updated 2026-06-02
- * 🌐 ceo.nexuspartners.xyz
- * 📧 daoudaabassichristian@gmail.com
- * ──────────────────────────────────
- */
-
 # 🚀 EmiID — Votre empreinte numérique professionnelle
 
 **EmiID** est une infrastructure digitale centralisée conçue pour structurer, connecter et dynamiser l’écosystème professionnel à travers une gestion intelligente de profils, d’interactions et de validations.

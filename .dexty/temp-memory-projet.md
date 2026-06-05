@@ -85,5 +85,7 @@
 - [2026-06-05] Mise à jour de la section "Entrepreneurs du Réseau" sur le Dashboard Public pour utiliser la variante esthétique `glass-blue` sur les composants `EmiIDProfileCard`.
 - [2026-06-05] Correction de l'erreur de prerender Next.js liée à `useSearchParams` dans `NavigationShell` en l'isolant dans un conteneur Suspense avec `ChatActiveWatcher`.
 - [2026-06-05] Intégration des balises de métadonnées SEO complètes (OpenGraph, Twitter preview cards, descriptions, images de couverture) au niveau du layout global de l'application (`app/layout.tsx`).
+- [2026-06-05] Création de l'icône de l'application `public/icon.svg` (design moderne et épuré avec dégradé indigo/violet et lettre E de l'identité de marque) pour résoudre l'erreur 404 lors du chargement des favicons de l'application.
+- [2026-06-05] Correction de l'affichage mobile de la messagerie : remplacement de la hauteur rigide `h-[calc(100vh)]` par `h-full w-full` dans `MessagesContent` pour hériter dynamiquement de la hauteur fluide gérée par `MessagesLayout`, évitant ainsi le masquage de la zone de saisie de messages et des boutons d'upload sur mobile.
 
 

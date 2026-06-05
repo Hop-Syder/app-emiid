@@ -4,7 +4,7 @@
  * @organization Nexus Partners
  * @description Page de messagerie refactorisée et modulaire (Version Complète & Robuste)
  * @created 2026-05-11
- * @updated 2026-06-02
+ * @updated 2026-06-05
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
 */
@@ -415,7 +415,7 @@ export function MessagesContent() {
 
   // === RENDU PRINCIPAL DU COMPOSANT ===
   return (
-    <div className="flex h-[calc(100vh)] bg-gradient-to-br from-slate-50 via-white to-blue-50/30 overflow-hidden relative">
+    <div className="flex h-full w-full bg-gradient-to-br from-slate-50 via-white to-blue-50/30 overflow-hidden relative">
 
       {/* Background decorations for Glassmorphism */}
       <div className="absolute top-0 right-0 -mr-20 -mt-20 w-72 h-72 rounded-full bg-blue-100/40 blur-3xl opacity-50 mix-blend-multiply pointer-events-none" />
