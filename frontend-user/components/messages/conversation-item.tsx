@@ -141,7 +141,7 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
       </button>
 
       {/* Menu Kebab Optionnel */}
-      <div className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover/conv:opacity-100 focus-within:opacity-100 transition-opacity z-30">
+      <div className="absolute right-2 top-1/2 -translate-y-1/2 opacity-100 md:opacity-0 md:group-hover/conv:opacity-100 focus-within:opacity-100 transition-opacity z-30">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button

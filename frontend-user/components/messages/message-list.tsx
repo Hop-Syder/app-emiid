@@ -100,7 +100,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
     >
       {/* Menu Kebab pour nos propres messages (seulement s'il n'y a pas d'erreur ou d'envoi en cours) */}
       {isOwn && (!message.status || message.status === 'sent') && (
-        <div className="opacity-0 group-hover/bubble-container:opacity-100 focus-within:opacity-100 transition-opacity duration-200 mr-2 shrink-0">
+        <div className="opacity-100 md:opacity-0 md:group-hover/bubble-container:opacity-100 focus-within:opacity-100 transition-opacity duration-200 mr-2 shrink-0">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button

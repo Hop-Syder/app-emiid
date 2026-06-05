@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import { motion, AnimatePresence } from 'framer-motion'
 
 // === INTERFACES ===
 interface ChatSidebarProps {
@@ -164,20 +165,30 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
             ))}
           </div>
         ) : displayConversations.length > 0 ? (
-          <div className="flex flex-col gap-0.5 p-2">
-            {displayConversations.map((conv) => (
-              <ConversationItem
-                key={conv.id}
-                conversation={conv}
-                isActive={activeId === conv.id}
-                onClick={onSelect}
-                isOnline={onlineUserIds.has(conv.other_participant.user_id)}
-                onPin={onPin}
-                onArchive={onArchive}
-                onDelete={onDelete}
-              />
-            ))}
-          </div>
+          <motion.div layout className="flex flex-col gap-0.5 p-2">
+            <AnimatePresence initial={false}>
+              {displayConversations.map((conv) => (
+                <motion.div
+                  key={conv.id}
+                  layout
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                >
+                  <ConversationItem
+                    conversation={conv}
+                    isActive={activeId === conv.id}
+                    onClick={onSelect}
+                    isOnline={onlineUserIds.has(conv.other_participant.user_id)}
+                    onPin={onPin}
+                    onArchive={onArchive}
+                    onDelete={onDelete}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
         ) : (
           <div className="flex flex-col items-center justify-center p-12 gap-3 text-center">
             <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center">

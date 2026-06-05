@@ -544,8 +544,8 @@ export function MessagesContent() {
 
       {/* === COLONNE DE GAUCHE : LISTE DES CONVERSATIONS === */}
       <div className={cn(
-        "h-full w-full shrink-0",
-        showChatMobile && "hidden"
+        "h-full w-full shrink-0 md:w-[360px] md:block md:shrink-0",
+        showChatMobile && "hidden md:block"
       )}>
         <ChatSidebar
           conversations={filteredConversations}
@@ -683,6 +683,17 @@ export function MessagesContent() {
             </p>
           </div>
         )}
+      </div>
+
+      {/* === PANNEAU DÉCORATIF DE DROITE : SUR DESKTOP UNIQUEMENT === */}
+      <div className="hidden md:flex flex-1 flex-col items-center justify-center bg-slate-50/30 backdrop-blur-md p-8 text-center h-full border-l border-slate-100/50 relative z-10">
+        <div className="w-24 h-24 bg-white/80 backdrop-blur-sm shadow-xl shadow-indigo-100/30 rounded-3xl flex items-center justify-center mb-6 border border-slate-100/80 transition-all duration-300 hover:scale-105">
+          <MessageSquare className="h-10 w-10 text-primary/60" />
+        </div>
+        <h2 className="text-2xl font-bold text-slate-800 mb-3 tracking-tight">Vos Messages</h2>
+        <p className="text-slate-500 max-w-sm text-sm leading-relaxed">
+          Sélectionnez une discussion dans le panneau pour commencer à échanger de manière sécurisée.
+        </p>
       </div>
 
       <MediationDialog
