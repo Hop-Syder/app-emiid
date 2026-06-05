@@ -161,4 +161,4 @@ export const AvatarUpload = React.memo(function AvatarUpload({ currentAvatarUrl,
             </div>
         </div>
     )
-}
+})

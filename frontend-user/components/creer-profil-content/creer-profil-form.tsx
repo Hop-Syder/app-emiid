@@ -614,5 +614,5 @@ export const CreerProfilForm = React.memo(function CreerProfilForm({
             </div>
         </div>
     )
-}
+})
 
