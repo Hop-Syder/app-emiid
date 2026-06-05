@@ -1,7 +1,17 @@
+/**
+ * @author @hopsyder
+ * @organization Nexus Partners
+ * @description Conteneur de navigation principal avec gestion responsive et Suspense pour useSearchParams
+ * @created 2026-06-03
+ * @updated 2026-06-05
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+ */
+
 "use client"
 
 import { usePathname, useSearchParams } from "next/navigation"
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { DesktopSidebar } from "./desktop-sidebar"
 import { MobileDock } from "./mobile-dock"
@@ -12,12 +22,26 @@ interface NavigationShellProps {
   isPublic?: boolean
 }
 
+interface ChatActiveWatcherProps {
+  pathname: string
+  onChange: (active: boolean) => void
+}
+
+function ChatActiveWatcher({ pathname, onChange }: ChatActiveWatcherProps) {
+  const searchParams = useSearchParams()
+  const isActive = pathname === "/messages" && !!(searchParams.get("contact") || searchParams.get("user"))
+
+  useEffect(() => {
+    onChange(isActive)
+  }, [isActive, onChange])
+
+  return null
+}
+
 export function NavigationShell({ children, isPublic = false }: NavigationShellProps) {
   const [effectiveIsPublic, setEffectiveIsPublic] = useState(isPublic)
+  const [isMessageChatActive, setIsMessageChatActive] = useState(false)
   const pathname = usePathname()
-  const searchParams = useSearchParams()
-  
-  const isMessageChatActive = pathname === "/messages" && (searchParams.get("contact") || searchParams.get("user"))
 
   useEffect(() => {
     const supabase = createClient()
@@ -42,6 +66,10 @@ export function NavigationShell({ children, isPublic = false }: NavigationShellP
 
   return (
     <div className="relative min-h-screen bg-slate-50 w-full flex">
+      <Suspense fallback={null}>
+        <ChatActiveWatcher pathname={pathname} onChange={setIsMessageChatActive} />
+      </Suspense>
+
       {/* Sidebar pour Desktop */}
       <DesktopSidebar isPublic={effectiveIsPublic} />
 
