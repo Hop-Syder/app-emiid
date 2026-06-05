@@ -567,7 +567,7 @@ export function MessagesContent() {
       </div>
 
       {/* === COLONNE DE DROITE : ZONE DE CHAT === */}
-      <div className={cn("flex-1 flex flex-col h-full relative z-10 md:hidden", !showChatMobile && "hidden")}>
+      <div className={cn("flex-1 flex flex-col h-full relative z-10", !showChatMobile && "hidden md:block")}>
         {selectedConv ? (
           <>
             {/* Header */}
