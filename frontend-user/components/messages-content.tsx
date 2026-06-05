@@ -12,7 +12,7 @@
 "use client"
 
 import { useState, useRef, useEffect, useCallback, useMemo } from "react"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 import { ArrowLeft, MoreHorizontal, Gavel, Trash2, MessageSquare, Phone, Video, Search } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
@@ -51,6 +51,7 @@ import { useMessagesRealtime } from "@/features/messages/useMessagesRealtime"
 
 export function MessagesContent() {
   const searchParams = useSearchParams()
+  const router = useRouter()
   const contactId = searchParams.get("contact") || searchParams.get("user")
 
   const supabase = useMemo(() => createClient(), [])
@@ -395,6 +396,7 @@ export function MessagesContent() {
       setConversations(prev => prev.filter(c => c.id !== selectedConv.id))
       setSelectedConv(null)
       setShowChatMobile(false)
+      router.push('/messages', { scroll: false })
       toast.success("Conversation supprimée")
     } catch {
       toast.error("Erreur lors de la suppression")
@@ -429,6 +431,8 @@ export function MessagesContent() {
           onSelect={(conv: any) => {
             setSelectedConv(conv)
             setShowChatMobile(true)
+            const resolvedId = conv.other_participant.user_id || conv.other_participant.id
+            router.push(`/messages?contact=${resolvedId}`, { scroll: false })
           }}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
@@ -447,7 +451,10 @@ export function MessagesContent() {
                   variant="ghost"
                   size="icon"
                   className="md:hidden -ml-2 hover:bg-slate-100/50 h-8 w-8"
-                  onClick={() => setShowChatMobile(false)}
+                  onClick={() => {
+                    setShowChatMobile(false)
+                    router.push('/messages', { scroll: false })
+                  }}
                 >
                   <ArrowLeft className="h-4 w-4" />
                 </Button>

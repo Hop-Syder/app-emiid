@@ -1,5 +1,6 @@
 "use client"
 
+import { usePathname, useSearchParams } from "next/navigation"
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { DesktopSidebar } from "./desktop-sidebar"
@@ -13,6 +14,10 @@ interface NavigationShellProps {
 
 export function NavigationShell({ children, isPublic = false }: NavigationShellProps) {
   const [effectiveIsPublic, setEffectiveIsPublic] = useState(isPublic)
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  
+  const isMessageChatActive = pathname === "/messages" && (searchParams.get("contact") || searchParams.get("user"))
 
   useEffect(() => {
     const supabase = createClient()
@@ -43,14 +48,14 @@ export function NavigationShell({ children, isPublic = false }: NavigationShellP
       {/* 
         Conteneur principal: 
         - padding-left de 88px sur lg pour ne pas passer sous la sidebar (w-[88px])
-        - padding-bottom sur mobile pour ne pas être caché par le dock flottant
+        - padding-bottom sur mobile pour ne pas être caché par le dock flottant (sauf si chat actif)
       */}
-      <main className="flex-1 w-full min-w-0 transition-all duration-300 lg:pl-[88px] pb-24 lg:pb-0">
+      <main className={`flex-1 w-full min-w-0 transition-all duration-300 lg:pl-[88px] lg:pb-0 ${isMessageChatActive ? "pb-0" : "pb-24"}`}>
         {children}
       </main>
 
       {/* Dock pour Mobile */}
-      <MobileDock isPublic={effectiveIsPublic} />
+      {!isMessageChatActive && <MobileDock isPublic={effectiveIsPublic} />}
 
       {/* Palette de commandes (CMD+K) */}
       <CommandPalette />
