@@ -3,13 +3,13 @@
  * @organization Nexus Partners
  * @description Composant Sidebar pour la liste des conversations
  * @created 2026-05-11
- * @updated 2026-06-02
+ * @updated 2026-06-05
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
-*/
+ */
 
 import React, { useMemo } from 'react'
-import { Search, Plus, MessageSquareDot } from 'lucide-react'
+import { Search, Plus, MessageSquareDot, ArrowLeft, Archive } from 'lucide-react'
 import { Conversation } from './types'
 import { ConversationItem } from './conversation-item'
 import { Input } from '@/components/ui/input'
@@ -26,6 +26,9 @@ interface ChatSidebarProps {
   onSearchChange: (query: string) => void
   isLoading: boolean
   onlineUserIds?: Set<string>
+  onPin?: (convId: string) => void
+  onArchive?: (convId: string) => void
+  onDelete?: (convId: string) => void
 }
 
 // === COMPOSANT SIDEBAR ===
@@ -37,12 +40,40 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
   onSearchChange,
   isLoading,
   onlineUserIds = new Set(),
+  onPin,
+  onArchive,
+  onDelete,
 }) => {
   const router = useRouter()
+  const [showArchived, setShowArchived] = React.useState(false)
+
+  // Séparer les archivées des actives
+  const archivedConversations = useMemo(() => {
+    return conversations.filter(c => c.isArchived)
+  }, [conversations])
+
+  const activeConversations = useMemo(() => {
+    return conversations.filter(c => !c.isArchived)
+  }, [conversations])
+
+  // Conversations à afficher (filtrées et triées)
+  const displayConversations = useMemo(() => {
+    const list = showArchived ? archivedConversations : activeConversations
+    return [...list].sort((a, b) => {
+      // Épinglées en premier
+      if (a.isPinned && !b.isPinned) return -1
+      if (!a.isPinned && b.isPinned) return 1
+      
+      // Puis par date de dernier message (ou mise à jour) décroissante
+      const dateA = new Date(a.last_message_at || a.updated_at).getTime()
+      const dateB = new Date(b.last_message_at || b.updated_at).getTime()
+      return dateB - dateA
+    })
+  }, [showArchived, archivedConversations, activeConversations])
 
   const totalUnread = useMemo(
-    () => conversations.reduce((acc, c) => acc + (c.unread_count || 0), 0),
-    [conversations]
+    () => activeConversations.reduce((acc, c) => acc + (c.unread_count || 0), 0),
+    [activeConversations]
   )
 
   // === RENDU DU COMPOSANT ===
@@ -53,8 +84,20 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
       <div className="px-4 pt-5 pb-3 border-b border-slate-100/80 bg-white/30 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <h2 className="text-lg font-bold text-slate-800 tracking-tight">Messages</h2>
-            {totalUnread > 0 && (
+            {showArchived && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-lg text-slate-500 hover:text-slate-800 mr-0.5"
+                onClick={() => setShowArchived(false)}
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+            )}
+            <h2 className="text-lg font-bold text-slate-800 tracking-tight">
+              {showArchived ? "Archivées" : "Messages"}
+            </h2>
+            {totalUnread > 0 && !showArchived && (
               <span className={cn(
                 "min-w-[20px] h-5 flex items-center justify-center",
                 "bg-primary text-white text-[10px] font-bold rounded-full px-1.5 shadow-sm",
@@ -64,15 +107,17 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
               </span>
             )}
           </div>
-          <Button 
-            size="icon" 
-            variant="ghost" 
-            className="rounded-xl h-8 w-8 text-slate-500 hover:text-primary hover:bg-primary/8 transition-colors"
-            onClick={() => router.push('/annuaire')}
-            title="Démarrer une nouvelle discussion"
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
+          {!showArchived && (
+            <Button 
+              size="icon" 
+              variant="ghost" 
+              className="rounded-xl h-8 w-8 text-slate-500 hover:text-primary hover:bg-primary/8 transition-colors"
+              onClick={() => router.push('/annuaire')}
+              title="Démarrer une nouvelle discussion"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          )}
         </div>
         
         {/* Recherche */}
@@ -92,6 +137,20 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
 
       {/* === LISTE DES CONVERSATIONS === */}
       <div className="flex-1 overflow-y-auto custom-scrollbar">
+        {/* Affichage des archives (si existantes et non en cours de visualisation) */}
+        {archivedConversations.length > 0 && !showArchived && (
+          <button
+            onClick={() => setShowArchived(true)}
+            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors border-b border-slate-100 text-slate-600 hover:text-slate-900 group"
+          >
+            <Archive className="h-4 w-4 text-slate-400 group-hover:text-primary transition-colors" />
+            <span className="text-xs font-semibold flex-1 text-left">Discussions archivées</span>
+            <span className="text-xs bg-slate-100 px-2 py-0.5 rounded-full font-bold text-slate-500">
+              {archivedConversations.length}
+            </span>
+          </button>
+        )}
+
         {isLoading ? (
           <div className="p-6 space-y-3">
             {[1, 2, 3].map((i) => (
@@ -104,15 +163,18 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
               </div>
             ))}
           </div>
-        ) : conversations.length > 0 ? (
+        ) : displayConversations.length > 0 ? (
           <div className="flex flex-col gap-0.5 p-2">
-            {conversations.map((conv) => (
+            {displayConversations.map((conv) => (
               <ConversationItem
                 key={conv.id}
                 conversation={conv}
                 isActive={activeId === conv.id}
                 onClick={onSelect}
                 isOnline={onlineUserIds.has(conv.other_participant.user_id)}
+                onPin={onPin}
+                onArchive={onArchive}
+                onDelete={onDelete}
               />
             ))}
           </div>
@@ -122,9 +184,9 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
               <MessageSquareDot className="h-5 w-5 text-slate-400" />
             </div>
             <p className="text-sm text-slate-400 font-medium">
-              {searchQuery ? 'Aucun résultat trouvé.' : 'Aucune conversation pour le moment.'}
+              {searchQuery ? 'Aucun résultat trouvé.' : showArchived ? 'Aucune conversation archivée.' : 'Aucune conversation pour le moment.'}
             </p>
-            {!searchQuery && (
+            {!searchQuery && !showArchived && (
               <button
                 onClick={() => router.push('/annuaire')}
                 className="text-xs text-primary font-semibold hover:underline"

@@ -1,3 +1,13 @@
+/**
+ * @author @hopsyder
+ * @organization Nexus Partners
+ * @description Hook React pour la synchronisation en temps réel des messages et de la présence
+ * @created 2026-05-11
+ * @updated 2026-06-05
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+ */
+
 "use client"
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
@@ -7,6 +17,8 @@ import type { Message } from "@/components/messages/types"
 interface RealtimeHandlers {
   onNewMessage: (message: Message) => void
   onPresenceChange: (onlineUserIds: Set<string>) => void
+  onUpdateMessage?: (message: Message) => void
+  onDeleteMessage?: (messageId: string) => void
 }
 
 export function useMessagesRealtime(currentUserId: string | null, handlers: RealtimeHandlers) {
@@ -50,6 +62,22 @@ export function useMessagesRealtime(currentUserId: string | null, handlers: Real
         { event: "INSERT", schema: "public", table: "messages" },
         (payload) => {
           handlersRef.current.onNewMessage(payload.new as Message)
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "messages" },
+        (payload) => {
+          handlersRef.current.onUpdateMessage?.(payload.new as Message)
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "DELETE", schema: "public", table: "messages" },
+        (payload) => {
+          if (payload.old && payload.old.id) {
+            handlersRef.current.onDeleteMessage?.(payload.old.id)
+          }
         },
       )
       .subscribe((status) => {

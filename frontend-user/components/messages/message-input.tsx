@@ -3,10 +3,10 @@
  * @organization Nexus Partners
  * @description Composant d'entrée de texte pour la messagerie
  * @created 2026-05-11
- * @updated 2026-05-27
+ * @updated 2026-06-05
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
-*/
+ */
 
 import React, { useState, useRef, useEffect } from 'react'
 import { Send, Paperclip } from 'lucide-react'
@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import { EmojiPickerPopover } from './emoji-picker-popover'
+import { Message } from './types'
 
 // Détecte si un texte est un emoji unique (ou combinaison simple)
 const isSingleEmoji = (str: string): boolean => {
@@ -26,10 +27,19 @@ const isSingleEmoji = (str: string): boolean => {
 interface MessageInputProps {
   onSend: (content: string, type?: 'text' | 'emoji', file?: File) => void
   isDisabled: boolean
+  editingMessage: Message | null
+  onCancelEdit: () => void
+  onEditSubmit: (messageId: string, content: string) => void
 }
 
 // === COMPOSANT DE SAISIE DE MESSAGE ===
-export const MessageInput: React.FC<MessageInputProps> = ({ onSend, isDisabled }) => {
+export const MessageInput: React.FC<MessageInputProps> = ({
+  onSend,
+  isDisabled,
+  editingMessage,
+  onCancelEdit,
+  onEditSubmit,
+}) => {
   // === ÉTATS ET RÉFÉRENCES ===
   const [text, setText] = useState('')
   const [file, setFile] = useState<File | null>(null)
@@ -50,15 +60,32 @@ export const MessageInput: React.FC<MessageInputProps> = ({ onSend, isDisabled }
     adjustHeight()
   }, [text])
 
+  // Hydrater le champ lors de l'édition
+  useEffect(() => {
+    if (editingMessage) {
+      setText(editingMessage.content)
+      textareaRef.current?.focus()
+      setTimeout(adjustHeight, 50)
+    } else {
+      setText('')
+    }
+  }, [editingMessage])
+
   // === GESTION DE LA SOUMISSION ===
   const handleSubmit = (e: React.FormEvent | React.KeyboardEvent) => {
     e.preventDefault()
     if (!text.trim() && !file) return
 
-    const type = isSingleEmoji(text) ? 'emoji' : 'text'
-    onSend(text.trim(), type, file || undefined)
+    if (editingMessage) {
+      onEditSubmit(editingMessage.id, text.trim())
+      onCancelEdit()
+    } else {
+      const type = isSingleEmoji(text) ? 'emoji' : 'text'
+      onSend(text.trim(), type, file || undefined)
+      setFile(null)
+    }
+
     setText('')
-    setFile(null)
     
     // Réinitialiser la hauteur
     if (textareaRef.current) {
@@ -84,6 +111,25 @@ export const MessageInput: React.FC<MessageInputProps> = ({ onSend, isDisabled }
   // === RENDU DU COMPOSANT ===
   return (
     <div className="px-4 py-3 bg-white/80 backdrop-blur-xl border-t border-slate-100/80 shrink-0">
+      {/* Bannière de modification de message */}
+      {editingMessage && (
+        <div className="flex items-center justify-between bg-indigo-50/80 border border-indigo-100 px-3 py-1.5 rounded-xl text-xs font-semibold text-indigo-700 mb-2 animate-in slide-in-from-bottom-1">
+          <div className="flex items-center gap-1.5 truncate">
+            <span className="w-1.5 h-1.5 bg-primary rounded-full" />
+            <span className="truncate">
+              Modification du message : <span className="font-normal italic text-slate-500">"{editingMessage.content}"</span>
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={onCancelEdit}
+            className="text-indigo-600 hover:text-red-500 font-bold ml-2 text-xs shrink-0"
+          >
+            Annuler
+          </button>
+        </div>
+      )}
+
       <form 
         onSubmit={handleSubmit}
         className="flex items-end gap-2.5 bg-slate-50/80 p-1.5 rounded-[24px] border border-slate-200/60 transition-all focus-within:border-primary/30 focus-within:shadow-[0_0_0_3px_rgba(79,70,229,0.08)] focus-within:bg-white"
@@ -95,6 +141,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({ onSend, isDisabled }
             type="file" 
             ref={fileInputRef} 
             className="hidden" 
+            disabled={!!editingMessage || isDisabled}
             onChange={(e) => {
               const selectedFile = e.target.files?.[0]
               if (selectedFile && selectedFile.size > 10 * 1024 * 1024) {
@@ -111,6 +158,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({ onSend, isDisabled }
             size="icon" 
             className="text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl h-9 w-9 m-1 shrink-0"
             onClick={() => fileInputRef.current?.click()}
+            disabled={!!editingMessage || isDisabled}
           >
             <Paperclip className="h-4 w-4" />
           </Button>
@@ -120,7 +168,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({ onSend, isDisabled }
             id="message-text-input"
             name="message_text"
             rows={1}
-            placeholder="Message..." 
+            placeholder={editingMessage ? "Modifier le message..." : "Message..."} 
             className="flex-1 border-none bg-transparent pl-2 pr-11 py-3 focus:outline-none focus:ring-0 shadow-none font-medium text-[15px] resize-none overflow-y-auto max-h-[140px] leading-relaxed text-slate-800 self-center"
             value={text}
             onChange={(e) => setText(e.target.value)}

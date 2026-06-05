@@ -6,16 +6,23 @@
  * @updated 2026-06-05
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
-*/
+ */
 
 import React from 'react'
 import { format, isToday, isYesterday } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { Message } from './types'
 import { parseMessageContent } from '@/features/messages/messageContent'
-import { FileText, Check, CheckCheck, Clock, AlertCircle, ArrowDown } from 'lucide-react'
+import { FileText, Check, CheckCheck, Clock, AlertCircle, ArrowDown, MoreHorizontal, Edit2, Trash2, RotateCcw } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { Button } from '@/components/ui/button'
 
 // Assistant pour obtenir le séparateur de date
 const getDateSeparator = (date: Date): string => {
@@ -30,13 +37,19 @@ interface MessageBubbleProps {
   isOwn: boolean
   isGroupStart: boolean
   isGroupEnd: boolean
+  onEdit?: (message: Message) => void
+  onDelete?: (messageId: string) => void
+  onResend?: (message: Message) => void
 }
 
 export const MessageBubble: React.FC<MessageBubbleProps> = ({ 
   message, 
   isOwn,
   isGroupStart,
-  isGroupEnd
+  isGroupEnd,
+  onEdit,
+  onDelete,
+  onResend,
 }) => {
   const parsed = parseMessageContent(message.content)
   const [formattedTime, setFormattedTime] = React.useState<string>("")
@@ -80,11 +93,47 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.2, ease: "easeOut" }}
       className={cn(
-        "flex w-full px-4",
+        "flex w-full px-4 group/bubble-container items-center",
         isOwn ? "justify-end" : "justify-start",
         isGroupEnd ? "mb-3" : "mb-1"
       )}
     >
+      {/* Menu Kebab pour nos propres messages (seulement s'il n'y a pas d'erreur ou d'envoi en cours) */}
+      {isOwn && (!message.status || message.status === 'sent') && (
+        <div className="opacity-0 group-hover/bubble-container:opacity-100 focus-within:opacity-100 transition-opacity duration-200 mr-2 shrink-0">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100/50"
+              >
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-32 rounded-xl shadow-xl border-slate-100">
+              {parsed.kind === "text" && (
+                <DropdownMenuItem
+                  className="text-slate-700 focus:text-primary rounded-lg flex items-center gap-2 cursor-pointer"
+                  onClick={() => onEdit?.(message)}
+                >
+                  <Edit2 className="h-3.5 w-3.5 text-slate-500" />
+                  Modifier
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem
+                className="text-red-600 focus:text-red-700 focus:bg-red-50 rounded-lg flex items-center gap-2 cursor-pointer"
+                onClick={() => onDelete?.(message.id)}
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                Supprimer
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      )}
+
+      {/* Bulle de message */}
       <div className={cn(
         "max-w-[85%] md:max-w-[70%] p-3 shadow-sm relative group transition-all",
         borderRadiusClass,
@@ -133,17 +182,24 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
           "flex items-center gap-1.5 mt-1 text-[10px] font-medium opacity-70 justify-end",
           isOwn ? "text-indigo-100/90" : "text-slate-500"
         )}>
+          {message.is_edited && (
+            <span className="text-[9px] italic opacity-80 shrink-0">(Modifié)</span>
+          )}
           <span>{formattedTime || "--:--"}</span>
           
           {isOwn && (
-            <span className="shrink-0">
+            <span className="shrink-0 flex items-center gap-1">
               {message.status === 'pending' && (
                 <Clock className="h-3 w-3 animate-pulse opacity-80" />
               )}
               {message.status === 'error' && (
-                <span title="Échec de l'envoi">
-                  <AlertCircle className="h-3 w-3 text-red-300" />
-                </span>
+                <button
+                  onClick={() => onResend?.(message)}
+                  className="p-0.5 hover:bg-white/10 rounded text-red-200 transition-colors"
+                  title="Renvoyer le message"
+                >
+                  <RotateCcw className="h-3.5 w-3.5" />
+                </button>
               )}
               {(!message.status || message.status === 'sent') && (
                 message.is_read ? (
@@ -167,10 +223,19 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
 interface MessageListProps {
   messages: Message[]
   currentUserId: string
+  onEditMessage?: (message: Message) => void
+  onDeleteMessage?: (messageId: string) => void
+  onResendMessage?: (message: Message) => void
 }
 
 // === LISTE DES MESSAGES (SCROLL ET RENDU) ===
-export const MessageList: React.FC<MessageListProps> = ({ messages, currentUserId }) => {
+export const MessageList: React.FC<MessageListProps> = ({
+  messages,
+  currentUserId,
+  onEditMessage,
+  onDeleteMessage,
+  onResendMessage,
+}) => {
   const containerRef = React.useRef<HTMLDivElement>(null)
   const bottomRef = React.useRef<HTMLDivElement>(null)
   const [showScrollButton, setShowScrollButton] = React.useState(false)
@@ -217,17 +282,17 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, currentUserI
       
       // Clustering (regroupement par expéditeur sous 5 minutes)
       const isSameAsPrev = prevMsg && 
-        prevMsg.sender_id === msg.sender_id && 
-        !prevMsg.is_mediation && 
-        !msg.is_mediation &&
-        (new Date(msg.created_at).getTime() - new Date(prevMsg.created_at).getTime()) < 5 * 60 * 1000
-
+          prevMsg.sender_id === msg.sender_id && 
+          !prevMsg.is_mediation && 
+          !msg.is_mediation &&
+          (new Date(msg.created_at).getTime() - new Date(prevMsg.created_at).getTime()) < 5 * 60 * 1000
+  
       const isSameAsNext = nextMsg && 
-        nextMsg.sender_id === msg.sender_id && 
-        !nextMsg.is_mediation && 
-        !msg.is_mediation &&
-        (new Date(nextMsg.created_at).getTime() - new Date(msg.created_at).getTime()) < 5 * 60 * 1000
-
+          nextMsg.sender_id === msg.sender_id && 
+          !nextMsg.is_mediation && 
+          !msg.is_mediation &&
+          (new Date(nextMsg.created_at).getTime() - new Date(msg.created_at).getTime()) < 5 * 60 * 1000
+  
       const isGroupStart = !isSameAsPrev
       const isGroupEnd = !isSameAsNext
 
@@ -302,6 +367,9 @@ export const MessageList: React.FC<MessageListProps> = ({ messages, currentUserI
                 isOwn={msg.sender_id === currentUserId} 
                 isGroupStart={msg.isGroupStart}
                 isGroupEnd={msg.isGroupEnd}
+                onEdit={onEditMessage}
+                onDelete={onDeleteMessage}
+                onResend={onResendMessage}
               />
             </React.Fragment>
           ))

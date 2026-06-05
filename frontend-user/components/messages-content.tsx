@@ -7,7 +7,7 @@
  * @updated 2026-06-05
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
-*/
+ */
 
 "use client"
 
@@ -70,7 +70,64 @@ export function MessagesContent() {
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false)
   const [onlineUserIds, setOnlineUserIds] = useState<Set<string>>(new Set())
 
+  // États additionnels pour les fonctionnalités WhatsApp
+  const [pinnedIds, setPinnedIds] = useState<string[]>([])
+  const [archivedIds, setArchivedIds] = useState<string[]>([])
+  const [editingMessage, setEditingMessage] = useState<Message | null>(null)
+  const [convIdToDelete, setConvIdToDelete] = useState<string | null>(null)
 
+  // Charger les états Pin/Archive du local storage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const pinned = localStorage.getItem("local_pinned_conversations")
+      const archived = localStorage.getItem("local_archived_conversations")
+      if (pinned) {
+        try {
+          setPinnedIds(JSON.parse(pinned))
+        } catch (e) {
+          console.error(e)
+        }
+      }
+      if (archived) {
+        try {
+          setArchivedIds(JSON.parse(archived))
+        } catch (e) {
+          console.error(e)
+        }
+      }
+    }
+  }, [])
+
+  // Callbacks de modification de Pin/Archive
+  const handleTogglePin = useCallback((conversationId: string) => {
+    setPinnedIds(prev => {
+      const next = prev.includes(conversationId)
+        ? prev.filter(id => id !== conversationId)
+        : [...prev, conversationId]
+      localStorage.setItem("local_pinned_conversations", JSON.stringify(next))
+      return next
+    })
+  }, [])
+
+  const handleToggleArchive = useCallback((conversationId: string) => {
+    setArchivedIds(prev => {
+      const next = prev.includes(conversationId)
+        ? prev.filter(id => id !== conversationId)
+        : [...prev, conversationId]
+      localStorage.setItem("local_archived_conversations", JSON.stringify(next))
+      return next
+    })
+
+    // Fermer la conversation si elle était active
+    setSelectedConv(prev => {
+      if (prev && prev.id === conversationId) {
+        setShowChatMobile(false)
+        router.push('/messages', { scroll: false })
+        return null
+      }
+      return prev
+    })
+  }, [router])
 
   // Mark as read
   const markMessagesAsRead = useCallback(async (conversationId: string) => {
@@ -161,7 +218,7 @@ export function MessagesContent() {
     load()
   }, [selectedConv?.id, markMessagesAsRead])
 
-  // Realtime
+  // Realtime handlers
   const realtime = useMessagesRealtime(currentUserId, {
     onPresenceChange: (userIds) => {
       setOnlineUserIds(userIds)
@@ -177,8 +234,7 @@ export function MessagesContent() {
       setConversations(prev => {
         const index = prev.findIndex(c => c.id === newMsg.conversation_id)
         if (index === -1) {
-          // Si la conversation n'est pas dans la liste locale (ex: nouveau contact initié par un tiers),
-          // on recharge la liste depuis le serveur.
+          // Si la conversation n'est pas dans la liste locale, on recharge
           fetchConversations().then(data => setConversations(data)).catch(console.error)
           return prev
         }
@@ -190,12 +246,16 @@ export function MessagesContent() {
           last_message_at: newMsg.created_at,
           unread_count: isCurrent ? 0 : next[index].unread_count + 1
         }
-        return next.sort((a, b) => {
-          const dateA = new Date(a.last_message_at || a.updated_at).getTime()
-          const dateB = new Date(b.last_message_at || b.updated_at).getTime()
-          return dateB - dateA
-        })
+        return next
       })
+    },
+    onUpdateMessage: (updatedMsg) => {
+      if (selectedConv && updatedMsg.conversation_id === selectedConv.id) {
+        setMessages(prev => prev.map(m => m.id === updatedMsg.id ? updatedMsg : m))
+      }
+    },
+    onDeleteMessage: (deletedMsgId) => {
+      setMessages(prev => prev.filter(m => m.id !== deletedMsgId))
     }
   })
 
@@ -342,10 +402,6 @@ export function MessagesContent() {
               }
             }
             return c
-          }).sort((a, b) => {
-            const dateA = new Date(a.last_message_at || a.updated_at).getTime()
-            const dateB = new Date(b.last_message_at || b.updated_at).getTime()
-            return dateB - dateA
           })
         })
       }
@@ -361,8 +417,6 @@ export function MessagesContent() {
           setSelectedConv(prev => prev ? { ...prev, id: convId } : null)
         }
       }
-
-
     } catch (err: any) {
       console.error(err)
       // Marquer le message comme en erreur
@@ -370,6 +424,59 @@ export function MessagesContent() {
       toast.error(`Échec de l'envoi : ${err?.message || "Erreur réseau"}`)
     }
   }
+
+  // callbacks d'édition et suppression
+  const handleStartEditMessage = useCallback((message: Message) => {
+    setEditingMessage(message)
+  }, [])
+
+  const handleEditMessage = useCallback(async (messageId: string, newContent: string) => {
+    if (!messageId || !newContent.trim()) return
+    try {
+      const { error } = await supabase
+        .from('messages')
+        .update({ content: newContent })
+        .eq('id', messageId)
+
+      if (error) throw error
+
+      setMessages(prev => prev.map(m =>
+        m.id === messageId ? { ...m, content: newContent, is_edited: true } : m
+      ))
+      toast.success("Message modifié")
+    } catch (err: any) {
+      console.error("Error updating message", err)
+      toast.error(`Échec de la modification : ${err?.message || "Erreur réseau"}`)
+    }
+  }, [supabase])
+
+  const handleDeleteMessage = useCallback(async (messageId: string) => {
+    if (!messageId) return
+    try {
+      const { error } = await supabase
+        .from('messages')
+        .delete()
+        .eq('id', messageId)
+
+      if (error) throw error
+
+      setMessages(prev => prev.filter(m => m.id !== messageId))
+      toast.success("Message supprimé")
+    } catch (err: any) {
+      console.error("Error deleting message", err)
+      toast.error(`Échec de la suppression : ${err?.message || "Erreur réseau"}`)
+    }
+  }, [supabase])
+
+  const handleResendMessage = useCallback(async (failedMsg: Message) => {
+    if (!failedMsg || !selectedConv) return
+    
+    // Supprimer le message en erreur localement
+    setMessages(prev => prev.filter(m => m.id !== failedMsg.id))
+    
+    // Renvoyer le contenu
+    await handleSendMessage(failedMsg.content)
+  }, [selectedConv, handleSendMessage])
 
   const handleRequestMediation = async (reason: string) => {
     if (!selectedConv) return
@@ -385,33 +492,47 @@ export function MessagesContent() {
     }
   }
 
-  const handleDeleteConversation = () => {
+  const handleDeleteConversation = useCallback((convId?: string) => {
+    setConvIdToDelete(convId || selectedConv?.id || null)
     setIsDeleteConfirmOpen(true)
-  }
+  }, [selectedConv])
 
   const confirmDeleteConversation = async () => {
-    if (!selectedConv) return
+    const id = convIdToDelete || selectedConv?.id
+    if (!id) return
     setIsDeleteConfirmOpen(false)
     try {
-      await deleteConversation(selectedConv.id)
-      setConversations(prev => prev.filter(c => c.id !== selectedConv.id))
-      setSelectedConv(null)
-      setShowChatMobile(false)
-      router.push('/messages', { scroll: false })
+      await deleteConversation(id)
+      setConversations(prev => prev.filter(c => c.id !== id))
+      if (selectedConv?.id === id) {
+        setSelectedConv(null)
+        setShowChatMobile(false)
+        router.push('/messages', { scroll: false })
+      }
       toast.success("Conversation supprimée")
     } catch {
       toast.error("Erreur lors de la suppression")
+    } finally {
+      setConvIdToDelete(null)
     }
   }
 
+  const enrichedConversations = useMemo(() => {
+    return conversations.map(c => ({
+      ...c,
+      isPinned: pinnedIds.includes(c.id),
+      isArchived: archivedIds.includes(c.id)
+    }))
+  }, [conversations, pinnedIds, archivedIds])
+
   const filteredConversations = useMemo(() => {
-    if (!searchQuery) return conversations
-    return conversations.filter(c =>
+    if (!searchQuery) return enrichedConversations
+    return enrichedConversations.filter(c =>
       `${c.other_participant.first_name} ${c.other_participant.last_name}`
         .toLowerCase()
         .includes(searchQuery.toLowerCase())
     )
-  }, [conversations, searchQuery])
+  }, [enrichedConversations, searchQuery])
 
   // === RENDU PRINCIPAL DU COMPOSANT ===
   return (
@@ -423,11 +544,11 @@ export function MessagesContent() {
 
       {/* === COLONNE DE GAUCHE : LISTE DES CONVERSATIONS === */}
       <div className={cn(
-        "h-full md:block shrink-0",
-        showChatMobile ? "hidden md:w-80 lg:w-96" : "w-full md:w-80 lg:w-96"
+        "h-full w-full shrink-0",
+        showChatMobile && "hidden"
       )}>
         <ChatSidebar
-          conversations={filteredConversations as any}
+          conversations={filteredConversations}
           activeId={selectedConv?.id || null}
           onSelect={(conv: any) => {
             setSelectedConv(conv)
@@ -439,11 +560,14 @@ export function MessagesContent() {
           onSearchChange={setSearchQuery}
           isLoading={loadingConv}
           onlineUserIds={onlineUserIds}
+          onPin={handleTogglePin}
+          onArchive={handleToggleArchive}
+          onDelete={handleDeleteConversation}
         />
       </div>
 
       {/* === COLONNE DE DROITE : ZONE DE CHAT === */}
-      <div className={cn("flex-1 flex flex-col h-full relative z-10", !showChatMobile && "hidden md:flex")}>
+      <div className={cn("flex-1 flex flex-col h-full relative z-10 md:hidden", !showChatMobile && "hidden")}>
         {selectedConv ? (
           <>
             {/* Header */}
@@ -513,8 +637,8 @@ export function MessagesContent() {
                       <Gavel className="mr-2 h-4 w-4" /> Demander médiation
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      className="text-red-600 focus:text-red-700 focus:bg-red-50 rounded-lg"
-                      onClick={handleDeleteConversation}
+                      className="text-red-600 focus:text-red-700 focus:bg-red-50 rounded-lg animate-none cursor-pointer"
+                      onClick={() => handleDeleteConversation()}
                     >
                       <Trash2 className="mr-2 h-4 w-4" /> Supprimer discussion
                     </DropdownMenuItem>
@@ -533,6 +657,9 @@ export function MessagesContent() {
               <MessageList
                 messages={messages}
                 currentUserId={currentUserId || ''}
+                onEditMessage={handleStartEditMessage}
+                onDeleteMessage={handleDeleteMessage}
+                onResendMessage={handleResendMessage}
               />
             )}
 
@@ -540,6 +667,9 @@ export function MessagesContent() {
             <MessageInput
               onSend={handleSendMessage}
               isDisabled={!realtime.realtimeConnected}
+              editingMessage={editingMessage}
+              onCancelEdit={() => setEditingMessage(null)}
+              onEditSubmit={handleEditMessage}
             />
           </>
         ) : (

@@ -24,6 +24,7 @@ export interface Message {
   created_at: string
   attachment_url?: string
   status?: 'pending' | 'sent' | 'error'
+  is_edited?: boolean
 }
 
 export interface Conversation {
@@ -35,4 +36,6 @@ export interface Conversation {
   unread_count: number
   other_participant: Profile
   updated_at: string
+  isPinned?: boolean
+  isArchived?: boolean
 }
