@@ -25,6 +25,7 @@ interface ChatSidebarProps {
   searchQuery: string
   onSearchChange: (query: string) => void
   isLoading: boolean
+  onlineUserIds?: Set<string>
 }
 
 // === COMPOSANT SIDEBAR ===
@@ -35,6 +36,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
   searchQuery,
   onSearchChange,
   isLoading,
+  onlineUserIds = new Set(),
 }) => {
   const router = useRouter()
 
@@ -110,6 +112,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
                 conversation={conv}
                 isActive={activeId === conv.id}
                 onClick={onSelect}
+                isOnline={onlineUserIds.has(conv.other_participant.user_id)}
               />
             ))}
           </div>

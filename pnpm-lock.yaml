@@ -11,6 +11,9 @@ importers:
       '@supabase/ssr':
         specifier: ^0.9.0
         version: 0.9.0(@supabase/supabase-js@2.99.2)
+      date-fns:
+        specifier: ^4.4.0
+        version: 4.4.0
       framer-motion:
         specifier: ^12.38.0
         version: 12.38.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -99,6 +102,9 @@ packages:
   cookie@1.1.1:
     resolution: {integrity: sha512-ei8Aos7ja0weRpFzJnEA9UHJ/7XQmqglbRwnf2ATjcB9Wq874VKH9kfjjirM6UhU2/E5fFYadylyhFldcqSidQ==}
     engines: {node: '>=18'}
+
+  date-fns@4.4.0:
+    resolution: {integrity: sha512-+1UMbeh68lH1SegH83CGWwpb6OHHbpSgr3+s5Eww5M4CAgswBpoWS0AjTOfEJ33HiYKz1hdj/KTFprzXHmq/6w==}
 
   emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
@@ -319,6 +325,8 @@ snapshots:
       yargs: 17.7.2
 
   cookie@1.1.1: {}
+
+  date-fns@4.4.0: {}
 
   emoji-regex@8.0.0: {}
 
