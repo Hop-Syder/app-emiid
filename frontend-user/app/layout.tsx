@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Layout racine de l'application EmiID avec métadonnées SEO
  * @created 2026-04-18
- * @updated 2026-06-02
+ * @updated 2026-06-05
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  * ──────────────────────────────────
@@ -27,23 +27,32 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL('https://app.emiid.com'),
   title: 'EmiID — Votre empreinte numérique professionnelle',
-  description: 'La plateforme de networking intelligente pour les professionnels africains. Créez votre carte de visite numérique et développez votre réseau.',
+  description: "Crée ta carte de visite numérique et rejoins le réseau de professionnels qui construisent l'Afrique de demain.",
   generator: 'Next.js',
   keywords: ['networking', 'professionnel', 'Afrique', 'carte de visite', 'EmiID'],
   authors: [{ name: 'Nexus Partners' }],
   openGraph: {
     title: 'EmiID — Votre empreinte numérique professionnelle',
-    description: 'La plateforme de networking intelligente pour les professionnels.',
+    description: "Crée ta carte de visite numérique et rejoins le réseau de professionnels qui construisent l'Afrique de demain.",
     url: 'https://app.emiid.com',
     siteName: 'EmiID',
     locale: 'fr_FR',
     type: 'website',
+    images: [
+      {
+        url: 'https://app.emiid.com/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'EmiID — Votre empreinte numérique professionnelle',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'EmiID — Votre empreinte numérique professionnelle',
-    description: 'La plateforme de networking intelligente pour les professionnels.',
+    description: "Crée ta carte de visite numérique et rejoins le réseau de professionnels qui construisent l'Afrique de demain.",
     creator: '@hopsyder',
+    images: ['https://app.emiid.com/og-image.png'],
   },
   icons: {
     icon: [

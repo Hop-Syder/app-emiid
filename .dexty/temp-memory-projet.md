@@ -84,5 +84,6 @@
 - [2026-06-03] Droit d'accès SQL pour les tags : ajout de privilèges `GRANT SELECT ON public.tags TO anon, authenticated;` et `GRANT SELECT ON public.profile_tags TO anon, authenticated;` dans la migration `20260603_update_public_profiles_view.sql` pour garantir l'hydratation fluide des tags après actualisation.
 - [2026-06-05] Mise à jour de la section "Entrepreneurs du Réseau" sur le Dashboard Public pour utiliser la variante esthétique `glass-blue` sur les composants `EmiIDProfileCard`.
 - [2026-06-05] Correction de l'erreur de prerender Next.js liée à `useSearchParams` dans `NavigationShell` en l'isolant dans un conteneur Suspense avec `ChatActiveWatcher`.
+- [2026-06-05] Intégration des balises de métadonnées SEO complètes (OpenGraph, Twitter preview cards, descriptions, images de couverture) au niveau du layout global de l'application (`app/layout.tsx`).
 
 
