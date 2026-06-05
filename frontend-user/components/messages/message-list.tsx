@@ -147,9 +147,13 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
               )}
               {(!message.status || message.status === 'sent') && (
                 message.is_read ? (
-                  <CheckCheck className="h-3.5 w-3.5 text-sky-300 drop-shadow-[0_1px_2px_rgba(0,0,0,0.1)]" title="Lu" />
+                  <span title="Lu" className="inline-flex">
+                    <CheckCheck className="h-3.5 w-3.5 text-sky-300 drop-shadow-[0_1px_2px_rgba(0,0,0,0.1)]" />
+                  </span>
                 ) : (
-                  <Check className="h-3.5 w-3.5 text-indigo-200/60" title="Envoyé" />
+                  <span title="Envoyé" className="inline-flex">
+                    <Check className="h-3.5 w-3.5 text-indigo-200/60" />
+                  </span>
                 )
               )}
             </span>
