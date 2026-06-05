@@ -82,5 +82,7 @@
 - [2026-06-03] Correction de la sauvegarde de `activity_domain` : ajout du champ dans l'interface `CreateProfileFormData`, l'état initial, le chargeur d'hydratation et le payload envoyé à l'API backend dans `creer-profil-content.tsx`.
 - [2026-06-03] Stabilisation de la logique des tags dans `userController.ts` : remplacement du upsert de tags PostgREST par un flux SELECT -> INSERT -> SELECT de repli en cas de concurrence, et remplacement de l'upsert de liaison composite de `profile_tags` par un simple `insert` après nettoyage par `delete`.
 - [2026-06-03] Droit d'accès SQL pour les tags : ajout de privilèges `GRANT SELECT ON public.tags TO anon, authenticated;` et `GRANT SELECT ON public.profile_tags TO anon, authenticated;` dans la migration `20260603_update_public_profiles_view.sql` pour garantir l'hydratation fluide des tags après actualisation.
+- [2026-06-05] Mise à jour de la section "Entrepreneurs du Réseau" sur le Dashboard Public pour utiliser la variante esthétique `glass-blue` sur les composants `EmiIDProfileCard`.
+- [2026-06-05] Correction de l'erreur de prerender Next.js liée à `useSearchParams` dans `NavigationShell` en l'isolant dans un conteneur Suspense avec `ChatActiveWatcher`.
 
 

@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Section des entrepreneurs (vedettes/premium) du Dashboard Public avec carrousel fluide 3D.
  * @created 2026-06-03
- * @updated 2026-06-03
+ * @updated 2026-06-05
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -183,7 +183,7 @@ export function EntrepreneursSection({ entrepreneursList, loading }: Entrepreneu
                                             premium: entrepreneur.premium,
                                             tags: entrepreneur.tags || [entrepreneur.specialty],
                                         }}
-                                        variant="tech"
+                                        variant="glass-blue"
                                         isFollowed={!!entrepreneur.isFollowed}
                                         onAction={(type) => handleCardAction(type, entrepreneur.id, entrepreneur.slug)}
                                     />
