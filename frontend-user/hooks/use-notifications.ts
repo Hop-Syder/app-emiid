@@ -1,16 +1,27 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Hook pour la gestion des notifications temps réel
+ * @description Hook pour la gestion des notifications temps réel avec pagination
  * @created 2026-03-12
+ * @updated 2026-06-05
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
 
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState, useCallback } from "react"
 import { createClient } from "@/lib/supabase/client"
+
+const PAGE_SIZE = 15
+
+export interface NotificationSender {
+    id: string
+    first_name: string | null
+    last_name: string | null
+    avatar_url: string | null
+    slug: string | null
+}
 
 export interface Notification {
     id: string
@@ -20,6 +31,8 @@ export interface Notification {
     link?: string
     is_read: boolean
     created_at: string
+    sender_id?: string | null
+    sender?: NotificationSender | null
 }
 
 export function useNotifications() {
@@ -27,9 +40,46 @@ export function useNotifications() {
     const [unreadCount, setUnreadCount] = useState(0)
     const [userId, setUserId] = useState<string | null>(null)
     const [isLoading, setIsLoading] = useState(true)
+    const [isLoadingMore, setIsLoadingMore] = useState(false)
+    const [hasMore, setHasMore] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const supabase = useMemo(() => createClient(), [])
 
+    // Fonction pour enrichir les notifications avec les infos de l'expéditeur
+    const enrichNotificationsWithSender = useCallback(async (notifs: Notification[]): Promise<Notification[]> => {
+        // Récupérer les sender_ids uniques (en filtrant les null/undefined)
+        const senderIds = [...new Set(notifs.map(n => n.sender_id).filter(Boolean))] as string[]
+        
+        if (senderIds.length === 0) return notifs
+
+        const { data: profiles } = await supabase
+            .from('user_profiles')
+            .select('user_id, first_name, last_name, avatar_url, slug')
+            .in('user_id', senderIds)
+
+        if (!profiles) return notifs
+
+        const profileMap = new Map(profiles.map(p => [p.user_id, p]))
+
+        return notifs.map(notif => {
+            if (notif.sender_id && profileMap.has(notif.sender_id)) {
+                const profile = profileMap.get(notif.sender_id)!
+                return {
+                    ...notif,
+                    sender: {
+                        id: profile.user_id,
+                        first_name: profile.first_name,
+                        last_name: profile.last_name,
+                        avatar_url: profile.avatar_url,
+                        slug: profile.slug,
+                    }
+                }
+            }
+            return notif
+        })
+    }, [supabase])
+
+    // Chargement initial
     useEffect(() => {
         let isMounted = true
 
@@ -38,9 +88,7 @@ export function useNotifications() {
             setError(null)
 
             const { data: { user } } = await supabase.auth.getUser()
-            if (!isMounted) {
-                return
-            }
+            if (!isMounted) return
 
             if (!user) {
                 setUserId(null)
@@ -52,26 +100,38 @@ export function useNotifications() {
 
             setUserId(user.id)
 
-            const { data, error } = await supabase
+            // Charger les notifications
+            const { data, error: fetchError } = await supabase
                 .from('notifications')
                 .select('*')
                 .eq('user_id', user.id)
                 .order('created_at', { ascending: false })
-                .limit(20)
+                .limit(PAGE_SIZE)
 
-            if (!isMounted) {
-                return
-            }
+            if (!isMounted) return
 
-            if (error) {
-                setError(error.message)
+            if (fetchError) {
+                setError(fetchError.message)
                 setNotifications([])
                 setUnreadCount(0)
             } else {
-                const nextNotifications = data || []
-                setNotifications(nextNotifications)
-                setUnreadCount(nextNotifications.filter((notification) => !notification.is_read).length)
+                const notifs = data || []
+                const enrichedNotifs = await enrichNotificationsWithSender(notifs)
+                if (!isMounted) return
+                
+                setNotifications(enrichedNotifs)
+                setHasMore(notifs.length === PAGE_SIZE)
             }
+
+            // Charger le count total des non-lues
+            const { count } = await supabase
+                .from('notifications')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', user.id)
+                .eq('is_read', false)
+
+            if (!isMounted) return
+            setUnreadCount(count || 0)
 
             setIsLoading(false)
         }
@@ -81,12 +141,11 @@ export function useNotifications() {
         return () => {
             isMounted = false
         }
-    }, [supabase])
+    }, [supabase, enrichNotificationsWithSender])
 
+    // Realtime: nouvelles notifications
     useEffect(() => {
-        if (!userId) {
-            return
-        }
+        if (!userId) return
 
         const channel = supabase
             .channel(`notifications-${userId}`)
@@ -98,15 +157,19 @@ export function useNotifications() {
                     table: 'notifications',
                     filter: `user_id=eq.${userId}`,
                 },
-                (payload) => {
+                async (payload) => {
                     const newNotif = payload.new as Notification
+                    
+                    // Enrichir avec les infos sender
+                    const [enrichedNotif] = await enrichNotificationsWithSender([newNotif])
+                    
                     setNotifications((prev) => {
-                        if (prev.some((notification) => notification.id === newNotif.id)) {
+                        if (prev.some((notification) => notification.id === enrichedNotif.id)) {
                             return prev
                         }
-                        return [newNotif, ...prev]
+                        return [enrichedNotif, ...prev]
                     })
-                    setUnreadCount((prev) => prev + (newNotif.is_read ? 0 : 1))
+                    setUnreadCount((prev) => prev + (enrichedNotif.is_read ? 0 : 1))
                 }
             )
             .subscribe()
@@ -114,15 +177,49 @@ export function useNotifications() {
         return () => {
             supabase.removeChannel(channel)
         }
-    }, [supabase, userId])
+    }, [supabase, userId, enrichNotificationsWithSender])
+
+    // Charger plus de notifications (pagination)
+    const loadMore = useCallback(async () => {
+        if (!userId || isLoadingMore || !hasMore) return
+
+        setIsLoadingMore(true)
+
+        const lastNotification = notifications[notifications.length - 1]
+        if (!lastNotification) {
+            setIsLoadingMore(false)
+            return
+        }
+
+        const { data, error: fetchError } = await supabase
+            .from('notifications')
+            .select('*')
+            .eq('user_id', userId)
+            .lt('created_at', lastNotification.created_at)
+            .order('created_at', { ascending: false })
+            .limit(PAGE_SIZE)
+
+        if (fetchError) {
+            setError(fetchError.message)
+            setIsLoadingMore(false)
+            return
+        }
+
+        const notifs = data || []
+        const enrichedNotifs = await enrichNotificationsWithSender(notifs)
+        
+        setNotifications(prev => [...prev, ...enrichedNotifs])
+        setHasMore(notifs.length === PAGE_SIZE)
+        setIsLoadingMore(false)
+    }, [userId, isLoadingMore, hasMore, notifications, supabase, enrichNotificationsWithSender])
 
     const markAsRead = async (id: string) => {
-        const { error } = await supabase
+        const { error: updateError } = await supabase
             .from('notifications')
             .update({ is_read: true })
             .eq('id', id)
 
-        if (!error) {
+        if (!updateError) {
             const wasUnread = notifications.some((notification) => notification.id === id && !notification.is_read)
             setNotifications((prev) => prev.map((notification) =>
                 notification.id === id ? { ...notification, is_read: true } : notification
@@ -134,17 +231,15 @@ export function useNotifications() {
     }
 
     const markAllAsRead = async () => {
-        if (!userId) {
-            return
-        }
+        if (!userId) return
 
-        const { error } = await supabase
+        const { error: updateError } = await supabase
             .from('notifications')
             .update({ is_read: true })
             .eq('user_id', userId)
             .eq('is_read', false)
 
-        if (!error) {
+        if (!updateError) {
             setNotifications((prev) => prev.map((notification) => ({
                 ...notification,
                 is_read: true
@@ -157,12 +252,12 @@ export function useNotifications() {
         const toDelete = notifications.find(n => n.id === id)
         const wasUnread = toDelete ? !toDelete.is_read : false
 
-        const { error } = await supabase
+        const { error: deleteError } = await supabase
             .from('notifications')
             .delete()
             .eq('id', id)
 
-        if (!error) {
+        if (!deleteError) {
             setNotifications((prev) => prev.filter((notification) => notification.id !== id))
             if (wasUnread) {
                 setUnreadCount((prev) => Math.max(0, prev - 1))
@@ -177,6 +272,9 @@ export function useNotifications() {
         markAllAsRead, 
         deleteNotification,
         isLoading,
+        isLoadingMore,
+        hasMore,
+        loadMore,
         error,
     }
 }

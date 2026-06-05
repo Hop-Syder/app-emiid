@@ -1,20 +1,20 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Page de centre de notifications intelligent avec Bento Grid et Realtime
+ * @description Page de centre de notifications intelligent avec Bento Grid, Realtime et Infinite Scroll
  * @created 2026-06-02
- * @updated 2026-06-02
+ * @updated 2026-06-05
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
 
 "use client"
 
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo, useEffect, useRef, useCallback } from "react"
 import { useNotifications } from "@/hooks/use-notifications"
 import { NotificationItem } from "@/components/notifications/notification-item"
 import { NotificationSettings } from "@/components/notifications/notification-settings"
-import { Bell, CheckCheck, Inbox } from "lucide-react"
+import { Bell, CheckCheck, Inbox, Loader2 } from "lucide-react"
 import { Preloader } from "@/components/Preloader"
 import { motion, AnimatePresence } from "framer-motion"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -31,12 +31,18 @@ export default function NotificationsPage() {
     markAllAsRead, 
     deleteNotification,
     isLoading,
+    isLoadingMore,
+    hasMore,
+    loadMore,
     error,
   } = useNotifications()
   
   const [activeTab, setActiveTab] = useState<FilterType>("all")
   const [userChecked, setUserChecked] = useState(false)
   const supabase = useMemo(() => createClient(), [])
+  
+  // Ref pour l'infinite scroll
+  const loadMoreRef = useRef<HTMLDivElement>(null)
 
   // Vérification de session utilisateur
   useEffect(() => {
@@ -55,6 +61,31 @@ export default function NotificationsPage() {
       toast.error("Impossible de charger les notifications.")
     }
   }, [error])
+
+  // Observer pour l'infinite scroll
+  const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
+    const [target] = entries
+    if (target.isIntersecting && hasMore && !isLoadingMore && activeTab === "all") {
+      loadMore()
+    }
+  }, [hasMore, isLoadingMore, loadMore, activeTab])
+
+  useEffect(() => {
+    const element = loadMoreRef.current
+    if (!element) return
+
+    const observer = new IntersectionObserver(handleObserver, {
+      root: null,
+      rootMargin: "100px",
+      threshold: 0,
+    })
+
+    observer.observe(element)
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [handleObserver])
 
   // Filtrage des notifications selon l'onglet actif
   const filteredNotifications = useMemo(() => {
@@ -272,6 +303,23 @@ export default function NotificationsPage() {
                         ))}
                       </AnimatePresence>
                     </div>
+                  </div>
+                )}
+
+                {/* Trigger pour infinite scroll */}
+                {activeTab === "all" && (
+                  <div ref={loadMoreRef} className="py-4 flex justify-center">
+                    {isLoadingMore && (
+                      <div className="flex items-center gap-2 text-slate-500">
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <span className="text-sm font-medium">Chargement...</span>
+                      </div>
+                    )}
+                    {!hasMore && notifications.length > 0 && (
+                      <p className="text-xs text-slate-400 font-medium">
+                        {"Vous avez tout vu !"}
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
