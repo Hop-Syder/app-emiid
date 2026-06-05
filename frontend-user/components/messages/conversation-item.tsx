@@ -20,12 +20,14 @@ interface ConversationItemProps {
   conversation: Conversation
   isActive: boolean
   onClick: (conv: Conversation) => void
+  isOnline?: boolean
 }
 
 export const ConversationItem: React.FC<ConversationItemProps> = ({
   conversation,
   isActive,
   onClick,
+  isOnline = false,
 }) => {
   const [formattedDate, setFormattedDate] = React.useState<string>("")
 
@@ -73,8 +75,11 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
             {initials}
           </AvatarFallback>
         </Avatar>
-        {/* Indicateur online */}
-        <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full shadow-sm" />
+        {/* Indicateur online/offline */}
+        <span className={cn(
+          "absolute bottom-0 right-0 w-3 h-3 border-2 border-white rounded-full shadow-sm transition-colors",
+          isOnline ? "bg-emerald-500" : "bg-slate-300"
+        )} />
       </div>
 
       {/* Texte */}

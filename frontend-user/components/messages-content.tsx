@@ -68,6 +68,7 @@ export function MessagesContent() {
   const [isMediationOpen, setIsMediationOpen] = useState(false)
   const [isMediationLoading, setIsMediationLoading] = useState(false)
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false)
+  const [onlineUserIds, setOnlineUserIds] = useState<Set<string>>(new Set())
 
 
 
@@ -162,8 +163,8 @@ export function MessagesContent() {
 
   // Realtime
   const realtime = useMessagesRealtime(currentUserId, {
-    onPresenceChange: () => {
-      // Pour l'instant on ne gère pas visuellement la présence ici
+    onPresenceChange: (userIds) => {
+      setOnlineUserIds(userIds)
     },
     onNewMessage: (newMsg) => {
       // 1. Dédoublonner et ajouter le message si c'est la conversation active
@@ -437,6 +438,7 @@ export function MessagesContent() {
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           isLoading={loadingConv}
+          onlineUserIds={onlineUserIds}
         />
       </div>
 
@@ -465,13 +467,25 @@ export function MessagesContent() {
                       {selectedConv.other_participant.first_name[0]}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full" />
+                  <span className={cn(
+                    "absolute bottom-0 right-0 w-2.5 h-2.5 border-2 border-white rounded-full transition-colors",
+                    onlineUserIds.has(selectedConv.other_participant.user_id) 
+                      ? "bg-emerald-500" 
+                      : "bg-slate-300"
+                  )} />
                 </div>
                 <div>
                   <h2 className="text-sm font-bold text-slate-800 leading-tight">
                     {selectedConv.other_participant.first_name} {selectedConv.other_participant.last_name}
                   </h2>
-                  <span className="text-[11px] text-emerald-600 font-semibold">En ligne</span>
+                  <span className={cn(
+                    "text-[11px] font-semibold",
+                    onlineUserIds.has(selectedConv.other_participant.user_id)
+                      ? "text-emerald-600"
+                      : "text-slate-400"
+                  )}>
+                    {onlineUserIds.has(selectedConv.other_participant.user_id) ? "En ligne" : "Hors ligne"}
+                  </span>
                 </div>
               </div>
 
