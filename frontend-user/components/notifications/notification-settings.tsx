@@ -14,9 +14,12 @@ import { useState, useEffect } from "react"
 import { Bell, Mail, Smartphone, Eye, Sparkles, TrendingUp, TrendingDown, Users, Loader2, BellRing } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
-import { useNotificationPreferences } from "@/hooks/use-notification-preferences"
+import { useNotificationPreferences, type NotificationPreferences } from "@/hooks/use-notification-preferences"
 import { useImpactStats } from "@/hooks/use-impact-stats"
 import { subscribeToPushNotifications } from "@/lib/push-notifications"
+
+// Types de clés modifiables (excluant id, user_id, created_at, updated_at)
+type EditablePreferenceKey = keyof Omit<NotificationPreferences, 'id' | 'user_id' | 'created_at' | 'updated_at'>
 
 interface PreferenceToggleProps {
   label: string
@@ -80,7 +83,7 @@ export function NotificationSettings() {
     }
   }, [])
 
-  const handleToggle = (key: keyof NonNullable<typeof preferences>) => async (checked: boolean) => {
+  const handleToggle = (key: EditablePreferenceKey) => async (checked: boolean) => {
     // Cas spécial pour les push notifications
     if (key === 'push_enabled' && checked) {
       setPushSubscribing(true)
