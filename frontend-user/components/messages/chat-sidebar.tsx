@@ -85,12 +85,23 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
       <div className="px-4 pt-5 pb-3 border-b border-slate-100/80 bg-white/30 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            {showArchived && (
+            {showArchived ? (
               <Button
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 rounded-lg text-slate-500 hover:text-slate-800 mr-0.5"
                 onClick={() => setShowArchived(false)}
+                title="Retour aux messages"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+            ) : (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-lg text-slate-500 hover:text-slate-800 mr-0.5"
+                onClick={() => router.push('/annuaire')}
+                title="Retour à l'annuaire"
               >
                 <ArrowLeft className="h-4 w-4" />
               </Button>
