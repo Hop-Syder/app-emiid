@@ -3,6 +3,7 @@
  * @organization Nexus Partners
  * @description Dashboard Hub unifiant les statistiques utilisateur, les carrousels de découverte et l'annuaire global.
  * @created 2026-05-31
+ * @updated 2026-06-11
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -31,7 +32,7 @@ interface DashboardHubContentProps {
   initialPremiumProfiles: PublicProfile[]
   initialNewProfiles: PublicProfile[]
   initialProximityProfiles?: PublicProfile[]
-  userLocation?: { city: string; country_id: string; country_name: string } | null
+  userLocation?: { city: string | null; country_id: string | null; country_name: string | null } | null
 }
 
 export function DashboardHubContent({

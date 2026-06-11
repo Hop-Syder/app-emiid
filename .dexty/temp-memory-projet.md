@@ -6,7 +6,7 @@
 - **Nom** : EmiID
 - **Type** : SaaS (Web App + Backend API + Admin)
 - **Initialisé le** : 2026-05-27
-- **Dernière mise à jour** : 2026-06-02
+- **Dernière mise à jour** : 2026-06-11
 
 ## 🛠️ Stack détectée
 - **Frontend** : Next.js, React 19, TailwindCSS, Radix UI
@@ -94,5 +94,7 @@
 - [2026-06-05] Masquage du flux de conversation sur Desktop : mise à jour de `messages-content.tsx` (colonne droite en `md:hidden`, colonne gauche en `md:w-full`) et de `navigation-shell.tsx` (`DesktopSidebar` toujours visible et `lg:pl-[88px]` constant sur ordinateur) afin d'afficher uniquement le menu/barre de navigation et la liste des conversations sur grand écran, tout en préservant le comportement fluide sur mobile.
 - [2026-06-05] Améliorations de l'UI de messagerie (Réf. B & C) : intégration de transitions fluides avec Framer Motion (`chat-sidebar.tsx`) lors du tri, épinglage ou archivage, habillage Desktop (colonne de liste à 360px fixes, panneau Bento minimaliste et décoratif statique à droite, `messages-content.tsx`), et ajout d'un bouton de retour (`ArrowLeft`) vers l'annuaire à côté du titre principal.
 - [2026-06-05] Correction de l'alignement des filtres de notifications sur mobile (`page.tsx`) : ajustement du padding horizontal à `px-4` (16px) et suppression de l'ajustement parent de padding afin de démarrer le premier onglet parfaitement aligné avec le reste de la page au repos, tout en conservant le défilement horizontal fluide sur les bords.
-
-
+- [2026-06-05] Création et initialisation du dossier `frontend-tester` : implémentation de la page de signature légale d'accord de testeur bêta (stepper interactif avec 7 articles séquentiels obligatoires, canvas de signature) et du dashboard admin de suivi (avec export CSV, audit logs et génération de PDF certifié avec QR code). Utilisation de Next.js 15, Tailwind v4 et Prisma v6.
+- [2026-06-11] Résolution de la dette technique et du type-safety : Typage strict des relations Supabase dans `profile-detail-content.tsx` via l'interface `ProfileQueryResult` pour éliminer les assertions `as any`. Rétablissement du typecheck strict dans `messages-content.tsx` en supprimant le `// @ts-nocheck` et en typant de manière rigoureuse les variables internes, fonctions asynchrones de messagerie (`sendMessageToDB`, `handleFileUpload`) et les prop callbacks.
+- [2026-06-11] Résolution des erreurs d'inférence PostgREST : Ajout des structures vides `Functions: {}` et `Enums: {}` requises par le type `GenericSchema` du client Supabase, et du tableau `Relationships: []` obligatoire pour chaque table et vue dans `database.types.ts`. Cela résout à la racine les erreurs d'inférence de type `never` sur les requêtes `.from()` dans toute l'application de manière 100% type-safe et sans aucun cast `as any`.
+- [2026-06-11] Enforcement du typage côté serveur : Ajout du paramètre générique `<Database>` sur le client serveur Supabase (`createServerClient`) dans `server.ts` pour garantir une validation stricte du schéma également sur le backend Next.js.

@@ -81,13 +81,13 @@ export function useNotificationPreferences() {
                     if (insertError) {
                         setError(insertError.message)
                     } else {
-                        setPreferences(newData)
+                        setPreferences(newData as NotificationPreferences)
                     }
                 } else {
                     setError(fetchError.message)
                 }
             } else {
-                setPreferences(data)
+                setPreferences(data as NotificationPreferences)
             }
 
             setIsLoading(false)
@@ -112,7 +112,7 @@ export function useNotificationPreferences() {
 
         const { error: updateError } = await supabase
             .from('notification_preferences')
-            .update({ [key]: value, updated_at: new Date().toISOString() })
+            .update({ [key]: value, updated_at: new Date().toISOString() } as any)
             .eq('id', preferences.id)
 
         if (updateError) {

@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Page dashboard-user (après connexion)
  * @created 2025-12-24
- * @updated 2025-12-26
+ * @updated 2026-06-11
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
 */

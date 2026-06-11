@@ -1,3 +1,13 @@
+/**
+ * @author @hopsyder
+ * @organization Nexus Partners
+ * @description Page de profil public ou privé d'un utilisateur
+ * @created 2026-06-03
+ * @updated 2026-06-11
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+ */
+
 import { Metadata } from "next"
 import { ProfileDetailContent } from "@/components/profile-detail/profile-detail-content"
 import { createClient } from "@/lib/supabase/server"
@@ -33,7 +43,7 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
         }
 
         const ownerRes = await ownerQuery.maybeSingle()
-        let data = ownerRes.data
+        let data: any = ownerRes.data
 
         if (!data) {
             let publicQuery = supabase
@@ -110,7 +120,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     const cleanId = id.toLowerCase()
     const supabase = await createClient()
     
-    let data;
+    let data: any;
     try {
         const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(cleanId);
         

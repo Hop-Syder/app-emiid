@@ -65,7 +65,7 @@ export async function subscribeToPushNotifications() {
       .from('push_subscriptions')
       .upsert({
         user_id: user.id,
-        endpoint: subJson.endpoint,
+        endpoint: subJson.endpoint || "",
         p256dh: subJson.keys?.p256dh,
         auth: subJson.keys?.auth
       }, { onConflict: 'endpoint' });

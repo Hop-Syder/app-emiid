@@ -1,3 +1,13 @@
+/**
+ * @author @hopsyder
+ * @organization Nexus Partners
+ * @description Composant de présentation des talents à proximité (géolocalisation / pays)
+ * @created 2026-05-31
+ * @updated 2026-06-11
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+ */
+
 "use client"
 
 import { useEffect, useState } from "react"
@@ -7,7 +17,7 @@ import Link from "next/link"
 import type { PublicProfile } from "@/types"
 
 interface ProximitySectionProps {
-  fallbackLocation?: { city: string; country_id: string; country_name: string } | null
+  fallbackLocation?: { city: string | null; country_id: string | null; country_name: string | null } | null
   initialProfiles?: PublicProfile[]
 }
 

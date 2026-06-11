@@ -31,7 +31,7 @@ export interface NotificationData {
   type: string // 'message' | 'view' | 'follow' | 'system' | 'security'
   title: string
   content: string
-  link?: string
+  link?: string | null
   is_read: boolean
   created_at: string
   sender_id?: string | null

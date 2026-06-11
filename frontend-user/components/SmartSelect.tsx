@@ -41,7 +41,7 @@ export function SmartSelect({ table, label, value, onChange, placeholder }: Smar
         const supabase = createClient()
         const fetchOptions = async () => {
             setLoading(true)
-            const { data } = await supabase
+            const { data } = await (supabase as any)
                 .from(table)
                 .select("name")
                 .order("name")

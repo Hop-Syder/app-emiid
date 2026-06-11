@@ -1,10 +1,9 @@
-// @ts-nocheck
 /**
  * @author @hopsyder
  * @organization Nexus Partners
  * @description Page de messagerie refactorisée et modulaire (Version Complète & Robuste)
  * @created 2026-05-11
- * @updated 2026-06-05
+ * @updated 2026-06-11
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -291,7 +290,7 @@ export function MessagesContent() {
     return convId
   }
 
-  const sendMessageToDB = async (content: string, receiverId: string, convId: string) => {
+  const sendMessageToDB = async (content: string, receiverId: string, convId: string): Promise<Message> => {
     if (!currentUserId) throw new Error("Non authentifié")
 
     const { data: newMsg, error: msgError } = await supabase
@@ -306,6 +305,7 @@ export function MessagesContent() {
       .single()
 
     if (msgError) throw msgError
+    if (!newMsg) throw new Error("Erreur de base de données lors de la création du message")
 
     await supabase
       .from('conversations')
@@ -314,10 +314,18 @@ export function MessagesContent() {
       })
       .eq('id', convId)
 
-    return newMsg
+    return {
+      id: newMsg.id,
+      conversation_id: newMsg.conversation_id,
+      sender_id: newMsg.sender_id,
+      content: newMsg.content,
+      is_read: newMsg.is_read,
+      created_at: newMsg.created_at,
+      is_mediation: false
+    }
   }
 
-  const handleFileUpload = async (file: File, convId: string) => {
+  const handleFileUpload = async (file: File, convId: string): Promise<Message | undefined> => {
     if (!selectedConv || !currentUserId) return
 
     // Contrôle explicite requis par l'audit de sécurité
@@ -377,7 +385,7 @@ export function MessagesContent() {
 
     try {
       const convId = await getOrCreateConversationId(selectedConv.other_participant.user_id)
-      let newMsg: any
+      let newMsg: Message | undefined = undefined
 
       if (file) {
         newMsg = await handleFileUpload(file, convId)
@@ -386,8 +394,9 @@ export function MessagesContent() {
       }
 
       if (newMsg) {
+        const finalMsg = newMsg
         // Remplacer le message temporaire par le vrai message Supabase
-        setMessages(prev => prev.map(m => m.id === optimisticId ? { ...newMsg, status: 'sent' as const } : m))
+        setMessages(prev => prev.map(m => m.id === optimisticId ? { ...finalMsg, status: 'sent' as const } : m))
 
         // Mettre à jour la conversation dans la liste de gauche
         setConversations(prev => {
@@ -397,8 +406,8 @@ export function MessagesContent() {
                 ...c,
                 id: convId,
                 last_message: file ? `[Fichier] ${file.name}` : content,
-                last_message_at: newMsg.created_at,
-                updated_at: newMsg.created_at
+                last_message_at: finalMsg.created_at,
+                updated_at: finalMsg.created_at
               }
             }
             return c
@@ -550,7 +559,7 @@ export function MessagesContent() {
         <ChatSidebar
           conversations={filteredConversations}
           activeId={selectedConv?.id || null}
-          onSelect={(conv: any) => {
+          onSelect={(conv: Conversation) => {
             setSelectedConv(conv)
             setShowChatMobile(true)
             const resolvedId = conv.other_participant.user_id || conv.other_participant.id

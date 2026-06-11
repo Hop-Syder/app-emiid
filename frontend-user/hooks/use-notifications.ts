@@ -28,7 +28,7 @@ export interface Notification {
     type: string
     title: string
     content: string
-    link?: string
+    link?: string | null
     is_read: boolean
     created_at: string
     sender_id?: string | null
