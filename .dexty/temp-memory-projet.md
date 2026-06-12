@@ -4,9 +4,9 @@
 
 ## 📌 Méta-projet
 - **Nom** : EmiID
-- **Type** : SaaS (Web App + Backend API + Admin)
+- **Type** : SaaS (Web App + Backend API + Admin + Commercial)
 - **Initialisé le** : 2026-05-27
-- **Dernière mise à jour** : 2026-06-11
+- **Dernière mise à jour** : 2026-06-12
 
 ## 🛠️ Stack détectée
 - **Frontend** : Next.js, React 19, TailwindCSS, Radix UI
@@ -40,13 +40,13 @@
 - Zod — Validation stricte des schémas de données, type-safety TypeScript, et protection contre les failles d'injection.
 
 ## 📁 Contexte projet
-- **Description courte** : EmiID — "Votre empreinte numérique professionnelle". Plateforme SaaS segmentée en trois parties : frontend utilisateur, portail admin, et API backend Node.js.
+- **Description courte** : EmiID — "Votre empreinte numérique professionnelle". Plateforme SaaS segmentée en plusieurs parties : frontend utilisateur, portail admin, site commercial, et API backend Node.js.
 - **Patterns architecturaux** : Monorepo logique avec exécution concurrente. Séparation de l'API Node/Express des clients Next.js.
 - **Dépendances critiques** : `@supabase/ssr`, `express`, `ws` pour les fonctionnalités en temps réel.
 
 ## ⚠️ Notes importantes
 - Le backend utilise des WebSockets (`ws`) pour le temps réel.
-- Deux applications Next.js distinctes (`frontend-user` et `frontend-admin`) accèdent aux mêmes bases de données / APIs.
+- Trois applications Next.js distinctes (`frontend-user`, `frontend-admin` et `frontend-commercial`) accèdent aux mêmes bases de données / APIs.
 - [2026-06-02] Refonte complète de la page de détail de profil utilisateur (`profile-detail-content.tsx`) vers une esthétique Luxury Editorial & Glassmorphism.
 - [2026-06-02] Remplacement de l'upsert par un update d'abord avec un insert conditionnel en fallback pour l'enregistrement du profil dans `userController.ts`.
 - [2026-06-02] Résolution de l'erreur HTTP 400 au chargement des profils en changeant `supabase` pour `supabaseAdmin` dans `getMyProfile` et en spécifiant explicitement les colonnes publiques dans `profile-detail-content.tsx` (évite la restriction SELECT sur les colonnes PIN).
@@ -98,3 +98,6 @@
 - [2026-06-11] Résolution de la dette technique et du type-safety : Typage strict des relations Supabase dans `profile-detail-content.tsx` via l'interface `ProfileQueryResult` pour éliminer les assertions `as any`. Rétablissement du typecheck strict dans `messages-content.tsx` en supprimant le `// @ts-nocheck` et en typant de manière rigoureuse les variables internes, fonctions asynchrones de messagerie (`sendMessageToDB`, `handleFileUpload`) et les prop callbacks.
 - [2026-06-11] Résolution des erreurs d'inférence PostgREST : Ajout des structures vides `Functions: {}` et `Enums: {}` requises par le type `GenericSchema` du client Supabase, et du tableau `Relationships: []` obligatoire pour chaque table et vue dans `database.types.ts`. Cela résout à la racine les erreurs d'inférence de type `never` sur les requêtes `.from()` dans toute l'application de manière 100% type-safe et sans aucun cast `as any`.
 - [2026-06-11] Enforcement du typage côté serveur : Ajout du paramètre générique `<Database>` sur le client serveur Supabase (`createServerClient`) dans `server.ts` pour garantir une validation stricte du schéma également sur le backend Next.js.
+- [2026-06-12] Détection et scan du nouveau dossier `frontend-commercial` : projet de site commercial Next.js contenant des sections Hero, Fomo, Comparison, Social Proof et Pricing interfacées avec Supabase.
+- [2026-06-12] Rédaction et création du `README.md` professionnel pour le projet `frontend-commercial` spécifiant la stack, l'installation locale, l'architecture du dossier et la procédure complète de déploiement sur Vercel.
+
