@@ -1,13 +1,3 @@
-/**
- * @author @hopsyder
- * @organization Nexus Partners
- * @description README professionnel de l'application EmiID Commercial
- * @created 2026-06-12
- * @updated 2026-06-12
- * 🌐 ceo.nexuspartners.xyz
- * 📧 daoudaabassichristian@gmail.com
- */
-──────────────────────────────────
 
 # EmiID Commercial (Vitrine & Marketing)
 
@@ -19,7 +9,8 @@ Bienvenue dans le dépôt du site commercial d'**EmiID** — "Votre empreinte nu
 
 Le site commercial est conçu pour capter l'intérêt des entrepreneurs, professionnels et investisseurs, les guider à travers les avantages d'EmiID et faciliter leur inscription sur la plateforme.
 
-### Sections & Parcours utilisateur :
+### Sections & Parcours utilisateur
+
 1. **Hero Section** : Introduction immersive de la proposition de valeur avec call-to-actions stratégiques.
 2. **FOMO Section (Social Proof / Urgency)** : Présentation dynamique de la croissance du réseau pour susciter l'intérêt d'inscription.
 3. **Comparison Section** : Tableau comparatif détaillant la supériorité d'EmiID face aux annuaires classiques et aux réseaux sociaux traditionnels.
@@ -34,34 +25,38 @@ Le site commercial est conçu pour capter l'intérêt des entrepreneurs, profess
 
 ## 🛠️ Stack Technique
 
-* **Framework** : [Next.js 15 (App Router)](https://nextjs.org/) avec React 19 et TypeScript.
-* **Style & Design** : [Tailwind CSS v3](https://tailwindcss.com/) avec des polices premium (`Satoshi` pour les titres et `General Sans` pour le corps) importées via CDN.
-* **Animations** : [Framer Motion](https://www.framer.com/motion/) pour les transitions fluides et micro-interactions haut de gamme.
-* **Base de données & Services** : [Supabase](https://supabase.com/) pour le stockage des données de profils, de formulaires de contact et d'exploration.
-* **Icônes** : [Lucide React](https://lucide.dev/).
+- **Framework** : [Next.js 15 (App Router)](https://nextjs.org/) avec React 19 et TypeScript.
+- **Style & Design** : [Tailwind CSS v3](https://tailwindcss.com/) avec des polices premium (`Satoshi` pour les titres et `General Sans` pour le corps) importées via CDN.
+- **Animations** : [Framer Motion](https://www.framer.com/motion/) pour les transitions fluides et micro-interactions haut de gamme.
+- **Base de données & Services** : [Supabase](https://supabase.com/) pour le stockage des données de profils, de formulaires de contact et d'exploration.
+- **Icônes** : [Lucide React](https://lucide.dev/).
 
 ---
 
 ## 💻 Installation & Développement Local
 
 ### Prérequis
+
 * Node.js >= 18.x
-* Un gestionnaire de paquets : `pnpm` (recommandé pour ce sous-projet) ou `npm`
+- Un gestionnaire de paquets : `pnpm` (recommandé pour ce sous-projet) ou `npm`
 
 ### Étapes d'installation
 
 1. **Naviguer dans le dossier du projet** :
+
    ```bash
    cd frontend-commercial
    ```
 
 2. **Installer les dépendances** :
+
    ```bash
    pnpm install
    ```
 
 3. **Configurer les variables d'environnement** :
    Créez un fichier `.env.local` à la racine de `frontend-commercial/` sur le modèle suivant :
+
    ```env
    # URL de l'application utilisateur (frontend-user) pour les redirections CTA
    NEXT_PUBLIC_USER_APP_URL=http://localhost:3000
@@ -72,17 +67,23 @@ Le site commercial est conçu pour capter l'intérêt des entrepreneurs, profess
    ```
 
 4. **Lancer le serveur de développement** :
+
    ```bash
    pnpm dev
    ```
+
    *Le serveur sera disponible sur `http://localhost:3000` (ou `http://localhost:3001` si le port 3000 est déjà occupé).*
 
 ### Démarrage depuis la racine du monorepo
+
 Si vous êtes à la racine d'EmiID, vous pouvez lancer ce projet individuellement :
+
 ```bash
 npm run dev:commercial
 ```
+
 Ou lancer l'ensemble de la stack (Backend + Frontend User + Admin + Commercial) :
+
 ```bash
 npm run dev:all
 ```
@@ -108,10 +109,10 @@ Le projet est configuré pour être déployé très facilement sur **Vercel** ou
 1. Connectez-vous à votre tableau de bord **Vercel** et créez un nouveau projet.
 2. Liez votre dépôt Git contenant le projet EmiID.
 3. Configurez les paramètres du projet Vercel comme suit :
-   * **Framework Preset** : `Next.js`
-   * **Root Directory** : `frontend-commercial` (Très important, car le projet est dans un sous-dossier).
-   * **Build Command** : `next build` (Détection automatique).
-   * **Output Directory** : `.next` (Détection automatique).
+   - **Framework Preset** : `Next.js`
+   - **Root Directory** : `frontend-commercial` (Très important, car le projet est dans un sous-dossier).
+   - **Build Command** : `next build` (Détection automatique).
+   - **Output Directory** : `.next` (Détection automatique).
 4. Ajoutez les variables d'environnement listées dans la section ci-dessus (dans les paramètres du projet Vercel).
 5. Cliquez sur **Deploy**. Vercel se chargera du build de production et générera des URLs de preview pour chaque branche.
 
@@ -146,9 +147,9 @@ frontend-commercial/
 
 ## 🔒 Sécurité & Performance
 
-* **SEO Automatique** : Balises de métadonnées OpenGraph, fichiers `sitemap.ts` et `robots.ts` générés dynamiquement à chaque compilation.
-* **Optimisation des Images** : Utilisation systématique de `next/image` pour le lazy loading automatique et le formatage moderne (WebP).
-* **Sécurisation Supabase** : Les requêtes côté client passent par des politiques de sécurité RLS (Row Level Security) strictes définies au niveau de la base de données Supabase.
+- **SEO Automatique** : Balises de métadonnées OpenGraph, fichiers `sitemap.ts` et `robots.ts` générés dynamiquement à chaque compilation.
+- **Optimisation des Images** : Utilisation systématique de `next/image` pour le lazy loading automatique et le formatage moderne (WebP).
+- **Sécurisation Supabase** : Les requêtes côté client passent par des politiques de sécurité RLS (Row Level Security) strictes définies au niveau de la base de données Supabase.
 
 ---
 
