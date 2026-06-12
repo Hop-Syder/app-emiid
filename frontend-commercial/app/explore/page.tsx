@@ -72,7 +72,7 @@ export default async function ExplorePage() {
               </div>
               
               <div className="mb-4">
-                <p className="text-sm font-medium text-indigo-600 truncate">{profile.role} {profile.company && `@ ${profile.company}`}</p>
+                <p className="text-sm font-medium text-indigo-600 truncate">{profile.role} {(profile as any).company && `@ ${(profile as any).company}`}</p>
                 <p className="text-xs text-gray-500 mt-1 truncate">{profile.industry || profile.activity_domain || "Professionnel"}</p>
               </div>
 
