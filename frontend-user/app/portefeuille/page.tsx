@@ -1,9 +1,9 @@
-import { FollowedProfilesContent } from "@/components/portefeuille-content/followed-profiles-content"
+import { PortefeuilleContent } from "@/components/portefeuille-content/portefeuille-content"
 
-export default function ProfilsSuivisPage() {
+export default function PortefeuillePage() {
   return (
     <div className="flex-1 w-full min-h-screen flex flex-col">
-      <FollowedProfilesContent />
+      <PortefeuilleContent />
     </div>
   )
 }
