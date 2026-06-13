@@ -12,6 +12,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
+import dynamic from "next/dynamic"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
@@ -46,15 +47,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { toast } from "sonner"
 
@@ -62,7 +55,13 @@ import { fetchWithAuth } from "@/lib/apiClient"
 import { getOptimizedImageUrl } from "@/lib/image-optimization"
 import { createClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
-import { ShareModal } from "./share-modal"
+
+// Modales chargées à la demande (code-splitting) pour alléger le bundle initial
+const ShareModal = dynamic(() => import("./share-modal").then((m) => m.ShareModal), { ssr: false })
+const ProfileModerationDialogs = dynamic(
+    () => import("./profile-moderation-dialogs").then((m) => m.ProfileModerationDialogs),
+    { ssr: false }
+)
 
 interface ProfileData {
     id: string
@@ -148,6 +147,9 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
     // Blocage
     const [isBlockOpen, setIsBlockOpen] = useState(false)
     const [blocking, setBlocking] = useState(false)
+
+    // Abonnement (anti-double-clic)
+    const [followLoading, setFollowLoading] = useState(false)
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -443,7 +445,8 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
     }
 
     const handleFollow = async () => {
-        if (!profile) return
+        if (!profile || followLoading) return
+        setFollowLoading(true)
         try {
             const res = await fetchWithAuth(`/api/users/follow/${profile.id}`, { method: "POST" })
             if (res.ok) {
@@ -456,6 +459,8 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
             }
         } catch {
             toast.error("Erreur de connexion")
+        } finally {
+            setFollowLoading(false)
         }
     }
 
@@ -811,10 +816,11 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                                 <div className="flex gap-2.5 shrink-0">
                                     <Button
                                         size="lg"
-                                        className="flex-1 sm:flex-initial rounded-2xl h-11 text-xs gap-2 font-black bg-[#022753] hover:bg-[#022753]/95 shadow-md shadow-[#022753]/10 transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-95 text-white"
+                                        disabled={followLoading}
+                                        className="flex-1 sm:flex-initial rounded-2xl h-11 text-xs gap-2 font-black bg-[#022753] hover:bg-[#022753]/95 shadow-md shadow-[#022753]/10 transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-95 text-white disabled:opacity-70"
                                         onClick={handleFollow}
                                     >
-                                        <Users className="h-4 w-4" />
+                                        {followLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Users className="h-4 w-4" />}
                                         {isFollowed ? "Abonné" : "Suivre"}
                                     </Button>
                                     {isLoggedIn && (
@@ -1083,8 +1089,8 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                 </section>
             </main>
 
-            {/* Share Dialog */}
-            {profile && (
+            {/* Share Dialog (chargé à la demande) */}
+            {profile && isShareModalOpen && (
                 <ShareModal
                     isOpen={isShareModalOpen}
                     onOpenChange={setIsShareModalOpen}
@@ -1093,62 +1099,22 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                 />
             )}
 
-            {/* Signalement */}
-            <Dialog open={isReportOpen} onOpenChange={(o) => { if (!reportSubmitting) setIsReportOpen(o) }}>
-                <DialogContent className="rounded-3xl">
-                    <DialogHeader>
-                        <DialogTitle>Signaler ce profil</DialogTitle>
-                        <DialogDescription>
-                            Décrivez le problème. Notre équipe de modération examinera votre signalement.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <Textarea
-                        value={reportReason}
-                        onChange={(e) => setReportReason(e.target.value)}
-                        maxLength={1000}
-                        rows={4}
-                        placeholder="Ex. : contenu trompeur, usurpation d'identité, propos inappropriés..."
-                        className="rounded-2xl resize-none"
-                    />
-                    <div className="flex items-center justify-between gap-3 pt-2">
-                        <span className="text-[11px] text-slate-400">{reportReason.length}/1000</span>
-                        <div className="flex gap-2">
-                            <Button variant="ghost" onClick={() => setIsReportOpen(false)} disabled={reportSubmitting} className="rounded-xl">
-                                Annuler
-                            </Button>
-                            <Button onClick={handleReportSubmit} disabled={reportSubmitting} className="rounded-xl gap-2">
-                                {reportSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
-                                Envoyer le signalement
-                            </Button>
-                        </div>
-                    </div>
-                </DialogContent>
-            </Dialog>
-
-            {/* Blocage */}
-            <Dialog open={isBlockOpen} onOpenChange={(o) => { if (!blocking) setIsBlockOpen(o) }}>
-                <DialogContent className="rounded-3xl">
-                    <DialogHeader>
-                        <DialogTitle>Bloquer {profile?.name || "ce membre"} ?</DialogTitle>
-                        <DialogDescription>
-                            Vous ne verrez plus ce profil. Vous pourrez le débloquer depuis vos paramètres.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="flex justify-end gap-2 pt-2">
-                        <Button variant="ghost" onClick={() => setIsBlockOpen(false)} disabled={blocking} className="rounded-xl">
-                            Annuler
-                        </Button>
-                        <Button
-                            onClick={handleBlock}
-                            disabled={blocking}
-                            className="rounded-xl gap-2 bg-red-600 hover:bg-red-700 text-white"
-                        >
-                            {blocking && <Loader2 className="h-4 w-4 animate-spin" />}
-                            Bloquer
-                        </Button>
-                    </div>
-                </DialogContent>
-            </Dialog>
+            {/* Dialogues de modération (chargés à la demande) */}
+            {(isReportOpen || isBlockOpen) && (
+                <ProfileModerationDialogs
+                    profileName={profile?.name}
+                    isReportOpen={isReportOpen}
+                    onReportOpenChange={setIsReportOpen}
+                    reportReason={reportReason}
+                    onReportReasonChange={setReportReason}
+                    reportSubmitting={reportSubmitting}
+                    onReportSubmit={handleReportSubmit}
+                    isBlockOpen={isBlockOpen}
+                    onBlockOpenChange={setIsBlockOpen}
+                    blocking={blocking}
+                    onBlock={handleBlock}
+                />
+            )}
         </div>
     )
 }

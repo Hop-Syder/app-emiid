@@ -93,6 +93,7 @@ export function FollowedProfilesContent() {
     const [sortBy, setSortBy] = useState<"name" | "recent" | "followers">("recent")
     const [activeTab, setActiveTab] = useState("following")
     const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+    const [unfollowingId, setUnfollowingId] = useState<string | null>(null)
     const router = useRouter()
     const supabase = useMemo(() => createClient(), [])
 
@@ -178,6 +179,8 @@ export function FollowedProfilesContent() {
     }, [searchQuery, followedProfiles, followers, sortBy, activeTab])
 
     const handleUnfollow = async (profileId: string) => {
+        if (unfollowingId) return
+        setUnfollowingId(profileId)
         try {
             const res = await fetchWithAuth(`/api/users/follow/${profileId}`, {
                 method: "POST"
@@ -185,9 +188,13 @@ export function FollowedProfilesContent() {
             if (res.ok) {
                 setFollowedProfiles(prev => prev.filter(p => getPortfolioProfileId(p) !== profileId))
                 toast.success("Vous ne suivez plus ce profil")
+            } else {
+                toast.error("Impossible de mettre à jour l'abonnement")
             }
         } catch {
             toast.error("Une erreur est survenue")
+        } finally {
+            setUnfollowingId(null)
         }
     }
 
@@ -315,6 +322,7 @@ export function FollowedProfilesContent() {
                                             onViewProfile={handleViewProfile}
                                             onSaveNote={handleSaveNote}
                                             onMessage={handleMessage}
+                                            isUnfollowing={unfollowingId === getPortfolioProfileId(profile)}
                                         />
                                     ))}
                                 </motion.div>

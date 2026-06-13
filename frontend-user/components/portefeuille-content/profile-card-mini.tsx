@@ -42,9 +42,10 @@ interface ProfileCardMiniProps {
   onViewProfile?: (id: string) => void;
   onSaveNote?: (id: string, note: string) => void;
   onMessage?: (id: string) => void;
+  isUnfollowing?: boolean;
 }
 
-export function ProfileCardMini({ profile, onUnfollow, onViewProfile, onSaveNote, onMessage }: ProfileCardMiniProps) {
+export function ProfileCardMini({ profile, onUnfollow, onViewProfile, onSaveNote, onMessage, isUnfollowing = false }: ProfileCardMiniProps) {
   const [localNote, setLocalNote] = useState(profile.notes || "");
   const [isSaving, setIsSaving] = useState(false);
 
@@ -150,17 +151,18 @@ export function ProfileCardMini({ profile, onUnfollow, onViewProfile, onSaveNote
           <Button
             size="sm"
             variant="outline"
+            disabled={isUnfollowing}
             onClick={(e) => {
               e.stopPropagation();
               onUnfollow?.(profile.id);
             }}
             className={cn(
-              "h-9 w-9 p-0 rounded-xl transition-all shrink-0 border-border bg-background hover:bg-muted",
+              "h-9 w-9 p-0 rounded-xl transition-all shrink-0 border-border bg-background hover:bg-muted disabled:opacity-60",
               isPremium ? "text-white/60 hover:text-white" : "text-muted-foreground hover:text-foreground"
             )}
             title="Ne plus suivre"
           >
-            <UserMinus className="h-4 w-4" />
+            {isUnfollowing ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserMinus className="h-4 w-4" />}
           </Button>
           <Button
             size="sm"

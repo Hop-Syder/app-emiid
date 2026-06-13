@@ -297,7 +297,7 @@ export function CreerProfilContent() {
     }, [validationErrors])
 
     const handleSave = useCallback(async () => {
-        if (saving) return
+        if (saving || publishing || unpublishing) return
         try {
             setSaving(true)
             const errors = validateProfileForm(formData, "draft")
@@ -328,10 +328,10 @@ export function CreerProfilContent() {
         } finally {
             setSaving(false)
         }
-    }, [formData, isPublished, saving])
+    }, [formData, isPublished, saving, publishing, unpublishing])
 
     const handlePublish = useCallback(async () => {
-        if (publishing) return
+        if (saving || publishing || unpublishing) return
         const errors = validateProfileForm(formData, "publish")
         if (errors.length > 0) {
             setValidationErrors(errors)
@@ -359,10 +359,10 @@ export function CreerProfilContent() {
         } finally {
             setPublishing(false)
         }
-    }, [formData, publishing])
+    }, [formData, saving, publishing, unpublishing])
 
     const handleUnpublish = useCallback(async () => {
-        if (unpublishing) return
+        if (saving || publishing || unpublishing) return
         try {
             setUnpublishing(true)
             const payload = buildProfilePayload(formData, false)
@@ -383,7 +383,7 @@ export function CreerProfilContent() {
         } finally {
             setUnpublishing(false)
         }
-    }, [formData, unpublishing])
+    }, [formData, saving, publishing, unpublishing])
 
     if (loadingStatus === 'loading') {
         return <Preloader text="Initialisation du profil" />

@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge"
 import { motion, AnimatePresence } from "framer-motion"
 import { AvatarUpload } from "@/components/AvatarUpload"
 import { cn } from "@/lib/utils"
+import { toast } from "sonner"
 
 interface CreerProfilFormProps {
     formData: any
@@ -101,8 +102,45 @@ export const CreerProfilForm = React.memo(function CreerProfilForm({
 
     const totalSteps = steps.length
 
+    // Validation des champs requis de l'étape courante avant de pouvoir avancer
+    const validateStep = (step: number): string | null => {
+        const name = (formData.name || "").trim()
+        const role = (formData.role || "").trim()
+        const specialty = (formData.specialty || "").trim()
+        const slug = (formData.slug || "").trim()
+
+        switch (step) {
+            case 0:
+                if (!name) return "Veuillez renseigner votre nom complet"
+                if (name.split(/\s+/).filter(Boolean).length < 2) return "Indiquez au moins un prénom et un nom"
+                if (!role) return "Veuillez renseigner votre poste / titre"
+                return null
+            case 1:
+                if (!formData.category) return "Veuillez choisir un type de profil"
+                if (!formData.activity_domain) return "Veuillez choisir un secteur d'activité"
+                if (!specialty) return "Veuillez renseigner votre expertise spécifique"
+                return null
+            case 2:
+                if (!slug) return "Veuillez renseigner votre lien personnalisé (pseudo)"
+                if (slug.length < 3) return "Le pseudo doit contenir au moins 3 caractères"
+                if ((formData.bio || "").trim().length > 1200) return "La bio ne doit pas dépasser 1200 caractères"
+                return null
+            case 3:
+                if (!formData.country_id && !formData.country_code) return "Veuillez sélectionner votre pays"
+                if (!(formData.city || "").trim()) return "Veuillez renseigner votre ville"
+                return null
+            default:
+                return null
+        }
+    }
+
     const nextStep = () => {
         if (currentStep < totalSteps - 1) {
+            const error = validateStep(currentStep)
+            if (error) {
+                toast.error(error)
+                return
+            }
             setDirection(1)
             setCurrentStep(currentStep + 1)
         }

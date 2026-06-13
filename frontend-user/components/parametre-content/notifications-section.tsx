@@ -10,7 +10,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
-import { Button } from "@/components/ui/button"
+import { Loader2, Check } from "lucide-react"
 import { subscribeToPushNotifications } from "@/lib/push-notifications"
 
 interface NotificationSettings {
@@ -81,9 +81,13 @@ export function NotificationsSection({ settings, setSettings, onSave, saving }: 
                     </div>
                     <Switch checked={settings.push} onCheckedChange={(checked) => toggle("push", checked)} />
                 </div>
-                <Button className="rounded-xl" onClick={() => void onSave()} disabled={saving}>
-                    {saving ? "Enregistrement..." : "Enregistrer les notifications"}
-                </Button>
+                <p className="flex items-center gap-2 text-xs font-medium text-muted-foreground pt-1">
+                    {saving ? (
+                        <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Enregistrement…</>
+                    ) : (
+                        <><Check className="h-3.5 w-3.5 text-emerald-500" /> Modifications enregistrées automatiquement.</>
+                    )}
+                </p>
             </CardContent>
         </Card>
     )
