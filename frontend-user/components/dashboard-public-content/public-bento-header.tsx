@@ -94,7 +94,7 @@ export function PublicBentoHeader({ stats, statsLoading }: PublicBentoHeaderProp
                                 className="rounded-2xl bg-white text-slate-950 hover:bg-slate-100 px-6 h-12 text-sm font-bold shadow-xl transition-all hover:scale-[1.02] flex items-center justify-center gap-2"
                             >
                                 <UserPlus className="size-4" />
-                                Rejoindre le Réseau
+                                Créer mon profil
                             </Button>
                             <Button
                                 onClick={() => router.push("/login")}

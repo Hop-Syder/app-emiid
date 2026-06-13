@@ -17,6 +17,7 @@ import { LocationSelector } from "@/components/LocationSelector"
 import { Button } from "@/components/ui/button"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
+import { toast } from "sonner"
 
 interface AnnuaireFiltersProps {
     filters: {
@@ -105,7 +106,9 @@ export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProp
 
     const handleProximitySearch = () => {
         if (!navigator.geolocation) {
-            alert("La géolocalisation n'est pas supportée par votre navigateur.")
+            toast.error("Géolocalisation non supportée", {
+                description: "Votre navigateur ne permet pas la localisation.",
+            })
             return
         }
 
@@ -114,26 +117,39 @@ export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProp
             async (position) => {
                 const lat = position.coords.latitude
                 const lon = position.coords.longitude
-                
+
                 try {
                     const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=fr`)
                     if (res.ok) {
                         const data = await res.json()
                         const city = data.address.city || data.address.town || data.address.village || data.address.state
                         const countryCode = data.address.country_code?.toUpperCase()
-                        
+
                         if (countryCode) onFilterChange("country", countryCode)
                         if (city) onFilterChange("city", city)
+
+                        if (city || countryCode) {
+                            toast.success("Position détectée", {
+                                description: city ? `Résultats autour de ${city}.` : "Résultats filtrés sur votre pays.",
+                            })
+                        } else {
+                            toast.info("Localisation imprécise", { description: "Aucun lieu n'a pu être déterminé." })
+                        }
+                    } else {
+                        toast.info("Localisation imprécise", { description: "Service de géocodage indisponible." })
                     }
                 } catch (e) {
                     console.error("Geocoding failed", e)
+                    toast.info("Localisation imprécise", { description: "Impossible de déterminer votre ville." })
                 } finally {
                     setIsLocating(false)
                 }
             },
             (error) => {
                 console.error("Geolocation error:", error)
-                alert("Impossible de récupérer votre position. Vérifiez les autorisations de votre navigateur.")
+                toast.error("Localisation indisponible", {
+                    description: "Autorisation refusée — vérifiez les réglages de votre navigateur.",
+                })
                 setIsLocating(false)
             },
             { timeout: 10000 }

@@ -10,8 +10,12 @@
 import Link from "next/link"
 import { BellRing, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useUnreadNotifications } from "@/hooks/use-unread-notifications"
 
 export function RecentActivityCta() {
+  const unreadCount = useUnreadNotifications()
+  const hasNew = unreadCount > 0
+
   return (
     <div className="relative group cursor-pointer transition-all duration-300 hover:-translate-y-1">
       {/* Glow effect derrière la carte */}
@@ -36,12 +40,16 @@ export function RecentActivityCta() {
                 <h3 className="text-xl sm:text-2xl font-bold text-slate-800 tracking-tight mb-1 group-hover:text-emerald-600 transition-colors">
                   Activité Récente
                 </h3>
-                <span className="text-[10px] font-bold text-emerald-600 bg-emerald-100 uppercase tracking-wider px-2 py-0.5 rounded-full ring-1 ring-emerald-200/50 shadow-sm animate-pulse">
-                  Nouveau
-                </span>
+                {hasNew && (
+                  <span className="text-[10px] font-bold text-emerald-600 bg-emerald-100 uppercase tracking-wider px-2 py-0.5 rounded-full ring-1 ring-emerald-200/50 shadow-sm animate-pulse">
+                    {unreadCount > 9 ? "9+" : unreadCount} Nouveau{unreadCount > 1 ? "x" : ""}
+                  </span>
+                )}
               </div>
               <p className="text-sm font-medium text-slate-500">
-                Vous avez de nouvelles interactions sur votre profil.
+                {hasNew
+                  ? "Vous avez de nouvelles interactions sur votre profil."
+                  : "Retrouvez ici l'historique de vos interactions."}
               </p>
             </div>
           </div>

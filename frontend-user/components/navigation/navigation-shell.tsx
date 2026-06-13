@@ -16,6 +16,7 @@ import { createClient } from "@/lib/supabase/client"
 import { DesktopSidebar } from "./desktop-sidebar"
 import { MobileDock } from "./mobile-dock"
 import { CommandPalette } from "@/components/command-palette"
+import { CommandPaletteProvider } from "@/components/command-palette-context"
 
 interface NavigationShellProps {
   children: React.ReactNode
@@ -67,6 +68,7 @@ export function NavigationShell({ children, isPublic = false }: NavigationShellP
   const isMessagePage = pathname === "/messages"
 
   return (
+    <CommandPaletteProvider>
     <div className={`relative bg-slate-50 w-full flex ${isMessagePage ? "h-screen max-h-screen overflow-hidden" : "min-h-screen"}`}>
       <Suspense fallback={null}>
         <ChatActiveWatcher pathname={pathname} onChange={setIsMessageChatActive} />
@@ -90,5 +92,6 @@ export function NavigationShell({ children, isPublic = false }: NavigationShellP
       {/* Palette de commandes (CMD+K) */}
       <CommandPalette />
     </div>
+    </CommandPaletteProvider>
   )
 }

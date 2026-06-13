@@ -92,7 +92,7 @@ export function AnnuaireHero({
                         <Link href="/creer-profil">
                             <Button className="group relative overflow-hidden bg-white text-slate-950 hover:bg-slate-100 hover:text-slate-900 rounded-xl h-11 px-6 font-bold text-sm shadow-[0_0_40px_rgba(255,255,255,0.1)] transition-all hover:shadow-[0_0_60px_rgba(255,255,255,0.2)] hover:scale-105">
                                 <span className="relative z-10 flex items-center">
-                                    Rejoindre l&apos;annuaire
+                                    Créer mon profil
                                     <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                                 </span>
                             </Button>
@@ -124,20 +124,19 @@ export function AnnuaireHero({
                 <div className="relative z-10 mt-auto">
                     <div className="flex items-center gap-4 mb-4">
                         <div className="relative w-14 h-14 rounded-2xl overflow-hidden border-2 border-indigo-400/30 shadow-lg group-hover:scale-105 transition-transform duration-500">
-                            {/* Placeholder Avatar */}
-                            <div className="w-full h-full bg-gradient-to-tr from-indigo-500 to-purple-400 flex items-center justify-center text-white font-bold text-xl">
-                                EM
+                            <div className="w-full h-full bg-gradient-to-tr from-indigo-500 to-purple-400 flex items-center justify-center text-white">
+                                <Sparkles className="w-6 h-6" />
                             </div>
                         </div>
                         <div>
-                            <h3 className="text-white font-bold text-lg leading-tight group-hover:text-indigo-300 transition-colors">Élite Member</h3>
-                            <p className="text-indigo-200/70 text-xs font-medium mt-0.5">Expert certifié EmiID</p>
+                            <h3 className="text-white font-bold text-lg leading-tight group-hover:text-indigo-300 transition-colors">Profils vérifiés</h3>
+                            <p className="text-indigo-200/70 text-xs font-medium mt-0.5">Une communauté de confiance</p>
                         </div>
                     </div>
 
                     <div className="bg-white/5 border border-white/10 rounded-xl p-3 backdrop-blur-sm">
-                        <p className="text-xs text-slate-300 font-medium leading-relaxed italic">
-                            "Rejoignez des milliers de professionnels qui font confiance à notre réseau pour développer leur activité."
+                        <p className="text-xs text-slate-300 font-medium leading-relaxed">
+                            Rejoignez des milliers de professionnels qui font confiance à notre réseau pour développer leur activité.
                         </p>
                     </div>
                 </div>

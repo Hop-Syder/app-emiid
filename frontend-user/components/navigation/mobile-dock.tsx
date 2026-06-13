@@ -16,6 +16,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Home, MessageSquare, Settings, User, Users, UserPlus, LogIn, LogOut, Bell } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 import { createClient } from "@/lib/supabase/client"
+import { useUnreadNotifications } from "@/hooks/use-unread-notifications"
 
 const privateNavItems = [
   { name: "Hub", href: "/dashboard-user", icon: Home },
@@ -37,48 +38,11 @@ export function MobileDock({ isPublic = false }: { isPublic?: boolean }) {
   const router = useRouter()
   const supabase = createClient()
   const [showUserMenu, setShowUserMenu] = useState(false)
-  const [unreadCount, setUnreadCount] = useState(0)
   const dockRef = useRef<HTMLDivElement>(null)
 
-  // Comptage léger des notifications non lues (+ rafraîchissement temps réel)
-  useEffect(() => {
-    if (isPublic) return
-    let isMounted = true
-    let channel: ReturnType<typeof supabase.channel> | null = null
-
-    const init = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!isMounted || !user) return
-
-      const refresh = async () => {
-        const { count } = await supabase
-          .from("notifications")
-          .select("*", { count: "exact", head: true })
-          .eq("user_id", user.id)
-          .eq("is_read", false)
-        if (isMounted) setUnreadCount(count ?? 0)
-      }
-
-      await refresh()
-
-      channel = supabase
-        .channel(`mobile-dock-notifs-${user.id}`)
-        .on(
-          "postgres_changes",
-          { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` },
-          () => { void refresh() }
-        )
-        .subscribe()
-    }
-
-    void init()
-
-    return () => {
-      isMounted = false
-      if (channel) supabase.removeChannel(channel)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPublic])
+  // Comptage léger des notifications non lues (badge), masqué en mode public
+  const unreadCountRaw = useUnreadNotifications()
+  const unreadCount = isPublic ? 0 : unreadCountRaw
 
   const handleLogout = async () => {
     await supabase.auth.signOut()

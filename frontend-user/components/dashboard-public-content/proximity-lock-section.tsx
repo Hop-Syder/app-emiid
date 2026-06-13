@@ -97,7 +97,7 @@ export function ProximityLockSection() {
                             onClick={() => router.push("/creer-profil")}
                             className="flex-1 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold h-12 shadow-md transition-all hover:scale-[1.02] flex items-center justify-center gap-2"
                         >
-                            Créer un compte
+                            Créer mon profil
                             <ArrowRight className="size-4" />
                         </Button>
                         <Button 

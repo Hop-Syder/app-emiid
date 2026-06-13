@@ -39,9 +39,10 @@ import {
   CommandSeparator,
   CommandShortcut,
 } from "@/components/ui/command"
+import { useCommandPalette } from "@/components/command-palette-context"
 
 export function CommandPalette() {
-  const [open, setOpen] = React.useState(false)
+  const { open, setOpen, toggle } = useCommandPalette()
   const [searchQuery, setSearchQuery] = React.useState("")
   const router = useRouter()
 
@@ -49,13 +50,13 @@ export function CommandPalette() {
     const down = (e: KeyboardEvent) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault()
-        setOpen((open) => !open)
+        toggle()
       }
     }
 
     document.addEventListener("keydown", down)
     return () => document.removeEventListener("keydown", down)
-  }, [])
+  }, [toggle])
 
   const runCommand = React.useCallback((command: () => void) => {
     setOpen(false)
