@@ -13,8 +13,10 @@
 import { usePathname, useSearchParams } from "next/navigation"
 import { useState, useEffect, Suspense } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { DesktopSidebar } from "./desktop-sidebar"
-import { MobileDock } from "./mobile-dock"
+import { DesktopSidebarGuest } from "./desktop-sidebar-guest"
+import { DesktopSidebarAuth } from "./desktop-sidebar-auth"
+import { MobileDockGuest } from "./mobile-dock-guest"
+import { MobileDockAuth } from "./mobile-dock-auth"
 import { CommandPalette } from "@/components/command-palette"
 import { CommandPaletteProvider } from "@/components/command-palette-context"
 
@@ -75,7 +77,7 @@ export function NavigationShell({ children, isPublic = false }: NavigationShellP
       </Suspense>
 
       {/* Sidebar pour Desktop (toujours visible sur grand écran) */}
-      <DesktopSidebar isPublic={effectiveIsPublic} />
+      {effectiveIsPublic ? <DesktopSidebarGuest /> : <DesktopSidebarAuth />}
 
       {/* 
         Conteneur principal: 
@@ -87,7 +89,9 @@ export function NavigationShell({ children, isPublic = false }: NavigationShellP
       </main>
 
       {/* Dock pour Mobile (masqué si conversation active) */}
-      {!isMessageChatActive && <MobileDock isPublic={effectiveIsPublic} />}
+      {!isMessageChatActive && (
+        effectiveIsPublic ? <MobileDockGuest /> : <MobileDockAuth />
+      )}
 
       {/* Palette de commandes (CMD+K) */}
       <CommandPalette />

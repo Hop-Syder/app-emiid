@@ -1,9 +1,9 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Barre de navigation mobile flottante (Mobile Dock) avec sous-menu interactif
- * @created 2026-01-16
- * @updated 2026-06-03
+ * @description Barre de navigation mobile flottante (Auth / Connecté)
+ * @created 2026-06-13
+ * @updated 2026-06-13
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -13,7 +13,7 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
-import { Home, MessageSquare, Settings, User, Users, UserPlus, LogIn, LogOut, Bell } from "lucide-react"
+import { Home, MessageSquare, Settings, User, Users, UserPlus, LogOut, Bell } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useUnreadNotifications } from "@/hooks/use-unread-notifications"
@@ -27,22 +27,14 @@ const privateNavItems = [
   { name: "Profil", href: "/dashboard-user?view=profile", icon: User },
 ]
 
-const publicNavItems = [
-  { name: "Accueil", href: "/", icon: Home },
-  { name: "Annuaire", href: "/annuaire", icon: Users },
-  { name: "Se connecter", href: "/login", icon: LogIn },
-]
-
-export function MobileDock({ isPublic = false }: { isPublic?: boolean }) {
+export function MobileDockAuth() {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
   const [showUserMenu, setShowUserMenu] = useState(false)
   const dockRef = useRef<HTMLDivElement>(null)
 
-  // Comptage léger des notifications non lues (badge), masqué en mode public
-  const unreadCountRaw = useUnreadNotifications()
-  const unreadCount = isPublic ? 0 : unreadCountRaw
+  const unreadCount = useUnreadNotifications()
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -75,7 +67,7 @@ export function MobileDock({ isPublic = false }: { isPublic?: boolean }) {
     >
       {/* SOUS-MENU INTERACTIF FLOTTANT AU-DESSUS */}
       <AnimatePresence>
-        {showUserMenu && !isPublic && (
+        {showUserMenu && (
           <motion.div
             initial={{ opacity: 0, y: 15, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -124,8 +116,8 @@ export function MobileDock({ isPublic = false }: { isPublic?: boolean }) {
         {/* Lueur interne globale */}
         <div className="absolute inset-0 rounded-full border border-white/5 pointer-events-none" />
 
-        {(isPublic ? publicNavItems : privateNavItems).map((item) => {
-          const isProfilButton = item.name === "Profil" && !isPublic
+        {privateNavItems.map((item) => {
+          const isProfilButton = item.name === "Profil"
           const isActive = pathname === item.href && !isProfilButton
           
           // Rendu du bouton d'action pour le Profil (connecté)
@@ -140,7 +132,7 @@ export function MobileDock({ isPublic = false }: { isPublic?: boolean }) {
               >
                 {showUserMenu && (
                   <motion.div
-                    layoutId="mobile-active-indicator"
+                    layoutId="mobile-auth-active-indicator"
                     className="absolute inset-0 bg-blue-600/20 rounded-full"
                     transition={{ type: "spring", stiffness: 400, damping: 25 }}
                   />
@@ -154,7 +146,7 @@ export function MobileDock({ isPublic = false }: { isPublic?: boolean }) {
                 
                 {showUserMenu && (
                   <motion.div
-                    layoutId="mobile-active-dot"
+                    layoutId="mobile-auth-active-dot"
                     className="absolute -bottom-1 size-1 bg-blue-400 rounded-full shadow-[0_0_8px_rgba(96,165,250,0.8)]"
                     transition={{ type: "spring", stiffness: 400, damping: 25 }}
                   />
@@ -172,7 +164,7 @@ export function MobileDock({ isPublic = false }: { isPublic?: boolean }) {
             >
               {isActive && (
                 <motion.div
-                  layoutId="mobile-active-indicator"
+                  layoutId="mobile-auth-active-indicator"
                   className="absolute inset-0 bg-blue-600/20 rounded-full"
                   transition={{ type: "spring", stiffness: 400, damping: 25 }}
                 />
@@ -195,7 +187,7 @@ export function MobileDock({ isPublic = false }: { isPublic?: boolean }) {
 
               {isActive && (
                 <motion.div
-                  layoutId="mobile-active-dot"
+                  layoutId="mobile-auth-active-dot"
                   className="absolute -bottom-1 size-1 bg-blue-400 rounded-full shadow-[0_0_8px_rgba(96,165,250,0.8)]"
                   transition={{ type: "spring", stiffness: 400, damping: 25 }}
                 />
