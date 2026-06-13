@@ -20,7 +20,7 @@ import { ThemeToggle } from "./theme-toggle";
 
 const navigation = [
   { name: "Accueil", href: "/" },
-  { name: "Explorer", href: "/explore" },
+  { name: "FAQ", href: "/faq" },
   { name: "Tarifs", href: "/#pricing" },
   { name: "À propos", href: "/about" },
 ];
