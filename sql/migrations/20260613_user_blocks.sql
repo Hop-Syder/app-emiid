@@ -1,8 +1,8 @@
 -- =============================================================
--- Migration : user_blocks (blocage d'utilisateurs)
--- Objet     : Permettre à un utilisateur de bloquer un profil.
---             Sert de base au masquage et à la modération.
--- Sûreté    : idempotente
+-- Migration : user_blocks (blocage de profils)
+-- Objet     : Permettre a un utilisateur de bloquer un profil.
+--             Sert de base au masquage et a la moderation.
+-- Surete    : idempotente
 -- =============================================================
 
 BEGIN;
@@ -15,14 +15,14 @@ CREATE TABLE IF NOT EXISTS public.user_blocks (
     created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- On ne peut pas se bloquer soi-même
+-- Empecher le blocage de soi-meme
 ALTER TABLE public.user_blocks
   DROP CONSTRAINT IF EXISTS user_blocks_no_self;
 ALTER TABLE public.user_blocks
   ADD  CONSTRAINT user_blocks_no_self
        CHECK (blocker_id <> blocked_id);
 
--- Anti-doublon : un seul blocage actif par couple (bloqueur, bloqué)
+-- Anti-doublon : un seul blocage par couple (bloqueur, bloque)
 CREATE UNIQUE INDEX IF NOT EXISTS uq_user_blocks_pair
   ON public.user_blocks (blocker_id, blocked_id);
 
@@ -33,21 +33,21 @@ CREATE INDEX IF NOT EXISTS idx_user_blocks_blocker
 -- 2) RLS -------------------------------------------------------
 ALTER TABLE public.user_blocks ENABLE ROW LEVEL SECURITY;
 
--- Un utilisateur ne voit que ses propres blocages
+-- Lecture : un utilisateur voit uniquement ses propres blocages
 DROP POLICY IF EXISTS "user_blocks_owner_select" ON public.user_blocks;
 CREATE POLICY "user_blocks_owner_select"
   ON public.user_blocks
   FOR SELECT
   USING (auth.uid() = blocker_id);
 
--- Un utilisateur ne peut créer un blocage qu'en tant que bloqueur = self
+-- Insertion : seulement en tant que bloqueur = self
 DROP POLICY IF EXISTS "user_blocks_owner_insert" ON public.user_blocks;
 CREATE POLICY "user_blocks_owner_insert"
   ON public.user_blocks
   FOR INSERT
   WITH CHECK (auth.uid() = blocker_id);
 
--- Un utilisateur peut retirer (débloquer) ses propres blocages
+-- Suppression (deblocage) : seulement ses propres blocages
 DROP POLICY IF EXISTS "user_blocks_owner_delete" ON public.user_blocks;
 CREATE POLICY "user_blocks_owner_delete"
   ON public.user_blocks
@@ -61,6 +61,6 @@ GRANT ALL                    ON public.user_blocks TO service_role;
 COMMIT;
 
 -- =============================================================
--- Vérif rapide :
+-- Verif rapide :
 -- SELECT blocker_id, COUNT(*) FROM public.user_blocks GROUP BY 1;
 -- =============================================================
