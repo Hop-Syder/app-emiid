@@ -104,18 +104,18 @@ export function ProfileSection({
                 <div className="p-2.5 md:p-3 bg-primary/10 rounded-xl md:rounded-xl shrink-0">
                     <User className="h-5 w-5 md:h-6 md:w-6 text-primary" />
                 </div>
-                <div>
-                    <CardTitle className="text-xl md:text-2xl font-bold tracking-tight">
+                <div className="min-w-0 flex-1">
+                    <CardTitle className="text-xl md:text-2xl font-bold tracking-tight truncate">
                         <span className="hidden sm:inline">Informations du Profil</span>
                         <span className="sm:hidden">Profil</span>
                     </CardTitle>
-                    <CardDescription className="text-xs md:text-sm font-medium">Mettez à jour vos informations personnelles pour mieux vous faire connaître</CardDescription>
+                    <CardDescription className="text-xs md:text-sm font-medium line-clamp-2">Mettez à jour vos informations personnelles pour mieux vous faire connaître</CardDescription>
                 </div>
             </div>
         </CardHeader>
         <CardContent className="space-y-6 md:space-y-8 p-4 sm:p-6 lg:p-8 relative z-10">
           <div className="p-4 md:p-6 bg-slate-50/50 border border-slate-100 rounded-xl md:rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div>
+              <div className="min-w-0">
                   <h3 className="font-bold text-slate-900 mb-1">Photo de profil</h3>
                   <p className="text-xs text-slate-500">Cela sera affiché sur votre profil public</p>
               </div>
@@ -385,46 +385,46 @@ export function ProfileSection({
                 <div className="p-2.5 md:p-3 bg-indigo-50 rounded-xl md:rounded-xl shrink-0">
                     <Shield className="h-5 w-5 md:h-6 md:w-6 text-indigo-500" />
                 </div>
-                <div>
-                    <CardTitle className="text-lg md:text-xl font-bold tracking-tight">Statut de Vérification</CardTitle>
+                <div className="min-w-0 flex-1">
+                    <CardTitle className="text-lg md:text-xl font-bold tracking-tight truncate">Statut de Vérification</CardTitle>
                     <CardDescription className="text-xs md:text-sm font-medium">Renforcez la confiance des clients envers votre profil</CardDescription>
                 </div>
             </div>
         </CardHeader>
         <CardContent className="space-y-4 p-4 sm:p-6 lg:p-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 md:p-5 bg-green-50/50 border border-green-100 rounded-xl md:rounded-xl gap-4 hover:shadow-md transition-all">
-            <div className="flex items-center gap-3 md:gap-4">
+            <div className="flex items-center gap-3 md:gap-4 min-w-0 flex-1">
               <div className="p-2.5 md:p-3 bg-white rounded-xl md:rounded-xl shadow-sm border border-green-50 shrink-0">
                   <Mail className="h-5 w-5 md:h-6 md:w-6 text-green-500" />
               </div>
-              <div className="space-y-0.5">
-                <p className="font-bold text-slate-900">Email validé</p>
-                <p className="text-xs font-semibold text-slate-500">{profile.email}</p>
+              <div className="space-y-0.5 min-w-0">
+                <p className="font-bold text-slate-900 truncate">Email validé</p>
+                <p className="text-xs font-semibold text-slate-500 truncate">{profile.email}</p>
               </div>
             </div>
-            <Badge className="w-fit rounded-xl px-3 py-1 bg-green-100 text-green-700 hover:bg-green-100 border-none font-bold text-xs uppercase tracking-wider">
+            <Badge className="w-fit shrink-0 rounded-xl px-3 py-1 bg-green-100 text-green-700 hover:bg-green-100 border-none font-bold text-xs uppercase tracking-wider">
               <Shield className="mr-1.5 h-3.5 w-3.5" />
               Vérifié
             </Badge>
           </div>
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 md:p-5 bg-green-50/50 border border-green-100 rounded-xl md:rounded-xl gap-4 hover:shadow-md transition-all">
-            <div className="flex items-center gap-3 md:gap-4">
+            <div className="flex items-center gap-3 md:gap-4 min-w-0 flex-1">
               <div className="p-2.5 md:p-3 bg-white rounded-xl md:rounded-xl shadow-sm border border-green-50 shrink-0">
                 <Smartphone className="h-5 w-5 md:h-6 md:w-6 text-green-500" />
               </div>
-              <div className="space-y-0.5">
-                <p className="font-bold text-slate-900">Téléphone approuvé</p>
-                <p className="text-xs font-semibold text-slate-500">{profile.phone || "+223 70 12 34 56"}</p>
+              <div className="space-y-0.5 min-w-0">
+                <p className="font-bold text-slate-900 truncate">Téléphone approuvé</p>
+                <p className="text-xs font-semibold text-slate-500 truncate">{profile.phone || "+223 70 12 34 56"}</p>
               </div>
             </div>
             {profile.phone_verified ? (
-              <Badge className="w-fit rounded-xl px-3 py-1 bg-green-100 text-green-700 hover:bg-green-100 border-none font-bold text-xs uppercase tracking-wider">
+              <Badge className="w-fit shrink-0 rounded-xl px-3 py-1 bg-green-100 text-green-700 hover:bg-green-100 border-none font-bold text-xs uppercase tracking-wider">
                 <Shield className="mr-1.5 h-3.5 w-3.5" />
                 Vérifié
               </Badge>
             ) : (
-              <Badge variant="outline" className="w-fit rounded-xl px-3 py-1 border-slate-200 text-slate-400 font-bold text-xs uppercase tracking-wider">
+              <Badge variant="outline" className="w-fit shrink-0 rounded-xl px-3 py-1 border-slate-200 text-slate-400 font-bold text-xs uppercase tracking-wider">
                 <AlertCircle className="mr-1.5 h-3.5 w-3.5" />
                 Non vérifié
               </Badge>
@@ -432,13 +432,13 @@ export function ProfileSection({
           </div>
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 md:p-5 bg-slate-50 border border-slate-100 rounded-xl md:rounded-xl gap-4 hover:shadow-md transition-all">
-            <div className="flex items-center gap-3 md:gap-4">
+            <div className="flex items-center gap-3 md:gap-4 min-w-0 flex-1">
               <div className="p-2.5 md:p-3 bg-white rounded-xl md:rounded-xl shadow-sm border border-slate-100 shrink-0">
                 <User className="h-5 w-5 md:h-6 md:w-6 text-slate-400" />
               </div>
-              <div className="space-y-0.5">
+              <div className="space-y-0.5 min-w-0">
                 <p className="font-bold text-slate-900 leading-tight">Identité professionnelle</p>
-                <p className="text-xs font-semibold text-slate-400">Vérification recommandée pour plus de visibilité</p>
+                <p className="text-xs font-semibold text-slate-400 line-clamp-2">Vérification recommandée pour plus de visibilité</p>
               </div>
             </div>
             <Button 
