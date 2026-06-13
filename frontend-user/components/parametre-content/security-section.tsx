@@ -4,7 +4,7 @@
  * @organization Nexus Partners
  * @description Security section for Settings (Password, PIN, 2FA)
  * @created 2026-01-16
- * @updated 2026-05-24
+ * @updated 2026-06-13
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
 */
@@ -13,8 +13,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Phone, Smartphone, Lock, Eye, EyeOff, ShieldAlert, LogOut } from "lucide-react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Phone, Smartphone, Lock, Eye, EyeOff, ShieldAlert, LogOut, Shield, KeyRound, Fingerprint, Trash2, UserX } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
@@ -74,7 +73,7 @@ export function SecuritySection({
     const [mfaLoading, setMfaLoading] = useState(false)
     const [mfaFactorId, setMfaFactorId] = useState("")
     const [mfaChallengeId, setMfaChallengeId] = useState("")
-    
+
     // Reauthentication State
     const [reauthDialogOpen, setReauthDialogOpen] = useState(false)
     const [reauthPassword, setReauthPassword] = useState("")
@@ -99,7 +98,7 @@ export function SecuritySection({
 
     const processAfterReauth = () => {
         setReauthDialogOpen(false)
-        
+
         if (pendingAction === "enable") {
             setPinStep("enter")
             setTempPin("")
@@ -115,7 +114,7 @@ export function SecuritySection({
             setPinError("")
             setPinDialogOpen(true)
         }
-        
+
         setPendingAction(null)
     }
 
@@ -168,8 +167,7 @@ export function SecuritySection({
             return
         }
 
-        // Détection utilisateur OAuth
-        const isOAuth = profile.email && !profile.has_password // Note: On supposera qu' on a cette info ou on gère l'erreur
+        const isOAuth = profile.email && !profile.has_password
 
         if (isOAuth) {
             toast.info("Re-vérification simplifiée pour compte social", {
@@ -178,7 +176,7 @@ export function SecuritySection({
             processAfterReauth()
             return
         }
-        
+
         if (!reauthPassword) {
             setReauthError("Mot de passe requis")
             return
@@ -188,7 +186,6 @@ export function SecuritySection({
         setReauthError("")
 
         try {
-            // Tentative de réauthentification avec le mot de passe
             const { error } = await supabase.auth.signInWithPassword({
                 email: profile.email || "",
                 password: reauthPassword,
@@ -199,7 +196,6 @@ export function SecuritySection({
                 return
             }
 
-            // Succès !
             processAfterReauth()
         } catch (err) {
             console.error("Reauth error:", err)
@@ -272,7 +268,6 @@ export function SecuritySection({
         }
         setMfaLoading(true)
         try {
-            // 1. Enrôlement du facteur téléphone
             const { data: enrollData, error: enrollError } = await supabase.auth.mfa.enroll({
                 phone: mfaPhoneNumber,
                 factorType: 'phone'
@@ -280,12 +275,11 @@ export function SecuritySection({
             if (enrollError) throw enrollError
             setMfaFactorId(enrollData.id)
 
-            // 2. Création du challenge (Envoi du code)
             const { data: challengeData, error: challengeError } = await supabase.auth.mfa.challenge({
                 factorId: enrollData.id
             })
             if (challengeError) throw challengeError
-            
+
             setMfaChallengeId(challengeData.id)
             setMfaStep("code")
             toast.success(`Code envoyé par ${mfaChannel === "whatsapp" ? "WhatsApp" : "SMS"}`)
@@ -304,7 +298,6 @@ export function SecuritySection({
         }
         setMfaLoading(true)
         try {
-            // 3. Vérification du challenge
             const { error: verifyError } = await supabase.auth.mfa.verify({
                 factorId: mfaFactorId,
                 challengeId: mfaChallengeId,
@@ -312,16 +305,15 @@ export function SecuritySection({
             })
             if (verifyError) throw verifyError
 
-            // 4. Mise à jour des préférences utilisateur dans la DB custom
             const success = await saveSettings(
                 { security_preferences: { two_factor_enabled: true } },
                 "Authentification 2FA activée et vérifiée !"
             )
-            
+
             if (success) {
                 setSecuritySettings({ two_factor_enabled: true })
                 setMfaDialogOpen(false)
-                router.refresh() // Pour rafraîchir l'état de la session
+                router.refresh()
             }
         } catch (error: any) {
             console.error("MFA Verification Error:", error)
@@ -396,77 +388,138 @@ export function SecuritySection({
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4">
 
-            <Card className="rounded-xl">
-                <CardHeader>
-                    <CardTitle className="text-xl md:text-2xl">
-                        <span className="hidden sm:inline">Authentification et accès</span>
-                        <span className="sm:hidden">Sécurité</span>
-                    </CardTitle>
-                    <CardDescription>Ajoutez une couche de sécurité supplémentaire</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between gap-3 p-4 border rounded-xl">
-                        <div className="space-y-1 min-w-0 flex-1">
-                            <p className="font-medium text-[#022753]">Verrouillage par Code PIN</p>
-                            <p className="text-sm text-muted-foreground">Sécurisez l&apos;accès au tableau de bord</p>
-                            {profile.pin_enabled && (
-                                <button
-                                    onClick={() => {
-                                        setPendingAction("change")
-                                        setReauthPassword("")
-                                        setReauthError("")
-                                        setReauthDialogOpen(true)
-                                    }}
-                                    className="text-xs font-bold text-blue-600 hover:text-blue-700 underline underline-offset-4 pt-1"
-                                >
-                                    Modifier le code PIN
-                                </button>
-                            )}
+            {/* ── Authentification & accès ────────────────────────────────────── */}
+            <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6">
+                <h2 className="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-5">
+                    Authentification et accès
+                </h2>
+                <div className="divide-y divide-slate-100">
+
+                    {/* PIN toggle */}
+                    <div className="flex items-start justify-between gap-4 py-4 first:pt-0">
+                        <div className="flex items-start gap-3 min-w-0 flex-1">
+                            <div className="shrink-0 mt-0.5 w-8 h-8 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center">
+                                <KeyRound className="h-4 w-4 text-slate-500" />
+                            </div>
+                            <div className="min-w-0">
+                                <p className="text-sm font-semibold text-slate-900">Verrouillage par Code PIN</p>
+                                <p className="text-xs text-slate-500 mt-0.5">Sécurisez l&apos;accès au tableau de bord</p>
+                                {profile.pin_enabled && (
+                                    <button
+                                        onClick={() => {
+                                            setPendingAction("change")
+                                            setReauthPassword("")
+                                            setReauthError("")
+                                            setReauthDialogOpen(true)
+                                        }}
+                                        className="mt-2 text-xs font-bold text-primary hover:underline underline-offset-2"
+                                    >
+                                        Modifier le code PIN
+                                    </button>
+                                )}
+                            </div>
                         </div>
                         <Switch
-                            className="shrink-0"
+                            className="shrink-0 mt-1"
                             checked={profile.pin_enabled}
                             onCheckedChange={handlePinToggle}
                         />
                     </div>
-                    <div className="flex items-center justify-between gap-3 p-4 border rounded-xl">
-                        <div className="min-w-0 flex-1">
-                            <p className="font-medium">Authentification à deux facteurs (2FA)</p>
-                            <p className="text-sm text-muted-foreground">Sécurisez votre compte via WhatsApp ou SMS (Code à 5 chiffres)</p>
-                        </div>
-                        <Switch className="shrink-0" checked={securitySettings.two_factor_enabled} onCheckedChange={(checked) => void handleTwoFactorToggle(checked)} />
-                    </div>
-                </CardContent>
-            </Card>
 
-            <Card className="rounded-xl border-red-200">
-                <CardHeader>
-                    <CardTitle className="text-red-600">Zone de danger</CardTitle>
-                    <CardDescription>Actions irréversibles sur votre compte</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 border border-red-200 rounded-xl">
-                        <div className="min-w-0">
-                            <p className="font-medium">Désactiver le compte</p>
-                            <p className="text-sm text-muted-foreground">Votre compte sera masqué et l&apos;accès sera bloqué</p>
+                    {/* 2FA toggle */}
+                    <div className="flex items-start justify-between gap-4 py-4 last:pb-0">
+                        <div className="flex items-start gap-3 min-w-0 flex-1">
+                            <div className="shrink-0 mt-0.5 w-8 h-8 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center">
+                                <Fingerprint className="h-4 w-4 text-slate-500" />
+                            </div>
+                            <div className="min-w-0">
+                                <p className="text-sm font-semibold text-slate-900">Authentification à deux facteurs (2FA)</p>
+                                <p className="text-xs text-slate-500 mt-0.5">Code de validation via WhatsApp ou SMS</p>
+                            </div>
                         </div>
-                        <Button variant="outline" className="w-full sm:w-auto shrink-0 rounded-xl border-red-200 text-red-600 bg-transparent" onClick={() => void handleDeactivateAccount()} disabled={accountLoading}>
+                        <Switch
+                            className="shrink-0 mt-1"
+                            checked={securitySettings.two_factor_enabled}
+                            onCheckedChange={(checked) => void handleTwoFactorToggle(checked)}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            {/* ── Zone de danger ──────────────────────────────────────────────── */}
+            <div className="bg-white border border-red-100 rounded-2xl p-5 sm:p-6">
+                <div className="flex items-center gap-2 mb-5">
+                    <Shield className="h-3.5 w-3.5 text-red-500 shrink-0" />
+                    <h2 className="text-[11px] font-black text-red-400 uppercase tracking-wider">Zone de danger</h2>
+                </div>
+                <div className="divide-y divide-red-50">
+
+                    {/* Désactiver */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-4 first:pt-0">
+                        <div className="flex items-start gap-3 min-w-0 flex-1">
+                            <div className="shrink-0 mt-0.5 w-8 h-8 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center">
+                                <UserX className="h-4 w-4 text-red-500" />
+                            </div>
+                            <div className="min-w-0">
+                                <p className="text-sm font-semibold text-slate-900">Désactiver le compte</p>
+                                <p className="text-xs text-slate-500 mt-0.5">Votre compte sera masqué et l&apos;accès bloqué</p>
+                            </div>
+                        </div>
+                        <Button
+                            variant="outline"
+                            onClick={() => void handleDeactivateAccount()}
+                            disabled={accountLoading}
+                            className="w-full sm:w-auto shrink-0 h-9 rounded-xl border-red-200 text-red-600 bg-transparent hover:bg-red-50 hover:text-red-700 text-sm font-bold"
+                        >
                             Désactiver
                         </Button>
                     </div>
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 border border-red-200 rounded-xl">
-                        <div className="min-w-0">
-                            <p className="font-medium">Supprimer le compte</p>
-                            <p className="text-sm text-muted-foreground">Suppression définitive de toutes vos données</p>
+
+                    {/* Supprimer */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-4 last:pb-0">
+                        <div className="flex items-start gap-3 min-w-0 flex-1">
+                            <div className="shrink-0 mt-0.5 w-8 h-8 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center">
+                                <Trash2 className="h-4 w-4 text-red-500" />
+                            </div>
+                            <div className="min-w-0">
+                                <p className="text-sm font-semibold text-slate-900">Supprimer le compte</p>
+                                <p className="text-xs text-slate-500 mt-0.5">Suppression définitive de toutes vos données</p>
+                            </div>
                         </div>
-                        <Button variant="destructive" className="w-full sm:w-auto shrink-0 rounded-xl" onClick={() => void handleDeleteAccount()} disabled={accountLoading}>
+                        <Button
+                            variant="destructive"
+                            onClick={() => void handleDeleteAccount()}
+                            disabled={accountLoading}
+                            className="w-full sm:w-auto shrink-0 h-9 rounded-xl text-sm font-bold"
+                        >
                             Supprimer
                         </Button>
                     </div>
-                </CardContent>
-            </Card>
+                </div>
+            </div>
+
+            {/* ── Session (mobile only — desktop has logout in sidebar) ────────── */}
+            <div className="lg:hidden bg-white border border-slate-200 rounded-2xl p-5">
+                <h2 className="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-4">Session</h2>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="min-w-0">
+                        <p className="text-sm font-semibold text-slate-900">Se déconnecter</p>
+                        <p className="text-xs text-slate-500 mt-0.5">Fermer votre session sur cet appareil</p>
+                    </div>
+                    <Button
+                        variant="outline"
+                        onClick={handleLogout}
+                        className="w-full sm:w-auto shrink-0 h-9 rounded-xl border-red-200 text-red-600 bg-transparent hover:bg-red-50 hover:text-red-700 text-sm font-bold gap-2"
+                    >
+                        <LogOut className="h-4 w-4 shrink-0" />
+                        Se déconnecter
+                    </Button>
+                </div>
+            </div>
+
+            {/* ── Dialogs (préservés intégralement) ──────────────────────────── */}
 
             <Dialog open={pinDialogOpen} onOpenChange={setPinDialogOpen}>
                 <DialogContent className="sm:max-w-md">
@@ -510,6 +563,7 @@ export function SecuritySection({
                     </div>
                 </DialogContent>
             </Dialog>
+
             <Dialog open={mfaDialogOpen} onOpenChange={setMfaDialogOpen}>
                 <DialogContent className="sm:max-w-md rounded-2xl">
                     <DialogHeader>
@@ -517,8 +571,8 @@ export function SecuritySection({
                             {mfaStep === "phone" ? "Activer la 2FA" : "Vérification"}
                         </DialogTitle>
                         <DialogDescription>
-                            {mfaStep === "phone" 
-                                ? "Sécurisez votre compte en recevant un code de validation." 
+                            {mfaStep === "phone"
+                                ? "Sécurisez votre compte en recevant un code de validation."
                                 : `Entrez le code à 6 chiffres envoyé sur ${mfaPhoneNumber}`}
                         </DialogDescription>
                     </DialogHeader>
@@ -545,8 +599,8 @@ export function SecuritySection({
                                 <button
                                     onClick={() => setMfaChannel("whatsapp")}
                                     className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${
-                                        mfaChannel === "whatsapp" 
-                                        ? "border-green-500 bg-green-50 text-green-700" 
+                                        mfaChannel === "whatsapp"
+                                        ? "border-green-500 bg-green-50 text-green-700"
                                         : "border-slate-100 hover:border-slate-200"
                                     }`}
                                 >
@@ -556,8 +610,8 @@ export function SecuritySection({
                                 <button
                                     onClick={() => setMfaChannel("sms")}
                                     className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${
-                                        mfaChannel === "sms" 
-                                        ? "border-blue-500 bg-blue-50 text-blue-700" 
+                                        mfaChannel === "sms"
+                                        ? "border-blue-500 bg-blue-50 text-blue-700"
                                         : "border-slate-100 hover:border-slate-200"
                                     }`}
                                 >
@@ -566,8 +620,8 @@ export function SecuritySection({
                                 </button>
                             </div>
 
-                            <Button 
-                                onClick={() => void handleMfaEnroll()} 
+                            <Button
+                                onClick={() => void handleMfaEnroll()}
                                 disabled={mfaLoading || !mfaPhoneNumber}
                                 className="w-full h-12 rounded-xl bg-[#022753] hover:bg-[#033a7a]"
                             >
@@ -597,7 +651,7 @@ export function SecuritySection({
 
                                 <div className="text-center">
                                     <p className="text-sm text-muted-foreground mb-1">Vous n&apos;avez rien reçu ?</p>
-                                    <button 
+                                    <button
                                         onClick={() => void handleMfaEnroll()}
                                         className="text-sm font-bold text-primary hover:underline"
                                     >
@@ -607,14 +661,14 @@ export function SecuritySection({
                             </div>
 
                             <div className="flex gap-3 w-full">
-                                <Button 
-                                    variant="outline" 
+                                <Button
+                                    variant="outline"
                                     onClick={() => setMfaStep("phone")}
                                     className="flex-1 h-12 rounded-xl"
                                 >
                                     Retour
                                 </Button>
-                                <Button 
+                                <Button
                                     onClick={() => void handleMfaVerify()}
                                     disabled={mfaLoading || mfaCode.length !== 6}
                                     className="flex-[2] h-12 rounded-xl bg-green-600 hover:bg-green-700"
@@ -627,7 +681,6 @@ export function SecuritySection({
                 </DialogContent>
             </Dialog>
 
-            {/* --- REAUTHENTICATION DIALOG --- */}
             <Dialog open={reauthDialogOpen} onOpenChange={setReauthDialogOpen}>
                 <DialogContent className="sm:max-w-md rounded-2xl border-none shadow-2xl">
                     <DialogHeader>
@@ -638,7 +691,7 @@ export function SecuritySection({
                             Vérification de sécurité
                         </DialogTitle>
                         <DialogDescription className="text-center px-4">
-                            {profile.pin_enabled 
+                            {profile.pin_enabled
                                 ? "Pour modifier vos paramètres de sécurité sensibles, veuillez confirmer votre code PIN."
                                 : "Pour modifier vos paramètres de sécurité sensibles, veuillez confirmer votre mot de passe EmiID."}
                         </DialogDescription>
@@ -699,15 +752,15 @@ export function SecuritySection({
                         </div>
 
                         <div className="flex gap-3 pt-2">
-                            <Button 
+                            <Button
                                 type="button"
-                                variant="ghost" 
+                                variant="ghost"
                                 onClick={() => setReauthDialogOpen(false)}
                                 className="flex-1 h-12 rounded-xl text-slate-500 hover:bg-slate-50"
                             >
                                 Annuler
                             </Button>
-                            <Button 
+                            <Button
                                 type="submit"
                                 disabled={reauthLoading || (profile.pin_enabled ? reauthPin.length !== 6 : !reauthPassword)}
                                 className="flex-[2] h-12 rounded-xl bg-[#022753] hover:bg-[#033a7a] text-white font-bold shadow-lg shadow-blue-900/10"
@@ -752,29 +805,6 @@ export function SecuritySection({
                 isLoading={accountLoading}
             />
 
-            <Card className="rounded-xl">
-                <CardHeader>
-                    <CardTitle>Session</CardTitle>
-                    <CardDescription>Fermez votre session sur cet appareil</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 border rounded-xl">
-                        <div className="space-y-1 min-w-0">
-                            <p className="font-medium text-[#022753]">Se déconnecter</p>
-                            <p className="text-sm text-muted-foreground">Vous devrez vous reconnecter pour accéder à votre compte</p>
-                        </div>
-                        <Button
-                            variant="outline"
-                            onClick={handleLogout}
-                            className="w-full sm:w-auto gap-2 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 shrink-0"
-                        >
-                            <LogOut className="h-4 w-4" />
-                            Se déconnecter
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
         </div>
-
     )
 }

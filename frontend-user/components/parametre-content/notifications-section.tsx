@@ -1,105 +1,80 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Notifications preferences section for Settings
- * @created 2026-01-16
- * @updated 2026-01-16
- * 🌐 ceo.nexuspartners.xyz
- * 📧 daoudaabassichristian@gmail.com
+ * @description Notifications section — redesign
+ * @updated 2026-06-13
 */
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+"use client"
+
 import { Switch } from "@/components/ui/switch"
-import { Loader2, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { subscribeToPushNotifications } from "@/lib/push-notifications"
 
 interface NotificationSettings {
-    messages: boolean
-    network_activity: boolean
-    newsletter: boolean
-    push: boolean
+  messages:         boolean
+  network_activity: boolean
+  newsletter:       boolean
+  push:             boolean
 }
 
 interface NotificationsSectionProps {
-    settings: NotificationSettings
-    setSettings: (settings: NotificationSettings) => void
-    saving: boolean
-    handleSave: () => void
-    handleCancel: () => void
+  settings:     NotificationSettings
+  setSettings:  (s: NotificationSettings) => void
+  saving:       boolean
+  handleSave:   () => void
+  handleCancel: () => void
 }
 
+const ROWS: { key: keyof NotificationSettings; label: string; desc: string }[] = [
+  { key: "messages",         label: "Nouveaux messages",       desc: "Recevez une alerte pour chaque nouveau message" },
+  { key: "network_activity", label: "Activité du réseau",      desc: "Mises à jour des profils que vous suivez" },
+  { key: "newsletter",       label: "Newsletter hebdomadaire", desc: "Résumé des actualités et opportunités du réseau" },
+  { key: "push",             label: "Notifications push",      desc: "Alertes en temps réel sur votre appareil mobile" },
+]
+
 export function NotificationsSection({ settings, setSettings, saving, handleSave, handleCancel }: NotificationsSectionProps) {
-    const toggle = async (key: keyof NotificationSettings, checked: boolean) => {
-        const newSettings = { ...settings, [key]: checked }
-        setSettings(newSettings)
-
-        // Si l'utilisateur active les notifications push, on lance la procédure d'abonnement
-        if (key === 'push' && checked) {
-            const sub = await subscribeToPushNotifications()
-            // Si l'abonnement échoue (refus permission etc), on peut choisir de désactiver le switch
-            if (!sub) {
-                setSettings({ ...settings, [key]: false })
-                return
-            }
-        }
+  const toggle = async (key: keyof NotificationSettings, checked: boolean) => {
+    const next = { ...settings, [key]: checked }
+    setSettings(next)
+    if (key === "push" && checked) {
+      const sub = await subscribeToPushNotifications()
+      if (!sub) setSettings({ ...settings, push: false })
     }
+  }
 
-    return (
-        <Card className="rounded-xl">
-            <CardHeader>
-                <CardTitle className="text-xl md:text-2xl">
-                    <span className="hidden sm:inline">Préférences de notifications</span>
-                    <span className="sm:hidden">Notifications</span>
-                </CardTitle>
-                <CardDescription>Choisissez comment vous souhaitez être informé</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <div className="flex items-center justify-between gap-3 p-4 border rounded-xl">
-                    <div className="min-w-0 flex-1">
-                        <p className="font-medium">Nouveaux messages</p>
-                        <p className="text-sm text-muted-foreground">Notifications pour les nouveaux messages</p>
-                    </div>
-                    <Switch className="shrink-0" checked={settings.messages} onCheckedChange={(checked) => toggle("messages", checked)} />
-                </div>
-                <div className="flex items-center justify-between gap-3 p-4 border rounded-xl">
-                    <div className="min-w-0 flex-1">
-                        <p className="font-medium">Activité du réseau</p>
-                        <p className="text-sm text-muted-foreground">Mises à jour des profils suivis</p>
-                    </div>
-                    <Switch className="shrink-0" checked={settings.network_activity} onCheckedChange={(checked) => toggle("network_activity", checked)} />
-                </div>
-                <div className="flex items-center justify-between gap-3 p-4 border rounded-xl">
-                    <div className="min-w-0 flex-1">
-                        <p className="font-medium">Newsletter hebdomadaire</p>
-                        <p className="text-sm text-muted-foreground">Résumé des actualités du réseau</p>
-                    </div>
-                    <Switch className="shrink-0" checked={settings.newsletter} onCheckedChange={(checked) => toggle("newsletter", checked)} />
-                </div>
-                <div className="flex items-center justify-between gap-3 p-4 border rounded-xl">
-                    <div className="min-w-0 flex-1">
-                        <p className="font-medium">Notifications push</p>
-                        <p className="text-sm text-muted-foreground">Notifications sur mobile</p>
-                    </div>
-                    <Switch className="shrink-0" checked={settings.push} onCheckedChange={(checked) => toggle("push", checked)} />
-                </div>
-                <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 md:gap-4 pt-6 md:pt-8 border-t border-slate-100">
-                    <Button
-                        variant="outline"
-                        className="w-full sm:w-auto rounded-xl h-12 md:h-14 px-8 font-bold border-slate-200 text-slate-600 hover:bg-slate-50 transition-all"
-                        onClick={handleCancel}
-                    >
-                        Annuler
-                    </Button>
-                    <Button
-                        onClick={handleSave}
-                        disabled={saving}
-                        className="w-full sm:w-auto rounded-xl h-12 md:h-14 px-10 font-bold bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all"
-                    >
-                        {saving ? "Sauvegarde en cours..." : "Enregistrer"}
-                    </Button>
-                </div>
-            </CardContent>
-        </Card>
-    )
+  return (
+    <div className="space-y-4">
+
+      <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6">
+        <h2 className="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-5">Préférences de notifications</h2>
+
+        <div className="divide-y divide-slate-100">
+          {ROWS.map(({ key, label, desc }) => (
+            <div key={key} className="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0">
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-slate-900">{label}</p>
+                <p className="text-xs text-slate-500 mt-0.5">{desc}</p>
+              </div>
+              <Switch
+                className="shrink-0"
+                checked={settings[key]}
+                onCheckedChange={checked => toggle(key, checked)}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-1">
+        <Button variant="outline" onClick={handleCancel} className="w-full sm:w-auto h-11 rounded-xl border-slate-200 font-bold">
+          Annuler
+        </Button>
+        <Button onClick={handleSave} disabled={saving} className="w-full sm:w-auto h-11 rounded-xl font-bold shadow-sm">
+          {saving ? "Enregistrement..." : "Enregistrer"}
+        </Button>
+      </div>
+
+    </div>
+  )
 }

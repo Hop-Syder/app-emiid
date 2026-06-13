@@ -1,382 +1,345 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Main shell for Settings, integrating modular sections
- * @created 2026-01-16
- * @updated 2026-06-05
- * 🌐 ceo.nexuspartners.xyz
- * 📧 daoudaabassichristian@gmail.com
+ * @description Settings page shell — sidebar desktop / pill tabs mobile
+ * @updated 2026-06-13
 */
 
 "use client"
 
 import { useState, useEffect } from "react"
-import { User, Shield, Bell, Settings, Star, X } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { User, Shield, Bell, Settings, Star, LogOut, X } from "lucide-react"
 import { Preloader } from "@/components/Preloader"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
 import { getReferenceCountriesCached } from "@/lib/location-cache"
-
-const defaultNotificationSettings = {
-    messages: true,
-    network_activity: true,
-    newsletter: false,
-    push: true,
-}
-
-const defaultPreferences = {
-    language: "fr",
-    currency: "xof",
-    timezone: "gmt",
-    theme: "light",
-    public_profile: false,
-}
-
-const defaultSecuritySettings = {
-    two_factor_enabled: false,
-}
-
-// Modular Sections
 import { ProfileSection } from "./profile-section"
 import { SecuritySection } from "./security-section"
 import { NotificationsSection } from "./notifications-section"
 import { PreferencesSection } from "./preferences-section"
 
+// ─── Defaults ────────────────────────────────────────────────────────────────
+
+const defaultNotificationSettings = { messages: true, network_activity: true, newsletter: false, push: true }
+const defaultPreferences           = { language: "fr", currency: "xof", timezone: "gmt", theme: "light", public_profile: false }
+const defaultSecuritySettings      = { two_factor_enabled: false }
+
+// ─── Tab config ───────────────────────────────────────────────────────────────
+
+type TabId = "profil" | "securite" | "notifications" | "preferences"
+
+const TABS: { id: TabId; label: string; icon: React.ElementType; desc: string }[] = [
+  { id: "profil",         label: "Profil",        icon: User,     desc: "Informations personnelles et professionnelles" },
+  { id: "securite",       label: "Sécurité",      icon: Shield,   desc: "Accès, PIN et authentification" },
+  { id: "notifications",  label: "Notifications", icon: Bell,     desc: "Alertes et préférences de messages" },
+  { id: "preferences",    label: "Préférences",   icon: Settings, desc: "Langue, thème et confidentialité" },
+]
+
+// ─── Component ────────────────────────────────────────────────────────────────
+
 export function ParametresContent() {
-    const [loadingStatus, setLoadingStatus] = useState<'loading' | 'success' | 'error'>('loading')
-    const [saving, setSaving] = useState(false)
-    const [profile, setProfile] = useState({
-        id: "",
-        first_name: "",
-        last_name: "",
-        email: "",
-        bio: "",
-        avatar_url: "",
-        category: "Artisan",
-        role: "",
-        specialty: "",
-        activity_domain: "",
-        country_id: "",
-        country_code: "",
-        country_name: "",
-        city: "",
-        pin_enabled: false,
-        phone: "",
-        is_published: false,
-        is_verified: false,
-        is_premium: false
-    })
-    const [notificationSettings, setNotificationSettings] = useState(defaultNotificationSettings)
-    const [preferences, setPreferences] = useState(defaultPreferences)
-    const [securitySettings, setSecuritySettings] = useState(defaultSecuritySettings)
+  const [activeTab,             setActiveTab]             = useState<TabId>("profil")
+  const [loadingStatus,         setLoadingStatus]         = useState<"loading" | "success" | "error">("loading")
+  const [saving,                setSaving]                = useState(false)
+  const [notificationSettings,  setNotificationSettings]  = useState(defaultNotificationSettings)
+  const [preferences,           setPreferences]           = useState(defaultPreferences)
+  const [securitySettings,      setSecuritySettings]      = useState(defaultSecuritySettings)
+  const [profile, setProfile] = useState({
+    id: "", first_name: "", last_name: "", email: "", bio: "",
+    avatar_url: "", category: "Artisan", role: "", specialty: "",
+    activity_domain: "", country_id: "", country_code: "", country_name: "",
+    city: "", pin_enabled: false, phone: "", is_published: false,
+    is_verified: false, is_premium: false,
+  })
 
-    const supabase = createClient()
+  const supabase = createClient()
+  const router   = useRouter()
 
-    const loadUserProfile = async () => {
-        try {
-            setLoadingStatus('loading')
-            const [response, authUserResponse] = await Promise.all([
-                fetchWithAuth("/api/users/me"),
-                supabase.auth.getUser(),
-            ])
-            const authUser = authUserResponse.data.user
+  // ── Data loading ──────────────────────────────────────────────────────────
 
-            if (response.ok) {
-                const data = await response.json()
-                const fallbackFirstName = authUser?.user_metadata?.first_name || authUser?.user_metadata?.given_name || ""
-                const fallbackLastName = authUser?.user_metadata?.last_name || authUser?.user_metadata?.family_name || ""
-                const fallbackPhone = authUser?.phone || ""
-                const fallbackEmail = authUser?.email || ""
-                const fallbackAvatar = authUser?.user_metadata?.avatar_url || ""
+  const loadUserProfile = async () => {
+    try {
+      setLoadingStatus("loading")
+      const [response, { data: { user: authUser } }] = await Promise.all([
+        fetchWithAuth("/api/users/me"),
+        supabase.auth.getUser(),
+      ])
 
-                setProfile({
-                    id: data.id || authUser?.id || "",
-                    first_name: data.first_name || fallbackFirstName,
-                    last_name: data.last_name || fallbackLastName,
-                    email: data.email || fallbackEmail,
-                    bio: data.bio || "",
-                    avatar_url: data.avatar_url || fallbackAvatar,
-                    category: data.category || "Artisan",
-                    role: data.role || "",
-                    specialty: data.specialty || "",
-                    activity_domain: data.activity_domain || "",
-                    country_id: data.country_id || "",
-                    country_code: data.country_code || "",
-                    country_name: data.country_name || "",
-                    city: data.city || "",
-                    pin_enabled: data.pin_enabled || false,
-                    phone: data.phone || fallbackPhone,
-                    is_published: data.is_published || false,
-                    is_verified: data.is_verified || false,
-                    is_premium: data.is_premium || false
-                })
-                setNotificationSettings({
-                    ...defaultNotificationSettings,
-                    ...(data.notification_preferences || {}),
-                })
-                setPreferences({
-                    ...defaultPreferences,
-                    ...(data.app_preferences || {}),
-                    public_profile: typeof data.app_preferences?.public_profile === "boolean"
-                        ? data.app_preferences.public_profile
-                        : !!data.is_published,
-                })
-                setSecuritySettings({
-                    ...defaultSecuritySettings,
-                    ...(data.security_preferences || {}),
-                })
-                setLoadingStatus('success')
-            } else if (authUser) {
-                setProfile((prev) => ({
-                    ...prev,
-                    first_name: authUser.user_metadata?.first_name || authUser.user_metadata?.given_name || prev.first_name,
-                    last_name: authUser.user_metadata?.last_name || authUser.user_metadata?.family_name || prev.last_name,
-                    email: authUser.email || prev.email,
-                    phone: authUser.phone || prev.phone,
-                    avatar_url: authUser.user_metadata?.avatar_url || prev.avatar_url,
-                }))
-                setLoadingStatus('success')
-            } else {
-                setLoadingStatus('error')
-            }
-        } catch (error) {
-            console.error("Erreur chargement profil:", error)
-            toast.error("Impossible de charger votre profil")
-            setLoadingStatus('error')
-        }
+      if (response.ok) {
+        const data = await response.json()
+        setProfile({
+          id:              data.id             || authUser?.id || "",
+          first_name:      data.first_name     || authUser?.user_metadata?.first_name  || authUser?.user_metadata?.given_name  || "",
+          last_name:       data.last_name      || authUser?.user_metadata?.last_name   || authUser?.user_metadata?.family_name || "",
+          email:           data.email          || authUser?.email || "",
+          bio:             data.bio            || "",
+          avatar_url:      data.avatar_url     || authUser?.user_metadata?.avatar_url  || "",
+          category:        data.category       || "Artisan",
+          role:            data.role           || "",
+          specialty:       data.specialty      || "",
+          activity_domain: data.activity_domain|| "",
+          country_id:      data.country_id     || "",
+          country_code:    data.country_code   || "",
+          country_name:    data.country_name   || "",
+          city:            data.city           || "",
+          pin_enabled:     data.pin_enabled    || false,
+          phone:           data.phone          || authUser?.phone || "",
+          is_published:    data.is_published   || false,
+          is_verified:     data.is_verified    || false,
+          is_premium:      data.is_premium     || false,
+        })
+        setNotificationSettings({ ...defaultNotificationSettings, ...(data.notification_preferences || {}) })
+        setPreferences({
+          ...defaultPreferences,
+          ...(data.app_preferences || {}),
+          public_profile: typeof data.app_preferences?.public_profile === "boolean"
+            ? data.app_preferences.public_profile
+            : !!data.is_published,
+        })
+        setSecuritySettings({ ...defaultSecuritySettings, ...(data.security_preferences || {}) })
+        setLoadingStatus("success")
+      } else if (authUser) {
+        setProfile(prev => ({
+          ...prev,
+          first_name: authUser.user_metadata?.first_name || authUser.user_metadata?.given_name  || prev.first_name,
+          last_name:  authUser.user_metadata?.last_name  || authUser.user_metadata?.family_name || prev.last_name,
+          email:      authUser.email  || prev.email,
+          phone:      authUser.phone  || prev.phone,
+          avatar_url: authUser.user_metadata?.avatar_url || prev.avatar_url,
+        }))
+        setLoadingStatus("success")
+      } else {
+        setLoadingStatus("error")
+      }
+    } catch {
+      toast.error("Impossible de charger votre profil")
+      setLoadingStatus("error")
     }
+  }
 
-    useEffect(() => {
-        const loadReferences = async () => {
-            try {
-                await Promise.all([
-                    fetchWithAuth("/api/reference/sectors"),
-                    fetchWithAuth("/api/reference/professions"),
-                    getReferenceCountriesCached(),
-                ])
-            } catch (error) {
-                console.error("Erreur chargement références:", error)
-            }
-        }
-
-        loadUserProfile()
-        loadReferences()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
-
-    const handleSave = async () => {
-        setSaving(true)
-        try {
-            const response = await fetchWithAuth("/api/users/me", {
-                method: "PUT",
-                body: JSON.stringify(profile)
-            })
-            if (response.ok) {
-                toast.success("Profil mis à jour avec succès !")
-            } else {
-                const errorData = await response.json().catch(() => null)
-                toast.error(errorData?.error || "Erreur lors de la mise à jour")
-            }
-        } catch {
-            toast.error("Erreur réseau")
-        } finally {
-            setSaving(false)
-        }
+  useEffect(() => {
+    const loadRefs = async () => {
+      try {
+        await Promise.all([
+          fetchWithAuth("/api/reference/sectors"),
+          fetchWithAuth("/api/reference/professions"),
+          getReferenceCountriesCached(),
+        ])
+      } catch { /* non-blocking */ }
     }
+    loadUserProfile()
+    loadRefs()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-    const handleCancel = () => {
-        loadUserProfile()
-        toast.info("Modifications annulées")
+  // ── Handlers ──────────────────────────────────────────────────────────────
+
+  const handleSave = async () => {
+    setSaving(true)
+    try {
+      const res = await fetchWithAuth("/api/users/me", { method: "PUT", body: JSON.stringify(profile) })
+      if (res.ok) toast.success("Profil mis à jour !")
+      else { const d = await res.json().catch(() => null); toast.error(d?.error || "Erreur lors de la mise à jour") }
+    } catch { toast.error("Erreur réseau") }
+    finally   { setSaving(false) }
+  }
+
+  const handleCancel = () => { loadUserProfile(); toast.info("Modifications annulées") }
+
+  const saveSettings = async (
+    payload: {
+      notification_preferences?: typeof defaultNotificationSettings
+      app_preferences?:          typeof defaultPreferences
+      security_preferences?:     typeof defaultSecuritySettings
+    },
+    successMessage: string,
+  ): Promise<boolean> => {
+    setSaving(true)
+    try {
+      const res  = await fetchWithAuth("/api/users/settings", { method: "PUT", body: JSON.stringify(payload) })
+      if (!res.ok) {
+        const d = await res.json().catch(() => null)
+        toast.error(d?.error || "Erreur lors de la sauvegarde")
+        return false
+      }
+      const data = await res.json()
+      if (data.notification_preferences) setNotificationSettings({ ...defaultNotificationSettings, ...data.notification_preferences })
+      if (data.app_preferences) {
+        setPreferences({ ...defaultPreferences, ...data.app_preferences })
+        setProfile(prev => ({ ...prev, is_published: !!data.app_preferences.public_profile }))
+      }
+      if (data.security_preferences) setSecuritySettings({ ...defaultSecuritySettings, ...data.security_preferences })
+      toast.success(successMessage)
+      return true
+    } catch {
+      toast.error("Erreur réseau")
+      return false
+    } finally {
+      setSaving(false)
     }
+  }
 
-    const saveSettings = async (payload: {
-        notification_preferences?: typeof defaultNotificationSettings
-        app_preferences?: typeof defaultPreferences
-        security_preferences?: typeof defaultSecuritySettings
-    }, successMessage: string) => {
-        setSaving(true)
-        try {
-            const response = await fetchWithAuth("/api/users/settings", {
-                method: "PUT",
-                body: JSON.stringify(payload)
-            })
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut()
+      sessionStorage.removeItem("emiid_pin_verified")
+      toast.success("Déconnexion réussie")
+      router.push("/login")
+      router.refresh()
+    } catch { toast.error("Impossible de se déconnecter") }
+  }
 
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => null)
-                toast.error(errorData?.error || "Erreur lors de la sauvegarde")
-                return false
-            }
+  // ── States ────────────────────────────────────────────────────────────────
 
-            const data = await response.json()
-            if (data.notification_preferences) {
-                setNotificationSettings({ ...defaultNotificationSettings, ...data.notification_preferences })
-            }
-            if (data.app_preferences) {
-                setPreferences({ ...defaultPreferences, ...data.app_preferences })
-                setProfile((prev) => ({ ...prev, is_published: !!data.app_preferences.public_profile }))
-            }
-            if (data.security_preferences) {
-                setSecuritySettings({ ...defaultSecuritySettings, ...data.security_preferences })
-            }
+  if (loadingStatus === "loading") {
+    return <Preloader text="Chargement de vos paramètres" subtext="Un instant..." minHeight="min-h-[60vh]" />
+  }
 
-            toast.success(successMessage)
-            return true
-        } catch {
-            toast.error("Erreur réseau")
-            return false
-        } finally {
-            setSaving(false)
-        }
-    }
-
-    if (loadingStatus === 'loading') {
-        return (
-            <Preloader 
-                text="Préparation de votre espace" 
-                subtext="Chargement de vos paramètres de compte..." 
-                minHeight="min-h-[500px]" 
-            />
-        )
-    }
-
-    if (loadingStatus === 'error') {
-        return (
-            <div className="max-w-xl mx-auto px-4 py-16 text-center space-y-6">
-                <div className="bg-white/60 backdrop-blur-xl border border-red-100 rounded-3xl p-8 shadow-xl relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 rounded-full blur-2xl" />
-                    <div className="mx-auto w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mb-6">
-                        <X className="h-8 w-8 text-rose-600 stroke-[2.5]" />
-                    </div>
-                    <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-2">Impossible de charger les paramètres</h2>
-                    <p className="text-sm text-slate-500 font-medium leading-relaxed mb-6">
-                        Une erreur est survenue lors de la récupération de vos paramètres utilisateur. Veuillez vérifier votre connexion ou réessayer ultérieurement.
-                    </p>
-                    <button
-                        onClick={loadUserProfile}
-                        className="inline-flex items-center gap-2 rounded-full px-8 py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold transition-all shadow-lg active:scale-95 duration-200"
-                    >
-                        Réessayer le chargement
-                    </button>
-                </div>
-            </div>
-        )
-    }
-
+  if (loadingStatus === "error") {
     return (
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
-            {/* Header de la page */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 bg-white/60 backdrop-blur-xl p-5 md:p-8 rounded-xl md:rounded-xl shadow-xl shadow-slate-200/40 border border-white">
-                <div className="space-y-1.5 md:space-y-2">
-                    <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-900 flex flex-wrap items-center gap-2">
-                        Paramètres du Compte
-                        {profile.is_verified && <Shield className="h-6 w-6 text-primary" />}
-                        {profile.is_premium && <Star className="h-6 w-6 text-amber-500 fill-amber-500" />}
-                    </h1>
-                    <p className="text-sm md:text-base text-slate-500 font-medium leading-relaxed">
-                        Gérez vos informations personnelles, votre sécurité et vos préférences.
-                    </p>
-                </div>
-                {profile.is_premium && (
-                    <div className="bg-gradient-to-br from-amber-50 to-amber-100 flex items-center gap-3 px-4 py-2 rounded-xl border border-amber-200">
-                        <div className="p-2 bg-amber-500 rounded-lg text-white shadow-lg shadow-amber-500/30">
-                            <Star className="h-5 w-5 fill-current" />
-                        </div>
-                        <div>
-                            <p className="text-xs font-bold text-amber-800 uppercase tracking-wider">Statut</p>
-                            <p className="text-sm font-black text-amber-950">Membre Premium</p>
-                        </div>
-                    </div>
+      <div className="flex items-center justify-center min-h-[60vh] px-4">
+        <div className="bg-white border border-red-100 rounded-2xl p-8 text-center max-w-sm w-full shadow-sm">
+          <div className="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <X className="h-7 w-7 text-red-500" />
+          </div>
+          <h2 className="text-lg font-black text-slate-900 mb-2">Impossible de charger</h2>
+          <p className="text-sm text-slate-500 mb-6">Vérifiez votre connexion et réessayez.</p>
+          <button
+            onClick={loadUserProfile}
+            className="w-full h-11 bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-slate-800 transition-colors active:scale-[0.98]"
+          >
+            Réessayer
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // ── Render ────────────────────────────────────────────────────────────────
+
+  const displayName = [profile.first_name, profile.last_name].filter(Boolean).join(" ") || "Mon Compte"
+
+  const activeSection: Record<TabId, React.ReactNode> = {
+    profil:        <ProfileSection profile={profile} setProfile={setProfile} saving={saving} handleSave={handleSave} handleCancel={handleCancel} />,
+    securite:      <SecuritySection profile={profile} setProfile={setProfile} securitySettings={securitySettings} setSecuritySettings={setSecuritySettings} saveSettings={saveSettings} />,
+    notifications: <NotificationsSection settings={notificationSettings} setSettings={setNotificationSettings} saving={saving} handleSave={() => saveSettings({ notification_preferences: notificationSettings }, "Notifications mises à jour")} handleCancel={() => { loadUserProfile(); toast.info("Annulé") }} />,
+    preferences:   <PreferencesSection  settings={preferences}           setSettings={setPreferences}           saving={saving} handleSave={() => saveSettings({ app_preferences: preferences },              "Préférences mises à jour")}  handleCancel={() => { loadUserProfile(); toast.info("Annulé") }} />,
+  }
+
+  return (
+    <div className="min-h-[calc(100vh-4rem)] bg-slate-50">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 lg:py-10">
+
+        {/* Mobile page header */}
+        <div className="lg:hidden mb-5">
+          <h1 className="text-xl font-black text-slate-900 tracking-tight">Paramètres</h1>
+          <p className="text-sm text-slate-500 mt-0.5">Gérez votre compte et vos préférences</p>
+        </div>
+
+        <div className="lg:grid lg:grid-cols-[220px_1fr] lg:gap-8 lg:items-start">
+
+          {/* ── Desktop sidebar ─────────────────────────────────────────────── */}
+          <aside className="hidden lg:flex flex-col gap-3 sticky top-24">
+
+            {/* User identity card */}
+            <div className="bg-white border border-slate-200 rounded-2xl p-5 text-center">
+              <div className="relative inline-flex mb-3">
+                {profile.avatar_url ? (
+                  <img
+                    src={profile.avatar_url}
+                    alt={displayName}
+                    className="w-16 h-16 rounded-full object-cover ring-2 ring-slate-100 shadow-sm"
+                  />
+                ) : (
+                  <div className="w-16 h-16 rounded-full bg-slate-100 ring-2 ring-slate-100 shadow-sm flex items-center justify-center">
+                    <User className="h-7 w-7 text-slate-400" />
+                  </div>
                 )}
+                {profile.is_verified && (
+                  <span className="absolute -bottom-0.5 -right-0.5 bg-primary rounded-full p-1 border-2 border-white shadow">
+                    <Shield className="h-2.5 w-2.5 text-white" />
+                  </span>
+                )}
+              </div>
+              <p className="text-sm font-bold text-slate-900 truncate leading-tight">{displayName}</p>
+              <p className="text-xs text-slate-500 truncate mt-0.5 px-2">{profile.email}</p>
+              {profile.is_premium && (
+                <span className="mt-3 inline-flex items-center gap-1 bg-amber-50 text-amber-700 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border border-amber-200">
+                  <Star className="h-2.5 w-2.5 fill-current" />
+                  Premium
+                </span>
+              )}
             </div>
 
-            <Tabs defaultValue="profil" className="flex flex-col lg:flex-row gap-6 md:gap-8 lg:items-start" orientation="vertical">
-                {/* Menu latéral (Desktop) ou horizontal scroll (Mobile) */}
-                <div className="w-full lg:w-[280px] shrink-0 sticky top-24 z-10 relative min-w-0">
-                    {/* Indicateur de défilement horizontal mobile */}
-                    <div className="absolute right-0 top-0 bottom-4 w-8 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none lg:hidden" />
-                    
-                    <div className="w-full overflow-x-auto pb-4 -mb-4 lg:overflow-visible lg:pb-0 lg:mb-0 scrollbar-hide">
-                        <TabsList className="inline-flex lg:flex flex-row lg:flex-col h-auto justify-start items-stretch gap-2 bg-transparent p-0 w-max min-w-full lg:w-full px-1 lg:px-0">
-                            <TabsTrigger
-                                value="profil"
-                                className="group justify-start w-full rounded-xl h-12 md:h-14 px-5 text-sm md:text-base font-bold data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 bg-white border border-slate-100/50 text-slate-600 hover:bg-slate-50 transition-all duration-300"
-                            >
-                                <User className="mr-3 h-5 w-5 opacity-70 group-data-[state=active]:opacity-100 shrink-0" />
-                                <span className="hidden lg:inline">Informations Personnelles</span>
-                                <span className="lg:hidden">Profil</span>
-                            </TabsTrigger>
-                            <TabsTrigger
-                                value="securite"
-                                className="group justify-start w-full rounded-xl h-12 md:h-14 px-5 text-sm md:text-base font-bold data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 bg-white border border-slate-100/50 text-slate-600 hover:bg-slate-50 transition-all duration-300"
-                            >
-                                <Shield className="mr-3 h-5 w-5 opacity-70 group-data-[state=active]:opacity-100 shrink-0" />
-                                <span className="hidden lg:inline">Sécurité & Mot de passe</span>
-                                <span className="lg:hidden">Sécurité</span>
-                            </TabsTrigger>
-                            <TabsTrigger
-                                value="notifications"
-                                className="group justify-start w-full rounded-xl h-12 md:h-14 px-5 text-sm md:text-base font-bold data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 bg-white border border-slate-100/50 text-slate-600 hover:bg-slate-50 transition-all duration-300"
-                            >
-                                <Bell className="mr-3 h-5 w-5 opacity-70 group-data-[state=active]:opacity-100 shrink-0" />
-                                Notifications
-                            </TabsTrigger>
-                            <TabsTrigger
-                                value="preferences"
-                                className="group justify-start w-full rounded-xl h-12 md:h-14 px-5 text-sm md:text-base font-bold data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 bg-white border border-slate-100/50 text-slate-600 hover:bg-slate-50 transition-all duration-300"
-                            >
-                                <Settings className="mr-3 h-5 w-5 opacity-70 group-data-[state=active]:opacity-100 shrink-0" />
-                                <span className="hidden lg:inline">Préférences générales</span>
-                                <span className="lg:hidden">Préférences</span>
-                            </TabsTrigger>
-                        </TabsList>
-                    </div>
+            {/* Navigation */}
+            <nav className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+              {TABS.map(({ id, label, icon: Icon }) => (
+                <button
+                  key={id}
+                  onClick={() => setActiveTab(id)}
+                  className={`w-full flex items-center gap-3 px-4 py-3.5 text-sm font-semibold transition-all text-left border-l-[3px] ${
+                    activeTab === id
+                      ? "border-l-primary text-primary bg-primary/5"
+                      : "border-l-transparent text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                  }`}
+                >
+                  <Icon className={`h-4 w-4 shrink-0 ${activeTab === id ? "text-primary" : "text-slate-400"}`} />
+                  {label}
+                </button>
+              ))}
+            </nav>
+
+            {/* Logout */}
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-3 px-4 py-3.5 bg-white border border-slate-200 rounded-2xl text-sm font-semibold text-red-500 hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-all"
+            >
+              <LogOut className="h-4 w-4 shrink-0" />
+              Se déconnecter
+            </button>
+          </aside>
+
+          {/* ── Main content ─────────────────────────────────────────────────── */}
+          <div className="min-w-0">
+
+            {/* Mobile horizontal tab strip */}
+            <div className="lg:hidden mb-5 -mx-4 sm:-mx-6">
+              <div className="overflow-x-auto scrollbar-hide px-4 sm:px-6">
+                <div className="flex gap-2 pb-1" style={{ width: "max-content" }}>
+                  {TABS.map(({ id, label, icon: Icon }) => (
+                    <button
+                      key={id}
+                      onClick={() => setActiveTab(id)}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all border ${
+                        activeTab === id
+                          ? "bg-primary text-white border-primary shadow-sm"
+                          : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                      }`}
+                    >
+                      <Icon className="h-4 w-4 shrink-0" />
+                      {label}
+                    </button>
+                  ))}
                 </div>
+              </div>
+            </div>
 
-                {/* Contenu principal */}
-                <div className="flex-1 min-h-[500px] min-w-0 w-full">
-                    <TabsContent value="profil" className="mt-0 focus-visible:outline-none data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in data-[state=active]:slide-in-from-bottom-4 data-[state=active]:duration-500">
-                        <ProfileSection
-                            profile={profile}
-                            setProfile={setProfile}
-                            saving={saving}
-                            handleSave={handleSave}
-                            handleCancel={handleCancel}
-                        />
-                    </TabsContent>
+            {/* Desktop section title */}
+            <div className="hidden lg:block mb-6">
+              <h1 className="text-xl font-black text-slate-900 tracking-tight">
+                {TABS.find(t => t.id === activeTab)?.label}
+              </h1>
+              <p className="text-sm text-slate-500 mt-0.5">
+                {TABS.find(t => t.id === activeTab)?.desc}
+              </p>
+            </div>
 
-                    <TabsContent value="securite" className="mt-0 focus-visible:outline-none data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in data-[state=active]:slide-in-from-bottom-4 data-[state=active]:duration-500">
-                        <SecuritySection
-                            profile={profile}
-                            setProfile={setProfile}
-                            securitySettings={securitySettings}
-                            setSecuritySettings={setSecuritySettings}
-                            saveSettings={saveSettings}
-                        />
-                    </TabsContent>
-
-                    <TabsContent value="notifications" className="mt-0 focus-visible:outline-none data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in data-[state=active]:slide-in-from-bottom-4 data-[state=active]:duration-500">
-                        <NotificationsSection
-                            settings={notificationSettings}
-                            setSettings={setNotificationSettings}
-                            saving={saving}
-                            handleSave={() => saveSettings({ notification_preferences: notificationSettings }, "Préférences de notifications mises à jour")}
-                            handleCancel={() => { loadUserProfile(); toast.info("Modifications annulées") }}
-                        />
-                    </TabsContent>
-
-                    <TabsContent value="preferences" className="mt-0 focus-visible:outline-none data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in data-[state=active]:slide-in-from-bottom-4 data-[state=active]:duration-500">
-                        <PreferencesSection
-                            settings={preferences}
-                            setSettings={setPreferences}
-                            saving={saving}
-                            handleSave={() => saveSettings({ app_preferences: preferences }, "Préférences générales mises à jour")}
-                            handleCancel={() => { loadUserProfile(); toast.info("Modifications annulées") }}
-                        />
-                    </TabsContent>
-                </div>
-            </Tabs>
+            {activeSection[activeTab]}
+          </div>
         </div>
-    )
+      </div>
+    </div>
+  )
 }

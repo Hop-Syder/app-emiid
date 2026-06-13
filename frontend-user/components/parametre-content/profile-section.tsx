@@ -2,456 +2,374 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Profile information section for Settings
- * @created 2026-01-16
- * @updated 2026-05-24
- * 🌐 ceo.nexuspartners.xyz
- * 📧 daoudaabassichristian@gmail.com
+ * @description Profile section — complete redesign
+ * @updated 2026-06-13
 */
 
+"use client"
+
 import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { AvatarUpload } from "@/components/AvatarUpload"
-import { fetchWithAuth } from "@/lib/apiClient"
-import { Mail, Smartphone, User, Shield, MessageSquare, CheckCircle2, ChevronRight, AlertCircle } from "lucide-react"
-import { Label } from "@/components/ui/label"
+import { Mail, Smartphone, User, Shield, MessageSquare, CheckCircle2, AlertCircle, Loader2 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { AvatarUpload } from "@/components/AvatarUpload"
+import { fetchWithAuth } from "@/lib/apiClient"
 import { toast } from "sonner"
 
-interface UserProfile {
-  phone_verified?: boolean;
-  country_code?: string;
-  country_name?: string;
-}
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface ProfileSectionProps {
-  profile: any;
-  setProfile: any;
-  saving: boolean;
-  handleSave: () => void;
-  handleCancel: () => void;
+  profile:      any
+  setProfile:   any
+  saving:       boolean
+  handleSave:   () => void
+  handleCancel: () => void
 }
 
-export function ProfileSection({
-  profile,
-  setProfile,
-  saving,
-  handleSave,
-  handleCancel
-}: ProfileSectionProps) {
+// ─── Shared class tokens ──────────────────────────────────────────────────────
+
+const INPUT = "h-11 rounded-xl bg-slate-50 border-slate-200 text-sm font-medium text-slate-900 focus:ring-primary/20 transition-all placeholder:text-slate-400"
+const SELECT = "w-full h-11 px-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+
+// ─── Field helper ─────────────────────────────────────────────────────────────
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="space-y-1.5">
+      <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">{label}</p>
+      {children}
+    </div>
+  )
+}
+
+// ─── Section card helper ──────────────────────────────────────────────────────
+
+function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6">
+      <h2 className="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-5">{title}</h2>
+      {children}
+    </div>
+  )
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
+
+export function ProfileSection({ profile, setProfile, saving, handleSave, handleCancel }: ProfileSectionProps) {
   const [verifyMethod, setVerifyMethod] = useState<"whatsapp" | "sms" | null>(null)
-  const [otpCode, setOtpCode] = useState("")
-  const [verifying, setVerifying] = useState(false)
+  const [otpCode,      setOtpCode]      = useState("")
+  const [verifying,    setVerifying]    = useState(false)
+
+  const up = (key: string, value: string) => setProfile({ ...profile, [key]: value })
 
   const handleVerifyRequest = async (method: "whatsapp" | "sms") => {
-    if (!profile.phone) {
-        toast.error("Veuillez saisir votre numéro de téléphone d'abord")
-        return
-    }
-    
+    if (!profile.phone) { toast.error("Saisissez votre numéro d'abord"); return }
     try {
-        const res = await fetchWithAuth("/api/users/phone/request", {
-            method: "POST",
-            body: JSON.stringify({ phone: profile.phone, method })
-        })
-        
-        if (res.ok) {
-            setVerifyMethod(method)
-            toast.success(`Code envoyé par ${method}`)
-        } else {
-            const err = await res.json()
-            toast.error(err.error || "Erreur lors de l'envoi du code")
-        }
-    } catch (_error) {
-        toast.error("Erreur de connexion au serveur")
-    }
+      const res = await fetchWithAuth("/api/users/phone/request", {
+        method: "POST",
+        body: JSON.stringify({ phone: profile.phone, method }),
+      })
+      if (res.ok) { setVerifyMethod(method); toast.success(`Code envoyé par ${method}`) }
+      else        { const e = await res.json(); toast.error(e.error || "Erreur lors de l'envoi") }
+    } catch { toast.error("Erreur de connexion") }
   }
 
   const handleVerifySubmit = async () => {
     if (otpCode.length < 6) return
     setVerifying(true)
-    
     try {
-        const res = await fetchWithAuth("/api/users/phone/verify", {
-            method: "POST",
-            body: JSON.stringify({ phone: profile.phone, code: otpCode })
-        })
-        
-        if (res.ok) {
-            setProfile({ ...profile, phone_verified: true })
-            setVerifyMethod(null)
-            setOtpCode("")
-            toast.success("Téléphone vérifié avec succès !")
-        } else {
-            const err = await res.json()
-            toast.error(err.error || "Code incorrect ou expiré")
-        }
-    } catch (_error) {
-        toast.error("Erreur technique lors de la vérification")
-    } finally {
-        setVerifying(false)
-    }
+      const res = await fetchWithAuth("/api/users/phone/verify", {
+        method: "POST",
+        body: JSON.stringify({ phone: profile.phone, code: otpCode }),
+      })
+      if (res.ok) {
+        setProfile({ ...profile, phone_verified: true })
+        setVerifyMethod(null)
+        setOtpCode("")
+        toast.success("Téléphone vérifié !")
+      } else {
+        const e = await res.json()
+        toast.error(e.error || "Code incorrect ou expiré")
+      }
+    } catch { toast.error("Erreur technique") }
+    finally   { setVerifying(false) }
   }
 
+  const displayName = [profile.first_name, profile.last_name].filter(Boolean).join(" ") || "Votre nom"
+
   return (
-    <div className="space-y-6 md:space-y-8 animate-in fade-in duration-500">
-      <Card className="rounded-xl md:rounded-xl border-none shadow-2xl shadow-slate-200/50 bg-white/80 backdrop-blur-xl overflow-hidden relative">
-        <div className="absolute top-0 right-0 p-32 bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
-        <CardHeader className="pb-2">
-            <div className="flex items-center gap-3 md:gap-4 mb-2">
-                <div className="p-2.5 md:p-3 bg-primary/10 rounded-xl md:rounded-xl shrink-0">
-                    <User className="h-5 w-5 md:h-6 md:w-6 text-primary" />
-                </div>
-                <div className="min-w-0 flex-1">
-                    <CardTitle className="text-xl md:text-2xl font-bold tracking-tight truncate">
-                        <span className="hidden sm:inline">Informations du Profil</span>
-                        <span className="sm:hidden">Profil</span>
-                    </CardTitle>
-                    <CardDescription className="text-xs md:text-sm font-medium line-clamp-2">Mettez à jour vos informations personnelles pour mieux vous faire connaître</CardDescription>
-                </div>
-            </div>
-        </CardHeader>
-        <CardContent className="space-y-6 md:space-y-8 p-4 sm:p-6 lg:p-8 relative z-10">
-          <div className="p-4 md:p-6 bg-slate-50/50 border border-slate-100 rounded-xl md:rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div className="min-w-0">
-                  <h3 className="font-bold text-slate-900 mb-1">Photo de profil</h3>
-                  <p className="text-xs text-slate-500">Cela sera affiché sur votre profil public</p>
-              </div>
-              <AvatarUpload
-                currentAvatarUrl={profile.avatar_url}
-                onUploadComplete={(newUrl: string) => {
-                  setProfile({ ...profile, avatar_url: newUrl })
-                }}
-              />
+    <div className="space-y-4">
+
+      {/* ── Photo ───────────────────────────────────────────────────────────── */}
+      <SectionCard title="Photo de profil">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
+          <AvatarUpload
+            currentAvatarUrl={profile.avatar_url}
+            onUploadComplete={(url: string) => up("avatar_url", url)}
+          />
+          <div className="min-w-0">
+            <p className="text-sm font-bold text-slate-900 truncate">{displayName}</p>
+            <p className="text-xs text-slate-500 truncate mt-0.5">{profile.email}</p>
+            <p className="text-xs text-slate-400 mt-2">JPG, PNG ou GIF · Max 2 MB</p>
           </div>
+        </div>
+      </SectionCard>
 
-          <div className="grid gap-4 md:gap-6 md:grid-cols-2">
-            <div className="space-y-2 md:space-y-3">
-              <Label htmlFor="prenom" className="text-xs font-semibold text-muted-foreground ml-1">Prénom</Label>
-              <Input
-                id="prenom"
-                name="given-name"
-                autoComplete="given-name"
-                value={profile.first_name || ""}
-                onChange={(e) => setProfile({ ...profile, first_name: e.target.value })}
-                className="h-12 md:h-14 rounded-xl bg-slate-50 border-slate-200 focus:ring-primary/20 transition-all font-medium text-slate-900"
-                placeholder="Votre prénom"
-              />
-            </div>
-            <div className="space-y-2 md:space-y-3">
-              <Label htmlFor="nom" className="text-xs font-semibold text-muted-foreground ml-1">Nom</Label>
-              <Input
-                id="nom"
-                name="family-name"
-                autoComplete="family-name"
-                value={profile.last_name || ""}
-                onChange={(e) => setProfile({ ...profile, last_name: e.target.value })}
-                className="h-12 md:h-14 rounded-xl bg-slate-50 border-slate-200 focus:ring-primary/20 transition-all font-medium text-slate-900"
-                placeholder="Votre nom"
-              />
-            </div>
-          </div>
-
-          {/* Professional Information */}
-          <div className="grid gap-4 md:gap-6 md:grid-cols-2 pt-4 md:pt-6 border-t border-slate-100">
-            <div className="space-y-2 md:space-y-3">
-              <Label htmlFor="category" className="text-xs font-semibold text-muted-foreground ml-1">Type de Profil (Catégorie)</Label>
-              <select
-                id="category"
-                value={profile.category || ""}
-                onChange={(e) => setProfile({ ...profile, category: e.target.value })}
-                className="w-full h-12 md:h-14 px-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-primary/20 transition-all font-medium text-slate-900"
-              >
-                <option value="artisan">🎨 Artisan</option>
-                <option value="commerçante">🛒 Commerçant(e)</option>
-                <option value="freelance">💻 Freelance</option>
-                <option value="entreprise">🏢 Entreprise</option>
-                <option value="agence">📣 Agence</option>
-                <option value="startup">🚀 Startup</option>
-                <option value="ong">🌍 ONG / Association</option>
-                <option value="investisseur">📈 Investisseur</option>
-                <option value="institution">🏛️ Institution Publique</option>
-                <option value="etudiant">🎓 Étudiant / Junior</option>
-              </select>
-            </div>
-
-            <div className="space-y-2 md:space-y-3">
-              <Label htmlFor="activity_domain" className="text-xs font-semibold text-muted-foreground ml-1">Secteur d'activité</Label>
-              <select
-                id="activity_domain"
-                value={profile.activity_domain || ""}
-                onChange={(e) => setProfile({ ...profile, activity_domain: e.target.value })}
-                className="w-full h-12 md:h-14 px-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-primary/20 transition-all font-medium text-slate-900"
-              >
-                <option value="" disabled>Choisissez votre secteur...</option>
-                <option value="tech">💻 Tech & Digital</option>
-                <option value="agro">🌾 Agroalimentaire</option>
-                <option value="btp">🏗️ BTP & Construction</option>
-                <option value="finance">💰 Finance & Assurance</option>
-                <option value="sante">🏥 Santé & Bien-être</option>
-                <option value="education">📚 Éducation & Formation</option>
-                <option value="creatif">🎨 Arts & Créativité</option>
-                <option value="commerce">🛍️ Commerce & Distribution</option>
-                <option value="transport">🚚 Transport & Logistique</option>
-                <option value="tourisme">✈️ Tourisme & Hôtellerie</option>
-                <option value="energie">⚡ Énergie & Environnement</option>
-                <option value="b2b">🤝 Services B2B</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="grid gap-4 md:gap-6 md:grid-cols-2">
-            <div className="space-y-2 md:space-y-3">
-              <Label htmlFor="role" className="text-xs font-semibold text-muted-foreground ml-1">Poste actuel ou Entreprise</Label>
-              <Input
-                id="role"
-                value={profile.role || ""}
-                onChange={(e) => setProfile({ ...profile, role: e.target.value })}
-                className="h-12 md:h-14 rounded-xl bg-slate-50 border-slate-200 focus:ring-primary/20 transition-all font-medium text-slate-900"
-                placeholder="Ex: Directeur Créatif ou Nom de l'agence"
-              />
-            </div>
-            <div className="space-y-2 md:space-y-3">
-              <Label htmlFor="specialty" className="text-xs font-semibold text-muted-foreground ml-1">Spécialité</Label>
-              <Input
-                id="specialty"
-                value={profile.specialty || ""}
-                onChange={(e) => setProfile({ ...profile, specialty: e.target.value })}
-                className="h-12 md:h-14 rounded-xl bg-slate-50 border-slate-200 focus:ring-primary/20 transition-all font-medium text-slate-900"
-                placeholder="Ex: Développement Web, Menuiserie d'art..."
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2 md:space-y-3">
-            <Label htmlFor="bio" className="text-xs font-semibold text-muted-foreground ml-1">Votre Histoire (Bio)</Label>
-            <textarea
-              id="bio"
-              value={profile.bio || ""}
-              onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
-              className="w-full min-h-[120px] p-4 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-primary/20 transition-all font-medium text-slate-900 resize-y"
-              placeholder="Racontez votre parcours, vos plus belles réalisations..."
+      {/* ── Personal ────────────────────────────────────────────────────────── */}
+      <SectionCard title="Informations personnelles">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Field label="Prénom">
+            <Input
+              id="prenom" name="given-name" autoComplete="given-name"
+              value={profile.first_name || ""}
+              onChange={e => up("first_name", e.target.value)}
+              className={INPUT} placeholder="Votre prénom"
             />
-          </div>
+          </Field>
+          <Field label="Nom">
+            <Input
+              id="nom" name="family-name" autoComplete="family-name"
+              value={profile.last_name || ""}
+              onChange={e => up("last_name", e.target.value)}
+              className={INPUT} placeholder="Votre nom"
+            />
+          </Field>
+        </div>
+        <div className="mt-4">
+          <Field label="Bio">
+            <textarea
+              value={profile.bio || ""}
+              onChange={e => up("bio", e.target.value)}
+              rows={3}
+              className="w-full rounded-xl bg-slate-50 border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-y placeholder:text-slate-400"
+              placeholder="Racontez votre parcours et vos réalisations..."
+            />
+          </Field>
+        </div>
+      </SectionCard>
 
+      {/* ── Professional ────────────────────────────────────────────────────── */}
+      <SectionCard title="Profil professionnel">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Field label="Catégorie">
+            <select id="category" value={profile.category || ""} onChange={e => up("category", e.target.value)} className={SELECT}>
+              <option value="artisan">🎨 Artisan</option>
+              <option value="commerçante">🛒 Commerçant(e)</option>
+              <option value="freelance">💻 Freelance</option>
+              <option value="entreprise">🏢 Entreprise</option>
+              <option value="agence">📣 Agence</option>
+              <option value="startup">🚀 Startup</option>
+              <option value="ong">🌍 ONG / Association</option>
+              <option value="investisseur">📈 Investisseur</option>
+              <option value="institution">🏛️ Institution Publique</option>
+              <option value="etudiant">🎓 Étudiant / Junior</option>
+            </select>
+          </Field>
+          <Field label="Secteur d'activité">
+            <select id="activity_domain" value={profile.activity_domain || ""} onChange={e => up("activity_domain", e.target.value)} className={SELECT}>
+              <option value="" disabled>Choisir un secteur...</option>
+              <option value="tech">💻 Tech & Digital</option>
+              <option value="agro">🌾 Agroalimentaire</option>
+              <option value="btp">🏗️ BTP & Construction</option>
+              <option value="finance">💰 Finance & Assurance</option>
+              <option value="sante">🏥 Santé & Bien-être</option>
+              <option value="education">📚 Éducation & Formation</option>
+              <option value="creatif">🎨 Arts & Créativité</option>
+              <option value="commerce">🛍️ Commerce & Distribution</option>
+              <option value="transport">🚚 Transport & Logistique</option>
+              <option value="tourisme">✈️ Tourisme & Hôtellerie</option>
+              <option value="energie">⚡ Énergie & Environnement</option>
+              <option value="b2b">🤝 Services B2B</option>
+            </select>
+          </Field>
+          <Field label="Rôle / Entreprise">
+            <Input
+              value={profile.role || ""}
+              onChange={e => up("role", e.target.value)}
+              className={INPUT} placeholder="Ex: Directeur Créatif, Nexus Agency"
+            />
+          </Field>
+          <Field label="Spécialité">
+            <Input
+              value={profile.specialty || ""}
+              onChange={e => up("specialty", e.target.value)}
+              className={INPUT} placeholder="Ex: Développement Web, Menuiserie..."
+            />
+          </Field>
+        </div>
+      </SectionCard>
 
-          <div className="grid gap-4 md:gap-6 md:grid-cols-2 pt-4 md:pt-6 border-t border-slate-100">
-              <div className="space-y-2 md:space-y-3">
-                <Label htmlFor="email" className="text-xs font-semibold text-muted-foreground ml-1">Adresse Email</Label>
-                <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-                    <Input
-                      id="email"
-                      name="email"
-                      autoComplete="email"
-                      type="email"
-                      value={profile.email || ""}
-                      className="h-12 md:h-14 pl-12 rounded-xl bg-slate-100 border-none text-slate-500 font-medium opacity-80"
-                      disabled
-                    />
-                </div>
+      {/* ── Contact ─────────────────────────────────────────────────────────── */}
+      <SectionCard title="Contact">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Field label="Adresse email">
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Input
+                id="email" name="email" autoComplete="email" type="email"
+                value={profile.email || ""}
+                className={`${INPUT} pl-10 opacity-60`}
+                disabled
+              />
+            </div>
+          </Field>
+          <Field label="Téléphone">
+            <div className="relative">
+              <Smartphone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Input
+                id="telephone" name="tel" autoComplete="tel" type="tel"
+                value={profile.phone || ""}
+                onChange={e => up("phone", e.target.value)}
+                className={`${INPUT} pl-10`}
+                placeholder="+229 XXXXXXXXXX"
+              />
+            </div>
+          </Field>
+        </div>
+
+        {/* Phone verification */}
+        {profile.phone && profile.phone.length > 5 && (
+          <div className="mt-4">
+            {profile.phone_verified ? (
+              <div className="flex items-center gap-2 text-emerald-700 bg-emerald-50 w-fit px-3 py-2 rounded-xl border border-emerald-200 text-sm font-bold">
+                <CheckCircle2 className="h-4 w-4 shrink-0" />
+                Numéro certifié
               </div>
-
-              <div className="space-y-2 md:space-y-3">
-                <Label htmlFor="telephone" className="text-xs font-semibold text-muted-foreground ml-1">Numéro de Téléphone</Label>
-                <div className="relative">
-                    <Smartphone className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-                    <Input 
-                        id="telephone" 
-                        name="tel"
-                        autoComplete="tel"
-                        type="tel" 
-                        value={profile.phone || ""} 
-                        onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
-                        className="h-12 md:h-14 pl-12 rounded-xl bg-slate-50 border-slate-200 focus:ring-primary/20 transition-all font-medium text-slate-900" 
-                        placeholder="Ex: +229 XXXXXXXXXX"
-                    />
-                </div>
-
-                {/* Bloc de vérification de téléphone */}
-                {profile.phone && profile.phone.length > 5 && (
-                  <div className="mt-4">
-                    {profile.phone_verified ? (
-                      <div className="flex items-center gap-2 text-emerald-700 bg-emerald-50/80 w-fit px-3 sm:px-4 py-2 rounded-xl border border-emerald-200 shadow-sm animate-in fade-in zoom-in">
-                        <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5" />
-                        <span className="text-xs sm:text-sm font-bold">Numéro certifié</span>
-                      </div>
-                    ) : (
-                      <div className="space-y-4 animate-in fade-in">
-                        {!verifyMethod ? (
-                          <div className="p-4 sm:p-5 rounded-2xl border border-rose-200 bg-rose-50/50 shadow-sm">
-                            <div className="flex items-center gap-2 mb-2">
-                              <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-rose-600" />
-                              <span className="text-sm font-bold text-rose-800">Numéro non vérifié</span>
-                            </div>
-                            <p className="text-xs sm:text-sm text-rose-700/80 mb-4 font-medium">Veuillez sécuriser votre compte en confirmant ce numéro pour accéder à toutes les fonctionnalités EmiID.</p>
-                            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                              <Button 
-                                type="button"
-                                variant="outline" 
-                                className="flex-1 h-11 sm:h-12 border-emerald-200 text-emerald-800 bg-emerald-50 hover:bg-emerald-100 hover:text-emerald-900 rounded-xl justify-start shadow-sm transition-transform active:scale-95"
-                                onClick={() => handleVerifyRequest("whatsapp")}
-                              >
-                                <img src="/svg/whatsapp-logo.svg" className="h-4 w-4 sm:h-5 sm:w-5 mr-3" alt="WhatsApp" /> 
-                                <span className="font-bold">WhatsApp</span>
-                                <ChevronRight className="h-4 w-4 ml-auto opacity-40" />
-                              </Button>
-                              <Button 
-                                type="button"
-                                variant="outline" 
-                                className="flex-1 h-11 sm:h-12 border-blue-200 text-blue-800 bg-blue-50 hover:bg-blue-100 hover:text-blue-900 rounded-xl justify-start shadow-sm transition-transform active:scale-95"
-                                onClick={() => handleVerifyRequest("sms")}
-                              >
-                                <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5 mr-3 text-blue-600" /> 
-                                <span className="font-bold">SMS</span>
-                                <ChevronRight className="h-4 w-4 ml-auto opacity-40" />
-                              </Button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="p-4 sm:p-5 rounded-2xl border border-indigo-200 bg-indigo-50/50 shadow-md animate-in fade-in slide-in-from-top-4">
-                            <div className="flex items-center gap-2 mb-2 text-indigo-900">
-                              {verifyMethod === 'whatsapp' ? <img src="/svg/whatsapp-logo.svg" className="h-5 w-5" alt="WhatsApp" /> : <MessageSquare className="h-5 w-5 text-blue-600" />}
-                              <span className="text-sm font-bold">Code de vérification envoyé</span>
-                            </div>
-                            <p className="text-xs sm:text-sm text-indigo-700/80 mb-5 font-medium leading-relaxed">
-                              Veuillez entrer le code à 6 chiffres que vous venez de recevoir sur <strong className="text-indigo-950 px-1 py-0.5 bg-indigo-100 rounded">{profile.phone}</strong>.
-                            </p>
-                            
-                            <div className="flex flex-col gap-4">
-                              <Input 
-                                id="phone-verification-code"
-                                name="phone_verification_code"
-                                autoComplete="one-time-code"
-                                value={otpCode}
-                                onChange={(e) => setOtpCode(e.target.value.replace(/[^0-9]/g, ''))}
-                                placeholder="0 0 0 0 0 0"
-                                maxLength={6}
-                                className="h-14 sm:h-16 text-center text-2xl sm:text-3xl tracking-[0.5em] sm:tracking-[0.7em] font-black rounded-xl border-indigo-200 focus:ring-indigo-500 bg-white placeholder:text-slate-200 shadow-sm"
-                              />
-                              <div className="flex gap-2 sm:gap-3">
-                                <Button 
-                                  type="button"
-                                  variant="ghost" 
-                                  className="h-11 sm:h-12 px-4 sm:px-6 text-slate-500 hover:bg-slate-100 rounded-xl font-bold"
-                                  onClick={() => { setVerifyMethod(null); setOtpCode(""); }}
-                                >
-                                  Annuler
-                                </Button>
-                                <Button 
-                                  type="button"
-                                  className="flex-1 h-11 sm:h-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-600/20 font-black tracking-wide transition-all active:scale-95 disabled:opacity-50"
-                                  onClick={handleVerifySubmit}
-                                  disabled={otpCode.length < 6 || verifying}
-                                >
-                                  {verifying ? "Vérification..." : "Confirmer le code"}
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
+            ) : verifyMethod ? (
+              <div className="p-4 bg-indigo-50 border border-indigo-200 rounded-xl">
+                <p className="text-sm font-bold text-indigo-900 mb-0.5">Code envoyé</p>
+                <p className="text-xs text-indigo-700 mb-4">
+                  Entrez le code à 6 chiffres reçu sur <strong>{profile.phone}</strong>.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Input
+                    id="phone-verification-code"
+                    name="phone_verification_code"
+                    autoComplete="one-time-code"
+                    value={otpCode}
+                    onChange={e => setOtpCode(e.target.value.replace(/[^0-9]/g, ""))}
+                    placeholder="000000"
+                    maxLength={6}
+                    className="h-11 text-center text-xl tracking-[0.4em] font-black rounded-xl border-indigo-300 bg-white flex-1"
+                  />
+                  <div className="flex gap-2 shrink-0">
+                    <Button type="button" variant="ghost" onClick={() => { setVerifyMethod(null); setOtpCode("") }} className="h-11 px-4 rounded-xl text-slate-500">
+                      Annuler
+                    </Button>
+                    <Button type="button" onClick={handleVerifySubmit} disabled={otpCode.length < 6 || verifying} className="h-11 px-5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold">
+                      {verifying ? <Loader2 className="h-4 w-4 animate-spin" /> : "Confirmer"}
+                    </Button>
                   </div>
-                )}
-              </div>
-          </div>
-
-
-          <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 md:gap-4 pt-6 md:pt-8 border-t border-slate-100">
-            <Button
-              variant="outline"
-              className="w-full sm:w-auto rounded-xl h-12 md:h-14 px-8 font-bold border-slate-200 text-slate-600 hover:bg-slate-50 transition-all"
-              onClick={handleCancel}
-            >
-              Annuler
-            </Button>
-            <Button
-              onClick={handleSave}
-              disabled={saving}
-              className="w-full sm:w-auto rounded-xl h-12 md:h-14 px-10 font-bold bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all"
-            >
-              {saving ? "Sauvegarde en cours..." : "Enregistrer"}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="rounded-xl md:rounded-xl border-none shadow-xl shadow-slate-200/50 bg-white/80 backdrop-blur-xl">
-        <CardHeader className="pb-4 border-b border-slate-100">
-            <div className="flex items-center gap-3 md:gap-4">
-                <div className="p-2.5 md:p-3 bg-indigo-50 rounded-xl md:rounded-xl shrink-0">
-                    <Shield className="h-5 w-5 md:h-6 md:w-6 text-indigo-500" />
                 </div>
-                <div className="min-w-0 flex-1">
-                    <CardTitle className="text-lg md:text-xl font-bold tracking-tight truncate">Statut de Vérification</CardTitle>
-                    <CardDescription className="text-xs md:text-sm font-medium">Renforcez la confiance des clients envers votre profil</CardDescription>
+              </div>
+            ) : (
+              <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl">
+                <div className="flex items-center gap-2 mb-1">
+                  <AlertCircle className="h-4 w-4 text-rose-600 shrink-0" />
+                  <p className="text-sm font-bold text-rose-800">Numéro non vérifié</p>
                 </div>
-            </div>
-        </CardHeader>
-        <CardContent className="space-y-4 p-4 sm:p-6 lg:p-8">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 md:p-5 bg-green-50/50 border border-green-100 rounded-xl md:rounded-xl gap-4 hover:shadow-md transition-all">
-            <div className="flex items-center gap-3 md:gap-4 min-w-0 flex-1">
-              <div className="p-2.5 md:p-3 bg-white rounded-xl md:rounded-xl shadow-sm border border-green-50 shrink-0">
-                  <Mail className="h-5 w-5 md:h-6 md:w-6 text-green-500" />
+                <p className="text-xs text-rose-700 mb-4">Confirmez ce numéro pour sécuriser votre compte.</p>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleVerifyRequest("whatsapp")}
+                    className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-bold hover:bg-emerald-100 transition-colors"
+                  >
+                    <img src="/svg/whatsapp-logo.svg" className="h-4 w-4" alt="WhatsApp" />
+                    WhatsApp
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleVerifyRequest("sms")}
+                    className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-blue-50 border border-blue-200 text-blue-800 text-sm font-bold hover:bg-blue-100 transition-colors"
+                  >
+                    <MessageSquare className="h-4 w-4" />
+                    SMS
+                  </button>
+                </div>
               </div>
-              <div className="space-y-0.5 min-w-0">
-                <p className="font-bold text-slate-900 truncate">Email validé</p>
-                <p className="text-xs font-semibold text-slate-500 truncate">{profile.email}</p>
+            )}
+          </div>
+        )}
+      </SectionCard>
+
+      {/* ── Verification status ──────────────────────────────────────────────── */}
+      <SectionCard title="Statut de vérification">
+        <div className="divide-y divide-slate-100">
+
+          {/* Email */}
+          <div className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div className="p-2 bg-emerald-50 rounded-lg shrink-0">
+                <Mail className="h-4 w-4 text-emerald-600" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-slate-900">Email</p>
+                <p className="text-xs text-slate-500 truncate">{profile.email}</p>
               </div>
             </div>
-            <Badge className="w-fit shrink-0 rounded-xl px-3 py-1 bg-green-100 text-green-700 hover:bg-green-100 border-none font-bold text-xs uppercase tracking-wider">
-              <Shield className="mr-1.5 h-3.5 w-3.5" />
+            <span className="ml-3 shrink-0 inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border border-emerald-200">
+              <Shield className="h-2.5 w-2.5" />
               Vérifié
-            </Badge>
+            </span>
           </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 md:p-5 bg-green-50/50 border border-green-100 rounded-xl md:rounded-xl gap-4 hover:shadow-md transition-all">
-            <div className="flex items-center gap-3 md:gap-4 min-w-0 flex-1">
-              <div className="p-2.5 md:p-3 bg-white rounded-xl md:rounded-xl shadow-sm border border-green-50 shrink-0">
-                <Smartphone className="h-5 w-5 md:h-6 md:w-6 text-green-500" />
+          {/* Phone */}
+          <div className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div className={`p-2 rounded-lg shrink-0 ${profile.phone_verified ? "bg-emerald-50" : "bg-slate-100"}`}>
+                <Smartphone className={`h-4 w-4 ${profile.phone_verified ? "text-emerald-600" : "text-slate-400"}`} />
               </div>
-              <div className="space-y-0.5 min-w-0">
-                <p className="font-bold text-slate-900 truncate">Téléphone approuvé</p>
-                <p className="text-xs font-semibold text-slate-500 truncate">{profile.phone || "+223 70 12 34 56"}</p>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-slate-900">Téléphone</p>
+                <p className="text-xs text-slate-500 truncate">{profile.phone || "Non renseigné"}</p>
               </div>
             </div>
             {profile.phone_verified ? (
-              <Badge className="w-fit shrink-0 rounded-xl px-3 py-1 bg-green-100 text-green-700 hover:bg-green-100 border-none font-bold text-xs uppercase tracking-wider">
-                <Shield className="mr-1.5 h-3.5 w-3.5" />
+              <span className="ml-3 shrink-0 inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border border-emerald-200">
+                <Shield className="h-2.5 w-2.5" />
                 Vérifié
-              </Badge>
+              </span>
             ) : (
-              <Badge variant="outline" className="w-fit shrink-0 rounded-xl px-3 py-1 border-slate-200 text-slate-400 font-bold text-xs uppercase tracking-wider">
-                <AlertCircle className="mr-1.5 h-3.5 w-3.5" />
-                Non vérifié
-              </Badge>
+              <span className="ml-3 shrink-0 inline-flex items-center gap-1 bg-slate-100 text-slate-500 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-slate-200">
+                <AlertCircle className="h-2.5 w-2.5" />
+                En attente
+              </span>
             )}
           </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 md:p-5 bg-slate-50 border border-slate-100 rounded-xl md:rounded-xl gap-4 hover:shadow-md transition-all">
-            <div className="flex items-center gap-3 md:gap-4 min-w-0 flex-1">
-              <div className="p-2.5 md:p-3 bg-white rounded-xl md:rounded-xl shadow-sm border border-slate-100 shrink-0">
-                <User className="h-5 w-5 md:h-6 md:w-6 text-slate-400" />
+          {/* KYC */}
+          <div className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div className="p-2 bg-slate-100 rounded-lg shrink-0">
+                <User className="h-4 w-4 text-slate-400" />
               </div>
-              <div className="space-y-0.5 min-w-0">
-                <p className="font-bold text-slate-900 leading-tight">Identité professionnelle</p>
-                <p className="text-xs font-semibold text-slate-400 line-clamp-2">Vérification recommandée pour plus de visibilité</p>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-slate-900">Identité professionnelle</p>
+                <p className="text-xs text-slate-400">KYC — Bientôt disponible</p>
               </div>
             </div>
-            <Button 
-              variant="outline" 
-              className="w-full sm:w-auto rounded-xl h-10 md:h-12 px-4 md:px-6 border-slate-200 text-slate-600 font-bold hover:bg-slate-100 hover:text-slate-900 transition-all" 
-              size="sm"
-              onClick={() => toast.info("Bientôt disponible", { description: "Le service de vérification d'identité (KYC) sera activé prochainement." })}
+            <button
+              onClick={() => toast.info("Bientôt disponible", { description: "La vérification KYC sera activée prochainement." })}
+              className="ml-3 shrink-0 text-xs font-bold text-slate-600 border border-slate-200 rounded-lg px-3 py-1.5 hover:bg-slate-50 transition-colors"
             >
-              Lancer la vérification
-            </Button>
+              Vérifier
+            </button>
           </div>
-        </CardContent>
-      </Card>
+
+        </div>
+      </SectionCard>
+
+      {/* ── Actions ──────────────────────────────────────────────────────────── */}
+      <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-1">
+        <Button variant="outline" onClick={handleCancel} className="w-full sm:w-auto h-11 rounded-xl border-slate-200 font-bold">
+          Annuler
+        </Button>
+        <Button onClick={handleSave} disabled={saving} className="w-full sm:w-auto h-11 rounded-xl font-bold shadow-sm">
+          {saving ? "Enregistrement..." : "Enregistrer les modifications"}
+        </Button>
+      </div>
+
     </div>
   )
 }
