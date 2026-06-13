@@ -21,26 +21,38 @@ export async function GET(request: Request) {
     const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
-      if (resetPin) {
-        const { data: { user } } = await supabase.auth.getUser()
-        if (user) {
-          const { error: profileError } = await supabase
-            .from("user_profiles")
-            .update({
-              pin_enabled: false,
-              pin_code: null,
-              pin_attempts: 0,
-              is_locked: false,
-              locked_at: null,
-              updated_at: new Date().toISOString()
-            })
-            .eq("user_id", user.id)
+      const { data: { user } } = await supabase.auth.getUser()
 
-          if (profileError) {
-            console.error("Erreur réinitialisation PIN dans callback:", profileError)
-          }
+      // Réinitialisation PIN — chemin spécifique, bypass onboarding
+      if (resetPin && user) {
+        await supabase
+          .from("user_profiles")
+          .update({
+            pin_enabled: false,
+            pin_code: null,
+            pin_attempts: 0,
+            is_locked: false,
+            locked_at: null,
+            updated_at: new Date().toISOString()
+          })
+          .eq("user_id", user.id)
+        return NextResponse.redirect(`${origin}${next}`)
+      }
+
+      // Détection nouvel utilisateur : pas de profil ou has_profile = false
+      if (user) {
+        const { data: profile } = await supabase
+          .from("user_profiles")
+          .select("has_profile")
+          .eq("user_id", user.id)
+          .maybeSingle()
+
+        const isNewUser = !profile || !profile.has_profile
+        if (isNewUser) {
+          return NextResponse.redirect(`${origin}/onboarding`)
         }
       }
+
       return NextResponse.redirect(`${origin}${next}`)
     }
   }
