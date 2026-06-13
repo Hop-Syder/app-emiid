@@ -2,7 +2,7 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Profile section — complete redesign (Premium Dark Mode)
+ * @description Profile section — complete redesign
  * @updated 2026-06-13
 */
 
@@ -28,15 +28,15 @@ interface ProfileSectionProps {
 
 // ─── Shared class tokens ──────────────────────────────────────────────────────
 
-const INPUT = "h-11 rounded-xl bg-white/5 border border-white/10 text-sm font-medium text-white focus:ring-white/20 transition-all placeholder:text-white/40"
-const SELECT = "w-full h-11 px-3 rounded-xl bg-white/5 border border-white/10 text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-white/20 transition-all [&>option]:bg-zinc-900"
+const INPUT = "h-11 rounded-xl bg-slate-50 border-slate-200 text-sm font-medium text-slate-900 focus:ring-primary/20 transition-all placeholder:text-slate-400"
+const SELECT = "w-full h-11 px-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
 
 // ─── Field helper ─────────────────────────────────────────────────────────────
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
-      <p className="text-[11px] font-bold text-white/60 uppercase tracking-wider">{label}</p>
+      <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">{label}</p>
       {children}
     </div>
   )
@@ -46,12 +46,9 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl p-5 sm:p-6 relative overflow-hidden group">
-      <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100 pointer-events-none" />
-      <h2 className="text-[11px] font-black text-white/50 uppercase tracking-wider mb-5 relative z-10">{title}</h2>
-      <div className="relative z-10">
-        {children}
-      </div>
+    <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6">
+      <h2 className="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-5">{title}</h2>
+      {children}
     </div>
   )
 }
@@ -111,9 +108,9 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
             onUploadComplete={(url: string) => up("avatar_url", url)}
           />
           <div className="min-w-0">
-            <p className="text-sm font-bold text-white truncate">{displayName}</p>
-            <p className="text-xs text-white/60 truncate mt-0.5">{profile.email}</p>
-            <p className="text-xs text-white/40 mt-2">JPG, PNG ou GIF · Max 2 MB</p>
+            <p className="text-sm font-bold text-slate-900 truncate">{displayName}</p>
+            <p className="text-xs text-slate-500 truncate mt-0.5">{profile.email}</p>
+            <p className="text-xs text-slate-400 mt-2">JPG, PNG ou GIF · Max 2 MB</p>
           </div>
         </div>
       </SectionCard>
@@ -144,7 +141,7 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
               value={profile.bio || ""}
               onChange={e => up("bio", e.target.value)}
               rows={3}
-              className="w-full rounded-xl bg-white/5 border border-white/10 px-3 py-2.5 text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-white/20 transition-all resize-y placeholder:text-white/40"
+              className="w-full rounded-xl bg-slate-50 border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-y placeholder:text-slate-400"
               placeholder="Racontez votre parcours et vos réalisations..."
             />
           </Field>
@@ -207,18 +204,18 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="Adresse email">
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input
                 id="email" name="email" autoComplete="email" type="email"
                 value={profile.email || ""}
-                className={`${INPUT} pl-10 opacity-60 cursor-not-allowed`}
+                className={`${INPUT} pl-10 opacity-60`}
                 disabled
               />
             </div>
           </Field>
           <Field label="Téléphone">
             <div className="relative">
-              <Smartphone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+              <Smartphone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input
                 id="telephone" name="tel" autoComplete="tel" type="tel"
                 value={profile.phone || ""}
@@ -234,15 +231,15 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
         {profile.phone && profile.phone.length > 5 && (
           <div className="mt-4">
             {profile.phone_verified ? (
-              <div className="flex items-center gap-2 text-emerald-400 bg-emerald-500/10 w-fit px-3 py-2 rounded-xl border border-emerald-500/20 text-sm font-bold">
+              <div className="flex items-center gap-2 text-emerald-700 bg-emerald-50 w-fit px-3 py-2 rounded-xl border border-emerald-200 text-sm font-bold">
                 <CheckCircle2 className="h-4 w-4 shrink-0" />
                 Numéro certifié
               </div>
             ) : verifyMethod ? (
-              <div className="p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-xl backdrop-blur-sm">
-                <p className="text-sm font-bold text-indigo-200 mb-0.5">Code envoyé</p>
-                <p className="text-xs text-indigo-200/70 mb-4">
-                  Entrez le code à 6 chiffres reçu sur <strong className="text-indigo-100">{profile.phone}</strong>.
+              <div className="p-4 bg-indigo-50 border border-indigo-200 rounded-xl">
+                <p className="text-sm font-bold text-indigo-900 mb-0.5">Code envoyé</p>
+                <p className="text-xs text-indigo-700 mb-4">
+                  Entrez le code à 6 chiffres reçu sur <strong>{profile.phone}</strong>.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-2">
                   <Input
@@ -253,30 +250,30 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
                     onChange={e => setOtpCode(e.target.value.replace(/[^0-9]/g, ""))}
                     placeholder="000000"
                     maxLength={6}
-                    className="h-11 text-center text-xl tracking-[0.4em] font-black rounded-xl border-indigo-500/30 bg-white/5 text-white flex-1 focus:ring-indigo-500/50"
+                    className="h-11 text-center text-xl tracking-[0.4em] font-black rounded-xl border-indigo-300 bg-white flex-1"
                   />
                   <div className="flex gap-2 shrink-0">
-                    <Button type="button" variant="ghost" onClick={() => { setVerifyMethod(null); setOtpCode("") }} className="h-11 px-4 rounded-xl text-white/60 hover:bg-white/10 hover:text-white">
+                    <Button type="button" variant="ghost" onClick={() => { setVerifyMethod(null); setOtpCode("") }} className="h-11 px-4 rounded-xl text-slate-500">
                       Annuler
                     </Button>
-                    <Button type="button" onClick={handleVerifySubmit} disabled={otpCode.length < 6 || verifying} className="h-11 px-5 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white font-bold">
+                    <Button type="button" onClick={handleVerifySubmit} disabled={otpCode.length < 6 || verifying} className="h-11 px-5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold">
                       {verifying ? <Loader2 className="h-4 w-4 animate-spin" /> : "Confirmer"}
                     </Button>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl backdrop-blur-sm">
+              <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl">
                 <div className="flex items-center gap-2 mb-1">
-                  <AlertCircle className="h-4 w-4 text-rose-400 shrink-0" />
-                  <p className="text-sm font-bold text-rose-200">Numéro non vérifié</p>
+                  <AlertCircle className="h-4 w-4 text-rose-600 shrink-0" />
+                  <p className="text-sm font-bold text-rose-800">Numéro non vérifié</p>
                 </div>
-                <p className="text-xs text-rose-200/70 mb-4">Confirmez ce numéro pour sécuriser votre compte.</p>
+                <p className="text-xs text-rose-700 mb-4">Confirmez ce numéro pour sécuriser votre compte.</p>
                 <div className="flex flex-col sm:flex-row gap-2">
                   <button
                     type="button"
                     onClick={() => handleVerifyRequest("whatsapp")}
-                    className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-bold hover:bg-emerald-500/20 transition-colors"
+                    className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-bold hover:bg-emerald-100 transition-colors"
                   >
                     <img src="/svg/whatsapp-logo.svg" className="h-4 w-4" alt="WhatsApp" />
                     WhatsApp
@@ -284,7 +281,7 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
                   <button
                     type="button"
                     onClick={() => handleVerifyRequest("sms")}
-                    className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-bold hover:bg-blue-500/20 transition-colors"
+                    className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-blue-50 border border-blue-200 text-blue-800 text-sm font-bold hover:bg-blue-100 transition-colors"
                   >
                     <MessageSquare className="h-4 w-4" />
                     SMS
@@ -298,20 +295,20 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
 
       {/* ── Verification status ──────────────────────────────────────────────── */}
       <SectionCard title="Statut de vérification">
-        <div className="divide-y divide-white/10">
+        <div className="divide-y divide-slate-100">
 
           {/* Email */}
           <div className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
             <div className="flex items-center gap-3 min-w-0 flex-1">
-              <div className="p-2 bg-emerald-500/10 rounded-lg shrink-0 border border-emerald-500/20">
-                <Mail className="h-4 w-4 text-emerald-400" />
+              <div className="p-2 bg-emerald-50 rounded-lg shrink-0">
+                <Mail className="h-4 w-4 text-emerald-600" />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-white">Email</p>
-                <p className="text-xs text-white/60 truncate">{profile.email}</p>
+                <p className="text-sm font-semibold text-slate-900">Email</p>
+                <p className="text-xs text-slate-500 truncate">{profile.email}</p>
               </div>
             </div>
-            <span className="ml-3 shrink-0 inline-flex items-center gap-1 bg-emerald-500/10 text-emerald-400 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border border-emerald-500/20">
+            <span className="ml-3 shrink-0 inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border border-emerald-200">
               <Shield className="h-2.5 w-2.5" />
               Vérifié
             </span>
@@ -320,21 +317,21 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
           {/* Phone */}
           <div className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
             <div className="flex items-center gap-3 min-w-0 flex-1">
-              <div className={`p-2 rounded-lg shrink-0 border ${profile.phone_verified ? "bg-emerald-500/10 border-emerald-500/20" : "bg-white/5 border-white/10"}`}>
-                <Smartphone className={`h-4 w-4 ${profile.phone_verified ? "text-emerald-400" : "text-white/40"}`} />
+              <div className={`p-2 rounded-lg shrink-0 ${profile.phone_verified ? "bg-emerald-50" : "bg-slate-100"}`}>
+                <Smartphone className={`h-4 w-4 ${profile.phone_verified ? "text-emerald-600" : "text-slate-400"}`} />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-white">Téléphone</p>
-                <p className="text-xs text-white/60 truncate">{profile.phone || "Non renseigné"}</p>
+                <p className="text-sm font-semibold text-slate-900">Téléphone</p>
+                <p className="text-xs text-slate-500 truncate">{profile.phone || "Non renseigné"}</p>
               </div>
             </div>
             {profile.phone_verified ? (
-              <span className="ml-3 shrink-0 inline-flex items-center gap-1 bg-emerald-500/10 text-emerald-400 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border border-emerald-500/20">
+              <span className="ml-3 shrink-0 inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border border-emerald-200">
                 <Shield className="h-2.5 w-2.5" />
                 Vérifié
               </span>
             ) : (
-              <span className="ml-3 shrink-0 inline-flex items-center gap-1 bg-white/5 text-white/50 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-white/10">
+              <span className="ml-3 shrink-0 inline-flex items-center gap-1 bg-slate-100 text-slate-500 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-slate-200">
                 <AlertCircle className="h-2.5 w-2.5" />
                 En attente
               </span>
@@ -344,17 +341,17 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
           {/* KYC */}
           <div className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
             <div className="flex items-center gap-3 min-w-0 flex-1">
-              <div className="p-2 bg-white/5 border border-white/10 rounded-lg shrink-0">
-                <User className="h-4 w-4 text-white/40" />
+              <div className="p-2 bg-slate-100 rounded-lg shrink-0">
+                <User className="h-4 w-4 text-slate-400" />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-white">Identité professionnelle</p>
-                <p className="text-xs text-white/40">KYC — Bientôt disponible</p>
+                <p className="text-sm font-semibold text-slate-900">Identité professionnelle</p>
+                <p className="text-xs text-slate-400">KYC — Bientôt disponible</p>
               </div>
             </div>
             <button
               onClick={() => toast.info("Bientôt disponible", { description: "La vérification KYC sera activée prochainement." })}
-              className="ml-3 shrink-0 text-xs font-bold text-white/80 border border-white/20 rounded-lg px-3 py-1.5 hover:bg-white/10 transition-colors"
+              className="ml-3 shrink-0 text-xs font-bold text-slate-600 border border-slate-200 rounded-lg px-3 py-1.5 hover:bg-slate-50 transition-colors"
             >
               Vérifier
             </button>
@@ -365,10 +362,10 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
 
       {/* ── Actions ──────────────────────────────────────────────────────────── */}
       <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-1">
-        <Button variant="outline" onClick={handleCancel} className="w-full sm:w-auto h-11 rounded-xl border-white/20 text-white hover:bg-white/10 font-bold bg-transparent">
+        <Button variant="outline" onClick={handleCancel} className="w-full sm:w-auto h-11 rounded-xl border-slate-200 font-bold">
           Annuler
         </Button>
-        <Button onClick={handleSave} disabled={saving} className="w-full sm:w-auto h-11 rounded-xl font-bold shadow-sm bg-white text-zinc-950 hover:bg-white/90">
+        <Button onClick={handleSave} disabled={saving} className="w-full sm:w-auto h-11 rounded-xl font-bold shadow-sm">
           {saving ? "Enregistrement..." : "Enregistrer les modifications"}
         </Button>
       </div>

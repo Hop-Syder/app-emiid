@@ -1,7 +1,7 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Settings page shell — sidebar desktop / pill tabs mobile (Premium Redesign)
+ * @description Settings page shell — sidebar desktop / pill tabs mobile
  * @updated 2026-06-13
 */
 
@@ -19,7 +19,6 @@ import { ProfileSection } from "./profile-section"
 import { SecuritySection } from "./security-section"
 import { NotificationsSection } from "./notifications-section"
 import { PreferencesSection } from "./preferences-section"
-import { motion, AnimatePresence } from "framer-motion"
 
 // ─── Defaults ────────────────────────────────────────────────────────────────
 
@@ -200,16 +199,16 @@ export function ParametresContent() {
 
   if (loadingStatus === "error") {
     return (
-      <div className="flex items-center justify-center min-h-[60vh] px-4 bg-zinc-950">
-        <div className="bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl p-8 text-center max-w-sm w-full shadow-sm">
-          <div className="w-14 h-14 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+      <div className="flex items-center justify-center min-h-[60vh] px-4">
+        <div className="bg-white border border-red-100 rounded-2xl p-8 text-center max-w-sm w-full shadow-sm">
+          <div className="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
             <X className="h-7 w-7 text-red-500" />
           </div>
-          <h2 className="text-lg font-black text-white mb-2">Impossible de charger</h2>
-          <p className="text-sm text-white/60 mb-6">Vérifiez votre connexion et réessayez.</p>
+          <h2 className="text-lg font-black text-slate-900 mb-2">Impossible de charger</h2>
+          <p className="text-sm text-slate-500 mb-6">Vérifiez votre connexion et réessayez.</p>
           <button
             onClick={loadUserProfile}
-            className="w-full h-11 bg-white text-zinc-950 rounded-xl text-sm font-bold hover:bg-white/90 transition-colors active:scale-[0.98]"
+            className="w-full h-11 bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-slate-800 transition-colors active:scale-[0.98]"
           >
             Réessayer
           </button>
@@ -230,103 +229,75 @@ export function ParametresContent() {
   }
 
   return (
-    <div className="relative min-h-[calc(100vh-4rem)] w-full bg-zinc-950 text-white overflow-hidden">
-      <style>{`
-        @keyframes fadeSlideIn {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-          animation: fadeSlideIn 0.8s ease-out forwards;
-          opacity: 0;
-        }
-        .delay-100 { animation-delay: 0.1s; }
-      `}</style>
-
-      {/* Premium Background Effects */}
-      <div 
-        className="absolute inset-0 z-0 bg-[url(https://images.unsplash.com/photo-1557683316-973673baf926?w=1600&q=80)] bg-cover bg-center opacity-10"
-        style={{
-          maskImage: "linear-gradient(180deg, transparent, black 10%, black 90%, transparent)",
-          WebkitMaskImage: "linear-gradient(180deg, transparent, black 10%, black 90%, transparent)",
-        }}
-      />
-
-      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-6 lg:py-10">
+    <div className="min-h-[calc(100vh-4rem)] bg-slate-50">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 lg:py-10">
 
         {/* Mobile page header */}
-        <div className="lg:hidden mb-5 animate-fade-in delay-100">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 backdrop-blur-md mb-4">
-            <Settings className="w-4 h-4 text-white/80" />
-            <span className="text-xs font-semibold uppercase tracking-wider text-white/80">
-              Paramètres
-            </span>
-          </div>
-          <h1 className="text-2xl font-black text-white tracking-tight">Configuration</h1>
-          <p className="text-sm text-white/60 mt-0.5">Gérez votre compte et vos préférences</p>
+        <div className="lg:hidden mb-5">
+          <h1 className="text-xl font-black text-slate-900 tracking-tight">Paramètres</h1>
+          <p className="text-sm text-slate-500 mt-0.5">Gérez votre compte et vos préférences</p>
         </div>
 
-        <div className="lg:grid lg:grid-cols-[240px_1fr] lg:gap-8 lg:items-start animate-fade-in delay-100">
+        <div className="lg:grid lg:grid-cols-[220px_1fr] lg:gap-8 lg:items-start">
 
           {/* ── Desktop sidebar ─────────────────────────────────────────────── */}
-          <aside className="hidden lg:flex flex-col gap-4 sticky top-24">
+          <aside className="hidden lg:flex flex-col gap-3 sticky top-24">
 
-            {/* User identity card - Glassmorphism */}
-            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl text-center">
-              <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 -z-10" />
+            {/* User identity card */}
+            <div className="bg-white border border-slate-200 rounded-2xl p-5 text-center">
               <div className="relative inline-flex mb-3">
                 {profile.avatar_url ? (
                   <img
                     src={profile.avatar_url}
                     alt={displayName}
-                    className="w-16 h-16 rounded-full object-cover ring-2 ring-white/20 shadow-sm"
+                    className="w-16 h-16 rounded-full object-cover ring-2 ring-slate-100 shadow-sm"
                   />
                 ) : (
-                  <div className="w-16 h-16 rounded-full bg-white/10 ring-2 ring-white/20 shadow-sm flex items-center justify-center">
-                    <User className="h-7 w-7 text-white/40" />
+                  <div className="w-16 h-16 rounded-full bg-slate-100 ring-2 ring-slate-100 shadow-sm flex items-center justify-center">
+                    <User className="h-7 w-7 text-slate-400" />
                   </div>
                 )}
                 {profile.is_verified && (
-                  <span className="absolute -bottom-0.5 -right-0.5 bg-indigo-500 rounded-full p-1 border-2 border-zinc-950 shadow">
+                  <span className="absolute -bottom-0.5 -right-0.5 bg-primary rounded-full p-1 border-2 border-white shadow">
                     <Shield className="h-2.5 w-2.5 text-white" />
                   </span>
                 )}
               </div>
-              <p className="text-sm font-bold text-white truncate leading-tight">{displayName}</p>
-              <p className="text-xs text-white/60 truncate mt-0.5 px-2">{profile.email}</p>
+              <p className="text-sm font-bold text-slate-900 truncate leading-tight">{displayName}</p>
+              <p className="text-xs text-slate-500 truncate mt-0.5 px-2">{profile.email}</p>
               {profile.is_premium && (
-                <span className="mt-3 inline-flex items-center gap-1 bg-amber-500/10 text-amber-400 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border border-amber-500/20">
+                <span className="mt-3 inline-flex items-center gap-1 bg-amber-50 text-amber-700 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border border-amber-200">
                   <Star className="h-2.5 w-2.5 fill-current" />
                   Premium
                 </span>
               )}
             </div>
 
-            {/* Navigation - Glassmorphism */}
-            <nav className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl overflow-hidden p-1.5">
+            {/* Navigation */}
+            <nav className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
               {TABS.map(({ id, label, icon: Icon }) => (
                 <button
                   key={id}
                   onClick={() => setActiveTab(id)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all text-left ${
+                  className={`w-full flex items-center gap-3 px-4 py-3.5 text-sm font-semibold transition-all text-left border-l-[3px] ${
                     activeTab === id
-                      ? "bg-white/10 text-white"
-                      : "text-white/60 hover:bg-white/5 hover:text-white"
+                      ? "border-l-primary text-primary bg-primary/5"
+                      : "border-l-transparent text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                   }`}
                 >
-                  <Icon className={`h-4 w-4 shrink-0 ${activeTab === id ? "text-white" : "text-white/60"}`} />
+                  <Icon className={`h-4 w-4 shrink-0 ${activeTab === id ? "text-primary" : "text-slate-400"}`} />
                   {label}
                 </button>
               ))}
             </nav>
 
-            {/* Logout - Glassmorphism */}
+            {/* Logout */}
             <button
               onClick={handleLogout}
-              className="flex items-center justify-center gap-2 px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-2xl text-sm font-semibold text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-all backdrop-blur-xl"
+              className="flex items-center gap-3 px-4 py-3.5 bg-white border border-slate-200 rounded-2xl text-sm font-semibold text-red-500 hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-all"
             >
               <LogOut className="h-4 w-4 shrink-0" />
-              Déconnexion
+              Se déconnecter
             </button>
           </aside>
 
@@ -343,8 +314,8 @@ export function ParametresContent() {
                       onClick={() => setActiveTab(id)}
                       className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all border ${
                         activeTab === id
-                          ? "bg-white text-zinc-950 border-white shadow-sm"
-                          : "bg-white/5 text-white/60 border-white/10 hover:bg-white/10 hover:text-white"
+                          ? "bg-primary text-white border-primary shadow-sm"
+                          : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
                       }`}
                     >
                       <Icon className="h-4 w-4 shrink-0" />
@@ -357,33 +328,15 @@ export function ParametresContent() {
 
             {/* Desktop section title */}
             <div className="hidden lg:block mb-6">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 backdrop-blur-md mb-4">
-                <Settings className="w-4 h-4 text-white/80" />
-                <span className="text-xs font-semibold uppercase tracking-wider text-white/80">
-                  Settings / {TABS.find(t => t.id === activeTab)?.label}
-                </span>
-              </div>
-              <h1 className="text-4xl font-bold text-white tracking-tight mb-2">
+              <h1 className="text-xl font-black text-slate-900 tracking-tight">
                 {TABS.find(t => t.id === activeTab)?.label}
               </h1>
-              <p className="text-lg text-white/60">
+              <p className="text-sm text-slate-500 mt-0.5">
                 {TABS.find(t => t.id === activeTab)?.desc}
               </p>
             </div>
 
-            {/* Content wrapper with animation */}
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeTab}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.2 }}
-              >
-                {activeSection[activeTab]}
-              </motion.div>
-            </AnimatePresence>
-
+            {activeSection[activeTab]}
           </div>
         </div>
       </div>
