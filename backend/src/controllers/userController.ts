@@ -438,6 +438,28 @@ export const updateMySettings = async (req: any, res: Response) => {
       }
     }
 
+    // Sync notification_preferences table (used by useNotificationPreferences hook)
+    // Mapping: UI fields → table columns
+    const mergedNotifPrefs = mergedMetadata.notification_preferences;
+    const { error: notifSyncError } = await supabaseAdmin
+      .from('notification_preferences')
+      .upsert(
+        {
+          user_id:          userId,
+          notify_messages:  mergedNotifPrefs.messages         ?? true,
+          notify_followers: mergedNotifPrefs.network_activity ?? true,
+          notify_views:     mergedNotifPrefs.network_activity ?? true,
+          email_enabled:    mergedNotifPrefs.newsletter       ?? false,
+          push_enabled:     mergedNotifPrefs.push             ?? true,
+          updated_at:       new Date().toISOString(),
+        },
+        { onConflict: 'user_id' },
+      );
+
+    if (notifSyncError) {
+      logger.warn('Sync notification_preferences table failed (non-blocking)', notifSyncError);
+    }
+
     return res.json(buildUserSettings({ user_metadata: mergedMetadata }, !!mergedAppPreferences.public_profile));
   } catch (err) {
     logger.error('Erreur updateMySettings', err);

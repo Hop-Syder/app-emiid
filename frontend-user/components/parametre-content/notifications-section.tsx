@@ -1,15 +1,20 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Notifications section — redesign
+ * @description Notifications section — preferences wired to push + email
  * @updated 2026-06-13
 */
 
 "use client"
 
+import { useEffect, useRef } from "react"
 import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
-import { subscribeToPushNotifications } from "@/lib/push-notifications"
+import {
+  subscribeToPushNotifications,
+  unsubscribeFromPushNotifications,
+  getPushSubscriptionStatus,
+} from "@/lib/push-notifications"
 
 interface NotificationSettings {
   messages:         boolean
@@ -27,20 +32,42 @@ interface NotificationsSectionProps {
 }
 
 const ROWS: { key: keyof NotificationSettings; label: string; desc: string }[] = [
-  { key: "messages",         label: "Nouveaux messages",       desc: "Recevez une alerte pour chaque nouveau message" },
-  { key: "network_activity", label: "Activité du réseau",      desc: "Mises à jour des profils que vous suivez" },
-  { key: "newsletter",       label: "Newsletter hebdomadaire", desc: "Résumé des actualités et opportunités du réseau" },
-  { key: "push",             label: "Notifications push",      desc: "Alertes en temps réel sur votre appareil mobile" },
+  { key: "messages",         label: "Nouveaux messages",       desc: "Recevez une alerte email pour chaque nouveau message" },
+  { key: "network_activity", label: "Activité du réseau",      desc: "Nouveaux followers et vues de profil" },
+  { key: "newsletter",       label: "Newsletter hebdomadaire", desc: "Autorise l'envoi d'emails de la part d'EmiID" },
+  { key: "push",             label: "Notifications push",      desc: "Alertes en temps réel sur cet appareil (navigateur)" },
 ]
 
 export function NotificationsSection({ settings, setSettings, saving, handleSave, handleCancel }: NotificationsSectionProps) {
+  const isMounted = useRef(true)
+
+  // Sync push toggle with actual browser subscription state on mount
+  useEffect(() => {
+    isMounted.current = true
+    getPushSubscriptionStatus().then(isSubscribed => {
+      if (!isMounted.current) return
+      if (settings.push !== isSubscribed) {
+        setSettings({ ...settings, push: isSubscribed })
+      }
+    })
+    return () => { isMounted.current = false }
+    // Run once on mount — settings ref intentionally excluded
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const toggle = async (key: keyof NotificationSettings, checked: boolean) => {
-    const next = { ...settings, [key]: checked }
-    setSettings(next)
-    if (key === "push" && checked) {
-      const sub = await subscribeToPushNotifications()
-      if (!sub) setSettings({ ...settings, push: false })
+    if (key === "push") {
+      if (checked) {
+        const sub = await subscribeToPushNotifications()
+        if (!sub) {
+          // Permission denied or error — don't update state
+          return
+        }
+      } else {
+        await unsubscribeFromPushNotifications()
+      }
     }
+    setSettings({ ...settings, [key]: checked })
   }
 
   return (
@@ -59,7 +86,7 @@ export function NotificationsSection({ settings, setSettings, saving, handleSave
               <Switch
                 className="shrink-0"
                 checked={settings[key]}
-                onCheckedChange={checked => toggle(key, checked)}
+                onCheckedChange={checked => void toggle(key, checked)}
               />
             </div>
           ))}

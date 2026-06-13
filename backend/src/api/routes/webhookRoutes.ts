@@ -66,13 +66,13 @@ router.post('/supabase', async (req: Request, res: Response) => {
         ? `${senderProfile.first_name || ''} ${senderProfile.last_name || ''}`.trim() 
         : "Un membre EmiID";
 
-      // Notifications Mail
-      if (email && preferences?.messages !== false) {
+      // Notifications Mail — newsletter=false désactive tous les emails EmiID
+      if (email && preferences?.messages !== false && preferences?.newsletter !== false) {
         await sendNewMessageNotification(email, senderName, content.substring(0, 100));
         logger.info(`Notification email envoyée à ${email} pour le message de ${senderName}`);
       }
 
-      // Notification In-App
+      // Notification In-App (toujours — indépendant des préférences push/email)
       const { error: notifError } = await supabaseAdmin
         .from('notifications')
         .insert({
@@ -86,8 +86,8 @@ router.post('/supabase', async (req: Request, res: Response) => {
 
       if (notifError) logger.error("Erreur notification in-app message", notifError);
 
-      // Notification Push
-      if (preferences?.push !== false) {
+      // Notification Push — vérifier messages ET push activés
+      if (preferences?.push !== false && preferences?.messages !== false) {
         await sendPushNotification(
           recipientId,
           `Nouveau message de ${senderName}`,
@@ -129,8 +129,8 @@ router.post('/supabase', async (req: Request, res: Response) => {
           is_read: false
         });
 
-        // Notification Push
-        if (preferences?.push !== false) {
+        // Notification Push — vérifier network_activity ET push activés
+        if (preferences?.push !== false && preferences?.network_activity !== false) {
           await sendPushNotification(
             following_id,
             "Nouveau follower !",

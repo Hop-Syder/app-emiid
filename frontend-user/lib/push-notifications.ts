@@ -24,6 +24,41 @@ function urlBase64ToUint8Array(base64String: string) {
 }
 
 /**
+ * Vérifie si le navigateur a une subscription push active et autorisée
+ */
+export async function getPushSubscriptionStatus(): Promise<boolean> {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return false
+  if (Notification.permission !== 'granted') return false
+  try {
+    const registration = await navigator.serviceWorker.ready
+    const subscription = await registration.pushManager.getSubscription()
+    return !!subscription
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Désabonne le navigateur des notifications push et supprime l'endpoint de Supabase
+ */
+export async function unsubscribeFromPushNotifications(): Promise<void> {
+  if (!('serviceWorker' in navigator)) return
+  try {
+    const registration = await navigator.serviceWorker.ready
+    const subscription = await registration.pushManager.getSubscription()
+    if (!subscription) return
+
+    const endpoint = subscription.endpoint
+    await subscription.unsubscribe()
+
+    const supabase = createClient()
+    await supabase.from('push_subscriptions').delete().eq('endpoint', endpoint)
+  } catch (error) {
+    console.error('Erreur lors du désabonnement push', error)
+  }
+}
+
+/**
  * Enregistre le service worker et demande l'autorisation pour les notifications
  */
 export async function subscribeToPushNotifications() {
