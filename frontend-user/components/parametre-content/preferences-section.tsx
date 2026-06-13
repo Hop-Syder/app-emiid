@@ -95,20 +95,20 @@ export function PreferencesSection({ settings, setSettings, saving, handleSave, 
                     </Select>
                 </div>
 
-                <div className="flex items-center justify-between p-4 border rounded-xl">
-                    <div>
+                <div className="flex items-center justify-between gap-3 p-4 border rounded-xl">
+                    <div className="min-w-0 flex-1">
                         <p className="font-medium">Mode sombre</p>
                         <p className="text-sm text-muted-foreground">Activer le thème sombre</p>
                     </div>
-                    <Switch checked={settings.theme === "dark"} onCheckedChange={(checked) => updateSetting("theme", checked ? "dark" : "light")} />
+                    <Switch className="shrink-0" checked={settings.theme === "dark"} onCheckedChange={(checked) => updateSetting("theme", checked ? "dark" : "light")} />
                 </div>
 
-                <div className="flex items-center justify-between p-4 border rounded-xl">
-                    <div>
+                <div className="flex items-center justify-between gap-3 p-4 border rounded-xl">
+                    <div className="min-w-0 flex-1">
                         <p className="font-medium">Profil public</p>
                         <p className="text-sm text-muted-foreground">Visible dans les recherches</p>
                     </div>
-                    <Switch checked={settings.public_profile} onCheckedChange={(checked) => updateSetting("public_profile", checked)} />
+                    <Switch className="shrink-0" checked={settings.public_profile} onCheckedChange={(checked) => updateSetting("public_profile", checked)} />
                 </div>
 
                 <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 md:gap-4 pt-6 md:pt-8 border-t border-slate-100">

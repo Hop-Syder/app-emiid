@@ -52,33 +52,33 @@ export function NotificationsSection({ settings, setSettings, saving, handleSave
                 <CardDescription>Choisissez comment vous souhaitez être informé</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-                <div className="flex items-center justify-between p-4 border rounded-xl">
-                    <div>
+                <div className="flex items-center justify-between gap-3 p-4 border rounded-xl">
+                    <div className="min-w-0 flex-1">
                         <p className="font-medium">Nouveaux messages</p>
                         <p className="text-sm text-muted-foreground">Notifications pour les nouveaux messages</p>
                     </div>
-                    <Switch checked={settings.messages} onCheckedChange={(checked) => toggle("messages", checked)} />
+                    <Switch className="shrink-0" checked={settings.messages} onCheckedChange={(checked) => toggle("messages", checked)} />
                 </div>
-                <div className="flex items-center justify-between p-4 border rounded-xl">
-                    <div>
+                <div className="flex items-center justify-between gap-3 p-4 border rounded-xl">
+                    <div className="min-w-0 flex-1">
                         <p className="font-medium">Activité du réseau</p>
                         <p className="text-sm text-muted-foreground">Mises à jour des profils suivis</p>
                     </div>
-                    <Switch checked={settings.network_activity} onCheckedChange={(checked) => toggle("network_activity", checked)} />
+                    <Switch className="shrink-0" checked={settings.network_activity} onCheckedChange={(checked) => toggle("network_activity", checked)} />
                 </div>
-                <div className="flex items-center justify-between p-4 border rounded-xl">
-                    <div>
+                <div className="flex items-center justify-between gap-3 p-4 border rounded-xl">
+                    <div className="min-w-0 flex-1">
                         <p className="font-medium">Newsletter hebdomadaire</p>
                         <p className="text-sm text-muted-foreground">Résumé des actualités du réseau</p>
                     </div>
-                    <Switch checked={settings.newsletter} onCheckedChange={(checked) => toggle("newsletter", checked)} />
+                    <Switch className="shrink-0" checked={settings.newsletter} onCheckedChange={(checked) => toggle("newsletter", checked)} />
                 </div>
-                <div className="flex items-center justify-between p-4 border rounded-xl">
-                    <div>
+                <div className="flex items-center justify-between gap-3 p-4 border rounded-xl">
+                    <div className="min-w-0 flex-1">
                         <p className="font-medium">Notifications push</p>
                         <p className="text-sm text-muted-foreground">Notifications sur mobile</p>
                     </div>
-                    <Switch checked={settings.push} onCheckedChange={(checked) => toggle("push", checked)} />
+                    <Switch className="shrink-0" checked={settings.push} onCheckedChange={(checked) => toggle("push", checked)} />
                 </div>
                 <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 md:gap-4 pt-6 md:pt-8 border-t border-slate-100">
                     <Button

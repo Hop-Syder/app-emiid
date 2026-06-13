@@ -269,7 +269,7 @@ export function ParametresContent() {
             {/* Header de la page */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 bg-white/60 backdrop-blur-xl p-5 md:p-8 rounded-xl md:rounded-xl shadow-xl shadow-slate-200/40 border border-white">
                 <div className="space-y-1.5 md:space-y-2">
-                    <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-900 flex items-center gap-2">
+                    <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-900 flex flex-wrap items-center gap-2">
                         Paramètres du Compte
                         {profile.is_verified && <Shield className="h-6 w-6 text-primary" />}
                         {profile.is_premium && <Star className="h-6 w-6 text-amber-500 fill-amber-500" />}
@@ -303,29 +303,32 @@ export function ParametresContent() {
                                 value="profil"
                                 className="group justify-start w-full rounded-xl h-12 md:h-14 px-5 text-sm md:text-base font-bold data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 bg-white border border-slate-100/50 text-slate-600 hover:bg-slate-50 transition-all duration-300"
                             >
-                                <User className="mr-3 h-5 w-5 opacity-70 group-data-[state=active]:opacity-100" />
-                                Informations Personnelles
+                                <User className="mr-3 h-5 w-5 opacity-70 group-data-[state=active]:opacity-100 shrink-0" />
+                                <span className="hidden lg:inline">Informations Personnelles</span>
+                                <span className="lg:hidden">Profil</span>
                             </TabsTrigger>
                             <TabsTrigger
                                 value="securite"
                                 className="group justify-start w-full rounded-xl h-12 md:h-14 px-5 text-sm md:text-base font-bold data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 bg-white border border-slate-100/50 text-slate-600 hover:bg-slate-50 transition-all duration-300"
                             >
-                                <Shield className="mr-3 h-5 w-5 opacity-70 group-data-[state=active]:opacity-100" />
-                                Sécurité & Mot de passe
+                                <Shield className="mr-3 h-5 w-5 opacity-70 group-data-[state=active]:opacity-100 shrink-0" />
+                                <span className="hidden lg:inline">Sécurité & Mot de passe</span>
+                                <span className="lg:hidden">Sécurité</span>
                             </TabsTrigger>
                             <TabsTrigger
                                 value="notifications"
                                 className="group justify-start w-full rounded-xl h-12 md:h-14 px-5 text-sm md:text-base font-bold data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 bg-white border border-slate-100/50 text-slate-600 hover:bg-slate-50 transition-all duration-300"
                             >
-                                <Bell className="mr-3 h-5 w-5 opacity-70 group-data-[state=active]:opacity-100" />
+                                <Bell className="mr-3 h-5 w-5 opacity-70 group-data-[state=active]:opacity-100 shrink-0" />
                                 Notifications
                             </TabsTrigger>
                             <TabsTrigger
                                 value="preferences"
                                 className="group justify-start w-full rounded-xl h-12 md:h-14 px-5 text-sm md:text-base font-bold data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 bg-white border border-slate-100/50 text-slate-600 hover:bg-slate-50 transition-all duration-300"
                             >
-                                <Settings className="mr-3 h-5 w-5 opacity-70 group-data-[state=active]:opacity-100" />
-                                Préférences générales
+                                <Settings className="mr-3 h-5 w-5 opacity-70 group-data-[state=active]:opacity-100 shrink-0" />
+                                <span className="hidden lg:inline">Préférences générales</span>
+                                <span className="lg:hidden">Préférences</span>
                             </TabsTrigger>
                         </TabsList>
                     </div>

@@ -404,12 +404,12 @@ export function SecuritySection({
                     <CardDescription>Ajoutez une couche de sécurité supplémentaire</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between p-4 border rounded-xl">
-                        <div className="space-y-1">
+                    <div className="flex items-center justify-between gap-3 p-4 border rounded-xl">
+                        <div className="space-y-1 min-w-0 flex-1">
                             <p className="font-medium text-[#022753]">Verrouillage par Code PIN</p>
                             <p className="text-sm text-muted-foreground">Sécurisez l&apos;accès au tableau de bord</p>
                             {profile.pin_enabled && (
-                                <button 
+                                <button
                                     onClick={() => {
                                         setPendingAction("change")
                                         setReauthPassword("")
@@ -423,16 +423,17 @@ export function SecuritySection({
                             )}
                         </div>
                         <Switch
+                            className="shrink-0"
                             checked={profile.pin_enabled}
                             onCheckedChange={handlePinToggle}
                         />
                     </div>
-                    <div className="flex items-center justify-between p-4 border rounded-xl">
-                        <div>
+                    <div className="flex items-center justify-between gap-3 p-4 border rounded-xl">
+                        <div className="min-w-0 flex-1">
                             <p className="font-medium">Authentification à deux facteurs (2FA)</p>
                             <p className="text-sm text-muted-foreground">Sécurisez votre compte via WhatsApp ou SMS (Code à 5 chiffres)</p>
                         </div>
-                        <Switch checked={securitySettings.two_factor_enabled} onCheckedChange={(checked) => void handleTwoFactorToggle(checked)} />
+                        <Switch className="shrink-0" checked={securitySettings.two_factor_enabled} onCheckedChange={(checked) => void handleTwoFactorToggle(checked)} />
                     </div>
                 </CardContent>
             </Card>
@@ -443,21 +444,21 @@ export function SecuritySection({
                     <CardDescription>Actions irréversibles sur votre compte</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between p-4 border border-red-200 rounded-xl">
-                        <div>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 border border-red-200 rounded-xl">
+                        <div className="min-w-0">
                             <p className="font-medium">Désactiver le compte</p>
                             <p className="text-sm text-muted-foreground">Votre compte sera masqué et l&apos;accès sera bloqué</p>
                         </div>
-                        <Button variant="outline" className="rounded-xl border-red-200 text-red-600 bg-transparent" onClick={() => void handleDeactivateAccount()} disabled={accountLoading}>
+                        <Button variant="outline" className="w-full sm:w-auto shrink-0 rounded-xl border-red-200 text-red-600 bg-transparent" onClick={() => void handleDeactivateAccount()} disabled={accountLoading}>
                             Désactiver
                         </Button>
                     </div>
-                    <div className="flex items-center justify-between p-4 border border-red-200 rounded-xl">
-                        <div>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 border border-red-200 rounded-xl">
+                        <div className="min-w-0">
                             <p className="font-medium">Supprimer le compte</p>
                             <p className="text-sm text-muted-foreground">Suppression définitive de toutes vos données</p>
                         </div>
-                        <Button variant="destructive" className="rounded-xl" onClick={() => void handleDeleteAccount()} disabled={accountLoading}>
+                        <Button variant="destructive" className="w-full sm:w-auto shrink-0 rounded-xl" onClick={() => void handleDeleteAccount()} disabled={accountLoading}>
                             Supprimer
                         </Button>
                     </div>
@@ -572,7 +573,7 @@ export function SecuritySection({
                         </div>
                     ) : (
                         <div className="flex flex-col items-center gap-8 py-6">
-                            <div className="bg-slate-50 p-6 rounded-2xl w-full flex flex-col items-center gap-6 border border-slate-100">
+                            <div className="bg-slate-50 p-4 sm:p-6 rounded-2xl w-full flex flex-col items-center gap-6 border border-slate-100">
                                 <InputOTP
                                     id="mfa-verification-code"
                                     name="mfa_verification_code"
@@ -581,13 +582,13 @@ export function SecuritySection({
                                     value={mfaCode}
                                     onChange={(val) => setMfaCode(val)}
                                 >
-                                    <InputOTPGroup className="gap-2">
-                                        <InputOTPSlot index={0} className="w-12 h-14 text-xl font-bold rounded-lg border-2" />
-                                        <InputOTPSlot index={1} className="w-12 h-14 text-xl font-bold rounded-lg border-2" />
-                                        <InputOTPSlot index={2} className="w-12 h-14 text-xl font-bold rounded-lg border-2" />
-                                        <InputOTPSlot index={3} className="w-12 h-14 text-xl font-bold rounded-lg border-2" />
-                                        <InputOTPSlot index={4} className="w-12 h-14 text-xl font-bold rounded-lg border-2" />
-                                        <InputOTPSlot index={5} className="w-12 h-14 text-xl font-bold rounded-lg border-2" />
+                                    <InputOTPGroup className="gap-1 sm:gap-2">
+                                        <InputOTPSlot index={0} className="w-9 h-11 text-base sm:w-12 sm:h-14 sm:text-xl font-bold rounded-lg border-2" />
+                                        <InputOTPSlot index={1} className="w-9 h-11 text-base sm:w-12 sm:h-14 sm:text-xl font-bold rounded-lg border-2" />
+                                        <InputOTPSlot index={2} className="w-9 h-11 text-base sm:w-12 sm:h-14 sm:text-xl font-bold rounded-lg border-2" />
+                                        <InputOTPSlot index={3} className="w-9 h-11 text-base sm:w-12 sm:h-14 sm:text-xl font-bold rounded-lg border-2" />
+                                        <InputOTPSlot index={4} className="w-9 h-11 text-base sm:w-12 sm:h-14 sm:text-xl font-bold rounded-lg border-2" />
+                                        <InputOTPSlot index={5} className="w-9 h-11 text-base sm:w-12 sm:h-14 sm:text-xl font-bold rounded-lg border-2" />
                                     </InputOTPGroup>
                                 </InputOTP>
 
@@ -653,13 +654,13 @@ export function SecuritySection({
                                         value={reauthPin}
                                         onChange={setReauthPin}
                                     >
-                                        <InputOTPGroup className="gap-2">
-                                            <InputOTPSlot index={0} className="w-10 h-12 rounded-lg border-gray-200" />
-                                            <InputOTPSlot index={1} className="w-10 h-12 rounded-lg border-gray-200" />
-                                            <InputOTPSlot index={2} className="w-10 h-12 rounded-lg border-gray-200" />
-                                            <InputOTPSlot index={3} className="w-10 h-12 rounded-lg border-gray-200" />
-                                            <InputOTPSlot index={4} className="w-10 h-12 rounded-lg border-gray-200" />
-                                            <InputOTPSlot index={5} className="w-10 h-12 rounded-lg border-gray-200" />
+                                        <InputOTPGroup className="gap-1 sm:gap-2">
+                                            <InputOTPSlot index={0} className="w-8 h-10 sm:w-10 sm:h-12 rounded-lg border-gray-200" />
+                                            <InputOTPSlot index={1} className="w-8 h-10 sm:w-10 sm:h-12 rounded-lg border-gray-200" />
+                                            <InputOTPSlot index={2} className="w-8 h-10 sm:w-10 sm:h-12 rounded-lg border-gray-200" />
+                                            <InputOTPSlot index={3} className="w-8 h-10 sm:w-10 sm:h-12 rounded-lg border-gray-200" />
+                                            <InputOTPSlot index={4} className="w-8 h-10 sm:w-10 sm:h-12 rounded-lg border-gray-200" />
+                                            <InputOTPSlot index={5} className="w-8 h-10 sm:w-10 sm:h-12 rounded-lg border-gray-200" />
                                         </InputOTPGroup>
                                     </InputOTP>
                                 </div>
@@ -754,15 +755,15 @@ export function SecuritySection({
                     <CardDescription>Fermez votre session sur cet appareil</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="flex items-center justify-between gap-4 p-4 border rounded-xl">
-                        <div className="space-y-1">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 border rounded-xl">
+                        <div className="space-y-1 min-w-0">
                             <p className="font-medium text-[#022753]">Se déconnecter</p>
                             <p className="text-sm text-muted-foreground">Vous devrez vous reconnecter pour accéder à votre compte</p>
                         </div>
                         <Button
                             variant="outline"
                             onClick={handleLogout}
-                            className="gap-2 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 shrink-0"
+                            className="w-full sm:w-auto gap-2 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 shrink-0"
                         >
                             <LogOut className="h-4 w-4" />
                             Se déconnecter
