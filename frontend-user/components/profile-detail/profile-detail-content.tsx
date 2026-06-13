@@ -170,6 +170,10 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
         return () => window.removeEventListener("scroll", onScroll)
     }, [])
 
+    // ---------------------------------------------------------------------------
+    // CHARGEMENT DU PROFIL :
+    // Récupère les données depuis Supabase (avec fallback sur la vue publique si les RLS bloquent l'accès à user_profiles)
+    // ---------------------------------------------------------------------------
     useEffect(() => {
         const fetchProfile = async () => {
             if (!profileId) return
@@ -344,7 +348,10 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
         checkCurrentUser()
     }, [profile])
 
-    // Redirection de l'UUID vers le pseudo (slug) pour masquer l'ID de l'utilisateur
+    // ---------------------------------------------------------------------------
+    // GESTION DES URLS :
+    // Redirection automatique de l'UUID vers le pseudo (slug) pour un lien plus propre (SEO)
+    // ---------------------------------------------------------------------------
     useEffect(() => {
         if (profile && profile.slug && profileId !== profile.slug) {
             router.replace(`/profil/${profile.slug}`)
@@ -379,6 +386,10 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
         }
     }
 
+    // ---------------------------------------------------------------------------
+    // VCARD GENERATION :
+    // Construit et télécharge un fichier de contact (.vcf) compatible iOS/Android
+    // ---------------------------------------------------------------------------
     const getVCard = () => {
         const safe = (value?: string) =>
             (value || "")
@@ -426,6 +437,10 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
         }
     }
 
+    // ---------------------------------------------------------------------------
+    // PARTAGE :
+    // Utilise l'API Web Share native si disponible, sinon ouvre notre modale maison
+    // ---------------------------------------------------------------------------
     const handleShare = async () => {
         if (!profileUrl) return
 
@@ -448,6 +463,10 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
         setIsShareModalOpen(true)
     }
 
+    // ---------------------------------------------------------------------------
+    // ABONNEMENT :
+    // Permet de suivre / ne plus suivre le profil avec gestion de l'état de chargement
+    // ---------------------------------------------------------------------------
     const handleFollow = async () => {
         if (!profile || followLoading) return
         setFollowLoading(true)
@@ -468,6 +487,10 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
         }
     }
 
+    // ---------------------------------------------------------------------------
+    // SIGNALEMENT (MODÉRATION) :
+    // Ouvre la boîte de dialogue pour signaler un comportement abusif
+    // ---------------------------------------------------------------------------
     const openReport = () => {
         if (!currentUserId) {
             toast.error("Veuillez vous connecter pour signaler ce profil")
