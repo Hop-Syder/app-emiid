@@ -21,7 +21,6 @@ import { ThemeToggle } from "./theme-toggle";
 const navigation = [
   { name: "Accueil", href: "/" },
   { name: "FAQ", href: "/faq" },
-  { name: "Tarifs", href: "/#pricing" },
   { name: "À propos", href: "/about" },
 ];
 

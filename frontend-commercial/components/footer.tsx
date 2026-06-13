@@ -63,11 +63,6 @@ export function Footer() {
                       FAQ
                     </Link>
                   </li>
-                  <li>
-                    <Link href="/#pricing" className="text-sm leading-6 hover:text-white transition-colors">
-                      Tarifs
-                    </Link>
-                  </li>
                 </ul>
               </div>
               <div className="mt-10 md:mt-0">
