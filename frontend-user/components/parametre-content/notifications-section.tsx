@@ -48,7 +48,10 @@ export function NotificationsSection({ settings, setSettings, saving, handleSave
     return (
         <Card className="rounded-xl">
             <CardHeader>
-                <CardTitle>Préférences de notifications</CardTitle>
+                <CardTitle className="text-xl md:text-2xl">
+                    <span className="hidden sm:inline">Préférences de notifications</span>
+                    <span className="sm:hidden">Notifications</span>
+                </CardTitle>
                 <CardDescription>Choisissez comment vous souhaitez être informé</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">

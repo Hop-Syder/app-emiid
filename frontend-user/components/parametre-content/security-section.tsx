@@ -400,7 +400,10 @@ export function SecuritySection({
 
             <Card className="rounded-xl">
                 <CardHeader>
-                    <CardTitle>Authentification et accès</CardTitle>
+                    <CardTitle className="text-xl md:text-2xl">
+                        <span className="hidden sm:inline">Authentification et accès</span>
+                        <span className="sm:hidden">Sécurité</span>
+                    </CardTitle>
                     <CardDescription>Ajoutez une couche de sécurité supplémentaire</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">

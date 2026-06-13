@@ -50,7 +50,10 @@ export function PreferencesSection({ settings, setSettings, saving, handleSave, 
     return (
         <Card className="rounded-xl">
             <CardHeader>
-                <CardTitle>Préférences générales</CardTitle>
+                <CardTitle className="text-xl md:text-2xl">
+                    <span className="hidden sm:inline">Préférences générales</span>
+                    <span className="sm:hidden">Préférences</span>
+                </CardTitle>
                 <CardDescription>Personnalisez votre expérience</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">

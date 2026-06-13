@@ -105,7 +105,10 @@ export function ProfileSection({
                     <User className="h-5 w-5 md:h-6 md:w-6 text-primary" />
                 </div>
                 <div>
-                    <CardTitle className="text-xl md:text-2xl font-bold tracking-tight">Informations du Profil</CardTitle>
+                    <CardTitle className="text-xl md:text-2xl font-bold tracking-tight">
+                        <span className="hidden sm:inline">Informations du Profil</span>
+                        <span className="sm:hidden">Profil</span>
+                    </CardTitle>
                     <CardDescription className="text-xs md:text-sm font-medium">Mettez à jour vos informations personnelles pour mieux vous faire connaître</CardDescription>
                 </div>
             </div>

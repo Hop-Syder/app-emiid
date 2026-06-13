@@ -293,7 +293,7 @@ export function ParametresContent() {
 
             <Tabs defaultValue="profil" className="flex flex-col lg:flex-row gap-6 md:gap-8 lg:items-start" orientation="vertical">
                 {/* Menu latéral (Desktop) ou horizontal scroll (Mobile) */}
-                <div className="w-full lg:w-[280px] shrink-0 sticky top-24 z-10 relative">
+                <div className="w-full lg:w-[280px] shrink-0 sticky top-24 z-10 relative min-w-0">
                     {/* Indicateur de défilement horizontal mobile */}
                     <div className="absolute right-0 top-0 bottom-4 w-8 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none lg:hidden" />
                     
@@ -335,7 +335,7 @@ export function ParametresContent() {
                 </div>
 
                 {/* Contenu principal */}
-                <div className="flex-1 min-h-[500px] w-full">
+                <div className="flex-1 min-h-[500px] min-w-0 w-full">
                     <TabsContent value="profil" className="mt-0 focus-visible:outline-none data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in data-[state=active]:slide-in-from-bottom-4 data-[state=active]:duration-500">
                         <ProfileSection
                             profile={profile}
