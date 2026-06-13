@@ -422,6 +422,66 @@ export interface Database {
         }
         Relationships: []
       }
+      content_reports: {
+        Row: {
+          id: string
+          subject_type: string
+          subject_id: string
+          reporter_id: string
+          reason: string
+          status: string
+          resolved_at: string | null
+          resolved_by: string | null
+          admin_note: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          subject_type: string
+          subject_id: string
+          reporter_id: string
+          reason: string
+          status?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          admin_note?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          subject_type?: string
+          subject_id?: string
+          reporter_id?: string
+          reason?: string
+          status?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          admin_note?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      user_blocks: {
+        Row: {
+          id: string
+          blocker_id: string
+          blocked_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          blocker_id: string
+          blocked_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          blocker_id?: string
+          blocked_id?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       public_profiles: {
