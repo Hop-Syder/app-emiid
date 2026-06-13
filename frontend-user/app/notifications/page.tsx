@@ -17,7 +17,6 @@ import { NotificationSettings } from "@/components/notifications/notification-se
 import { Bell, CheckCheck, Inbox, Loader2 } from "lucide-react"
 import { Preloader } from "@/components/Preloader"
 import { motion, AnimatePresence } from "framer-motion"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
 
@@ -222,45 +221,28 @@ export default function NotificationsPage() {
         </div>
 
         {/* TABS / FILTRES */}
-        <div className="flex justify-start md:justify-center -mx-4 md:mx-0">
-          <Tabs 
-            value={activeTab} 
-            onValueChange={handleTabChange}
-            className="w-full md:w-auto"
-          >
-            <TabsList className="h-auto md:h-14 p-1.5 px-4 md:px-1.5 bg-white/80 md:bg-white/80 backdrop-blur-md rounded-2xl md:border md:border-slate-200/50 w-full md:w-auto flex overflow-x-auto gap-2 no-scrollbar bg-transparent border-0 snap-x">
-              <TabsTrigger 
-                value="all" 
-                className="flex-shrink-0 px-4 md:px-5 py-2.5 md:py-0 rounded-xl font-bold text-slate-500 hover:text-slate-900 text-[11px] md:text-xs capitalize data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all duration-300 md:h-10 border border-slate-200/50 md:border-0 snap-start bg-white md:bg-transparent"
+        <div className="overflow-x-auto scrollbar-hide">
+          <div className="flex gap-2 min-w-max md:min-w-0 md:flex-wrap md:justify-center">
+            {([
+              { value: "all",     label: `Tout (${notifications.length})` },
+              { value: "message", label: `Messages (${notifications.filter(n => n.type === "message").length})` },
+              { value: "follow",  label: `Suivis (${notifications.filter(n => n.type === "follow").length})` },
+              { value: "view",    label: `Visites (${notifications.filter(n => n.type === "view").length})` },
+              { value: "system",  label: `Système (${notifications.filter(n => n.type === "system" || n.type === "security").length})` },
+            ] as const).map(({ value, label }) => (
+              <button
+                key={value}
+                onClick={() => handleTabChange(value)}
+                className={`flex-shrink-0 h-10 px-5 rounded-xl font-bold text-xs transition-all whitespace-nowrap border ${
+                  activeTab === value
+                    ? "bg-slate-900 text-white border-slate-900 shadow-sm"
+                    : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-slate-900"
+                }`}
               >
-                Tout ({notifications.length})
-              </TabsTrigger>
-              <TabsTrigger 
-                value="message" 
-                className="flex-shrink-0 px-4 md:px-5 py-2.5 md:py-0 rounded-xl font-bold text-slate-500 hover:text-slate-900 text-[11px] md:text-xs capitalize data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all duration-300 md:h-10 border border-slate-200/50 md:border-0 snap-start bg-white md:bg-transparent"
-              >
-                Messages ({notifications.filter(n => n.type === "message").length})
-              </TabsTrigger>
-              <TabsTrigger 
-                value="follow" 
-                className="flex-shrink-0 px-4 md:px-5 py-2.5 md:py-0 rounded-xl font-bold text-slate-500 hover:text-slate-900 text-[11px] md:text-xs capitalize data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all duration-300 md:h-10 border border-slate-200/50 md:border-0 snap-start bg-white md:bg-transparent"
-              >
-                Suivis ({notifications.filter(n => n.type === "follow").length})
-              </TabsTrigger>
-              <TabsTrigger 
-                value="view" 
-                className="flex-shrink-0 px-4 md:px-5 py-2.5 md:py-0 rounded-xl font-bold text-slate-500 hover:text-slate-900 text-[11px] md:text-xs capitalize data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all duration-300 md:h-10 border border-slate-200/50 md:border-0 snap-start bg-white md:bg-transparent"
-              >
-                Visites ({notifications.filter(n => n.type === "view").length})
-              </TabsTrigger>
-              <TabsTrigger 
-                value="system" 
-                className="flex-shrink-0 px-4 md:px-5 py-2.5 md:py-0 rounded-xl font-bold text-slate-500 hover:text-slate-900 text-[11px] md:text-xs capitalize data-[state=active]:bg-slate-900 data-[state=active]:text-white transition-all duration-300 md:h-10 border border-slate-200/50 md:border-0 snap-start bg-white md:bg-transparent"
-              >
-                Système ({notifications.filter(n => n.type === "system" || n.type === "security").length})
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* BENTO GRID (ASYNCHRONE) */}
