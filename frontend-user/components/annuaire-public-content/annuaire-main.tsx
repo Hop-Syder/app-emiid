@@ -5,10 +5,7 @@ import { motion } from "framer-motion"
 import { AnnuaireHero } from "./annuaire-hero"
 import { AnnuaireGrid } from "./annuaire-grid"
 import { AnnuaireCategories } from "./annuaire-categories"
-import { AnnuaireTags } from "./annuaire-tags"
-import { AnnuaireCountries } from "./annuaire-countries"
 import { AnnuaireSpotlight } from "./annuaire-spotlight"
-import { AnnuaireNewcomers } from "./annuaire-newcomers"
 
 interface AnnuairePublicContentProps {
     initialCategory?: string
@@ -88,14 +85,7 @@ export function AnnuairePublicContent({
                     <AnnuaireSpotlight />
                 </motion.div>
 
-                {/* --- SECTION 3: NOUVEAUX ARRIVANTS --- */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.2 }}
-                >
-                    <AnnuaireNewcomers />
-                </motion.div>
+
 
                 {/* --- SECTION 4: DECOUVERTE (Filtres Horizontaux) --- */}
                 <motion.div
@@ -111,10 +101,7 @@ export function AnnuairePublicContent({
 
                     <AnnuaireCategories filters={filters} onFilterChange={handleFilterChange} />
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t border-slate-100">
-                        <AnnuaireCountries filters={filters} onFilterChange={handleFilterChange} />
-                        <AnnuaireTags filters={filters} onFilterChange={handleFilterChange} />
-                    </div>
+
                 </motion.div>
 
                 {/* --- SECTION 5: RESULTATS (Grille Verticale) --- */}

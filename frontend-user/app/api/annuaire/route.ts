@@ -93,7 +93,7 @@ export async function GET(request: NextRequest) {
 
         // 5. Recherche textuelle libre (Nom, Prénom, Titre, Bio, Rôle, Spécialité)
         if (search) {
-            query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,bio.ilike.%${search}%,role.ilike.%${search}%,specialty.ilike.%${search}%,job_title.ilike.%${search}%`)
+            query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,bio.ilike.%${search}%,role.ilike.%${search}%,specialty.ilike.%${search}%,job_title.ilike.%${search}%,category.ilike.%${search}%,activity_domain.ilike.%${search}%,city.ilike.%${search}%`)
         }
 
         // 6. Pagination (Range)
