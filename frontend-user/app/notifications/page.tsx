@@ -44,6 +44,27 @@ export default function NotificationsPage() {
   // Ref pour l'infinite scroll
   const loadMoreRef = useRef<HTMLDivElement>(null)
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search)
+      const tabParam = params.get("tab") as FilterType | null
+      if (tabParam && ["all", "message", "follow", "view", "system"].includes(tabParam)) {
+          setActiveTab(tabParam)
+      }
+    }
+  }, [])
+
+  const handleTabChange = (val: string) => {
+      const newTab = val as FilterType
+      setActiveTab(newTab)
+      if (typeof window !== "undefined") {
+          const url = new URL(window.location.href)
+          if (newTab === "all") url.searchParams.delete("tab")
+          else url.searchParams.set("tab", newTab)
+          window.history.replaceState({}, '', url.toString())
+      }
+  }
+
   // Vérification de session utilisateur
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -204,7 +225,7 @@ export default function NotificationsPage() {
         <div className="flex justify-start md:justify-center -mx-4 md:mx-0">
           <Tabs 
             value={activeTab} 
-            onValueChange={(val) => setActiveTab(val as FilterType)}
+            onValueChange={handleTabChange}
             className="w-full md:w-auto"
           >
             <TabsList className="h-auto md:h-14 p-1.5 px-4 md:px-1.5 bg-white/80 md:bg-white/80 backdrop-blur-md rounded-2xl md:border md:border-slate-200/50 w-full md:w-auto flex overflow-x-auto gap-2 no-scrollbar bg-transparent border-0 snap-x">

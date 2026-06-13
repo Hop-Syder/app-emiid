@@ -46,7 +46,7 @@ export function HeroSection() {
                             className="rounded-xl bg-white text-primary hover:bg-white/90 px-8 h-12 text-lg font-bold shadow-lg transition-transform hover:scale-105"
                             onClick={() => router.push("/login")}
                         >
-                            Créer un Profil
+                            Créer mon profil
                         </Button>
                     </div>
                 </div>

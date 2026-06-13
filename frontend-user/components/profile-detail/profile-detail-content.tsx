@@ -56,6 +56,10 @@ import { getOptimizedImageUrl } from "@/lib/image-optimization"
 import { createClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
 
+import { ProfileHero } from "./profile-hero"
+import { ProfileMainContent } from "./profile-main-content"
+import { ProfileSidebar } from "./profile-sidebar"
+
 // Modales chargées à la demande (code-splitting) pour alléger le bundle initial
 const ShareModal = dynamic(() => import("./share-modal").then((m) => m.ShareModal), { ssr: false })
 const ProfileModerationDialogs = dynamic(
@@ -348,14 +352,14 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
     }, [profile, profileId, router])
 
     const initials = useMemo(() => {
-        const value = profile?.name || "EmiID"
+        if (!profile?.name) return ""
         return (
-            value
+            profile.name
                 .split(" ")
                 .filter(Boolean)
                 .slice(0, 2)
                 .map((p) => p[0]?.toUpperCase())
-                .join("") || "EM"
+                .join("")
         )
     }, [profile?.name])
 
@@ -702,390 +706,36 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
             </div>
 
             <main className="container max-w-6xl mx-auto px-4 pb-24 pt-4">
-                {/* Hero Card */}
-                <section className="bg-white/80 backdrop-blur-xl border border-white/60 shadow-xl shadow-slate-200/40 rounded-[32px] overflow-hidden">
-                    <div
-                        className={cn(
-                            "relative h-44 sm:h-56 md:h-64 overflow-hidden",
-                            isOwnProfile && !uploadingCover ? "cursor-pointer group/cover" : "",
-                        )}
-                        onClick={() => {
-                            if (isOwnProfile && !uploadingCover) document.getElementById("cover-upload-input")?.click()
-                        }}
-                    >
-                        <img
-                            src={
-                                profile.coverImage
-                                    ? getOptimizedImageUrl(profile.coverImage, { width: 1400, height: 420, quality: 90 })
-                                    : "/placeholder.jpg"
-                            }
-                            alt="Couverture"
-                            className="w-full h-full object-cover transition-transform duration-700 hover:scale-102"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent" />
-
-                        {isOwnProfile && (
-                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/cover:opacity-100 transition-opacity duration-300 bg-black/30">
-                                <div className="bg-white/95 text-slate-800 font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-md">
-                                    {uploadingCover ? (
-                                        <Loader2 className="h-4 w-4 animate-spin text-slate-700" />
-                                    ) : (
-                                        <Camera className="h-4 w-4 text-slate-700" />
-                                    )}
-                                    {uploadingCover ? "Mise à jour..." : "Modifier la couverture"}
-                                </div>
-                            </div>
-                        )}
-
-                        <input
-                            id="cover-upload-input"
-                            type="file"
-                            accept="image/*"
-                            onChange={handleCoverUpload}
-                            disabled={uploadingCover}
-                            className="hidden"
-                        />
-                    </div>
-
-                    {/* Profile Meta Section (Overlapping Avatar) */}
-                    <div className="relative px-6 sm:px-8 pb-6 pt-16">
-                        {/* Avatar wrapper */}
-                        <div className="absolute -top-12 sm:-top-16 left-6 sm:left-8 flex items-end gap-4">
-                            <Avatar className="h-24 w-24 sm:h-32 sm:w-32 rounded-full border-4 border-white shadow-xl relative z-10 transition-transform duration-500 hover:scale-105 bg-white">
-                                <AvatarImage
-                                    src={getOptimizedImageUrl(profile.avatar || "/profil/avatar.jpg", { width: 240, height: 240 })}
-                                    alt={profile.name}
-                                    className="object-cover rounded-full"
-                                />
-                                <AvatarFallback className="bg-gradient-to-br from-[#022753] to-[#022753]/80 text-white text-3xl font-black rounded-full flex items-center justify-center">
-                                    {initials}
-                                </AvatarFallback>
-                            </Avatar>
-                        </div>
-
-                        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-                            <div className="space-y-2">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-slate-900 leading-none">
-                                        {profile.name}
-                                    </h1>
-                                    {profile.verified && (
-                                        <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 border border-blue-200/50 px-2.5 py-1 text-[11px] font-bold text-blue-600 shadow-sm shadow-blue-100/50">
-                                            <Shield className="h-3.5 w-3.5 text-blue-500 fill-blue-500/10 animate-pulse" />
-                                            Vérifié
-                                        </span>
-                                    )}
-                                    {profile.premium && (
-                                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 border border-amber-200/50 px-2.5 py-1 text-[11px] font-bold text-amber-700 shadow-sm shadow-amber-100/50 animate-pulse">
-                                            <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
-                                            Premium
-                                        </span>
-                                    )}
-                                </div>
-                                <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs sm:text-sm text-slate-600 font-semibold">
-                                    <span className="inline-flex items-center gap-1.5 bg-slate-100/80 px-2.5 py-1 rounded-lg">
-                                        <Users className="h-3.5 w-3.5 text-[#CE1126]" />
-                                        <span>{profile.specialty}</span>
-                                    </span>
-                                    <span className="h-1.5 w-1.5 rounded-full bg-slate-300 hidden sm:inline" />
-                                    <span className="inline-flex items-center gap-1.5 bg-slate-100/80 px-2.5 py-1 rounded-lg">
-                                        <MapPin className="h-3.5 w-3.5 text-[#022753]" />
-                                        <span>{profile.location}</span>
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between md:justify-end gap-4 w-full md:w-auto border-t border-slate-100 md:border-transparent pt-4 md:pt-0">
-                                {/* Stats Block */}
-                                <div className="flex items-center gap-3">
-                                    <div className="flex-1 sm:flex-initial rounded-2xl border border-slate-200/60 bg-slate-50/50 px-4 py-2 text-center min-w-[75px] shadow-sm hover:scale-105 transition-transform duration-300">
-                                        <div className="text-lg font-black text-[#022753] leading-none">{followersCount}</div>
-                                        <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mt-1">Abonnés</div>
-                                    </div>
-                                    <div className="flex-1 sm:flex-initial rounded-2xl border border-slate-200/60 bg-slate-50/50 px-4 py-2 text-center min-w-[75px] shadow-sm hover:scale-105 transition-transform duration-300">
-                                        <div className="text-lg font-black text-[#022753] leading-none">{profile.following}</div>
-                                        <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mt-1">Suivis</div>
-                                    </div>
-                                    <div className="flex-1 sm:flex-initial rounded-2xl border border-slate-200/60 bg-slate-50/50 px-4 py-2 text-center min-w-[75px] shadow-sm hover:scale-105 transition-transform duration-300">
-                                        <div className="text-lg font-black text-[#022753] leading-none">{profile.skills.length}</div>
-                                        <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mt-1">Skills</div>
-                                    </div>
-                                </div>
-
-                                {/* Actions buttons */}
-                                <div className="flex gap-2.5 shrink-0">
-                                    <Button
-                                        size="lg"
-                                        disabled={followLoading}
-                                        className="flex-1 sm:flex-initial rounded-2xl h-11 text-xs gap-2 font-black bg-[#022753] hover:bg-[#022753]/95 shadow-md shadow-[#022753]/10 transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-95 text-white disabled:opacity-70"
-                                        onClick={handleFollow}
-                                    >
-                                        {followLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Users className="h-4 w-4" />}
-                                        {isFollowed ? "Abonné" : "Suivre"}
-                                    </Button>
-                                    {isLoggedIn && (
-                                        <Button
-                                            variant="outline"
-                                            size="lg"
-                                            className="flex-1 sm:flex-initial rounded-2xl h-11 text-xs gap-2 font-black border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 shadow-sm transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-95"
-                                            asChild
-                                        >
-                                            <Link href={`/messages?contact=${profile.id}`}>
-                                                <MessageCircle className="h-4 w-4 text-slate-700" />
-                                                Message
-                                            </Link>
-                                        </Button>
-                                    )}
-                                    <Button
-                                        variant="outline"
-                                        size="lg"
-                                        className="hidden sm:flex md:flex-initial rounded-2xl h-11 text-xs gap-2 font-black border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 shadow-sm transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-95"
-                                        onClick={handleShare}
-                                    >
-                                        <Share2 className="h-4 w-4 text-slate-700" />
-                                        Partager
-                                    </Button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+                <ProfileHero
+                    profile={profile}
+                    isOwnProfile={isOwnProfile}
+                    uploadingCover={uploadingCover}
+                    handleCoverUpload={handleCoverUpload}
+                    initials={initials}
+                    followersCount={followersCount}
+                    followLoading={followLoading}
+                    isFollowed={isFollowed}
+                    handleFollow={handleFollow}
+                    isLoggedIn={isLoggedIn}
+                    handleShare={handleShare}
+                />
 
                 <section className="mt-6 grid lg:grid-cols-12 gap-6 items-start">
-                    <div className="lg:col-span-8 space-y-6">
-                        {/* About card */}
-                        <div className="bg-white/70 backdrop-blur-xl border border-white/50 rounded-[32px] p-6 sm:p-8 shadow-xl shadow-slate-100/40 relative overflow-hidden group">
-                            {/* Decorative element */}
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-[#CE1126]/5 to-transparent rounded-bl-full pointer-events-none" />
-                            <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                                <Award className="h-4 w-4 text-[#CE1126]" />
-                                À propos de moi
-                            </h2>
-                            <p className="mt-5 text-slate-700 leading-relaxed text-sm sm:text-base whitespace-pre-line font-medium">
-                                {profile.bio}
-                            </p>
-                        </div>
+                    <ProfileMainContent
+                        profile={profile}
+                        gallery={gallery}
+                        loadingGallery={loadingGallery}
+                    />
 
-                        {/* Tabs content card */}
-                        <div className="bg-white/70 backdrop-blur-xl border border-white/50 rounded-[32px] p-6 sm:p-8 shadow-xl shadow-slate-100/40">
-                            <Tabs defaultValue="skills" className="w-full">
-                                <TabsList className="bg-slate-100/50 border border-slate-200/50 w-full justify-start h-auto p-1.5 mb-6 gap-2 rounded-2xl backdrop-blur-sm flex overflow-x-auto no-scrollbar snap-x whitespace-nowrap">
-                                    <TabsTrigger
-                                        value="skills"
-                                        className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-[#022753] data-[state=active]:shadow-md data-[state=active]:border-white/80 bg-transparent px-5 py-2.5 text-xs sm:text-sm font-black text-slate-500 transition-all duration-300 snap-start shrink-0"
-                                    >
-                                        Compétences
-                                    </TabsTrigger>
-                                    <TabsTrigger
-                                        value="portfolio"
-                                        className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-[#022753] data-[state=active]:shadow-md data-[state=active]:border-white/80 bg-transparent px-5 py-2.5 text-xs sm:text-sm font-black text-slate-500 transition-all duration-300 snap-start shrink-0"
-                                    >
-                                        Portfolio & Réalisations
-                                    </TabsTrigger>
-                                    <TabsTrigger
-                                        value="experience"
-                                        className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-[#022753] data-[state=active]:shadow-md data-[state=active]:border-white/80 bg-transparent px-5 py-2.5 text-xs sm:text-sm font-black text-slate-500 transition-all duration-300 snap-start shrink-0"
-                                    >
-                                        Parcours & Expériences
-                                    </TabsTrigger>
-                                </TabsList>
-
-                                <TabsContent value="skills" className="animate-in fade-in duration-300 focus-visible:outline-none">
-                                    <div className="flex flex-wrap gap-2.5">
-                                        {profile.skills.length > 0 ? (
-                                            profile.skills.map((skill, idx) => (
-                                                <Badge
-                                                    key={idx}
-                                                    variant="outline"
-                                                    className={cn(
-                                                        "px-4 py-2 rounded-xl bg-gradient-to-r font-bold border transition-all text-xs hover:-translate-y-0.5 duration-300 shadow-sm",
-                                                        getSkillBadgeStyles(idx)
-                                                    )}
-                                                >
-                                                    {skill}
-                                                </Badge>
-                                            ))
-                                        ) : (
-                                            <div className="p-8 border border-dashed border-slate-200 text-center w-full rounded-2xl bg-slate-50/50">
-                                                <p className="text-slate-500 font-bold text-xs">Aucune compétence spécifiée pour le moment.</p>
-                                            </div>
-                                        )}
-                                    </div>
-                                </TabsContent>
-
-                                <TabsContent value="portfolio" className="animate-in fade-in duration-300 focus-visible:outline-none">
-                                    {loadingGallery ? (
-                                        <div className="flex flex-col items-center justify-center p-12 text-center">
-                                            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#022753] mb-4"></div>
-                                            <p className="text-slate-500 text-xs font-bold">Chargement du portfolio...</p>
-                                        </div>
-                                    ) : gallery.length > 0 ? (
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
-                                            {gallery.map((item) => (
-                                                <div
-                                                    key={item.id}
-                                                    className="group bg-white/50 backdrop-blur-md border border-slate-200/50 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 relative"
-                                                >
-                                                    <div className="aspect-video w-full overflow-hidden bg-slate-100 relative">
-                                                        <img
-                                                            src={item.imageUrl}
-                                                            alt={item.title}
-                                                            className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
-                                                        />
-                                                        {item.status === "pending" && (
-                                                            <div className="absolute top-2 right-2 bg-amber-500/90 backdrop-blur-md text-white text-[10px] font-black px-2.5 py-1 rounded-lg border border-amber-400/30">
-                                                                En attente de validation
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                    <div className="p-5">
-                                                        <h4 className="text-sm font-extrabold text-slate-900 group-hover:text-[#022753] transition-colors duration-300">
-                                                            {item.title}
-                                                        </h4>
-                                                        {item.description && (
-                                                            <p className="text-xs text-slate-500 font-medium mt-1.5 line-clamp-2">
-                                                                {item.description}
-                                                            </p>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <div className="p-8 border border-dashed border-slate-200 text-center w-full rounded-2xl bg-slate-50/50">
-                                            <p className="text-slate-500 font-bold text-xs">Aucune réalisation publiée pour le moment.</p>
-                                        </div>
-                                    )}
-                                </TabsContent>
-
-                                <TabsContent value="experience" className="animate-in fade-in duration-300 focus-visible:outline-none">
-                                    <div className="space-y-4">
-                                        {profile.experiences.length > 0 ? (
-                                            <div className="relative border-l-2 border-slate-200 pl-6 ml-3 space-y-6 py-2">
-                                                {profile.experiences.map((exp, idx) => (
-                                                    <div key={idx} className="relative group">
-                                                        <div className="absolute -left-[31px] top-1 h-3.5 w-3.5 rounded-full bg-white border-2 border-[#022753] flex items-center justify-center transition-all duration-300 group-hover:scale-110">
-                                                            <div className="h-1 w-1 rounded-full bg-[#022753]" />
-                                                        </div>
-                                                        <div className="transition-all duration-300 group-hover:translate-x-1">
-                                                            <h4 className="text-sm font-extrabold text-slate-900">{exp.title}</h4>
-                                                            <p className="text-xs font-bold text-slate-500 mt-1">
-                                                                {exp.company} • {exp.period}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        ) : (
-                                            <div className="rounded-2xl border border-slate-200 bg-slate-50/40 p-5">
-                                                <p className="text-sm font-bold text-slate-700">Parcours non renseigné.</p>
-                                                <p className="text-xs text-slate-500 mt-1">
-                                                    Ce membre est actif sur EmiID et ouvert aux opportunités de collaboration.
-                                                </p>
-                                            </div>
-                                        )}
-                                    </div>
-                                </TabsContent>
-                            </Tabs>
-                        </div>
-                    </div>
-
-                    <aside className="lg:col-span-4 space-y-6">
-                        {/* Coordinates card */}
-                        <div className="bg-white/70 backdrop-blur-xl border border-white/50 rounded-[32px] p-6 shadow-xl shadow-slate-100/40 relative overflow-hidden">
-                            <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                                <Globe className="h-4 w-4 text-[#022753]" />
-                                Coordonnées
-                            </h3>
-
-                            <div className="mt-5 space-y-4 text-sm">
-                                <div className="flex items-start gap-3.5 text-slate-700 hover:bg-slate-50/50 p-2 -mx-2 rounded-xl transition-colors duration-200">
-                                    <Calendar className="h-4 w-4 text-slate-400 shrink-0 mt-0.5" />
-                                    <div>
-                                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Membre depuis</div>
-                                        <div className="font-extrabold text-slate-800">{joinedDate}</div>
-                                    </div>
-                                </div>
-
-                                {profile.email && (
-                                    <div className="flex items-start gap-3.5 text-slate-700 hover:bg-slate-50/50 p-2 -mx-2 rounded-xl transition-colors duration-200">
-                                        <Mail className="h-4 w-4 text-slate-400 shrink-0 mt-0.5" />
-                                        <div className="min-w-0 flex-1">
-                                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Email</div>
-                                            <div className="font-extrabold text-slate-800 break-all">{profile.email}</div>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {profile.phone && (
-                                    <div className="flex items-start gap-3.5 text-slate-700 hover:bg-slate-50/50 p-2 -mx-2 rounded-xl transition-colors duration-200">
-                                        <Phone className="h-4 w-4 text-slate-400 shrink-0 mt-0.5" />
-                                        <div className="min-w-0">
-                                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Téléphone</div>
-                                            <div className="font-extrabold text-slate-800 break-words">{profile.phone}</div>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-
-                            {profile.website && (
-                                <Button
-                                    asChild
-                                    variant="outline"
-                                    className="w-full mt-5 h-11 rounded-2xl text-xs font-black border-slate-200 bg-white/80 hover:bg-slate-50 gap-2 shadow-sm transition-all duration-300 hover:-translate-y-0.5"
-                                >
-                                    <a href={profile.website} target="_blank" rel="noopener noreferrer">
-                                        Visiter le site <ExternalLink className="h-4 w-4" />
-                                    </a>
-                                </Button>
-                            )}
-                        </div>
-
-                        {/* Share card */}
-                        <div className="bg-white/70 backdrop-blur-xl border border-white/50 rounded-[32px] p-6 shadow-xl shadow-slate-100/40">
-                            <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                                <Share2 className="h-4 w-4 text-[#022753]" />
-                                Partage
-                            </h3>
-
-                            <div className="mt-5 space-y-4">
-                                <div className="flex items-center gap-2">
-                                    <Input
-                                        readOnly
-                                        value={profileUrl}
-                                        className="h-11 bg-slate-50/70 border-slate-200 text-slate-700 font-mono text-xs focus-visible:ring-0 rounded-2xl font-semibold select-all"
-                                    />
-                                    <Button
-                                        size="icon"
-                                        variant="outline"
-                                        className="h-11 w-11 rounded-2xl shrink-0 border-slate-200 bg-white/80 hover:bg-slate-50 transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm"
-                                        onClick={() => copyToClipboard(profileUrl)}
-                                    >
-                                        {copiedLink === profileUrl ? <Check className="h-4 w-4 text-green-600 animate-in zoom-in duration-200" /> : <Copy className="h-4 w-4 text-slate-700" />}
-                                    </Button>
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-2">
-                                    <Button
-                                        variant="outline"
-                                        className="h-11 rounded-2xl border-slate-200 bg-white/80 hover:bg-slate-50 font-black text-xs gap-2 transition-all duration-300 hover:-translate-y-0.5 shadow-sm"
-                                        onClick={() => setIsShareModalOpen(true)}
-                                    >
-                                        <Share className="h-4 w-4 text-[#022753]" />
-                                        Partager
-                                    </Button>
-                                    <Button
-                                        variant="outline"
-                                        className="h-11 rounded-2xl border-slate-200 bg-white/80 hover:bg-slate-50 font-black text-xs gap-2 transition-all duration-300 hover:-translate-y-0.5 shadow-sm"
-                                        onClick={downloadVCard}
-                                    >
-                                        <Download className="h-4 w-4 text-[#CE1126]" />
-                                        vCard
-                                    </Button>
-                                </div>
-                            </div>
-                        </div>
-                    </aside>
+                    <ProfileSidebar
+                        profile={profile}
+                        joinedDate={joinedDate}
+                        profileUrl={profileUrl}
+                        copiedLink={copiedLink}
+                        copyToClipboard={copyToClipboard}
+                        setIsShareModalOpen={setIsShareModalOpen}
+                        downloadVCard={downloadVCard}
+                    />
                 </section>
             </main>
 

@@ -11,6 +11,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
 import { Loader2, Check } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { subscribeToPushNotifications } from "@/lib/push-notifications"
 
 interface NotificationSettings {
@@ -23,11 +24,12 @@ interface NotificationSettings {
 interface NotificationsSectionProps {
     settings: NotificationSettings
     setSettings: (settings: NotificationSettings) => void
-    onSave: (newSettings?: NotificationSettings) => Promise<boolean>
     saving: boolean
+    handleSave: () => void
+    handleCancel: () => void
 }
 
-export function NotificationsSection({ settings, setSettings, onSave, saving }: NotificationsSectionProps) {
+export function NotificationsSection({ settings, setSettings, saving, handleSave, handleCancel }: NotificationsSectionProps) {
     const toggle = async (key: keyof NotificationSettings, checked: boolean) => {
         const newSettings = { ...settings, [key]: checked }
         setSettings(newSettings)
@@ -41,9 +43,6 @@ export function NotificationsSection({ settings, setSettings, onSave, saving }: 
                 return
             }
         }
-
-        // On lance la sauvegarde avec les nouvelles données directement
-        void onSave(newSettings)
     }
 
     return (
@@ -81,13 +80,22 @@ export function NotificationsSection({ settings, setSettings, onSave, saving }: 
                     </div>
                     <Switch checked={settings.push} onCheckedChange={(checked) => toggle("push", checked)} />
                 </div>
-                <p className="flex items-center gap-2 text-xs font-medium text-muted-foreground pt-1">
-                    {saving ? (
-                        <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Enregistrement…</>
-                    ) : (
-                        <><Check className="h-3.5 w-3.5 text-emerald-500" /> Modifications enregistrées automatiquement.</>
-                    )}
-                </p>
+                <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 md:gap-4 pt-6 md:pt-8 border-t border-slate-100">
+                    <Button
+                        variant="outline"
+                        className="w-full sm:w-auto rounded-xl h-12 md:h-14 px-8 font-bold border-slate-200 text-slate-600 hover:bg-slate-50 transition-all"
+                        onClick={handleCancel}
+                    >
+                        Annuler
+                    </Button>
+                    <Button
+                        onClick={handleSave}
+                        disabled={saving}
+                        className="w-full sm:w-auto rounded-xl h-12 md:h-14 px-10 font-bold bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all"
+                    >
+                        {saving ? "Sauvegarde en cours..." : "Enregistrer"}
+                    </Button>
+                </div>
             </CardContent>
         </Card>
     )

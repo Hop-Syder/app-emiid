@@ -147,8 +147,13 @@ export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProp
             },
             (error) => {
                 console.error("Geolocation error:", error)
+                let errorMsg = "Vérifiez les réglages de votre navigateur."
+                if (error.code === error.TIMEOUT) errorMsg = "La requête a expiré, réessayez."
+                else if (error.code === error.POSITION_UNAVAILABLE) errorMsg = "Les informations de localisation sont indisponibles."
+                else if (error.code === error.PERMISSION_DENIED) errorMsg = "Autorisation refusée — vérifiez les réglages de votre navigateur."
+                
                 toast.error("Localisation indisponible", {
-                    description: "Autorisation refusée — vérifiez les réglages de votre navigateur.",
+                    description: errorMsg,
                 })
                 setIsLocating(false)
             },
@@ -233,7 +238,7 @@ export function AnnuaireFilters({ filters, onFilterChange }: AnnuaireFiltersProp
                     >
                         <Filter className="w-5 h-5 md:w-4 md:h-4 md:mr-2" />
                         {hasActiveFilters && (
-                            <span className="absolute top-3 right-3 w-2 h-2 rounded-full bg-blue-500 md:hidden" />
+                            <span className="absolute top-3 right-3 w-2 h-2 rounded-full bg-blue-500 animate-pulse md:hidden" />
                         )}
                         <span className="hidden md:inline-block">Filtres {hasActiveFilters && "actifs"}</span>
                     </button>

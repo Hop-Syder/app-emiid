@@ -30,7 +30,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 const privateNavItems = [
   { name: "Hub", href: "/dashboard-user", icon: Home },
   { name: "Annuaire", href: "/annuaire", icon: Users },
-  { name: "Créer Profil", href: "/creer-profil", icon: UserPlus },
+  { name: "Créer mon profil", href: "/creer-profil", icon: UserPlus },
   { name: "Messages", href: "/messages", icon: MessageSquare },
   { name: "Notifications", href: "/notifications", icon: Bell },
   { name: "Portefeuille", href: "/portefeuille", icon: Wallet },

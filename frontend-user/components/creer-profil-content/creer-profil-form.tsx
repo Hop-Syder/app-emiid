@@ -236,18 +236,18 @@ export const CreerProfilForm = React.memo(function CreerProfilForm({
                         exit={{ opacity: 0, height: 0, marginBottom: 0 }}
                         className="overflow-hidden"
                     >
-                        <div className="rounded-3xl border border-rose-200 bg-rose-50/80 backdrop-blur-md px-6 py-5 shadow-lg shadow-rose-100/50">
-                            <p className="text-sm font-bold text-rose-900 flex items-center gap-2">
-                                <span className="relative flex h-3 w-3">
+                        <div className="rounded-3xl border border-rose-500/20 bg-slate-900/90 backdrop-blur-md px-6 py-5 shadow-lg shadow-rose-900/20">
+                            <p className="text-sm font-bold text-rose-400 flex items-center gap-2">
+                                <span className="relative flex h-3 w-3 shrink-0">
                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
                                     <span className="relative inline-flex rounded-full h-3 w-3 bg-rose-500"></span>
                                 </span>
                                 Corrigez les éléments suivants avant de continuer :
                             </p>
-                            <ul className="mt-3 space-y-1.5 text-sm text-rose-800 font-medium">
+                            <ul className="mt-3 space-y-1.5 text-sm text-rose-300 font-medium">
                                 {validationErrors.map((error, i) => (
                                     <li key={error} className="flex gap-2">
-                                        <span className="text-rose-500">•</span> {error}
+                                        <span className="text-rose-500 shrink-0">•</span> {error}
                                     </li>
                                 ))}
                             </ul>

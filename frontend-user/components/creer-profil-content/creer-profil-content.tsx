@@ -245,6 +245,14 @@ export function CreerProfilContent() {
 
                     if (isNewProfile) {
                         toast.info("Remplissez le formulaire pour créer votre carte EmiID")
+                        try {
+                            const draft = localStorage.getItem('emiid_profile_draft')
+                            if (draft) {
+                                const parsedDraft = JSON.parse(draft)
+                                setFormData(prev => ({ ...prev, ...parsedDraft }))
+                                toast.success("Brouillon restauré")
+                            }
+                        } catch(e) {}
                     }
                 }
                 setLoadingStatus('success')
@@ -258,6 +266,14 @@ export function CreerProfilContent() {
                     setLoadingStatus('error')
                 } else if (profileRes.status === 404) {
                     toast.info("Remplissez le formulaire pour créer votre carte EmiID");
+                    try {
+                        const draft = localStorage.getItem('emiid_profile_draft')
+                        if (draft) {
+                            const parsedDraft = JSON.parse(draft)
+                            setFormData(prev => ({ ...prev, ...parsedDraft }))
+                            toast.success("Brouillon restauré")
+                        }
+                    } catch(e) {}
                     setLoadingStatus('success')
                 } else {
                     toast.error("Impossible de charger les données existantes");
@@ -296,6 +312,12 @@ export function CreerProfilContent() {
         })
     }, [validationErrors])
 
+    useEffect(() => {
+        if (loadingStatus !== 'loading') {
+            localStorage.setItem('emiid_profile_draft', JSON.stringify(formData))
+        }
+    }, [formData, loadingStatus])
+
     const handleSave = useCallback(async () => {
         if (saving || publishing || unpublishing) return
         try {
@@ -319,6 +341,7 @@ export function CreerProfilContent() {
             }
 
             toast.success("Votre profil a été mis à jour avec succès")
+            localStorage.removeItem('emiid_profile_draft')
             setValidationErrors([])
             if (payload.website && payload.website !== formData.website.trim()) {
                 setFormData((prev) => ({ ...prev, website: payload.website as string }))
@@ -347,10 +370,16 @@ export function CreerProfilContent() {
                 body: JSON.stringify(payload)
             })
 
-            if (!response.ok) throw new Error("Échec de mise en ligne")
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => null)
+                throw new Error(errorData?.error || "Erreur lors de la publication")
+            }
+
+            toast.success("Votre profil est maintenant public !")
+            localStorage.removeItem('emiid_profile_draft')
 
             setIsPublished(true)
-            toast.success("Votre carte est maintenant visible dans l'annuaire !")
+            setValidationErrors([])
             if (payload.website && payload.website !== formData.website.trim()) {
                 setFormData((prev) => ({ ...prev, website: payload.website as string }))
             }

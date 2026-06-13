@@ -9,7 +9,7 @@
 
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { AnnuaireHero } from "./annuaire-hero"
 import { AnnuaireFilters } from "./annuaire-filters"
 import { AnnuaireGrid } from "./annuaire-grid"
@@ -42,8 +42,36 @@ export function AnnuairePublicContent({
         activity_domain: initialActivityDomain
     })
 
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const params = new URLSearchParams(window.location.search)
+            setFilters(prev => ({
+                ...prev,
+                search: params.get("search") || prev.search,
+                category: params.get("category") || prev.category,
+                country: params.get("country") || prev.country,
+                city: params.get("city") || prev.city,
+                tags: params.get("tags") || prev.tags,
+                status: params.get("status") || prev.status,
+                activity_domain: params.get("activity_domain") || prev.activity_domain
+            }))
+        }
+    }, [])
+
     const handleFilterChange = (key: string, value: string) => {
-        setFilters(prev => ({ ...prev, [key]: value }))
+        setFilters(prev => {
+            const next = { ...prev, [key]: value }
+            if (typeof window !== "undefined") {
+                const url = new URL(window.location.href)
+                if (value && value !== "all") {
+                    url.searchParams.set(key, value)
+                } else {
+                    url.searchParams.delete(key)
+                }
+                window.history.replaceState({}, '', url.toString())
+            }
+            return next
+        })
     }
 
     return (

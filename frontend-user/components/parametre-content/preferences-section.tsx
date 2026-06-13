@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label"
 import { Loader2, Check } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
+import { Button } from "@/components/ui/button"
 
 interface PreferenceSettings {
     language: string
@@ -29,11 +30,12 @@ interface PreferenceSettings {
 interface PreferencesSectionProps {
     settings: PreferenceSettings
     setSettings: (settings: PreferenceSettings) => void
-    onSave: (newSettings?: PreferenceSettings) => Promise<boolean>
     saving: boolean
+    handleSave: () => void
+    handleCancel: () => void
 }
 
-export function PreferencesSection({ settings, setSettings, onSave, saving }: PreferencesSectionProps) {
+export function PreferencesSection({ settings, setSettings, saving, handleSave, handleCancel }: PreferencesSectionProps) {
     const { setTheme } = useTheme()
 
     useEffect(() => {
@@ -43,8 +45,6 @@ export function PreferencesSection({ settings, setSettings, onSave, saving }: Pr
     const updateSetting = <K extends keyof PreferenceSettings>(key: K, value: PreferenceSettings[K]) => {
         const newSettings = { ...settings, [key]: value }
         setSettings(newSettings)
-        // Auto-save immédiat avec les nouvelles données
-        void onSave(newSettings)
     }
 
     return (
@@ -111,13 +111,22 @@ export function PreferencesSection({ settings, setSettings, onSave, saving }: Pr
                     <Switch checked={settings.public_profile} onCheckedChange={(checked) => updateSetting("public_profile", checked)} />
                 </div>
 
-                <p className="flex items-center gap-2 text-xs font-medium text-muted-foreground pt-1">
-                    {saving ? (
-                        <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Enregistrement…</>
-                    ) : (
-                        <><Check className="h-3.5 w-3.5 text-emerald-500" /> Modifications enregistrées automatiquement.</>
-                    )}
-                </p>
+                <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 md:gap-4 pt-6 md:pt-8 border-t border-slate-100">
+                    <Button
+                        variant="outline"
+                        className="w-full sm:w-auto rounded-xl h-12 md:h-14 px-8 font-bold border-slate-200 text-slate-600 hover:bg-slate-50 transition-all"
+                        onClick={handleCancel}
+                    >
+                        Annuler
+                    </Button>
+                    <Button
+                        onClick={handleSave}
+                        disabled={saving}
+                        className="w-full sm:w-auto rounded-xl h-12 md:h-14 px-10 font-bold bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all"
+                    >
+                        {saving ? "Sauvegarde en cours..." : "Enregistrer"}
+                    </Button>
+                </div>
             </CardContent>
         </Card>
     )

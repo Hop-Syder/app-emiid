@@ -357,8 +357,9 @@ export function ParametresContent() {
                         <NotificationsSection
                             settings={notificationSettings}
                             setSettings={setNotificationSettings}
-                            onSave={(newSettings) => saveSettings({ notification_preferences: newSettings || notificationSettings }, "Préférences de notifications mises à jour")}
                             saving={saving}
+                            handleSave={() => saveSettings({ notification_preferences: notificationSettings }, "Préférences de notifications mises à jour")}
+                            handleCancel={() => { loadUserProfile(); toast.info("Modifications annulées") }}
                         />
                     </TabsContent>
 
@@ -366,8 +367,9 @@ export function ParametresContent() {
                         <PreferencesSection
                             settings={preferences}
                             setSettings={setPreferences}
-                            onSave={(newSettings) => saveSettings({ app_preferences: newSettings || preferences }, "Préférences générales mises à jour")}
                             saving={saving}
+                            handleSave={() => saveSettings({ app_preferences: preferences }, "Préférences générales mises à jour")}
+                            handleCancel={() => { loadUserProfile(); toast.info("Modifications annulées") }}
                         />
                     </TabsContent>
                 </div>
