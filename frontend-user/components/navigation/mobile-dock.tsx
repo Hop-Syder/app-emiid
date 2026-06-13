@@ -13,7 +13,7 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
-import { Home, MessageSquare, Settings, User, Users, UserPlus, LogIn, LogOut } from "lucide-react"
+import { Home, MessageSquare, Settings, User, Users, UserPlus, LogIn, LogOut, Bell } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 import { createClient } from "@/lib/supabase/client"
 
@@ -22,6 +22,7 @@ const privateNavItems = [
   { name: "Annuaire", href: "/annuaire", icon: Users },
   { name: "Créer Profil", href: "/creer-profil", icon: UserPlus },
   { name: "Messages", href: "/messages", icon: MessageSquare },
+  { name: "Notifications", href: "/notifications", icon: Bell },
   { name: "Profil", href: "/dashboard-user?view=profile", icon: User },
 ]
 
@@ -36,7 +37,48 @@ export function MobileDock({ isPublic = false }: { isPublic?: boolean }) {
   const router = useRouter()
   const supabase = createClient()
   const [showUserMenu, setShowUserMenu] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
   const dockRef = useRef<HTMLDivElement>(null)
+
+  // Comptage léger des notifications non lues (+ rafraîchissement temps réel)
+  useEffect(() => {
+    if (isPublic) return
+    let isMounted = true
+    let channel: ReturnType<typeof supabase.channel> | null = null
+
+    const init = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!isMounted || !user) return
+
+      const refresh = async () => {
+        const { count } = await supabase
+          .from("notifications")
+          .select("*", { count: "exact", head: true })
+          .eq("user_id", user.id)
+          .eq("is_read", false)
+        if (isMounted) setUnreadCount(count ?? 0)
+      }
+
+      await refresh()
+
+      channel = supabase
+        .channel(`mobile-dock-notifs-${user.id}`)
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` },
+          () => { void refresh() }
+        )
+        .subscribe()
+    }
+
+    void init()
+
+    return () => {
+      isMounted = false
+      if (channel) supabase.removeChannel(channel)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPublic])
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -172,12 +214,21 @@ export function MobileDock({ isPublic = false }: { isPublic?: boolean }) {
                 />
               )}
               
-              <item.icon 
+              <item.icon
                 className={`size-5 transition-colors duration-300 z-10 ${
                   isActive ? "text-blue-400" : "text-slate-400 group-hover:text-slate-200"
-                }`} 
+                }`}
               />
-              
+
+              {item.href === "/notifications" && unreadCount > 0 && (
+                <span
+                  aria-label={`${unreadCount} notification${unreadCount > 1 ? "s" : ""} non lue${unreadCount > 1 ? "s" : ""}`}
+                  className="absolute top-1.5 right-1.5 z-20 min-w-[16px] h-4 px-1 flex items-center justify-center text-[9px] font-black text-white bg-red-500 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.7)] ring-2 ring-slate-900"
+                >
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
+
               {isActive && (
                 <motion.div
                   layoutId="mobile-active-dot"

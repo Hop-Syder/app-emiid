@@ -13,7 +13,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Phone, Smartphone, Lock, Eye, EyeOff, ShieldAlert } from "lucide-react"
+import { Phone, Smartphone, Lock, Eye, EyeOff, ShieldAlert, LogOut } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -383,6 +383,18 @@ export function SecuritySection({
         }
     }
 
+    const handleLogout = async () => {
+        try {
+            await supabase.auth.signOut()
+            sessionStorage.removeItem("emiid_pin_verified")
+            toast.success("Vous êtes déconnecté")
+            router.push("/login")
+            router.refresh()
+        } catch {
+            toast.error("Impossible de se déconnecter")
+        }
+    }
+
     return (
         <div className="space-y-6">
 
@@ -735,6 +747,29 @@ export function SecuritySection({
                 }
                 isLoading={accountLoading}
             />
+
+            <Card className="rounded-xl">
+                <CardHeader>
+                    <CardTitle>Session</CardTitle>
+                    <CardDescription>Fermez votre session sur cet appareil</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="flex items-center justify-between gap-4 p-4 border rounded-xl">
+                        <div className="space-y-1">
+                            <p className="font-medium text-[#022753]">Se déconnecter</p>
+                            <p className="text-sm text-muted-foreground">Vous devrez vous reconnecter pour accéder à votre compte</p>
+                        </div>
+                        <Button
+                            variant="outline"
+                            onClick={handleLogout}
+                            className="gap-2 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 shrink-0"
+                        >
+                            <LogOut className="h-4 w-4" />
+                            Se déconnecter
+                        </Button>
+                    </div>
+                </CardContent>
+            </Card>
         </div>
 
     )

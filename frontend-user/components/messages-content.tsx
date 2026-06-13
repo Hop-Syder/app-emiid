@@ -12,7 +12,7 @@
 
 import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
-import { ArrowLeft, MoreHorizontal, Gavel, Trash2, MessageSquare, Phone, Video, Search } from "lucide-react"
+import { ArrowLeft, MoreHorizontal, Gavel, Trash2, MessageSquare, Search, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
@@ -68,6 +68,23 @@ export function MessagesContent() {
   const [isMediationLoading, setIsMediationLoading] = useState(false)
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false)
   const [onlineUserIds, setOnlineUserIds] = useState<Set<string>>(new Set())
+
+  // Recherche dans la discussion active (filtrage des messages)
+  const [inChatSearchOpen, setInChatSearchOpen] = useState(false)
+  const [inChatQuery, setInChatQuery] = useState("")
+
+  // Messages affichés : filtrés par la recherche in-chat lorsqu'une requête est saisie
+  const displayedMessages = useMemo(() => {
+    const q = inChatQuery.trim().toLowerCase()
+    if (!inChatSearchOpen || !q) return messages
+    return messages.filter((m) => (m.content || "").toLowerCase().includes(q))
+  }, [messages, inChatSearchOpen, inChatQuery])
+
+  // Réinitialiser la recherche lors du changement de discussion
+  useEffect(() => {
+    setInChatSearchOpen(false)
+    setInChatQuery("")
+  }, [selectedConv?.id])
 
   // États additionnels pour les fonctionnalités WhatsApp
   const [pinnedIds, setPinnedIds] = useState<string[]>([])
@@ -623,13 +640,26 @@ export function MessagesContent() {
               </div>
 
               <div className="flex items-center gap-0.5">
-                <Button variant="ghost" size="icon" className="text-slate-400 hover:text-primary hover:bg-primary/5 h-9 w-9 rounded-xl hidden md:flex" title="Appel vidéo">
-                  <Video className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="icon" className="text-slate-400 hover:text-primary hover:bg-primary/5 h-9 w-9 rounded-xl hidden md:flex" title="Appel audio">
-                  <Phone className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="icon" className="text-slate-400 hover:text-primary hover:bg-primary/5 h-9 w-9 rounded-xl hidden md:flex" title="Rechercher dans la discussion">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Rechercher dans la discussion"
+                  aria-pressed={inChatSearchOpen}
+                  className={cn(
+                    "h-9 w-9 rounded-xl transition-colors",
+                    inChatSearchOpen
+                      ? "text-primary bg-primary/10"
+                      : "text-slate-400 hover:text-primary hover:bg-primary/5"
+                  )}
+                  title="Rechercher dans la discussion"
+                  onClick={() => {
+                    setInChatSearchOpen((v) => {
+                      const next = !v
+                      if (!next) setInChatQuery("")
+                      return next
+                    })
+                  }}
+                >
                   <Search className="h-4 w-4" />
                 </Button>
                 <DropdownMenu>
@@ -656,6 +686,39 @@ export function MessagesContent() {
               </div>
             </div>
 
+            {/* Barre de recherche dans la discussion */}
+            {inChatSearchOpen && (
+              <div className="px-4 py-2 border-b border-white/40 bg-white/60 backdrop-blur-xl z-10 shrink-0 flex items-center gap-2">
+                <Search className="h-4 w-4 text-slate-400 shrink-0" />
+                <input
+                  autoFocus
+                  type="text"
+                  value={inChatQuery}
+                  onChange={(e) => setInChatQuery(e.target.value)}
+                  placeholder="Rechercher dans cette discussion..."
+                  aria-label="Texte à rechercher dans la discussion"
+                  className="flex-1 bg-transparent text-sm text-slate-700 placeholder:text-slate-400 outline-none"
+                />
+                {inChatQuery.trim() && (
+                  <span className="text-[11px] font-semibold text-slate-400 shrink-0">
+                    {displayedMessages.length} résultat{displayedMessages.length > 1 ? "s" : ""}
+                  </span>
+                )}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Fermer la recherche"
+                  className="h-7 w-7 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100/50 shrink-0"
+                  onClick={() => {
+                    setInChatSearchOpen(false)
+                    setInChatQuery("")
+                  }}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+
             {/* Messages */}
             {loadingMsgs ? (
               <div className="flex-1 flex flex-col items-center justify-center gap-3 bg-slate-50/10 backdrop-blur-sm">
@@ -664,7 +727,7 @@ export function MessagesContent() {
               </div>
             ) : (
               <MessageList
-                messages={messages}
+                messages={displayedMessages}
                 currentUserId={currentUserId || ''}
                 onEditMessage={handleStartEditMessage}
                 onDeleteMessage={handleDeleteMessage}

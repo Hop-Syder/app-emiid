@@ -265,16 +265,6 @@ export default function LoginPage() {
               </div>
             </div>
           </div>
-          
-          {/* Footer Link */}
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.2 }}
-            className="mt-6 text-center text-zinc-500 text-xs font-medium"
-          >
-            Besoin d&apos;aide ? <Link href="#" className="text-white hover:underline">Contactez le support</Link>
-          </motion.p>
         </motion.div>
       </div>
     </div>

@@ -54,6 +54,7 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { toast } from "sonner"
 
@@ -135,6 +136,18 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
 
     const [isShareModalOpen, setIsShareModalOpen] = useState(false)
     const [copiedLink, setCopiedLink] = useState<string | null>(null)
+
+    // Identité de l'utilisateur courant (pour signalement / blocage)
+    const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+
+    // Signalement
+    const [isReportOpen, setIsReportOpen] = useState(false)
+    const [reportReason, setReportReason] = useState("")
+    const [reportSubmitting, setReportSubmitting] = useState(false)
+
+    // Blocage
+    const [isBlockOpen, setIsBlockOpen] = useState(false)
+    const [blocking, setBlocking] = useState(false)
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -316,6 +329,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                 const {
                     data: { user },
                 } = await supabase.auth.getUser()
+                setCurrentUserId(user?.id ?? null)
                 setIsOwnProfile(!!user && user.id === profile.id)
             } catch (e) {
                 console.error("Erreur check user:", e)
@@ -442,6 +456,76 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
             }
         } catch {
             toast.error("Erreur de connexion")
+        }
+    }
+
+    const openReport = () => {
+        if (!currentUserId) {
+            toast.error("Veuillez vous connecter pour signaler ce profil")
+            return
+        }
+        setReportReason("")
+        setIsReportOpen(true)
+    }
+
+    const handleReportSubmit = async () => {
+        if (!profile || !currentUserId) return
+        const reason = reportReason.trim()
+        if (reason.length < 3) {
+            toast.error("Merci de préciser la raison (3 caractères minimum)")
+            return
+        }
+        setReportSubmitting(true)
+        try {
+            const supabase = createClient()
+            const { error } = await supabase.from("content_reports").insert({
+                subject_type: "profile",
+                subject_id: profile.id,
+                reporter_id: currentUserId,
+                reason,
+            })
+            if (error) {
+                // 23505 = violation de contrainte unique (signalement déjà en cours)
+                if (error.code === "23505") {
+                    toast.info("Vous avez déjà signalé ce profil. Il est en cours d'examen.")
+                    setIsReportOpen(false)
+                    return
+                }
+                throw error
+            }
+            toast.success("Signalement envoyé", { description: "Notre équipe va l'examiner." })
+            setIsReportOpen(false)
+        } catch (e) {
+            console.error("Erreur signalement:", e)
+            toast.error("Impossible d'envoyer le signalement")
+        } finally {
+            setReportSubmitting(false)
+        }
+    }
+
+    const handleBlock = async () => {
+        if (!profile) return
+        if (!currentUserId) {
+            toast.error("Veuillez vous connecter pour bloquer ce profil")
+            return
+        }
+        setBlocking(true)
+        try {
+            const supabase = createClient()
+            const { error } = await supabase.from("user_blocks").insert({
+                blocker_id: currentUserId,
+                blocked_id: profile.id,
+            })
+            // 23505 = déjà bloqué : on considère l'action comme réussie (idempotent)
+            if (error && error.code !== "23505") throw error
+            toast.success("Profil bloqué", { description: "Vous ne verrez plus ce membre." })
+            setIsBlockOpen(false)
+            router.push("/annuaire")
+        } catch (e) {
+            console.error("Erreur blocage:", e)
+            toast.error("Impossible de bloquer ce profil")
+        } finally {
+            setBlocking(false)
         }
     }
 
@@ -590,12 +674,22 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                                 >
                                     Outils de partage
                                 </DropdownMenuItem>
-                                <DropdownMenuItem className="rounded-xl font-bold py-2.5 cursor-pointer hover:bg-slate-50 text-xs text-slate-700">
-                                    Signaler
-                                </DropdownMenuItem>
-                                <DropdownMenuItem className="rounded-xl font-bold py-2.5 text-red-600 cursor-pointer hover:bg-red-50 text-xs">
-                                    Bloquer
-                                </DropdownMenuItem>
+                                {!isOwnProfile && (
+                                    <>
+                                        <DropdownMenuItem
+                                            className="rounded-xl font-bold py-2.5 cursor-pointer hover:bg-slate-50 text-xs text-slate-700"
+                                            onClick={openReport}
+                                        >
+                                            Signaler
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem
+                                            className="rounded-xl font-bold py-2.5 text-red-600 cursor-pointer hover:bg-red-50 text-xs"
+                                            onClick={() => setIsBlockOpen(true)}
+                                        >
+                                            Bloquer
+                                        </DropdownMenuItem>
+                                    </>
+                                )}
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
@@ -998,6 +1092,63 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                     profileUrl={profileUrl}
                 />
             )}
+
+            {/* Signalement */}
+            <Dialog open={isReportOpen} onOpenChange={(o) => { if (!reportSubmitting) setIsReportOpen(o) }}>
+                <DialogContent className="rounded-3xl">
+                    <DialogHeader>
+                        <DialogTitle>Signaler ce profil</DialogTitle>
+                        <DialogDescription>
+                            Décrivez le problème. Notre équipe de modération examinera votre signalement.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <Textarea
+                        value={reportReason}
+                        onChange={(e) => setReportReason(e.target.value)}
+                        maxLength={1000}
+                        rows={4}
+                        placeholder="Ex. : contenu trompeur, usurpation d'identité, propos inappropriés..."
+                        className="rounded-2xl resize-none"
+                    />
+                    <div className="flex items-center justify-between gap-3 pt-2">
+                        <span className="text-[11px] text-slate-400">{reportReason.length}/1000</span>
+                        <div className="flex gap-2">
+                            <Button variant="ghost" onClick={() => setIsReportOpen(false)} disabled={reportSubmitting} className="rounded-xl">
+                                Annuler
+                            </Button>
+                            <Button onClick={handleReportSubmit} disabled={reportSubmitting} className="rounded-xl gap-2">
+                                {reportSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
+                                Envoyer le signalement
+                            </Button>
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* Blocage */}
+            <Dialog open={isBlockOpen} onOpenChange={(o) => { if (!blocking) setIsBlockOpen(o) }}>
+                <DialogContent className="rounded-3xl">
+                    <DialogHeader>
+                        <DialogTitle>Bloquer {profile?.name || "ce membre"} ?</DialogTitle>
+                        <DialogDescription>
+                            Vous ne verrez plus ce profil. Vous pourrez le débloquer depuis vos paramètres.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex justify-end gap-2 pt-2">
+                        <Button variant="ghost" onClick={() => setIsBlockOpen(false)} disabled={blocking} className="rounded-xl">
+                            Annuler
+                        </Button>
+                        <Button
+                            onClick={handleBlock}
+                            disabled={blocking}
+                            className="rounded-xl gap-2 bg-red-600 hover:bg-red-700 text-white"
+                        >
+                            {blocking && <Loader2 className="h-4 w-4 animate-spin" />}
+                            Bloquer
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }
