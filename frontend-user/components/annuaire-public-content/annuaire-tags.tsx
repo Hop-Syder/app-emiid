@@ -1,0 +1,82 @@
+"use client"
+
+import { useEffect, useState } from "react"
+import { motion } from "framer-motion"
+import { cn } from "@/lib/utils"
+import { Hash } from "lucide-react"
+
+interface Tag {
+    id: number | string
+    name: string
+    count: number
+}
+
+interface AnnuaireTagsProps {
+    filters: {
+        tags: string
+    }
+    onFilterChange: (key: string, value: string) => void
+}
+
+export function AnnuaireTags({ filters, onFilterChange }: AnnuaireTagsProps) {
+    const [tags, setTags] = useState<Tag[]>([])
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        const fetchTags = async () => {
+            try {
+                const res = await fetch("/api/annuaire/tags")
+                const data = await res.json()
+                if (data.tags) {
+                    setTags(data.tags)
+                }
+            } catch (error) {
+                console.error("Failed to fetch tags", error)
+            } finally {
+                setLoading(false)
+            }
+        }
+        fetchTags()
+    }, [])
+
+    if (loading || tags.length === 0) {
+        return null
+    }
+
+    return (
+        <div className="w-full">
+            <div className="flex items-center mb-4 px-1 gap-2">
+                <Hash className="w-5 h-5 text-indigo-500" />
+                <h3 className="text-lg font-bold text-slate-800 tracking-tight">Tags Populaires</h3>
+            </div>
+            
+            <div className="flex flex-wrap gap-2">
+                {tags.map((tag, index) => {
+                    const isActive = filters.tags === tag.name
+                    
+                    return (
+                        <button
+                            key={tag.id}
+                            onClick={() => onFilterChange("tags", isActive ? "" : tag.name)}
+                            className={cn(
+                                "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 border",
+                                isActive 
+                                    ? "bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-500/20" 
+                                    : "bg-white text-slate-600 border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
+                            )}
+                        >
+                            <span className="opacity-60">#</span>
+                            {tag.name}
+                            <span className={cn(
+                                "text-xs px-1.5 py-0.5 rounded-full ml-1",
+                                isActive ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"
+                            )}>
+                                {tag.count}
+                            </span>
+                        </button>
+                    )
+                })}
+            </div>
+        </div>
+    )
+}
