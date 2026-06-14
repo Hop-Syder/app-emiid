@@ -81,11 +81,18 @@ export function DashboardBentoHeader({ stats, statsLoading }: DashboardBentoHead
                 {/* Layout vertical : salutation en haut, titre+actions en bas */}
                 <div className="relative z-10 flex flex-col justify-between h-full px-8 md:px-12 pt-8 pb-8 gap-6">
 
-                    {/* Ligne haute — sous-titre contextuel */}
-                    <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-white/30 select-none flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                        Espace Membre
-                    </p>
+                    {/* Ligne haute — sous-titre contextuel + signature fondateur */}
+                    <div className="flex items-center justify-between gap-4">
+                        <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-white/30 select-none flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                            Espace Membre
+                        </p>
+                        <div className="flex items-center gap-2 select-none shrink-0">
+                            <span className="text-[10px] font-black tracking-[0.20em] uppercase text-white/50">BAGBE</span>
+                            <span className="text-white/20 text-[10px]">·</span>
+                            <span className="text-[9px] font-bold tracking-[0.18em] uppercase text-white/25">Fondateur</span>
+                        </div>
+                    </div>
 
                     {/* Ligne basse — titre grand + CTA alignés */}
                     <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-5">
