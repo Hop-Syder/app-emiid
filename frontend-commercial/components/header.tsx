@@ -20,8 +20,8 @@ import { ThemeToggle } from "./theme-toggle";
 
 const navigation = [
   { name: "Accueil", href: "/" },
-  { name: "FAQ", href: "/faq" },
   { name: "À propos", href: "/about" },
+  { name: "FAQ", href: "/faq" },
 ];
 
 const USER_APP_URL = process.env.NEXT_PUBLIC_USER_APP_URL || "https://app.emiid.com";

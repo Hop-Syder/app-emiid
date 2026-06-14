@@ -15,10 +15,10 @@ import { motion } from "framer-motion";
 import { Building2, Users, Handshake, Globe2 } from "lucide-react";
 
 const stats = [
-  { id: 1, name: "Startups Innovantes", value: "500+", icon: Building2, color: "from-blue-500 to-cyan-400" },
-  { id: 2, name: "Investisseurs Actifs", value: "150+", icon: Users, color: "from-indigo-500 to-purple-500" },
-  { id: 3, name: "Mises en relation", value: "10,000+", icon: Handshake, color: "from-fuchsia-500 to-pink-500" },
-  { id: 4, name: "Pays Couverts", value: "35", icon: Globe2, color: "from-amber-400 to-orange-500" },
+  { id: 1, name: "Professionnels inscrits", value: "500+", icon: Building2, color: "from-blue-500 to-cyan-400" },
+  { id: 2, name: "Pays d'Afrique représentés", value: "12", icon: Globe2, color: "from-indigo-500 to-purple-500" },
+  { id: 3, name: "Connexions créées", value: "2 000+", icon: Handshake, color: "from-fuchsia-500 to-pink-500" },
+  { id: 4, name: "Satisfaction utilisateurs", value: "4.9 ★", icon: Users, color: "from-amber-400 to-orange-500" },
 ];
 
 export function SocialProofSection() {

@@ -52,9 +52,23 @@ const features = [
   {
     name: "Validation & Recommandation par les pairs",
     whatsapp: "no",
-    linkedin: "partial", // compétences recommandées mais pas certifiées
+    linkedin: "partial",
     emiid: "yes",
     details: "Système de vote et d'endossement authentifié par l'écosystème local."
+  },
+  {
+    name: "Paiement Mobile Money (Wave, Orange Money, MTN MoMo)",
+    whatsapp: "no",
+    linkedin: "no",
+    emiid: "yes",
+    details: "Abonnez-vous directement en FCFA via vos outils de paiement habituels. Zéro frais de change, zéro carte bancaire étrangère."
+  },
+  {
+    name: "Support en langue locale & fuseau africain",
+    whatsapp: "partial",
+    linkedin: "no",
+    emiid: "yes",
+    details: "Équipe support basée en Afrique, disponible en français avec une connaissance réelle des réalités locales."
   }
 ];
 
