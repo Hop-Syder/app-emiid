@@ -184,24 +184,24 @@ export function ProfileCardMini({ profile, onUnfollow, onViewProfile, onSaveNote
         "flex-1 p-5 rounded-2xl flex flex-col justify-between transition-all duration-300 relative overflow-hidden backdrop-blur-md border shadow-sm",
         isPremium
           ? "bg-slate-900/35 border-white/5 text-white"
-          : "bg-card/45 border-border text-foreground"
+          : "bg-[#a6abb3]/10 border-[#a6abb3]/30 text-foreground"
       )}>
         <div>
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <div className="p-1.5 rounded-lg bg-foreground/5">
-                <StickyNote className="h-4 w-4 opacity-75 text-primary dark:text-secondary" />
+              <div className={cn("p-1.5 rounded-lg", isPremium ? "bg-white/5" : "bg-[#a6abb3]/20")}>
+                <StickyNote className={cn("h-4 w-4 opacity-90", isPremium ? "text-slate-300" : "text-[#a6abb3]")} />
               </div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Notes Privées</span>
+              <span className={cn("text-[10px] font-bold uppercase tracking-wider", isPremium ? "text-slate-400" : "text-[#a6abb3]")}>Notes Privées</span>
             </div>
             {isSaving ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin opacity-50" />
+              <Loader2 className={cn("h-3.5 w-3.5 animate-spin opacity-70", isPremium ? "text-slate-400" : "text-[#a6abb3]")} />
             ) : (
               <div
                 className={cn(
                   "h-1.5 w-1.5 rounded-full",
                   localNote !== (profile.notes || "")
-                    ? "bg-primary dark:bg-secondary animate-pulse"
+                    ? "bg-[#a6abb3] animate-pulse"
                     : "bg-green-500/50"
                 )}
               />
@@ -213,13 +213,16 @@ export function ProfileCardMini({ profile, onUnfollow, onViewProfile, onSaveNote
               value={localNote}
               onChange={(e) => setLocalNote(e.target.value)}
               placeholder="Ajouter des observations privées sur ce contact..."
-              className="w-full min-h-[60px] text-xs resize-none bg-transparent border-0 focus-visible:ring-0 p-0 shadow-none placeholder:text-muted-foreground/35 font-medium leading-relaxed"
+              className={cn(
+                "w-full min-h-[60px] text-xs resize-none bg-transparent border-0 focus-visible:ring-0 p-0 shadow-none font-medium leading-relaxed",
+                isPremium ? "placeholder:text-slate-500" : "placeholder:text-[#a6abb3]/60 text-[#022753]"
+              )}
             />
           </div>
         </div>
 
-        <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/60">
-          <span className="text-[10px] font-semibold text-muted-foreground truncate max-w-[150px]">
+        <div className={cn("flex items-center justify-between mt-4 pt-3 border-t", isPremium ? "border-white/10" : "border-[#a6abb3]/30")}>
+          <span className={cn("text-[10px] font-semibold truncate max-w-[150px]", isPremium ? "text-slate-500" : "text-[#a6abb3]/80")}>
             {profile.lastUpdate || "Aucune note"}
           </span>
 
@@ -230,8 +233,8 @@ export function ProfileCardMini({ profile, onUnfollow, onViewProfile, onSaveNote
             className={cn(
               "h-8 px-4 rounded-xl font-bold text-[9px] uppercase tracking-wider transition-all",
               localNote !== (profile.notes || "")
-                ? "bg-foreground text-background hover:opacity-90"
-                : "bg-muted text-muted-foreground/50 cursor-not-allowed"
+                ? (isPremium ? "bg-white text-black hover:bg-slate-200" : "bg-[#a6abb3] text-white hover:bg-[#8f949c]")
+                : (isPremium ? "bg-white/5 text-white/30" : "bg-[#a6abb3]/20 text-[#a6abb3]/60 cursor-not-allowed")
             )}
           >
             <Save className="h-3 w-3 mr-1.5" /> Enregistrer

@@ -142,23 +142,23 @@ export function ProfileCard({ profile, onUnfollow, onViewProfile, onSaveNote, on
 
             {/* Bloc CRM Notes (Style Apple Notes) */}
             <Card className={cn(
-                "flex-1 min-h-[250px] lg:min-h-0 p-6 rounded-3xl shadow-lg flex flex-col transition-all duration-300 relative overflow-hidden backdrop-blur-xl",
-                profile.premium ? "bg-slate-900/50 border-white/5 text-white" : "bg-slate-50/80 border-slate-200/50 text-slate-900"
+                "flex-1 min-h-[250px] lg:min-h-0 p-6 rounded-3xl shadow-lg flex flex-col transition-all duration-300 relative overflow-hidden backdrop-blur-xl border",
+                profile.premium ? "bg-slate-900/50 border-white/5 text-white" : "bg-[#a6abb3]/10 border-[#a6abb3]/30 text-slate-900"
             )}>
-                <div className="flex items-center justify-between mb-4 border-b pb-4 border-current/10">
+                <div className={cn("flex items-center justify-between mb-4 border-b pb-4", profile.premium ? "border-white/10" : "border-[#a6abb3]/30")}>
                     <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-xl bg-current/5">
-                            <StickyNote className="h-4 w-4 opacity-70" />
+                        <div className={cn("p-2 rounded-xl", profile.premium ? "bg-white/5" : "bg-[#a6abb3]/20")}>
+                            <StickyNote className={cn("h-4 w-4 opacity-90", profile.premium ? "text-slate-300" : "text-[#a6abb3]")} />
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-xs font-bold tracking-wider opacity-80">Notes Privées</span>
-                            <span className="text-[10px] opacity-50">CRM Personnel</span>
+                            <span className={cn("text-xs font-bold tracking-wider opacity-90", profile.premium ? "text-white" : "text-[#a6abb3]")}>Notes Privées</span>
+                            <span className={cn("text-[10px] opacity-70", profile.premium ? "text-slate-400" : "text-[#a6abb3]")}>CRM Personnel</span>
                         </div>
                     </div>
                     {isSaving ? (
                         <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-medium opacity-50 uppercase">Sauvegarde...</span>
-                            <Loader2 className="h-3.5 w-3.5 animate-spin opacity-50" />
+                            <span className={cn("text-[10px] font-medium opacity-70 uppercase", profile.premium ? "text-slate-400" : "text-[#a6abb3]")}>Sauvegarde...</span>
+                            <Loader2 className={cn("h-3.5 w-3.5 animate-spin opacity-70", profile.premium ? "text-slate-400" : "text-[#a6abb3]")} />
                         </div>
                     ) : (
                         <motion.div 
@@ -166,7 +166,7 @@ export function ProfileCard({ profile, onUnfollow, onViewProfile, onSaveNote, on
                             transition={{ repeat: Infinity, duration: 2 }}
                             className={cn(
                                 "h-2 w-2 rounded-full",
-                                localNote !== (profile.notes || "") ? bgAccent : "bg-green-500/50"
+                                localNote !== (profile.notes || "") ? (profile.premium ? bgAccent : "bg-[#a6abb3]") : "bg-green-500/50"
                             )} 
                         />
                     )}
@@ -177,14 +177,17 @@ export function ProfileCard({ profile, onUnfollow, onViewProfile, onSaveNote, on
                         value={localNote}
                         onChange={(e) => setLocalNote(e.target.value)}
                         placeholder="Ajouter des notes stratégiques..."
-                        className="w-full h-full min-h-[120px] text-sm resize-none bg-transparent border-0 focus-visible:ring-0 p-0 shadow-none placeholder:opacity-30 font-medium leading-relaxed"
+                        className={cn(
+                            "w-full h-full min-h-[120px] text-sm resize-none bg-transparent border-0 focus-visible:ring-0 p-0 shadow-none font-medium leading-relaxed",
+                            profile.premium ? "placeholder:text-slate-500" : "placeholder:text-[#a6abb3]/60 text-[#022753]"
+                        )}
                     />
                 </div>
 
-                <div className="flex items-center justify-between mt-4 pt-4 border-t border-current/10">
+                <div className={cn("flex items-center justify-between mt-4 pt-4 border-t", profile.premium ? "border-white/10" : "border-[#a6abb3]/30")}>
                     <div className="flex flex-col">
-                        <span className="text-[9px] font-bold uppercase tracking-widest opacity-40">Mise à Jour</span>
-                        <span className="text-[10px] font-medium opacity-60">
+                        <span className={cn("text-[9px] font-bold uppercase tracking-widest opacity-60", profile.premium ? "text-slate-400" : "text-[#a6abb3]")}>Mise à Jour</span>
+                        <span className={cn("text-[10px] font-medium opacity-80", profile.premium ? "text-slate-300" : "text-[#a6abb3]")}>
                             {profile.lastUpdate || "Jamais"}
                         </span>
                     </div>
@@ -194,7 +197,7 @@ export function ProfileCard({ profile, onUnfollow, onViewProfile, onSaveNote, on
                             variant="ghost"
                             size="sm"
                             onClick={() => onViewProfile?.(profile.slug || profile.id)}
-                            className="h-9 px-3 rounded-lg font-bold text-[10px] uppercase tracking-wider opacity-60 hover:opacity-100"
+                            className={cn("h-9 px-3 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-all", profile.premium ? "text-slate-400 hover:text-white" : "text-[#a6abb3] hover:bg-[#a6abb3]/20 hover:text-[#022753]")}
                         >
                             <ExternalLink className="h-4 w-4 mr-2" /> Profil
                         </Button>
@@ -205,8 +208,8 @@ export function ProfileCard({ profile, onUnfollow, onViewProfile, onSaveNote, on
                             className={cn(
                                 "h-9 px-6 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all",
                                 localNote !== (profile.notes || "") 
-                                    ? "bg-slate-900 text-white hover:bg-slate-800 shadow-md dark:bg-white dark:text-black" 
-                                    : "bg-current/5 text-current/30 cursor-not-allowed"
+                                    ? (profile.premium ? "bg-white text-black hover:bg-slate-200" : "bg-[#a6abb3] text-white hover:bg-[#8f949c]")
+                                    : (profile.premium ? "bg-white/5 text-white/30" : "bg-[#a6abb3]/20 text-[#a6abb3]/60 cursor-not-allowed")
                             )}
                         >
                             Enregistrer
