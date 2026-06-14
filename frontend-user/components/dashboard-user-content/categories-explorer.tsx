@@ -12,17 +12,17 @@ import { Hammer, Store, Laptop, Briefcase, Megaphone, Rocket, Globe, TrendingUp,
 
 const categories = [
   // Ligne 1
-  { id: "artisan", label: "Artisan", desc: "Création manuelle, métiers de l'artisanat, savoir-faire", icon: Hammer, color: "text-amber-600", bg: "bg-amber-50 border-amber-100" },
-  { id: "commerçante", label: "Commerçant", desc: "Vente de biens, boutiquier, grossiste", icon: Store, color: "text-emerald-500", bg: "bg-emerald-50 border-emerald-100" },
-  { id: "freelance", label: "Freelance / Indépendant", desc: "Prestation de service en solo, consultant", icon: Laptop, color: "text-blue-500", bg: "bg-blue-50 border-blue-100" },
-  { id: "entreprise", label: "Entreprise", desc: "PME, Startups & Sociétés", icon: Briefcase, color: "text-slate-700", bg: "bg-slate-100 border-slate-200", soon: true },
-  { id: "agence", label: "Agence", desc: "Communication, Marketing, Web, RH", icon: Megaphone, color: "text-purple-500", bg: "bg-purple-50 border-purple-100" },
+  { id: "artisan", label: "Artisan", desc: "Création manuelle, métiers de l'artisanat, savoir-faire", icon: Hammer, color: "text-amber-600", bg: "bg-amber-50 border-amber-100", count: "1.2k+" },
+  { id: "commerçante", label: "Commerçant", desc: "Vente de biens, boutiquier, grossiste", icon: Store, color: "text-emerald-500", bg: "bg-emerald-50 border-emerald-100", count: "850+" },
+  { id: "freelance", label: "Freelance / Indépendant", desc: "Prestation de service en solo, consultant", icon: Laptop, color: "text-blue-500", bg: "bg-blue-50 border-blue-100", count: "420+" },
+  { id: "entreprise", label: "Entreprise", desc: "PME, TPE, Grande entreprise classique", icon: Briefcase, color: "text-slate-700", bg: "bg-slate-100 border-slate-200", count: "310+" },
+  { id: "agence", label: "Agence", desc: "Communication, Marketing, Web, RH", icon: Megaphone, color: "text-purple-500", bg: "bg-purple-50 border-purple-100", count: "540+" },
   // Ligne 2
-  { id: "entreprise-plus", label: "Entreprise+", desc: "Grandes Entreprises & Groupes", icon: Rocket, color: "text-rose-500", bg: "bg-rose-50 border-rose-100", soon: true },
-  { id: "ong", label: "ONG / Association", desc: "À but non lucratif, fondation", icon: Globe, color: "text-cyan-500", bg: "bg-cyan-50 border-cyan-100" },
-  { id: "investisseur", label: "Investisseur / Business Angel", desc: "Fonds d'investissement, cherche des projets", icon: TrendingUp, color: "text-indigo-500", bg: "bg-indigo-50 border-indigo-100" },
-  { id: "institution", label: "Institution Publique", desc: "Ministère, agence d'état, chambre de commerce", icon: Landmark, color: "text-teal-600", bg: "bg-teal-50 border-teal-100" },
-  { id: "etudiant", label: "Étudiant / Jeune Diplômé", desc: "Pour la recherche de stage/emploi", icon: GraduationCap, color: "text-orange-500", bg: "bg-orange-50 border-orange-100" },
+  { id: "startup", label: "Startup", desc: "Jeune entreprise innovante, Tech", icon: Rocket, color: "text-rose-500", bg: "bg-rose-50 border-rose-100", count: "210+" },
+  { id: "ong", label: "ONG / Association", desc: "À but non lucratif, fondation", icon: Globe, color: "text-cyan-500", bg: "bg-cyan-50 border-cyan-100", count: "150+" },
+  { id: "investisseur", label: "Investisseur / Business Angel", desc: "Fonds d'investissement, cherche des projets", icon: TrendingUp, color: "text-indigo-500", bg: "bg-indigo-50 border-indigo-100", count: "85+" },
+  { id: "institution", label: "Institution Publique", desc: "Ministère, agence d'état, chambre de commerce", icon: Landmark, color: "text-teal-600", bg: "bg-teal-50 border-teal-100", count: "40+" },
+  { id: "etudiant", label: "Étudiant / Jeune Diplômé", desc: "Pour la recherche de stage/emploi", icon: GraduationCap, color: "text-orange-500", bg: "bg-orange-50 border-orange-100", count: "930+" },
 ]
 
 const CategoryCard = ({ cat, idx, categoryCounts }: { cat: any, idx: number, categoryCounts?: Record<string, number> }) => {
@@ -30,9 +30,7 @@ const CategoryCard = ({ cat, idx, categoryCounts }: { cat: any, idx: number, cat
 
   let displayCount: React.ReactNode = "..."
   
-  if (cat.soon) {
-    displayCount = "Bientôt"
-  } else if (categoryCounts !== undefined) {
+  if (categoryCounts !== undefined) {
     const realCount = categoryCounts[cat.id] || 0;
     displayCount = `${realCount}`
   }
@@ -40,17 +38,9 @@ const CategoryCard = ({ cat, idx, categoryCounts }: { cat: any, idx: number, cat
   return (
     <Link
       key={idx}
-      href={cat.soon ? "#" : `/annuaire?category=${cat.id}`}
-      className={`snap-start shrink-0 w-[70%] sm:w-[45%] md:w-[22%] lg:w-[19%] group relative flex flex-col p-5 rounded-2xl border ${cat.bg} hover:shadow-xl hover:-translate-y-1 transition-all duration-500 text-left overflow-hidden bg-white/40 backdrop-blur-md ${cat.soon ? "cursor-default opacity-80" : ""}`}
+      href={`/annuaire?category=${cat.id}`}
+      className={`snap-start shrink-0 w-[70%] sm:w-[45%] md:w-[22%] lg:w-[19%] group relative flex flex-col p-5 rounded-2xl border ${cat.bg} hover:shadow-xl hover:-translate-y-1 transition-all duration-500 text-left overflow-hidden bg-white/40 backdrop-blur-md`}
     >
-      {cat.soon && (
-        <div className="absolute top-3 right-3 z-20">
-          <span className="bg-indigo-500 text-white text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full shadow-sm">
-            Bientôt
-          </span>
-        </div>
-      )}
-
       {/* Décoration d'arrière-plan avec glow doux */}
       <div className={`absolute -right-6 -bottom-6 w-32 h-32 rounded-full blur-3xl opacity-20 group-hover:opacity-40 transition-opacity duration-500 ${cat.bg.replace('bg-', 'bg-gradient-to-br from-white to-')}`} />
       
@@ -62,11 +52,11 @@ const CategoryCard = ({ cat, idx, categoryCounts }: { cat: any, idx: number, cat
       <div className="p-3 bg-white/80 backdrop-blur-xl w-max rounded-xl mb-4 border border-white/60 shadow-sm group-hover:scale-110 transition-transform duration-300">
         <Icon className={`w-6 h-6 ${cat.color}`} />
       </div>
-      <h4 className="font-bold text-slate-800 text-base md:text-lg tracking-tight z-10 group-hover:text-slate-950 transition-colors leading-tight pr-10">{cat.label}</h4>
+      <h4 className="font-bold text-slate-800 text-base md:text-lg tracking-tight z-10 group-hover:text-slate-950 transition-colors leading-tight">{cat.label}</h4>
       <p className="text-xs text-slate-500 z-10 mt-2 mb-1 line-clamp-2 leading-relaxed">{cat.desc}</p>
       
       <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400 z-10 mt-auto pt-2">
-        {displayCount} {!cat.soon && displayCount !== "Nouveau" && "profils"}
+        {displayCount} {displayCount !== "Nouveau" && "profils"}
       </span>
       
       {/* Petit indicateur interactif */}

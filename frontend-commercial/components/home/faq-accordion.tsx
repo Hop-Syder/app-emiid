@@ -131,6 +131,11 @@ const categories: Category[] = [
           "Oui. Emiid est construit sur Supabase avec une architecture de sécurité Row-Level Security (RLS) : chaque utilisateur n'accède qu'aux données qui lui sont destinées. Vos données ne sont jamais vendues à des tiers.\n\nDe plus :\n• Votre profil peut être masqué de l'annuaire public à tout moment depuis Paramètres.\n• Vous pouvez activer un **code PIN** pour protéger l'accès à votre compte.\n• Vous pouvez activer la **vérification en 2 étapes (2FA)** via SMS ou WhatsApp.\n• Les données sont hébergées sur des serveurs situés en Europe (conformité RGPD).",
       },
       {
+        question: "Comment fonctionne la médiation intégrée dans les conversations ?",
+        answer:
+          "Emiid intègre un système de médiation directement dans chaque conversation. Si un échange tourne au conflit — litige sur une prestation, désaccord sur un paiement, malentendu professionnel — l'une ou l'autre des parties peut déclencher une demande de médiation sans quitter la messagerie.\n\nConcrètement :\n• Un bouton « Demander une médiation » est disponible dans les options de la conversation.\n• Une fois la demande envoyée, un message de médiation officiel apparaît dans le fil de discussion, visible par les deux parties.\n• Un médiateur Emiid est notifié et rejoint la conversation pour faciliter la résolution à l'amiable.\n• Les échanges dans ce cadre sont tracés et conservés pour servir de référence en cas d'escalade.\n\nCette fonctionnalité est disponible sur tous les plans, y compris le plan Gratuit. Elle vise à protéger aussi bien le prestataire que le client, sans avoir à recourir à des voies extérieures.",
+      },
+      {
         question: "Comment signaler un faux profil ou un contenu abusif ?",
         answer:
           "Sur chaque profil public, un bouton « Signaler » est accessible dans le menu des options (icône ⋯). Vous choisissez la catégorie de signalement (faux profil, arnaque, contenu inapproprié, usurpation d'identité) et ajoutez un commentaire optionnel. Notre équipe de modération examine le signalement sous 24 à 48h et prend les mesures appropriées (avertissement, suspension temporaire ou bannissement définitif). Les signalements abusifs sont également traçables pour protéger les profils légitimes.",

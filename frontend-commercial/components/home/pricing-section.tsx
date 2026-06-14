@@ -26,6 +26,7 @@ interface Tier {
   href: string;
   featured: boolean;
   badge?: string;
+  comingSoon?: boolean;
   color: string;
   features: Feature[];
 }
@@ -83,6 +84,7 @@ const tiers: Tier[] = [
   {
     name: "Entreprise",
     id: "tier-entreprise",
+    comingSoon: true,
     icon: Building2,
     priceMonthly: 5000,
     priceAnnual: 4000,
@@ -108,6 +110,7 @@ const tiers: Tier[] = [
   {
     name: "Entreprise+",
     id: "tier-entreprise-plus",
+    comingSoon: true,
     icon: Landmark,
     priceMonthly: 10000,
     priceAnnual: 8000,
@@ -296,6 +299,11 @@ export function PricingSection() {
                   {/* Header */}
                   <div className="flex items-start justify-between mb-4 mt-3">
                     <div>
+                      {tier.comingSoon && (
+                        <div className="inline-flex items-center px-2 py-0.5 rounded-md bg-orange-500/10 border border-orange-500/20 text-orange-600 dark:text-orange-400 text-[10px] font-bold uppercase tracking-widest mb-2">
+                          Bientôt disponible
+                        </div>
+                      )}
                       <h3 className={`text-xl font-black ${tier.featured ? "text-white" : "text-gray-900 dark:text-white"}`}>
                         {tier.name}
                       </h3>
