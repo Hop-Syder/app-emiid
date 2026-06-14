@@ -12,6 +12,14 @@ import { Metadata } from "next"
 import { ProfileDetailContent } from "@/components/profile-detail/profile-detail-content"
 import { createClient } from "@/lib/supabase/server"
 
+// Sérialise un objet JSON-LD de façon sûre : échappe < et > pour
+// empêcher une injection </script> via le contenu utilisateur.
+function serializeJsonLd(data: unknown): string {
+    return JSON.stringify(data)
+        .split('<').join('\u003c')
+        .split('>').join('\u003e')
+}
+
 interface ProfilePageProps {
     params: Promise<{ id: string }>
 }
@@ -186,19 +194,10 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     } : null
 
     return (
-        <>
-            {jsonLd && (
+        <>            {jsonLd && (
                 <script
                     type="application/ld+json"
-                    // Échappe < / > et 2028/2029 pour empêcher un "</script>" injecté
-                    // via first_name/last_name/bio de casser le parser et introduire du XSS.
-                    dangerouslySetInnerHTML={{
-                        __html: JSON.stringify(jsonLd)
-                            .replace(/</g, '\\u003c')
-                            .replace(/>/g, '\\u003e')
-                            .replace(/\u2028/g, '\\u2028')
-                            .replace(/\u2029/g, '\\u2029'),
-                    }}
+                    dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
                 />
             )}
             <ProfileDetailContent profileId={id} />

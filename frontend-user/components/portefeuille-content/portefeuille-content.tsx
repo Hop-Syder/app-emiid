@@ -47,21 +47,18 @@ export function PortefeuilleContent() {
 
       const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const db = supabase as any
-
       const [profileRes, viewsRes, galleryRes] = await Promise.all([
         supabase
           .from("user_profiles")
           .select("id, followers_count, is_published")
           .eq("user_id", user.id)
           .single(),
-        db
+        supabase
           .from("profile_views")
           .select("*", { count: "exact", head: true })
           .eq("profile_id", user.id)
           .gte("created_at", thirtyDaysAgo),
-        db
+        supabase
           .from("project_gallery")
           .select("*", { count: "exact", head: true })
           .eq("user_id", user.id)

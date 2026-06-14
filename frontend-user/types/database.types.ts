@@ -281,6 +281,27 @@ export interface Database {
         }
         Relationships: []
       }
+      profile_views: {
+        Row: {
+          id: string
+          profile_id: string
+          viewer_id: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          profile_id: string
+          viewer_id?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          profile_id?: string
+          viewer_id?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
       project_gallery: {
         Row: {
           id: string
@@ -289,6 +310,8 @@ export interface Database {
           title: string | null
           description: string | null
           image_url: string
+          status: 'pending' | 'approved' | 'rejected'
+          rejection_reason: string | null
           order_index: number
           created_at: string
           updated_at: string
@@ -300,6 +323,8 @@ export interface Database {
           title?: string | null
           description?: string | null
           image_url: string
+          status?: 'pending' | 'approved' | 'rejected'
+          rejection_reason?: string | null
           order_index?: number
           created_at?: string
           updated_at?: string
@@ -311,6 +336,8 @@ export interface Database {
           title?: string | null
           description?: string | null
           image_url?: string
+          status?: 'pending' | 'approved' | 'rejected'
+          rejection_reason?: string | null
           order_index?: number
           created_at?: string
           updated_at?: string

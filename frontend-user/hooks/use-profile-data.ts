@@ -1,0 +1,270 @@
+"use client"
+
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { createClient } from "@/lib/supabase/client"
+import { fetchWithAuth } from "@/lib/apiClient"
+
+export interface ProfileData {
+    id: string
+    name: string
+    role: string
+    bio: string
+    location: string
+    avatar: string
+    coverImage?: string
+    specialty: string
+    category?: string
+    slug?: string
+    verified: boolean
+    premium: boolean
+    followers: number
+    following: number
+    isOnline: boolean
+    isFollowed: boolean
+    joinedDate: string
+    email?: string
+    phone?: string
+    website?: string
+    skills: string[]
+    experiences: { title: string; company: string; period: string; current: boolean }[]
+}
+
+interface ProfileQueryResult {
+    id: string
+    user_id?: string | null
+    first_name: string | null
+    last_name: string | null
+    bio: string | null
+    city: string | null
+    avatar_url: string | null
+    cover_url?: string | null
+    specialty: string | null
+    category: string | null
+    slug: string | null
+    is_published: boolean | null
+    is_verified: boolean | null
+    is_premium: boolean | null
+    followers_count: number | null
+    created_at: string | null
+    email: string | null
+    phone: string | null
+    website: string | null
+    role: string | null
+    countries: { name: string } | { name: string }[] | null
+    profile_tags: Array<{
+        tags: { name: string | null } | null
+    }> | null
+}
+
+export type GalleryItem = {
+    id: string
+    title: string
+    description: string
+    imageUrl: string
+    status?: string
+}
+
+export function useProfileData(profileId: string) {
+    const router = useRouter()
+    const [profile, setProfile] = useState<ProfileData | null>(null)
+    const [loading, setLoading] = useState(true)
+    const [isFollowed, setIsFollowed] = useState(false)
+    const [followersCount, setFollowersCount] = useState(0)
+    const [joinedDate, setJoinedDate] = useState<string>("...")
+    const [isOwnProfile, setIsOwnProfile] = useState(false)
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const [gallery, setGallery] = useState<GalleryItem[]>([])
+    const [loadingGallery, setLoadingGallery] = useState(false)
+    const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+
+    useEffect(() => {
+        const checkAuth = async () => {
+            const supabase = createClient()
+            const { data: { session } } = await supabase.auth.getSession()
+            setIsLoggedIn(!!session)
+        }
+        checkAuth()
+    }, [])
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            if (!profileId) return
+            setLoading(true)
+            try {
+                const supabase = createClient()
+                await supabase.auth.getSession()
+
+                const cleanProfileId = profileId.toLowerCase()
+                const isUUID =
+                    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(cleanProfileId)
+
+                let data: ProfileQueryResult | null = null
+                let error: unknown = null
+
+                let query = supabase
+                    .from("user_profiles")
+                    .select("id, user_id, first_name, last_name, bio, city, avatar_url, cover_url, specialty, category, slug, is_published, is_verified, is_premium, followers_count, created_at, email, phone, website, role, countries(name), profile_tags(tags(name))")
+
+                if (isUUID) {
+                    query = query.or(`slug.eq.${cleanProfileId},user_id.eq.${cleanProfileId},id.eq.${cleanProfileId}`)
+                } else {
+                    query = query.eq("slug", cleanProfileId)
+                }
+
+                const res = await query.single()
+                data = res.data as unknown as ProfileQueryResult
+                error = res.error
+
+                if (error) {
+                    console.warn("[useProfileData] Échec user_profiles, tentative public_profiles...", (error as { message?: string }).message)
+                }
+
+                if (error || !data) {
+                    let publicQuery = supabase
+                        .from("public_profiles")
+                        .select("id, user_id, first_name, last_name, bio, city, avatar_url, cover_url, specialty, category, slug, is_published, is_verified, is_premium, followers_count, created_at, email, phone, website, role, countries(name), profile_tags(tags(name))")
+
+                    if (isUUID) {
+                        publicQuery = publicQuery.or(`slug.eq.${cleanProfileId},user_id.eq.${cleanProfileId},id.eq.${cleanProfileId}`)
+                    } else {
+                        publicQuery = publicQuery.eq("slug", cleanProfileId)
+                    }
+
+                    const publicRes = await publicQuery.single()
+                    if (publicRes.data && !publicRes.error) {
+                        data = publicRes.data as unknown as ProfileQueryResult
+                        error = null
+                    } else {
+                        console.error("[useProfileData] Échec final:", publicRes.error)
+                        error = publicRes.error || error
+                    }
+                }
+
+                if (data && !error) {
+                    const countriesData = data.countries
+                    const countryName = countriesData
+                        ? (Array.isArray(countriesData) ? countriesData[0]?.name : countriesData.name)
+                        : ""
+
+                    const resolvedUserId = data.user_id || data.id
+
+                    setLoadingGallery(true)
+                    const [followsRes, galleryRes, isFollowedRes] = await Promise.all([
+                        supabase
+                            .from("user_follows")
+                            .select("*", { count: "exact", head: true })
+                            .eq("follower_id", resolvedUserId),
+
+                        supabase
+                            .from("project_gallery")
+                            .select("id, title, description, image_url")
+                            .eq("profile_id", data.id)
+                            .order("order_index", { ascending: true }),
+
+                        fetchWithAuth("/api/users/follows")
+                            .then(async (r) => {
+                                if (r.ok) {
+                                    const follows = await r.json()
+                                    return follows.some((f: { user_id: string }) => f.user_id === resolvedUserId)
+                                }
+                                return false
+                            })
+                            .catch(() => false),
+                    ])
+
+                    const followingCountVal = !followsRes.error && followsRes.count !== null ? followsRes.count : 0
+
+                    if (!galleryRes.error && galleryRes.data) {
+                        setGallery(
+                            galleryRes.data.map((item) => ({
+                                id: item.id,
+                                title: item.title || "",
+                                description: item.description || "",
+                                imageUrl: item.image_url,
+                            }))
+                        )
+                    }
+                    setLoadingGallery(false)
+                    setIsFollowed(isFollowedRes)
+
+                    const mappedProfile: ProfileData = {
+                        id: resolvedUserId,
+                        name: `${data.first_name || ""} ${data.last_name || ""}`.trim() || "Utilisateur EmiID",
+                        role: data.role || "Membre EmiID",
+                        bio: data.bio || "Ce membre n'a pas encore rédigé sa biographie professionnelle.",
+                        location: data.city ? `${data.city}, ${countryName || ""}` : countryName || "Afrique",
+                        avatar: data.avatar_url || "/profil/avatar.jpg",
+                        coverImage: data.cover_url || undefined,
+                        specialty: data.specialty || "Expertise",
+                        category: data.category || "",
+                        slug: data.slug || undefined,
+                        verified: !!data.is_verified,
+                        premium: !!data.is_premium,
+                        followers: data.followers_count || 0,
+                        following: followingCountVal,
+                        isOnline: false,
+                        isFollowed: isFollowedRes,
+                        joinedDate: data.created_at
+                            ? new Date(data.created_at).toLocaleDateString("fr-FR", { month: "long", year: "numeric" })
+                            : "2024",
+                        email: data.email || undefined,
+                        website: data.website || undefined,
+                        phone: data.phone || undefined,
+                        skills:
+                            data.profile_tags
+                                ?.map((pt) => pt.tags?.name)
+                                .filter((name): name is string => typeof name === "string" && name.trim().length > 0) || [],
+                        experiences: [],
+                    }
+
+                    setProfile(mappedProfile)
+                    setFollowersCount(mappedProfile.followers)
+                    setJoinedDate(mappedProfile.joinedDate)
+                } else if ((error as { code?: string })?.code === "PGRST116") {
+                    setProfile(null)
+                }
+            } catch (e) {
+                console.error("Erreur chargement profil:", e)
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        fetchProfile()
+    }, [profileId])
+
+    useEffect(() => {
+        const checkCurrentUser = async () => {
+            if (!profile) return
+            try {
+                const supabase = createClient()
+                const { data: { user } } = await supabase.auth.getUser()
+                setCurrentUserId(user?.id ?? null)
+                setIsOwnProfile(!!user && user.id === profile.id)
+            } catch (e) {
+                console.error("Erreur check user:", e)
+            }
+        }
+        checkCurrentUser()
+    }, [profile])
+
+    useEffect(() => {
+        if (profile && profile.slug && profileId !== profile.slug) {
+            router.replace(`/profil/${profile.slug}`)
+        }
+    }, [profile, profileId, router])
+
+    return {
+        profile, setProfile,
+        loading,
+        isFollowed, setIsFollowed,
+        followersCount, setFollowersCount,
+        joinedDate,
+        isOwnProfile,
+        isLoggedIn,
+        gallery,
+        loadingGallery,
+        currentUserId,
+    }
+}

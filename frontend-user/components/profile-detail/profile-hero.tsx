@@ -18,8 +18,21 @@ import { cn } from "@/lib/utils"
 // ---------------------------------------------------------------------------
 // TYPES DES PROPS DU HERO
 // ---------------------------------------------------------------------------
+interface ProfileHeroData {
+    id: string
+    name: string
+    avatar: string | null
+    coverImage?: string | null
+    specialty: string | null
+    location: string | null
+    verified: boolean
+    premium: boolean
+    following: number
+    skills: unknown[]
+}
+
 interface ProfileHeroProps {
-    profile: any // TODO: Remplacer par ProfileData quand les types seront extraits
+    profile: ProfileHeroData
     isOwnProfile?: boolean
     uploadingCover: boolean
     handleCoverUpload: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>

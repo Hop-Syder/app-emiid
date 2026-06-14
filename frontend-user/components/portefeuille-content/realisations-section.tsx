@@ -54,8 +54,7 @@ export function RealisationsSection({ userId, profileId }: RealisationsSectionPr
   const [title, setTitle]           = useState("")
   const [description, setDescription] = useState("")
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const supabase = createClient() as any
+  const supabase = createClient()
 
   const load = async () => {
     setLoading(true)

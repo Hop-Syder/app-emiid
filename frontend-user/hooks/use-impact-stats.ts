@@ -66,14 +66,14 @@ export function useImpactStats() {
 
                 // Vues cette semaine
                 const { count: viewsThisWeek } = await supabase
-                    .from('profile_views' as any)
+                    .from('profile_views')
                     .select('*', { count: 'exact', head: true })
                     .eq('profile_id', user.id)
                     .gte('created_at', startOfThisWeek.toISOString())
 
                 // Vues semaine dernière
                 const { count: viewsLastWeek } = await supabase
-                    .from('profile_views' as any)
+                    .from('profile_views')
                     .select('*', { count: 'exact', head: true })
                     .eq('profile_id', user.id)
                     .gte('created_at', startOfLastWeek.toISOString())
@@ -81,7 +81,7 @@ export function useImpactStats() {
 
                 // Total des vues
                 const { count: totalViews } = await supabase
-                    .from('profile_views' as any)
+                    .from('profile_views')
                     .select('*', { count: 'exact', head: true })
                     .eq('profile_id', user.id)
 

@@ -9,6 +9,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { Mail, Smartphone, User, Shield, MessageSquare, CheckCircle2, AlertCircle, Loader2 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -275,7 +276,7 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
                     onClick={() => handleVerifyRequest("whatsapp")}
                     className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-bold hover:bg-emerald-100 transition-colors"
                   >
-                    <img src="/svg/whatsapp-logo.svg" className="h-4 w-4" alt="WhatsApp" />
+                    <Image src="/svg/whatsapp-logo.svg" width={16} height={16} alt="WhatsApp" />
                     WhatsApp
                   </button>
                   <button

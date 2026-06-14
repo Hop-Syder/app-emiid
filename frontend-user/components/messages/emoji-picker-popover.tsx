@@ -22,6 +22,10 @@ import {
 // Chargement dynamique pour éviter les erreurs SSR (Next.js)
 let Picker: React.ComponentType<any> | null = null
 
+declare global {
+  interface Window { __emojiMartData: unknown }
+}
+
 interface EmojiPickerPopoverProps {
   onEmojiSelect: (emoji: string) => void
   disabled?: boolean
@@ -44,7 +48,7 @@ export const EmojiPickerPopover: React.FC<EmojiPickerPopoverProps> = ({
       ]).then(([mod, dataMod]) => {
         Picker = mod.default
         // Précharger les données d'emojis dans le module
-        ;(window as any).__emojiMartData = dataMod.default
+        window.__emojiMartData = dataMod.default
         setPickerReady(true)
       })
     } else {
@@ -80,7 +84,7 @@ export const EmojiPickerPopover: React.FC<EmojiPickerPopoverProps> = ({
       >
         {pickerReady && Picker ? (
           <Picker
-            data={(window as any).__emojiMartData}
+            data={window.__emojiMartData}
             onEmojiSelect={handleEmojiSelect}
             locale="fr"
             theme="light"
