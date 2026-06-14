@@ -100,4 +100,6 @@
 - [2026-06-11] Enforcement du typage côté serveur : Ajout du paramètre générique `<Database>` sur le client serveur Supabase (`createServerClient`) dans `server.ts` pour garantir une validation stricte du schéma également sur le backend Next.js.
 - [2026-06-12] Détection et scan du nouveau dossier `frontend-commercial` : projet de site commercial Next.js contenant des sections Hero, Fomo, Comparison, Social Proof et Pricing interfacées avec Supabase.
 - [2026-06-12] Rédaction et création du `README.md` professionnel pour le projet `frontend-commercial` spécifiant la stack, l'installation locale, l'architecture du dossier et la procédure complète de déploiement sur Vercel.
-
+- [2026-06-14] Mise à jour des Hubs (Public & Privé) : Ajout du badge "Fondateurs" dans la grille Bento 5 colonnes.
+- [2026-06-14] Connexion au backend Supabase des statistiques du "CategoriesExplorer" (Annuaire) pour remplacer les chiffres statiques par de vraies données temps-réel.
+- [2026-06-14] Refonte Dashboard Public : Ajout du "HubCommunities" et création d'un "PublicHubContextualCta" premium incitant les visiteurs à créer un compte.

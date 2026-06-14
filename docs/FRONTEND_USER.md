@@ -73,6 +73,7 @@ L'application utilisateur est le cœur de l'expérience EmiID. Elle est conçue 
 - **Performance** : Optimisation des images via le CDN Supabase (redimensionnement & WebP).
 - **Caching** : Règles de cache navigateur (365j) pour les polices et SVGs (Next.js Headers).
 - **Cookies** : Gestion optimisée des sessions via Supabase SSR avec attributs de sécurité.
+- **Hubs & Dashboards** : Tableaux de bord Public et Privé (User) connectés en temps-réel (Explorateur de catégories, intégration des communautés, CTA contextuels premium).
 
 ### ❌ Ce qui reste à implémenter / corriger
 
