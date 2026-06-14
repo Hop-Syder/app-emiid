@@ -14,6 +14,7 @@ import { CategoriesExplorer } from "./categories-explorer"
 import { InlineActivityFeed } from "./inline-activity-feed"
 import { ProximitySection } from "./proximity-section"
 import { HubContextualCta } from "./hub-contextual-cta"
+import { HubCommunities } from "./hub-communities"
 
 interface DashboardHubContentProps {
   initialPremiumProfiles: PublicProfile[]
@@ -133,6 +134,13 @@ export function DashboardHubContent({
             ========================================= */}
         <div className="pt-4 pb-4">
           <HubContextualCta />
+        </div>
+
+        {/* =========================================
+            SECTION 8 : COMMUNAUTÉS
+            ========================================= */}
+        <div className="pt-2 pb-8">
+          <HubCommunities />
         </div>
 
       </div>
