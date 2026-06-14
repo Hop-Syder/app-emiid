@@ -6,7 +6,13 @@ import { useCurrentUserProfile } from "@/hooks/use-current-user-profile"
 import { Button } from "@/components/ui/button"
 
 export function HubContextualCta() {
-  const { currentUser } = useCurrentUserProfile()
+  const { currentUser, session } = useCurrentUserProfile()
+
+  // Wait for the backend data to load (has_profile becomes defined)
+  // session === undefined means auth is still checking
+  if (session === undefined || (currentUser && currentUser.has_profile === undefined)) {
+    return <div className="h-40 md:h-60 rounded-[2.5rem] bg-slate-100/50 animate-pulse" />
+  }
 
   const needsProfile = currentUser && (!currentUser.has_profile || currentUser.is_published === false)
 

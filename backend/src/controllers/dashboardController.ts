@@ -29,6 +29,7 @@ export interface DashboardStats {
   verifiedMembers: number;
   countriesCovered: number;
   premiumMembers: number;
+  categoryCounts?: Record<string, number>;
 }
 
 const EMPTY_STATS: DashboardStats = {
@@ -36,6 +37,7 @@ const EMPTY_STATS: DashboardStats = {
   verifiedMembers: 0,
   countriesCovered: 0,
   premiumMembers: 0,
+  categoryCounts: {},
 };
 
 // Les stats sont globales (non personnalisées) → une seule entrée de cache suffit.
@@ -124,17 +126,41 @@ async function fetchStatsViaQueries(): Promise<DashboardStats> {
 }
 
 /**
+ * Compte les profils publiés par catégorie — renvoie {} si la requête échoue.
+ */
+async function fetchCategoryCounts(): Promise<Record<string, number>> {
+  const { data, error } = await supabaseAdmin
+    .from('user_profiles')
+    .select('category')
+    .eq('is_published', true)
+    .not('category', 'is', null);
+
+  if (error) {
+    logger.warn('[Dashboard] Category counts query error', error);
+    return {};
+  }
+
+  const counts: Record<string, number> = {};
+  for (const row of data ?? []) {
+    const cat = (row as { category?: string }).category;
+    if (cat) counts[cat] = (counts[cat] ?? 0) + 1;
+  }
+  return counts;
+}
+
+/**
  * GET /api/dashboard-user/stats  (authentifié)
  * GET /api/public/stats          (public)
  */
 export const getDashboardStats = async (_req: any, res: Response) => {
   try {
-    const rpcStats = await fetchStatsViaRpc();
-    const stats = rpcStats ?? (await fetchStatsViaQueries());
-    res.json(stats);
+    const [baseStats, categoryCounts] = await Promise.all([
+      fetchStatsViaRpc().then((rpc) => rpc ?? fetchStatsViaQueries()),
+      fetchCategoryCounts(),
+    ]);
+    res.json({ ...baseStats, categoryCounts });
   } catch (err) {
     logger.error('[Dashboard] Critical error in getDashboardStats:', err);
-    // Dernier filet : on renvoie des zéros pour ne pas casser le dashboard.
     res.status(200).json(EMPTY_STATS);
   }
 };

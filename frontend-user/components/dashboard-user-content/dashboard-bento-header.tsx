@@ -13,7 +13,7 @@
 import { motion, Variants } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
-import { BadgeCheck, Crown, Globe, Users, Search, ArrowRight } from "lucide-react"
+import { BadgeCheck, Crown, Globe, Users, Search, ArrowRight, Award } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useCurrentUserProfile } from "@/hooks/use-current-user-profile"
 import { useCommandPalette } from "@/components/command-palette-context"
@@ -49,6 +49,7 @@ export function DashboardBentoHeader({ stats, statsLoading }: DashboardBentoHead
         { label: "Vérifiés", value: stats.verifiedMembers || 0, icon: BadgeCheck, color: "text-amber-400", bg: "bg-amber-400/10", ring: "ring-amber-400/20" },
         { label: "Pays", value: stats.countriesCovered || 0, icon: Globe, color: "text-indigo-400", bg: "bg-indigo-400/10", ring: "ring-indigo-400/20" },
         { label: "Premium", value: stats.premiumMembers || 0, icon: Crown, color: "text-rose-400", bg: "bg-rose-400/10", ring: "ring-rose-400/20" },
+        { label: "Fondateurs", value: 1, icon: Award, color: "text-fuchsia-400", bg: "bg-fuchsia-400/10", ring: "ring-fuchsia-400/20" },
     ] : []
 
     const containerVariants: Variants = {
@@ -135,10 +136,10 @@ export function DashboardBentoHeader({ stats, statsLoading }: DashboardBentoHead
             {/* ── STATS ROW ───────────────────────────────────────────── */}
             <motion.div
                 variants={itemVariants}
-                className="grid grid-cols-2 md:grid-cols-4 gap-3"
+                className="grid grid-cols-2 md:grid-cols-5 gap-3"
             >
                 {statsLoading || !stats ? (
-                    Array.from({ length: 4 }).map((_, i) => (
+                    Array.from({ length: 5 }).map((_, i) => (
                         <div key={i} className="rounded-2xl bg-white/5 animate-pulse border border-white/5 h-[76px]" />
                     ))
                 ) : (

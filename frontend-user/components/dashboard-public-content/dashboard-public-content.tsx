@@ -23,6 +23,8 @@ import { EntrepreneursSection } from "./entrepreneurs-section"
 import { CategoriesExplorer } from "../dashboard-user-content/categories-explorer"
 import { AnnuaireProcess } from "../annuaire-public-content/annuaire-process"
 import { AnnuaireCTA } from "../annuaire-public-content/annuaire-cta"
+import { PublicHubContextualCta } from "./public-hub-contextual-cta"
+import { HubCommunities } from "../dashboard-user-content/hub-communities"
 import { LayoutGrid } from "lucide-react"
 
 export interface EntrepreneurProfile {
@@ -234,6 +236,17 @@ export function DashboardPublicContent({ initialStats = null, initialProfiles = 
                         </h3>
                     </div>
                     <CategoriesExplorer categoryCounts={stats?.categoryCounts} />
+                </div>
+
+                {/* =========================================
+                    SECTION : CTA PUBLIC & COMMUNAUTÉS
+                    ========================================= */}
+                <div className="pt-4 pb-4">
+                    <PublicHubContextualCta />
+                </div>
+                
+                <div className="pt-2 pb-8">
+                    <HubCommunities />
                 </div>
 
                 {/* Process et CTA de Fin */}
