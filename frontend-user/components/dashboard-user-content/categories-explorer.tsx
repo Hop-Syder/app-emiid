@@ -13,7 +13,7 @@ import { Hammer, Store, Laptop, Briefcase, Megaphone, Rocket, Globe, TrendingUp,
 const categories = [
   // Ligne 1
   { id: "artisan", label: "Artisan", desc: "Création manuelle, métiers de l'artisanat, savoir-faire", icon: Hammer, color: "text-amber-600", bg: "bg-amber-50 border-amber-100", count: "1.2k+" },
-  { id: "commerçante", label: "Commerçant", desc: "Vente de biens, boutiquier, grossiste", icon: Store, color: "text-emerald-500", bg: "bg-emerald-50 border-emerald-100", count: "850+" },
+  { id: "commerçant", label: "Commerçant", desc: "Vente de biens, boutiquier, grossiste", icon: Store, color: "text-emerald-500", bg: "bg-emerald-50 border-emerald-100", count: "850+" },
   { id: "freelance", label: "Freelance / Indépendant", desc: "Prestation de service en solo, consultant", icon: Laptop, color: "text-blue-500", bg: "bg-blue-50 border-blue-100", count: "420+" },
   { id: "entreprise", label: "Entreprise", desc: "PME, TPE, Grande entreprise classique", icon: Briefcase, color: "text-slate-700", bg: "bg-slate-100 border-slate-200", count: "310+" },
   { id: "agence", label: "Agence", desc: "Communication, Marketing, Web, RH", icon: Megaphone, color: "text-purple-500", bg: "bg-purple-50 border-purple-100", count: "540+" },
@@ -28,21 +28,11 @@ const categories = [
 const CategoryCard = ({ cat, idx, categoryCounts }: { cat: any, idx: number, categoryCounts?: Record<string, number> }) => {
   const Icon = cat.icon
 
-  // Format de l'affichage intelligent :
-  // Si on a l'objet des vraies stats (categoryCounts existe) :
-  // - count > 100 : "X profils"
-  // - count < 100 et > 0 : "X profils"
-  // - count === 0 : "Nouveau"
-  // Si pas de données backend (fallback) : cat.count
-  let displayCount = cat.count
+  let displayCount: React.ReactNode = "..."
   
   if (categoryCounts !== undefined) {
     const realCount = categoryCounts[cat.id] || 0;
-    if (realCount > 0) {
-      displayCount = `${realCount}`
-    } else {
-      displayCount = "Nouveau"
-    }
+    displayCount = `${realCount}`
   }
 
   return (
