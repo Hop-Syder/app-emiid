@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Sparkles, Target, Lightbulb, Users, Rocket, Globe2, ArrowRight, Linkedin, Twitter, Github, ChevronRight, CheckCircle2 } from "lucide-react";
+import { Sparkles, Target, Lightbulb, Users, Rocket, Globe2, ArrowRight, Linkedin, Twitter, Github, ChevronRight, CheckCircle2, Trophy, Eye, BadgeCheck } from "lucide-react";
 import Link from "next/link";
 import { useRef } from "react";
 
@@ -17,7 +17,7 @@ const team = [
     links: {
       linkedin: "https://linkedin.com",
       twitter: "https://twitter.com",
-      website: "https://ceo.nexuspartners.xyz",
+      website: "https://ceo.nexus-partners.xyz",
     },
   },
   {
@@ -89,7 +89,7 @@ export default function AboutPage() {
 
   return (
     <main ref={containerRef} className="min-h-screen bg-[#fafafa] dark:bg-[#050505] overflow-hidden selection:bg-indigo-500/30">
-      
+
       {/* ── Background Elements ── */}
       <div className="fixed inset-0 pointer-events-none z-0 flex justify-center">
         <div className="absolute top-[-20%] w-[1000px] h-[600px] rounded-full bg-gradient-to-b from-indigo-500/20 via-purple-500/10 to-transparent blur-[100px] opacity-50 dark:opacity-20 animate-pulse-slow" />
@@ -99,7 +99,7 @@ export default function AboutPage() {
       {/* ── Hero ── */}
       <section className="relative pt-40 pb-24 sm:pt-48 sm:pb-32 z-10 border-b border-gray-200/50 dark:border-white/5">
         <div className="mx-auto max-w-7xl px-6 lg:px-8 text-center">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 30, filter: "blur(10px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             transition={{ duration: 0.8, ease: "easeOut" }}
@@ -110,8 +110,8 @@ export default function AboutPage() {
               <span>Notre vision pour l'Afrique</span>
             </div>
           </motion.div>
-          
-          <motion.h1 
+
+          <motion.h1
             initial={{ opacity: 0, y: 40, filter: "blur(10px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
@@ -122,8 +122,8 @@ export default function AboutPage() {
               professionnel africain
             </span>
           </motion.h1>
-          
-          <motion.p 
+
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
@@ -131,9 +131,9 @@ export default function AboutPage() {
           >
             Emiid est né d&apos;un constat simple : l&apos;Afrique regorge de talents extraordinaires, mais leur visibilité reste trop souvent confinée à des cercles restreints. Nous construisons l&apos;infrastructure qui change ça.
           </motion.p>
-          
+
           {/* Stats Grid */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
@@ -161,7 +161,7 @@ export default function AboutPage() {
       <section className="relative py-24 sm:py-32 z-10">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: -50 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: "-100px" }}
@@ -184,7 +184,7 @@ export default function AboutPage() {
               </div>
             </motion.div>
 
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: 50 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: "-100px" }}
@@ -223,7 +223,7 @@ export default function AboutPage() {
       {/* ── Nos valeurs ── */}
       <section className="relative py-24 sm:py-32 z-10 border-t border-b border-gray-200/50 dark:border-white/5 bg-white/30 dark:bg-white/[0.01]">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -236,13 +236,13 @@ export default function AboutPage() {
               Nos principes fondateurs, pensés pour répondre aux réalités de notre continent.
             </p>
           </motion.div>
-          
+
           <div className="grid md:grid-cols-3 gap-8">
             {values.map((value, i) => {
               const Icon = value.icon;
               return (
-                <motion.div 
-                  key={i} 
+                <motion.div
+                  key={i}
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
@@ -265,10 +265,10 @@ export default function AboutPage() {
       {/* ── Notre équipe (Alternate Design) ── */}
       <section className="relative py-24 sm:py-32 z-10 overflow-hidden">
         <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/3 w-[800px] h-[800px] bg-purple-500/10 rounded-full blur-[120px] pointer-events-none" />
-        
+
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           {/* Section Header */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -306,8 +306,33 @@ export default function AboutPage() {
                   {/* Avatar */}
                   <div className="relative shrink-0">
                     <div className="absolute -inset-4 bg-gradient-to-tr from-amber-400 to-indigo-500 rounded-full blur-xl opacity-30 group-hover:opacity-60 animate-pulse-slow transition-opacity" />
-                    <div className={`w-40 h-40 sm:w-48 sm:h-48 rounded-[2rem] sm:rounded-[2.5rem] bg-gradient-to-br ${ceo.gradient} flex items-center justify-center text-white font-black text-5xl sm:text-6xl shadow-2xl relative z-10 ring-4 ring-white dark:ring-[#0a0a0a] group-hover:scale-105 transition-transform duration-500`}>
+                    <div className={`w-48 h-48 sm:w-64 sm:h-64 rounded-[2rem] sm:rounded-[3rem] bg-gradient-to-br ${ceo.gradient} flex items-center justify-center text-white font-black text-6xl sm:text-8xl shadow-2xl relative z-10 ring-4 ring-white dark:ring-[#0a0a0a] group-hover:scale-105 transition-transform duration-500`}>
                       {ceo.initials}
+                    </div>
+
+                    {/* Floating Badges (Visible on mobile too) */}
+                    <div className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-md rounded-xl p-2 shadow-xl border border-gray-100 dark:border-white/10 z-20 flex items-center gap-2 hover:scale-110 transition-transform cursor-default">
+                      <div className="bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 p-1.5 rounded-lg">
+                        <Trophy className="w-3 h-3 sm:w-4 sm:h-4" />
+                      </div>
+                      <span className="text-[10px] sm:text-xs font-bold text-gray-800 dark:text-gray-200 whitespace-nowrap pr-2">Fondateur #147</span>
+                    </div>
+
+                    <div className="absolute -bottom-3 -left-3 sm:-bottom-4 sm:-left-4 bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-md rounded-xl p-2 shadow-xl border border-gray-100 dark:border-white/10 z-20 flex items-center gap-2 hover:scale-110 transition-transform cursor-default">
+                      <div className="bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 p-1.5 rounded-lg">
+                        <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
+                      </div>
+                      <div className="flex flex-col pr-2">
+                        <span className="text-[8px] sm:text-[10px] text-gray-500 font-medium uppercase leading-none mb-0.5">Cette semaine</span>
+                        <span className="text-[10px] sm:text-xs font-bold text-gray-800 dark:text-gray-200 whitespace-nowrap leading-none">86 vues</span>
+                      </div>
+                    </div>
+
+                    <div className="absolute top-1/2 -translate-y-1/2 -left-4 sm:-left-6 bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-md rounded-xl p-2 shadow-xl border border-gray-100 dark:border-white/10 z-20 flex items-center gap-2 hover:scale-110 transition-transform cursor-default">
+                      <div className="bg-green-100 dark:bg-green-500/20 text-green-600 dark:text-green-400 p-1 rounded-full">
+                        <BadgeCheck className="w-4 h-4 sm:w-5 sm:h-5" />
+                      </div>
+                      <span className="text-[10px] sm:text-xs font-bold text-gray-800 dark:text-gray-200 whitespace-nowrap pr-2">Profil certifié</span>
                     </div>
                   </div>
 
@@ -327,7 +352,7 @@ export default function AboutPage() {
                     <p className="text-lg text-gray-600 dark:text-gray-400 leading-relaxed max-w-2xl mb-8">
                       {ceo.bio}
                     </p>
-                    
+
                     {/* Socials */}
                     <div className="flex items-center justify-center md:justify-start gap-4">
                       {ceo.links.linkedin && (
@@ -357,12 +382,11 @@ export default function AboutPage() {
                   className="group relative"
                 >
                   <div className={`absolute inset-0 bg-gradient-to-b ${member.gradient} rounded-[2rem] blur-xl opacity-0 group-hover:opacity-10 transition-opacity duration-500`} />
-                  
-                  <div className={`relative h-full flex flex-col p-8 rounded-[2rem] border transition-all duration-300 ${
-                    member.placeholder
+
+                  <div className={`relative h-full flex flex-col p-8 rounded-[2rem] border transition-all duration-300 ${member.placeholder
                       ? "bg-white/30 dark:bg-[#0a0a0a]/30 border-dashed border-gray-200 dark:border-white/10"
                       : "bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-xl border-gray-200/50 dark:border-white/10 shadow-lg hover:-translate-y-2 hover:border-gray-300 dark:hover:border-white/20"
-                  }`}>
+                    }`}>
                     <div className="flex items-center gap-5 mb-6">
                       <div className={`shrink-0 w-16 h-16 rounded-[1.25rem] bg-gradient-to-br ${member.gradient} flex items-center justify-center text-white font-black text-xl shadow-inner group-hover:rotate-6 group-hover:scale-105 transition-transform duration-500`}>
                         {member.initials}
@@ -372,7 +396,7 @@ export default function AboutPage() {
                         <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">{member.role}</p>
                       </div>
                     </div>
-                    
+
                     <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed flex-1">
                       {member.bio}
                     </p>
@@ -389,9 +413,9 @@ export default function AboutPage() {
               ))}
             </div>
           </div>
-          
+
           {/* Join the team CTA */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
@@ -410,7 +434,7 @@ export default function AboutPage() {
       {/* ── Roadmap ── */}
       <section className="relative py-24 sm:py-32 z-10 border-t border-gray-200/50 dark:border-white/5 bg-white/30 dark:bg-white/[0.01]">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -423,26 +447,25 @@ export default function AboutPage() {
               Notre feuille de route pour les prochains mois.
             </p>
           </motion.div>
-          
+
           <div className="max-w-3xl mx-auto relative">
             {/* Vertical line */}
             <div className="absolute left-[20px] top-4 bottom-4 w-0.5 bg-gray-200 dark:bg-gray-800 rounded-full" />
-            
+
             <div className="space-y-12">
               {roadmap.map((item, i) => (
-                <motion.div 
-                  key={i} 
+                <motion.div
+                  key={i}
                   initial={{ opacity: 0, x: -20 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true, margin: "-100px" }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
                   className="relative flex items-start gap-8 group"
                 >
-                  <div className={`relative z-10 mt-1 w-10 h-10 rounded-full shrink-0 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 ${
-                    item.done
+                  <div className={`relative z-10 mt-1 w-10 h-10 rounded-full shrink-0 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 ${item.done
                       ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/30"
                       : "bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 text-gray-400"
-                  }`}>
+                    }`}>
                     {item.done
                       ? <CheckCircle2 className="w-5 h-5" />
                       : <span className="w-2.5 h-2.5 rounded-full bg-gray-300 dark:bg-gray-600" />
@@ -472,7 +495,7 @@ export default function AboutPage() {
       {/* ── CTA final ── */}
       <section className="relative py-24 sm:py-32 z-10">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
@@ -483,7 +506,7 @@ export default function AboutPage() {
             <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay" />
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/30 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-500/30 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/3 pointer-events-none" />
-            
+
             <div className="relative p-12 md:p-24 text-center z-10">
               <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-6">
                 Faites partie de l&apos;histoire
