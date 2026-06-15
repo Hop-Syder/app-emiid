@@ -1,8 +1,9 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Sparkles, Target, Lightbulb, Users, Rocket, Globe2, ArrowRight, Linkedin, Twitter, Github } from "lucide-react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { Sparkles, Target, Lightbulb, Users, Rocket, Globe2, ArrowRight, Linkedin, Twitter, Github, ChevronRight, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
+import { useRef } from "react";
 
 const USER_APP_URL = process.env.NEXT_PUBLIC_USER_APP_URL || "https://app.emiid.com";
 
@@ -54,18 +55,24 @@ const values = [
     title: "Africanité d'abord",
     description: "Chaque décision produit tient compte des réalités locales : connexion instable, paiement Mobile Money, diversité des langues et des cultures.",
     color: "from-indigo-500 to-purple-500",
+    bg: "bg-indigo-50 dark:bg-indigo-500/10",
+    text: "text-indigo-600 dark:text-indigo-400"
   },
   {
     icon: Users,
     title: "Communauté avant tout",
-    description: "Emiid n'est pas un outil. C'est un écosystème vivant où la confiance se construit par les paires, pas par les algorithmes.",
+    description: "Emiid n'est pas un outil. C'est un écosystème vivant où la confiance se construit par les pairs, pas par les algorithmes.",
     color: "from-emerald-500 to-teal-500",
+    bg: "bg-emerald-50 dark:bg-emerald-500/10",
+    text: "text-emerald-600 dark:text-emerald-400"
   },
   {
     icon: Lightbulb,
     title: "Accessibilité radicale",
     description: "Un artisan de Bouaké doit pouvoir créer un profil aussi crédible qu'un développeur de Dakar. L'excellence n'a pas de code postal.",
     color: "from-amber-500 to-orange-500",
+    bg: "bg-amber-50 dark:bg-amber-500/10",
+    text: "text-amber-600 dark:text-amber-400"
   },
 ];
 
@@ -77,47 +84,73 @@ const roadmap = [
   { quarter: "Q2 2027", label: "Paiements intégrés", done: false, description: "Facturation entre membres et contrats sécurisés on-platform." },
 ];
 
-function fadeUp(delay = 0) {
-  return {
-    initial: { opacity: 0, y: 24 },
-    whileInView: { opacity: 1, y: 0 },
-    viewport: { once: true },
-    transition: { duration: 0.5, delay },
-  };
-}
-
 export default function AboutPage() {
+  const containerRef = useRef(null);
+
   return (
-    <main className="min-h-screen bg-white dark:bg-[#050505] overflow-hidden">
+    <main ref={containerRef} className="min-h-screen bg-[#fafafa] dark:bg-[#050505] overflow-hidden selection:bg-indigo-500/30">
+      
+      {/* ── Background Elements ── */}
+      <div className="fixed inset-0 pointer-events-none z-0 flex justify-center">
+        <div className="absolute top-[-20%] w-[1000px] h-[600px] rounded-full bg-gradient-to-b from-indigo-500/20 via-purple-500/10 to-transparent blur-[100px] opacity-50 dark:opacity-20 animate-pulse-slow" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:24px_24px] dark:bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)]" />
+      </div>
 
       {/* ── Hero ── */}
-      <section className="relative py-32 sm:py-40 border-b border-gray-100 dark:border-white/5">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-indigo-500/10 rounded-[100%] blur-[100px] pointer-events-none" />
-        <div className="relative mx-auto max-w-[1440px] px-6 md:px-12 lg:px-16 text-center z-10">
-          <motion.div {...fadeUp(0)}>
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-xs font-bold uppercase tracking-widest mb-6">
-              <Sparkles className="w-3.5 h-3.5" />
-              Notre histoire
-            </span>
+      <section className="relative pt-40 pb-24 sm:pt-48 sm:pb-32 z-10 border-b border-gray-200/50 dark:border-white/5">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 text-center">
+          <motion.div 
+            initial={{ opacity: 0, y: 30, filter: "blur(10px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="flex justify-center"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/60 dark:bg-white/5 backdrop-blur-md border border-gray-200/50 dark:border-white/10 text-sm font-medium text-gray-900 dark:text-gray-200 shadow-sm mb-8 hover:bg-white/80 dark:hover:bg-white/10 transition-colors cursor-default">
+              <Sparkles className="w-4 h-4 text-indigo-500" />
+              <span>Notre vision pour l'Afrique</span>
+            </div>
           </motion.div>
-          <motion.h1 {...fadeUp(0.07)} className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-6">
+          
+          <motion.h1 
+            initial={{ opacity: 0, y: 40, filter: "blur(10px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
+            className="text-5xl sm:text-7xl md:text-8xl font-black tracking-tighter text-gray-900 dark:text-white mb-8"
+          >
             Façonner l&apos;avenir du<br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500">
               professionnel africain
             </span>
           </motion.h1>
-          <motion.p {...fadeUp(0.14)} className="max-w-2xl mx-auto text-lg text-gray-500 dark:text-gray-400 leading-relaxed mb-10">
+          
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="max-w-2xl mx-auto text-lg sm:text-xl text-gray-600 dark:text-gray-400 leading-relaxed mb-16"
+          >
             Emiid est né d&apos;un constat simple : l&apos;Afrique regorge de talents extraordinaires, mais leur visibilité reste trop souvent confinée à des cercles restreints. Nous construisons l&apos;infrastructure qui change ça.
           </motion.p>
-          <motion.div {...fadeUp(0.2)} className="flex flex-wrap justify-center gap-8">
+          
+          {/* Stats Grid */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-4xl mx-auto"
+          >
             {[
-              { value: "2026", label: "Année de lancement" },
-              { value: "500+", label: "Profils créés" },
-              { value: "12", label: "Pays représentés" },
-            ].map((stat) => (
-              <div key={stat.label} className="text-center">
-                <p className="text-3xl font-black text-gray-900 dark:text-white">{stat.value}</p>
-                <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mt-1">{stat.label}</p>
+              { value: "2026", label: "Lancement", icon: Rocket, color: "text-indigo-500", bg: "bg-indigo-500/10" },
+              { value: "500+", label: "Profils vérifiés", icon: Users, color: "text-purple-500", bg: "bg-purple-500/10" },
+              { value: "12+", label: "Pays", icon: Globe2, color: "text-cyan-500", bg: "bg-cyan-500/10" },
+            ].map((stat, i) => (
+              <div key={i} className="group relative p-8 rounded-3xl bg-white/40 dark:bg-white/[0.02] backdrop-blur-xl border border-gray-200/50 dark:border-white/5 hover:bg-white/60 dark:hover:bg-white/[0.04] transition-all duration-300 overflow-hidden text-left shadow-sm">
+                <div className={`absolute top-0 right-0 -mr-4 -mt-4 w-24 h-24 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${stat.bg}`} />
+                <div className={`w-12 h-12 rounded-2xl ${stat.bg} ${stat.color} flex items-center justify-center mb-6`}>
+                  <stat.icon className="w-6 h-6" />
+                </div>
+                <p className="text-4xl font-black text-gray-900 dark:text-white mb-2">{stat.value}</p>
+                <p className="text-sm font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">{stat.label}</p>
               </div>
             ))}
           </motion.div>
@@ -125,63 +158,103 @@ export default function AboutPage() {
       </section>
 
       {/* ── Histoire & Défis ── */}
-      <section className="py-24 border-b border-gray-100 dark:border-white/5">
-        <div className="mx-auto max-w-[1440px] px-6 md:px-12 lg:px-16">
-          <div className="grid lg:grid-cols-2 gap-12">
-            <motion.div {...fadeUp(0)} className="bg-white/60 dark:bg-[#0a0a0a]/60 backdrop-blur-xl border border-gray-200/50 dark:border-white/10 rounded-3xl p-8 md:p-10">
-              <div className="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center mb-6">
-                <Sparkles className="w-5 h-5 text-indigo-500" />
+      <section className="relative py-24 sm:py-32 z-10">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+            <motion.div 
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.8 }}
+              className="space-y-8"
+            >
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 text-sm font-bold uppercase tracking-widest border border-rose-100 dark:border-rose-500/20">
+                <Target className="w-4 h-4" /> Genèse
               </div>
-              <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-4">Notre histoire</h2>
-              <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                Emiid est né à Abidjan en 2026, dans un bureau de Nexus Partners. Le fondateur, après avoir cherché pendant des semaines un développeur senior de confiance pour un projet, réalise que le problème n&apos;est pas l&apos;absence de talents — c&apos;est l&apos;absence d&apos;un lieu pour les trouver, les vérifier et les contacter sans friction.
-              </p>
-              <p className="text-gray-600 dark:text-gray-400 leading-relaxed mt-4">
-                En six mois de développement intensif, la première version d&apos;Emiid est lancée avec un objectif clair : devenir le LinkedIn que l&apos;Afrique aurait construit pour elle-même.
-              </p>
+              <h2 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tight">
+                Une solution née d'une <span className="text-transparent bg-clip-text bg-gradient-to-br from-rose-500 to-orange-500">frustration</span>.
+              </h2>
+              <div className="prose prose-lg dark:prose-invert text-gray-600 dark:text-gray-400">
+                <p>
+                  Emiid est né à Abidjan en 2026, dans un bureau de Nexus Partners. Le fondateur, après avoir cherché pendant des semaines un développeur senior de confiance pour un projet, réalise que le problème n&apos;est pas l&apos;absence de talents — c&apos;est l&apos;absence d&apos;un lieu pour les trouver, les vérifier et les contacter sans friction.
+                </p>
+                <p>
+                  En six mois de développement intensif, la première version d&apos;Emiid est lancée avec un objectif clair : devenir le réseau de confiance que l&apos;Afrique aurait construit pour elle-même.
+                </p>
+              </div>
             </motion.div>
 
-            <motion.div {...fadeUp(0.1)} className="bg-white/60 dark:bg-[#0a0a0a]/60 backdrop-blur-xl border border-gray-200/50 dark:border-white/10 rounded-3xl p-8 md:p-10">
-              <div className="w-10 h-10 rounded-2xl bg-rose-50 dark:bg-rose-500/10 flex items-center justify-center mb-6">
-                <Target className="w-5 h-5 text-rose-500" />
+            <motion.div 
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.8 }}
+              className="relative"
+            >
+              <div className="absolute inset-0 bg-gradient-to-tr from-rose-500 to-orange-500 rounded-[2.5rem] blur-3xl opacity-20 dark:opacity-30" />
+              <div className="relative bg-white/60 dark:bg-[#0a0a0a]/80 backdrop-blur-xl border border-gray-200/50 dark:border-white/10 rounded-[2.5rem] p-8 sm:p-12 shadow-2xl">
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-8 flex items-center gap-4">
+                  <span className="w-12 h-12 rounded-2xl bg-gradient-to-br from-rose-500 to-orange-500 flex items-center justify-center text-white shadow-lg">
+                    <Lightbulb className="w-6 h-6" />
+                  </span>
+                  Les défis que nous relevons
+                </h3>
+                <ul className="space-y-6">
+                  {[
+                    "Manque de vitrine crédible pour les talents.",
+                    "Difficulté pour les recruteurs de vérifier les compétences.",
+                    "Plateformes occidentales inadaptées aux réalités locales.",
+                    "L'économie informelle totalement ignorée.",
+                  ].map((item, i) => (
+                    <li key={i} className="flex items-start gap-4 group">
+                      <div className="mt-1 w-6 h-6 rounded-full bg-rose-100 dark:bg-rose-500/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                        <ChevronRight className="w-3 h-3 text-rose-600 dark:text-rose-400" />
+                      </div>
+                      <span className="text-gray-700 dark:text-gray-300 font-medium leading-relaxed">{item}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-4">Les défis que nous relevons</h2>
-              <ul className="space-y-4">
-                {[
-                  "Les talents africains n'ont pas de vitrine crédible à montrer aux clients internationaux.",
-                  "Les investisseurs peinent à identifier des profils vérifiés au-delà des réseaux personnels.",
-                  "Les plateformes occidentales sont hors de prix et inadaptées aux réalités locales.",
-                  "L'économie informelle — artisans, prestataires — est totalement ignorée par les outils existants.",
-                ].map((item, i) => (
-                  <li key={i} className="flex items-start gap-3 text-gray-600 dark:text-gray-400">
-                    <span className="mt-1.5 w-2 h-2 rounded-full bg-rose-500 shrink-0" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
             </motion.div>
           </div>
         </div>
       </section>
 
       {/* ── Nos valeurs ── */}
-      <section className="py-24 border-b border-gray-100 dark:border-white/5">
-        <div className="mx-auto max-w-[1440px] px-6 md:px-12 lg:px-16">
-          <motion.div {...fadeUp(0)} className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white">
+      <section className="relative py-24 sm:py-32 z-10 border-t border-b border-gray-200/50 dark:border-white/5 bg-white/30 dark:bg-white/[0.01]">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center max-w-2xl mx-auto mb-20"
+          >
+            <h2 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tight mb-6">
               Ce qui nous guide
             </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-400">
+              Nos principes fondateurs, pensés pour répondre aux réalités de notre continent.
+            </p>
           </motion.div>
-          <div className="grid md:grid-cols-3 gap-6">
+          
+          <div className="grid md:grid-cols-3 gap-8">
             {values.map((value, i) => {
               const Icon = value.icon;
               return (
-                <motion.div key={i} {...fadeUp(i * 0.1)} className="relative group bg-white/50 dark:bg-[#0a0a0a]/50 backdrop-blur-xl border border-gray-200/50 dark:border-white/10 rounded-3xl p-8 hover:border-gray-300 dark:hover:border-white/20 transition-all">
-                  <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${value.color} flex items-center justify-center mb-6 shadow-lg`}>
-                    <Icon className="w-6 h-6 text-white" />
+                <motion.div 
+                  key={i} 
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: i * 0.1 }}
+                  className="group relative bg-white/60 dark:bg-[#0a0a0a]/60 backdrop-blur-xl border border-gray-200/50 dark:border-white/10 rounded-[2rem] p-10 hover:border-gray-300 dark:hover:border-white/20 transition-all shadow-sm hover:shadow-xl"
+                >
+                  <div className={`absolute top-0 right-0 w-32 h-32 rounded-bl-full ${value.bg} opacity-50 group-hover:opacity-100 transition-opacity duration-500`} />
+                  <div className={`relative w-14 h-14 rounded-2xl bg-gradient-to-br ${value.color} flex items-center justify-center mb-8 shadow-lg group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300`}>
+                    <Icon className="w-7 h-7 text-white" />
                   </div>
-                  <h3 className="text-lg font-black text-gray-900 dark:text-white mb-3">{value.title}</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{value.description}</p>
+                  <h3 className="relative text-xl font-black text-gray-900 dark:text-white mb-4">{value.title}</h3>
+                  <p className="relative text-base text-gray-600 dark:text-gray-400 leading-relaxed">{value.description}</p>
                 </motion.div>
               );
             })}
@@ -190,126 +263,145 @@ export default function AboutPage() {
       </section>
 
       {/* ── Notre équipe ── */}
-      <section className="py-24 border-b border-gray-100 dark:border-white/5">
-        <div className="mx-auto max-w-[1440px] px-6 md:px-12 lg:px-16">
-          <motion.div {...fadeUp(0)} className="text-center mb-16">
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-50 dark:bg-purple-500/10 border border-purple-100 dark:border-purple-500/20 text-purple-600 dark:text-purple-400 text-xs font-bold uppercase tracking-widest mb-4">
-              <Users className="w-3.5 h-3.5" />
-              Notre équipe
-            </span>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-4">
-              Les visages derrière Emiid
+      <section className="relative py-24 sm:py-32 z-10">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center max-w-2xl mx-auto mb-20"
+          >
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 text-sm font-bold uppercase tracking-widest border border-purple-100 dark:border-purple-500/20 mb-6">
+              <Users className="w-4 h-4" /> L'équipe
+            </div>
+            <h2 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tight mb-6">
+              Les bâtisseurs
             </h2>
-            <p className="text-gray-500 dark:text-gray-400 max-w-xl mx-auto text-base">
+            <p className="text-lg text-gray-600 dark:text-gray-400">
               Une équipe compacte, ambitieuse et profondément convaincue que l&apos;Afrique mérite ses propres outils.
             </p>
           </motion.div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
             {team.map((member, i) => (
               <motion.div
                 key={i}
-                {...fadeUp(i * 0.1)}
-                className={`relative flex flex-col items-center text-center rounded-3xl p-8 border transition-all duration-300 ${
-                  member.placeholder
-                    ? "bg-white/30 dark:bg-[#0a0a0a]/30 border-dashed border-gray-200 dark:border-white/10 opacity-60"
-                    : "bg-white/60 dark:bg-[#0a0a0a]/60 backdrop-blur-xl border border-gray-200/60 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 hover:shadow-xl"
-                }`}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                className="group relative"
               >
-                {/* Avatar */}
-                <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${member.gradient} flex items-center justify-center text-white font-black text-xl mb-5 shadow-lg`}>
-                  {member.initials}
-                </div>
-
-                <h3 className="font-black text-gray-900 dark:text-white text-base mb-1">
-                  {member.name}
-                </h3>
-                <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-4">
-                  {member.role}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed flex-1">
-                  {member.bio}
-                </p>
-
-                {/* Social links */}
-                {!member.placeholder && Object.keys(member.links).length > 0 && (
-                  <div className="flex items-center gap-3 mt-6">
-                    {member.links.linkedin && (
-                      <a href={member.links.linkedin} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-indigo-500 transition-colors">
-                        <Linkedin className="w-4 h-4" />
-                      </a>
-                    )}
-                    {member.links.twitter && (
-                      <a href={member.links.twitter} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-indigo-500 transition-colors">
-                        <Twitter className="w-4 h-4" />
-                      </a>
-                    )}
-                    {member.links.website && (
-                      <a href={member.links.website} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-indigo-500 transition-colors">
-                        <Globe2 className="w-4 h-4" />
-                      </a>
-                    )}
+                <div className={`absolute inset-0 bg-gradient-to-b ${member.gradient} rounded-[2rem] blur-xl opacity-0 group-hover:opacity-15 transition-opacity duration-500`} />
+                <div className={`relative h-full flex flex-col items-center text-center rounded-[2rem] p-8 border transition-all duration-300 ${
+                  member.placeholder
+                    ? "bg-white/40 dark:bg-[#0a0a0a]/40 border-dashed border-gray-200 dark:border-white/10"
+                    : "bg-white dark:bg-[#0a0a0a] border-gray-200/50 dark:border-white/10 shadow-xl shadow-gray-200/50 dark:shadow-none hover:-translate-y-2"
+                }`}>
+                  <div className={`w-24 h-24 rounded-full bg-gradient-to-br ${member.gradient} flex items-center justify-center text-white font-black text-3xl mb-6 shadow-inner ring-4 ring-white dark:ring-[#0a0a0a] group-hover:scale-110 transition-transform duration-500`}>
+                    {member.initials}
                   </div>
-                )}
+                  <h3 className="font-bold text-gray-900 dark:text-white text-lg mb-1">{member.name}</h3>
+                  <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-4">{member.role}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed flex-1">{member.bio}</p>
 
-                {member.placeholder && (
-                  <p className="mt-6 text-[10px] font-bold text-gray-300 dark:text-gray-700 uppercase tracking-widest">
-                    Poste à pourvoir
-                  </p>
-                )}
+                  {!member.placeholder && Object.keys(member.links).length > 0 && (
+                    <div className="flex items-center gap-4 mt-8 pt-6 border-t border-gray-100 dark:border-white/5 w-full justify-center">
+                      {member.links.linkedin && (
+                        <a href={member.links.linkedin} className="text-gray-400 hover:text-[#0A66C2] transition-colors"><Linkedin className="w-5 h-5" /></a>
+                      )}
+                      {member.links.twitter && (
+                        <a href={member.links.twitter} className="text-gray-400 hover:text-[#1DA1F2] transition-colors"><Twitter className="w-5 h-5" /></a>
+                      )}
+                      {member.links.website && (
+                        <a href={member.links.website} className="text-gray-400 hover:text-indigo-500 transition-colors"><Globe2 className="w-5 h-5" /></a>
+                      )}
+                    </div>
+                  )}
+
+                  {member.placeholder && (
+                    <div className="mt-8 pt-6 border-t border-gray-100 dark:border-white/5 w-full">
+                      <span className="text-xs font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest bg-gray-100 dark:bg-white/5 px-3 py-1.5 rounded-full">
+                        Poste à pourvoir
+                      </span>
+                    </div>
+                  )}
+                </div>
               </motion.div>
             ))}
           </div>
-
+          
           {/* Join the team CTA */}
-          <motion.div {...fadeUp(0.3)} className="mt-12 text-center">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="mt-16 text-center"
+          >
             <a
               href="mailto:contact@emiid.com"
-              className="inline-flex items-center gap-2 text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
+              className="inline-flex items-center gap-2 text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 hover:underline transition-colors"
             >
-              Vous voulez rejoindre l&apos;équipe ? Écrivez-nous →
+              Vous voulez rejoindre l&apos;équipe ? Écrivez-nous <ArrowRight className="w-4 h-4" />
             </a>
           </motion.div>
         </div>
       </section>
 
       {/* ── Roadmap ── */}
-      <section className="py-24 border-b border-gray-100 dark:border-white/5">
-        <div className="mx-auto max-w-[1440px] px-6 md:px-12 lg:px-16">
-          <motion.div {...fadeUp(0)} className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white">
+      <section className="relative py-24 sm:py-32 z-10 border-t border-gray-200/50 dark:border-white/5 bg-white/30 dark:bg-white/[0.01]">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center max-w-2xl mx-auto mb-20"
+          >
+            <h2 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tight mb-6">
               Où nous allons
             </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-400">
+              Notre feuille de route pour les prochains mois.
+            </p>
           </motion.div>
-          <div className="max-w-2xl mx-auto relative">
+          
+          <div className="max-w-3xl mx-auto relative">
             {/* Vertical line */}
-            <div className="absolute left-[18px] top-2 bottom-2 w-0.5 bg-gray-100 dark:bg-gray-800" />
-            <div className="space-y-8">
+            <div className="absolute left-[20px] top-4 bottom-4 w-0.5 bg-gray-200 dark:bg-gray-800 rounded-full" />
+            
+            <div className="space-y-12">
               {roadmap.map((item, i) => (
-                <motion.div key={i} {...fadeUp(i * 0.08)} className="flex items-start gap-5">
-                  <div className={`relative z-10 mt-0.5 w-9 h-9 rounded-full shrink-0 flex items-center justify-center ${
+                <motion.div 
+                  key={i} 
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, margin: "-100px" }}
+                  transition={{ duration: 0.5, delay: i * 0.1 }}
+                  className="relative flex items-start gap-8 group"
+                >
+                  <div className={`relative z-10 mt-1 w-10 h-10 rounded-full shrink-0 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 ${
                     item.done
-                      ? "bg-indigo-600 shadow-lg shadow-indigo-500/30"
-                      : "bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700"
+                      ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/30"
+                      : "bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 text-gray-400"
                   }`}>
                     {item.done
-                      ? <Rocket className="w-4 h-4 text-white" />
-                      : <span className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600" />
+                      ? <CheckCircle2 className="w-5 h-5" />
+                      : <span className="w-2.5 h-2.5 rounded-full bg-gray-300 dark:bg-gray-600" />
                     }
                   </div>
-                  <div className="flex-1 pt-1">
-                    <div className="flex items-center gap-3 mb-1">
-                      <span className={`text-xs font-black uppercase tracking-widest ${item.done ? "text-indigo-600 dark:text-indigo-400" : "text-gray-400"}`}>
+                  <div className="flex-1 bg-white/60 dark:bg-[#0a0a0a]/80 backdrop-blur-md border border-gray-200/50 dark:border-white/10 rounded-3xl p-6 md:p-8 hover:border-gray-300 dark:hover:border-white/20 transition-colors shadow-sm">
+                    <div className="flex flex-wrap items-center gap-3 mb-2">
+                      <span className={`text-sm font-black uppercase tracking-widest ${item.done ? "text-indigo-600 dark:text-indigo-400" : "text-gray-400"}`}>
                         {item.quarter}
                       </span>
                       {item.done && (
                         <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 px-2 py-0.5 rounded-full uppercase tracking-wide">
-                          Lancé ✓
+                          Lancé
                         </span>
                       )}
                     </div>
-                    <p className="font-black text-gray-900 dark:text-white text-base mb-0.5">{item.label}</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{item.description}</p>
+                    <h3 className="font-black text-gray-900 dark:text-white text-xl mb-2">{item.label}</h3>
+                    <p className="text-base text-gray-600 dark:text-gray-400">{item.description}</p>
                   </div>
                 </motion.div>
               ))}
@@ -319,29 +411,38 @@ export default function AboutPage() {
       </section>
 
       {/* ── CTA final ── */}
-      <section className="py-24">
-        <div className="mx-auto max-w-[1440px] px-6 md:px-12 lg:px-16">
-          <motion.div {...fadeUp(0)} className="max-w-4xl mx-auto bg-gradient-to-br from-indigo-900 to-purple-900 rounded-[2.5rem] p-10 sm:p-16 text-center relative overflow-hidden shadow-2xl">
-            <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E")' }} />
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="relative z-10">
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">
+      <section className="relative py-24 sm:py-32 z-10">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="relative rounded-[3rem] overflow-hidden bg-gray-900 shadow-2xl"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-900 via-purple-900 to-indigo-950 opacity-90" />
+            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay" />
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/30 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-500/30 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/3 pointer-events-none" />
+            
+            <div className="relative p-12 md:p-24 text-center z-10">
+              <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-6">
                 Faites partie de l&apos;histoire
               </h2>
-              <p className="text-indigo-200 mb-10 text-lg max-w-xl mx-auto">
+              <p className="text-xl text-indigo-100 max-w-2xl mx-auto mb-10 leading-relaxed">
                 Rejoignez les 500+ professionnels qui construisent déjà leur réputation sur Emiid. C&apos;est gratuit pour commencer.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link
                   href={`${USER_APP_URL}/creer-profil`}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white text-indigo-900 font-bold py-4 px-8 rounded-2xl shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white text-indigo-900 font-bold py-4 px-8 rounded-full shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all"
                 >
                   Créer mon profil gratuit
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-5 h-5" />
                 </Link>
                 <a
                   href="mailto:contact@emiid.com"
-                  className="w-full sm:w-auto text-white font-bold py-4 px-8 rounded-2xl border border-indigo-400/40 bg-indigo-800/40 hover:bg-indigo-800/70 transition-colors"
+                  className="w-full sm:w-auto inline-flex items-center justify-center text-white font-bold py-4 px-8 rounded-full border border-indigo-400/30 bg-indigo-800/20 hover:bg-indigo-800/40 backdrop-blur-md transition-colors"
                 >
                   Contacter l&apos;équipe
                 </a>
