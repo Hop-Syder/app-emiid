@@ -262,107 +262,132 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ── Notre équipe ── */}
-      <section className="relative py-24 sm:py-32 z-10">
+      {/* ── Notre équipe (Alternate Design) ── */}
+      <section className="relative py-24 sm:py-32 z-10 overflow-hidden">
+        <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/3 w-[800px] h-[800px] bg-purple-500/10 rounded-full blur-[120px] pointer-events-none" />
+        
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          {/* Section Header */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center max-w-2xl mx-auto mb-20"
+            className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16"
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 text-sm font-bold uppercase tracking-widest border border-purple-100 dark:border-purple-500/20 mb-6">
-              <Users className="w-4 h-4" /> L'équipe
+            <div className="max-w-2xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 text-sm font-bold uppercase tracking-widest border border-purple-100 dark:border-purple-500/20 mb-6">
+                <Users className="w-4 h-4" /> L'équipe
+              </div>
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 dark:text-white tracking-tight">
+                Les <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-indigo-500">visages</span> derrière Emiid
+              </h2>
             </div>
-            <h2 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tight mb-6">
-              Les bâtisseurs
-            </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-400">
-              Une équipe compacte, ambitieuse et profondément convaincue que l&apos;Afrique mérite ses propres outils.
+            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-sm">
+              Une équipe compacte, ambitieuse et profondément convaincue que l'Afrique mérite ses propres outils.
             </p>
           </motion.div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-            {team.map((member, i) => {
-              const isCEO = member.name === "Daouda Abassi Christian";
-              
-              return (
+          <div className="flex flex-col gap-8">
+            {/* CEO Card - Full width premium showcase */}
+            {team.filter(m => m.name === "Daouda Abassi Christian").map((ceo, i) => (
               <motion.div
-                key={i}
+                key={`ceo-${i}`}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                className={`group relative ${isCEO ? 'sm:col-span-2 lg:col-span-2' : ''}`}
+                className="group relative rounded-[2.5rem] bg-white dark:bg-[#0a0a0a] border border-gray-200/50 dark:border-white/10 shadow-2xl overflow-hidden"
               >
-                {isCEO && (
-                  <div className="absolute inset-0 bg-gradient-to-r from-amber-500 via-indigo-500 to-purple-500 rounded-[2rem] blur-xl opacity-30 group-hover:opacity-60 transition-opacity duration-700 animate-pulse-slow" />
-                )}
-                {!isCEO && (
-                  <div className={`absolute inset-0 bg-gradient-to-b ${member.gradient} rounded-[2rem] blur-xl opacity-0 group-hover:opacity-15 transition-opacity duration-500`} />
-                )}
-                
-                <div className={`relative h-full flex ${isCEO ? 'flex-col sm:flex-row items-center sm:items-stretch text-center sm:text-left p-10' : 'flex-col items-center text-center p-8'} rounded-[2rem] border transition-all duration-500 overflow-hidden ${
-                  member.placeholder
-                    ? "bg-white/40 dark:bg-[#0a0a0a]/40 border-dashed border-gray-200 dark:border-white/10"
-                    : isCEO 
-                      ? "bg-white/90 dark:bg-[#050505]/90 backdrop-blur-2xl border-indigo-500/30 dark:border-indigo-500/30 shadow-2xl shadow-indigo-500/20 hover:-translate-y-2"
-                      : "bg-white dark:bg-[#0a0a0a] border-gray-200/50 dark:border-white/10 shadow-xl shadow-gray-200/50 dark:shadow-none hover:-translate-y-2 hover:border-gray-300 dark:hover:border-white/20"
-                }`}>
-                  
-                  {isCEO && (
-                    <div className="absolute top-0 right-0 w-[250px] h-[250px] bg-gradient-to-br from-indigo-500/20 to-amber-500/20 blur-[60px] pointer-events-none" />
-                  )}
-                  {isCEO && (
-                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay pointer-events-none" />
-                  )}
+                {/* Background effects */}
+                <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 via-indigo-500/5 to-purple-500/5 opacity-50" />
+                <div className="absolute right-0 top-0 w-1/2 h-full bg-gradient-to-l from-indigo-500/10 to-transparent blur-3xl group-hover:from-indigo-500/20 transition-colors duration-700 pointer-events-none" />
+                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay pointer-events-none" />
 
-                  <div className={`shrink-0 ${isCEO ? 'w-32 h-32 mb-6 sm:mb-0 sm:mr-8' : 'w-24 h-24 mb-6'} rounded-full bg-gradient-to-br ${member.gradient} flex items-center justify-center text-white font-black ${isCEO ? 'text-4xl' : 'text-3xl'} shadow-inner ring-4 ring-white dark:ring-[#0a0a0a] group-hover:scale-110 transition-transform duration-500 relative`}>
-                    {isCEO && (
-                      <div className="absolute -inset-1.5 rounded-full bg-gradient-to-tr from-amber-400 to-indigo-500 opacity-40 blur-md group-hover:opacity-100 transition-opacity duration-500" />
-                    )}
-                    <span className="relative z-10">{member.initials}</span>
+                <div className="relative p-8 md:p-12 flex flex-col md:flex-row items-center md:items-start gap-10">
+                  {/* Avatar */}
+                  <div className="relative shrink-0">
+                    <div className="absolute -inset-4 bg-gradient-to-tr from-amber-400 to-indigo-500 rounded-full blur-xl opacity-30 group-hover:opacity-60 animate-pulse-slow transition-opacity" />
+                    <div className={`w-40 h-40 sm:w-48 sm:h-48 rounded-[2rem] sm:rounded-[2.5rem] bg-gradient-to-br ${ceo.gradient} flex items-center justify-center text-white font-black text-5xl sm:text-6xl shadow-2xl relative z-10 ring-4 ring-white dark:ring-[#0a0a0a] group-hover:scale-105 transition-transform duration-500`}>
+                      {ceo.initials}
+                    </div>
                   </div>
-                  
-                  <div className={`flex flex-col ${isCEO ? 'justify-center flex-1 z-10' : ''}`}>
-                    <div className={`${isCEO ? 'flex flex-wrap items-center gap-3 mb-2 justify-center sm:justify-start' : 'mb-1'}`}>
-                      <h3 className={`font-black text-gray-900 dark:text-white ${isCEO ? 'text-2xl' : 'text-lg'}`}>{member.name}</h3>
-                      {isCEO && (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 text-amber-600 dark:text-amber-400 text-[10px] font-bold uppercase tracking-widest shadow-sm">
-                          Fondateur
-                        </span>
+
+                  {/* Content */}
+                  <div className="flex-1 text-center md:text-left mt-4 md:mt-0">
+                    <div className="flex flex-wrap justify-center md:justify-start items-center gap-4 mb-4">
+                      <h3 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white">
+                        {ceo.name}
+                      </h3>
+                      <span className="inline-flex items-center px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-black uppercase tracking-widest shadow-sm">
+                        Fondateur & CEO
+                      </span>
+                    </div>
+                    <p className="text-xl font-medium text-indigo-600 dark:text-indigo-400 mb-6">
+                      L'architecte de la vision
+                    </p>
+                    <p className="text-lg text-gray-600 dark:text-gray-400 leading-relaxed max-w-2xl mb-8">
+                      {ceo.bio}
+                    </p>
+                    
+                    {/* Socials */}
+                    <div className="flex items-center justify-center md:justify-start gap-4">
+                      {ceo.links.linkedin && (
+                        <a href={ceo.links.linkedin} className="w-12 h-12 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center text-gray-500 hover:text-[#0A66C2] hover:bg-white dark:hover:bg-[#0a0a0a] hover:shadow-md transition-all"><Linkedin className="w-5 h-5" /></a>
+                      )}
+                      {ceo.links.twitter && (
+                        <a href={ceo.links.twitter} className="w-12 h-12 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center text-gray-500 hover:text-[#1DA1F2] hover:bg-white dark:hover:bg-[#0a0a0a] hover:shadow-md transition-all"><Twitter className="w-5 h-5" /></a>
+                      )}
+                      {ceo.links.website && (
+                        <a href={ceo.links.website} className="w-12 h-12 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center text-gray-500 hover:text-indigo-500 hover:bg-white dark:hover:bg-[#0a0a0a] hover:shadow-md transition-all"><Globe2 className="w-5 h-5" /></a>
                       )}
                     </div>
-                    
-                    <p className={`font-bold uppercase tracking-widest ${isCEO ? 'text-sm text-indigo-600 dark:text-indigo-400 mb-4' : 'text-xs text-indigo-600 dark:text-indigo-400 mb-4'}`}>{member.role}</p>
-                    
-                    <p className={`text-gray-500 dark:text-gray-400 leading-relaxed flex-1 ${isCEO ? 'text-base max-w-lg' : 'text-sm'}`}>{member.bio}</p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
 
-                    {!member.placeholder && Object.keys(member.links).length > 0 && (
-                      <div className={`flex items-center gap-4 mt-8 pt-6 border-t border-gray-100 dark:border-white/5 w-full ${isCEO ? 'justify-center sm:justify-start' : 'justify-center'}`}>
-                        {member.links.linkedin && (
-                          <a href={member.links.linkedin} className="text-gray-400 hover:text-[#0A66C2] transition-colors"><Linkedin className="w-5 h-5" /></a>
-                        )}
-                        {member.links.twitter && (
-                          <a href={member.links.twitter} className="text-gray-400 hover:text-[#1DA1F2] transition-colors"><Twitter className="w-5 h-5" /></a>
-                        )}
-                        {member.links.website && (
-                          <a href={member.links.website} className="text-gray-400 hover:text-indigo-500 transition-colors"><Globe2 className="w-5 h-5" /></a>
-                        )}
+            {/* Rest of the team - 3 columns */}
+            <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+              {team.filter(m => m.name !== "Daouda Abassi Christian").map((member, i) => (
+                <motion.div
+                  key={`member-${i}`}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: i * 0.1 }}
+                  className="group relative"
+                >
+                  <div className={`absolute inset-0 bg-gradient-to-b ${member.gradient} rounded-[2rem] blur-xl opacity-0 group-hover:opacity-10 transition-opacity duration-500`} />
+                  
+                  <div className={`relative h-full flex flex-col p-8 rounded-[2rem] border transition-all duration-300 ${
+                    member.placeholder
+                      ? "bg-white/30 dark:bg-[#0a0a0a]/30 border-dashed border-gray-200 dark:border-white/10"
+                      : "bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-xl border-gray-200/50 dark:border-white/10 shadow-lg hover:-translate-y-2 hover:border-gray-300 dark:hover:border-white/20"
+                  }`}>
+                    <div className="flex items-center gap-5 mb-6">
+                      <div className={`shrink-0 w-16 h-16 rounded-[1.25rem] bg-gradient-to-br ${member.gradient} flex items-center justify-center text-white font-black text-xl shadow-inner group-hover:rotate-6 group-hover:scale-105 transition-transform duration-500`}>
+                        {member.initials}
                       </div>
-                    )}
+                      <div>
+                        <h3 className="font-bold text-gray-900 dark:text-white text-lg leading-tight mb-1">{member.name}</h3>
+                        <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">{member.role}</p>
+                      </div>
+                    </div>
+                    
+                    <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed flex-1">
+                      {member.bio}
+                    </p>
 
                     {member.placeholder && (
-                      <div className="mt-8 pt-6 border-t border-gray-100 dark:border-white/5 w-full">
+                      <div className="mt-6 pt-6 border-t border-gray-100 dark:border-white/5">
                         <span className="text-xs font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest bg-gray-100 dark:bg-white/5 px-3 py-1.5 rounded-full">
                           Poste à pourvoir
                         </span>
                       </div>
                     )}
                   </div>
-                </div>
-              </motion.div>
-            )})}
+                </motion.div>
+              ))}
+            </div>
           </div>
           
           {/* Join the team CTA */}
@@ -374,9 +399,9 @@ export default function AboutPage() {
           >
             <a
               href="mailto:contact@emiid.com"
-              className="inline-flex items-center gap-2 text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 hover:underline transition-colors"
+              className="inline-flex items-center gap-2 text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-all bg-indigo-50 dark:bg-indigo-500/10 px-6 py-3 rounded-full hover:scale-105 border border-indigo-100 dark:border-indigo-500/20"
             >
-              Vous voulez rejoindre l&apos;équipe ? Écrivez-nous <ArrowRight className="w-4 h-4" />
+              Vous voulez rejoindre l'équipe ? Écrivez-nous <ArrowRight className="w-4 h-4" />
             </a>
           </motion.div>
         </div>
