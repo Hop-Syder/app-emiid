@@ -283,52 +283,86 @@ export default function AboutPage() {
           </motion.div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-            {team.map((member, i) => (
+            {team.map((member, i) => {
+              const isCEO = member.name === "Daouda Abassi Christian";
+              
+              return (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="group relative"
+                className={`group relative ${isCEO ? 'sm:col-span-2 lg:col-span-2' : ''}`}
               >
-                <div className={`absolute inset-0 bg-gradient-to-b ${member.gradient} rounded-[2rem] blur-xl opacity-0 group-hover:opacity-15 transition-opacity duration-500`} />
-                <div className={`relative h-full flex flex-col items-center text-center rounded-[2rem] p-8 border transition-all duration-300 ${
+                {isCEO && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-amber-500 via-indigo-500 to-purple-500 rounded-[2rem] blur-xl opacity-30 group-hover:opacity-60 transition-opacity duration-700 animate-pulse-slow" />
+                )}
+                {!isCEO && (
+                  <div className={`absolute inset-0 bg-gradient-to-b ${member.gradient} rounded-[2rem] blur-xl opacity-0 group-hover:opacity-15 transition-opacity duration-500`} />
+                )}
+                
+                <div className={`relative h-full flex ${isCEO ? 'flex-col sm:flex-row items-center sm:items-stretch text-center sm:text-left p-10' : 'flex-col items-center text-center p-8'} rounded-[2rem] border transition-all duration-500 overflow-hidden ${
                   member.placeholder
                     ? "bg-white/40 dark:bg-[#0a0a0a]/40 border-dashed border-gray-200 dark:border-white/10"
-                    : "bg-white dark:bg-[#0a0a0a] border-gray-200/50 dark:border-white/10 shadow-xl shadow-gray-200/50 dark:shadow-none hover:-translate-y-2"
+                    : isCEO 
+                      ? "bg-white/90 dark:bg-[#050505]/90 backdrop-blur-2xl border-indigo-500/30 dark:border-indigo-500/30 shadow-2xl shadow-indigo-500/20 hover:-translate-y-2"
+                      : "bg-white dark:bg-[#0a0a0a] border-gray-200/50 dark:border-white/10 shadow-xl shadow-gray-200/50 dark:shadow-none hover:-translate-y-2 hover:border-gray-300 dark:hover:border-white/20"
                 }`}>
-                  <div className={`w-24 h-24 rounded-full bg-gradient-to-br ${member.gradient} flex items-center justify-center text-white font-black text-3xl mb-6 shadow-inner ring-4 ring-white dark:ring-[#0a0a0a] group-hover:scale-110 transition-transform duration-500`}>
-                    {member.initials}
+                  
+                  {isCEO && (
+                    <div className="absolute top-0 right-0 w-[250px] h-[250px] bg-gradient-to-br from-indigo-500/20 to-amber-500/20 blur-[60px] pointer-events-none" />
+                  )}
+                  {isCEO && (
+                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay pointer-events-none" />
+                  )}
+
+                  <div className={`shrink-0 ${isCEO ? 'w-32 h-32 mb-6 sm:mb-0 sm:mr-8' : 'w-24 h-24 mb-6'} rounded-full bg-gradient-to-br ${member.gradient} flex items-center justify-center text-white font-black ${isCEO ? 'text-4xl' : 'text-3xl'} shadow-inner ring-4 ring-white dark:ring-[#0a0a0a] group-hover:scale-110 transition-transform duration-500 relative`}>
+                    {isCEO && (
+                      <div className="absolute -inset-1.5 rounded-full bg-gradient-to-tr from-amber-400 to-indigo-500 opacity-40 blur-md group-hover:opacity-100 transition-opacity duration-500" />
+                    )}
+                    <span className="relative z-10">{member.initials}</span>
                   </div>
-                  <h3 className="font-bold text-gray-900 dark:text-white text-lg mb-1">{member.name}</h3>
-                  <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-4">{member.role}</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed flex-1">{member.bio}</p>
-
-                  {!member.placeholder && Object.keys(member.links).length > 0 && (
-                    <div className="flex items-center gap-4 mt-8 pt-6 border-t border-gray-100 dark:border-white/5 w-full justify-center">
-                      {member.links.linkedin && (
-                        <a href={member.links.linkedin} className="text-gray-400 hover:text-[#0A66C2] transition-colors"><Linkedin className="w-5 h-5" /></a>
-                      )}
-                      {member.links.twitter && (
-                        <a href={member.links.twitter} className="text-gray-400 hover:text-[#1DA1F2] transition-colors"><Twitter className="w-5 h-5" /></a>
-                      )}
-                      {member.links.website && (
-                        <a href={member.links.website} className="text-gray-400 hover:text-indigo-500 transition-colors"><Globe2 className="w-5 h-5" /></a>
+                  
+                  <div className={`flex flex-col ${isCEO ? 'justify-center flex-1 z-10' : ''}`}>
+                    <div className={`${isCEO ? 'flex flex-wrap items-center gap-3 mb-2 justify-center sm:justify-start' : 'mb-1'}`}>
+                      <h3 className={`font-black text-gray-900 dark:text-white ${isCEO ? 'text-2xl' : 'text-lg'}`}>{member.name}</h3>
+                      {isCEO && (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 text-amber-600 dark:text-amber-400 text-[10px] font-bold uppercase tracking-widest shadow-sm">
+                          Fondateur
+                        </span>
                       )}
                     </div>
-                  )}
+                    
+                    <p className={`font-bold uppercase tracking-widest ${isCEO ? 'text-sm text-indigo-600 dark:text-indigo-400 mb-4' : 'text-xs text-indigo-600 dark:text-indigo-400 mb-4'}`}>{member.role}</p>
+                    
+                    <p className={`text-gray-500 dark:text-gray-400 leading-relaxed flex-1 ${isCEO ? 'text-base max-w-lg' : 'text-sm'}`}>{member.bio}</p>
 
-                  {member.placeholder && (
-                    <div className="mt-8 pt-6 border-t border-gray-100 dark:border-white/5 w-full">
-                      <span className="text-xs font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest bg-gray-100 dark:bg-white/5 px-3 py-1.5 rounded-full">
-                        Poste à pourvoir
-                      </span>
-                    </div>
-                  )}
+                    {!member.placeholder && Object.keys(member.links).length > 0 && (
+                      <div className={`flex items-center gap-4 mt-8 pt-6 border-t border-gray-100 dark:border-white/5 w-full ${isCEO ? 'justify-center sm:justify-start' : 'justify-center'}`}>
+                        {member.links.linkedin && (
+                          <a href={member.links.linkedin} className="text-gray-400 hover:text-[#0A66C2] transition-colors"><Linkedin className="w-5 h-5" /></a>
+                        )}
+                        {member.links.twitter && (
+                          <a href={member.links.twitter} className="text-gray-400 hover:text-[#1DA1F2] transition-colors"><Twitter className="w-5 h-5" /></a>
+                        )}
+                        {member.links.website && (
+                          <a href={member.links.website} className="text-gray-400 hover:text-indigo-500 transition-colors"><Globe2 className="w-5 h-5" /></a>
+                        )}
+                      </div>
+                    )}
+
+                    {member.placeholder && (
+                      <div className="mt-8 pt-6 border-t border-gray-100 dark:border-white/5 w-full">
+                        <span className="text-xs font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest bg-gray-100 dark:bg-white/5 px-3 py-1.5 rounded-full">
+                          Poste à pourvoir
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </motion.div>
-            ))}
+            )})}
           </div>
           
           {/* Join the team CTA */}
