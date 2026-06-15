@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Sparkles, Target, Lightbulb, Users, Rocket, Globe2, ArrowRight, Linkedin, Twitter, Github, ChevronRight, CheckCircle2, Trophy, Eye, BadgeCheck } from "lucide-react";
+import { Sparkles, Target, Lightbulb, Users, Rocket, Globe2, ArrowRight, Linkedin, Twitter, Github, ChevronRight, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { useRef } from "react";
 
@@ -308,31 +308,6 @@ export default function AboutPage() {
                     <div className="absolute -inset-4 bg-gradient-to-tr from-amber-400 to-indigo-500 rounded-full blur-xl opacity-30 group-hover:opacity-60 animate-pulse-slow transition-opacity" />
                     <div className={`w-48 h-48 sm:w-64 sm:h-64 rounded-[2rem] sm:rounded-[3rem] bg-gradient-to-br ${ceo.gradient} flex items-center justify-center text-white font-black text-6xl sm:text-8xl shadow-2xl relative z-10 ring-4 ring-white dark:ring-[#0a0a0a] group-hover:scale-105 transition-transform duration-500`}>
                       {ceo.initials}
-                    </div>
-
-                    {/* Floating Badges (Visible on mobile too) */}
-                    <div className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-md rounded-xl p-2 shadow-xl border border-gray-100 dark:border-white/10 z-20 flex items-center gap-2 hover:scale-110 transition-transform cursor-default">
-                      <div className="bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 p-1.5 rounded-lg">
-                        <Trophy className="w-3 h-3 sm:w-4 sm:h-4" />
-                      </div>
-                      <span className="text-[10px] sm:text-xs font-bold text-gray-800 dark:text-gray-200 whitespace-nowrap pr-2">Fondateur #147</span>
-                    </div>
-
-                    <div className="absolute -bottom-3 -left-3 sm:-bottom-4 sm:-left-4 bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-md rounded-xl p-2 shadow-xl border border-gray-100 dark:border-white/10 z-20 flex items-center gap-2 hover:scale-110 transition-transform cursor-default">
-                      <div className="bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 p-1.5 rounded-lg">
-                        <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
-                      </div>
-                      <div className="flex flex-col pr-2">
-                        <span className="text-[8px] sm:text-[10px] text-gray-500 font-medium uppercase leading-none mb-0.5">Cette semaine</span>
-                        <span className="text-[10px] sm:text-xs font-bold text-gray-800 dark:text-gray-200 whitespace-nowrap leading-none">86 vues</span>
-                      </div>
-                    </div>
-
-                    <div className="absolute top-1/2 -translate-y-1/2 -left-4 sm:-left-6 bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-md rounded-xl p-2 shadow-xl border border-gray-100 dark:border-white/10 z-20 flex items-center gap-2 hover:scale-110 transition-transform cursor-default">
-                      <div className="bg-green-100 dark:bg-green-500/20 text-green-600 dark:text-green-400 p-1 rounded-full">
-                        <BadgeCheck className="w-4 h-4 sm:w-5 sm:h-5" />
-                      </div>
-                      <span className="text-[10px] sm:text-xs font-bold text-gray-800 dark:text-gray-200 whitespace-nowrap pr-2">Profil certifié</span>
                     </div>
                   </div>
 

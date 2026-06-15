@@ -213,20 +213,20 @@ export function HeroSection() {
               <motion.div
                 animate={{ y: [0, -8, 0] }}
                 transition={{ repeat: Infinity, duration: 3.5, ease: "easeInOut" }}
-                className="hidden lg:flex absolute -top-4 -right-6 z-30 items-center gap-1.5 bg-white dark:bg-gray-900 border border-emerald-200 dark:border-emerald-800 rounded-2xl px-3 py-1.5 shadow-lg"
+                className="flex absolute -top-4 -right-3 sm:-right-6 z-30 items-center gap-1.5 bg-white dark:bg-gray-900 border border-emerald-200 dark:border-emerald-800 rounded-2xl px-2 sm:px-3 py-1 sm:py-1.5 shadow-lg scale-90 sm:scale-100 origin-bottom-right"
               >
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap">Profil certifié</span>
+                <span className="text-[10px] sm:text-[11px] font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap">Profil certifié</span>
               </motion.div>
 
               {/* Floating badge — left */}
               <motion.div
                 animate={{ y: [0, 7, 0] }}
                 transition={{ repeat: Infinity, duration: 4.2, ease: "easeInOut" }}
-                className="hidden lg:flex absolute top-[38%] -left-8 z-30 items-center gap-1.5 bg-white dark:bg-gray-900 border border-indigo-200 dark:border-indigo-800 rounded-2xl px-3 py-1.5 shadow-lg"
+                className="flex absolute top-[38%] -left-4 sm:-left-8 z-30 items-center gap-1.5 bg-white dark:bg-gray-900 border border-indigo-200 dark:border-indigo-800 rounded-2xl px-2 sm:px-3 py-1 sm:py-1.5 shadow-lg scale-90 sm:scale-100 origin-center"
               >
                 <TrendingUp className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
-                <span className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 whitespace-nowrap">
+                <span className="text-[10px] sm:text-[11px] font-bold text-indigo-600 dark:text-indigo-400 whitespace-nowrap">
                   <AnimatePresence mode="wait">
                     <motion.span key={activeTab} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
                       {profile.badge}
@@ -239,11 +239,11 @@ export function HeroSection() {
               <motion.div
                 animate={{ y: [0, -6, 0] }}
                 transition={{ repeat: Infinity, duration: 3.8, ease: "easeInOut" }}
-                className="hidden lg:flex absolute -bottom-4 left-1/2 -translate-x-1/2 z-30 items-center gap-1.5 bg-white dark:bg-gray-900 border border-purple-200 dark:border-purple-800 rounded-2xl px-3 py-1.5 shadow-lg"
+                className="flex absolute -bottom-4 left-1/2 -translate-x-1/2 z-30 items-center gap-1.5 bg-white dark:bg-gray-900 border border-purple-200 dark:border-purple-800 rounded-2xl px-2 sm:px-3 py-1 sm:py-1.5 shadow-lg scale-90 sm:scale-100 origin-top"
               >
                 <Eye className="w-3.5 h-3.5 text-purple-500 shrink-0" />
                 <AnimatePresence mode="wait">
-                  <motion.span key={activeTab} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="text-[11px] font-bold text-purple-600 dark:text-purple-400 whitespace-nowrap">
+                  <motion.span key={activeTab} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="text-[10px] sm:text-[11px] font-bold text-purple-600 dark:text-purple-400 whitespace-nowrap">
                     {profile.views}
                   </motion.span>
                 </AnimatePresence>
