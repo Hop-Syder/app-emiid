@@ -1,7 +1,7 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Barre de navigation latérale pour ordinateur (Auth / Connecté) avec nouveau logo
+ * @description Barre de navigation latérale pour ordinateur (Auth / Connecté) avec icônes SVG Streamline
  * @created 2026-06-13
  * @updated 2026-06-17
  * 🌐 ceo.nexuspartners.xyz
@@ -13,10 +13,11 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { motion } from "framer-motion"
-import { Home, MessageSquare, Wallet, Settings, LogOut, User, Users, UserPlus, Bell } from "lucide-react"
+import { LogOut, User } from "lucide-react"
 import Image from "next/image"
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
+import { cn } from "@/lib/utils"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,13 +28,13 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 const privateNavItems = [
-  { name: "Hub", href: "/dashboard-user", icon: Home },
-  { name: "Annuaire", href: "/annuaire", icon: Users },
-  { name: "Créer mon profil", href: "/creer-profil", icon: UserPlus },
-  { name: "Messages", href: "/messages", icon: MessageSquare },
-  { name: "Notifications", href: "/notifications", icon: Bell },
-  { name: "Portefeuille", href: "/portefeuille", icon: Wallet },
-  { name: "Paramètres", href: "/parametres", icon: Settings },
+  { name: "Hub", href: "/dashboard-user", svg: "/svg/Home.svg" },
+  { name: "Annuaire", href: "/annuaire", svg: "/svg/Grid.svg" },
+  { name: "Créer mon profil", href: "/creer-profil", svg: "/svg/FileText.svg" },
+  { name: "Messages", href: "/messages", svg: "/svg/MessageSquare.svg" },
+  { name: "Notifications", href: "/notifications", svg: "/svg/Star-Badge--Streamline-Core-Gradient.svg" },
+  { name: "Portefeuille", href: "/portefeuille", svg: "/svg/Wallet.svg" },
+  { name: "Paramètres", href: "/parametres", svg: "/svg/setting.svg" },
 ]
 
 export function DesktopSidebarAuth() {
@@ -103,7 +104,16 @@ export function DesktopSidebarAuth() {
                   />
                 )}
                 <div className="w-14 flex items-center justify-center shrink-0">
-                  <item.icon className={`size-5 ${isActive ? "text-blue-400" : ""}`} />
+                  <img
+                    src={item.svg}
+                    alt={item.name}
+                    className={cn(
+                      "size-5 transition-all duration-300",
+                      isActive
+                        ? "opacity-100 scale-110 saturate-100 filter drop-shadow-[0_0_8px_rgba(99,102,241,0.25)]"
+                        : "opacity-45 scale-100 saturate-50 dark:saturate-25 group-hover:opacity-85 group-hover:scale-105 group-hover:saturate-100"
+                    )}
+                  />
                 </div>
                 <span className="font-semibold text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   {item.name}

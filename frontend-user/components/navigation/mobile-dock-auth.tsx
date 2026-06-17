@@ -1,7 +1,7 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Barre de navigation mobile flottante (Auth / Connecté) avec effet Focus Flou et Portefeuille
+ * @description Barre de navigation mobile flottante (Auth / Connecté) avec icônes SVG Streamline
  * @created 2026-06-13
  * @updated 2026-06-17
  * 🌐 ceo.nexuspartners.xyz
@@ -13,17 +13,25 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
-import { Home, MessageSquare, Settings, User, Users, UserPlus, LogOut, Bell, Wallet } from "lucide-react"
+import { User, LogOut, LucideIcon } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useUnreadNotifications } from "@/hooks/use-unread-notifications"
+import { cn } from "@/lib/utils"
 
-const privateNavItems = [
-  { name: "Hub", href: "/dashboard-user", icon: Home },
-  { name: "Annuaire", href: "/annuaire", icon: Users },
-  { name: "Créer mon profil", href: "/creer-profil", icon: UserPlus },
-  { name: "Messages", href: "/messages", icon: MessageSquare },
-  { name: "Notifications", href: "/notifications", icon: Bell },
+interface NavItem {
+  name: string
+  href: string
+  svg?: string
+  icon?: LucideIcon
+}
+
+const privateNavItems: NavItem[] = [
+  { name: "Hub", href: "/dashboard-user", svg: "/svg/Home.svg" },
+  { name: "Annuaire", href: "/annuaire", svg: "/svg/Grid.svg" },
+  { name: "Créer mon profil", href: "/creer-profil", svg: "/svg/FileText.svg" },
+  { name: "Messages", href: "/messages", svg: "/svg/MessageSquare.svg" },
+  { name: "Notifications", href: "/notifications", svg: "/svg/Star-Badge--Streamline-Core-Gradient.svg" },
   { name: "Profil", href: "/dashboard-user?view=profile", icon: User },
 ]
 
@@ -107,7 +115,7 @@ export function MobileDockAuth() {
                 href="/portefeuille"
                 className="flex items-center gap-1.5 text-slate-300 hover:text-white px-2 py-1.5 rounded-xl hover:bg-white/5 transition-all outline-none"
               >
-                <Wallet className="size-3.5 text-amber-400" />
+                <img src="/svg/Wallet.svg" alt="Portefeuille" className="size-3.5 object-contain" />
                 <span className="text-[9px] font-black uppercase tracking-wider">Portefeuille</span>
               </Link>
 
@@ -119,7 +127,7 @@ export function MobileDockAuth() {
                 href="/parametres"
                 className="flex items-center gap-1.5 text-slate-300 hover:text-white px-2 py-1.5 rounded-xl hover:bg-white/5 transition-all outline-none"
               >
-                <Settings className="size-3.5 text-emerald-400" />
+                <img src="/svg/setting.svg" alt="Paramètres" className="size-3.5 object-contain" />
                 <span className="text-[9px] font-black uppercase tracking-wider">Paramètres</span>
               </Link>
 
@@ -148,7 +156,8 @@ export function MobileDockAuth() {
             const isActive = pathname === item.href && !isProfilButton
             
             // Rendu du bouton d'action pour le Profil (connecté)
-            if (isProfilButton) {
+            if (isProfilButton && item.icon) {
+              const IconComponent = item.icon
               return (
                 <button 
                   key={item.name} 
@@ -165,7 +174,7 @@ export function MobileDockAuth() {
                     />
                   )}
                   
-                  <item.icon 
+                  <IconComponent 
                     className={`size-5 transition-colors duration-300 z-10 ${
                       showUserMenu ? "text-blue-400" : "text-slate-400 group-hover:text-slate-200"
                     }`} 
@@ -197,10 +206,15 @@ export function MobileDockAuth() {
                   />
                 )}
                 
-                <item.icon
-                  className={`size-5 transition-colors duration-300 z-10 ${
-                    isActive ? "text-blue-400" : "text-slate-400 group-hover:text-slate-200"
-                  }`}
+                <img
+                  src={item.svg}
+                  alt={item.name}
+                  className={cn(
+                    "size-5 transition-all duration-300 z-10",
+                    isActive
+                      ? "opacity-100 scale-110 saturate-100 filter drop-shadow-[0_0_8px_rgba(99,102,241,0.25)]"
+                      : "opacity-45 scale-100 saturate-50 dark:saturate-25 group-hover:opacity-85 group-hover:scale-105 group-hover:saturate-100"
+                  )}
                 />
 
                 {item.href === "/notifications" && unreadCount > 0 && (

@@ -1,7 +1,7 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Barre de navigation latérale pour ordinateur (Guest / Non connecté) avec nouveau logo
+ * @description Barre de navigation latérale pour ordinateur (Guest / Non connecté) avec icônes SVG Streamline
  * @created 2026-06-13
  * @updated 2026-06-17
  * 🌐 ceo.nexuspartners.xyz
@@ -13,13 +13,14 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { motion } from "framer-motion"
-import { Home, Users, LogIn } from "lucide-react"
+import { cn } from "@/lib/utils"
+// Pas d'imports lucide-react nécessaires pour les éléments principaux
 import Image from "next/image"
 
 const publicNavItems = [
-  { name: "Accueil", href: "/", icon: Home },
-  { name: "Annuaire", href: "/annuaire", icon: Users },
-  { name: "Se connecter", href: "/login", icon: LogIn },
+  { name: "Accueil", href: "/", svg: "/svg/Home.svg" },
+  { name: "Annuaire", href: "/annuaire", svg: "/svg/Grid.svg" },
+  { name: "Se connecter", href: "/login", svg: "/svg/Star-Badge--Streamline-Core-Gradient.svg" },
 ]
 
 export function DesktopSidebarGuest() {
@@ -65,7 +66,16 @@ export function DesktopSidebarGuest() {
                   />
                 )}
                 <div className="w-14 flex items-center justify-center shrink-0">
-                  <item.icon className={`size-5 ${isActive ? "text-blue-400" : ""}`} />
+                  <img
+                    src={item.svg}
+                    alt={item.name}
+                    className={cn(
+                      "size-5 transition-all duration-300",
+                      isActive
+                        ? "opacity-100 scale-110 saturate-100 filter drop-shadow-[0_0_8px_rgba(99,102,241,0.25)]"
+                        : "opacity-45 scale-100 saturate-50 dark:saturate-25 group-hover:opacity-85 group-hover:scale-105 group-hover:saturate-100"
+                    )}
+                  />
                 </div>
                 <span className="font-semibold text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   {item.name}
