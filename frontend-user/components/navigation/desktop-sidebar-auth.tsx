@@ -67,13 +67,13 @@ export function DesktopSidebarAuth() {
   return (
     <div className="hidden lg:flex fixed left-0 top-0 h-screen w-[88px] hover:w-[240px] transition-all duration-300 z-50 flex-col bg-white/10 backdrop-blur-2xl border-r border-white/10 group shadow-2xl">
       {/* Logo */}
-      <div className="h-24 flex items-center px-6 pt-4">
-        <div className="relative w-10 h-10 min-w-[40px] flex items-center justify-center bg-white/5 rounded-xl border border-white/10 group-hover:bg-transparent group-hover:border-transparent transition-all">
+      <div className="h-24 flex items-center px-5 pt-4">
+        <div className="relative w-12 h-12 min-w-[48px] flex items-center justify-center bg-white/5 rounded-xl border border-white/10 group-hover:bg-transparent group-hover:border-transparent transition-all">
           <Image
             src="/logo/icon.svg"
             alt="EmiID"
-            width={32}
-            height={32}
+            width={40}
+            height={40}
             className="object-contain"
           />
         </div>

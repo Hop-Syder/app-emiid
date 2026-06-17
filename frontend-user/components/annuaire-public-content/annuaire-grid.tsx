@@ -1,6 +1,16 @@
+/**
+ * @author @hopsyder
+ * @organization Nexus Partners
+ * @description Grille de l'annuaire public découpée en lignes horizontales défilantes de 10 profils avec flèches de contrôle.
+ * @created 2026-06-13
+ * @updated 2026-06-17
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+ */
+
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { motion } from "framer-motion"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { AnnuaireCard } from "./annuaire-card"
@@ -150,25 +160,28 @@ export function AnnuaireGrid({ filters, initialProfiles = [], onlyPremium = fals
         )
     }
 
+    // Trancher les profils par paquets de 10
+    const chunkedProfiles = []
+    for (let i = 0; i < profiles.length; i += 10) {
+        chunkedProfiles.push(profiles.slice(i, i + 10))
+    }
+
     return (
-        <div className="space-y-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {profiles.map((profile, index) => (
-                    <motion.div
-                        key={profile.id}
-                        initial={{ opacity: 0, y: 30, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        transition={{ duration: 0.5, delay: Math.min(index, 10) * 0.05, type: "spring", stiffness: 100, damping: 15 }}
-                        className="w-full"
-                    >
-                        <AnnuaireCard profile={profile} theme={theme} />
-                    </motion.div>
-                ))}
-            </div>
+        <div className="space-y-10">
+            {chunkedProfiles.map((rowProfiles, index) => (
+                <div key={index} className="space-y-2">
+                    {chunkedProfiles.length > 1 && (
+                        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider pl-1">
+                            Ligne {index + 1}
+                        </h4>
+                    )}
+                    <AnnuaireRow profiles={rowProfiles} theme={theme} />
+                </div>
+            ))}
 
             {/* Pagination Controls */}
             {totalPages > 1 && (
-                <div className="flex items-center justify-center gap-4 pt-6 border-t border-slate-100">
+                <div className="flex items-center justify-center gap-4 pt-6 border-t border-slate-200/60">
                     <Button
                         variant="outline"
                         onClick={() => setPage(p => Math.max(1, p - 1))}
@@ -190,6 +203,63 @@ export function AnnuaireGrid({ filters, initialProfiles = [], onlyPremium = fals
                     </Button>
                 </div>
             )}
+        </div>
+    )
+}
+
+interface AnnuaireRowProps {
+    profiles: PublicProfile[]
+    theme: "default" | "red" | "orange"
+}
+
+function AnnuaireRow({ profiles, theme }: AnnuaireRowProps) {
+    const scrollRef = useRef<HTMLDivElement>(null)
+
+    const scroll = (direction: "left" | "right") => {
+        if (scrollRef.current) {
+            const { current } = scrollRef
+            const scrollAmount = direction === "left" ? -320 : 320
+            current.scrollBy({ left: scrollAmount, behavior: "smooth" })
+        }
+    }
+
+    return (
+        <div className="relative group/carousel">
+            {/* Flèche gauche */}
+            <button
+                onClick={() => scroll("left")}
+                className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 h-10 w-10 items-center justify-center rounded-full bg-slate-900/90 text-white/90 border border-white/10 shadow-xl opacity-0 group-hover/carousel:opacity-100 transition-all hover:bg-slate-800 hover:text-white backdrop-blur-md cursor-pointer"
+                aria-label="Défiler vers la gauche"
+            >
+                <ChevronLeft className="h-5 w-5" />
+            </button>
+
+            {/* Flèche droite */}
+            <button
+                onClick={() => scroll("right")}
+                className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 h-10 w-10 items-center justify-center rounded-full bg-slate-900/90 text-white/90 border border-white/10 shadow-xl opacity-0 group-hover/carousel:opacity-100 transition-all hover:bg-slate-800 hover:text-white backdrop-blur-md cursor-pointer"
+                aria-label="Défiler vers la droite"
+            >
+                <ChevronRight className="h-5 w-5" />
+            </button>
+
+            {/* Liste défilante */}
+            <div 
+                ref={scrollRef}
+                className="flex overflow-x-auto pb-6 pt-4 px-4 -mx-4 gap-6 snap-x no-scrollbar w-full scroll-smooth"
+            >
+                {profiles.map((profile, index) => (
+                    <motion.div
+                        key={profile.id}
+                        initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        transition={{ duration: 0.5, delay: Math.min(index, 10) * 0.05, type: "spring", stiffness: 100, damping: 15 }}
+                        className="min-w-[280px] sm:min-w-[300px] max-w-[300px] snap-center shrink-0"
+                    >
+                        <AnnuaireCard profile={profile} theme={theme} />
+                    </motion.div>
+                ))}
+            </div>
         </div>
     )
 }
