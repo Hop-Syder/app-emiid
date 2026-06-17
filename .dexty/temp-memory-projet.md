@@ -104,3 +104,5 @@
 - [2026-06-14] Connexion au backend Supabase des statistiques du "CategoriesExplorer" (Annuaire) pour remplacer les chiffres statiques par de vraies données temps-réel.
 - [2026-06-14] Refonte Dashboard Public : Ajout du "HubCommunities" et création d'un "PublicHubContextualCta" premium incitant les visiteurs à créer un compte.
 - [2026-06-17] Ajout du lien vers la page "Portefeuille" dans le sous-menu de navigation mobile (MobileDockAuth) pour s'aligner avec les options de la barre latérale desktop.
+- [2026-06-17] Propagation globale du nouveau logo d'EmiID : copie du dossier public/logo vers frontend-admin et frontend-commercial, et mise à jour de toutes les références d'images de logo obsolètes vers logo-emiid.png et icon.svg dans l'ensemble de l'espace de travail.
+

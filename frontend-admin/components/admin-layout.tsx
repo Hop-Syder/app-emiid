@@ -1,9 +1,9 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Mise en page principale (Layout) du Dashboard Admin
+ * @description Mise en page principale (Layout) du Dashboard Admin avec nouveau logo
  * @created 2026-03-12
- * @updated 2026-03-12
+ * @updated 2026-06-17
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -27,6 +27,7 @@ import {
 import { motion } from "framer-motion"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
+import Image from "next/image"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import type { AdminSessionProfile } from "@/lib/supabase/server"
@@ -78,8 +79,14 @@ export function AdminLayout({ children, adminProfile, moderationCounts }: AdminL
                 className="relative z-30 flex flex-col bg-white border-r border-slate-200 shadow-sm"
             >
                 <div className="flex items-center gap-3 p-6">
-                    <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg shadow-blue-200">
-                        N
+                    <div className="w-10 h-10 bg-gradient-to-tr from-slate-900 to-slate-800 rounded-xl flex items-center justify-center border border-slate-200/10 shadow-lg overflow-hidden shrink-0">
+                        <Image
+                            src="/logo/icon.svg"
+                            alt="EmiID"
+                            width={28}
+                            height={28}
+                            className="object-contain animate-pulse-slow"
+                        />
                     </div>
                     {sidebarOpen && (
                         <motion.span

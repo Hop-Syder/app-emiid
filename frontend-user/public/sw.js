@@ -10,8 +10,8 @@ self.addEventListener('push', function(event) {
     const data = event.data.json();
     const options = {
       body: data.body,
-      icon: data.icon || '/logo/logo-1.png',
-      badge: '/logo/logo-badge.png', // Icône miniature pour la barre d'état
+      icon: data.icon || '/logo/icon-light-32x32.png',
+      badge: '/logo/icon-light-32x32.png', // Icône miniature pour la barre d'état
       vibrate: [100, 50, 100],
       data: {
         url: data.data?.url || '/'

@@ -92,7 +92,7 @@ export default function IntroScreen() {
         {/* Logo EmiID */}
         <div className="flex items-center gap-2">
           <Image
-            src="/logo/logo-1.png"
+            src="/logo/logo-emiid.png"
             alt="EmiID"
             width={100}
             height={32}

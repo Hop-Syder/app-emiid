@@ -378,7 +378,7 @@ export function OnboardingFlow() {
         {/* Logo + dots */}
         <div className="flex flex-col items-center gap-4">
           <Image
-            src="/logo/logo-2.png"
+            src="/logo/logo-emiid.png"
             alt="EmiID"
             width={120}
             height={32}

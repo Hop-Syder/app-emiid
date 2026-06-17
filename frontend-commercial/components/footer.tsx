@@ -1,15 +1,16 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Composant de pied de page (Footer) avec liens de navigation, réseaux sociaux et mentions légales
+ * @description Composant de pied de page (Footer) avec liens de navigation, réseaux sociaux et nouveau logo
  * @created 2026-06-12
- * @updated 2026-06-12
+ * @updated 2026-06-17
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
 
 import Link from "next/link";
 import { Globe, Github, Twitter, Linkedin } from "lucide-react";
+import Image from "next/image";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -21,8 +22,14 @@ export function Footer() {
           {/* Logo et description */}
           <div className="space-y-6">
             <Link href="/" className="flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-tr from-indigo-600 to-purple-600 text-white">
-                <Globe className="h-4 w-4" />
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/5 border border-white/10 text-white overflow-hidden shrink-0">
+                <Image
+                  src="/logo/icon.svg"
+                  alt="EmiID"
+                  width={20}
+                  height={20}
+                  className="object-contain"
+                />
               </div>
               <span className="text-lg font-bold tracking-tight text-white">
                 emiid

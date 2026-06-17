@@ -1,9 +1,9 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Composant de navigation (Header) avec design premium glassmorphic et menu responsive style "Dock" en mobile
+ * @description Composant de navigation (Header) avec design premium glassmorphic et nouveau logo
  * @created 2026-06-12
- * @updated 2026-06-15
+ * @updated 2026-06-17
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -17,6 +17,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Globe, User, ArrowRight, Home, Info, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./theme-toggle";
+import Image from "next/image";
 
 const navigation = [
   { name: "Accueil", href: "/", icon: Home },
@@ -75,8 +76,14 @@ export function Header() {
             {/* Logo */}
             <div className="flex lg:flex-1">
               <Link href="/" className="flex items-center gap-2 group">
-                <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform">
-                  <Globe className="h-5 w-5 animate-pulse" />
+                <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white group-hover:scale-105 transition-transform overflow-hidden shrink-0">
+                  <Image
+                    src="/logo/icon.svg"
+                    alt="EmiID"
+                    width={24}
+                    height={24}
+                    className="object-contain animate-pulse-slow"
+                  />
                 </div>
                 <span className="text-xl font-bold tracking-tight text-foreground bg-clip-text">
                   emiid

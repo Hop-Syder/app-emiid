@@ -65,7 +65,7 @@ export default function LoginPage() {
           {/* Logo + titre */}
           <div className="flex flex-col items-center gap-3 mb-10">
             <Image
-              src="/logo/logo-2.png"
+              src="/logo/logo-emiid.png"
               alt="EmiID"
               width={140}
               height={36}

@@ -1,9 +1,9 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Barre de navigation latérale pour ordinateur (Auth / Connecté)
+ * @description Barre de navigation latérale pour ordinateur (Auth / Connecté) avec nouveau logo
  * @created 2026-06-13
- * @updated 2026-06-13
+ * @updated 2026-06-17
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -69,11 +69,11 @@ export function DesktopSidebarAuth() {
       <div className="h-24 flex items-center px-6 pt-4">
         <div className="relative w-10 h-10 min-w-[40px] flex items-center justify-center bg-white/5 rounded-xl border border-white/10 group-hover:bg-transparent group-hover:border-transparent transition-all">
           <Image
-            src="/logo/logo-2.png"
+            src="/logo/icon.svg"
             alt="EmiID"
             width={32}
             height={32}
-            className="object-contain brightness-0 invert"
+            className="object-contain"
           />
         </div>
         <span className="ml-4 font-black text-xl text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap tracking-tight">

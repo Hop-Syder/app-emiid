@@ -1,9 +1,9 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Service centralisé pour l'envoi de notifications Push pour EmiID
+ * @description Service centralisé pour l'envoi de notifications Push pour EmiID avec nouveau logo
  * @created 2026-04-19
- * @updated 2026-04-19
+ * @updated 2026-06-17
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -44,7 +44,7 @@ export const sendPushNotification = async (userId: string, title: string, body: 
     const payload = JSON.stringify({
       title,
       body,
-      icon: icon || '/logo/logo-1.png',
+      icon: icon || '/logo/icon-light-32x32.png',
       data: {
         url: url || '/dashboard-user'
       }
