@@ -29,17 +29,17 @@ export function DesktopSidebarGuest() {
   return (
     <div className="hidden lg:flex fixed left-0 top-0 h-screen w-[88px] hover:w-[240px] transition-all duration-300 z-50 flex-col bg-white/10 backdrop-blur-2xl border-r border-white/10 group shadow-2xl">
       {/* Logo */}
-      <div className="h-24 flex items-center px-5 pt-4">
-        <div className="relative w-12 h-12 min-w-[48px] flex items-center justify-center bg-white/5 rounded-xl border border-white/10 group-hover:bg-transparent group-hover:border-transparent transition-all">
+      <div className="h-24 flex items-center px-4 pt-4">
+        <div className="relative w-14 h-14 min-w-[56px] flex items-center justify-center bg-white/5 rounded-xl border border-white/10 group-hover:bg-transparent group-hover:border-transparent transition-all">
           <Image
             src="/logo/icon.svg"
             alt="EmiID"
-            width={40}
-            height={40}
+            width={48}
+            height={48}
             className="object-contain"
           />
         </div>
-        <span className="ml-4 font-black text-xl text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap tracking-tight">
+        <span className="ml-4 font-black text-xl text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap tracking-tight">
           EmiID
         </span>
       </div>

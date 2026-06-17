@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: 'https://app.emiid.com/og-image.png',
+        url: 'https://app.emiid.com/logo/og-image.png',
         width: 1200,
         height: 630,
         alt: 'EmiID — Votre empreinte numérique professionnelle',
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     title: 'EmiID — Votre empreinte numérique professionnelle',
     description: "Crée ta carte de visite numérique et rejoins le réseau de professionnels qui construisent l'Afrique de demain.",
     creator: '@hopsyder',
-    images: ['https://app.emiid.com/og-image.png'],
+    images: ['https://app.emiid.com/logo/og-image.png'],
   },
   icons: {
     icon: [

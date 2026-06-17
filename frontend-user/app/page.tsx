@@ -40,7 +40,7 @@ export const metadata: Metadata = {
       "Crée ta carte de visite numérique et rejoins le réseau de professionnels qui construisent l'Afrique de demain.",
     images: [
       {
-        url: "https://app.emiid.com/og-image.png",
+        url: "https://app.emiid.com/logo/og-image.png",
         width: 1200,
         height: 630,
         alt: "EmiID — Votre empreinte numérique professionnelle",
