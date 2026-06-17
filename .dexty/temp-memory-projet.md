@@ -111,4 +111,6 @@
 - [2026-06-17] Remplacement de la grille verticale "Tous les Profils" (`annuaire-grid.tsx`) par un affichage structuré en lignes horizontales défilantes indépendantes (jusqu'à 10 profils par ligne), dotées chacune de leurs propres boutons de défilement interactifs et du swipe natif sur mobile.
 - [2026-06-17] Échange de position entre "Notifications" et "Portefeuille" dans le menu mobile (`mobile-dock-auth.tsx`). Portefeuille rejoint le dock principal et les Notifications sont intégrées au sous-menu flottant avec pastille rouge dynamique reportée sur l'icône Profil du dock.
 - [2026-06-17] Nouvelle augmentation de la taille du logo dans les barres de menus desktop (desktop-sidebar-auth et desktop-sidebar-guest) à w-14 h-14 (48x48px pour l'image) avec ajustement du padding parent à px-4 pour assurer un centrage parfait et maximiser l'identité de marque.
+- [2026-06-17] Mise à jour des URLs de l'image de prévisualisation sociale Open Graph / Twitter dans `layout.tsx` et `page.tsx` pour pointer vers `/logo/og-image.png` afin de correspondre au nouveau répertoire d'assets.
+- [2026-06-17] Changement de la couleur du nom de marque "EmiID" dans les barres de navigation desktop (desktop-sidebar-auth et desktop-sidebar-guest) de blanc à bleu de marque (`text-blue-500`) pour une meilleure harmonie visuelle.
 
