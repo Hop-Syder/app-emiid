@@ -31,7 +31,7 @@ const privateNavItems: NavItem[] = [
   { name: "Annuaire", href: "/annuaire", svg: "/svg/Grid.svg" },
   { name: "Créer mon profil", href: "/creer-profil", svg: "/svg/FileText.svg" },
   { name: "Messages", href: "/messages", svg: "/svg/MessageSquare.svg" },
-  { name: "Notifications", href: "/notifications", svg: "/svg/Star-Badge--Streamline-Core-Gradient.svg" },
+  { name: "Portefeuille", href: "/portefeuille", svg: "/svg/Wallet.svg" },
   { name: "Profil", href: "/dashboard-user?view=profile", icon: User },
 ]
 
@@ -110,13 +110,18 @@ export function MobileDockAuth() {
               {/* Séparateur minimaliste */}
               <div className="h-5 w-px bg-white/10" />
 
-              {/* Lien Portefeuille */}
+              {/* Lien Notifications */}
               <Link 
-                href="/portefeuille"
-                className="flex items-center gap-1.5 text-slate-300 hover:text-white px-2 py-1.5 rounded-xl hover:bg-white/5 transition-all outline-none"
+                href="/notifications"
+                className="relative flex items-center gap-1.5 text-slate-300 hover:text-white px-2 py-1.5 rounded-xl hover:bg-white/5 transition-all outline-none"
               >
-                <img src="/svg/Wallet.svg" alt="Portefeuille" className="size-3.5 object-contain" />
-                <span className="text-[9px] font-black uppercase tracking-wider">Portefeuille</span>
+                <div className="relative">
+                  <img src="/svg/Star-Badge--Streamline-Core-Gradient.svg" alt="Notifications" className="size-3.5 object-contain" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 size-1.5 bg-red-500 rounded-full shadow-[0_0_4px_rgba(239,68,68,0.5)]" />
+                  )}
+                </div>
+                <span className="text-[9px] font-black uppercase tracking-wider">Notifications</span>
               </Link>
 
               {/* Séparateur minimaliste */}
@@ -180,6 +185,15 @@ export function MobileDockAuth() {
                     }`} 
                   />
                   
+                  {unreadCount > 0 && (
+                    <span
+                      aria-label={`${unreadCount} notification${unreadCount > 1 ? "s" : ""} non lue${unreadCount > 1 ? "s" : ""}`}
+                      className="absolute top-1.5 right-1.5 z-20 min-w-[16px] h-4 px-1 flex items-center justify-center text-[9px] font-black text-white bg-red-500 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.7)] ring-2 ring-slate-900"
+                    >
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </span>
+                  )}
+                  
                   {showUserMenu && (
                     <motion.div
                       layoutId="mobile-auth-active-dot"
@@ -216,15 +230,6 @@ export function MobileDockAuth() {
                       : "opacity-45 scale-100 saturate-50 dark:saturate-25 group-hover:opacity-85 group-hover:scale-105 group-hover:saturate-100"
                   )}
                 />
-
-                {item.href === "/notifications" && unreadCount > 0 && (
-                  <span
-                    aria-label={`${unreadCount} notification${unreadCount > 1 ? "s" : ""} non lue${unreadCount > 1 ? "s" : ""}`}
-                    className="absolute top-1.5 right-1.5 z-20 min-w-[16px] h-4 px-1 flex items-center justify-center text-[9px] font-black text-white bg-red-500 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.7)] ring-2 ring-slate-900"
-                  >
-                    {unreadCount > 9 ? "9+" : unreadCount}
-                  </span>
-                )}
 
                 {isActive && (
                   <motion.div

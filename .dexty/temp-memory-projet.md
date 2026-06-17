@@ -109,4 +109,5 @@
 - [2026-06-17] Augmentation de la taille du logo dans les barres de menus desktop (desktop-sidebar-auth et desktop-sidebar-guest) à w-12 h-12 (40x40px pour l'image) et réajustement du padding à px-5 pour un centrage parfait et une meilleure visibilité de la marque.
 - [2026-06-17] Refonte de la section "En vue cette semaine" (`annuaire-spotlight.tsx`) pour utiliser un carrousel horizontal fluide (touch-scroll natif et snap-center) avec boutons de navigation gauche/droite interactifs (Chevron) identiques à ceux du Hub. Augmentation de la limite de chargement de profils de 3 à 10.
 - [2026-06-17] Remplacement de la grille verticale "Tous les Profils" (`annuaire-grid.tsx`) par un affichage structuré en lignes horizontales défilantes indépendantes (jusqu'à 10 profils par ligne), dotées chacune de leurs propres boutons de défilement interactifs et du swipe natif sur mobile.
+- [2026-06-17] Échange de position entre "Notifications" et "Portefeuille" dans le menu mobile (`mobile-dock-auth.tsx`). Portefeuille rejoint le dock principal et les Notifications sont intégrées au sous-menu flottant avec pastille rouge dynamique reportée sur l'icône Profil du dock.
 
