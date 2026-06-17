@@ -6,7 +6,7 @@
 - **Nom** : EmiID
 - **Type** : SaaS (Web App + Backend API + Admin + Commercial)
 - **Initialisé le** : 2026-05-27
-- **Dernière mise à jour** : 2026-06-12
+- **Dernière mise à jour** : 2026-06-17
 
 ## 🛠️ Stack détectée
 - **Frontend** : Next.js, React 19, TailwindCSS, Radix UI
@@ -103,3 +103,4 @@
 - [2026-06-14] Mise à jour des Hubs (Public & Privé) : Ajout du badge "Fondateurs" dans la grille Bento 5 colonnes.
 - [2026-06-14] Connexion au backend Supabase des statistiques du "CategoriesExplorer" (Annuaire) pour remplacer les chiffres statiques par de vraies données temps-réel.
 - [2026-06-14] Refonte Dashboard Public : Ajout du "HubCommunities" et création d'un "PublicHubContextualCta" premium incitant les visiteurs à créer un compte.
+- [2026-06-17] Ajout du lien vers la page "Portefeuille" dans le sous-menu de navigation mobile (MobileDockAuth) pour s'aligner avec les options de la barre latérale desktop.

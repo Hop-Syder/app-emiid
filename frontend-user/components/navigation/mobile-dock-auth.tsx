@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Barre de navigation mobile flottante (Auth / Connecté)
  * @created 2026-06-13
- * @updated 2026-06-13
+ * @updated 2026-06-17
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -13,7 +13,7 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
-import { Home, MessageSquare, Settings, User, Users, UserPlus, LogOut, Bell } from "lucide-react"
+import { Home, MessageSquare, Settings, User, Users, UserPlus, LogOut, Bell, Wallet } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useUnreadNotifications } from "@/hooks/use-unread-notifications"
@@ -82,6 +82,18 @@ export function MobileDockAuth() {
             >
               <User className="size-3.5 text-blue-400" />
               <span className="text-[9px] font-black uppercase tracking-wider">Profil</span>
+            </Link>
+
+            {/* Séparateur minimaliste */}
+            <div className="h-5 w-px bg-white/10" />
+
+            {/* Lien Portefeuille */}
+            <Link 
+              href="/portefeuille"
+              className="flex items-center gap-1.5 text-slate-300 hover:text-white px-2 py-1.5 rounded-xl hover:bg-white/5 transition-all outline-none"
+            >
+              <Wallet className="size-3.5 text-amber-400" />
+              <span className="text-[9px] font-black uppercase tracking-wider">Portefeuille</span>
             </Link>
 
             {/* Séparateur minimaliste */}
