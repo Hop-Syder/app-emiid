@@ -1,9 +1,9 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Carte de profil miniature pour le portefeuille avec style Luxury Glassmorphism
+ * @description Carte de profil miniature pour le portefeuille avec style Luxury Glassmorphism et Note Taker optimisé
  * @created 2026-05-24
- * @updated 2026-06-03
+ * @updated 2026-06-17
  * 🌐 ceo.nexuspartners.xyz
  */
 
@@ -183,26 +183,26 @@ export function ProfileCardMini({ profile, onUnfollow, onViewProfile, onSaveNote
       <Card className={cn(
         "flex-1 p-5 rounded-2xl flex flex-col justify-between transition-all duration-300 relative overflow-hidden backdrop-blur-md border shadow-sm",
         isPremium
-          ? "bg-slate-900/35 border-white/5 text-white"
-          : "bg-[#a6abb3]/10 border-[#a6abb3]/30 text-foreground"
+          ? "bg-slate-950/65 border-amber-500/15 text-white shadow-[0_0_25px_rgba(245,158,11,0.03)]"
+          : "bg-white/80 dark:bg-slate-900/60 border-slate-200/60 dark:border-slate-800/60 text-slate-800 dark:text-slate-100"
       )}>
         <div>
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <div className={cn("p-1.5 rounded-lg", isPremium ? "bg-white/5" : "bg-[#a6abb3]/20")}>
-                <StickyNote className={cn("h-4 w-4 opacity-90", isPremium ? "text-slate-300" : "text-[#a6abb3]")} />
+              <div className={cn("p-1.5 rounded-lg", isPremium ? "bg-amber-500/10" : "bg-indigo-50 dark:bg-indigo-950/50")}>
+                <StickyNote className={cn("h-4 w-4 opacity-90", isPremium ? "text-amber-500" : "text-indigo-500 dark:text-indigo-400")} />
               </div>
-              <span className={cn("text-[10px] font-bold uppercase tracking-wider", isPremium ? "text-slate-400" : "text-[#a6abb3]")}>Notes Privées</span>
+              <span className={cn("text-[10px] font-bold uppercase tracking-wider", isPremium ? "text-slate-400" : "text-slate-700 dark:text-slate-350")}>Notes Privées</span>
             </div>
             {isSaving ? (
-              <Loader2 className={cn("h-3.5 w-3.5 animate-spin opacity-70", isPremium ? "text-slate-400" : "text-[#a6abb3]")} />
+              <Loader2 className={cn("h-3.5 w-3.5 animate-spin opacity-70", isPremium ? "text-amber-500" : "text-indigo-500")} />
             ) : (
               <div
                 className={cn(
                   "h-1.5 w-1.5 rounded-full",
                   localNote !== (profile.notes || "")
-                    ? "bg-[#a6abb3] animate-pulse"
-                    : "bg-green-500/50"
+                    ? (isPremium ? "bg-amber-500 animate-pulse" : "bg-indigo-500 animate-pulse")
+                    : "bg-emerald-500"
                 )}
               />
             )}
@@ -215,14 +215,14 @@ export function ProfileCardMini({ profile, onUnfollow, onViewProfile, onSaveNote
               placeholder="Ajouter des observations privées sur ce contact..."
               className={cn(
                 "w-full min-h-[60px] text-xs resize-none bg-transparent border-0 focus-visible:ring-0 p-0 shadow-none font-medium leading-relaxed",
-                isPremium ? "placeholder:text-slate-500" : "placeholder:text-[#a6abb3]/60 text-[#022753]"
+                isPremium ? "placeholder:text-slate-500 text-white" : "placeholder:text-slate-400 dark:placeholder:text-slate-500 text-slate-800 dark:text-slate-100"
               )}
             />
           </div>
         </div>
 
-        <div className={cn("flex items-center justify-between mt-4 pt-3 border-t", isPremium ? "border-white/10" : "border-[#a6abb3]/30")}>
-          <span className={cn("text-[10px] font-semibold truncate max-w-[150px]", isPremium ? "text-slate-500" : "text-[#a6abb3]/80")}>
+        <div className={cn("flex items-center justify-between mt-4 pt-3 border-t", isPremium ? "border-white/10" : "border-slate-100 dark:border-slate-800")}>
+          <span className={cn("text-[10px] font-semibold truncate max-w-[150px]", isPremium ? "text-slate-500" : "text-slate-400 dark:text-slate-500")}>
             {profile.lastUpdate || "Aucune note"}
           </span>
 
@@ -233,8 +233,12 @@ export function ProfileCardMini({ profile, onUnfollow, onViewProfile, onSaveNote
             className={cn(
               "h-8 px-4 rounded-xl font-bold text-[9px] uppercase tracking-wider transition-all",
               localNote !== (profile.notes || "")
-                ? (isPremium ? "bg-white text-black hover:bg-slate-200" : "bg-[#a6abb3] text-white hover:bg-[#8f949c]")
-                : (isPremium ? "bg-white/5 text-white/30" : "bg-[#a6abb3]/20 text-[#a6abb3]/60 cursor-not-allowed")
+                ? (isPremium 
+                    ? "bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md shadow-amber-500/25" 
+                    : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-600/10")
+                : (isPremium 
+                    ? "bg-white/5 text-white/30 cursor-not-allowed border border-white/5" 
+                    : "bg-slate-100 text-slate-400 dark:bg-slate-800/50 dark:text-slate-600 cursor-not-allowed")
             )}
           >
             <Save className="h-3 w-3 mr-1.5" /> Enregistrer
