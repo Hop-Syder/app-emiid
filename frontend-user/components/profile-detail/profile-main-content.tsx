@@ -26,23 +26,23 @@ const getSkillBadgeStyles = (idx: number) => {
 
 export function ProfileMainContent({ profile, gallery, loadingGallery }: any) {
     return (
-        <div className="lg:col-span-8 space-y-6">
+        <div className="lg:col-span-8 min-w-0 space-y-6">
             {/* About card */}
-            <div className="bg-white/70 backdrop-blur-xl border border-white/50 rounded-[32px] p-6 sm:p-8 shadow-xl shadow-slate-100/40 relative overflow-hidden group">
+            <div className="bg-white/70 backdrop-blur-xl border border-white/50 rounded-[28px] sm:rounded-[32px] p-5 sm:p-8 shadow-xl shadow-slate-100/40 relative overflow-hidden group">
                 {/* Decorative element */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-[#CE1126]/5 to-transparent rounded-bl-full pointer-events-none" />
                 <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                    <Award className="h-4 w-4 text-[#CE1126]" />
+                    <Award className="h-4 w-4 text-[#CE1126] shrink-0" />
                     À propos de moi
                 </h2>
-                <p className="mt-5 text-slate-700 leading-relaxed text-sm sm:text-base whitespace-pre-line font-medium">
+                <p className="mt-5 text-slate-700 leading-relaxed text-sm sm:text-base whitespace-pre-line break-words font-medium">
                     {profile.bio}
                 </p>
             </div>
 
             {/* Tabs content card */}
-            <div className="bg-white/70 backdrop-blur-xl border border-white/50 rounded-[32px] p-6 sm:p-8 shadow-xl shadow-slate-100/40">
-                <Tabs defaultValue="skills" className="w-full">
+            <div className="bg-white/70 backdrop-blur-xl border border-white/50 rounded-[28px] sm:rounded-[32px] p-5 sm:p-8 shadow-xl shadow-slate-100/40 min-w-0 overflow-hidden">
+                <Tabs defaultValue="skills" className="w-full min-w-0">
                     <TabsList className="bg-slate-100/50 border border-slate-200/50 w-full justify-start h-auto p-1.5 mb-6 gap-2 rounded-2xl backdrop-blur-sm flex overflow-x-auto no-scrollbar snap-x whitespace-nowrap">
                         <TabsTrigger
                             value="skills"

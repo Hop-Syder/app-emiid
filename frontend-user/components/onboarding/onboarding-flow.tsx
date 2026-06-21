@@ -85,29 +85,29 @@ function StepDots({ current, total }: { current: number; total: number }) {
 
 function PresentationSlide({ slide }: { slide: Slide }) {
   return (
-    <div className="flex flex-col items-center text-center gap-6 sm:gap-7 px-2">
+    <div className="flex flex-col items-center text-center gap-3 sm:gap-5 px-2">
       <motion.div
         initial={{ scale: 0.85, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="relative w-52 h-52 sm:w-72 sm:h-72"
+        className="relative w-[30vh] h-[30vh] max-w-[14rem] max-h-[14rem] sm:max-w-[16rem] sm:max-h-[16rem]"
       >
         <Image
           src={slide.image}
           alt={slide.alt}
           fill
-          sizes="(max-width: 640px) 13rem, 18rem"
+          sizes="(max-width: 640px) 30vh, 16rem"
           className="object-contain drop-shadow-[0_0_40px_rgba(99,102,241,0.4)]"
           priority
         />
       </motion.div>
 
-      <div className="space-y-3 max-w-sm">
+      <div className="space-y-1.5 sm:space-y-2 max-w-sm">
         <motion.h2
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
-          className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight"
+          className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight leading-snug"
         >
           {slide.title}{" "}
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-sky-400">
@@ -118,7 +118,7 @@ function PresentationSlide({ slide }: { slide: Slide }) {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}
-          className="text-slate-400 text-sm sm:text-base font-medium leading-relaxed px-2"
+          className="text-slate-400 text-[13px] sm:text-sm font-medium leading-relaxed px-1"
         >
           {slide.description}
         </motion.p>
@@ -162,7 +162,7 @@ export function OnboardingFlow() {
   const handleNext = () => (isLast ? finish() : goTo(step + 1))
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-start bg-[#020617] relative overflow-hidden px-4 pt-12 sm:pt-16 pb-10">
+    <div className="h-[100dvh] w-full flex flex-col items-center justify-center bg-[#020617] relative overflow-hidden px-4 py-4 sm:py-6">
 
       {/* Fond */}
       <div className="absolute inset-0 pointer-events-none">
@@ -172,16 +172,16 @@ export function OnboardingFlow() {
       </div>
 
       {/* Contenu */}
-      <div className="relative z-10 w-full max-w-lg flex flex-col items-center gap-7 sm:gap-9 my-auto">
+      <div className="relative z-10 w-full max-w-lg flex flex-col items-center gap-4 sm:gap-6">
 
         {/* Logo + dots */}
-        <div className="flex flex-col items-center gap-5">
+        <div className="flex flex-col items-center gap-3 sm:gap-4">
           <Image
             src="/logo/logo-emiid.png"
             alt="EmiID"
             width={320}
             height={80}
-            className="h-16 sm:h-20 w-auto object-contain brightness-0 invert drop-shadow-[0_4px_24px_rgba(255,255,255,0.12)]"
+            className="h-12 sm:h-14 w-auto object-contain brightness-0 invert drop-shadow-[0_4px_24px_rgba(255,255,255,0.12)]"
             priority
           />
           <StepDots current={step} total={total} />
@@ -212,7 +212,7 @@ export function OnboardingFlow() {
               variant="ghost"
               onClick={() => goTo(step - 1)}
               disabled={saving}
-              className="flex-1 h-12 rounded-2xl text-slate-400 hover:text-white hover:bg-white/5 font-semibold text-sm"
+              className="flex-1 h-11 rounded-2xl text-slate-400 hover:text-white hover:bg-white/5 font-semibold text-sm"
             >
               <ChevronLeft className="w-4 h-4 mr-1" /> Retour
             </Button>
@@ -220,7 +220,7 @@ export function OnboardingFlow() {
           <Button
             onClick={handleNext}
             disabled={saving}
-            className="flex-[2] h-12 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm tracking-wide transition-all hover:scale-[1.01] shadow-lg shadow-indigo-500/20 disabled:opacity-60"
+            className="flex-[2] h-11 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm tracking-wide transition-all hover:scale-[1.01] shadow-lg shadow-indigo-500/20 disabled:opacity-60"
           >
             {saving ? (
               <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Chargement...</>

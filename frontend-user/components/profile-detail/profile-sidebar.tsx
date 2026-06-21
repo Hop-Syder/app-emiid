@@ -22,9 +22,9 @@ export function ProfileSidebar({
     downloadVCard
 }: any) {
     return (
-        <aside className="lg:col-span-4 space-y-6">
+        <aside className="lg:col-span-4 min-w-0 space-y-6">
             {/* Coordinates card */}
-            <div className="bg-white/70 backdrop-blur-xl border border-white/50 rounded-[32px] p-6 shadow-xl shadow-slate-100/40 relative overflow-hidden">
+            <div className="bg-white/70 backdrop-blur-xl border border-white/50 rounded-[28px] sm:rounded-[32px] p-5 sm:p-6 shadow-xl shadow-slate-100/40 relative overflow-hidden">
                 <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
                     <Globe className="h-4 w-4 text-[#022753]" />
                     Coordonnées
@@ -74,18 +74,18 @@ export function ProfileSidebar({
             </div>
 
             {/* Share card */}
-            <div className="bg-white/70 backdrop-blur-xl border border-white/50 rounded-[32px] p-6 shadow-xl shadow-slate-100/40">
+            <div className="bg-white/70 backdrop-blur-xl border border-white/50 rounded-[28px] sm:rounded-[32px] p-5 sm:p-6 shadow-xl shadow-slate-100/40 overflow-hidden">
                 <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                    <Share2 className="h-4 w-4 text-[#022753]" />
+                    <Share2 className="h-4 w-4 text-[#022753] shrink-0" />
                     Partage
                 </h3>
 
                 <div className="mt-5 space-y-4">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
                         <Input
                             readOnly
                             value={profileUrl}
-                            className="h-11 bg-slate-50/70 border-slate-200 text-slate-700 font-mono text-xs focus-visible:ring-0 rounded-2xl font-semibold select-all"
+                            className="h-11 min-w-0 flex-1 bg-slate-50/70 border-slate-200 text-slate-700 font-mono text-xs focus-visible:ring-0 rounded-2xl font-semibold select-all"
                         />
                         <Button
                             size="icon"
