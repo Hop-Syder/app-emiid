@@ -112,9 +112,9 @@ export function ProfileHero({
             </div>
 
             {/* Profile Meta Section */}
-            <div className="px-6 sm:px-10 pb-8 relative z-10">
-                {/* Ligne 1: Avatar + Boutons d'action alignés à droite */}
-                <div className="flex justify-between items-end -mt-12 sm:-mt-16 mb-4">
+            <div className="px-5 sm:px-8 md:px-10 pb-7 sm:pb-8 relative z-10">
+                {/* Avatar qui chevauche la couverture */}
+                <div className="-mt-12 sm:-mt-16 mb-4">
                     <Avatar className="h-24 w-24 sm:h-32 sm:w-32 rounded-full border-[4px] border-white/90 shadow-2xl shadow-slate-900/10 bg-white relative z-10 transition-transform duration-500 hover:scale-105 ring-1 ring-slate-900/5">
                         <AvatarImage
                             src={getOptimizedImageUrl(profile.avatar || "/profil/avatar.jpg", { width: 240, height: 240 })}
@@ -125,50 +125,16 @@ export function ProfileHero({
                             {initials}
                         </AvatarFallback>
                     </Avatar>
-
-                    {/* Actions buttons */}
-                    <div className="flex flex-wrap justify-end gap-3 shrink-0 relative z-10 pt-14 sm:pt-16">
-                        <Button
-                            size="default"
-                            disabled={followLoading}
-                            className="rounded-full h-10 text-xs px-5 gap-2 font-semibold tracking-wide bg-[#022753] hover:bg-[#022753]/90 shadow-lg shadow-[#022753]/20 transition-all hover:-translate-y-0.5 active:translate-y-0 text-white"
-                            onClick={handleFollow}
-                        >
-                            {followLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Users className="h-4 w-4" />}
-                            {isFollowed ? "Abonné" : "Suivre"}
-                        </Button>
-                        {isLoggedIn && (
-                            <Button
-                                variant="outline"
-                                size="default"
-                                className="rounded-full h-10 text-xs px-5 gap-2 font-semibold tracking-wide border-slate-200/60 bg-white/50 backdrop-blur-md hover:bg-white shadow-sm transition-all hover:-translate-y-0.5 active:translate-y-0 text-slate-700"
-                                asChild
-                            >
-                                <Link href={`/messages?contact=${profile.id}`}>
-                                    <MessageCircle className="h-4 w-4" />
-                                    <span className="hidden sm:inline">Message</span>
-                                </Link>
-                            </Button>
-                        )}
-                        <Button
-                            variant="outline"
-                            size="default"
-                            className="rounded-full h-10 w-10 p-0 flex items-center justify-center border-slate-200/60 bg-white/50 backdrop-blur-md hover:bg-white shadow-sm transition-all hover:-translate-y-0.5 active:translate-y-0 text-slate-700"
-                            onClick={handleShare}
-                        >
-                            <Share2 className="h-4 w-4" />
-                        </Button>
-                    </div>
                 </div>
 
-                {/* Ligne 2: Infos texte et Statistiques */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 md:gap-10 mt-2">
-                    <div className="space-y-3 flex-1">
+                {/* Ligne : Infos (nom, rôle) + Actions */}
+                <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-5 lg:gap-8">
+                    <div className="space-y-3 min-w-0 flex-1">
                         <div className="flex items-center gap-3 flex-wrap">
-                            <h1 className="text-2xl sm:text-[28px] font-bold tracking-tight text-slate-900 leading-none">
+                            <h1 className="text-2xl sm:text-[28px] font-bold tracking-tight text-slate-900 leading-tight break-words">
                                 {profile.name}
                             </h1>
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 shrink-0">
                                 {profile.verified && (
                                     <span className="inline-flex items-center gap-1.5 rounded-full bg-white/60 backdrop-blur-sm border border-slate-200/50 px-2.5 py-1 text-[10px] font-semibold text-slate-700 shadow-[0_2px_10px_rgb(0,0,0,0.02)]">
                                         <Shield className="h-3.5 w-3.5 text-blue-500" />
@@ -184,34 +150,69 @@ export function ProfileHero({
                             </div>
                         </div>
                         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-600 font-medium tracking-wide">
-                            <span className="inline-flex items-center gap-2">
-                                <Users className="h-4 w-4 text-slate-400" />
-                                <span>{profile.specialty}</span>
+                            <span className="inline-flex items-center gap-2 min-w-0">
+                                <Users className="h-4 w-4 text-slate-400 shrink-0" />
+                                <span className="truncate">{profile.specialty}</span>
                             </span>
                             <span className="h-1 w-1 rounded-full bg-slate-300 hidden sm:inline" />
-                            <span className="inline-flex items-center gap-2">
-                                <MapPin className="h-4 w-4 text-slate-400" />
-                                <span>{profile.location}</span>
+                            <span className="inline-flex items-center gap-2 min-w-0">
+                                <MapPin className="h-4 w-4 text-slate-400 shrink-0" />
+                                <span className="truncate">{profile.location}</span>
                             </span>
                         </div>
                     </div>
 
-                    {/* Stats Block (Editorial Style) */}
-                    <div className="flex items-center gap-6 sm:gap-8 pt-4 md:pt-0">
-                        <div className="flex flex-col items-center sm:items-start group cursor-default">
-                            <div className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight leading-none group-hover:text-[#022753] transition-colors">{followersCount}</div>
-                            <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.15em] mt-1.5">Abonnés</div>
-                        </div>
-                        <div className="w-px h-8 bg-slate-200/60 rotate-12" />
-                        <div className="flex flex-col items-center sm:items-start group cursor-default">
-                            <div className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight leading-none group-hover:text-[#022753] transition-colors">{profile.following}</div>
-                            <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.15em] mt-1.5">Suivis</div>
-                        </div>
-                        <div className="w-px h-8 bg-slate-200/60 rotate-12" />
-                        <div className="flex flex-col items-center sm:items-start group cursor-default">
-                            <div className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight leading-none group-hover:text-[#022753] transition-colors">{profile.skills.length}</div>
-                            <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.15em] mt-1.5">Skills</div>
-                        </div>
+                    {/* Actions : pleine largeur sur mobile, alignées à droite sur desktop */}
+                    <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 w-full lg:w-auto shrink-0">
+                        <Button
+                            size="default"
+                            disabled={followLoading}
+                            className="rounded-full h-11 text-xs px-5 gap-2 font-semibold tracking-wide bg-[#022753] hover:bg-[#022753]/90 shadow-lg shadow-[#022753]/20 transition-all hover:-translate-y-0.5 active:translate-y-0 text-white flex-1 sm:flex-none min-w-[120px]"
+                            onClick={handleFollow}
+                        >
+                            {followLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Users className="h-4 w-4" />}
+                            {isFollowed ? "Abonné" : "Suivre"}
+                        </Button>
+                        {isLoggedIn && (
+                            <Button
+                                variant="outline"
+                                size="default"
+                                className="rounded-full h-11 text-xs px-5 gap-2 font-semibold tracking-wide border-slate-200/60 bg-white/50 backdrop-blur-md hover:bg-white shadow-sm transition-all hover:-translate-y-0.5 active:translate-y-0 text-slate-700 flex-1 sm:flex-none min-w-[120px]"
+                                asChild
+                            >
+                                <Link href={`/messages?contact=${profile.id}`}>
+                                    <MessageCircle className="h-4 w-4" />
+                                    Message
+                                </Link>
+                            </Button>
+                        )}
+                        <Button
+                            variant="outline"
+                            size="default"
+                            aria-label="Partager le profil"
+                            className="rounded-full h-11 w-11 p-0 flex items-center justify-center shrink-0 border-slate-200/60 bg-white/50 backdrop-blur-md hover:bg-white shadow-sm transition-all hover:-translate-y-0.5 active:translate-y-0 text-slate-700"
+                            onClick={handleShare}
+                        >
+                            <Share2 className="h-4 w-4" />
+                        </Button>
+                    </div>
+                </div>
+
+                {/* Statistiques (ligne dédiée avec séparateur) */}
+                <div className="flex items-center gap-6 sm:gap-10 mt-6 pt-6 border-t border-slate-200/50">
+                    <div className="flex flex-col items-start group cursor-default">
+                        <div className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight leading-none group-hover:text-[#022753] transition-colors">{followersCount}</div>
+                        <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.15em] mt-1.5">Abonnés</div>
+                    </div>
+                    <div className="w-px h-8 bg-slate-200/60 rotate-12" />
+                    <div className="flex flex-col items-start group cursor-default">
+                        <div className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight leading-none group-hover:text-[#022753] transition-colors">{profile.following}</div>
+                        <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.15em] mt-1.5">Suivis</div>
+                    </div>
+                    <div className="w-px h-8 bg-slate-200/60 rotate-12" />
+                    <div className="flex flex-col items-start group cursor-default">
+                        <div className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight leading-none group-hover:text-[#022753] transition-colors">{profile.skills.length}</div>
+                        <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.15em] mt-1.5">Skills</div>
                     </div>
                 </div>
             </div>

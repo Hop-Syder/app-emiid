@@ -1,9 +1,9 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Composant Preloader global animé et réutilisable (Luxury Editorial & Glassmorphism)
+ * @description Composant Preloader global animé et réutilisable (logo EmiID + anneaux glassmorphism)
  * @created 2026-06-03
- * @updated 2026-06-03
+ * @updated 2026-06-21
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -11,6 +11,7 @@
 "use client"
 
 import { motion } from "framer-motion"
+import Image from "next/image"
 import { cn } from "@/lib/utils"
 
 interface PreloaderProps {
@@ -29,45 +30,45 @@ export function Preloader({
     return (
         <div className={cn("flex flex-col items-center justify-center relative overflow-hidden px-4 w-full", minHeight, className)}>
             {/* Glow d'ambiance en arrière-plan */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] bg-gradient-to-tr from-primary/10 via-violet-500/5 to-indigo-500/10 rounded-full blur-3xl animate-pulse" />
-            
-            <div className="z-10 flex flex-col items-center gap-8 max-w-md w-full">
-                {/* Anneau de chargement Luxury Glassmorphism */}
-                <div className="relative w-28 h-28 flex items-center justify-center">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[260px] h-[260px] sm:w-[350px] sm:h-[350px] bg-gradient-to-tr from-primary/10 via-violet-500/5 to-indigo-500/10 rounded-full blur-3xl animate-pulse" />
+
+            <div className="z-10 flex flex-col items-center gap-6 sm:gap-8 max-w-md w-full">
+                {/* Anneaux + logo central */}
+                <div className="relative w-28 h-28 sm:w-32 sm:h-32 flex items-center justify-center">
                     {/* Anneau extérieur rotatif rapide */}
-                    <motion.div 
+                    <motion.div
                         animate={{ rotate: 360 }}
                         transition={{ duration: 2.2, repeat: Infinity, ease: "linear" }}
-                        className="absolute inset-0 rounded-full border-t border-r border-primary/80 border-b-transparent border-l-transparent"
-                    />
-                    
-                    {/* Anneau intermédiaire rotatif lent et inversé */}
-                    <motion.div 
-                        animate={{ rotate: -360 }}
-                        transition={{ duration: 3.5, repeat: Infinity, ease: "linear" }}
-                        className="absolute inset-2 rounded-full border-b border-l border-violet-500/40 border-t-transparent border-r-transparent"
+                        className="absolute inset-0 rounded-full border-2 border-t-primary/80 border-r-primary/40 border-b-transparent border-l-transparent"
                     />
 
-                    {/* Anneau intérieur rotatif rapide dans le sens horaire */}
-                    <motion.div 
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-                        className="absolute inset-4 rounded-full border-t border-indigo-500/30 border-b-transparent border-l-transparent border-r-transparent"
+                    {/* Anneau intermédiaire rotatif lent et inversé */}
+                    <motion.div
+                        animate={{ rotate: -360 }}
+                        transition={{ duration: 3.5, repeat: Infinity, ease: "linear" }}
+                        className="absolute inset-2 rounded-full border-2 border-b-violet-500/40 border-l-violet-500/20 border-t-transparent border-r-transparent"
                     />
-                    
-                    {/* Sphère centrale en verre poli (Glassmorphism) */}
-                    <motion.div 
-                        animate={{ scale: [0.96, 1.04, 0.96] }}
-                        transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-                        className="w-16 h-16 rounded-full bg-white/70 backdrop-blur-xl shadow-[inset_0_2px_4px_rgba(255,255,255,0.6),0_10px_30px_rgba(0,0,0,0.03)] border border-white/40 flex items-center justify-center"
+
+                    {/* Disque central en verre poli avec le LOGO EmiID */}
+                    <motion.div
+                        animate={{ scale: [0.95, 1.05, 0.95] }}
+                        transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+                        className="w-[4.5rem] h-[4.5rem] sm:w-20 sm:h-20 rounded-full bg-white/80 backdrop-blur-xl shadow-[inset_0_2px_4px_rgba(255,255,255,0.6),0_10px_30px_rgba(0,0,0,0.06)] border border-white/50 flex items-center justify-center p-3"
                     >
-                        <span className="text-2xl font-black bg-gradient-to-tr from-primary via-indigo-600 to-violet-600 bg-clip-text text-transparent select-none">E</span>
+                        <Image
+                            src="/logo/logo-emiid.png"
+                            alt="EmiID"
+                            width={80}
+                            height={80}
+                            className="w-full h-full object-contain"
+                            priority
+                        />
                     </motion.div>
                 </div>
 
                 {/* Textes animés de chargement */}
                 <div className="text-center space-y-2">
-                    <motion.p 
+                    <motion.p
                         animate={{ opacity: [0.4, 1, 0.4] }}
                         transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                         className="text-xs font-black tracking-[0.25em] text-slate-800 uppercase"

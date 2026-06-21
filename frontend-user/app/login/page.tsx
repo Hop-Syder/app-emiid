@@ -64,7 +64,7 @@ export default function LoginPage() {
         initial={{ opacity: 0, y: 24, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="relative z-10 w-full max-w-sm mx-4"
+        className="relative z-10 w-full max-w-sm mx-4 -mt-6 sm:-mt-12"
       >
         {/* Glow border */}
         <div className="absolute -inset-[1px] bg-gradient-to-b from-white/10 via-white/5 to-transparent rounded-[2rem] pointer-events-none" />
@@ -73,13 +73,13 @@ export default function LoginPage() {
           <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
           {/* Logo + titre */}
-          <div className="flex flex-col items-center gap-3 mb-10">
+          <div className="flex flex-col items-center gap-3 mb-8">
             <Image
               src="/logo/logo-emiid.png"
               alt="EmiID"
-              width={218}
-              height={56}
-              className="h-14 w-auto object-contain brightness-0 invert"
+              width={384}
+              height={96}
+              className="h-20 sm:h-24 w-auto object-contain brightness-0 invert drop-shadow-[0_4px_24px_rgba(255,255,255,0.15)]"
               priority
             />
             <div className="text-center">
