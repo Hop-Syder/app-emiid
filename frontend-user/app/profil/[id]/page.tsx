@@ -9,6 +9,8 @@
  */
 
 import { Metadata } from "next"
+import { cache } from "react"
+import { unstable_cache } from "next/cache"
 import { ProfileDetailContent } from "@/components/profile-detail/profile-detail-content"
 import { createClient } from "@/lib/supabase/server"
 
@@ -24,50 +26,96 @@ interface ProfilePageProps {
     params: Promise<{ id: string }>
 }
 
-export async function generateMetadata({ params }: ProfilePageProps): Promise<Metadata> {
-    const { id } = await params
-    const cleanId = id.toLowerCase()
-    const supabase = await createClient()
-
-    try {
-        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(cleanId);
+// Cache persistant cross-request pour les profils publics (sans cookies/auth)
+export const getCachedPublicProfile = unstable_cache(
+    async (idOrSlug: string, isUUID: boolean) => {
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+        const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        
+        // Import dynamique pour éviter de charger le SDK lourd côté serveur inutilement
+        const { createClient: createSupabaseClient } = await import('@supabase/supabase-js')
+        const client = createSupabaseClient(supabaseUrl, supabaseAnonKey)
+        
         const profileSelect = `
             first_name, 
             last_name, 
             specialty,
             role,
             bio,
+            city,
             profile_tags(tags(name))
         `
-
-        let ownerQuery = supabase
-            .from('user_profiles')
+        
+        let publicQuery = client
+            .from('public_profiles')
             .select(profileSelect)
 
         if (isUUID) {
-            ownerQuery = ownerQuery.or(`slug.eq.${cleanId},user_id.eq.${cleanId},id.eq.${cleanId}`)
+            publicQuery = publicQuery.or(`slug.eq.${idOrSlug},user_id.eq.${idOrSlug},id.eq.${idOrSlug}`)
         } else {
-            ownerQuery = ownerQuery.eq('slug', cleanId)
+            publicQuery = publicQuery.eq('slug', idOrSlug)
         }
 
-        const ownerRes = await ownerQuery.maybeSingle()
-        let data: any = ownerRes.data
+        const { data, error } = await publicQuery.maybeSingle()
+        if (error) {
+            console.error("[getCachedPublicProfile] Error querying public_profiles:", error)
+            return null
+        }
+        return data
+    },
+    ['public-profile'],
+    { tags: ['profile'], revalidate: 3600 }
+)
 
-        if (!data) {
-            let publicQuery = supabase
-                .from('public_profiles')
-                .select(profileSelect)
+// Déduplication de requête au cours d'un même rendu (generateMetadata + Page)
+export const getProfileForRequest = cache(async (idOrSlug: string) => {
+    const cleanId = idOrSlug.toLowerCase()
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(cleanId)
+    
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    let data: any = null
+    
+    if (user) {
+        // Si utilisateur connecté, on tente la table privée user_profiles
+        let query = supabase
+            .from('user_profiles')
+            .select(`
+                first_name, 
+                last_name, 
+                specialty,
+                role,
+                bio,
+                city,
+                profile_tags(tags(name))
+            `)
 
-            if (isUUID) {
-                publicQuery = publicQuery.or(`slug.eq.${cleanId},user_id.eq.${cleanId},id.eq.${cleanId}`)
-            } else {
-                publicQuery = publicQuery.eq('slug', cleanId)
-            }
-
-            const publicRes = await publicQuery.maybeSingle()
-            data = publicRes.data
+        if (isUUID) {
+            query = query.or(`slug.eq.${cleanId},user_id.eq.${cleanId},id.eq.${cleanId}`)
+        } else {
+            query = query.eq('slug', cleanId)
         }
 
+        const { data: userData, error } = await query.maybeSingle()
+        if (!error && userData) {
+            data = userData
+        }
+    }
+    
+    // Repli sur le cache public si non trouvé dans la table privée
+    if (!data) {
+        data = await getCachedPublicProfile(cleanId, isUUID)
+    }
+    
+    return data
+})
+
+export async function generateMetadata({ params }: ProfilePageProps): Promise<Metadata> {
+    const { id } = await params
+    
+    try {
+        const data = await getProfileForRequest(id)
         if (!data) {
             return {
                 title: 'Profil non trouvé | EmiID'
@@ -125,61 +173,7 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
 
 export default async function ProfilePage({ params }: ProfilePageProps) {
     const { id } = await params
-    const cleanId = id.toLowerCase()
-    const supabase = await createClient()
-    
-    let data: any;
-    try {
-        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(cleanId);
-        
-        // 1. Tenter de lire directement la table user_profiles (fonctionnera si c'est le profil du propriétaire connecté)
-        let query = supabase
-            .from('user_profiles')
-            .select(`
-                first_name, 
-                last_name, 
-                specialty,
-                role,
-                bio,
-                city,
-                profile_tags(tags(name))
-            `)
-
-        if (isUUID) {
-            query = query.or(`slug.eq.${cleanId},user_id.eq.${cleanId},id.eq.${cleanId}`)
-        } else {
-            query = query.eq('slug', cleanId)
-        }
-
-        let { data: userData, error } = await query.single()
-        data = userData
-
-        // 2. Repli sur la vue public_profiles pour les tiers ou visiteurs anonymes
-        if (error || !data) {
-            let publicQuery = supabase
-                .from('public_profiles')
-                .select(`
-                    first_name, 
-                    last_name, 
-                    specialty,
-                    role,
-                    bio,
-                    city,
-                    profile_tags(tags(name))
-                `)
-
-            if (isUUID) {
-                publicQuery = publicQuery.or(`slug.eq.${cleanId},user_id.eq.${cleanId},id.eq.${cleanId}`)
-            } else {
-                publicQuery = publicQuery.eq('slug', cleanId)
-            }
-
-            const { data: publicData } = await publicQuery.single()
-            data = publicData
-        }
-    } catch (e) {
-        // Handle error silently
-    }
+    const data = await getProfileForRequest(id)
 
     const jsonLd = data ? {
         '@context': 'https://schema.org',
@@ -194,7 +188,8 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     } : null
 
     return (
-        <>            {jsonLd && (
+        <>
+            {jsonLd && (
                 <script
                     type="application/ld+json"
                     dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}

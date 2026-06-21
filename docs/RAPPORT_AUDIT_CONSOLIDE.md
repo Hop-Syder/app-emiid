@@ -152,7 +152,23 @@ Le script de migration `sql/MASTER_EMIID_SCHEMA.sql` a été mis à jour et vali
 
 ---
 
-## 🔌 6. Architecture & Statut du Backend
+## 🎨 6. Qualité de Code, Rendu & Performance Frontend (Next.js)
+
+Les chantiers d'optimisation de structure de code et de performance du client `frontend-user` ont été traités avec succès :
+
+1. **Typage strict Supabase (`database.types.ts`) [Partiellement résolu]** :
+   - Mise en place de définitions de types strictes pour Supabase (`frontend-user/types/database.types.ts`) couvrant les relations et les vues pour éradiquer les assertions `as any` ou `as unknown` dans les fichiers critiques.
+2. **Modularisation de `ProfileDetailContent.tsx` [Résolu]** :
+   - Le composant monolithique de ~1060 lignes a été découpé avec succès. Les responsabilités sont divisées en composants spécialisés (`ProfileHero`, `ProfileMainContent`, `ProfileSidebar`, `ProfileModerationDialogs`) et hooks personnalisés de gestion de données (`useProfileData` et `useProfileActions`).
+3. **Imports dynamiques pour la réduction de bundle [Résolu]** :
+   - Les dialogues et modales secondaires lourdes (`ShareModal` et `ProfileModerationDialogs`) sont importés dynamiquement avec `next/dynamic` pour alléger le bundle principal initial.
+4. **Cache & Revalidation Next.js (`revalidateTag`) [Résolu]** :
+   - Intégration de `unstable_cache` avec déduplication React (`cache`) pour le chargement des profils sur le serveur (0 requêtes DB pour les visites anonymes lorsque le cache est chaud).
+   - Invalidation automatique et sélective via `revalidateTag("profile")` interceptée au niveau de la route proxy API (`app/api/proxy/[...path]/route.ts`) lors de mises à jour de profil réussies (`PUT /api/users/me`), de follow (`POST /api/users/follow/:id`) ou de suppression de compte (`DELETE /api/users/account`).
+
+---
+
+## 🔌 7. Architecture & Statut du Backend
 
 Le serveur Express s'exécute sur le port **5000**. 
 
@@ -167,7 +183,7 @@ Le serveur Express s'exécute sur le port **5000**.
 
 ---
 
-## 🎯 7. Actions Recommandées (Phase 2, 3 & 4)
+## 🎯 8. Actions Recommandées (Phase 2, 3 & 4)
 
 Les anomalies critiques étant résolues, voici la feuille de route pour le passage en production.
 
@@ -194,7 +210,7 @@ Les anomalies critiques étant résolues, voici la feuille de route pour le pass
 
 ---
 
-## 🧹 8. Liste des Anciens Rapports Archivés
+## 🧹 9. Liste des Anciens Rapports Archivés
 
 Pour éviter les dérives d'information et simplifier la maintenance, les rapports d'audits précédents obsolètes ont été supprimés :
 1. `docs/AUDIT_CONSOLIDE_2026.md`
@@ -207,3 +223,4 @@ Pour éviter les dérives d'information et simplifier la maintenance, les rappor
 8. `PHASE_1_FIXES.md`
 
 Le présent document constitue désormais la **Source Unique de Vérité (SSOT)** de l'état d'audit de la plateforme EmiID.
+

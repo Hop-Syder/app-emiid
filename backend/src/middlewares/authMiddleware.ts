@@ -76,13 +76,16 @@ export const requireAdmin = async (req: Request, res: Response, next: NextFuncti
   if (!user) return res.status(401).json({ error: "Authentification requise" });
 
   try {
+    // SÉCURITÉ : l'autorisation admin repose sur la colonne dédiée `is_admin`,
+    // jamais sur `role` (qui est un libellé métier modifiable par l'utilisateur
+    // via PUT /api/users/me). Voir migration 20260621_add_is_admin_authorization.sql.
     const { data: profile, error } = await supabaseAdmin
       .from('user_profiles')
-      .select('role')
+      .select('is_admin')
       .eq('user_id', user.id)
       .single();
 
-    if (error || !profile || !profile.role?.toLowerCase().includes('admin')) {
+    if (error || !profile || profile.is_admin !== true) {
       return res.status(403).json({ error: "Accès refusé. Droits administrateur requis." });
     }
 

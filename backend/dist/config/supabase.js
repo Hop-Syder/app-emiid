@@ -33,15 +33,15 @@ const supabaseServiceRoleKey = requireEnv('SUPABASE_SERVICE_ROLE_KEY');
 try {
     const parts = supabaseServiceRoleKey.split('.');
     if (parts.length === 3) {
-        const payload = Buffer.from(parts[1], 'base64').toString('utf-8');
-        logger_1.logger.info(`[Supabase Admin Key Role]: ${payload}`);
+        const decoded = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf-8'));
+        logger_1.logger.info(`[Supabase Admin Key Role]: ${decoded.role || 'unknown'}`);
     }
     else {
         logger_1.logger.warn('[Supabase Admin Key]: Format de clé invalide (pas 3 parties JWT)');
     }
 }
 catch (e) {
-    logger_1.logger.error('[Supabase Admin Key]: Impossible de décoder le JWT', e);
+    logger_1.logger.error('[Supabase Admin Key]: Impossible de décoder le JWT');
 }
 if (supabaseUrl && !supabaseUrl.startsWith('https://')) {
     logger_1.logger.error('Configuration invalide: SUPABASE_URL doit commencer par https://.', supabaseUrl);

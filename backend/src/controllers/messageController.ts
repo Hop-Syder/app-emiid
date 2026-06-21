@@ -50,17 +50,19 @@ const getProfilesByUserIds = async (userIds: string[]) => {
 };
 
 const isAdminUser = async (userId: string) => {
+  // SÉCURITÉ : autorisation basée sur la colonne dédiée `is_admin`, jamais sur
+  // le libellé métier `role` (modifiable par l'utilisateur). Cf. authMiddleware.requireAdmin.
   const { data, error } = await supabaseAdmin
     .from('user_profiles')
-    .select('role')
+    .select('is_admin')
     .eq('user_id', userId)
     .single();
 
-  if (error || !data?.role) {
+  if (error || !data) {
     return false;
   }
 
-  return data.role.toLowerCase().includes('admin');
+  return data.is_admin === true;
 };
 
 const isConversationInMediation = async (conversationId: string) => {
@@ -379,7 +381,7 @@ export const getSupportUser = async (req: Request, res: Response) => {
         const { data, error } = await supabaseAdmin
             .from('user_profiles')
             .select('user_id, first_name, last_name, avatar_url, role')
-            .or('role.ilike.%admin%,first_name.ilike.%service client%')
+            .or('is_admin.eq.true,first_name.ilike.%service client%')
             .neq('user_id', userId)
             .limit(1)
             .single();

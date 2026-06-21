@@ -108,8 +108,10 @@ export const getMyProfile = async (req: Request, res: Response) => {
     }
 
     if (data) {
-        data.tags = data.profile_tags?.map((pt: any) => pt.tags?.name).filter(Boolean) || [];
-        delete data.profile_tags;
+        // Reshape DTO : on aplatit la jointure profile_tags(tags(name)) en data.tags
+        const profileData = data as Omit<typeof data, 'profile_tags'> & { tags?: string[]; profile_tags?: unknown };
+        profileData.tags = data.profile_tags?.map((pt: any) => pt.tags?.name).filter(Boolean) || [];
+        delete profileData.profile_tags;
         data.first_name = data.first_name || authFallback.first_name;
         data.last_name = data.last_name || authFallback.last_name;
         data.email = data.email || authFallback.email;
@@ -339,8 +341,10 @@ export const updateMyProfile = async (req: any, res: Response) => {
         .single();
 
       if (!refetchError && updatedProfile) {
-        updatedProfile.tags = updatedProfile.profile_tags?.map((pt: any) => pt.tags?.name).filter(Boolean) || [];
-        delete updatedProfile.profile_tags;
+        // Reshape DTO : on aplatit la jointure profile_tags(tags(name)) en tags
+        const profileData = updatedProfile as Omit<typeof updatedProfile, 'profile_tags'> & { tags?: string[]; profile_tags?: unknown };
+        profileData.tags = updatedProfile.profile_tags?.map((pt: any) => pt.tags?.name).filter(Boolean) || [];
+        delete profileData.profile_tags;
         
         // Compléter avec les données d'authentification fallback
         const authFallback = {

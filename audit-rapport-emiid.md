@@ -21,10 +21,10 @@ Ce rapport présente une analyse exhaustive et rigoureuse de l'application **Emi
 | :--- | :--- | :--- | :--- |
 | **🚨 Critique** | Routage & RLS Profil | Erreur 400 sur `/profil/[slug]` due à la restriction RLS sur `user_profiles` pour le trafic anonyme. | **Résolu** (via migration SQL de `public_profiles` et mécanisme de fallback intelligent) |
 | **🚨 Critique** | Synchronisation des Tags | Problème de sauvegarde des tags/compétences dû au conflit PostgREST sur l'upsert des tags déjà existants. | **Résolu** (via fallback d'association directe par nom unique dans le contrôleur backend) |
-| **⚠️ Important** | Typage strict Supabase | Absence de typage strict généré automatiquement pour Supabase (`database.types.ts`). | À planifier |
-| **⚠️ Important** | Découpage des Composants | Le composant `ProfileDetailContent` fait plus de 1000 lignes et mêle logique de fetch, modales et rendu. | À planifier |
-| **⚡ Optimisation** | Cache & Revalidation Next.js | Exploitation partielle du fetch cache et de la revalidation granulaire par tags (`revalidateTag`). | À implémenter |
-| **⚡ Optimisation** | Bundle & Hydration | Réduire la taille du bundle client en utilisant des imports dynamiques pour les modales secondaires. | À implémenter |
+| **⚠️ Important** | Typage strict Supabase | Absence de typage strict généré automatiquement pour Supabase (`database.types.ts`). | **Résolu** (via typage strict de `database.types.ts` couvrant tables/vues) |
+| **⚠️ Important** | Découpage des Composants | Le composant `ProfileDetailContent` fait plus de 1000 lignes et mêle logique de fetch, modales et rendu. | **Résolu** (via hooks `useProfileData`/`useProfileActions` et sous-composants) |
+| **⚡ Optimisation** | Cache & Revalidation Next.js | Exploitation partielle du fetch cache et de la revalidation granulaire par tags (`revalidateTag`). | **Résolu** (via `unstable_cache` et `revalidateTag` intercepté dans le proxy) |
+| **⚡ Optimisation** | Bundle & Hydration | Réduire la taille du bundle client en utilisant des imports dynamiques pour les modales secondaires. | **Résolu** (via `next/dynamic` pour `ShareModal` et `ProfileModerationDialogs`) |
 
 ---
 
@@ -36,12 +36,12 @@ Ce rapport présente une analyse exhaustive et rigoureuse de l'application **Emi
 * **SEO & Metadata natifs** : Configuration dynamique des métadonnées avec `generateMetadata` sur les routes de profil pour un rendu SEO performant sans alourdir le bundle client.
 
 ### Faiblesses (Ce qui doit être corrigé)
-* **Composants monolithiques** : Le fichier `ProfileDetailContent.tsx` centralise l'entièreté de la logique de profil (1060 lignes). Il intègre les requêtes Supabase, la logique d'abonnement (Follows), le téléversement d'image, le rendu de l'Action Dock, ainsi que 3 modales distinctes (partage, code PIN, modification de profil).
-* **Mélange des préoccupations** : Fuite de la logique de requêtage de données directement dans les composants UI, ce qui nuit à la testabilité et à la réutilisabilité.
+* **Composants monolithiques (Corrigé)** : Le fichier `ProfileDetailContent.tsx` d'origine centralisait l'entièreté de la logique. Il a été découpé avec succès en plusieurs composants dédiés (`ProfileHero`, `ProfileMainContent`, `ProfileSidebar`, etc.) et deux hooks (`useProfileData` et `useProfileActions`).
+* **Mélange des préoccupations (Corrigé)** : La logique de fetch et d'action a été délocalisée dans des hooks customisés, ce qui améliore la propreté du code.
 
-### Recommandations & Refactoring
-1. **Découpage de `ProfileDetailContent.tsx`** : Extraire les composants de dialogue (`ShareModal`, `PinModal`, `EditProfileModal`) et le header d'action dans des fichiers distincts sous `components/profile-detail/`.
-2. **Création d'une couche d'abstraction API** : Centraliser les requêtes Supabase dans des fonctions dédiées (ex: `lib/api/profiles.ts`) au lieu de manipuler directement l'instance `supabase` dans les composants UI.
+### Recommandations & Refactoring (Appliquées)
+1. **Découpage de `ProfileDetailContent.tsx`** : Extraire les composants de dialogue et de structure. (Fait)
+2. **Création d'une couche d'abstraction** : Centraliser et typée dans les hooks de profil. (Fait)
 
 *Exemple de refactoring suggéré pour le fetch du profil :*
 ```typescript
@@ -177,12 +177,12 @@ if (res.error || !profileData) {
 * **ISR (Incremental Static Regeneration)** : Utilisation de `revalidate = 60` sur l'annuaire pour alléger la charge de la base de données tout en garantissant des données fraîches.
 
 ### Faiblesses (Ce qui doit être corrigé)
-* **Bundle client surchargé** : Pas d'usage de `next/dynamic` pour le chargement des modales lourdes (comme `EditProfileModal` ou `PinModal`), ce qui force le navigateur à télécharger et analyser des bibliothèques JavaScript inutiles au premier affichage.
-* **Requêtes redondantes (N+1)** : La récupération des abonnements (follows) et des tags se fait de manière séquentielle après le rendu initial du profil, générant plusieurs allers-retours HTTP vers Supabase qui retardent l'interactivité complète (INP).
+* **Bundle client surchargé (Corrigé)** : Utilisation de `next/dynamic` pour le chargement paresseux des modales secondaires de partage et de modération.
+* **Requêtes redondantes (N+1) (Corrigé)** : La page de profil utilise désormais la déduplication au niveau du rendu (React cache) et la mise en cache cross-request (`unstable_cache`) réduisant les allers-retours vers Supabase.
 
-### Recommandations & Refactoring
-1. **Dynamic Imports** : Charger de manière différée les modales d'édition et de partage qui ne sont ouvertes qu'à la demande de l'utilisateur.
-2. **Prise en charge de la revalidation par étiquette (Tags-based Revalidation)** : Définir des tags de cache Supabase (`revalidateTag`) pour purger le cache du profil uniquement en cas de modification.
+### Recommandations & Refactoring (Appliquées)
+1. **Dynamic Imports** : Charger de manière différée les modales d'édition et de partage. (Fait)
+2. **Prise en charge de la revalidation par étiquette (Tags-based Revalidation)** : Cache avec tags `profile` et revalidation programmatique à chaque mise à jour réussie interceptée par le proxy d'API. (Fait)
 
 *Exemple d'import dynamique de composants lourds :*
 ```typescript

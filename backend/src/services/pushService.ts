@@ -52,6 +52,12 @@ export const sendPushNotification = async (userId: string, title: string, body: 
 
     // 2. Envoyer la notification à chaque terminal enregistré
     const pushPromises = subscriptions.map(async (sub) => {
+      // Une souscription sans clés de chiffrement est invalide : web-push échouerait.
+      if (!sub.p256dh || !sub.auth) {
+        logger.warn(`Souscription push incomplète (clés manquantes) ignorée: ${sub.id}`);
+        return { success: false, error: 'missing_keys' };
+      }
+
       const pushSubscription = {
         endpoint: sub.endpoint,
         keys: {

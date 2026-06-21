@@ -10,6 +10,7 @@ import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
 import ws from 'ws';
 import { logger } from '../utils/logger';
+import type { Database } from '../types/database.types';
 
 dotenv.config();
 
@@ -56,5 +57,5 @@ const clientOptions = {
   }
 };
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, clientOptions);
-export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey, clientOptions);
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, clientOptions);
+export const supabaseAdmin = createClient<Database>(supabaseUrl, supabaseServiceRoleKey, clientOptions);

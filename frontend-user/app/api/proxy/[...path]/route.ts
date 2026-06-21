@@ -95,6 +95,24 @@ async function proxyRequest(request: NextRequest, context: { params: Promise<{ p
             responseHeaders.set("content-type", contentType)
         }
 
+        if (response.ok) {
+            const pathStr = path.join("/")
+            const isProfileUpdate =
+                (request.method === "PUT" && pathStr === "api/users/me") ||
+                (request.method === "POST" && pathStr.startsWith("api/users/follow/")) ||
+                (request.method === "DELETE" && pathStr === "api/users/account")
+
+            if (isProfileUpdate) {
+                try {
+                    const { revalidateTag } = await import("next/cache")
+                    revalidateTag("profile", "default")
+                    console.log(`[CacheRevalidation] Revalidated tag 'profile' due to successful ${request.method} on /${pathStr}`)
+                } catch (e) {
+                    console.error("[CacheRevalidation] Failed to revalidate tag:", e)
+                }
+            }
+        }
+
         return new NextResponse(body, {
             status: response.status,
             headers: responseHeaders,

@@ -5,7 +5,8 @@
  * @created 2026-04-17
  */
 
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
+import { timingSafeEqual } from 'crypto';
 import { logger } from '../../utils/logger';
 import { supabaseAdmin } from '../../config/supabase';
 import { sendNewMessageNotification } from '../../services/mailService';
@@ -14,16 +15,36 @@ import { z } from 'zod';
 
 const router = Router();
 
-// Middleware optionnel pour vérifier un token secret webhook
-// const verifyWebhookSecret = (req: Request, res: Response, next: NextFunction) => {
-//   const secret = req.headers['x-webhook-secret'];
-//   if (secret !== process.env.WEBHOOK_SECRET) return res.status(401).send('Unauthorized');
-//   next();
-// };
+/**
+ * Vérifie le secret partagé du webhook (header `x-webhook-secret`).
+ * SÉCURITÉ : sans cette vérification, n'importe qui pourrait POSTer un payload
+ * forgé pour spammer des emails ou injecter des notifications in-app (phishing).
+ * Comparaison à temps constant pour éviter les attaques temporelles.
+ */
+const verifyWebhookSecret = (req: Request, res: Response, next: NextFunction) => {
+  const expected = (process.env.WEBHOOK_SECRET || '').trim();
+  if (!expected) {
+    logger.error('WEBHOOK_SECRET non configuré : webhook bloqué par défaut.');
+    return res.status(503).json({ error: 'Webhook non configuré' });
+  }
+
+  const provided = req.headers['x-webhook-secret'];
+  const providedStr = typeof provided === 'string' ? provided : '';
+
+  const expectedBuf = Buffer.from(expected);
+  const providedBuf = Buffer.from(providedStr);
+
+  if (providedBuf.length !== expectedBuf.length || !timingSafeEqual(providedBuf, expectedBuf)) {
+    logger.warn('Webhook rejeté : secret invalide ou manquant.');
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  next();
+};
 
 // @route   POST /api/webhooks/supabase
 // @desc    Reçoit les événements de la DB Supabase
-router.post('/supabase', async (req: Request, res: Response) => {
+router.post('/supabase', verifyWebhookSecret, async (req: Request, res: Response) => {
   try {
     const { type, table, record } = z.object({
       type: z.string().optional(),
@@ -145,7 +166,7 @@ router.post('/supabase', async (req: Request, res: Response) => {
     res.status(200).json({ success: true });
   } catch (err: any) {
     logger.error('Erreur webhook supabase', err);
-    res.status(500).json({ error: err.message || 'Erreur interne' });
+    res.status(500).json({ error: 'Erreur interne' });
   }
 });
 

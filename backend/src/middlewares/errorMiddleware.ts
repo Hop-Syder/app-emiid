@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
+import { logger } from '../utils/logger'
 
 export function errorHandler(err: unknown, _req: Request, res: Response, _next: NextFunction) {
   if (err instanceof Error && err.message === 'CORS_FORBIDDEN') {
@@ -8,15 +9,16 @@ export function errorHandler(err: unknown, _req: Request, res: Response, _next: 
     })
   }
 
-  if (err instanceof Error) {
-    return res.status(500).json({
-      error: 'INTERNAL_SERVER_ERROR',
-      message: err.message,
-    })
-  }
+  // SÉCURITÉ : ne jamais exposer le détail interne (err.message) au client en
+  // production — risque de divulgation d'information. On loggue le détail côté
+  // serveur et on renvoie un message générique.
+  const isProduction = process.env.NODE_ENV === 'production'
+  logger.error('Unhandled error', err)
 
   return res.status(500).json({
     error: 'INTERNAL_SERVER_ERROR',
-    message: "Erreur interne du serveur.",
+    message: isProduction || !(err instanceof Error)
+      ? "Erreur interne du serveur."
+      : err.message,
   })
 }
