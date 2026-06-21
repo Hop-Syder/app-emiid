@@ -114,4 +114,4 @@
 - [2026-06-17] Mise à jour des URLs de l'image de prévisualisation sociale Open Graph / Twitter dans `layout.tsx` et `page.tsx` pour pointer vers `/logo/og-image.png` afin de correspondre au nouveau répertoire d'assets.
 - [2026-06-17] Changement de la couleur du nom de marque "EmiID" dans les barres de navigation desktop (desktop-sidebar-auth et desktop-sidebar-guest) de blanc à bleu de marque (`text-blue-500`) pour une meilleure harmonie visuelle.
 - [2026-06-21] Cache & Revalidation Next.js : Implémentation du cache persistant (`unstable_cache`) et de la déduplication au rendu (`cache` React) pour les profils. Revalidation sélective par tag (`revalidateTag("profile", "default")`) via l'intercepteur proxy d'API lors de modifications, follow ou suppressions.
-
+- [2026-06-21] Augmentation de la taille du logo dans la page de connexion (login) de h-9 (36px) à h-14 (56px) pour une meilleure visibilité de la marque.

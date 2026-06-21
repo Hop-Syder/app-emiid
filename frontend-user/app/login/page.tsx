@@ -1,3 +1,13 @@
+/**
+ * @author @hopsyder
+ * @organization Nexus Partners
+ * @description Page de connexion de l'application utilisateur (EmiID)
+ * @created 2026-05-27
+ * @updated 2026-06-21
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+ */
+// ──────────────────────────────────
 "use client"
 
 import { useState } from "react"
@@ -67,9 +77,9 @@ export default function LoginPage() {
             <Image
               src="/logo/logo-emiid.png"
               alt="EmiID"
-              width={140}
-              height={36}
-              className="h-9 w-auto object-contain brightness-0 invert"
+              width={218}
+              height={56}
+              className="h-14 w-auto object-contain brightness-0 invert"
               priority
             />
             <div className="text-center">

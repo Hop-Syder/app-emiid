@@ -121,20 +121,18 @@ export function useProfileData(profileId: string) {
                 }
 
                 if (error || !data) {
-                    let publicQuery = supabase
-                        .from("public_profiles")
-                        .select("id, user_id, first_name, last_name, bio, city, avatar_url, cover_url, specialty, category, slug, is_published, is_verified, is_premium, followers_count, created_at, email, phone, website, role, countries(name), profile_tags(tags(name))")
+                    // public_profiles n'expose plus email/phone (cf. migration H1 :
+                    // anti-énumération en masse). On récupère le profil public complet
+                    // — contact inclus — via la fonction get_public_profile, qui ne
+                    // renvoie qu'UN profil publié à la fois.
+                    const publicRes = await supabase.rpc("get_public_profile", { identifier: cleanProfileId })
 
-                    if (isUUID) {
-                        publicQuery = publicQuery.or(`slug.eq.${cleanProfileId},user_id.eq.${cleanProfileId},id.eq.${cleanProfileId}`)
-                    } else {
-                        publicQuery = publicQuery.eq("slug", cleanProfileId)
-                    }
-
-                    const publicRes = await publicQuery.single()
                     if (publicRes.data && !publicRes.error) {
                         data = publicRes.data as unknown as ProfileQueryResult
                         error = null
+                    } else if (!publicRes.error) {
+                        // Aucun profil publié pour cet identifiant → traité comme "introuvable".
+                        error = { code: "PGRST116" }
                     } else {
                         console.error("[useProfileData] Échec final:", publicRes.error)
                         error = publicRes.error || error

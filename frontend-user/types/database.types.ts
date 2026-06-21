@@ -710,8 +710,6 @@ export interface Database {
           followers_count: number | null
           created_at: string | null
           slug: string | null
-          email: string | null
-          phone: string | null
         }
         Relationships: []
       }
@@ -719,6 +717,11 @@ export interface Database {
     Functions: {
       get_network_stats: {
         Args: Record<string, never>
+        Returns: Json
+      }
+      // Profil public complet (contact inclus), un seul à la fois. Cf. migration H1.
+      get_public_profile: {
+        Args: { identifier: string }
         Returns: Json
       }
     }
