@@ -3,6 +3,7 @@
  * @organization Nexus Partners
  * @description API Route de l'Annuaire - Recherche, Filtres & Pagination côté Serveur
  * @created 2026-06-02
+ * @updated 2026-06-22
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -23,6 +24,7 @@ export async function GET(request: NextRequest) {
         const city = searchParams.get('city')?.trim()
         const tags = searchParams.get('tags')?.trim()
         const onlyPremium = searchParams.get('onlyPremium') === 'true'
+        const onlyVerified = searchParams.get('onlyVerified') === 'true'
 
         const supabase = await createClient()
 
@@ -42,6 +44,9 @@ export async function GET(request: NextRequest) {
         // 2. Filtres simples
         if (onlyPremium) {
             query = query.eq('is_premium', true)
+        }
+        if (onlyVerified) {
+            query = query.eq('is_verified', true)
         }
 
         if (category && category !== 'all') {

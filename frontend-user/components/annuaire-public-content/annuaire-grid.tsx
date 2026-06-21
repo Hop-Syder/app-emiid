@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Grille de l'annuaire public découpée en lignes horizontales défilantes de 10 profils avec flèches de contrôle.
  * @created 2026-06-13
- * @updated 2026-06-17
+ * @updated 2026-06-22
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -75,7 +75,14 @@ export function AnnuaireGrid({ filters, initialProfiles = [], onlyPremium = fals
                 if (filters?.country && filters.country !== "all") params.append("country", filters.country)
                 if (filters?.city) params.append("city", filters.city)
                 if (filters?.tags) params.append("tags", filters.tags)
-                if (onlyPremium) params.append("onlyPremium", "true")
+                
+                // Gestion du type de profil (status)
+                if (filters?.status === "premium" || onlyPremium) {
+                    params.append("onlyPremium", "true")
+                }
+                if (filters?.status === "verified") {
+                    params.append("onlyVerified", "true")
+                }
 
                 const res = await fetch(`/api/annuaire?${params.toString()}`)
                 if (!res.ok) throw new Error("Failed to fetch")

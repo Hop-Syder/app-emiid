@@ -1,11 +1,21 @@
+/**
+ * @author @hopsyder
+ * @organization Nexus Partners
+ * @description Page principale de l'Annuaire - Intégration de la Palette de commandes (Cmd+K) et filtres.
+ * @created 2026-06-03
+ * @updated 2026-06-22
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+ */
+
 "use client"
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { AnnuaireHero } from "./annuaire-hero"
 import { AnnuaireGrid } from "./annuaire-grid"
-import { AnnuaireCategories } from "./annuaire-categories"
 import { AnnuaireSpotlight } from "./annuaire-spotlight"
+import { AnnuaireCommandPalette } from "./annuaire-command-palette"
 
 interface AnnuairePublicContentProps {
     initialCategory?: string
@@ -29,6 +39,7 @@ export function AnnuairePublicContent({
         status: "all",
         activity_domain: initialActivityDomain
     })
+    const [paletteOpen, setPaletteOpen] = useState(false)
 
     useEffect(() => {
         if (typeof window !== "undefined") {
@@ -44,6 +55,17 @@ export function AnnuairePublicContent({
                 activity_domain: params.get("activity_domain") || prev.activity_domain
             }))
         }
+    }, [])
+
+    useEffect(() => {
+        const down = (e: KeyboardEvent) => {
+            if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+                e.preventDefault()
+                setPaletteOpen(open => !open)
+            }
+        }
+        document.addEventListener("keydown", down)
+        return () => document.removeEventListener("keydown", down)
     }, [])
 
     const handleFilterChange = (key: string, value: string) => {
@@ -73,7 +95,7 @@ export function AnnuairePublicContent({
                 {/* --- SECTION 1: HERO COMPACT --- */}
                 <AnnuaireHero 
                     searchQuery={filters.search}
-                    onSearchChange={(value) => handleFilterChange("search", value)}
+                    onTriggerSearch={() => setPaletteOpen(true)}
                 />
 
                 {/* --- SECTION 2: SPOTLIGHT --- */}
@@ -83,25 +105,6 @@ export function AnnuairePublicContent({
                     transition={{ duration: 0.6, delay: 0.1 }}
                 >
                     <AnnuaireSpotlight />
-                </motion.div>
-
-
-
-                {/* --- SECTION 4: DECOUVERTE (Filtres Horizontaux) --- */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.3 }}
-                    className="space-y-8 bg-white/50 backdrop-blur-sm rounded-3xl p-6 md:p-8 border border-slate-200/60 shadow-sm"
-                >
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="h-8 w-1.5 rounded-full bg-indigo-500" />
-                        <h2 className="text-2xl font-black text-slate-900">Affiner votre recherche</h2>
-                    </div>
-
-                    <AnnuaireCategories filters={filters} onFilterChange={handleFilterChange} />
-                    
-
                 </motion.div>
 
                 {/* --- SECTION 5: RESULTATS (Grille Verticale) --- */}
@@ -116,9 +119,27 @@ export function AnnuairePublicContent({
                             <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
                                 Tous les <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-blue-600">Profils</span>
                             </h2>
-                            <p className="text-slate-500 font-medium mt-1">
-                                {(filters.search || filters.activity_domain !== "all" || filters.country !== "all" || filters.tags) 
-                                    ? "Résultats de votre recherche filtrée." 
+                            <p className="text-slate-500 font-medium mt-1 flex items-center gap-2">
+                                {(filters.search || filters.activity_domain !== "all" || filters.country !== "all" || filters.tags || filters.status !== "all") 
+                                    ? (
+                                        <>
+                                            Résultats de votre recherche filtrée.
+                                            <button 
+                                                onClick={() => setFilters({
+                                                    search: "",
+                                                    category: "all",
+                                                    country: "all",
+                                                    city: "",
+                                                    tags: "",
+                                                    status: "all",
+                                                    activity_domain: "all"
+                                                })}
+                                                className="text-xs font-bold text-blue-500 hover:text-blue-600 underline cursor-pointer"
+                                            >
+                                                Réinitialiser
+                                            </button>
+                                        </>
+                                    )
                                     : "Explorez l'ensemble de notre réseau."}
                             </p>
                         </div>
@@ -130,6 +151,13 @@ export function AnnuairePublicContent({
                 </motion.div>
 
             </div>
+
+            <AnnuaireCommandPalette 
+                open={paletteOpen}
+                setOpen={setPaletteOpen}
+                filters={filters}
+                onFilterChange={handleFilterChange}
+            />
         </div>
     )
 }

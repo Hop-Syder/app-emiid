@@ -1,8 +1,17 @@
+/**
+ * @author @hopsyder
+ * @organization Nexus Partners
+ * @description Header de l'Annuaire — Hero compact, statistiques globales et déclencheur Cmd+K.
+ * @created 2026-06-02
+ * @updated 2026-06-22
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+ */
+
 "use client"
 
 import { motion } from "framer-motion"
 import { Search, BadgeCheck, Crown, Globe, Users } from "lucide-react"
-import { useState, useRef } from "react"
 import { useDashboardStats, CREDIBLE_FALLBACK_STATS } from "@/hooks/use-dashboard-stats"
 import { cn } from "@/lib/utils"
 
@@ -12,18 +21,15 @@ interface AnnuaireHeroProps {
     title?: string;
     description?: string;
     searchQuery: string;
-    onSearchChange: (query: string) => void;
+    onTriggerSearch: () => void;
 }
 
 export function AnnuaireHero({
     title = "Découvrez les Talents de l'Afrique",
     description = "Explorez notre réseau dynamique regroupant artisans, commerçants, freelances, entreprises, agences, startups et ONG.",
     searchQuery,
-    onSearchChange
+    onTriggerSearch
 }: AnnuaireHeroProps) {
-    const [isFocused, setIsFocused] = useState(false)
-    const inputRef = useRef<HTMLInputElement>(null)
-
     // Fetch Stats
     const { stats: fetchedStats } = useDashboardStats({
         endpoint: "/api/dashboard-user/stats",
@@ -83,31 +89,24 @@ export function AnnuaireHero({
                         </motion.p>
                     </div>
 
-                    {/* Search Bar */}
+                    {/* Search Bar Trigger */}
                     <motion.div 
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3, duration: 0.5 }}
-                        className="w-full max-w-xl relative mt-4 mb-2"
+                        className="w-full max-w-xl relative mt-4 mb-2 cursor-pointer"
+                        onClick={onTriggerSearch}
                     >
                         <div className={cn(
-                            "relative flex items-center bg-white/5 border backdrop-blur-md rounded-2xl transition-all duration-300",
-                            isFocused ? "border-indigo-500 shadow-[0_0_20px_rgba(99,102,241,0.3)] bg-white/10" : "border-white/10 hover:border-white/20 hover:bg-white/10"
+                            "relative flex items-center bg-white/5 border backdrop-blur-md rounded-2xl transition-all duration-300 h-14 border-white/10 hover:border-white/20 hover:bg-white/10 px-4"
                         )}>
-                            <Search className={cn(
-                                "absolute left-4 w-5 h-5 transition-colors",
-                                isFocused ? "text-indigo-400" : "text-slate-400"
-                            )} />
-                            <input 
-                                ref={inputRef}
-                                type="text"
-                                placeholder="Rechercher par nom, métier, compétence..."
-                                value={searchQuery}
-                                onChange={(e) => onSearchChange(e.target.value)}
-                                onFocus={() => setIsFocused(true)}
-                                onBlur={() => setIsFocused(false)}
-                                className="w-full bg-transparent border-none outline-none text-white placeholder-slate-400 px-12 py-4 h-14 text-base"
-                            />
+                            <Search className="w-5 h-5 text-slate-400 mr-3" />
+                            <span className="text-slate-400 text-base font-medium flex-1 text-left select-none">
+                                {searchQuery || "Rechercher par nom, métier, compétence..."}
+                            </span>
+                            <kbd className="pointer-events-none inline-flex h-6 select-none items-center rounded border border-white/15 bg-white/5 px-2 font-mono text-[10px] font-bold text-slate-400 gap-1 shadow-sm shrink-0">
+                                <span>⌘</span><span>K</span>
+                            </kbd>
                         </div>
                     </motion.div>
 

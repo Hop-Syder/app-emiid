@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Palette de commande intelligente (Command Palette) avec raccourcis de navigation
  * @created 2026-05-20
- * @updated 2026-06-03
+ * @updated 2026-06-22
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -11,7 +11,7 @@
 "use client"
 
 import * as React from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { 
   Calculator, 
   Calendar, 
@@ -45,9 +45,11 @@ export function CommandPalette() {
   const { open, setOpen, toggle } = useCommandPalette()
   const [searchQuery, setSearchQuery] = React.useState("")
   const router = useRouter()
+  const pathname = usePathname()
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
+      if (pathname === "/annuaire") return // Ne pas intercepter CMD+K sur l'annuaire pour laisser la place à la palette dédiée
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault()
         toggle()
