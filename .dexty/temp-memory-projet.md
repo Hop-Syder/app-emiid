@@ -6,7 +6,7 @@
 - **Nom** : EmiID
 - **Type** : SaaS (Web App + Backend API + Admin + Commercial)
 - **Initialisé le** : 2026-05-27
-- **Dernière mise à jour** : 2026-06-21
+- **Dernière mise à jour** : 2026-06-22
 
 ## 🛠️ Stack détectée
 - **Frontend** : Next.js, React 19, TailwindCSS, Radix UI
@@ -115,3 +115,4 @@
 - [2026-06-17] Changement de la couleur du nom de marque "EmiID" dans les barres de navigation desktop (desktop-sidebar-auth et desktop-sidebar-guest) de blanc à bleu de marque (`text-blue-500`) pour une meilleure harmonie visuelle.
 - [2026-06-21] Cache & Revalidation Next.js : Implémentation du cache persistant (`unstable_cache`) et de la déduplication au rendu (`cache` React) pour les profils. Revalidation sélective par tag (`revalidateTag("profile", "default")`) via l'intercepteur proxy d'API lors de modifications, follow ou suppressions.
 - [2026-06-21] Augmentation de la taille du logo dans la page de connexion (login) de h-9 (36px) à h-14 (56px) pour une meilleure visibilité de la marque.
+- [2026-06-22] Mise à jour esthétique de l'UI : Remplacement de l'icône de notification par `/svg/notification.svg` dans la barre latérale desktop et le dock mobile. Remplacement du texte `"Fondateur"` par le badge SVG `/svg/Badge-fondateur.svg` dans le header du dashboard connecté.

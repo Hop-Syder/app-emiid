@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Barre de navigation latérale pour ordinateur (Auth / Connecté) avec icônes SVG Streamline
  * @created 2026-06-13
- * @updated 2026-06-17
+ * @updated 2026-06-22
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -32,7 +32,7 @@ const privateNavItems = [
   { name: "Annuaire", href: "/annuaire", svg: "/svg/Grid.svg" },
   { name: "Créer mon profil", href: "/creer-profil", svg: "/svg/FileText.svg" },
   { name: "Messages", href: "/messages", svg: "/svg/MessageSquare.svg" },
-  { name: "Notifications", href: "/notifications", svg: "/svg/Star-Badge--Streamline-Core-Gradient.svg" },
+  { name: "Notifications", href: "/notifications", svg: "/svg/notification.svg" },
   { name: "Portefeuille", href: "/portefeuille", svg: "/svg/Wallet.svg" },
   { name: "Paramètres", href: "/parametres", svg: "/svg/setting.svg" },
 ]

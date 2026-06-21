@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Barre de navigation mobile flottante (Auth / Connecté) avec icônes SVG Streamline
  * @created 2026-06-13
- * @updated 2026-06-17
+ * @updated 2026-06-22
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -116,7 +116,7 @@ export function MobileDockAuth() {
                 className="relative flex items-center gap-1.5 text-slate-300 hover:text-white px-2 py-1.5 rounded-xl hover:bg-white/5 transition-all outline-none"
               >
                 <div className="relative">
-                  <img src="/svg/Star-Badge--Streamline-Core-Gradient.svg" alt="Notifications" className="size-3.5 object-contain" />
+                  <img src="/svg/notification.svg" alt="Notifications" className="size-3.5 object-contain" />
                   {unreadCount > 0 && (
                     <span className="absolute -top-1 -right-1 size-1.5 bg-red-500 rounded-full shadow-[0_0_4px_rgba(239,68,68,0.5)]" />
                   )}

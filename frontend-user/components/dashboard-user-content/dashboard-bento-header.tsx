@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Header Dashboard — Hero compact + Stats pills. Design Premium 2025.
  * @created 2026-05-31
- * @updated 2026-05-31
+ * @updated 2026-06-22
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -91,7 +91,12 @@ export function DashboardBentoHeader({ stats, statsLoading }: DashboardBentoHead
                         <div className="flex items-center gap-2 select-none shrink-0">
                             <span className="text-[10px] font-black tracking-[0.20em] uppercase text-white/50">BAGBE</span>
                             <span className="text-white/20 text-[10px]">·</span>
-                            <span className="text-[9px] font-bold tracking-[0.18em] uppercase text-white/25">Fondateur</span>
+                            <img 
+                                src="/svg/Badge-fondateur.svg" 
+                                alt="Badge Fondateur" 
+                                title="Fondateur" 
+                                className="size-4 object-contain opacity-80 hover:opacity-100 transition-opacity duration-200" 
+                            />
                         </div>
                     </div>
 
