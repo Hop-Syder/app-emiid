@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
-export const revalidate = 3600 // Cache pendant 1 heure
+// Route dépendante des cookies (session Supabase) → toujours dynamique.
+// Évite l'erreur DYNAMIC_SERVER_USAGE au build (tentative de prérendu statique).
+export const dynamic = 'force-dynamic'
 
 export async function GET() {
     try {
