@@ -90,7 +90,7 @@ function PresentationSlide({ slide }: { slide: Slide }) {
         initial={{ scale: 0.85, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="relative w-[30vh] h-[30vh] max-w-[14rem] max-h-[14rem] sm:max-w-[16rem] sm:max-h-[16rem]"
+        className="relative w-[22vh] h-[22vh] max-w-[10rem] max-h-[10rem] sm:w-[28vh] sm:h-[28vh] sm:max-w-[14rem] sm:max-h-[14rem]"
       >
         <Image
           src={slide.image}
@@ -162,7 +162,7 @@ export function OnboardingFlow() {
   const handleNext = () => (isLast ? finish() : goTo(step + 1))
 
   return (
-    <div className="h-[100dvh] w-full flex flex-col items-center justify-center bg-[#020617] relative overflow-hidden px-4 py-4 sm:py-6">
+    <div className="fixed inset-0 w-full flex flex-col items-center justify-center bg-[#020617] overflow-hidden px-4 py-4 sm:py-6">
 
       {/* Fond */}
       <div className="absolute inset-0 pointer-events-none">

@@ -75,23 +75,18 @@ export function Header() {
           <nav className="flex items-center justify-between" aria-label="Global">
             {/* Logo */}
             <div className="flex lg:flex-1">
-              <Link href="/" className="flex items-center group">
+              <Link href="/" className="flex items-center gap-2.5 group">
                 <Image
-                  src="/logo/logo-emiid-light.png"
+                  src="/logo/icon.svg"
                   alt="EmiID"
-                  width={200}
-                  height={56}
-                  className="h-14 w-auto object-contain hidden dark:block group-hover:scale-105 transition-all duration-300 shrink-0"
+                  width={48}
+                  height={48}
+                  className="h-12 w-auto object-contain group-hover:scale-105 transition-all duration-300 shrink-0"
                   priority
                 />
-                <Image
-                  src="/logo/logo-emiid-dark.png"
-                  alt="EmiID"
-                  width={200}
-                  height={56}
-                  className="h-14 w-auto object-contain block dark:hidden group-hover:scale-105 transition-all duration-300 shrink-0"
-                  priority
-                />
+                <span className="font-black text-xl text-blue-500 tracking-tight">
+                  EmiID
+                </span>
               </Link>
             </div>
 

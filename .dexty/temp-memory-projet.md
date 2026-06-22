@@ -128,3 +128,5 @@
 - [2026-06-22] Contenu commercial : Suppression du badge de lancement étoilé ("Rejoignez 500+ professionnels...") de la section Hero.
 - [2026-06-22] Logo onboarding frontend-user : Augmentation de la taille du logo dans l'onboarding-flow à 3x sa taille d'origine (h-[144px] sur mobile et sm:h-[168px] sur desktop).
 - [2026-06-22] Portefeuille frontend-user : Suppression du composant de statistiques ProfileStats dans l'onglet Réseau (Favoris/Abonnés) du portefeuille.
+- [2026-06-22] Logo frontend-commercial : Remplacement des images de logo textuel par l'icône icon.svg accompagnée du nom de marque "EmiID" en bleu (text-blue-500) dans le Header (desktop et mobile).
+- [2026-06-22] Onboarding frontend-user : Suppression du défilement vertical en verrouillant le conteneur principal à l'écran (fixed inset-0 overflow-hidden) et en ajustant la hauteur des illustrations pour les écrans mobiles.
