@@ -166,8 +166,26 @@ router.post('/supabase', verifyWebhookSecret, async (req: Request, res: Response
     // 3. Email de bienvenue à la création d'un compte (profil créé par le trigger handle_new_user).
     //    Couvre toutes les méthodes d'inscription (OAuth + email).
     if (type === 'INSERT' && table === 'user_profiles') {
-      const email = record?.email;
-      const firstName = record?.first_name;
+      let email = record?.email;
+      let firstName = record?.first_name;
+      const userId = record?.user_id;
+
+      // Fallback : le record du profil n'a pas toujours l'email/prénom au moment de
+      // l'INSERT (selon la méthode d'inscription). On les récupère depuis auth.users.
+      if ((!email || !firstName) && userId) {
+        try {
+          const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(userId);
+          email = email || authUser?.user?.email || undefined;
+          firstName = firstName
+            || authUser?.user?.user_metadata?.first_name
+            || authUser?.user?.user_metadata?.given_name
+            || (authUser?.user?.user_metadata?.full_name
+                ? String(authUser.user.user_metadata.full_name).split(' ')[0]
+                : undefined);
+        } catch (lookupErr) {
+          logger.warn('Webhook bienvenue : échec récupération auth.users', lookupErr);
+        }
+      }
 
       if (email) {
         try {
@@ -178,7 +196,7 @@ router.post('/supabase', verifyWebhookSecret, async (req: Request, res: Response
           logger.error(`Échec envoi email de bienvenue à ${email}`, mailErr);
         }
       } else {
-        logger.warn('Webhook user_profiles INSERT sans email : email de bienvenue ignoré.');
+        logger.warn('Webhook user_profiles INSERT sans email (même après fallback auth) : email de bienvenue ignoré.');
       }
     }
 

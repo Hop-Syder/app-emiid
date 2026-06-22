@@ -2,7 +2,7 @@
  * @author @hopsyder
  * @organization Nexus Partners
  * @description Onboarding EmiID — carrousel de présentation du produit (3 slides immersifs)
- * @updated 2026-06-21
+ * @updated 2026-06-22
  * 🌐 ceo.nexuspartners.xyz
  */
 "use client"
@@ -179,9 +179,9 @@ export function OnboardingFlow() {
           <Image
             src="/logo/logo-emiid.png"
             alt="EmiID"
-            width={320}
-            height={80}
-            className="h-12 sm:h-14 w-auto object-contain brightness-0 invert drop-shadow-[0_4px_24px_rgba(255,255,255,0.12)]"
+            width={672}
+            height={168}
+            className="h-[144px] sm:h-[168px] w-auto object-contain brightness-0 invert drop-shadow-[0_4px_24px_rgba(255,255,255,0.12)]"
             priority
           />
           <StepDots current={step} total={total} />

@@ -125,3 +125,6 @@
 - [2026-06-22] Thème Menu : Changement dynamique de la couleur du texte 'EmiID' dans les barres latérales desktop (`desktop-sidebar-auth` et `desktop-sidebar-guest`) : bleu (`text-blue-500`) de jour, blanc (`dark:text-white`) de nuit.
 - [2026-06-22] Thème User App : Intégration globale de ThemeProvider dans le layout racine (RootLayout) de frontend-user afin de propager correctement le thème actif et de rendre les styles et sélecteurs de mode nuit (dark:) opérationnels.
 - [2026-06-22] Logo frontend-commercial : Augmentation de la taille du logo dans le Header (menus desktop/mobile) de h-9 (36px) à h-14 (56px) pour une meilleure visibilité de la marque.
+- [2026-06-22] Contenu commercial : Suppression du badge de lancement étoilé ("Rejoignez 500+ professionnels...") de la section Hero.
+- [2026-06-22] Logo onboarding frontend-user : Augmentation de la taille du logo dans l'onboarding-flow à 3x sa taille d'origine (h-[144px] sur mobile et sm:h-[168px] sur desktop).
+- [2026-06-22] Portefeuille frontend-user : Suppression du composant de statistiques ProfileStats dans l'onglet Réseau (Favoris/Abonnés) du portefeuille.

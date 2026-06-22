@@ -3,16 +3,15 @@
  * @organization Nexus Partners
  * @description Contenu du portefeuille de profils suivis avec design Grid Premium
  * @created 2026-04-19
- * @updated 2026-05-11
+ * @updated 2026-06-22
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
-*/
+ */
 
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
 import { fetchWithAuth } from "@/lib/apiClient"
-import { ProfileStats } from "./profile-stats"
 import { ProfileCardMini } from "./profile-card-mini"
 import { Search, SlidersHorizontal, UserPlus, Loader2 } from "lucide-react"
 import { Preloader } from "@/components/Preloader"
@@ -229,16 +228,8 @@ export function FollowedProfilesContent() {
         return <Preloader text="Chargement de votre portefeuille" minHeight="min-h-[400px]" />
     }
 
-    const totalUpdates = 0
-    const activeTodayCount = followedProfiles.filter(isActiveToday).length
-
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full space-y-10 pb-20 pt-8">
-            <ProfileStats
-                total={followedProfiles.length}
-                updates={totalUpdates}
-                activeToday={activeTodayCount}
-            />
 
             <Tabs defaultValue="following" onValueChange={setActiveTab} className="w-full">
                 <div className="flex flex-col space-y-6">

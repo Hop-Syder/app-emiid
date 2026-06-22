@@ -89,16 +89,7 @@ export function HeroSection() {
           {/* ── Left Column ── */}
           <div className="lg:col-span-7 text-center lg:text-left">
 
-            {/* Launch badge */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <span className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 text-xs font-bold mb-6 border border-indigo-100/60 dark:border-indigo-900/30 tracking-wide">
-                ⭐⭐⭐⭐⭐ Rejoignez 500+ professionnels africains · Gratuit pour commencer
-              </span>
-            </motion.div>
+
 
             {/* Headline */}
             <motion.h1
