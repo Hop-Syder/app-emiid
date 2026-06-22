@@ -41,6 +41,7 @@
 
 ## 📁 Contexte projet
 - **Description courte** : EmiID — "Votre empreinte numérique professionnelle". Plateforme SaaS segmentée en plusieurs parties : frontend utilisateur, portail admin, site commercial, et API backend Node.js.
+- **Origine & Conception** : Conçu au Bénin, à Cotonou (notamment `frontend-commercial`).
 - **Patterns architecturaux** : Monorepo logique avec exécution concurrente. Séparation de l'API Node/Express des clients Next.js.
 - **Dépendances critiques** : `@supabase/ssr`, `express`, `ws` pour les fonctionnalités en temps réel.
 

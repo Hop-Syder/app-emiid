@@ -3,17 +3,19 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Sparkles, Target, Lightbulb, Users, Rocket, Globe2, ArrowRight, Linkedin, Twitter, Github, ChevronRight, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRef } from "react";
 
 const USER_APP_URL = process.env.NEXT_PUBLIC_USER_APP_URL || "https://app.emiid.com";
 
 const team = [
   {
-    name: "Daouda Abassi Christian",
+    name: "Daouda Abassi Ismael Christian",
     role: "CEO & Co-fondateur",
     bio: "Entrepreneur tech passionné par l'Afrique numérique. Fondateur de Nexus Partners. Vision : faire d'Emiid la référence du profil professionnel africain.",
     initials: "DC",
     gradient: "from-indigo-500 to-purple-600",
+    image: "/ceo.jpg",
     links: {
       linkedin: "https://linkedin.com",
       twitter: "https://twitter.com",
@@ -176,7 +178,7 @@ export default function AboutPage() {
               </h2>
               <div className="prose prose-lg dark:prose-invert text-gray-600 dark:text-gray-400">
                 <p>
-                  Emiid est né à Abidjan en 2026, dans un bureau de Nexus Partners. Le fondateur, après avoir cherché pendant des semaines un développeur senior de confiance pour un projet, réalise que le problème n&apos;est pas l&apos;absence de talents — c&apos;est l&apos;absence d&apos;un lieu pour les trouver, les vérifier et les contacter sans friction.
+                  Emiid est né à Cotonou en 2026, dans un bureau de Nexus Partners. Le fondateur, après avoir cherché pendant des semaines un développeur senior de confiance pour un projet, réalise que le problème n&apos;est pas l&apos;absence de talents — c&apos;est l&apos;absence d&apos;un lieu pour les trouver, les vérifier et les contacter sans friction.
                 </p>
                 <p>
                   En six mois de développement intensif, la première version d&apos;Emiid est lancée avec un objectif clair : devenir le réseau de confiance que l&apos;Afrique aurait construit pour elle-même.
@@ -289,7 +291,7 @@ export default function AboutPage() {
 
           <div className="flex flex-col gap-8">
             {/* CEO Card - Full width premium showcase */}
-            {team.filter(m => m.name === "Daouda Abassi Christian").map((ceo, i) => (
+            {team.filter(m => m.name === "Daouda Abassi Ismael Christian").map((ceo, i) => (
               <motion.div
                 key={`ceo-${i}`}
                 initial={{ opacity: 0, y: 30 }}
@@ -306,8 +308,21 @@ export default function AboutPage() {
                   {/* Avatar */}
                   <div className="relative shrink-0">
                     <div className="absolute -inset-4 bg-gradient-to-tr from-amber-400 to-indigo-500 rounded-full blur-xl opacity-30 group-hover:opacity-60 animate-pulse-slow transition-opacity" />
-                    <div className={`w-48 h-48 sm:w-64 sm:h-64 rounded-[2rem] sm:rounded-[3rem] bg-gradient-to-br ${ceo.gradient} flex items-center justify-center text-white font-black text-6xl sm:text-8xl shadow-2xl relative z-10 ring-4 ring-white dark:ring-[#0a0a0a] group-hover:scale-105 transition-transform duration-500`}>
-                      {ceo.initials}
+                    <div className="w-48 h-48 sm:w-64 sm:h-64 rounded-[2rem] sm:rounded-[3rem] overflow-hidden shadow-2xl relative z-10 ring-4 ring-white dark:ring-[#0a0a0a] group-hover:scale-105 transition-transform duration-500">
+                      {ceo.image ? (
+                        <Image
+                          src={ceo.image}
+                          alt={ceo.name}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 640px) 192px, 256px"
+                          priority
+                        />
+                      ) : (
+                        <div className={`w-full h-full bg-gradient-to-br ${ceo.gradient} flex items-center justify-center text-white font-black text-6xl sm:text-8xl`}>
+                          {ceo.initials}
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -347,7 +362,7 @@ export default function AboutPage() {
 
             {/* Rest of the team - 3 columns */}
             <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
-              {team.filter(m => m.name !== "Daouda Abassi Christian").map((member, i) => (
+              {team.filter(m => m.name !== "Daouda Abassi Ismael Christian").map((member, i) => (
                 <motion.div
                   key={`member-${i}`}
                   initial={{ opacity: 0, y: 30 }}
