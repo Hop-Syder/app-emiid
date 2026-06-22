@@ -98,36 +98,63 @@ export const sendWelcomeEmail = async (recipientEmail: string, firstName?: strin
   const greeting = prenom ? `Bienvenue ${prenom} 👋` : 'Bienvenue sur EmiID 👋';
   const subject = 'Bienvenue sur EmiID — votre empreinte numérique professionnelle';
 
+  const logoUrl = `${appUrl}/logo/logo-emiid.png`;
+  const year = new Date().getFullYear();
+
   const html = `
-    <div style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f8fafc; padding: 0;">
-      <div style="background: linear-gradient(135deg, #022753 0%, #4f46e5 100%); padding: 40px 32px; text-align: center; border-radius: 16px 16px 0 0;">
-        <h1 style="color: #ffffff; margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.5px;">EmiID</h1>
-        <p style="color: #c7d2fe; margin: 8px 0 0; font-size: 13px; font-weight: 500;">Votre empreinte numérique professionnelle</p>
-      </div>
+    <div style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f8fafc; padding: 24px 0;">
+      <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0;">
 
-      <div style="background-color: #ffffff; padding: 36px 32px; border-radius: 0 0 16px 16px; border: 1px solid #e2e8f0; border-top: 0;">
-        <h2 style="color: #022753; margin: 0 0 16px; font-size: 22px; font-weight: 700;">${greeting}</h2>
-        <p style="color: #334155; font-size: 15px; line-height: 1.6; margin: 0 0 16px;">
-          Votre compte est créé 🎉. EmiID connecte les professionnels d'Afrique au monde entier :
-          visibilité, opportunités et connexions de confiance.
-        </p>
-        <p style="color: #334155; font-size: 15px; line-height: 1.6; margin: 0 0 24px;">
-          Première étape : <strong>complétez et publiez votre profil</strong> pour apparaître dans l'annuaire
-          et être contacté par des clients et partenaires.
-        </p>
-
-        <div style="text-align: center; margin: 28px 0;">
-          <a href="${appUrl}/dashboard-user"
-             style="background: linear-gradient(135deg, #4f46e5 0%, #022753 100%); color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 15px; display: inline-block;">
-            Compléter mon profil
-          </a>
+        <!-- En-tête avec logo -->
+        <div style="background: linear-gradient(135deg, #022753 0%, #4f46e5 100%); padding: 36px 32px; text-align: center;">
+          <div style="display: inline-block; background-color: #ffffff; border-radius: 18px; padding: 14px; box-shadow: 0 8px 24px rgba(2,39,83,0.25);">
+            <img src="${logoUrl}" alt="EmiID" width="48" height="48" style="display: block; width: 48px; height: 48px; object-fit: contain;" />
+          </div>
+          <p style="color: #c7d2fe; margin: 16px 0 0; font-size: 13px; font-weight: 600; letter-spacing: 0.3px;">Votre empreinte numérique professionnelle</p>
         </div>
 
-        <hr style="margin: 32px 0 20px; border: 0; border-top: 1px solid #e2e8f0;" />
-        <p style="font-size: 12px; color: #94a3b8; line-height: 1.5; margin: 0;">
-          Vous recevez cet email car un compte EmiID vient d'être créé avec cette adresse.
-          Si vous n'êtes pas à l'origine de cette inscription, ignorez ce message.
-        </p>
+        <!-- Corps -->
+        <div style="background-color: #ffffff; padding: 36px 32px;">
+          <h2 style="color: #022753; margin: 0 0 16px; font-size: 22px; font-weight: 700;">${greeting}</h2>
+          <p style="color: #334155; font-size: 15px; line-height: 1.6; margin: 0 0 16px;">
+            Votre compte est créé 🎉. EmiID connecte les professionnels d'Afrique au monde entier :
+            visibilité, opportunités et connexions de confiance.
+          </p>
+          <p style="color: #334155; font-size: 15px; line-height: 1.6; margin: 0 0 24px;">
+            Première étape : <strong>complétez et publiez votre profil</strong> pour apparaître dans l'annuaire
+            et être contacté par des clients et partenaires.
+          </p>
+
+          <div style="text-align: center; margin: 28px 0;">
+            <a href="${appUrl}/dashboard-user"
+               style="background: linear-gradient(135deg, #4f46e5 0%, #022753 100%); color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 15px; display: inline-block;">
+              Compléter mon profil
+            </a>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="background-color: #f1f5f9; padding: 28px 32px; border-top: 1px solid #e2e8f0; text-align: center;">
+          <p style="margin: 0 0 4px; font-size: 16px; font-weight: 800; color: #022753; letter-spacing: -0.3px;">EmiID</p>
+          <p style="margin: 0 0 16px; font-size: 12px; color: #94a3b8;">Votre empreinte numérique professionnelle</p>
+
+          <p style="margin: 0 0 16px; font-size: 13px;">
+            <a href="${appUrl}/annuaire" style="color: #4f46e5; text-decoration: none; font-weight: 600; margin: 0 8px;">Annuaire</a>
+            <span style="color: #cbd5e1;">·</span>
+            <a href="${appUrl}/conditions" style="color: #4f46e5; text-decoration: none; font-weight: 600; margin: 0 8px;">Conditions</a>
+            <span style="color: #cbd5e1;">·</span>
+            <a href="${appUrl}/confidentialite" style="color: #4f46e5; text-decoration: none; font-weight: 600; margin: 0 8px;">Confidentialité</a>
+          </p>
+
+          <p style="margin: 0 0 10px; font-size: 11px; color: #94a3b8; line-height: 1.5;">
+            Vous recevez cet email car un compte EmiID vient d'être créé avec cette adresse.
+            Si vous n'êtes pas à l'origine de cette inscription, ignorez ce message.
+          </p>
+          <p style="margin: 0; font-size: 11px; color: #cbd5e1;">
+            © ${year} EmiID — Édité par Nexus Partners. Tous droits réservés.
+          </p>
+        </div>
+
       </div>
     </div>
   `;
