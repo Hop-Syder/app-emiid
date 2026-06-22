@@ -124,3 +124,4 @@
 - [2026-06-22] Contenu commercial & Catégories : Remplacement du badge de lancement du Hero par un badge de recommandation étoilé. Conversion des mentions et filtres de profil 'Investisseur' en 'Entreprise / Investisseur' (frontend-user) ou 'Entreprise' (site commercial).
 - [2026-06-22] Thème Menu : Changement dynamique de la couleur du texte 'EmiID' dans les barres latérales desktop (`desktop-sidebar-auth` et `desktop-sidebar-guest`) : bleu (`text-blue-500`) de jour, blanc (`dark:text-white`) de nuit.
 - [2026-06-22] Thème User App : Intégration globale de ThemeProvider dans le layout racine (RootLayout) de frontend-user afin de propager correctement le thème actif et de rendre les styles et sélecteurs de mode nuit (dark:) opérationnels.
+- [2026-06-22] Logo frontend-commercial : Augmentation de la taille du logo dans le Header (menus desktop/mobile) de h-9 (36px) à h-14 (56px) pour une meilleure visibilité de la marque.

@@ -83,3 +83,52 @@ export const sendNewMessageNotification = async (recipientEmail: string, senderN
 
   return sendEmail({ to: recipientEmail, subject, html });
 };
+
+/**
+ * Envoie l'email de bienvenue à la création d'un compte.
+ * Transactionnel : envoyé une seule fois, indépendamment des préférences de notification.
+ */
+export const sendWelcomeEmail = async (recipientEmail: string, firstName?: string | null) => {
+  const appUrl = process.env.APP_URL || 'https://app.emiid.com';
+  const prenom = (firstName || '').trim();
+  const greeting = prenom ? `Bienvenue ${prenom} 👋` : 'Bienvenue sur EmiID 👋';
+  const subject = 'Bienvenue sur EmiID — votre empreinte numérique professionnelle';
+
+  const html = `
+    <div style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f8fafc; padding: 0;">
+      <div style="background: linear-gradient(135deg, #022753 0%, #4f46e5 100%); padding: 40px 32px; text-align: center; border-radius: 16px 16px 0 0;">
+        <h1 style="color: #ffffff; margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.5px;">EmiID</h1>
+        <p style="color: #c7d2fe; margin: 8px 0 0; font-size: 13px; font-weight: 500;">Votre empreinte numérique professionnelle</p>
+      </div>
+
+      <div style="background-color: #ffffff; padding: 36px 32px; border-radius: 0 0 16px 16px; border: 1px solid #e2e8f0; border-top: 0;">
+        <h2 style="color: #022753; margin: 0 0 16px; font-size: 22px; font-weight: 700;">${greeting}</h2>
+        <p style="color: #334155; font-size: 15px; line-height: 1.6; margin: 0 0 16px;">
+          Votre compte est créé 🎉. EmiID connecte les professionnels d'Afrique au monde entier :
+          visibilité, opportunités et connexions de confiance.
+        </p>
+        <p style="color: #334155; font-size: 15px; line-height: 1.6; margin: 0 0 24px;">
+          Première étape : <strong>complétez et publiez votre profil</strong> pour apparaître dans l'annuaire
+          et être contacté par des clients et partenaires.
+        </p>
+
+        <div style="text-align: center; margin: 28px 0;">
+          <a href="${appUrl}/dashboard-user"
+             style="background: linear-gradient(135deg, #4f46e5 0%, #022753 100%); color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 15px; display: inline-block;">
+            Compléter mon profil
+          </a>
+        </div>
+
+        <hr style="margin: 32px 0 20px; border: 0; border-top: 1px solid #e2e8f0;" />
+        <p style="font-size: 12px; color: #94a3b8; line-height: 1.5; margin: 0;">
+          Vous recevez cet email car un compte EmiID vient d'être créé avec cette adresse.
+          Si vous n'êtes pas à l'origine de cette inscription, ignorez ce message.
+        </p>
+      </div>
+    </div>
+  `;
+
+  const text = `${greeting}\n\nVotre compte EmiID est créé. Complétez et publiez votre profil pour apparaître dans l'annuaire : ${appUrl}/dashboard-user`;
+
+  return sendEmail({ to: recipientEmail, subject, html, text });
+};

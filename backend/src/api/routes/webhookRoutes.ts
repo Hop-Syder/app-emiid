@@ -9,7 +9,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { timingSafeEqual } from 'crypto';
 import { logger } from '../../utils/logger';
 import { supabaseAdmin } from '../../config/supabase';
-import { sendNewMessageNotification } from '../../services/mailService';
+import { sendNewMessageNotification, sendWelcomeEmail } from '../../services/mailService';
 import { sendPushNotification } from '../../services/pushService';
 import { z } from 'zod';
 
@@ -162,7 +162,26 @@ router.post('/supabase', verifyWebhookSecret, async (req: Request, res: Response
         }
       }
     }
-    
+
+    // 3. Email de bienvenue à la création d'un compte (profil créé par le trigger handle_new_user).
+    //    Couvre toutes les méthodes d'inscription (OAuth + email).
+    if (type === 'INSERT' && table === 'user_profiles') {
+      const email = record?.email;
+      const firstName = record?.first_name;
+
+      if (email) {
+        try {
+          await sendWelcomeEmail(email, firstName);
+          logger.info(`Email de bienvenue envoyé à ${email}`);
+        } catch (mailErr) {
+          // Non bloquant : on ne fait pas échouer le webhook si le SMTP est indisponible.
+          logger.error(`Échec envoi email de bienvenue à ${email}`, mailErr);
+        }
+      } else {
+        logger.warn('Webhook user_profiles INSERT sans email : email de bienvenue ignoré.');
+      }
+    }
+
     res.status(200).json({ success: true });
   } catch (err: any) {
     logger.error('Erreur webhook supabase', err);

@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Composant de navigation (Header) avec design premium glassmorphic et nouveau logo
  * @created 2026-06-12
- * @updated 2026-06-17
+ * @updated 2026-06-22
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -79,17 +79,17 @@ export function Header() {
                 <Image
                   src="/logo/logo-emiid-light.png"
                   alt="EmiID"
-                  width={130}
-                  height={36}
-                  className="h-9 w-auto object-contain hidden dark:block group-hover:scale-105 transition-all duration-300 shrink-0"
+                  width={200}
+                  height={56}
+                  className="h-14 w-auto object-contain hidden dark:block group-hover:scale-105 transition-all duration-300 shrink-0"
                   priority
                 />
                 <Image
                   src="/logo/logo-emiid-dark.png"
                   alt="EmiID"
-                  width={130}
-                  height={36}
-                  className="h-9 w-auto object-contain block dark:hidden group-hover:scale-105 transition-all duration-300 shrink-0"
+                  width={200}
+                  height={56}
+                  className="h-14 w-auto object-contain block dark:hidden group-hover:scale-105 transition-all duration-300 shrink-0"
                   priority
                 />
               </Link>
