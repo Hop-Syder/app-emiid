@@ -36,7 +36,7 @@ export function HubContextualCta() {
           </div>
 
           <h2 className="text-4xl md:text-5xl font-black text-white mb-6 tracking-tight max-w-2xl leading-tight">
-            Ton profil n'est pas encore{" "}
+            Ton profil n&apos;est pas encore{" "}
             <span className="relative whitespace-nowrap">
               <span className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 blur-lg rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"></span>
               <span className="relative text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 animate-gradient-x">
@@ -45,7 +45,7 @@ export function HubContextualCta() {
             </span>
           </h2>
           <p className="text-slate-400 mb-10 max-w-xl text-lg font-medium leading-relaxed group-hover:text-slate-300 transition-colors duration-300">
-            Complète et publie ton profil pour apparaître dans l'annuaire et être contacté par des clients et partenaires.
+            Complète et publie ton profil pour apparaître dans l&apos;annuaire et être contacté par des clients et partenaires.
           </p>
           <Link href="/parametres">
             <Button className="group/btn relative overflow-hidden rounded-2xl bg-white text-slate-900 hover:text-white font-bold px-10 h-14 shadow-[0_0_40px_-10px_rgba(255,255,255,0.3)] hover:shadow-[0_0_40px_-10px_rgba(99,102,241,0.5)] transition-all duration-300 hover:scale-105">

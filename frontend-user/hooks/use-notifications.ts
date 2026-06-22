@@ -219,14 +219,15 @@ export function useNotifications() {
             .update({ is_read: true })
             .eq('id', id)
 
-        if (!updateError) {
-            const wasUnread = notifications.some((notification) => notification.id === id && !notification.is_read)
-            setNotifications((prev) => prev.map((notification) =>
-                notification.id === id ? { ...notification, is_read: true } : notification
-            ))
-            if (wasUnread) {
-                setUnreadCount((prev) => Math.max(0, prev - 1))
-            }
+        // Propager l'erreur : la page l'attrape pour afficher un toast.
+        if (updateError) throw updateError
+
+        const wasUnread = notifications.some((notification) => notification.id === id && !notification.is_read)
+        setNotifications((prev) => prev.map((notification) =>
+            notification.id === id ? { ...notification, is_read: true } : notification
+        ))
+        if (wasUnread) {
+            setUnreadCount((prev) => Math.max(0, prev - 1))
         }
     }
 
@@ -239,13 +240,13 @@ export function useNotifications() {
             .eq('user_id', userId)
             .eq('is_read', false)
 
-        if (!updateError) {
-            setNotifications((prev) => prev.map((notification) => ({
-                ...notification,
-                is_read: true
-            })))
-            setUnreadCount(0)
-        }
+        if (updateError) throw updateError
+
+        setNotifications((prev) => prev.map((notification) => ({
+            ...notification,
+            is_read: true
+        })))
+        setUnreadCount(0)
     }
 
     const deleteNotification = async (id: string) => {
@@ -257,11 +258,11 @@ export function useNotifications() {
             .delete()
             .eq('id', id)
 
-        if (!deleteError) {
-            setNotifications((prev) => prev.filter((notification) => notification.id !== id))
-            if (wasUnread) {
-                setUnreadCount((prev) => Math.max(0, prev - 1))
-            }
+        if (deleteError) throw deleteError
+
+        setNotifications((prev) => prev.filter((notification) => notification.id !== id))
+        if (wasUnread) {
+            setUnreadCount((prev) => Math.max(0, prev - 1))
         }
     }
 

@@ -1,3 +1,13 @@
+/**
+ * @author @hopsyder
+ * @organization Nexus Partners
+ * @description Contenu principal de messagerie en temps réel
+ * @created 2026-06-05
+ * @updated 2026-06-22
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+ */
+
 "use client"
 
 import { useState, useEffect, useCallback, useMemo } from "react"
@@ -179,13 +189,14 @@ export function MessagesContent() {
 
   // Load Messages
   useEffect(() => {
-    if (!selectedConv || selectedConv.id.startsWith("new-")) { setMessages([]); return }
+    const convId = selectedConv?.id
+    if (!convId || convId.startsWith("new-")) { setMessages([]); return }
     const load = async () => {
       setLoadingMsgs(true)
       try {
-        const data = await fetchConversationMessages(selectedConv.id)
+        const data = await fetchConversationMessages(convId)
         setMessages(data)
-        markMessagesAsRead(selectedConv.id)
+        markMessagesAsRead(convId)
       } catch (err) {
         captureError(err, { scope: "messages", action: "fetchMessages" })
       } finally {

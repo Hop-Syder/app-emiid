@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description dashboard-user principal avec sections Hero, Stats et Profils Premium
  * @created 2025-12-24
- * @updated 2026-01-16
+ * @updated 2026-06-22
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -15,7 +15,6 @@ import { AlertTriangle } from "lucide-react"
 import { fetchPublic } from "@/lib/apiClient"
 import { createClient } from "@/lib/supabase/client"
 import { useDashboardStats } from "@/hooks/use-dashboard-stats"
-import { DashboardStatsSkeleton } from "@/components/dashboard-stats-skeleton"
 import type { DashboardStats } from "@/types"
 import { PublicBentoHeader } from "./public-bento-header"
 import { ProximityLockSection } from "./proximity-lock-section"
@@ -57,6 +56,31 @@ export interface EntrepreneurApiResponse {
     is_premium?: boolean;
     followers_count?: number;
     tags?: string[];
+}
+
+interface PublicProfileRow {
+    id: string
+    user_id?: string | null
+    slug?: string | null
+    first_name?: string | null
+    last_name?: string | null
+    role?: string | null
+    city?: string | null
+    avatar_url?: string | null
+    specialty?: string | null
+    category?: string | null
+    is_verified?: boolean | null
+    is_premium?: boolean | null
+    followers_count?: number | null
+    countries?: {
+        name: string
+        iso_code?: string
+    } | null
+    profile_tags?: {
+        tags: {
+            name: string
+        } | null
+    }[] | null
 }
 
 interface DashboardPublicContentProps {
@@ -115,7 +139,9 @@ export function DashboardPublicContent({ initialStats = null, initialProfiles = 
                         nextWarning = "Le statut de vos abonnements n’a pas pu être synchronisé sur cette vue."
                     }
 
-                    const nextEntrepreneurs = entData.map((e: any) => {
+                    // La vue public_profiles n'a pas de relation FK déclarée → l'inférence du
+                    // join échoue (SelectQueryError). On caste vers le type connu PublicProfileRow.
+                    const nextEntrepreneurs = (entData as unknown as PublicProfileRow[]).map((e) => {
                         const profileId = e.user_id || e.id || "0"
                         return {
                             id: profileId,
@@ -130,7 +156,7 @@ export function DashboardPublicContent({ initialStats = null, initialProfiles = 
                             premium: !!e.is_premium,
                             followers: e.followers_count || 0,
                             isFollowed: userFollowsIds.includes(profileId),
-                            tags: e.profile_tags?.map((pt: any) => pt.tags?.name) || []
+                            tags: e.profile_tags?.map((pt) => pt.tags?.name).filter((name): name is string => typeof name === "string") || []
                         }
                     })
 

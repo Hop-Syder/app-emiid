@@ -3,12 +3,11 @@
  * @organization Nexus Partners
  * @description Wrapper principal pour le contenu de création de profil avec hydratation robuste et support des tags et secteurs
  * @created 2026-01-16
- * @updated 2026-06-05
+ * @updated 2026-06-22
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
-*/
+ */
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
@@ -252,7 +251,7 @@ export function CreerProfilContent() {
                                 setFormData(prev => ({ ...prev, ...parsedDraft }))
                                 toast.success("Brouillon restauré")
                             }
-                        } catch(e) {}
+                        } catch {}
                     }
                 }
                 setLoadingStatus('success')
@@ -273,7 +272,7 @@ export function CreerProfilContent() {
                             setFormData(prev => ({ ...prev, ...parsedDraft }))
                             toast.success("Brouillon restauré")
                         }
-                    } catch(e) {}
+                    } catch {}
                     setLoadingStatus('success')
                 } else {
                     toast.error("Impossible de charger les données existantes");
@@ -292,13 +291,13 @@ export function CreerProfilContent() {
         loadInitialData()
     }, [loadInitialData])
 
-    const handleInputChange = useCallback((field: string, value: any) => {
+    const handleInputChange = useCallback((field: keyof CreateProfileFormData, value: string | string[]) => {
         if (validationErrors.length > 0) setValidationErrors([])
         setFormData((prev) => {
-            const updates: any = { [field]: value }
+            const updates: Partial<CreateProfileFormData> = { [field]: value }
             
             // Auto-génération du slug si vide quand on tape le nom
-            if (field === "name" && !prev.slug) {
+            if (field === "name" && !prev.slug && typeof value === "string") {
                 // Remplace les caractères spéciaux, espaces, accents par des tirets
                 updates.slug = value
                     .toLowerCase()
@@ -346,8 +345,9 @@ export function CreerProfilContent() {
             if (payload.website && payload.website !== formData.website.trim()) {
                 setFormData((prev) => ({ ...prev, website: payload.website as string }))
             }
-        } catch (error: any) {
-            toast.error(`Échec: ${error.message}`)
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : "Erreur inconnue"
+            toast.error(`Échec: ${errorMessage}`)
         } finally {
             setSaving(false)
         }
@@ -383,8 +383,9 @@ export function CreerProfilContent() {
             if (payload.website && payload.website !== formData.website.trim()) {
                 setFormData((prev) => ({ ...prev, website: payload.website as string }))
             }
-        } catch (error: any) {
-            toast.error(error.message)
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : "Erreur inconnue"
+            toast.error(errorMessage)
         } finally {
             setPublishing(false)
         }
@@ -407,8 +408,9 @@ export function CreerProfilContent() {
             if (payload.website && payload.website !== formData.website.trim()) {
                 setFormData((prev) => ({ ...prev, website: payload.website as string }))
             }
-        } catch (error: any) {
-            toast.error(error.message)
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : "Erreur inconnue"
+            toast.error(errorMessage)
         } finally {
             setUnpublishing(false)
         }
@@ -472,7 +474,7 @@ export function CreerProfilContent() {
                     <CreerProfilForm
                         formData={formData}
                         setFormData={setFormData}
-                        handleInputChange={handleInputChange}
+                        handleInputChange={handleInputChange as (field: string, value: string | string[]) => void}
                         handleSave={handleSave}
                         handlePublish={handlePublish}
                         handleUnpublish={handleUnpublish}
@@ -508,7 +510,7 @@ export function CreerProfilContent() {
                                 <CreerProfilPreview formData={formData} />
                                 <DialogClose className="absolute top-4 right-4 z-[70] bg-white text-rose-600 hover:text-rose-700 hover:scale-105 active:scale-95 transition-all p-2.5 rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.15)] border border-slate-100 flex items-center justify-center focus:outline-none">
                                     <X className="w-5 h-5 stroke-[3]" />
-                                    <span className="sr-only">Fermer l'aperçu</span>
+                                    <span className="sr-only">Fermer l&apos;aperçu</span>
                                 </DialogClose>
                             </div>
                         </DialogContent>

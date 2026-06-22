@@ -15,6 +15,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { User, LogOut, LucideIcon } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
+import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
 import { useUnreadNotifications } from "@/hooks/use-unread-notifications"
 import { cn } from "@/lib/utils"
@@ -116,7 +117,7 @@ export function MobileDockAuth() {
                 className="relative flex items-center gap-1.5 text-slate-300 hover:text-white px-2 py-1.5 rounded-xl hover:bg-white/5 transition-all outline-none"
               >
                 <div className="relative">
-                  <img src="/svg/notification.svg" alt="Notifications" className="size-4.5 object-contain" />
+                  <Image src="/svg/notification.svg" alt="Notifications" width={18} height={18} className="size-4.5 object-contain" />
                   {unreadCount > 0 && (
                     <span className="absolute -top-1 -right-1 size-1.5 bg-red-500 rounded-full shadow-[0_0_4px_rgba(239,68,68,0.5)]" />
                   )}
@@ -132,7 +133,7 @@ export function MobileDockAuth() {
                 href="/parametres"
                 className="flex items-center gap-1.5 text-slate-300 hover:text-white px-2 py-1.5 rounded-xl hover:bg-white/5 transition-all outline-none"
               >
-                <img src="/svg/setting.svg" alt="Paramètres" className="size-3.5 object-contain" />
+                <Image src="/svg/setting.svg" alt="Paramètres" width={14} height={14} className="size-3.5 object-contain" />
                 <span className="text-[9px] font-black uppercase tracking-wider">Paramètres</span>
               </Link>
 
@@ -220,9 +221,11 @@ export function MobileDockAuth() {
                   />
                 )}
                 
-                <img
-                  src={item.svg}
+                <Image
+                  src={item.svg || ""}
                   alt={item.name}
+                  width={20}
+                  height={20}
                   className={cn(
                     "size-5 transition-all duration-300 z-10",
                     isActive

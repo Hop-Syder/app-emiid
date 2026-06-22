@@ -20,7 +20,7 @@ export function AnnuaireCTA() {
             <div className="relative z-10 px-6 py-20 md:py-28 flex flex-col items-center text-center">
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 mb-8 backdrop-blur-md shadow-[0_0_20px_rgba(99,102,241,0.2)]">
                     <Sparkles className="w-4 h-4" />
-                    <span className="text-sm font-bold tracking-wide uppercase">Rejoignez l'Élite</span>
+                    <span className="text-sm font-bold tracking-wide uppercase">Rejoignez l&apos;Élite</span>
                 </div>
                 
                 <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-6 tracking-tight max-w-3xl leading-tight">
@@ -28,7 +28,7 @@ export function AnnuaireCTA() {
                 </h2>
                 
                 <p className="text-lg md:text-xl text-slate-300/80 mb-10 max-w-2xl font-medium leading-relaxed">
-                    Rejoignez l'annuaire EmiID et gagnez en visibilité auprès de milliers d'entreprises et de clients potentiels. Mettez en valeur votre expertise.
+                    Rejoignez l&apos;annuaire EmiID et gagnez en visibilité auprès de milliers d&apos;entreprises et de clients potentiels. Mettez en valeur votre expertise.
                 </p>
                 
                 <Link 

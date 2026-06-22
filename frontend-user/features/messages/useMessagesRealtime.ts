@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Hook React pour la synchronisation en temps réel des messages et de la présence
  * @created 2026-05-11
- * @updated 2026-06-05
+ * @updated 2026-06-22
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -12,6 +12,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
+import type { RealtimeChannel } from "@supabase/supabase-js"
 import type { Message } from "@/components/messages/types"
 
 interface RealtimeHandlers {
@@ -31,12 +32,12 @@ export function useMessagesRealtime(currentUserId: string | null, handlers: Real
   }, [handlers])
 
   const handlePresenceSync = useCallback(
-    (channel: any) => {
+    (channel: RealtimeChannel) => {
       const state = channel.presenceState()
       const onlineIds = new Set<string>()
 
-      Object.values(state).forEach((presences: any) => {
-        presences.forEach((p: any) => {
+      Object.values(state).forEach((presences) => {
+        (presences as { user_id?: string }[]).forEach((p) => {
           if (p.user_id) onlineIds.add(p.user_id)
         })
       })

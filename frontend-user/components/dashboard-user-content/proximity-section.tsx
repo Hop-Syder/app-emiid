@@ -83,10 +83,10 @@ export function ProximitySection({ fallbackLocation, initialProfiles = [] }: Pro
       } catch (e) {
         console.error("Geocoding failed", e)
       }
-      useFallback()
+      applyFallback()
     }
 
-    function useFallback() {
+    function applyFallback() {
       // S'il refuse le GPS, on affiche CARREMENT les profils de son pays (on ignore la ville)
       const params = new URLSearchParams()
       if (fallbackLocation?.country_id) {
@@ -102,8 +102,8 @@ export function ProximitySection({ fallbackLocation, initialProfiles = [] }: Pro
     if (navigator.geolocation) {
       setLoading(true)
       navigator.geolocation.getCurrentPosition(
-        handleGeolocation, 
-        useFallback, 
+        handleGeolocation,
+        applyFallback,
         { timeout: 5000 }
       )
     }

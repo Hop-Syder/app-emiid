@@ -46,14 +46,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   )
 
   try {
+    // IMPORTANT : on lit la VUE public_profiles (lisible par anon). La table
+    // user_profiles est protégée par la RLS → en anon elle renvoie 0 ligne,
+    // ce qui vidait le sitemap de tous les profils.
     const { data: profiles } = await supabase
-      .from('user_profiles')
-      .select('id, updated_at')
-      .eq('is_published', true)
+      .from('public_profiles')
+      .select('id, slug, created_at')
 
     const profileRoutes = (profiles || []).map((profile) => ({
-      url: `${baseUrl}/profil/${profile.id}`,
-      lastModified: profile.updated_at ? new Date(profile.updated_at) : new Date(),
+      // URL canonique : slug si disponible (SEO-friendly), sinon l'id.
+      url: `${baseUrl}/profil/${profile.slug || profile.id}`,
+      lastModified: profile.created_at ? new Date(profile.created_at) : new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.8,
     }))

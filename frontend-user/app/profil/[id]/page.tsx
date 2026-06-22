@@ -144,6 +144,11 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
             title: `${fullName} - ${data.role || 'Profil'} | EmiID`,
             description: description,
             keywords: seoKeywords,
+            // URL canonique (slug si dispo) : évite le contenu dupliqué entre
+            // /profil/{slug}, /profil/{user_id} et /profil/{id}.
+            alternates: {
+                canonical: `/profil/${data.slug || id}`,
+            },
             openGraph: {
                 title: `${fullName} sur EmiID`,
                 description: description,
@@ -175,12 +180,19 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     const { id } = await params
     const data = await getProfileForRequest(id)
 
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://app.emiid.com'
+    const fullName = data ? `${data.first_name || ''} ${data.last_name || ''}`.trim() : ''
+    const skills: string[] = data?.profile_tags?.map((pt: any) => pt.tags?.name).filter(Boolean) || []
+
     const jsonLd = data ? {
         '@context': 'https://schema.org',
         '@type': 'Person',
-        name: `${data.first_name || ''} ${data.last_name || ''}`.trim(),
-        jobTitle: data.role || data.specialty,
-        description: data.bio,
+        name: fullName,
+        jobTitle: data.role || data.specialty || undefined,
+        description: data.bio || undefined,
+        image: data.avatar_url || undefined,
+        url: `${baseUrl}/profil/${data.slug || id}`,
+        ...(skills.length ? { knowsAbout: skills } : {}),
         address: {
             '@type': 'PostalAddress',
             addressLocality: data.city || 'Afrique'

@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Sous-composant Sidebar (Coordonnées, Partage) pour le détail de profil.
  * @created 2026-06-13
- * @updated 2026-06-13
+ * @updated 2026-06-22
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -11,6 +11,20 @@
 import { Calendar, Check, Copy, Download, ExternalLink, Globe, Mail, Phone, Share, Share2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+
+interface ProfileSidebarProps {
+    profile: {
+        email?: string | null
+        phone?: string | null
+        website?: string | null
+    }
+    joinedDate: string
+    profileUrl: string
+    copiedLink: string | null
+    copyToClipboard: (url: string) => void
+    setIsShareModalOpen: (open: boolean) => void
+    downloadVCard: () => void
+}
 
 export function ProfileSidebar({
     profile,
@@ -20,7 +34,7 @@ export function ProfileSidebar({
     copyToClipboard,
     setIsShareModalOpen,
     downloadVCard
-}: any) {
+}: ProfileSidebarProps) {
     return (
         <aside className="lg:col-span-4 min-w-0 space-y-6">
             {/* Coordinates card */}

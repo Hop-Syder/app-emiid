@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Barre de navigation mobile flottante (Guest / Non connecté) avec icônes SVG Streamline
  * @created 2026-06-13
- * @updated 2026-06-17
+ * @updated 2026-06-22
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -14,6 +14,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
+import Image from "next/image"
 
 const publicNavItems = [
   { name: "Accueil", href: "/", svg: "/svg/Home.svg" },
@@ -48,9 +49,11 @@ export function MobileDockGuest() {
                 />
               )}
               
-              <img
+              <Image
                 src={item.svg}
                 alt={item.name}
+                width={20}
+                height={20}
                 className={cn(
                   "size-5 transition-all duration-300 z-10",
                   isActive

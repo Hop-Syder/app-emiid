@@ -17,6 +17,7 @@ import { BadgeCheck, Crown, Globe, Users, Search, ArrowRight, Award } from "luci
 import { useEffect, useState } from "react"
 import { useCurrentUserProfile } from "@/hooks/use-current-user-profile"
 import { useCommandPalette } from "@/components/command-palette-context"
+import Image from "next/image"
 
 interface DashboardBentoHeaderProps {
     stats: {
@@ -42,7 +43,6 @@ export function DashboardBentoHeader({ stats, statsLoading }: DashboardBentoHead
     }, [])
 
     const userName = session?.user?.user_metadata?.first_name || session?.user?.user_metadata?.name || ""
-    const displayName = userName ? ` ${userName}` : ""
 
     const statsItems = stats ? [
         { label: "Membres", value: stats.totalEntrepreneurs || 0, icon: Users, color: "text-emerald-400", bg: "bg-emerald-400/10", ring: "ring-emerald-400/20" },
@@ -91,10 +91,12 @@ export function DashboardBentoHeader({ stats, statsLoading }: DashboardBentoHead
                         <div className="flex items-center gap-2 select-none shrink-0">
                             <span className="text-[10px] font-black tracking-[0.20em] uppercase text-white/50">BAGBE</span>
                             <span className="text-white/20 text-[10px]">·</span>
-                            <img 
+                            <Image 
                                 src="/svg/Badge-fondateur.svg" 
                                 alt="Badge Fondateur" 
                                 title="Fondateur" 
+                                width={16}
+                                height={16}
                                 className="size-4 object-contain opacity-80 hover:opacity-100 transition-opacity duration-200" 
                             />
                         </div>

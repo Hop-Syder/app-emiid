@@ -3,6 +3,7 @@
  * @organization Nexus Partners
  * @description Stacking Cards Component (Basé sur 21st.dev)
  * @created 2026-05-31
+ * @updated 2026-06-22
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -112,7 +113,7 @@ interface StackingCardsProps {
   cards: CardData[];
 }
 
-export const StackingCards = forwardRef<HTMLElement, StackingCardsProps>(({ cards }, ref) => {
+export const StackingCards = forwardRef<HTMLElement, StackingCardsProps>(({ cards }, _ref) => {
   const container = useRef(null);
   const { scrollYProgress } = useScroll({
     target: container,

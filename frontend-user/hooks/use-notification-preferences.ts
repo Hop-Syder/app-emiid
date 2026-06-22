@@ -3,6 +3,7 @@
  * @organization Nexus Partners
  * @description Hook pour la gestion des préférences de notifications
  * @created 2026-06-05
+ * @updated 2026-06-22
  */
 
 "use client"
@@ -112,7 +113,7 @@ export function useNotificationPreferences() {
 
         const { error: updateError } = await supabase
             .from('notification_preferences')
-            .update({ [key]: value, updated_at: new Date().toISOString() } as any)
+            .update({ [key]: value, updated_at: new Date().toISOString() } as Partial<NotificationPreferences>)
             .eq('id', preferences.id)
 
         if (updateError) {

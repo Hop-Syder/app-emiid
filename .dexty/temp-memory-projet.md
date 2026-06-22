@@ -131,3 +131,6 @@
 - [2026-06-22] Onboarding frontend-user : Rétablissement des illustrations à leur taille d'origine, et verrouillage du conteneur en plein écran (fixed inset-0 overflow-hidden) pour supprimer le scroll vertical.
 - [2026-06-22] Onboarding frontend-user : Masquage conditionnel du logo de l'en-tête lors de la 3ème étape (step 3), augmentation de la taille du logo à 2x (h-24/sm:h-28) sur les deux premières étapes, et espacement des éléments avec un flexbox justify-between et du padding vertical.
 - [2026-06-22] Annuaire frontend-user : Suppression du bloc de statistiques globales (Membres, Vérifiés, Pays) situé sous la barre de recherche (Cmd+K) dans le composant AnnuaireHero.
+- [2026-06-22] Nettoyage : Suppression du dossier orphelin `frontend-user/app/reset-password`.
+- [2026-06-22] Qualité & Perf : Résorption majeure de plus de 55 warnings ESLint. Conversion systématique des balises `<img>` vers `next/image` dans les composants clés, correction de typage explicit-any et nettoyage des dépendances manquantes/inutilisées des hooks React (Vague 1, 3, 4 et partie de la Vague 2 terminées).
+

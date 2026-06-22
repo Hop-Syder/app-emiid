@@ -8,7 +8,11 @@
  * 📧 daoudaabassichristian@gmail.com
  */
 
+import type { Metadata } from "next"
 import { ProtectedShell } from "@/components/navigation/protected-shell"
+
+// Page privée → exclue de l'indexation.
+export const metadata: Metadata = { robots: { index: false, follow: false } }
 
 export default function NotificationsLayout({
   children,

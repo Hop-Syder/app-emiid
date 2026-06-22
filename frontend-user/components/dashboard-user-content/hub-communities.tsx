@@ -98,7 +98,7 @@ export function HubCommunities() {
             Rejoindre nos communautés
           </h3>
           <p className="text-base text-slate-500 mt-2 font-medium max-w-xl">
-            Échangez, apprenez et grandissez avec notre réseau de professionnels. Plongez au cœur de l'écosystème EmiID.
+            Échangez, apprenez et grandissez avec notre réseau de professionnels. Plongez au cœur de l&apos;écosystème EmiID.
           </p>
         </div>
       </div>

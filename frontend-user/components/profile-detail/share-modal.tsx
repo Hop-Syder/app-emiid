@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Modale de partage de profil (WhatsApp, LinkedIn, X, Email, vCard, QR/Lien).
  * @created 2026-06-11
- * @updated 2026-06-11
+ * @updated 2026-06-22
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -11,7 +11,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { Check, Copy, Download, Share, Share2 } from "lucide-react"
+import { Check, Copy, Download, Share2 } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"

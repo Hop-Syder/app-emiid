@@ -54,7 +54,7 @@ export function AnnuaireCategories({ filters, onFilterChange }: AnnuaireCategori
     return (
         <div className="w-full">
             <div className="flex items-center justify-between mb-4 px-1">
-                <h3 className="text-lg font-bold text-slate-800 tracking-tight">Explorer par domaine d'activité</h3>
+                <h3 className="text-lg font-bold text-slate-800 tracking-tight">Explorer par domaine d&apos;activité</h3>
             </div>
             
             {/* Scroll horizontal masqué mais fonctionnel sur mobile, flèches sur desktop */}

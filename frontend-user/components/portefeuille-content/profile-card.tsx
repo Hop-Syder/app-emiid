@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Carte de profil pour le portefeuille avec CRM Notes et design Premium Ethereal
  * @created 2026-03-23
- * @updated 2026-04-19
+ * @updated 2026-06-22
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
 */
@@ -17,6 +17,7 @@ import { useState } from "react"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
+import Image from "next/image"
 
 export interface ProfileData {
     id: string
@@ -86,9 +87,11 @@ export function ProfileCard({ profile, onUnfollow, onViewProfile, onSaveNote, on
 
                 <div className="relative z-10 flex flex-col items-center text-center gap-4 mt-2">
                     <div className="relative group/avatar">
-                        <img 
+                        <Image 
                             src={profile.avatar} 
                             alt={profile.name}
+                            width={96}
+                            height={96}
                             className="relative h-24 w-24 rounded-full object-cover shadow-xl transition-transform duration-500 group-hover/avatar:scale-105"
                         />
                         {profile.verified && (

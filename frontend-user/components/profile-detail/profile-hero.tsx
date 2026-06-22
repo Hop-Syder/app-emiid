@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Sous-composant Hero pour le détail de profil.
  * @created 2026-06-13
- * @updated 2026-06-13
+ * @updated 2026-06-22
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -14,6 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { getOptimizedImageUrl } from "@/lib/image-optimization"
 import { cn } from "@/lib/utils"
+import Image from "next/image"
 
 // ---------------------------------------------------------------------------
 // TYPES DES PROPS DU HERO
@@ -77,14 +78,17 @@ export function ProfileHero({
                     if (isOwnProfile && !uploadingCover) document.getElementById("cover-upload-input")?.click()
                 }}
             >
-                <img
+                <Image
                     src={
                         profile.coverImage
                             ? getOptimizedImageUrl(profile.coverImage, { width: 1400, height: 420, quality: 90 })
                             : "/placeholder.jpg"
                     }
                     alt="Couverture"
-                    className="w-full h-full object-cover transition-transform duration-1000 group-hover/cover:scale-105"
+                    fill
+                    priority
+                    sizes="(max-width: 768px) 100vw, 1400px"
+                    className="object-cover transition-transform duration-1000 group-hover/cover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-slate-900/20 to-transparent mix-blend-multiply" />
 

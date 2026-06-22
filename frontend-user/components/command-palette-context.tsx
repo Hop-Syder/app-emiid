@@ -34,7 +34,7 @@ export function useCommandPalette(): CommandPaletteContextValue {
   const ctx = useContext(CommandPaletteContext)
   if (!ctx) {
     // Fallback no-op : évite tout crash si le hook est utilisé hors provider.
-    return { open: false, setOpen: () => {}, toggle: () => {} }
+    return { open: false, setOpen: () => undefined, toggle: () => undefined }
   }
   return ctx
 }

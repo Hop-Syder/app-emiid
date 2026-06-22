@@ -1,3 +1,13 @@
+/**
+ * @author @hopsyder
+ * @organization Nexus Partners
+ * @description Génération d'image OpenGraph dynamique avec Satori
+ * @created 2026-06-13
+ * @updated 2026-06-22
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+ */
+
 import { ImageResponse } from 'next/og'
 import { createClient } from '@supabase/supabase-js'
 
@@ -19,8 +29,10 @@ export async function GET(request: Request) {
     const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
+    // Lecture via la VUE public_profiles (lisible par anon) : user_profiles est
+    // protégée par la RLS → en anon, la carte OG ne se générait jamais (fallback).
     let query = supabase
-        .from('user_profiles')
+        .from('public_profiles')
         .select('first_name, last_name, specialty, role, avatar_url, bio, city')
         .eq('is_published', true)
 
@@ -104,6 +116,7 @@ export async function GET(request: Request) {
           <div style={{ display: 'flex', alignItems: 'center', gap: '50px', width: '100%', zIndex: 10 }}>
             {/* Avatar */}
             <div style={{ display: 'flex' }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={avatarUrl}
                 alt="Avatar"
@@ -187,7 +200,7 @@ export async function GET(request: Request) {
         height: 630,
       }
     )
-  } catch (e: any) {
+  } catch (e: unknown) {
     console.error(e)
     return new Response('Failed to generate image', { status: 500 })
   }

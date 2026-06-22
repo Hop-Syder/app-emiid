@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Section des entrepreneurs (vedettes/premium) du Dashboard Public avec carrousel fluide 3D.
  * @created 2026-06-03
- * @updated 2026-06-05
+ * @updated 2026-06-22
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -13,7 +13,6 @@
 import { motion } from "framer-motion"
 import { useRouter } from "next/navigation"
 import { useEffect, useState, useRef } from "react"
-import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { EmiIDProfileCard } from "@/components/carte-profil/emiid-profile-card"
 import { toast } from "sonner"

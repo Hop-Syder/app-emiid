@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Barre de navigation latérale pour ordinateur (Guest / Non connecté) avec icônes SVG Streamline
  * @created 2026-06-13
- * @updated 2026-06-17
+ * @updated 2026-06-22
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -66,9 +66,11 @@ export function DesktopSidebarGuest() {
                   />
                 )}
                 <div className="w-14 flex items-center justify-center shrink-0">
-                  <img
+                  <Image
                     src={item.svg}
                     alt={item.name}
+                    width={20}
+                    height={20}
                     className={cn(
                       "size-5 transition-all duration-300",
                       isActive

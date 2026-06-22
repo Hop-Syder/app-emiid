@@ -1,8 +1,19 @@
+/**
+ * @author @hopsyder
+ * @organization Nexus Partners
+ * @description Liste horizontale des nouveaux arrivants sur la plateforme
+ * @created 2026-06-03
+ * @updated 2026-06-22
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+ */
+
 "use client"
 
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { Sparkle, ArrowRight } from "lucide-react"
+import Image from "next/image"
 
 interface Profile {
     id: string
@@ -55,9 +66,11 @@ export function AnnuaireNewcomers() {
                         transition={{ delay: index * 0.05 }}
                         className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center gap-3 min-w-[280px] snap-start hover:shadow-md transition-shadow"
                     >
-                        <img 
+                        <Image 
                             src={profile.avatar} 
                             alt={profile.name} 
+                            width={48}
+                            height={48}
                             className="w-12 h-12 rounded-full object-cover shrink-0"
                         />
                         <div className="flex-1 min-w-0">

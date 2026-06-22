@@ -3,14 +3,14 @@
  * @organization Nexus Partners
  * @description Composant picker d'emojis pour la messagerie EmiID
  * @created 2026-05-27
- * @updated 2026-05-27
+ * @updated 2026-06-22
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
 
 'use client'
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Smile } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/popover'
 
 // Chargement dynamique pour éviter les erreurs SSR (Next.js)
-let Picker: React.ComponentType<any> | null = null
+let Picker: React.ComponentType<{ data: unknown; onEmojiSelect: (emoji: { native: string }) => void; [key: string]: unknown }> | null = null
 
 declare global {
   interface Window { __emojiMartData: unknown }

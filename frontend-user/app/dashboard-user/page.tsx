@@ -101,7 +101,7 @@ export default async function DashboardPage() {
         const { data: userProfile } = await supabase
             .from('public_profiles')
             .select('city, country_id, countries(name)')
-            .eq('id', user.id)
+            .eq('user_id', user.id)
             .single()
             
         if (userProfile && (userProfile.city || userProfile.country_id)) {
@@ -121,19 +121,19 @@ export default async function DashboardPage() {
                     .select(`*, countries(name, iso_code), profile_tags(tags(name))`)
                     .eq('country_id', userLocation.country_id)
                     .ilike('city', userLocation.city)
-                    .neq('id', user.id)
+                    .neq('user_id', user.id)
                     .limit(20)
                 if (cityData) proximityProfiles = [...cityData]
             }
-            
+
             // Niveau 2 : Même Pays (si Niveau 1 < 8)
             if (proximityProfiles.length < 8 && userLocation.country_id) {
-                const excludeIds = [user.id, ...proximityProfiles.map(p => p.id || p.user_id)]
+                const excludeUserIds = [user.id, ...proximityProfiles.map(p => p.user_id)]
                 const { data: countryData } = await supabase
                     .from('public_profiles')
                     .select(`*, countries(name, iso_code), profile_tags(tags(name))`)
                     .eq('country_id', userLocation.country_id)
-                    .not('id', 'in', `(${excludeIds.join(',')})`)
+                    .not('user_id', 'in', `(${excludeUserIds.join(',')})`)
                     .order('is_premium', { ascending: false }) // Priorité aux premium
                     .limit(20)
                 if (countryData) proximityProfiles = [...proximityProfiles, ...countryData]
@@ -143,16 +143,16 @@ export default async function DashboardPage() {
     
     // Niveau 3 : Fallback Global (si < 8 ou pas de localisation)
     if (proximityProfiles.length < 8) {
-        const excludeIds = user ? [user.id, ...proximityProfiles.map(p => p.id || p.user_id)] : proximityProfiles.map(p => p.id || p.user_id)
+        const excludeUserIds = user ? [user.id, ...proximityProfiles.map(p => p.user_id)] : proximityProfiles.map(p => p.user_id)
         let fallbackQuery = supabase
             .from('public_profiles')
             .select(`*, countries(name, iso_code), profile_tags(tags(name))`)
             .eq('is_published', true)
             .order('created_at', { ascending: false })
             .limit(30)
-            
-        if (excludeIds.length > 0) {
-             fallbackQuery = fallbackQuery.not('id', 'in', `(${excludeIds.join(',')})`)
+
+        if (excludeUserIds.length > 0) {
+             fallbackQuery = fallbackQuery.not('user_id', 'in', `(${excludeUserIds.join(',')})`)
         }
         
         const { data: fallbackData } = await fallbackQuery

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { logger } from "@/lib/logger"
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000"
 
@@ -106,9 +107,9 @@ async function proxyRequest(request: NextRequest, context: { params: Promise<{ p
                 try {
                     const { revalidateTag } = await import("next/cache")
                     revalidateTag("profile", "default")
-                    console.log(`[CacheRevalidation] Revalidated tag 'profile' due to successful ${request.method} on /${pathStr}`)
+                    logger.info(`[CacheRevalidation] Revalidated tag 'profile' due to successful ${request.method} on /${pathStr}`)
                 } catch (e) {
-                    console.error("[CacheRevalidation] Failed to revalidate tag:", e)
+                    logger.error("[CacheRevalidation] Failed to revalidate tag:", e)
                 }
             }
         }
@@ -118,7 +119,7 @@ async function proxyRequest(request: NextRequest, context: { params: Promise<{ p
             headers: responseHeaders,
         })
     } catch (error) {
-        console.error(`Proxy backend inaccessible: ${targetUrl}`, error)
+        logger.error(`Proxy backend inaccessible: ${targetUrl}`, error)
 
         return NextResponse.json(
             { error: "Backend inaccessible" },

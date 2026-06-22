@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Section "En vue cette semaine" avec carrousel fluide et boutons de navigation.
  * @created 2026-06-13
- * @updated 2026-06-17
+ * @updated 2026-06-22
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -13,6 +13,7 @@
 import { useEffect, useState, useRef } from "react"
 import { motion } from "framer-motion"
 import { Sparkles, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react"
+import Image from "next/image"
 
 interface Profile {
     id: string
@@ -106,9 +107,11 @@ export function AnnuaireSpotlight() {
                             <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-amber-400/20 rounded-full blur-3xl transition-transform group-hover:scale-150 duration-500" />
                             
                             <div className="flex gap-4 mb-4 relative z-10">
-                                <img 
+                                <Image 
                                     src={profile.avatar} 
                                     alt={profile.name} 
+                                    width={64}
+                                    height={64}
                                     className="w-16 h-16 rounded-2xl object-cover ring-2 ring-amber-100"
                                 />
                                 <div>

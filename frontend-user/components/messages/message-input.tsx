@@ -117,7 +117,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
           <div className="flex items-center gap-1.5 truncate">
             <span className="w-1.5 h-1.5 bg-primary rounded-full" />
             <span className="truncate">
-              Modification du message : <span className="font-normal italic text-slate-500">"{editingMessage.content}"</span>
+              Modification du message : <span className="font-normal italic text-slate-500">&quot;{editingMessage.content}&quot;</span>
             </span>
           </div>
           <button

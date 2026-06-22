@@ -3,14 +3,27 @@
  * @organization Nexus Partners
  * @description Explorateur de catégories pour le Dashboard
  * @created 2026-06-01
+ * @updated 2026-06-22
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
  */
 
 "use client"
 
 import Link from "next/link"
-import { Hammer, Store, Laptop, Briefcase, Megaphone, Rocket, Globe, TrendingUp, Landmark, GraduationCap } from "lucide-react"
+import { Hammer, Store, Laptop, Briefcase, Megaphone, Rocket, Globe, TrendingUp, Landmark, GraduationCap, LucideIcon } from "lucide-react"
 
-const categories = [
+interface CategoryItem {
+  id: string
+  label: string
+  desc: string
+  icon: LucideIcon
+  color: string
+  bg: string
+  count: string
+}
+
+const categories: CategoryItem[] = [
   // Ligne 1
   { id: "artisan", label: "Artisan", desc: "Création manuelle, métiers de l'artisanat, savoir-faire", icon: Hammer, color: "text-amber-600", bg: "bg-amber-50 border-amber-100", count: "1.2k+" },
   { id: "commerçante", label: "Commerçant", desc: "Vente de biens, boutiquier, grossiste", icon: Store, color: "text-emerald-500", bg: "bg-emerald-50 border-emerald-100", count: "850+" },
@@ -25,7 +38,7 @@ const categories = [
   { id: "etudiant", label: "Étudiant / Jeune Diplômé", desc: "Pour la recherche de stage/emploi", icon: GraduationCap, color: "text-orange-500", bg: "bg-orange-50 border-orange-100", count: "930+" },
 ]
 
-const CategoryCard = ({ cat, idx, categoryCounts }: { cat: any, idx: number, categoryCounts?: Record<string, number> }) => {
+const CategoryCard = ({ cat, idx, categoryCounts }: { cat: CategoryItem, idx: number, categoryCounts?: Record<string, number> }) => {
   const Icon = cat.icon
 
   let displayCount: React.ReactNode = "..."

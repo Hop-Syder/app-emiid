@@ -2,7 +2,7 @@
  * @author @hopsyder
  * @organization Nexus Partners
  * @description Gestion des compétences (profile_tags) — ajout par autocomplete, suppression
- * @updated 2026-06-14
+ * @updated 2026-06-22
  */
 
 "use client"
@@ -39,7 +39,7 @@ export function CompetencesSection({ profileId }: CompetencesSectionProps) {
       .eq("profile_id", profileId)
 
     if (data) {
-      const tags = (data as any[])
+      const tags = (data as unknown as { tags: TagItem | null }[])
         .map(row => row.tags)
         .filter(Boolean) as TagItem[]
       setCurrentTags(tags)
@@ -114,7 +114,7 @@ export function CompetencesSection({ profileId }: CompetencesSectionProps) {
   if (!profileId) {
     return (
       <div className="bg-white border border-slate-200 rounded-2xl p-8 text-center">
-        <p className="text-sm text-slate-500">Créez d'abord votre profil pour gérer vos compétences.</p>
+        <p className="text-sm text-slate-500">Créez d&apos;abord votre profil pour gérer vos compétences.</p>
       </div>
     )
   }
@@ -170,7 +170,7 @@ export function CompetencesSection({ profileId }: CompetencesSectionProps) {
             </div>
             <p className="text-sm font-semibold text-slate-900">Aucune compétence ajoutée</p>
             <p className="text-xs text-slate-500 max-w-xs">
-              Ajoutez vos compétences pour apparaître dans les recherches de l'annuaire.
+              Ajoutez vos compétences pour apparaître dans les recherches de l&apos;annuaire.
             </p>
           </div>
         ) : (
@@ -195,7 +195,7 @@ export function CompetencesSection({ profileId }: CompetencesSectionProps) {
       </div>
 
       <p className="text-xs text-slate-400 text-center">
-        Les compétences sont visibles immédiatement sur votre profil public et dans l'annuaire.
+        Les compétences sont visibles immédiatement sur votre profil public et dans l&apos;annuaire.
       </p>
     </div>
   )

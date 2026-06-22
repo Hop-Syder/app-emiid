@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Carte de profil miniature pour le portefeuille avec style Luxury Glassmorphism et Note Taker optimisé
  * @created 2026-05-24
- * @updated 2026-06-17
+ * @updated 2026-06-22
  * 🌐 ceo.nexuspartners.xyz
  */
 
@@ -16,6 +16,7 @@ import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 export interface ProfileData {
   id: string;
@@ -87,9 +88,11 @@ export function ProfileCardMini({ profile, onUnfollow, onViewProfile, onSaveNote
 
         <div className="relative z-10 flex flex-row items-center gap-4">
           <div className="relative shrink-0 group/avatar">
-            <img
+            <Image
               src={profile.avatar}
               alt={profile.name}
+              width={64}
+              height={64}
               className={cn(
                 "relative h-16 w-16 rounded-full object-cover shadow-md transition-transform duration-300 group-hover/avatar:scale-105",
                 isPremium ? "ring-2 ring-amber-500/30" : "ring-1 ring-border"

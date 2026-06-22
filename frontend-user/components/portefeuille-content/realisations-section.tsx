@@ -2,7 +2,7 @@
  * @author @hopsyder
  * @organization Nexus Partners
  * @description Gestion des réalisations (project_gallery) — upload, statut, suppression
- * @updated 2026-06-14
+ * @updated 2026-06-22
  */
 
 "use client"
@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
+import Image from "next/image"
 
 type GalleryStatus = "pending" | "approved" | "rejected"
 
@@ -81,6 +82,7 @@ export function RealisationsSection({ userId, profileId }: RealisationsSectionPr
 
   const handleAdd = async () => {
     if (!file) { toast.error("Choisissez une image"); return }
+    if (!profileId) { toast.error("Profil introuvable — complétez votre profil avant d'ajouter une réalisation."); return }
     setUploading(true)
     try {
       const ext  = file.name.split(".").pop() ?? "jpg"
@@ -99,7 +101,7 @@ export function RealisationsSection({ userId, profileId }: RealisationsSectionPr
         .from("project_gallery")
         .insert({
           user_id:     userId,
-          profile_id:  profileId ?? undefined,
+          profile_id:  profileId,
           image_url:   publicUrl,
           title:       title.trim() || null,
           description: description.trim() || null,
@@ -112,8 +114,9 @@ export function RealisationsSection({ userId, profileId }: RealisationsSectionPr
       setDialogOpen(false)
       setFile(null); setPreview(null); setTitle(""); setDescription("")
       void load()
-    } catch (err: any) {
-      toast.error(err.message || "Erreur lors de l'upload")
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : "Erreur lors de l'upload"
+      toast.error(errorMsg)
     } finally {
       setUploading(false)
     }
@@ -187,11 +190,13 @@ export function RealisationsSection({ userId, profileId }: RealisationsSectionPr
             return (
               <div key={item.id} className="group relative bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                 {/* Image */}
-                <div className="aspect-square overflow-hidden bg-slate-100">
-                  <img
+                <div className="aspect-square overflow-hidden bg-slate-100 relative w-full">
+                  <Image
                     src={item.image_url}
                     alt={item.title ?? "Réalisation"}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    fill
+                    sizes="(max-width: 640px) 50vw, 30vw"
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 </div>
 
@@ -246,7 +251,9 @@ export function RealisationsSection({ userId, profileId }: RealisationsSectionPr
               }`}
             >
               {preview ? (
-                <img src={preview} alt="Aperçu" className="w-full aspect-video object-cover" />
+                <div className="relative w-full aspect-video">
+                  <Image src={preview} alt="Aperçu" fill className="object-cover" />
+                </div>
               ) : (
                 <div className="aspect-video flex flex-col items-center justify-center gap-3 text-slate-400 px-6">
                   <ImageIcon className="h-8 w-8" />
@@ -288,7 +295,7 @@ export function RealisationsSection({ userId, profileId }: RealisationsSectionPr
             </div>
 
             <p className="text-[11px] text-slate-400 text-center">
-              Chaque réalisation est vérifiée par notre équipe avant d'apparaître sur votre profil.
+              Chaque réalisation est vérifiée par notre équipe avant d&apos;apparaître sur votre profil.
             </p>
           </div>
         </DialogContent>
@@ -300,7 +307,7 @@ export function RealisationsSection({ userId, profileId }: RealisationsSectionPr
           <DialogHeader>
             <DialogTitle className="text-base font-black">Supprimer cette réalisation ?</DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-slate-500">L'image sera définitivement supprimée du stockage et de votre profil.</p>
+          <p className="text-sm text-slate-500">L&apos;image sera définitivement supprimée du stockage et de votre profil.</p>
           <div className="flex gap-3 pt-2">
             <Button variant="outline" onClick={() => setDeleteTarget(null)} className="flex-1 h-11 rounded-xl border-slate-200 font-bold">
               Annuler

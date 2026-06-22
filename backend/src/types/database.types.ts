@@ -725,6 +725,6 @@ export interface Database {
         Returns: Json
       }
     }
-    Enums: {}
+    Enums: { [_ in never]: never }
   }
 }

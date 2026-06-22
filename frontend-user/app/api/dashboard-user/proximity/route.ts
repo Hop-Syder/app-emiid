@@ -76,16 +76,16 @@ export async function GET(request: Request) {
 
         // 2. Niveau 2 : Même Pays (si Niveau 1 < 8)
         if (proximityProfiles.length < 8 && actualCountryId) {
-            const excludeIds = [user?.id, ...proximityProfiles.map(p => p.id || p.user_id)].filter(Boolean)
+            const excludeUserIds = [user?.id, ...proximityProfiles.map(p => p.user_id)].filter(Boolean)
             let query = supabase
                 .from('public_profiles')
                 .select(`*, countries(name, iso_code), profile_tags(tags(name))`)
                 .eq('country_id', actualCountryId)
                 .order('is_premium', { ascending: false })
                 .limit(20)
-                
-            if (excludeIds.length > 0) {
-                query = query.not('id', 'in', `(${excludeIds.join(',')})`)
+
+            if (excludeUserIds.length > 0) {
+                query = query.not('user_id', 'in', `(${excludeUserIds.join(',')})`)
             }
             
             const { data: countryData } = await query
@@ -96,16 +96,16 @@ export async function GET(request: Request) {
 
         // 3. Niveau 3 : Fallback Global (si < 8 ou pas de localisation)
         if (proximityProfiles.length < 8) {
-            const excludeIds = [user?.id, ...proximityProfiles.map(p => p.id || p.user_id)].filter(Boolean)
+            const excludeUserIds = [user?.id, ...proximityProfiles.map(p => p.user_id)].filter(Boolean)
             let fallbackQuery = supabase
                 .from('public_profiles')
                 .select(`*, countries(name, iso_code), profile_tags(tags(name))`)
                 .eq('is_verified', true)
                 .order('created_at', { ascending: false })
                 .limit(30)
-                
-            if (excludeIds.length > 0) {
-                fallbackQuery = fallbackQuery.not('id', 'in', `(${excludeIds.join(',')})`)
+
+            if (excludeUserIds.length > 0) {
+                fallbackQuery = fallbackQuery.not('user_id', 'in', `(${excludeUserIds.join(',')})`)
             }
             
             const { data: fallbackData } = await fallbackQuery

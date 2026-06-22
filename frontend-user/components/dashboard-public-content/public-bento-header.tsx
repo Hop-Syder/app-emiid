@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Bento Header pour le Dashboard Public — Proposition de valeur + Stats.
  * @created 2026-06-03
- * @updated 2026-06-03
+ * @updated 2026-06-22
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -13,7 +13,7 @@
 import { motion, Variants } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
-import { BadgeCheck, Crown, Globe, Users, ArrowRight, UserPlus, LogIn, Award } from "lucide-react"
+import { BadgeCheck, Crown, Globe, Users, UserPlus, LogIn, Award } from "lucide-react"
 
 interface PublicBentoHeaderProps {
     stats: {

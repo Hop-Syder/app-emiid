@@ -104,9 +104,11 @@ export function DesktopSidebarAuth() {
                   />
                 )}
                 <div className="w-14 flex items-center justify-center shrink-0">
-                  <img
+                  <Image
                     src={item.svg}
                     alt={item.name}
+                    width={20}
+                    height={20}
                     className={cn(
                       "size-5 transition-all duration-300",
                       isActive

@@ -2,7 +2,7 @@
  * @author @hopsyder
  * @organization Nexus Partners
  * @description Settings page shell — sidebar desktop / pill tabs mobile
- * @updated 2026-06-13
+ * @updated 2026-06-22
 */
 
 "use client"
@@ -15,6 +15,7 @@ import { fetchWithAuth } from "@/lib/apiClient"
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
 import { getReferenceCountriesCached } from "@/lib/location-cache"
+import Image from "next/image"
 import { ProfileSection } from "./profile-section"
 import { SecuritySection } from "./security-section"
 import { NotificationsSection } from "./notifications-section"
@@ -247,9 +248,11 @@ export function ParametresContent() {
             <div className="bg-white border border-slate-200 rounded-2xl p-5 text-center">
               <div className="relative inline-flex mb-3">
                 {profile.avatar_url ? (
-                  <img
+                  <Image
                     src={profile.avatar_url}
                     alt={displayName}
+                    width={64}
+                    height={64}
                     className="w-16 h-16 rounded-full object-cover ring-2 ring-slate-100 shadow-sm"
                   />
                 ) : (

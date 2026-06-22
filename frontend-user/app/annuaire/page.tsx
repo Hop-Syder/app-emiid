@@ -7,9 +7,23 @@
  * 📧 daoudaabassichristian@gmail.com
 */
 
+import type { Metadata } from "next"
 import { NavigationShell } from "@/components/navigation/navigation-shell"
 import { AnnuairePublicContent } from "@/components/annuaire-public-content/annuaire-main"
 import { createClient } from "@/lib/supabase/server"
+
+export const metadata: Metadata = {
+    title: "Annuaire des professionnels d'Afrique | EmiID",
+    description:
+        "Découvrez et contactez artisans, freelances, entreprises, startups et ONG vérifiés à travers l'Afrique. Filtrez par type de profil et secteur d'activité sur EmiID.",
+    alternates: { canonical: "/annuaire" },
+    openGraph: {
+        title: "Annuaire des professionnels d'Afrique | EmiID",
+        description:
+            "Artisans, freelances, entreprises, startups et ONG vérifiés. Trouvez le bon contact près de chez vous.",
+        type: "website",
+    },
+}
 
 export const revalidate = 60 // ISR 60s
 

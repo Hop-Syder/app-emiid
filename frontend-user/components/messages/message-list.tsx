@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Composants pour l'affichage des messages (Bulles et Liste)
  * @created 2026-05-11
- * @updated 2026-06-05
+ * @updated 2026-06-22
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -13,7 +13,7 @@ import { format, isToday, isYesterday } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { Message } from './types'
 import { parseMessageContent } from '@/features/messages/messageContent'
-import { FileText, Check, CheckCheck, Clock, AlertCircle, ArrowDown, MoreHorizontal, Edit2, Trash2, RotateCcw } from 'lucide-react'
+import { FileText, Check, CheckCheck, Clock, ArrowDown, MoreHorizontal, Edit2, Trash2, RotateCcw } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import {
@@ -23,6 +23,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
+import Image from 'next/image'
 
 // Assistant pour obtenir le séparateur de date
 const getDateSeparator = (date: Date): string => {
@@ -148,12 +149,13 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
         )}
 
         {parsed.kind === "image" && (
-          <div className="rounded-lg overflow-hidden border border-white/20 -mx-1 -mt-1 mb-1 bg-slate-100">
-            <img 
+          <div className="rounded-lg overflow-hidden border border-white/20 -mx-1 -mt-1 mb-1 bg-slate-100 relative w-full h-[200px] md:h-[260px]">
+            <Image 
               src={parsed.url} 
               alt="Image partagée" 
-              loading="lazy"
-              className="max-w-full max-h-[300px] w-full object-cover hover:scale-105 transition-transform duration-300 cursor-pointer" 
+              fill
+              sizes="(max-width: 768px) 100vw, 400px"
+              className="object-cover hover:scale-105 transition-transform duration-300 cursor-pointer" 
             />
           </div>
         )}
@@ -277,9 +279,6 @@ export const MessageList: React.FC<MessageListProps> = ({
     return messages.map((msg, index) => {
       const prevMsg = messages[index - 1]
       const nextMsg = messages[index + 1]
-      
-      const isOwn = msg.sender_id === currentUserId
-      
       // Clustering (regroupement par expéditeur sous 5 minutes)
       const isSameAsPrev = prevMsg && 
           prevMsg.sender_id === msg.sender_id && 
@@ -316,7 +315,7 @@ export const MessageList: React.FC<MessageListProps> = ({
         dateSeparator
       }
     })
-  }, [messages, currentUserId])
+  }, [messages])
 
   // Déclencher le scroll lors de l'arrivée de messages
   React.useEffect(() => {

@@ -13,20 +13,13 @@
 import * as React from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { 
-  Calculator, 
-  Calendar, 
-  CreditCard, 
   Settings, 
   User, 
-  Smile, 
   Home, 
   Search, 
   Users, 
   MessageSquare, 
-  Wallet,
-  Sparkles,
-  Zap,
-  Briefcase
+  Wallet
 } from "lucide-react"
 
 import {
@@ -58,12 +51,12 @@ export function CommandPalette() {
 
     document.addEventListener("keydown", down)
     return () => document.removeEventListener("keydown", down)
-  }, [toggle])
+  }, [toggle, pathname])
 
   const runCommand = React.useCallback((command: () => void) => {
     setOpen(false)
     command()
-  }, [])
+  }, [setOpen])
 
   return (
     <CommandDialog 
@@ -88,8 +81,8 @@ export function CommandPalette() {
             <div className="p-4 rounded-full bg-white/5 border border-white/10">
               <Search className="w-8 h-8 text-slate-500" />
             </div>
-            <p className="text-sm font-medium">Aucun résultat pour "{searchQuery}"</p>
-            <p className="text-xs text-slate-500">Essayez un autre mot-clé ou vérifiez l'orthographe.</p>
+            <p className="text-sm font-medium">Aucun résultat pour &quot;{searchQuery}&quot;</p>
+            <p className="text-xs text-slate-500">Essayez un autre mot-clé ou vérifiez l&apos;orthographe.</p>
           </div>
         </CommandEmpty>
         

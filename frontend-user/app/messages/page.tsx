@@ -1,6 +1,10 @@
+import type { Metadata } from "next"
 import { MessagesContent } from "@/components/messages-content"
 import { Preloader } from "@/components/Preloader"
 import { Suspense } from "react"
+
+// Page privée → exclue de l'indexation.
+export const metadata: Metadata = { robots: { index: false, follow: false } }
 
 export default function MessagesPage() {
   return (

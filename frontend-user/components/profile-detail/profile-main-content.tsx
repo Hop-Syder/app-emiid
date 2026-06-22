@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Sous-composant Contenu Principal (Bio, Skills, Portfolio, Expériences) pour le détail de profil.
  * @created 2026-06-13
- * @updated 2026-06-13
+ * @updated 2026-06-22
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -12,6 +12,7 @@ import { Award } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
+import Image from "next/image"
 
 const getSkillBadgeStyles = (idx: number) => {
     const presets = [
@@ -24,7 +25,33 @@ const getSkillBadgeStyles = (idx: number) => {
     return presets[idx % presets.length]
 }
 
-export function ProfileMainContent({ profile, gallery, loadingGallery }: any) {
+interface ExperienceItem {
+    title: string
+    company: string
+    period: string
+}
+
+interface ProfileData {
+    bio: string | null
+    skills: string[]
+    experiences: ExperienceItem[]
+}
+
+interface GalleryItem {
+    id: string
+    title: string | null
+    description: string | null
+    imageUrl: string
+    status?: string
+}
+
+interface ProfileMainContentProps {
+    profile: ProfileData
+    gallery: GalleryItem[]
+    loadingGallery: boolean
+}
+
+export function ProfileMainContent({ profile, gallery, loadingGallery }: ProfileMainContentProps) {
     return (
         <div className="lg:col-span-8 min-w-0 space-y-6">
             {/* About card */}
@@ -95,17 +122,19 @@ export function ProfileMainContent({ profile, gallery, loadingGallery }: any) {
                             </div>
                         ) : gallery.length > 0 ? (
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
-                                {gallery.map((item: any) => (
+                                {gallery.map((item: GalleryItem) => (
                                     <div
                                         key={item.id}
                                         className="group bg-white/50 backdrop-blur-md border border-slate-200/50 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 relative"
                                     >
                                         <div className="aspect-video w-full overflow-hidden bg-slate-100 relative">
-                                            <img
-                                                src={item.imageUrl}
-                                                alt={item.title}
-                                                className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
-                                            />
+                                            <Image
+                                                 src={item.imageUrl}
+                                                 alt={item.title || "Portfolio item"}
+                                                 fill
+                                                 sizes="(max-width: 640px) 100vw, 50vw"
+                                                 className="object-cover transition-transform duration-500 group-hover:scale-105"
+                                             />
                                             {item.status === "pending" && (
                                                 <div className="absolute top-2 right-2 bg-amber-500/90 backdrop-blur-md text-white text-[10px] font-black px-2.5 py-1 rounded-lg border border-amber-400/30">
                                                     En attente de validation
@@ -136,7 +165,7 @@ export function ProfileMainContent({ profile, gallery, loadingGallery }: any) {
                         <div className="space-y-4">
                             {profile.experiences.length > 0 ? (
                                 <div className="relative border-l-2 border-slate-200 pl-6 ml-3 space-y-6 py-2">
-                                    {profile.experiences.map((exp: any, idx: number) => (
+                                    {profile.experiences.map((exp: ExperienceItem, idx: number) => (
                                         <div key={idx} className="relative group">
                                             <div className="absolute -left-[31px] top-1 h-3.5 w-3.5 rounded-full bg-white border-2 border-[#022753] flex items-center justify-center transition-all duration-300 group-hover:scale-110">
                                                 <div className="h-1 w-1 rounded-full bg-[#022753]" />
