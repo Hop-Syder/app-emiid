@@ -130,3 +130,4 @@
 - [2026-06-22] Logo frontend-commercial : Remplacement des images de logo textuel par l'icône icon.svg accompagnée du nom de marque "EmiID" en bleu (text-blue-500) dans le Header (desktop et mobile).
 - [2026-06-22] Onboarding frontend-user : Rétablissement des illustrations à leur taille d'origine, et verrouillage du conteneur en plein écran (fixed inset-0 overflow-hidden) pour supprimer le scroll vertical.
 - [2026-06-22] Onboarding frontend-user : Masquage conditionnel du logo de l'en-tête lors de la 3ème étape (step 3), augmentation de la taille du logo à 2x (h-24/sm:h-28) sur les deux premières étapes, et espacement des éléments avec un flexbox justify-between et du padding vertical.
+- [2026-06-22] Annuaire frontend-user : Suppression du bloc de statistiques globales (Membres, Vérifiés, Pays) situé sous la barre de recherche (Cmd+K) dans le composant AnnuaireHero.

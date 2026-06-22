@@ -11,8 +11,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Search, BadgeCheck, Crown, Globe, Users } from "lucide-react"
-import { useDashboardStats, CREDIBLE_FALLBACK_STATS } from "@/hooks/use-dashboard-stats"
+import { Search } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const fetcher = (url: string) => fetch(url, { next: { revalidate: 60 } }).then(res => res.json())
@@ -30,20 +29,7 @@ export function AnnuaireHero({
     searchQuery,
     onTriggerSearch
 }: AnnuaireHeroProps) {
-    // Fetch Stats
-    const { stats: fetchedStats } = useDashboardStats({
-        endpoint: "/api/dashboard-user/stats",
-        fetcher,
-        refreshIntervalMs: 60000,
-    })
 
-    const stats = fetchedStats || CREDIBLE_FALLBACK_STATS
-
-    const statsItems = [
-        { label: "Membres", value: stats.totalEntrepreneurs, icon: Users, color: "text-emerald-400" },
-        { label: "Vérifiés", value: stats.verifiedMembers, icon: BadgeCheck, color: "text-amber-400" },
-        { label: "Pays", value: stats.countriesCovered, icon: Globe, color: "text-indigo-400" },
-    ]
 
     return (
         <div className="mb-8 w-full">
@@ -109,21 +95,7 @@ export function AnnuaireHero({
                         </div>
                     </motion.div>
 
-                    {/* Compact Stats */}
-                    <motion.div 
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.4, duration: 0.5 }}
-                        className="flex flex-wrap justify-center gap-4 sm:gap-8 pt-4 border-t border-white/10 w-full max-w-2xl"
-                    >
-                        {statsItems.map((stat, i) => (
-                            <div key={i} className="flex items-center gap-2">
-                                <stat.icon className={cn("w-4 h-4", stat.color)} />
-                                <span className="font-bold text-white text-lg">{stat.value.toLocaleString()}</span>
-                                <span className="text-sm font-medium text-slate-400">{stat.label}</span>
-                            </div>
-                        ))}
-                    </motion.div>
+
                 </div>
             </motion.div>
         </div>

@@ -151,7 +151,9 @@ export const sendWelcomeEmail = async (recipientEmail: string, firstName?: strin
             Si vous n'êtes pas à l'origine de cette inscription, ignorez ce message.
           </p>
           <p style="margin: 0; font-size: 11px; color: #cbd5e1;">
-            © ${year} EmiID — Édité par Nexus Partners. Tous droits réservés.
+            © ${year} EmiID — Édité par
+            <a href="https://nexus-partners.xyz" style="color: #94a3b8; text-decoration: none; font-weight: 600;">Nexus Partners</a>.
+            Tous droits réservés.
           </p>
         </div>
 
