@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { toast } from "sonner"
 import { ArrowRight, Crown, Sparkles, UserCircle } from "lucide-react"
 import { useCurrentUserProfile } from "@/hooks/use-current-user-profile"
 import { Button } from "@/components/ui/button"
@@ -46,7 +47,7 @@ export function HubContextualCta() {
           <p className="text-slate-400 mb-10 max-w-xl text-lg font-medium leading-relaxed group-hover:text-slate-300 transition-colors duration-300">
             Complète et publie ton profil pour apparaître dans l'annuaire et être contacté par des clients et partenaires.
           </p>
-          <Link href="/parametre">
+          <Link href="/parametres">
             <Button className="group/btn relative overflow-hidden rounded-2xl bg-white text-slate-900 hover:text-white font-bold px-10 h-14 shadow-[0_0_40px_-10px_rgba(255,255,255,0.3)] hover:shadow-[0_0_40px_-10px_rgba(99,102,241,0.5)] transition-all duration-300 hover:scale-105">
               <span className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-blue-500 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300" />
               <span className="relative flex items-center gap-2">
@@ -92,15 +93,20 @@ export function HubContextualCta() {
         <p className="text-slate-400 mb-10 max-w-xl text-lg font-medium leading-relaxed group-hover:text-slate-300 transition-colors duration-300">
           Passe Premium pour apparaître en tête des résultats, accéder aux statistiques avancées et débloquer toutes les fonctionnalités.
         </p>
-        <Link href="/premium">
-          <Button className="group/btn relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 text-slate-900 font-bold px-10 h-14 shadow-[0_0_40px_-10px_rgba(245,158,11,0.4)] hover:shadow-[0_0_40px_-5px_rgba(245,158,11,0.6)] transition-all duration-300 hover:scale-105 border-0">
-            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300" />
-            <span className="relative flex items-center gap-2">
-              <Sparkles className="w-4 h-4" />
-              Passer Premium
-            </span>
-          </Button>
-        </Link>
+        <Button
+          onClick={() =>
+            toast("Premium arrive bientôt ✨", {
+              description: "La mise en avant et les statistiques avancées seront disponibles prochainement.",
+            })
+          }
+          className="group/btn relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 text-slate-900 font-bold px-10 h-14 shadow-[0_0_40px_-10px_rgba(245,158,11,0.4)] hover:shadow-[0_0_40px_-5px_rgba(245,158,11,0.6)] transition-all duration-300 hover:scale-105 border-0"
+        >
+          <div className="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300" />
+          <span className="relative flex items-center gap-2">
+            <Sparkles className="w-4 h-4" />
+            Passer Premium
+          </span>
+        </Button>
       </div>
     </div>
   )

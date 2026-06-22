@@ -118,3 +118,5 @@
 - [2026-06-22] Mise à jour esthétique de l'UI : Remplacement de l'icône de notification par `/svg/notification.svg` dans la barre latérale desktop et le dock mobile. Remplacement du texte `"Fondateur"` par le badge SVG `/svg/Badge-fondateur.svg` dans le header du dashboard connecté.
 - [2026-06-22] Annuaire : Suppression de la section "Affiner votre recherche" et "Explorer par domaine d'activité" de l'annuaire public.
 - [2026-06-22] Annuaire : Remplacement de la recherche de profil classique par une palette de commande (Cmd+K) avec filtres intégrés (type de profil et 12 secteurs d'activité). Ajout de la logique de filtrage par membres vérifiés (`onlyVerified`) au backend.
+- [2026-06-22] Annuaire : Suppression de la statistique "Premium" du bloc d'informations de l'entête.
+- [2026-06-22] Navigation : Augmentation de la taille de l'icône de notification dans le menu mobile (`size-3.5` -> `size-4.5`).

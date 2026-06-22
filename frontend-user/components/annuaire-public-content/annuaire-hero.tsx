@@ -43,7 +43,6 @@ export function AnnuaireHero({
         { label: "Membres", value: stats.totalEntrepreneurs, icon: Users, color: "text-emerald-400" },
         { label: "Vérifiés", value: stats.verifiedMembers, icon: BadgeCheck, color: "text-amber-400" },
         { label: "Pays", value: stats.countriesCovered, icon: Globe, color: "text-indigo-400" },
-        { label: "Premium", value: stats.premiumMembers, icon: Crown, color: "text-rose-400" },
     ]
 
     return (
