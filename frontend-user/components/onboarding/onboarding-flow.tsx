@@ -171,18 +171,17 @@ export function OnboardingFlow() {
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] max-w-full h-64 bg-indigo-600/6 blur-[80px] rounded-full" />
       </div>
 
-      {/* Contenu */}
-      <div className="relative z-10 w-full max-w-lg flex flex-col items-center gap-4 sm:gap-6">
+      <div className="relative z-10 w-full max-w-lg h-full flex flex-col items-center justify-between py-10 sm:py-16">
 
         {/* Logo + dots */}
-        <div className="flex flex-col items-center gap-3 sm:gap-4">
+        <div className="flex flex-col items-center gap-3 sm:gap-4 -mt-2 sm:-mt-4">
           {step < 2 && (
             <Image
               src="/logo/logo-emiid.png"
               alt="EmiID"
-              width={320}
-              height={80}
-              className="h-12 sm:h-14 w-auto object-contain brightness-0 invert drop-shadow-[0_4px_24px_rgba(255,255,255,0.12)]"
+              width={448}
+              height={112}
+              className="h-24 sm:h-28 w-auto object-contain brightness-0 invert drop-shadow-[0_4px_24px_rgba(255,255,255,0.12)]"
               priority
             />
           )}
