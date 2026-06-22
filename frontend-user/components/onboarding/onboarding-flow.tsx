@@ -90,7 +90,7 @@ function PresentationSlide({ slide }: { slide: Slide }) {
         initial={{ scale: 0.85, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="relative w-[22vh] h-[22vh] max-w-[10rem] max-h-[10rem] sm:w-[28vh] sm:h-[28vh] sm:max-w-[14rem] sm:max-h-[14rem]"
+        className="relative w-[30vh] h-[30vh] max-w-[14rem] max-h-[14rem] sm:max-w-[16rem] sm:max-h-[16rem]"
       >
         <Image
           src={slide.image}
@@ -176,14 +176,16 @@ export function OnboardingFlow() {
 
         {/* Logo + dots */}
         <div className="flex flex-col items-center gap-3 sm:gap-4">
-          <Image
-            src="/logo/logo-emiid.png"
-            alt="EmiID"
-            width={672}
-            height={168}
-            className="h-[144px] sm:h-[168px] w-auto object-contain brightness-0 invert drop-shadow-[0_4px_24px_rgba(255,255,255,0.12)]"
-            priority
-          />
+          {step < 2 && (
+            <Image
+              src="/logo/logo-emiid.png"
+              alt="EmiID"
+              width={320}
+              height={80}
+              className="h-12 sm:h-14 w-auto object-contain brightness-0 invert drop-shadow-[0_4px_24px_rgba(255,255,255,0.12)]"
+              priority
+            />
+          )}
           <StepDots current={step} total={total} />
         </div>
 
