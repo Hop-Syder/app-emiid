@@ -20,7 +20,7 @@ const categories = [
   // Ligne 2
   { id: "startup", label: "Startup", desc: "Jeune entreprise innovante, Tech", icon: Rocket, color: "text-rose-500", bg: "bg-rose-50 border-rose-100", count: "210+" },
   { id: "ong", label: "ONG / Association", desc: "À but non lucratif, fondation", icon: Globe, color: "text-cyan-500", bg: "bg-cyan-50 border-cyan-100", count: "150+" },
-  { id: "investisseur", label: "Investisseur / Business Angel", desc: "Fonds d'investissement, cherche des projets", icon: TrendingUp, color: "text-indigo-500", bg: "bg-indigo-50 border-indigo-100", count: "85+" },
+  { id: "investisseur", label: "Entreprise / Investisseur", desc: "Fonds d'investissement, recherche d'opportunités", icon: TrendingUp, color: "text-indigo-500", bg: "bg-indigo-50 border-indigo-100", count: "85+" },
   { id: "institution", label: "Institution Publique", desc: "Ministère, agence d'état, chambre de commerce", icon: Landmark, color: "text-teal-600", bg: "bg-teal-50 border-teal-100", count: "40+" },
   { id: "etudiant", label: "Étudiant / Jeune Diplômé", desc: "Pour la recherche de stage/emploi", icon: GraduationCap, color: "text-orange-500", bg: "bg-orange-50 border-orange-100", count: "930+" },
 ]

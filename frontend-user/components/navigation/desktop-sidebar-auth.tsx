@@ -77,7 +77,7 @@ export function DesktopSidebarAuth() {
             className="object-contain"
           />
         </div>
-        <span className="ml-4 font-black text-xl text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap tracking-tight">
+        <span className="ml-4 font-black text-xl text-blue-500 dark:text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap tracking-tight">
           EmiID
         </span>
       </div>

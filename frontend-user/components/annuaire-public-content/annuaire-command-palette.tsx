@@ -74,7 +74,7 @@ const PROFILE_TYPES: Option[] = [
   { id: "agence", label: "Agence", icon: Megaphone, color: "text-fuchsia-600", chip: "bg-fuchsia-50" },
   { id: "startup", label: "Startup", icon: Rocket, color: "text-violet-600", chip: "bg-violet-50" },
   { id: "ong", label: "ONG / Association", icon: HeartHandshake, color: "text-rose-600", chip: "bg-rose-50" },
-  { id: "investisseur", label: "Investisseur", icon: TrendingUp, color: "text-emerald-600", chip: "bg-emerald-50" },
+  { id: "investisseur", label: "Entreprise / Investisseur", icon: TrendingUp, color: "text-emerald-600", chip: "bg-emerald-50" },
   { id: "institution", label: "Institution Publique", icon: Landmark, color: "text-cyan-600", chip: "bg-cyan-50" },
   { id: "etudiant", label: "Étudiant / Junior", icon: GraduationCap, color: "text-teal-600", chip: "bg-teal-50" },
 ]

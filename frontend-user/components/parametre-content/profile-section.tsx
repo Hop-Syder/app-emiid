@@ -161,7 +161,7 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
               <option value="agence">📣 Agence</option>
               <option value="startup">🚀 Startup</option>
               <option value="ong">🌍 ONG / Association</option>
-              <option value="investisseur">📈 Investisseur</option>
+              <option value="investisseur">📈 Entreprise / Investisseur</option>
               <option value="institution">🏛️ Institution Publique</option>
               <option value="etudiant">🎓 Étudiant / Junior</option>
             </select>

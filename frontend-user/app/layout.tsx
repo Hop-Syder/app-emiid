@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Layout racine de l'application EmiID avec métadonnées SEO
  * @created 2026-04-18
- * @updated 2026-06-05
+ * @updated 2026-06-22
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  * ──────────────────────────────────
@@ -75,6 +75,7 @@ export const metadata: Metadata = {
 
 import { Toaster } from 'sonner'
 import { CookieConsent } from '@/components/CookieConsent'
+import { ThemeProvider } from '@/components/theme-provider'
 
 export default function RootLayout({
   children,
@@ -82,12 +83,14 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="fr">
+    <html lang="fr" suppressHydrationWarning>
       <body className="font-sans antialiased">
-        {children}
-        <Analytics />
-        <Toaster position="top-right" richColors closeButton />
-        <CookieConsent />
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          {children}
+          <Analytics />
+          <Toaster position="top-right" richColors closeButton />
+          <CookieConsent />
+        </ThemeProvider>
       </body>
     </html>
   )

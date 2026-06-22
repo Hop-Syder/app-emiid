@@ -23,11 +23,11 @@ const simulatorProfiles = {
   investor: {
     name: "Amina Diop",
     role: "Managing Partner",
-    category: "Investisseur",
+    category: "Entreprise",
     followers: "2.1k",
     following: 120,
     verified: true,
-    badge: "💼 Investisseur Certifié",
+    badge: "💼 Entreprise Certifiée",
     views: "124 vues cette semaine",
     skills: ["Impact Africa", "Seed", "SaaS"],
   },
@@ -96,8 +96,7 @@ export function HeroSection() {
               transition={{ duration: 0.5 }}
             >
               <span className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 text-xs font-bold mb-6 border border-indigo-100/60 dark:border-indigo-900/30 tracking-wide">
-                <Sparkles className="w-3.5 h-3.5" />
-                Lancé en 2026 · Plus de 500 profils créés
+                ⭐⭐⭐⭐⭐ Rejoignez 500+ professionnels africains · Gratuit pour commencer
               </span>
             </motion.div>
 
@@ -122,7 +121,7 @@ export function HeroSection() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              Emiid est la première plateforme africaine qui valide votre expertise, met en valeur vos réalisations et vous connecte aux investisseurs, recruteurs et partenaires qui vous cherchent.
+              Emiid est la première plateforme africaine qui valide votre expertise, met en valeur vos réalisations et vous connecte aux entreprises, recruteurs et partenaires qui vous cherchent.
             </motion.p>
 
             {/* Trust signals */}
@@ -166,15 +165,7 @@ export function HeroSection() {
               </Link>
             </motion.div>
 
-            {/* Social proof line */}
-            <motion.p
-              className="text-sm text-gray-400 dark:text-gray-500 text-center lg:text-left"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-            >
-              ⭐⭐⭐⭐⭐ Rejoignez 500+ professionnels africains · Gratuit pour commencer
-            </motion.p>
+
           </div>
 
           {/* ── Right Column: Interactive Profile Simulator ── */}
@@ -200,7 +191,7 @@ export function HeroSection() {
                         transition={{ type: "spring", stiffness: 300, damping: 25 }}
                       />
                     )}
-                    {tab === "founder" ? "Fondateur" : tab === "investor" ? "Investisseur" : "Talent"}
+                    {tab === "founder" ? "Fondateur" : tab === "investor" ? "Entreprise" : "Talent"}
                   </button>
                 );
               })}

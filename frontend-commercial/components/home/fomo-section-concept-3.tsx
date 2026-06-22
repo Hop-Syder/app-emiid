@@ -55,7 +55,7 @@ export function FomoSectionConcept3() {
               </li>
               <li className="flex items-start gap-3">
                 <XCircle className="w-5 h-5 text-gray-400 shrink-0 mt-0.5" />
-                <span className="text-gray-600 dark:text-gray-400">Accès limité aux investisseurs</span>
+                <span className="text-gray-600 dark:text-gray-400">Accès limité aux entreprises</span>
               </li>
               <li className="flex items-start gap-3">
                 <XCircle className="w-5 h-5 text-gray-400 shrink-0 mt-0.5" />
@@ -103,7 +103,7 @@ export function FomoSectionConcept3() {
               </li>
               <li className="flex items-start gap-3">
                 <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-                <span className="text-gray-900 dark:text-gray-200 font-medium">Accès direct au cercle des investisseurs</span>
+                <span className="text-gray-900 dark:text-gray-200 font-medium">Accès direct au cercle des entreprises</span>
               </li>
               <li className="flex items-start gap-3">
                 <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />

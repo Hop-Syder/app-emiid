@@ -105,7 +105,7 @@ export function StepExpertise({ formData, handleInputChange, inputClasses }: Ste
                             <SelectItem value="agence" className="rounded-xl py-3 cursor-pointer">📣 Agence</SelectItem>
                             <SelectItem value="startup" className="rounded-xl py-3 cursor-pointer">🚀 Startup</SelectItem>
                             <SelectItem value="ong" className="rounded-xl py-3 cursor-pointer">🌍 ONG / Association</SelectItem>
-                            <SelectItem value="investisseur" className="rounded-xl py-3 cursor-pointer">📈 Investisseur</SelectItem>
+                            <SelectItem value="investisseur" className="rounded-xl py-3 cursor-pointer">📈 Entreprise / Investisseur</SelectItem>
                             <SelectItem value="institution" className="rounded-xl py-3 cursor-pointer">🏛️ Institution Publique</SelectItem>
                             <SelectItem value="etudiant" className="rounded-xl py-3 cursor-pointer">🎓 Étudiant / Junior</SelectItem>
                         </SelectContent>

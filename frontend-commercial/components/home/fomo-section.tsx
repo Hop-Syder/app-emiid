@@ -355,7 +355,7 @@ export function FomoSection() {
                     <div>
                       <h4 className="font-bold text-gray-900 dark:text-gray-200">3. Parrainer 3 amis (actifs)</h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                        Invitez 3 talents ou investisseurs de votre réseau. Ils doivent s'inscrire et compléter leur profil à au moins 30%.
+                        Invitez 3 talents ou entreprises de votre réseau. Ils doivent s'inscrire et compléter leur profil à au moins 30%.
                       </p>
                     </div>
                   </div>

@@ -34,7 +34,7 @@ export function FomoSectionConcept2() {
             L'Écosystème <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">Fermé</span> Emiid
           </h2>
           <p className="text-lg text-gray-600 dark:text-gray-400">
-            Il existe un réseau caché où les investisseurs et les leaders échangent hors de la vue du grand public. Les 1 000 premiers inscrits reçoivent la clé d'or pour y accéder à vie.
+            Il existe un réseau caché où les entreprises et les leaders échangent hors de la vue du grand public. Les 1 000 premiers inscrits reçoivent la clé d'or pour y accéder à vie.
           </p>
         </div>
 

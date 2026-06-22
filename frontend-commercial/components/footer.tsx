@@ -21,19 +21,14 @@ export function Footer() {
         <div className="xl:grid xl:grid-cols-3 xl:gap-8">
           {/* Logo et description */}
           <div className="space-y-6">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/5 border border-white/10 text-white overflow-hidden shrink-0">
-                <Image
-                  src="/logo/icon.svg"
-                  alt="EmiID"
-                  width={20}
-                  height={20}
-                  className="object-contain"
-                />
-              </div>
-              <span className="text-lg font-bold tracking-tight text-white">
-                emiid
-              </span>
+            <Link href="/" className="flex items-center group">
+              <Image
+                src="/logo/logo-emiid-light.png"
+                alt="EmiID"
+                width={110}
+                height={30}
+                className="h-8 w-auto object-contain group-hover:scale-105 transition-all duration-300 shrink-0"
+              />
             </Link>
             <p className="text-sm leading-6 max-w-xs">
               L'empreinte numérique des professionnels africains. Valorisez vos expertises, développez votre réseau, et saisissez de nouvelles opportunités.

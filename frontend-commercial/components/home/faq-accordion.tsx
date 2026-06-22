@@ -27,12 +27,12 @@ const categories: Category[] = [
       {
         question: "Qu'est-ce qu'Emiid exactement ?",
         answer:
-          "Emiid est la première plateforme africaine de profils professionnels certifiés. Concrètement, c'est l'endroit où vous créez une carte d'identité professionnelle en ligne — validée par vos pairs, visible par les recruteurs, investisseurs et partenaires d'affaires. Contrairement aux réseaux généralistes, Emiid est conçu pour valoriser aussi bien le développeur senior que l'artisan talentueux ou le fondateur de startup, en tenant compte des réalités économiques et technologiques du continent.",
+          "Emiid est la première plateforme africaine de profils professionnels certifiés. Concrètement, c'est l'endroit où vous créez une carte d'identité professionnelle en ligne — validée par vos pairs, visible par les recruteurs, entreprises et partenaires d'affaires. Contrairement aux réseaux généralistes, Emiid est conçu pour valoriser aussi bien le développeur senior que l'artisan talentueux ou le fondateur de startup, en tenant compte des réalités économiques et technologiques du continent.",
       },
       {
         question: "Pour qui est conçu Emiid ?",
         answer:
-          "Emiid s'adresse à trois grandes cibles :\n\n• **Les Talents & Freelancers** — développeurs, designers, artisans, consultants — qui veulent être trouvés et contactés sans passer par des intermédiaires.\n• **Les Fondateurs & Entrepreneurs** — qui cherchent à crédibiliser leur startup, exposer leur vision et attirer des investisseurs ou des talents.\n• **Les Investisseurs & Entreprises** — qui veulent identifier et contacter des profils vérifiés en Afrique, sans friction ni faux comptes.",
+          "Emiid s'adresse à trois grandes cibles :\n\n• **Les Talents & Freelancers** — développeurs, designers, artisans, consultants — qui veulent être trouvés et contactés sans passer par des intermédiaires.\n• **Les Fondateurs & Entrepreneurs** — qui cherchent à crédibiliser leur startup, exposer leur vision et attirer des entreprises ou des talents.\n• **Les Entreprises** — qui veulent identifier et contacter des profils vérifiés en Afrique, sans friction ni faux comptes.",
       },
       {
         question: "En quoi êtes-vous différents de LinkedIn ou WhatsApp Business ?",
@@ -54,12 +54,12 @@ const categories: Category[] = [
       {
         question: "Comment créer mon profil Emiid ?",
         answer:
-          "La création de profil prend moins de 5 minutes en 5 étapes guidées :\n\n1. **Identité** — Photo, nom complet et titre professionnel.\n2. **Expertise** — Votre catégorie (Talent, Fondateur, Investisseur...) et secteur d'activité.\n3. **Histoire** — Votre bio et lien personnalisé (emiid.com/votrenom).\n4. **Localisation** — Pays et ville.\n5. **Compétences** — Tags qui vous rendent trouvable dans l'annuaire.\n\nVous pouvez sauvegarder en cours de route et compléter plus tard. Aucune carte bancaire requise.",
+          "La création de profil prend moins de 5 minutes en 5 étapes guidées :\n\n1. **Identité** — Photo, nom complet et titre professionnel.\n2. **Expertise** — Votre catégorie (Talent, Fondateur, Entreprise...) et secteur d'activité.\n3. **Histoire** — Votre bio et lien personnalisé (emiid.com/votrenom).\n4. **Localisation** — Pays et ville.\n5. **Compétences** — Tags qui vous rendent trouvable dans l'annuaire.\n\nVous pouvez sauvegarder en cours de route et compléter plus tard. Aucune carte bancaire requise.",
       },
       {
         question: "Quel type de profil dois-je choisir ?",
         answer:
-          "Lors de la création, vous sélectionnez votre catégorie principale :\n\n• **Talent** : développeur, designer, comptable, juriste, artisan, prestataire de service.\n• **Fondateur** : vous avez lancé ou co-fondé une startup, une entreprise, une association.\n• **Investisseur** : vous investissez, accompagnez ou financez des projets (business angels, fonds, VC).\n• **Recruteur / Entreprise** : vous cherchez à embaucher ou à sous-traiter.\n\nVous pouvez compléter avec plusieurs secteurs d'activité. Le profil reste modifiable à tout moment.",
+          "Lors de la création, vous sélectionnez votre catégorie principale :\n\n• **Talent** : développeur, designer, comptable, juriste, artisan, prestataire de service.\n• **Fondateur** : vous avez lancé ou co-fondé une startup, une entreprise, une association.\n• **Entreprise** : vous investissez, accompagnez ou financez des projets (business angels, fonds, VC), ou recrutez des profils.\n• **Recruteur / Entreprise** : vous cherchez à embaucher ou à sous-traiter.\n\nVous pouvez compléter avec plusieurs secteurs d'activité. Le profil reste modifiable à tout moment.",
       },
       {
         question: "Comment personnaliser mon lien de profil ?",

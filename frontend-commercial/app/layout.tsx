@@ -20,6 +20,7 @@ const plusJakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://emiid.com"),
   title: "Emiid - Votre empreinte numérique professionnelle",
   description: "L'annuaire de référence pour les acteurs de l'écosystème africain.",
   openGraph: {
@@ -27,12 +28,39 @@ export const metadata: Metadata = {
     description: "Rejoignez l'annuaire Emiid pour augmenter votre visibilité et développer votre réseau.",
     url: "https://emiid.com",
     siteName: "Emiid",
+    locale: "fr_FR",
     type: "website",
+    images: [
+      {
+        url: "/logo/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Emiid - Votre empreinte numérique professionnelle",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Emiid - Votre empreinte numérique",
     description: "L'annuaire de référence pour les acteurs de l'écosystème africain.",
+    images: ["/logo/og-image.png"],
+  },
+  icons: {
+    icon: [
+      {
+        url: "/logo/icon-light-32x32.png",
+        media: "(prefers-color-scheme: light)",
+      },
+      {
+        url: "/logo/icon-dark-32x32.png",
+        media: "(prefers-color-scheme: dark)",
+      },
+      {
+        url: "/logo/icon.svg",
+        type: "image/svg+xml",
+      },
+    ],
+    apple: "/logo/apple-icon.png",
   },
 };
 

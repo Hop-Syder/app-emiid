@@ -120,3 +120,6 @@
 - [2026-06-22] Annuaire : Remplacement de la recherche de profil classique par une palette de commande (Cmd+K) avec filtres intégrés (type de profil et 12 secteurs d'activité). Ajout de la logique de filtrage par membres vérifiés (`onlyVerified`) au backend.
 - [2026-06-22] Annuaire : Suppression de la statistique "Premium" du bloc d'informations de l'entête.
 - [2026-06-22] Navigation : Augmentation de la taille de l'icône de notification dans le menu mobile (`size-3.5` -> `size-4.5`).
+- [2026-06-22] Logo & SEO : Intégration du logo dynamique dans le header (`logo-emiid-light.png` en mode sombre / `logo-emiid-dark.png` en mode clair) et le footer (`logo-emiid-light.png`) du site commercial. Configuration complète des icônes d'application, metadataBase et images OpenGraph / Twitter Cards dans le layout SEO.
+- [2026-06-22] Contenu commercial & Catégories : Remplacement du badge de lancement du Hero par un badge de recommandation étoilé. Conversion des mentions et filtres de profil 'Investisseur' en 'Entreprise / Investisseur' (frontend-user) ou 'Entreprise' (site commercial).
+- [2026-06-22] Thème Menu : Changement dynamique de la couleur du texte 'EmiID' dans les barres latérales desktop (`desktop-sidebar-auth` et `desktop-sidebar-guest`) : bleu (`text-blue-500`) de jour, blanc (`dark:text-white`) de nuit.
