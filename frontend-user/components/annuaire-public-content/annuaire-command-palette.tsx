@@ -1,8 +1,8 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Palette de commande (Cmd+K) de l'Annuaire — Recherche + 2 filtres :
- *              Type de profil (10 catégories) et Secteur d'activité.
+ * @description Palette de commande (Cmd+K) de l'Annuaire — design clair "brand", lisible.
+ *              Recherche + 2 filtres : Type de profil (10 catégories) et Secteur d'activité.
  * @created 2026-06-22
  * @updated 2026-06-22
  * 🌐 ceo.nexuspartners.xyz
@@ -33,6 +33,7 @@ import {
   TrendingUp,
   Landmark,
   Users,
+  Check,
 } from "lucide-react"
 import {
   CommandDialog,
@@ -55,41 +56,52 @@ interface AnnuaireCommandPaletteProps {
   onFilterChange: (key: string, value: string) => void
 }
 
+interface Option {
+  id: string
+  label: string
+  icon: React.ComponentType<{ className?: string }>
+  color: string // classe text-* pour l'icône (lisible sur fond clair)
+  chip: string // classe bg-* douce pour la pastille
+}
+
 // ─── Filtre 1 : Type de profil (les 10 catégories — alignées sur creer-profil) ──
-const PROFILE_TYPES = [
-  { id: "all", label: "Tous les profils", icon: Users, tone: "bg-slate-500/20 text-slate-300" },
-  { id: "artisan", label: "Artisan", icon: Hammer, tone: "bg-amber-500/20 text-amber-400" },
-  { id: "commerçante", label: "Commerçant(e)", icon: Store, tone: "bg-orange-500/20 text-orange-400" },
-  { id: "freelance", label: "Freelance", icon: Laptop, tone: "bg-blue-500/20 text-blue-400" },
-  { id: "entreprise", label: "Entreprise", icon: Building2, tone: "bg-indigo-500/20 text-indigo-400" },
-  { id: "agence", label: "Agence", icon: Megaphone, tone: "bg-fuchsia-500/20 text-fuchsia-400" },
-  { id: "startup", label: "Startup", icon: Rocket, tone: "bg-violet-500/20 text-violet-400" },
-  { id: "ong", label: "ONG / Association", icon: HeartHandshake, tone: "bg-rose-500/20 text-rose-400" },
-  { id: "investisseur", label: "Investisseur", icon: TrendingUp, tone: "bg-emerald-500/20 text-emerald-400" },
-  { id: "institution", label: "Institution Publique", icon: Landmark, tone: "bg-cyan-500/20 text-cyan-400" },
-  { id: "etudiant", label: "Étudiant / Junior", icon: GraduationCap, tone: "bg-teal-500/20 text-teal-400" },
+const PROFILE_TYPES: Option[] = [
+  { id: "all", label: "Tous les profils", icon: Users, color: "text-slate-500", chip: "bg-slate-100" },
+  { id: "artisan", label: "Artisan", icon: Hammer, color: "text-amber-600", chip: "bg-amber-50" },
+  { id: "commerçante", label: "Commerçant(e)", icon: Store, color: "text-orange-600", chip: "bg-orange-50" },
+  { id: "freelance", label: "Freelance", icon: Laptop, color: "text-blue-600", chip: "bg-blue-50" },
+  { id: "entreprise", label: "Entreprise", icon: Building2, color: "text-indigo-600", chip: "bg-indigo-50" },
+  { id: "agence", label: "Agence", icon: Megaphone, color: "text-fuchsia-600", chip: "bg-fuchsia-50" },
+  { id: "startup", label: "Startup", icon: Rocket, color: "text-violet-600", chip: "bg-violet-50" },
+  { id: "ong", label: "ONG / Association", icon: HeartHandshake, color: "text-rose-600", chip: "bg-rose-50" },
+  { id: "investisseur", label: "Investisseur", icon: TrendingUp, color: "text-emerald-600", chip: "bg-emerald-50" },
+  { id: "institution", label: "Institution Publique", icon: Landmark, color: "text-cyan-600", chip: "bg-cyan-50" },
+  { id: "etudiant", label: "Étudiant / Junior", icon: GraduationCap, color: "text-teal-600", chip: "bg-teal-50" },
 ]
 
 // ─── Filtre 2 : Secteur d'activité (alignés sur les valeurs BDD) ────────────────
-const SECTORS = [
-  { id: "tech", label: "Tech & Digital", icon: Laptop },
-  { id: "agro", label: "Agroalimentaire", icon: Leaf },
-  { id: "btp", label: "BTP & Construction", icon: HardHat },
-  { id: "finance", label: "Finance & Assurance", icon: LineChart },
-  { id: "sante", label: "Santé & Bien-être", icon: HeartPulse },
-  { id: "education", label: "Éducation & Formation", icon: GraduationCap },
-  { id: "creatif", label: "Arts & Créativité", icon: Palette },
-  { id: "commerce", label: "Commerce & Distribution", icon: Store },
-  { id: "transport", label: "Transport & Logistique", icon: Truck },
-  { id: "tourisme", label: "Tourisme & Hôtellerie", icon: Palmtree },
-  { id: "energie", label: "Énergie & Environnement", icon: Lightbulb },
-  { id: "b2b", label: "Services B2B", icon: Briefcase },
+const SECTORS: Option[] = [
+  { id: "all", label: "Tous les secteurs", icon: Users, color: "text-slate-500", chip: "bg-slate-100" },
+  { id: "tech", label: "Tech & Digital", icon: Laptop, color: "text-blue-600", chip: "bg-blue-50" },
+  { id: "agro", label: "Agroalimentaire", icon: Leaf, color: "text-green-600", chip: "bg-green-50" },
+  { id: "btp", label: "BTP & Construction", icon: HardHat, color: "text-amber-600", chip: "bg-amber-50" },
+  { id: "finance", label: "Finance & Assurance", icon: LineChart, color: "text-indigo-600", chip: "bg-indigo-50" },
+  { id: "sante", label: "Santé & Bien-être", icon: HeartPulse, color: "text-rose-600", chip: "bg-rose-50" },
+  { id: "education", label: "Éducation & Formation", icon: GraduationCap, color: "text-violet-600", chip: "bg-violet-50" },
+  { id: "creatif", label: "Arts & Créativité", icon: Palette, color: "text-fuchsia-600", chip: "bg-fuchsia-50" },
+  { id: "commerce", label: "Commerce & Distribution", icon: Store, color: "text-orange-600", chip: "bg-orange-50" },
+  { id: "transport", label: "Transport & Logistique", icon: Truck, color: "text-slate-600", chip: "bg-slate-100" },
+  { id: "tourisme", label: "Tourisme & Hôtellerie", icon: Palmtree, color: "text-teal-600", chip: "bg-teal-50" },
+  { id: "energie", label: "Énergie & Environnement", icon: Lightbulb, color: "text-yellow-600", chip: "bg-yellow-50" },
+  { id: "b2b", label: "Services B2B", icon: Briefcase, color: "text-cyan-600", chip: "bg-cyan-50" },
 ]
 
+// État sélectionné cmdk (clavier/survol) → fond clair + texte foncé (toujours lisible).
+// État ACTIF (filtre appliqué) → teinte "brand" navy + texte navy.
 const itemClass = (isActive: boolean) =>
-  `data-[selected=true]:bg-white/10 data-[selected=true]:text-white text-slate-300 rounded-xl transition-all cursor-pointer py-2.5 my-0.5 mx-1 flex items-center ${
-    isActive ? "bg-white/5 border border-white/10 text-white" : "border border-transparent"
-  }`
+  `group rounded-xl my-0.5 mx-1 px-2.5 py-2.5 flex items-center gap-3 cursor-pointer transition-colors
+   data-[selected=true]:bg-slate-100 data-[selected=true]:text-slate-900
+   ${isActive ? "bg-[#022753]/[0.06] text-[#022753] ring-1 ring-[#022753]/15" : "text-slate-700"}`
 
 export function AnnuaireCommandPalette({ open, setOpen, filters, onFilterChange }: AnnuaireCommandPaletteProps) {
   const [inputValue, setInputValue] = React.useState(filters.search)
@@ -98,115 +110,94 @@ export function AnnuaireCommandPalette({ open, setOpen, filters, onFilterChange 
     setInputValue(filters.search)
   }, [filters.search])
 
-  const handleSelectProfileType = (id: string) => {
-    onFilterChange("category", id)
-    setOpen(false)
-  }
+  const activeCategory = filters.category || "all"
+  const activeSector = filters.activity_domain || "all"
 
-  const handleSelectSector = (id: string) => {
-    onFilterChange("activity_domain", id)
-    setOpen(false)
+  const renderItem = (opt: Option, group: "category" | "activity_domain", active: string) => {
+    const Icon = opt.icon
+    const isActive = active === opt.id
+    return (
+      <CommandItem
+        key={opt.id}
+        value={`${group} ${opt.label}`}
+        onSelect={() => {
+          onFilterChange(group, opt.id)
+          setOpen(false)
+        }}
+        className={itemClass(isActive)}
+      >
+        <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${opt.chip}`}>
+          <Icon className={`h-4 w-4 ${opt.color}`} />
+        </span>
+        <span className="font-semibold text-sm truncate">{opt.label}</span>
+        {isActive && <Check className="ml-auto h-4 w-4 text-[#022753] shrink-0" strokeWidth={3} />}
+      </CommandItem>
+    )
   }
 
   return (
     <CommandDialog
       open={open}
       onOpenChange={setOpen}
-      className="bg-slate-950/75 backdrop-blur-3xl border border-white/10 shadow-[0_0_80px_-20px_rgba(0,0,0,0.8)] text-slate-100 overflow-hidden sm:max-w-xl"
+      title="Recherche annuaire"
+      description="Rechercher un profil et filtrer par type ou secteur"
+      className="sm:max-w-xl overflow-hidden rounded-3xl border border-slate-200 bg-white/95 backdrop-blur-2xl text-slate-900 shadow-[0_24px_70px_-15px_rgba(2,39,83,0.25)]"
     >
-      <div className="absolute top-0 left-1/4 w-96 h-24 bg-blue-500/10 rounded-full blur-[80px] pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-24 bg-indigo-500/10 rounded-full blur-[80px] pointer-events-none" />
+      {/* Liseré dégradé brand en haut */}
+      <div className="h-1 w-full bg-gradient-to-r from-[#022753] via-indigo-500 to-[#CE1126]" />
 
       <CommandInput
-        placeholder="Rechercher un profil, ou filtrer par type / secteur..."
+        placeholder="Rechercher par nom, métier, compétence…"
         value={inputValue}
         onValueChange={(val) => {
           setInputValue(val)
           onFilterChange("search", val)
         }}
-        className="border-b border-white/10 text-base h-14 text-white placeholder:text-slate-500"
+        className="h-14 text-base text-slate-900 placeholder:text-slate-400"
       />
-      <CommandList className="max-h-[60vh] sm:max-h-[400px] no-scrollbar py-2">
-        <CommandEmpty className="py-8 text-center text-slate-500">
-          <p className="text-sm font-medium">Aucun type de profil ou secteur trouvé.</p>
+
+      <CommandList className="max-h-[62vh] sm:max-h-[420px] no-scrollbar px-1 py-2">
+        <CommandEmpty className="py-10 text-center">
+          <p className="text-sm font-semibold text-slate-500">Aucun type de profil ou secteur trouvé.</p>
+          <p className="text-xs text-slate-400 mt-1">Votre recherche est tout de même appliquée aux résultats.</p>
         </CommandEmpty>
 
         {/* FILTRE 1 — Type de profil */}
         <CommandGroup
           heading={
-            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 px-2">
+            <span className="px-2 text-[10px] font-black uppercase tracking-widest text-slate-400">
               Type de profil
             </span>
           }
         >
-          {PROFILE_TYPES.map((p) => {
-            const Icon = p.icon
-            const isActive = (filters.category || "all") === p.id
-            return (
-              <CommandItem
-                key={p.id}
-                value={`type ${p.label}`}
-                onSelect={() => handleSelectProfileType(p.id)}
-                className={itemClass(isActive)}
-              >
-                <div className={`p-1.5 rounded-lg mr-3 ${p.tone}`}>
-                  <Icon className="h-4 w-4" />
-                </div>
-                <span className="font-semibold text-sm">{p.label}</span>
-                {isActive && (
-                  <span className="ml-auto text-xs text-blue-400 font-bold uppercase tracking-wider">Actif</span>
-                )}
-              </CommandItem>
-            )
-          })}
+          {PROFILE_TYPES.map((opt) => renderItem(opt, "category", activeCategory))}
         </CommandGroup>
 
-        <CommandSeparator className="bg-white/5 my-2" />
+        <CommandSeparator className="bg-slate-200/70 my-2" />
 
         {/* FILTRE 2 — Secteur d'activité */}
         <CommandGroup
           heading={
-            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 px-2">
+            <span className="px-2 text-[10px] font-black uppercase tracking-widest text-slate-400">
               Secteur d&apos;activité
             </span>
           }
         >
-          <CommandItem
-            value="secteur Tous les secteurs"
-            onSelect={() => handleSelectSector("all")}
-            className={itemClass((filters.activity_domain || "all") === "all")}
-          >
-            <div className="p-1.5 rounded-lg bg-slate-500/20 text-slate-300 mr-3">
-              <Users className="h-4 w-4" />
-            </div>
-            <span className="font-semibold text-sm">Tous les secteurs</span>
-            {(filters.activity_domain || "all") === "all" && (
-              <span className="ml-auto text-xs text-blue-400 font-bold uppercase tracking-wider">Actif</span>
-            )}
-          </CommandItem>
-
-          {SECTORS.map((sector) => {
-            const Icon = sector.icon
-            const isActive = filters.activity_domain === sector.id
-            return (
-              <CommandItem
-                key={sector.id}
-                value={`secteur ${sector.label}`}
-                onSelect={() => handleSelectSector(sector.id)}
-                className={itemClass(isActive)}
-              >
-                <div className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400 mr-3">
-                  <Icon className="h-4 w-4" />
-                </div>
-                <span className="font-semibold text-sm">{sector.label}</span>
-                {isActive && (
-                  <span className="ml-auto text-xs text-blue-400 font-bold uppercase tracking-wider">Actif</span>
-                )}
-              </CommandItem>
-            )
-          })}
+          {SECTORS.map((opt) => renderItem(opt, "activity_domain", activeSector))}
         </CommandGroup>
       </CommandList>
+
+      {/* Pied de page : raccourci */}
+      <div className="flex items-center justify-between border-t border-slate-100 px-4 py-2.5 text-[11px] font-medium text-slate-400">
+        <span className="flex items-center gap-1.5">
+          <kbd className="inline-flex h-5 items-center rounded border border-slate-200 bg-slate-50 px-1.5 font-sans font-bold text-slate-500">↵</kbd>
+          pour sélectionner
+        </span>
+        <span className="flex items-center gap-1.5">
+          <kbd className="inline-flex h-5 items-center rounded border border-slate-200 bg-slate-50 px-1.5 font-sans font-bold text-slate-500">Esc</kbd>
+          pour fermer
+        </span>
+      </div>
     </CommandDialog>
   )
 }
