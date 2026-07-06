@@ -52,8 +52,11 @@ export function useNotifications() {
         
         if (senderIds.length === 0) return notifs
 
+        // On lit la VUE public_profiles : la RLS de user_profiles ne permet que
+        // sa propre ligne, donc lire les profils des EXPÉDITEURS (autres users)
+        // y échouait → l'enrichissement nom/avatar des notifications était vide.
         const { data: profiles } = await supabase
-            .from('user_profiles')
+            .from('public_profiles')
             .select('user_id, first_name, last_name, avatar_url, slug')
             .in('user_id', senderIds)
 
@@ -67,7 +70,7 @@ export function useNotifications() {
                 return {
                     ...notif,
                     sender: {
-                        id: profile.user_id,
+                        id: notif.sender_id,
                         first_name: profile.first_name,
                         last_name: profile.last_name,
                         avatar_url: profile.avatar_url,
