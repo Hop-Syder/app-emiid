@@ -1,11 +1,21 @@
--- ════════════════════════════════════════════════════════════════════
--- SCRIPT COMBINÉ DE DÉPLOIEMENT — EmiID — 2026-06-21
--- À exécuter UNE FOIS dans le SQL Editor Supabase (prod).
--- Contient : C1 (is_admin) · H1 (public_profiles sans contact + RPC) · M3 (search_path).
--- Idempotent et ré-exécutable. Pas de transaction globale : chaque bloc s'applique
--- indépendamment (un souci sur M3 n'annule pas C1/H1).
--- ════════════════════════════════════════════════════════════════════
+-- ════════════════════════════════════════════════════════════════════════
+-- 🗄️  EmiID — SCRIPT SQL CONSOLIDÉ (état cible de la base)
+-- ════════════════════════════════════════════════════════════════════════
+-- À exécuter dans le SQL Editor Supabase. 100% IDEMPOTENT & ré-exécutable.
+--
+--   BLOC 1  C1  — séparation rôle métier / is_admin        [déjà appliqué 21/06]
+--   BLOC 2  H1  — public_profiles sans contact + RPC        [déjà appliqué 21/06]
+--   BLOC 3  M3  — search_path SECURITY DEFINER (tolérant)   [déjà appliqué 21/06]
+--   BLOC 4  R4  — slug auto (handle_new_user) + backfill    [⚠️ NOUVEAU — à appliquer]
+--
+-- Ré-exécuter les blocs 1-3 est sans effet de bord (IF NOT EXISTS / CREATE OR
+-- REPLACE / ALTER idempotents). Si tu es sûr que 1-3 sont passés, tu peux ne
+-- lancer que le BLOC 4 ci-dessous.
+-- ════════════════════════════════════════════════════════════════════════
 
+-- ╔══════════════════════════════════════════════════════════════════════╗
+-- ║  BLOCS 1-3 (C1 + H1 + M3) — déjà en prod, ré-exécutables               ║
+-- ╚══════════════════════════════════════════════════════════════════════╝
 -- ═══════════════ BLOC 1 : C1 — séparation rôle métier / is_admin ═══════════════
 -- /**
 --  * @author @hopsyder
@@ -24,10 +34,11 @@
 ALTER TABLE public.user_profiles
     ADD COLUMN IF NOT EXISTS is_admin BOOLEAN NOT NULL DEFAULT FALSE;
 
--- 2. Reprise (grandfathering) des admins existants identifiés par l'ancien mécanisme.
---    ⚠️ À AUDITER MANUELLEMENT : vérifier que cette liste ne contient que de vrais admins.
---    Lancer d'abord le SELECT pour inspecter, puis l'UPDATE.
---    SELECT user_id, email, role FROM public.user_profiles WHERE role ILIKE '%admin%';
+-- 2. Reprise (grandfathering) des admins existants — UNIQUEMENT au 1er passage.
+--    ⚠️ SÉCURITÉ : le garde `AND NOT EXISTS (... is_admin = TRUE)` empêche toute
+--    ré-exécution d'accorder is_admin à un utilisateur dont le MÉTIER contient
+--    « admin ». Une fois qu'au moins un admin existe, cet UPDATE est un no-op.
+--    À AUDITER après coup : SELECT user_id, email, role FROM public.user_profiles WHERE is_admin = TRUE;
 UPDATE public.user_profiles
 SET is_admin = TRUE
 WHERE role ILIKE '%admin%'
@@ -165,3 +176,58 @@ DO $$ BEGIN ALTER FUNCTION public.handle_new_user_notification_prefs() SET searc
 EXCEPTION WHEN undefined_function THEN RAISE NOTICE 'skip: public.handle_new_user_notification_prefs() absente'; END $$;
 
 SELECT '✅ Déploiement SQL combiné (C1 + H1 + M3) appliqué.' AS status;
+
+-- ╔══════════════════════════════════════════════════════════════════════╗
+-- ║  BLOC 4 (R4) — slug auto + forçage complétion — ⚠️ NOUVEAU              ║
+-- ╚══════════════════════════════════════════════════════════════════════╝
+
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    v_first text;
+    v_base  text;
+    v_slug  text;
+BEGIN
+    v_first := COALESCE(
+        NEW.raw_user_meta_data->>'first_name',
+        split_part(NEW.raw_user_meta_data->>'full_name', ' ', 1),
+        'membre'
+    );
+
+    -- Slugify basique : minuscules, tout caractère non alphanumérique → tiret.
+    v_base := trim(both '-' from lower(regexp_replace(v_first, '[^a-zA-Z0-9]+', '-', 'g')));
+    IF v_base IS NULL OR v_base = '' THEN
+        v_base := 'membre';
+    END IF;
+
+    -- Suffixe déterministe issu de l'UUID → unicité de fait (pas d'échec de trigger).
+    v_slug := v_base || '-' || substr(md5(NEW.id::text), 1, 8);
+
+    INSERT INTO public.user_profiles (user_id, first_name, last_name, email, avatar_url, role, slug)
+    VALUES (
+        NEW.id,
+        COALESCE(NEW.raw_user_meta_data->>'first_name', split_part(NEW.raw_user_meta_data->>'full_name', ' ', 1), 'Utilisateur'),
+        COALESCE(NEW.raw_user_meta_data->>'last_name', ''),
+        NEW.email,
+        COALESCE(NEW.raw_user_meta_data->>'avatar_url', NEW.raw_user_meta_data->>'picture'),
+        '',
+        v_slug
+    ) ON CONFLICT (user_id) DO NOTHING;
+
+    RETURN NEW;
+END;
+$$;
+
+-- Backfill : donner un slug aux profils existants qui n'en ont pas.
+UPDATE public.user_profiles up
+SET slug = COALESCE(
+        NULLIF(trim(both '-' from lower(regexp_replace(up.first_name, '[^a-zA-Z0-9]+', '-', 'g'))), ''),
+        'membre'
+    ) || '-' || substr(md5(up.user_id::text), 1, 8)
+WHERE up.slug IS NULL OR up.slug = '';
+
+SELECT '✅ R4 : slug auto activé dans handle_new_user + backfill effectué.' AS status;

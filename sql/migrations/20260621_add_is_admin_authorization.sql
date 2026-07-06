@@ -21,7 +21,8 @@ ALTER TABLE public.user_profiles
 --    SELECT user_id, email, role FROM public.user_profiles WHERE role ILIKE '%admin%';
 UPDATE public.user_profiles
 SET is_admin = TRUE
-WHERE role ILIKE '%admin%';
+WHERE role ILIKE '%admin%'
+  AND NOT EXISTS (SELECT 1 FROM public.user_profiles WHERE is_admin = TRUE);
 
 -- 3. (Optionnel) Index partiel pour accélérer les vérifications de droits admin.
 CREATE INDEX IF NOT EXISTS idx_user_profiles_is_admin

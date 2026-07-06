@@ -155,7 +155,8 @@ export function OnboardingFlow() {
     } catch {
       // Non bloquant — on redirige quoi qu'il arrive.
     } finally {
-      router.replace("/dashboard-user")
+      // Funnel R4 : après l'intro, on amène l'utilisateur à créer/publier son profil.
+      router.replace("/creer-profil")
     }
   }
 
@@ -234,7 +235,7 @@ export function OnboardingFlow() {
         {/* Skip */}
         {!isLast && (
           <button
-            onClick={() => router.replace("/dashboard-user")}
+            onClick={() => router.replace("/creer-profil")}
             className="text-[10px] text-slate-600 hover:text-slate-400 font-medium transition-colors tracking-wide uppercase"
           >
             Passer l&apos;introduction
