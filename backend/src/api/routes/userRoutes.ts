@@ -32,6 +32,7 @@ import {
   verifyPhoneSchema,
   updateFollowNoteSchema,
 } from '../validations/userValidations';
+import { pinLimiter, phoneVerificationLimiter, phoneVerifyLimiter } from '../../middlewares/rateLimiter';
 
 const router = Router();
 
@@ -60,7 +61,7 @@ router.delete('/account', deleteMyAccount);
 
 // @route   POST /api/users/verify-pin
 // @desc    Vérifier le code PIN
-router.post('/verify-pin', verifyPin);
+router.post('/verify-pin', pinLimiter, verifyPin);
 
 // @route   POST /api/users/reset-pin
 // @desc    Réinitialiser le code PIN (après vérification d'identité par OTP email)
@@ -86,11 +87,11 @@ router.put('/follow/:id/note', updateFollowNote);
 
 // @route   POST /api/users/phone/request
 // @desc    Demander un code OTP par WhatsApp ou SMS
-router.post('/phone/request', requestPhoneVerification);
+router.post('/phone/request', phoneVerificationLimiter, requestPhoneVerification);
 
 // @route   POST /api/users/phone/verify
 // @desc    Vérifier le code OTP
-router.post('/phone/verify', verifyPhone);
+router.post('/phone/verify', phoneVerifyLimiter, verifyPhone);
 
 // @route   POST /api/users/:id/unlock-pin
 // @desc    Débloquer le PIN d'un utilisateur (Admin seulement)

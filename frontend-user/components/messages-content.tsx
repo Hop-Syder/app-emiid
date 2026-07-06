@@ -10,7 +10,7 @@
 
 "use client"
 
-import { useState, useEffect, useCallback, useMemo } from "react"
+import { useState, useEffect, useCallback, useMemo, useRef } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { ArrowLeft, MoreHorizontal, Gavel, Trash2, MessageSquare, Search, X } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -239,6 +239,30 @@ export function MessagesContent() {
       setMessages((prev) => prev.filter((m) => m.id !== deletedMsgId))
     },
   })
+
+  // --- Rattrapage à la (re)connexion Realtime ---
+  // Le stream postgres_changes ne rejoue PAS les messages reçus pendant une coupure.
+  // Sur transition déconnecté → reconnecté, on resynchronise la liste + la conversation
+  // active pour ne rien perdre (chat "WhatsApp-like").
+  const selectedConvIdRef = useRef<string | null>(null)
+  useEffect(() => { selectedConvIdRef.current = selectedConv?.id ?? null }, [selectedConv?.id])
+
+  const hasConnectedRef = useRef(false)
+  useEffect(() => {
+    if (!realtime.realtimeConnected) return
+    if (!hasConnectedRef.current) {
+      hasConnectedRef.current = true // 1re connexion : rien à rattraper
+      return
+    }
+    // Reconnexion → resynchronisation.
+    fetchConversations().then((data) => setConversations(data)).catch(() => {})
+    const convId = selectedConvIdRef.current
+    if (convId && !convId.startsWith("new-")) {
+      fetchConversationMessages(convId)
+        .then((data) => { setMessages(data); markMessagesAsRead(convId) })
+        .catch(() => {})
+    }
+  }, [realtime.realtimeConnected, markMessagesAsRead])
 
   const handleRequestMediation = async (reason: string) => {
     if (!selectedConv) return

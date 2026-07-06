@@ -269,61 +269,29 @@ export const updateMyProfile = async (req: any, res: Response) => {
                 logger.error('Erreur lors de la suppression des anciennes liaisons profile_tags:', deleteError);
             }
             
-            // Filtrer pour éliminer les doublons éventuels du tableau
-            const uniqueTags = Array.from(new Set(tags));
-            
-            for (const tagName of uniqueTags) {
-                const cleanTag = tagName.toLowerCase().trim();
-                if (cleanTag) {
-                    // Étape 1 : Récupérer le tag s'il existe déjà
-                    const { data: existingTag, error: selectError } = await supabaseAdmin
-                        .from('tags')
-                        .select('id')
-                        .eq('name', cleanTag)
-                        .maybeSingle();
+            // Normaliser + dédupliquer.
+            const cleanTags = Array.from(new Set(
+                (tags as string[]).map((t) => t.toLowerCase().trim()).filter(Boolean)
+            ));
 
-                    let finalTagId = existingTag?.id;
+            if (cleanTags.length > 0) {
+                // Upsert BATCH : une seule requête. ON CONFLICT(name) gère la concurrence
+                // au niveau BDD (fini la boucle N+1 select-then-insert + retry 23505).
+                const { data: tagRows, error: upsertError } = await supabaseAdmin
+                    .from('tags')
+                    .upsert(cleanTags.map((name) => ({ name })), { onConflict: 'name' })
+                    .select('id');
 
-                    if (selectError) {
-                        logger.error(`Erreur lors de la recherche du tag "${cleanTag}":`, selectError);
-                    }
+                if (upsertError) {
+                    logger.error('Erreur lors de l\'upsert batch des tags:', upsertError);
+                } else if (tagRows && tagRows.length > 0) {
+                    // Liaison BATCH profile_tags (une seule requête).
+                    const { error: linkError } = await supabaseAdmin
+                        .from('profile_tags')
+                        .insert(tagRows.map((t) => ({ profile_id: profileId, tag_id: t.id })));
 
-                    // Étape 2 : Si le tag n'existe pas, on tente de l'insérer
-                    if (!finalTagId) {
-                        const { data: newTag, error: insertError } = await supabaseAdmin
-                            .from('tags')
-                            .insert({ name: cleanTag })
-                            .select('id')
-                            .maybeSingle();
-
-                        finalTagId = newTag?.id;
-
-                        // Étape 3 : Si conflit d'unicité concurrent (insertError de type duplicate key), on ré-essaie de le lire
-                        if (insertError) {
-                            if (insertError.code === '23505') {
-                                const { data: retryTag } = await supabaseAdmin
-                                    .from('tags')
-                                    .select('id')
-                                    .eq('name', cleanTag)
-                                    .maybeSingle();
-                                finalTagId = retryTag?.id;
-                            } else {
-                                logger.error(`Erreur d'insertion du tag "${cleanTag}":`, insertError);
-                            }
-                        }
-                    }
-
-                    // Étape 4 : Lier le tag au profil (un simple insert est suffisant et beaucoup plus robuste)
-                    if (finalTagId) {
-                        const { error: ptError } = await supabaseAdmin
-                            .from('profile_tags')
-                            .insert({ profile_id: profileId, tag_id: finalTagId });
-                        
-                        if (ptError) {
-                            logger.error(`Erreur lors de la liaison du tag "${cleanTag}" (ID: ${finalTagId}) au profil (ID: ${profileId}):`, ptError);
-                        }
-                    } else {
-                        logger.error(`Impossible d'obtenir un ID de tag valide pour "${cleanTag}"`);
+                    if (linkError) {
+                        logger.error(`Erreur lors de la liaison batch des tags au profil (ID: ${profileId}):`, linkError);
                     }
                 }
             }
