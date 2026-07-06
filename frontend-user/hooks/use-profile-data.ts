@@ -102,6 +102,7 @@ export function useProfileData(profileId: string) {
                 let data: ProfileQueryResult | null = null
                 let error: unknown = null
 
+                // eslint-disable-next-line no-restricted-syntax -- tentative authentifiée (SON profil) ; fallback RPC get_public_profile pour l'anonyme/cross-user
                 let query = supabase
                     .from("user_profiles")
                     .select("id, user_id, first_name, last_name, bio, city, avatar_url, cover_url, specialty, category, slug, is_published, is_verified, is_premium, followers_count, created_at, email, phone, website, role, countries(name), profile_tags(tags(name))")

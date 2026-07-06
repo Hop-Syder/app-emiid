@@ -140,7 +140,8 @@ export const updateMyProfile = async (req: any, res: Response) => {
       role, specialty, category, activity_domain,
       country_id, country_code, country_name, city,
       job_title, industry, pin_enabled, pin_code,
-      phone, website, is_published, tags, card_variant, slug
+      phone, website, is_published, tags, card_variant, slug,
+      show_contact
     } = body;
 
     let finalCountryId = country_id;
@@ -220,6 +221,9 @@ export const updateMyProfile = async (req: any, res: Response) => {
 
     // Ajout conditionnel des champs PIN (seulement si présents)
     if (pin_enabled !== undefined) updates.pin_enabled = pin_enabled;
+
+    // R7 — visibilité du contact (opt-in) : uniquement si le champ est fourni.
+    if (show_contact !== undefined) updates.show_contact = show_contact;
 
     // Si un nouveau code PIN est envoyé, on le hashe
     if (pin_code && pin_code.length === 6) {

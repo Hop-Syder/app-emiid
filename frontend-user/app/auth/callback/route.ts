@@ -25,6 +25,7 @@ export async function GET(request: Request) {
 
       // Réinitialisation PIN — chemin spécifique, bypass onboarding
       if (resetPin && user) {
+        // eslint-disable-next-line no-restricted-syntax -- accès authentifié à SA propre ligne (RLS OK)
         await supabase
           .from("user_profiles")
           .update({
@@ -41,6 +42,7 @@ export async function GET(request: Request) {
 
       // Détection nouvel utilisateur : pas de profil ou has_profile = false
       if (user) {
+        // eslint-disable-next-line no-restricted-syntax -- accès authentifié à SA propre ligne (RLS OK)
         const { data: profile } = await supabase
           .from("user_profiles")
           .select("has_profile")

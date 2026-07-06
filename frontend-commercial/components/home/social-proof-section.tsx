@@ -11,7 +11,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion } from "framer-motion"
+import Image from "next/image";
 import { Building2, Users, Handshake, Globe2 } from "lucide-react";
 
 const stats = [
@@ -66,7 +67,7 @@ export function SocialProofSection() {
           >
             {[12, 32, 45, 68, 54].map((avatarId, i) => (
               <div key={i} className="w-14 h-14 rounded-full border-4 border-white dark:border-[#050505] overflow-hidden bg-gray-200 dark:bg-gray-800 shadow-xl relative z-[1] hover:z-10 hover:scale-110 transition-transform duration-300">
-                <img src={`https://i.pravatar.cc/150?img=${avatarId}`} alt="Utilisateur vérifié" className="w-full h-full object-cover" />
+                <Image src={`https://i.pravatar.cc/150?img=${avatarId}`} alt="Utilisateur vérifié" className="w-full h-full object-cover" width={56} height={56} unoptimized />
               </div>
             ))}
             <div className="w-14 h-14 rounded-full border-4 border-white dark:border-[#050505] bg-gray-900/90 dark:bg-white/10 backdrop-blur-md flex items-center justify-center text-xs font-extrabold text-white z-[2] shadow-xl">

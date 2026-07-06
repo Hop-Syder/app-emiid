@@ -79,6 +79,7 @@ export const getProfileForRequest = cache(async (idOrSlug: string) => {
     
     if (user) {
         // Si utilisateur connecté, on tente la table privée user_profiles
+        // eslint-disable-next-line no-restricted-syntax -- gardé par if(user) : lecture authentifiée de SON profil, fallback public_profiles ensuite
         let query = supabase
             .from('user_profiles')
             .select(`

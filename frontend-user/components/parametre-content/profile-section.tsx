@@ -13,6 +13,7 @@ import Image from "next/image"
 import { Mail, Smartphone, User, Shield, MessageSquare, CheckCircle2, AlertCircle, Loader2 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { Switch } from "@/components/ui/switch"
 import { AvatarUpload } from "@/components/AvatarUpload"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { toast } from "sonner"
@@ -358,6 +359,23 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
             </button>
           </div>
 
+        </div>
+      </SectionCard>
+
+      {/* ── Confidentialité du contact (R7) ──────────────────────────────────── */}
+      <SectionCard title="Confidentialité">
+        <div className="flex items-center justify-between gap-4">
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-slate-900">Afficher mes coordonnées</p>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Votre email et votre téléphone sont visibles sur votre profil public. Désactivez pour les masquer.
+            </p>
+          </div>
+          <Switch
+            className="shrink-0"
+            checked={profile.show_contact !== false}
+            onCheckedChange={(checked: boolean) => setProfile({ ...profile, show_contact: checked })}
+          />
         </div>
       </SectionCard>
 

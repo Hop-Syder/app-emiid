@@ -31,6 +31,7 @@ import {
   Loader2,
   RefreshCw
 } from "lucide-react"
+import Image from "next/image"
 import { 
   getUsers, 
   updateUserProfile, 
@@ -351,10 +352,13 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
                 <div className="col-span-3 flex items-center gap-3">
                   <div className="relative">
                     {user.avatar_url ? (
-                      <img
+                      <Image
                         src={user.avatar_url}
                         alt={`${user.first_name} ${user.last_name}`}
                         className="w-10 h-10 rounded-xl object-cover"
+                        width={40}
+                        height={40}
+                        unoptimized
                       />
                     ) : (
                       <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-violet-500 rounded-xl flex items-center justify-center text-white text-xs font-bold">
@@ -534,10 +538,13 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
                   <div className="flex items-center gap-4">
                     <div className="relative">
                       {selectedUser.avatar_url ? (
-                        <img
+                        <Image
                           src={selectedUser.avatar_url}
                           alt={`${selectedUser.first_name} ${selectedUser.last_name}`}
                           className="w-16 h-16 rounded-2xl object-cover"
+                          width={64}
+                          height={64}
+                          unoptimized
                         />
                       ) : (
                         <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-violet-500 rounded-2xl flex items-center justify-center text-white text-xl font-bold">

@@ -52,7 +52,7 @@ export function ParametresContent() {
     avatar_url: "", category: "Artisan", role: "", specialty: "",
     activity_domain: "", country_id: "", country_code: "", country_name: "",
     city: "", pin_enabled: false, phone: "", is_published: false,
-    is_verified: false, is_premium: false,
+    is_verified: false, is_premium: false, show_contact: true,
   })
 
   const supabase = createClient()
@@ -90,6 +90,7 @@ export function ParametresContent() {
           is_published:    data.is_published   || false,
           is_verified:     data.is_verified    || false,
           is_premium:      data.is_premium     || false,
+          show_contact:    data.show_contact ?? true,
         })
         setNotificationSettings({ ...defaultNotificationSettings, ...(data.notification_preferences || {}) })
         setPreferences({

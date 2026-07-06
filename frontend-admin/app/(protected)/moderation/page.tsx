@@ -3,6 +3,7 @@
  */
 
 import Link from "next/link"
+import Image from "next/image"
 import {
   CheckCircle2,
   Clock,
@@ -136,7 +137,7 @@ export default async function ModerationHubPage() {
                 <li key={item.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50">
                   <div className="h-12 w-12 rounded-lg bg-slate-100 overflow-hidden flex-shrink-0">
                     {item.image_url ? (
-                      <img src={item.image_url} alt="" className="w-full h-full object-cover" />
+                      <Image src={item.image_url} alt="" className="w-full h-full object-cover" width={48} height={48} unoptimized />
                     ) : (
                       <ImageIcon className="h-5 w-5 text-slate-400 mx-auto mt-3.5" />
                     )}

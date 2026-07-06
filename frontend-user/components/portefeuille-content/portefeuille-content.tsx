@@ -48,6 +48,7 @@ export function PortefeuilleContent() {
       const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
 
       const [profileRes, viewsRes, galleryRes] = await Promise.all([
+        // eslint-disable-next-line no-restricted-syntax -- accès authentifié à SA propre ligne (RLS OK)
         supabase
           .from("user_profiles")
           .select("id, followers_count, is_published")

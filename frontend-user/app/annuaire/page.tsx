@@ -27,6 +27,26 @@ export const metadata: Metadata = {
 
 export const revalidate = 60 // ISR 60s
 
+interface AnnuaireProfileRow {
+    id: string | null
+    user_id: string | null
+    first_name: string | null
+    last_name: string | null
+    slug: string | null
+    role: string | null
+    city: string | null
+    avatar_url: string | null
+    specialty: string | null
+    category: string | null
+    is_verified: boolean | null
+    is_premium: boolean | null
+    followers_count: number | null
+    countries: { name: string; iso_code: string } | { name: string; iso_code: string }[] | null
+    profile_tags?: Array<{
+        tags: { name: string } | null
+    }> | null
+}
+
 async function fetchInitialProfiles(category: string, activityDomain: string) {
     try {
         const supabase = await createClient()
@@ -47,8 +67,23 @@ async function fetchInitialProfiles(category: string, activityDomain: string) {
 
         if (error || !data) return []
 
-        return data.map((e: any) => {
+        const typedData = data as unknown as AnnuaireProfileRow[]
+
+        return typedData.map((e) => {
             const profileId = e.user_id || e.id || "0"
+            const countryInfo = e.countries
+            const countryName = Array.isArray(countryInfo)
+                ? countryInfo[0]?.name
+                : countryInfo?.name
+
+            const locationStr = e.city
+                ? `${e.city}, ${countryName || ""}`
+                : countryName || "Afrique "
+
+            const tagsList = e.profile_tags
+                ? e.profile_tags.map((pt) => pt.tags?.name).filter((name): name is string => typeof name === "string")
+                : []
+
             return {
                 id: profileId,
                 slug: e.slug || undefined,
@@ -56,9 +91,7 @@ async function fetchInitialProfiles(category: string, activityDomain: string) {
                     ? `${e.first_name || ""} ${e.last_name || ""}`.trim()
                     : "Utilisateur EmiID",
                 role: e.role || "Membre EmiID",
-                location: e.city
-                    ? `${e.city}, ${e.countries?.name || ""}`
-                    : e.countries?.name || "Afrique ",
+                location: locationStr,
                 avatar: e.avatar_url || "/profil/avatar.jpg",
                 specialty: e.specialty || "Expertise",
                 category: e.category || "",
@@ -66,7 +99,7 @@ async function fetchInitialProfiles(category: string, activityDomain: string) {
                 premium: !!e.is_premium,
                 followers: e.followers_count || 0,
                 isFollowed: false,
-                tags: e.profile_tags?.map((pt: any) => pt.tags?.name).filter(Boolean) || [],
+                tags: tagsList,
             }
         })
     } catch {

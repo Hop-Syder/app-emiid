@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from "react"
 import { CheckCircle2, Clock, Flag, Image as ImageIcon, Search, Trash2, XCircle, RotateCcw } from "lucide-react"
 import { toast } from "sonner"
+import Image from "next/image"
 import {
   approveGalleryItem,
   rejectGalleryItem,
@@ -166,7 +167,7 @@ export function GalleryModerationClient({ initialItems }: GalleryModerationClien
             >
               <div className="aspect-video bg-slate-100 overflow-hidden flex items-center justify-center">
                 {item.image_url ? (
-                  <img src={item.image_url} alt={item.title || "Projet"} className="w-full h-full object-cover" />
+                  <Image src={item.image_url} alt={item.title || "Projet"} className="w-full h-full object-cover" width={800} height={450} unoptimized />
                 ) : (
                   <ImageIcon className="h-12 w-12 text-slate-300" />
                 )}

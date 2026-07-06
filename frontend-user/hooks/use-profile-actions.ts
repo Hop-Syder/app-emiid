@@ -224,7 +224,7 @@ export function useProfileActions(
 
             const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(filePath)
 
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any, no-restricted-syntax -- update authentifié de SA propre couverture (RLS OK)
             const { error: updateError } = await supabase.from("user_profiles").update({ cover_url: publicUrl } as any).eq("user_id", user.id)
             if (updateError) throw updateError
 

@@ -31,6 +31,13 @@
                     "error"
                 ]
             }
+        ],
+        "no-restricted-syntax": [
+            "warn",
+            {
+                "selector": "CallExpression[callee.property.name='from'][arguments.0.value='user_profiles']",
+                "message": "Lecture de 'user_profiles' : en contexte anonyme ou cross-user, la RLS ne renvoie que sa propre ligne. Utilise la vue 'public_profiles' ou la RPC 'get_public_profile'. Si c'est un accès authentifié à SA PROPRE ligne, ajoute 'eslint-disable-next-line no-restricted-syntax' avec justification."
+            }
         ]
     },
     "ignorePatterns": [
