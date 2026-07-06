@@ -42,7 +42,7 @@ export default function LoginPage() {
         options: { redirectTo: callbackUrl },
       })
       if (error) throw error
-    } catch (e) {
+    } catch {
       setError("Une erreur est survenue. Veuillez réessayer.")
       setLoading(null)
     }

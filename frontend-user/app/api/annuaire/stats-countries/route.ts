@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { errorMessage } from '@/types/supabase-rows'
 
 // Route dépendante des cookies (session Supabase) → toujours dynamique.
 // Évite l'erreur DYNAMIC_SERVER_USAGE au build (tentative de prérendu statique).
@@ -9,6 +10,7 @@ export async function GET() {
     try {
         const supabase = await createClient()
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- RPC non déclarée dans les types Database
         const { data, error } = await (supabase as any)
             .rpc('get_top_countries')
             .limit(8)
@@ -28,8 +30,8 @@ export async function GET() {
         }
 
         return NextResponse.json({ countries: data || [] })
-    } catch (error: any) {
+    } catch (error) {
         console.error('Annuaire stats-countries route error:', error)
-        return NextResponse.json({ error: error.message }, { status: 500 })
+        return NextResponse.json({ error: errorMessage(error) }, { status: 500 })
     }
 }

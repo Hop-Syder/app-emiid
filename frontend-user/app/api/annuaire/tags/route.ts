@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { errorMessage } from '@/types/supabase-rows'
 
 // Route dépendante des cookies (session Supabase) → toujours dynamique.
 // Évite l'erreur DYNAMIC_SERVER_USAGE au build (tentative de prérendu statique).
@@ -20,6 +21,7 @@ export async function GET() {
         // En attendant que la vue ou le RPC soit confirmé, utilisons une requête REST basique 
         // ou RPC générique:
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- RPC non déclarée dans les types Database
         const { data, error } = await (supabase as any)
             .rpc('get_popular_tags')
             .limit(20)
@@ -41,8 +43,8 @@ export async function GET() {
         }
 
         return NextResponse.json({ tags: data || [] })
-    } catch (error: any) {
+    } catch (error) {
         console.error('Annuaire tags route error:', error)
-        return NextResponse.json({ error: error.message }, { status: 500 })
+        return NextResponse.json({ error: errorMessage(error) }, { status: 500 })
     }
 }

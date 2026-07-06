@@ -14,8 +14,6 @@ import { motion } from "framer-motion"
 import { Search } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-const fetcher = (url: string) => fetch(url, { next: { revalidate: 60 } }).then(res => res.json())
-
 interface AnnuaireHeroProps {
     title?: string;
     description?: string;

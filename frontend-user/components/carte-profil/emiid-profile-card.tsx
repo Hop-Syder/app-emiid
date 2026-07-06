@@ -1,6 +1,6 @@
 "use client"
 
-import { Shield, Plus, Check, MessageSquare, ArrowRight, Award } from "lucide-react"
+import { Shield, Plus, Check, MessageSquare, Award } from "lucide-react"
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"

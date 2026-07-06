@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { Hash } from "lucide-react"
 
@@ -51,7 +50,7 @@ export function AnnuaireTags({ filters, onFilterChange }: AnnuaireTagsProps) {
             </div>
             
             <div className="flex flex-wrap gap-2">
-                {tags.map((tag, index) => {
+                {tags.map((tag) => {
                     const isActive = filters.tags === tag.name
                     
                     return (

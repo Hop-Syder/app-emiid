@@ -160,9 +160,9 @@ export function PinGate({ children }: { children: React.ReactNode }) {
             // Succès complet
             sessionStorage.setItem("emiid_pin_verified", "true")
             setRecoveryStep("success")
-        } catch (err: any) {
+        } catch (err) {
             console.error("Erreur détaillée lors de la vérification:", err)
-            setError(`Erreur inattendue: ${err?.message || "Veuillez réessayer."}`)
+            setError(`Erreur inattendue: ${err instanceof Error ? err.message : "Veuillez réessayer."}`)
         } finally {
             setRecoveryLoading(false)
         }

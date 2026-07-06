@@ -41,6 +41,7 @@ export function SmartSelect({ table, label, value, onChange, placeholder }: Smar
         const supabase = createClient()
         const fetchOptions = async () => {
             setLoading(true)
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- nom de table dynamique (prop), non typable statiquement
             const { data } = await (supabase as any)
                 .from(table)
                 .select("name")

@@ -21,6 +21,7 @@ interface AnnuairePublicContentProps {
     initialCategory?: string
     initialActivityDomain?: string
     initialCity?: string
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- profils déjà mappés côté serveur, forme validée par AnnuaireGrid en aval
     initialProfiles?: any[]
 }
 

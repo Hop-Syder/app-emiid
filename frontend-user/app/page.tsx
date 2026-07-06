@@ -18,6 +18,7 @@ import { createClient } from "@/lib/supabase/server";
 import { DashboardPublicContent } from "@/components/dashboard-public-content/dashboard-public-content";
 import type { EntrepreneurProfile } from "@/components/dashboard-public-content/dashboard-public-content";
 import type { DashboardStats } from "@/types";
+import { PublicProfileJoined, countryName, tagNames } from "@/types/supabase-rows";
 
 // Régénération statique incrémentielle toutes les 60 secondes
 export const revalidate = 60;
@@ -88,8 +89,9 @@ async function fetchInitialProfiles(): Promise<EntrepreneurProfile[]> {
 
     if (error || !data) return [];
 
-    return data.map((e: any) => {
+    return (data as unknown as PublicProfileJoined[]).map((e) => {
       const profileId = e.user_id || e.id || "0";
+      const country = countryName(e.countries);
       return {
         id: profileId,
         slug: e.slug || undefined,
@@ -98,8 +100,8 @@ async function fetchInitialProfiles(): Promise<EntrepreneurProfile[]> {
           : "Utilisateur EmiID",
         role: e.role || "Membre EmiID",
         location: e.city
-          ? `${e.city}, ${e.countries?.name || ""}`
-          : e.countries?.name || "Afrique",
+          ? `${e.city}, ${country}`
+          : country || "Afrique",
         avatar: e.avatar_url || "/profil/avatar.jpg",
         specialty: e.specialty || "Expertise",
         category: e.category || "",
@@ -107,7 +109,7 @@ async function fetchInitialProfiles(): Promise<EntrepreneurProfile[]> {
         premium: !!e.is_premium,
         followers: e.followers_count || 0,
         isFollowed: false,
-        tags: e.profile_tags?.map((pt: any) => pt.tags?.name).filter(Boolean) || [],
+        tags: tagNames(e.profile_tags),
       };
     });
   } catch {

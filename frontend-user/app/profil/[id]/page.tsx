@@ -13,6 +13,7 @@ import { cache } from "react"
 import { unstable_cache } from "next/cache"
 import { ProfileDetailContent } from "@/components/profile-detail/profile-detail-content"
 import { createClient } from "@/lib/supabase/server"
+import { PublicProfileJoined, ProfileTagJoin } from "@/types/supabase-rows"
 
 // Sérialise un objet JSON-LD de façon sûre : échappe < et > pour
 // empêcher une injection </script> via le contenu utilisateur.
@@ -75,7 +76,7 @@ export const getProfileForRequest = cache(async (idOrSlug: string) => {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     
-    let data: any = null
+    let data: PublicProfileJoined | null = null
     
     if (user) {
         // Si utilisateur connecté, on tente la table privée user_profiles
@@ -100,13 +101,13 @@ export const getProfileForRequest = cache(async (idOrSlug: string) => {
 
         const { data: userData, error } = await query.maybeSingle()
         if (!error && userData) {
-            data = userData
+            data = userData as unknown as PublicProfileJoined
         }
     }
     
     // Repli sur le cache public si non trouvé dans la table privée
     if (!data) {
-        data = await getCachedPublicProfile(cleanId, isUUID)
+        data = await getCachedPublicProfile(cleanId, isUUID) as unknown as PublicProfileJoined
     }
     
     return data
@@ -124,7 +125,7 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
         }
 
         const fullName = `${data.first_name || ''} ${data.last_name || ''}`.trim()
-        const tagsList = data.profile_tags?.map((pt: any) => pt.tags?.name).filter(Boolean) || []
+        const tagsList = data.profile_tags?.map((pt: ProfileTagJoin) => pt.tags?.name).filter(Boolean) || []
         const seoKeywords = [
             fullName,
             data.specialty,
@@ -170,7 +171,7 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
                 images: [ogImageUrl],
             }
         }
-    } catch (_e) {
+    } catch {
         return {
             title: 'Profil | EmiID'
         }
@@ -183,7 +184,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://app.emiid.com'
     const fullName = data ? `${data.first_name || ''} ${data.last_name || ''}`.trim() : ''
-    const skills: string[] = data?.profile_tags?.map((pt: any) => pt.tags?.name).filter(Boolean) || []
+    const skills: string[] = data?.profile_tags?.map((pt: ProfileTagJoin) => pt.tags?.name).filter((n): n is string => Boolean(n)) || []
 
     const jsonLd = data ? {
         '@context': 'https://schema.org',

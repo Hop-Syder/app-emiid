@@ -10,6 +10,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { PublicProfileJoined, ProfileTagJoin, countryName, errorMessage } from '@/types/supabase-rows'
 
 export async function GET(request: NextRequest) {
     try {
@@ -86,7 +87,7 @@ export async function GET(request: NextRequest) {
                 .ilike('tags.name', `%${tags}%`)
 
             const profileIds = tagData
-                ?.map((item: any) => item.profile_id)
+                ?.map((item: { profile_id: string }) => item.profile_id)
                 .filter(Boolean) || []
 
             if (profileIds.length > 0) {
@@ -115,8 +116,9 @@ export async function GET(request: NextRequest) {
         }
 
         // Transformation format retourné pour le frontend
-        const formattedProfiles = (data || []).map((e: any) => {
+        const formattedProfiles = ((data || []) as unknown as PublicProfileJoined[]).map((e) => {
             const profileId = e.user_id || e.id || "0"
+            const country = countryName(e.countries)
             return {
                 id: profileId,
                 slug: e.slug || undefined,
@@ -126,8 +128,8 @@ export async function GET(request: NextRequest) {
                 role: e.role || "Membre EmiID",
                 job_title: e.job_title || "",
                 location: e.city
-                    ? `${e.city}, ${e.countries?.name || ""}`
-                    : e.countries?.name || "Afrique ",
+                    ? `${e.city}, ${country}`
+                    : country || "Afrique ",
                 avatar: e.avatar_url || "/profil/avatar.jpg",
                 specialty: e.specialty || "Expertise",
                 category: e.category || "",
@@ -135,7 +137,7 @@ export async function GET(request: NextRequest) {
                 premium: !!e.is_premium,
                 followers: e.followers_count || 0,
                 isFollowed: false, // Sera résolu côté client si l'utilisateur est connecté
-                tags: e.profile_tags?.map((pt: any) => pt.tags?.name).filter(Boolean) || [],
+                tags: e.profile_tags?.map((pt: ProfileTagJoin) => pt.tags?.name).filter(Boolean) || [],
             }
         })
 
@@ -144,8 +146,8 @@ export async function GET(request: NextRequest) {
             count: count || 0
         })
 
-    } catch (error: any) {
+    } catch (error) {
         console.error('Annuaire route critical error:', error)
-        return NextResponse.json({ error: error.message }, { status: 500 })
+        return NextResponse.json({ error: errorMessage(error) }, { status: 500 })
     }
 }

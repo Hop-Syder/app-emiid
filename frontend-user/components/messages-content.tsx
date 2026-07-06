@@ -255,12 +255,12 @@ export function MessagesContent() {
       return
     }
     // Reconnexion → resynchronisation.
-    fetchConversations().then((data) => setConversations(data)).catch(() => {})
+    fetchConversations().then((data) => setConversations(data)).catch(() => undefined)
     const convId = selectedConvIdRef.current
     if (convId && !convId.startsWith("new-")) {
       fetchConversationMessages(convId)
         .then((data) => { setMessages(data); markMessagesAsRead(convId) })
-        .catch(() => {})
+        .catch(() => undefined)
     }
   }, [realtime.realtimeConnected, markMessagesAsRead])
 

@@ -1,7 +1,8 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
+import { PublicProfileJoined, ProfileTagJoin, countryName } from "@/types/supabase-rows"
 
-function shuffleArray(array: any[]) {
+function shuffleArray<T>(array: T[]): T[] {
     const newArr = [...array]
     for (let i = newArr.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -10,15 +11,16 @@ function shuffleArray(array: any[]) {
     return newArr;
 }
 
-function mapProfiles(data: any[]) {
-    return data.map((e: any) => {
+function mapProfiles(data: PublicProfileJoined[]) {
+    return data.map((e) => {
         const profileId = e.user_id || e.id || "0"
+        const country = countryName(e.countries)
         return {
             id: profileId,
             slug: e.slug || undefined,
             name: (e.first_name || e.last_name) ? `${e.first_name || ''} ${e.last_name || ''}`.trim() : "Membre EmiID",
             role: e.role || "Professionnel",
-            location: e.city ? `${e.city}, ${e.countries?.name || ''}` : (e.countries?.name || "Afrique"),
+            location: e.city ? `${e.city}, ${country}` : (country || "Afrique"),
             avatar: e.avatar_url || "/profil/avatar.jpg",
             specialty: e.specialty || "Expertise",
             category: e.category || "",
@@ -27,7 +29,7 @@ function mapProfiles(data: any[]) {
             card_variant: e.card_variant || 'glass',
             followers: e.followers_count || 0,
             isFollowed: false,
-            tags: e.profile_tags?.map((pt: any) => pt.tags?.name).filter(Boolean) || []
+            tags: e.profile_tags?.map((pt: ProfileTagJoin) => pt.tags?.name).filter(Boolean) || []
         }
     })
 }
@@ -42,7 +44,7 @@ export async function GET(request: Request) {
         const supabase = await createClient()
         const { data: { user } } = await supabase.auth.getUser()
         
-        let proximityProfiles: any[] = []
+        let proximityProfiles: PublicProfileJoined[] = []
         let actualCountryId = countryId
 
         // Si on a un countryName (GPS), on essaie de trouver son ID dans la base
@@ -68,8 +70,9 @@ export async function GET(request: Request) {
                 .limit(20)
                 
             if (cityData) {
+                const rows = cityData as unknown as PublicProfileJoined[]
                 // Filtrer l'utilisateur lui-même
-                const filtered = user ? cityData.filter(p => p.id !== user.id && p.user_id !== user.id) : cityData
+                const filtered = user ? rows.filter(p => p.id !== user.id && p.user_id !== user.id) : rows
                 proximityProfiles = [...filtered]
             }
         }
@@ -90,7 +93,7 @@ export async function GET(request: Request) {
             
             const { data: countryData } = await query
             if (countryData) {
-                proximityProfiles = [...proximityProfiles, ...countryData]
+                proximityProfiles = [...proximityProfiles, ...(countryData as unknown as PublicProfileJoined[])]
             }
         }
 
@@ -109,7 +112,7 @@ export async function GET(request: Request) {
             }
             
             const { data: fallbackData } = await fallbackQuery
-            if (fallbackData) proximityProfiles = [...proximityProfiles, ...fallbackData]
+            if (fallbackData) proximityProfiles = [...proximityProfiles, ...(fallbackData as unknown as PublicProfileJoined[])]
         }
 
         const finalProfiles = mapProfiles(shuffleArray(proximityProfiles).slice(0, 8))
