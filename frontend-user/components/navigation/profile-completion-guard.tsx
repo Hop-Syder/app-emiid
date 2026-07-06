@@ -21,8 +21,11 @@ export function ProfileCompletionGuard({ children }: { children: React.ReactNode
     const { currentUser } = useCurrentUserProfile()
 
     useEffect(() => {
-        // Pas encore chargé (currentUser null) ou profil déjà publié → rien à forcer.
-        if (!currentUser || currentUser.is_published) return
+        // On ne force la redirection QUE si is_published est explicitement false
+        // (= profil réellement chargé et non publié). Pendant le chargement (fallback
+        // de session) ou en cas d'échec du fetch, is_published est undefined → on NE
+        // redirige PAS, sinon un profil publié serait éjecté vers /creer-profil.
+        if (!currentUser || currentUser.is_published !== false) return
 
         const isAllowed = ALLOWED_WHILE_INCOMPLETE.some((p) => pathname?.startsWith(p))
         if (!isAllowed) {

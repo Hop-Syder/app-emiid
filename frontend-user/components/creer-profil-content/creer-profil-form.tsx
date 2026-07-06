@@ -151,13 +151,15 @@ export const CreerProfilForm = React.memo(function CreerProfilForm({
 
     const calculateProgress = () => {
         let score = 0
-        const total = 9
+        const total = 11
         if (formData.name?.trim()) score++
         if (formData.role?.trim()) score++
         if (formData.category) score++
         if (formData.specialty?.trim()) score++
         if (formData.bio?.trim()) score++
         if (formData.city?.trim()) score++
+        if (formData.phone?.trim()) score++
+        if (formData.website?.trim()) score++
         if (formData.slug?.trim()) score++
         if (formData.avatar && !formData.avatar.includes("avatar.jpg")) score++
         if (tags && tags.length > 0) score++
@@ -181,7 +183,7 @@ export const CreerProfilForm = React.memo(function CreerProfilForm({
                     </div>
                     <div className="text-right">
                         <span className="text-2xl font-black text-primary">{progress}%</span>
-                        <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Complétion</p>
+                        <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Rempli</p>
                     </div>
                 </div>
                 <div className="flex items-center justify-between gap-2 mb-4">
