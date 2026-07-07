@@ -40,7 +40,7 @@ export function SocialProofSection() {
       <div 
         className="pointer-events-none fixed inset-0 z-30 transition-opacity duration-300"
         style={{
-          background: `radial-gradient(800px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(99,102,241,0.05), transparent 40%)`
+          background: `radial-gradient(800px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(1,63,244,0.05), transparent 40%)`
         }}
       />
       

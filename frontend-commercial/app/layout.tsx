@@ -12,9 +12,10 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Inter } from "next/font/google";
 
-const plusJakarta = Plus_Jakarta_Sans({
+// Corps : Inter (substitut libre de « Google Sans » — charte EmiID)
+const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
 });
@@ -74,7 +75,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr" className="scroll-smooth" suppressHydrationWarning>
-      <body className={`${plusJakarta.variable} font-sans antialiased bg-background text-foreground`}>
+      <body className={`${inter.variable} font-sans antialiased bg-background text-foreground`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <Header />
           {children}

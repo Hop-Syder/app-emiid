@@ -2,17 +2,56 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Mitsuha (titres, charte EmiID) — auto-hébergée (public/fonts/).
+ * Une seule graisse : déclarée sur toute la plage, le navigateur synthétise le gras. */
+@font-face {
+  font-family: 'Mitsuha';
+  src: url('/fonts/Mitsuha-Regular.woff2') format('woff2'),
+       url('/fonts/Mitsuha-Regular.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer base {
   :root {
+    /* Hex officiels de la charte */
+    --brand-blue: #013ff4;
+    --brand-cyan: #03b3f8;
+    --brand-navy: #000616;
+
     --background: #ffffff;
-    --foreground: #000000;
-    --primary: #4f46e5;
+    --foreground: #000616;
+    --primary: #013ff4;
     --primary-foreground: #ffffff;
+
+    /* Corps : Inter (substitut libre de Google Sans, injecté par next/font).
+     * Titres : Mitsuha (charte), repli sur la police de corps. */
+    --font-heading: 'Mitsuha', var(--font-sans), sans-serif;
   }
 
   .dark {
-    --background: #0a0a0a;
+    --background: #000616;
     --foreground: #ededed;
+    --primary: #3a6bff;
+    --primary-foreground: #000616;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
+}
+
+@layer utilities {
+  /* Dégradé de marque EmiID (charte) */
+  .bg-brand-gradient {
+    background-image: linear-gradient(45deg, #013ff4 0%, #000616 150%);
+  }
+  .text-brand-gradient {
+    background-image: linear-gradient(45deg, #013ff4, #03b3f8);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
 }
 

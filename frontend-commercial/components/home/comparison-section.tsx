@@ -118,7 +118,7 @@ export function ComparisonSection() {
                     <th className="p-6 md:p-8 text-sm font-black tracking-widest uppercase text-center text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 w-[20%] relative">
                       Emiid
                       {/* Top highlight bar */}
-                      <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]"></div>
+                      <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-500 shadow-[0_0_10px_rgba(1,63,244,0.5)]"></div>
                     </th>
                   </tr>
                 </thead>
@@ -168,7 +168,7 @@ function renderStatus(status: string, isEmiid: boolean = false) {
   if (isEmiid) {
     if (status === "yes") {
       return (
-        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-indigo-50 dark:bg-indigo-500/20 ring-1 ring-indigo-200 dark:ring-indigo-500/50 shadow-[0_0_15px_rgba(99,102,241,0.4)] transition-transform hover:scale-110 duration-300">
+        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-indigo-50 dark:bg-indigo-500/20 ring-1 ring-indigo-200 dark:ring-indigo-500/50 shadow-[0_0_15px_rgba(1,63,244,0.4)] transition-transform hover:scale-110 duration-300">
           <Check className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
         </div>
       );

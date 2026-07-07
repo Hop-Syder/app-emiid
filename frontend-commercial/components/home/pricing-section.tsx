@@ -283,7 +283,7 @@ export function PricingSection() {
               >
                 {/* Featured top gradient bar */}
                 {tier.featured && (
-                  <div className="h-1 bg-gradient-to-r from-indigo-500 to-cyan-400 shadow-[0_0_12px_rgba(99,102,241,0.6)]" />
+                  <div className="h-1 bg-gradient-to-r from-indigo-500 to-cyan-400 shadow-[0_0_12px_rgba(1,63,244,0.6)]" />
                 )}
 
                 {/* Popular badge */}

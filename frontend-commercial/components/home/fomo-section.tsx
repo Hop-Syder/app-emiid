@@ -194,7 +194,7 @@ export function FomoSection() {
               <div 
                 className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                 style={{
-                  background: `radial-gradient(600px circle at var(--mouse-x) var(--mouse-y), rgba(99,102,241,0.08), transparent 40%)`
+                  background: `radial-gradient(600px circle at var(--mouse-x) var(--mouse-y), rgba(1,63,244,0.08), transparent 40%)`
                 }}
               />
               
@@ -237,7 +237,7 @@ export function FomoSection() {
                   {/* ZONE INTERNATIONAL (300) */}
                   <div className="pt-6 border-t border-gray-200/50 dark:border-gray-800/50 relative z-10">
                     <h3 className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.5)]"></div>
+                      <div className="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(1,63,244,0.5)]"></div>
                       International ({intlTotal} places)
                     </h3>
                     <div className="grid grid-cols-20 sm:grid-cols-25 md:grid-cols-30 gap-1 sm:gap-[3px]" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(10px, 1fr))'}}>
@@ -251,9 +251,9 @@ export function FomoSection() {
                             className={`
                               aspect-square rounded-[2px] transition-all duration-300
                               ${isTaken 
-                                  ? "bg-indigo-500 dark:bg-indigo-400/90 shadow-[0_0_5px_rgba(99,102,241,0.3)] animate-[fadeIn_0.5s_ease-out_forwards]" 
+                                  ? "bg-indigo-500 dark:bg-indigo-400/90 shadow-[0_0_5px_rgba(1,63,244,0.3)] animate-[fadeIn_0.5s_ease-out_forwards]" 
                                   : isCurrent
-                                    ? "bg-white border-[1.5px] border-indigo-500 shadow-[0_0_15px_rgba(99,102,241,1)] animate-pulse z-10 relative scale-125"
+                                    ? "bg-white border-[1.5px] border-indigo-500 shadow-[0_0_15px_rgba(1,63,244,1)] animate-pulse z-10 relative scale-125"
                                     : "bg-gray-200 dark:bg-gray-800/60 border border-gray-300 dark:border-gray-800/80 opacity-40 hover:opacity-100 hover:bg-indigo-500/20"
                               }
                             `}

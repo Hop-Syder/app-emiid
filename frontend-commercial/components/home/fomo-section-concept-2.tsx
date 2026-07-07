@@ -43,7 +43,7 @@ export function FomoSectionConcept2() {
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="relative max-w-4xl mx-auto rounded-3xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.3)] dark:shadow-[0_20px_50px_rgba(168,85,247,0.15)] border border-gray-200 dark:border-gray-800"
+          className="relative max-w-4xl mx-auto rounded-3xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.3)] dark:shadow-[0_20px_50px_rgba(3,179,248,0.15)] border border-gray-200 dark:border-gray-800"
           onMouseEnter={() => setIsUnlocked(true)}
           onMouseLeave={() => setIsUnlocked(false)}
         >

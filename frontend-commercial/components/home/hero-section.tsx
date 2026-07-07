@@ -76,7 +76,7 @@ export function HeroSection() {
       {/* Magnetic spotlight */}
       <div
         className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0"
-        style={{ background: `radial-gradient(800px circle at var(--mouse-x) var(--mouse-y), rgba(99,102,241,0.06), transparent 40%)` }}
+        style={{ background: `radial-gradient(800px circle at var(--mouse-x) var(--mouse-y), rgba(1,63,244,0.06), transparent 40%)` }}
       />
 
       {/* Ambient glow */}
