@@ -1,4 +1,15 @@
 
+/**
+ * @author @hopsyder
+ * @organization Nexus Partners
+ * @description Site vitrine et commercial d'EmiID
+ * @created 2026-06-12
+ * @updated 2026-07-07
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+ */
+ ──────────────────────────────────
+
 # EmiID Commercial (Vitrine & Marketing)
 
 Bienvenue dans le dépôt du site commercial d'**EmiID** — "Votre empreinte numérique professionnelle". Ce projet gère toute la vitrine marketing, la présentation de l'offre commerciale, la conversion de prospects, ainsi que l'exploration publique des profils des membres de l'écosystème.
@@ -26,7 +37,7 @@ Le site commercial est conçu pour capter l'intérêt des entrepreneurs, profess
 ## 🛠️ Stack Technique
 
 - **Framework** : [Next.js 15 (App Router)](https://nextjs.org/) avec React 19 et TypeScript.
-- **Style & Design** : [Tailwind CSS v3](https://tailwindcss.com/) avec des polices premium (`Satoshi` pour les titres et `General Sans` pour le corps) importées via CDN.
+- **Style & Design** : [Tailwind CSS v3](https://tailwindcss.com/) utilisant la charte officielle EmiID : police premium `Mitsuha` pour les titres et `Inter` pour le corps du texte.
 - **Animations** : [Framer Motion](https://www.framer.com/motion/) pour les transitions fluides et micro-interactions haut de gamme.
 - **Base de données & Services** : [Supabase](https://supabase.com/) pour le stockage des données de profils, de formulaires de contact et d'exploration.
 - **Icônes** : [Lucide React](https://lucide.dev/).

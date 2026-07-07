@@ -134,4 +134,6 @@
 - [2026-06-22] Annuaire frontend-user : Suppression du bloc de statistiques globales (Membres, Vérifiés, Pays) situé sous la barre de recherche (Cmd+K) dans le composant AnnuaireHero.
 - [2026-06-22] Nettoyage : Suppression du dossier orphelin `frontend-user/app/reset-password`.
 - [2026-06-22] Qualité & Perf : Résorption majeure de plus de 55 warnings ESLint. Conversion systématique des balises `<img>` vers `next/image` dans les composants clés, correction de typage explicit-any et nettoyage des dépendances manquantes/inutilisées des hooks React (Vague 1, 3, 4 et partie de la Vague 2 terminées).
+- [2026-07-07] Design System : Mise à jour du master design system (`design-system/emiid/MASTER.md`) et des READMEs pour refléter officiellement la nouvelle charte graphique EmiID (polices Mitsuha/Inter, couleurs Bleu Roi, Bleu Cyan et Bleu Nuit, et style Luxury Bento / Glassmorphism).
+
 
