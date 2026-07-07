@@ -45,12 +45,11 @@ export function DashboardBentoHeader({ stats, statsLoading }: DashboardBentoHead
     const userName = session?.user?.user_metadata?.first_name || session?.user?.user_metadata?.name || ""
 
     const statsItems = stats ? [
-        // Charte EmiID — réseau en bleus (bleu roi / cyan / ciel), prestige en or.
-        { label: "Membres", value: stats.totalEntrepreneurs || 0, icon: Users, color: "text-[#013ff4]", bg: "bg-[#013ff4]/10", ring: "ring-[#013ff4]/20" },
-        { label: "Vérifiés", value: stats.verifiedMembers || 0, icon: BadgeCheck, color: "text-[#03b3f8]", bg: "bg-[#03b3f8]/10", ring: "ring-[#03b3f8]/20" },
-        { label: "Pays", value: stats.countriesCovered || 0, icon: Globe, color: "text-sky-400", bg: "bg-sky-400/10", ring: "ring-sky-400/20" },
-        { label: "Premium", value: stats.premiumMembers || 0, icon: Crown, color: "text-amber-400", bg: "bg-amber-400/10", ring: "ring-amber-400/20" },
-        { label: "Fondateurs", value: 1, icon: Award, color: "text-amber-500", bg: "bg-amber-500/10", ring: "ring-amber-500/20" },
+        { label: "Membres", value: stats.totalEntrepreneurs || 0, icon: Users, color: "text-emerald-400", bg: "bg-emerald-400/10", ring: "ring-emerald-400/20" },
+        { label: "Vérifiés", value: stats.verifiedMembers || 0, icon: BadgeCheck, color: "text-amber-400", bg: "bg-amber-400/10", ring: "ring-amber-400/20" },
+        { label: "Pays", value: stats.countriesCovered || 0, icon: Globe, color: "text-indigo-400", bg: "bg-indigo-400/10", ring: "ring-indigo-400/20" },
+        { label: "Premium", value: stats.premiumMembers || 0, icon: Crown, color: "text-rose-400", bg: "bg-rose-400/10", ring: "ring-rose-400/20" },
+        { label: "Fondateurs", value: 1, icon: Award, color: "text-fuchsia-400", bg: "bg-fuchsia-400/10", ring: "ring-fuchsia-400/20" },
     ] : []
 
     const containerVariants: Variants = {
@@ -76,9 +75,9 @@ export function DashboardBentoHeader({ stats, statsLoading }: DashboardBentoHead
                 className="relative overflow-hidden rounded-3xl border border-white/10 shadow-xl bg-[url('/dashboard/background.jpg')] bg-cover bg-center min-h-[200px]"
             >
                 {/* Overlay dégradé gauche → droite pour la lisibilité */}
-                <div className="absolute inset-0 bg-gradient-to-r from-[#000616]/98 via-[#013ff4]/12 to-[#000616]/20" />
+                <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-900/75 to-slate-900/10" />
                 {/* Vignette basse pour ancrer le contenu */}
-                <div className="absolute bottom-0 inset-x-0 h-1/2 bg-gradient-to-t from-[#000616]/70 to-transparent" />
+                <div className="absolute bottom-0 inset-x-0 h-1/2 bg-gradient-to-t from-slate-950/60 to-transparent" />
 
                 {/* Layout vertical : salutation en haut, titre+actions en bas */}
                 <div className="relative z-10 flex flex-col justify-between h-full px-8 md:px-12 pt-8 pb-8 gap-6">
@@ -86,7 +85,7 @@ export function DashboardBentoHeader({ stats, statsLoading }: DashboardBentoHead
                     {/* Ligne haute — sous-titre contextuel + signature fondateur */}
                     <div className="flex items-center justify-between gap-4">
                         <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-white/30 select-none flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-[#03b3f8] animate-pulse" />
+                            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                             Espace Membre
                         </p>
                         <div className="flex items-center gap-2 select-none shrink-0">
@@ -109,7 +108,7 @@ export function DashboardBentoHeader({ stats, statsLoading }: DashboardBentoHead
                         {/* Titre plein écran */}
                         <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white tracking-tight leading-[1.05]">
                             {greeting}{" "}
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-white">
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-sky-200 to-white">
                                 {userName || "Talent"}
                             </span>
                         </h1>
@@ -159,11 +158,11 @@ export function DashboardBentoHeader({ stats, statsLoading }: DashboardBentoHead
                             className={`relative overflow-hidden rounded-2xl bg-[url('/dashboard/background-2.svg')] bg-cover bg-center border border-white/8 px-5 py-4 flex items-center gap-4 shadow-lg cursor-default group ring-1 ${stat.ring}`}
                         >
                             {/* Overlay dégradé inspiré du Hero */}
-                            <div className="absolute inset-0 bg-gradient-to-r from-[#000616]/98 via-[#013ff4]/12 to-[#000616]/20 pointer-events-none" />
-                            <div className="absolute bottom-0 inset-x-0 h-1/2 bg-gradient-to-t from-[#000616]/70 to-transparent pointer-events-none" />
+                            <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-900/75 to-slate-900/10 pointer-events-none" />
+                            <div className="absolute bottom-0 inset-x-0 h-1/2 bg-gradient-to-t from-slate-950/60 to-transparent pointer-events-none" />
 
-                            {/* Glow au survol — halo cyan de marque, uniforme (charte) */}
-                            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-[#03b3f8]/20 blur-2xl scale-150" />
+                            {/* Glow au survol */}
+                            <div className={`absolute inset-0 opacity-5 group-hover:opacity-100 transition-opacity duration-500 ${stat.bg} blur-2xl scale-150`} />
 
                             {/* Icône colorée */}
                             <div className={`relative shrink-0 p-2 rounded-xl ${stat.bg} ${stat.color} ring-1 ${stat.ring}`}>

@@ -29,12 +29,11 @@ export function PublicBentoHeader({ stats, statsLoading }: PublicBentoHeaderProp
     const router = useRouter()
 
     const statsItems = stats ? [
-        // Charte EmiID — réseau en bleus (bleu roi / cyan / ciel), prestige en or.
-        { label: "Membres", value: stats.totalEntrepreneurs || 0, icon: Users, color: "text-[#013ff4]", bg: "bg-[#013ff4]/10", ring: "ring-[#013ff4]/20" },
-        { label: "Vérifiés", value: stats.verifiedMembers || 0, icon: BadgeCheck, color: "text-[#03b3f8]", bg: "bg-[#03b3f8]/10", ring: "ring-[#03b3f8]/20" },
-        { label: "Pays", value: stats.countriesCovered || 0, icon: Globe, color: "text-sky-400", bg: "bg-sky-400/10", ring: "ring-sky-400/20" },
-        { label: "Premium", value: stats.premiumMembers || 0, icon: Crown, color: "text-amber-400", bg: "bg-amber-400/10", ring: "ring-amber-400/20" },
-        { label: "Fondateurs", value: 1, icon: Award, color: "text-amber-500", bg: "bg-amber-500/10", ring: "ring-amber-500/20" },
+        { label: "Membres", value: stats.totalEntrepreneurs || 0, icon: Users, color: "text-emerald-400", bg: "bg-emerald-400/10", ring: "ring-emerald-400/20" },
+        { label: "Vérifiés", value: stats.verifiedMembers || 0, icon: BadgeCheck, color: "text-amber-400", bg: "bg-amber-400/10", ring: "ring-amber-400/20" },
+        { label: "Pays", value: stats.countriesCovered || 0, icon: Globe, color: "text-indigo-400", bg: "bg-indigo-400/10", ring: "ring-indigo-400/20" },
+        { label: "Premium", value: stats.premiumMembers || 0, icon: Crown, color: "text-rose-400", bg: "bg-rose-400/10", ring: "ring-rose-400/20" },
+        { label: "Fondateurs", value: 1, icon: Award, color: "text-fuchsia-400", bg: "bg-fuchsia-400/10", ring: "ring-fuchsia-400/20" },
     ] : []
 
     const containerVariants: Variants = {
@@ -60,8 +59,8 @@ export function PublicBentoHeader({ stats, statsLoading }: PublicBentoHeaderProp
                 className="relative overflow-hidden rounded-[2rem] border border-white/10 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.5)] bg-[url('/dashboard/background.jpg')] bg-cover bg-center min-h-[260px] flex flex-col justify-between p-8 md:p-12"
             >
                 {/* Overlays de dégradés profonds */}
-                <div className="absolute inset-0 bg-gradient-to-r from-[#000616]/98 via-[#013ff4]/12 to-[#000616]/30" />
-                <div className="absolute bottom-0 inset-x-0 h-1/2 bg-gradient-to-t from-[#000616]/70 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/80 to-slate-900/30" />
+                <div className="absolute bottom-0 inset-x-0 h-1/2 bg-gradient-to-t from-slate-950/70 to-transparent" />
                 
                 {/* Lueur d'ambiance colorée discrète */}
                 <div className="absolute -top-24 -right-24 w-80 h-80 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
@@ -80,7 +79,7 @@ export function PublicBentoHeader({ stats, statsLoading }: PublicBentoHeaderProp
                         <div className="space-y-3 max-w-2xl">
                             <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight leading-[1.05] font-satoshi">
                                 Votre empreinte numérique{" "}
-                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-white">
+                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-sky-300 to-white">
                                     professionnelle
                                 </span>
                             </h1>
