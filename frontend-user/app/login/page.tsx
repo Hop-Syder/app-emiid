@@ -21,9 +21,11 @@ import { createClient } from "@/lib/supabase/client"
 type Provider = "google" | "linkedin_oidc" | "apple"
 
 const providers = [
-  { id: "google" as const,        name: "Google",   icon: "/login/google-icon.svg" },
-  { id: "linkedin_oidc" as const, name: "LinkedIn", icon: "/login/linkedin.svg"    },
-  { id: "apple" as const,         name: "Apple",    icon: "/login/apple.svg"       },
+  { id: "google" as const,        name: "Google",   icon: "/login/google-icon.svg", soon: false },
+  { id: "linkedin_oidc" as const, name: "LinkedIn", icon: "/login/linkedin.svg",     soon: false },
+  // Apple désactivé tant que le provider n'est pas configuré (Apple Developer + Supabase).
+  // Réactivation : passer `soon` à false.
+  { id: "apple" as const,         name: "Apple",    icon: "/login/apple.svg",        soon: true  },
 ]
 
 export default function LoginPage() {
@@ -148,11 +150,19 @@ export default function LoginPage() {
                 initial={{ opacity: 0, x: -16 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.1 + i * 0.08 }}
+                className="relative"
               >
+                {p.soon && (
+                  <span className="absolute -top-2 right-3 z-20 rounded-full bg-amber-500/90 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-black shadow-lg">
+                    Bientôt
+                  </span>
+                )}
                 <Button
                   variant="outline"
-                  disabled={loading !== null || !accepted}
-                  onClick={() => handleLogin(p.id)}
+                  disabled={loading !== null || !accepted || p.soon}
+                  onClick={() => !p.soon && handleLogin(p.id)}
+                  aria-disabled={p.soon}
+                  title={p.soon ? "Indisponible pour l'instant" : undefined}
                   className="relative w-full h-12 rounded-2xl bg-white/[0.05] border-white/10 hover:bg-white/[0.1] hover:border-white/20 text-white transition-all duration-200 overflow-hidden group disabled:opacity-35 disabled:cursor-not-allowed disabled:pointer-events-none"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
