@@ -97,9 +97,42 @@ export async function GET(request: NextRequest) {
             }
         }
 
-        // 5. Recherche textuelle libre (Nom, Prénom, Titre, Bio, Rôle, Spécialité)
+        // 5. Recherche textuelle libre & universelle : nom, bio/description, rôle,
+        //    spécialité, métier, catégorie, secteur, ville ET tags/compétences.
         if (search) {
-            query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,bio.ilike.%${search}%,role.ilike.%${search}%,specialty.ilike.%${search}%,job_title.ilike.%${search}%,category.ilike.%${search}%,activity_domain.ilike.%${search}%,city.ilike.%${search}%`)
+            // Nettoyage : les virgules/parenthèses casseraient la syntaxe PostgREST .or()
+            const safe = search.replace(/[,()]/g, ' ').trim()
+            const like = `%${safe}%`
+
+            const orParts = [
+                `first_name.ilike.${like}`,
+                `last_name.ilike.${like}`,
+                `bio.ilike.${like}`,
+                `role.ilike.${like}`,
+                `specialty.ilike.${like}`,
+                `job_title.ilike.${like}`,
+                `category.ilike.${like}`,
+                `activity_domain.ilike.${like}`,
+                `city.ilike.${like}`,
+            ]
+
+            // Inclure aussi les profils dont un TAG / une COMPÉTENCE correspond au terme
+            const { data: tagMatch } = await supabase
+                .from('profile_tags')
+                .select('profile_id, tags!inner(name)')
+                .ilike('tags.name', like)
+
+            const tagProfileIds = [...new Set(
+                (tagMatch as { profile_id: string }[] | null)
+                    ?.map((t) => t.profile_id)
+                    .filter(Boolean) || []
+            )].slice(0, 200)
+
+            if (tagProfileIds.length > 0) {
+                orParts.push(`id.in.(${tagProfileIds.join(',')})`)
+            }
+
+            query = query.or(orParts.join(','))
         }
 
         // 6. Pagination (Range)

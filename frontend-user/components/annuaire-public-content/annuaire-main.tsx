@@ -1,7 +1,7 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Page principale de l'Annuaire - Intégration de la Palette de commandes (Cmd+K) et filtres.
+ * @description Page principale de l'Annuaire — barre de recherche universelle (nom, tags, compétences, description) + résultats.
  * @created 2026-06-03
  * @updated 2026-06-22
  * 🌐 ceo.nexuspartners.xyz
@@ -15,7 +15,6 @@ import { motion } from "framer-motion"
 import { AnnuaireHero } from "./annuaire-hero"
 import { AnnuaireGrid } from "./annuaire-grid"
 import { AnnuaireSpotlight } from "./annuaire-spotlight"
-import { AnnuaireCommandPalette } from "./annuaire-command-palette"
 
 interface AnnuairePublicContentProps {
     initialCategory?: string
@@ -40,8 +39,6 @@ export function AnnuairePublicContent({
         status: "all",
         activity_domain: initialActivityDomain
     })
-    const [paletteOpen, setPaletteOpen] = useState(false)
-
     useEffect(() => {
         if (typeof window !== "undefined") {
             const params = new URLSearchParams(window.location.search)
@@ -56,17 +53,6 @@ export function AnnuairePublicContent({
                 activity_domain: params.get("activity_domain") || prev.activity_domain
             }))
         }
-    }, [])
-
-    useEffect(() => {
-        const down = (e: KeyboardEvent) => {
-            if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
-                e.preventDefault()
-                setPaletteOpen(open => !open)
-            }
-        }
-        document.addEventListener("keydown", down)
-        return () => document.removeEventListener("keydown", down)
     }, [])
 
     const handleFilterChange = (key: string, value: string) => {
@@ -94,9 +80,9 @@ export function AnnuairePublicContent({
             <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-16 py-8">
                 
                 {/* --- SECTION 1: HERO COMPACT --- */}
-                <AnnuaireHero 
+                <AnnuaireHero
                     searchQuery={filters.search}
-                    onTriggerSearch={() => setPaletteOpen(true)}
+                    onSearchChange={(v) => handleFilterChange("search", v)}
                 />
 
                 {/* --- SECTION 2: SPOTLIGHT --- */}
@@ -152,13 +138,6 @@ export function AnnuairePublicContent({
                 </motion.div>
 
             </div>
-
-            <AnnuaireCommandPalette 
-                open={paletteOpen}
-                setOpen={setPaletteOpen}
-                filters={filters}
-                onFilterChange={handleFilterChange}
-            />
         </div>
     )
 }

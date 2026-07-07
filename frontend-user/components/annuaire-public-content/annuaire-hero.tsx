@@ -1,33 +1,52 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Header de l'Annuaire — Hero compact, statistiques globales et déclencheur Cmd+K.
+ * @description Header de l'Annuaire — Hero compact + barre de recherche universelle (live).
  * @created 2026-06-02
- * @updated 2026-06-22
+ * @updated 2026-07-07
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
 
 "use client"
 
+import { useEffect, useRef, useState } from "react"
 import { motion } from "framer-motion"
-import { Search } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { Search, X } from "lucide-react"
 
 interface AnnuaireHeroProps {
     title?: string;
     description?: string;
     searchQuery: string;
-    onTriggerSearch: () => void;
+    onSearchChange: (value: string) => void;
 }
 
 export function AnnuaireHero({
     title = "Découvrez les Talents de l'Afrique",
     description = "Explorez notre réseau dynamique regroupant artisans, commerçants, freelances, entreprises, agences, startups et ONG.",
     searchQuery,
-    onTriggerSearch
+    onSearchChange
 }: AnnuaireHeroProps) {
+    const [value, setValue] = useState(searchQuery)
+    const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+    // Resynchronise le champ si le filtre est réinitialisé ailleurs (ex. bouton « Réinitialiser »)
+    useEffect(() => {
+        setValue(searchQuery)
+    }, [searchQuery])
+
+    // Recherche « live » debouncée : on ne relance la requête qu'après une courte pause de frappe
+    const handleChange = (v: string) => {
+        setValue(v)
+        if (timer.current) clearTimeout(timer.current)
+        timer.current = setTimeout(() => onSearchChange(v), 350)
+    }
+
+    const clear = () => {
+        setValue("")
+        if (timer.current) clearTimeout(timer.current)
+        onSearchChange("")
+    }
 
     return (
         <div className="mb-8 w-full">
@@ -51,7 +70,7 @@ export function AnnuaireHero({
                 <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
 
                 <div className="relative z-10 flex flex-col items-center space-y-6 max-w-3xl w-full mx-auto">
-                    
+
                     {/* Header */}
                     <div className="space-y-4">
                         <motion.h1
@@ -72,27 +91,35 @@ export function AnnuaireHero({
                         </motion.p>
                     </div>
 
-                    {/* Search Bar Trigger */}
-                    <motion.div 
+                    {/* Barre de recherche universelle (nom, métier, compétence, tag, mot-clé de description) */}
+                    <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3, duration: 0.5 }}
-                        className="w-full max-w-xl relative mt-4 mb-2 cursor-pointer"
-                        onClick={onTriggerSearch}
+                        className="w-full max-w-xl relative mt-4 mb-2"
                     >
-                        <div className={cn(
-                            "relative flex items-center bg-white/5 border backdrop-blur-md rounded-2xl transition-all duration-300 h-14 border-white/10 hover:border-white/20 hover:bg-white/10 px-4"
-                        )}>
-                            <Search className="w-5 h-5 text-slate-400 mr-3" />
-                            <span className="text-slate-400 text-base font-medium flex-1 text-left select-none">
-                                {searchQuery || "Rechercher par nom, métier, compétence..."}
-                            </span>
-                            <kbd className="pointer-events-none inline-flex h-6 select-none items-center rounded border border-white/15 bg-white/5 px-2 font-mono text-[10px] font-bold text-slate-400 gap-1 shadow-sm shrink-0">
-                                <span>⌘</span><span>K</span>
-                            </kbd>
+                        <div className="relative flex items-center bg-white/5 border backdrop-blur-md rounded-2xl transition-all duration-300 h-14 border-white/10 focus-within:border-[#03b3f8]/50 focus-within:bg-white/10 hover:border-white/20 px-4">
+                            <Search className="w-5 h-5 text-slate-400 mr-3 shrink-0" />
+                            <input
+                                type="text"
+                                value={value}
+                                onChange={(e) => handleChange(e.target.value)}
+                                placeholder="Rechercher un nom, un métier, une compétence, un mot-clé…"
+                                aria-label="Rechercher dans l'annuaire"
+                                className="flex-1 bg-transparent text-left text-base font-medium text-white placeholder:text-slate-400 outline-none min-w-0"
+                            />
+                            {value && (
+                                <button
+                                    type="button"
+                                    onClick={clear}
+                                    aria-label="Effacer la recherche"
+                                    className="ml-2 shrink-0 flex items-center justify-center h-7 w-7 rounded-full text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
+                            )}
                         </div>
                     </motion.div>
-
 
                 </div>
             </motion.div>
