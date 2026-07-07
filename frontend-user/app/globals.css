@@ -14,27 +14,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 @import url('https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700,900&display=swap');
 
-/* ── Mitsuha (titres, charte) — auto-hébergée.
- * Déposez les fichiers dans frontend-user/public/fonts/ (voir public/fonts/README.md).
- * Tant que les fichiers sont absents, les titres retombent proprement sur Satoshi. */
+/* ── Mitsuha (titres, charte) — auto-hébergée (public/fonts/).
+ * Une seule graisse fournie : elle couvre toute la plage (100–900), le navigateur
+ * synthétise le gras si besoin. Satoshi reste en secours si le fichier est absent. */
 @font-face {
   font-family: 'Mitsuha';
-  src: url('/fonts/Mitsuha-Regular.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Mitsuha';
-  src: url('/fonts/Mitsuha-Medium.woff2') format('woff2');
-  font-weight: 500 600;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Mitsuha';
-  src: url('/fonts/Mitsuha-Bold.woff2') format('woff2');
-  font-weight: 700 900;
+  src: url('/fonts/Mitsuha-Regular.woff2') format('woff2'),
+       url('/fonts/Mitsuha-Regular.ttf') format('truetype');
+  font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }
