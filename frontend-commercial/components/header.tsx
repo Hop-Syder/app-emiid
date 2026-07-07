@@ -84,7 +84,7 @@ export function Header() {
                   className="h-12 w-auto object-contain group-hover:scale-105 transition-all duration-300 shrink-0"
                   priority
                 />
-                <span className="font-black text-xl text-blue-500 tracking-tight">
+                <span className="font-wordmark font-black text-xl text-blue-500 tracking-tight">
                   EmiID
                 </span>
               </Link>

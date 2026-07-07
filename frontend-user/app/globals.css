@@ -52,12 +52,19 @@
     background-clip: text;
     color: transparent;
   }
+
+  /* Wordmark de marque uniquement (Mitsuha = glyphes ASCII, pas d'accents).
+   * À réserver aux textes ASCII : « EmiID », badges en capitales, etc. */
+  .font-wordmark {
+    font-family: 'Mitsuha', var(--font-heading);
+  }
 }
 
 @layer base {
   :root {
     --font-sans: 'Inter', system-ui, sans-serif;
-    --font-heading: 'Mitsuha', 'Satoshi', sans-serif;
+    /* Titres : Satoshi (Mitsuha ne couvre pas les accents FR → réservée au wordmark) */
+    --font-heading: 'Satoshi', sans-serif;
     --font-mono: ui-monospace, monospace;
 
     /* Hex exacts de la charte EmiID (valeurs de référence) */

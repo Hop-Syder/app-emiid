@@ -25,9 +25,9 @@
     --primary: #013ff4;
     --primary-foreground: #ffffff;
 
-    /* Corps : Inter (substitut libre de Google Sans, injecté par next/font).
-     * Titres : Mitsuha (charte), repli sur la police de corps. */
-    --font-heading: 'Mitsuha', var(--font-sans), sans-serif;
+    /* Corps : Inter (next/font). Titres : Inter aussi — Mitsuha ne couvre pas les
+     * accents FR, elle est donc réservée au wordmark (.font-wordmark). */
+    --font-heading: var(--font-sans), sans-serif;
   }
 
   .dark {
@@ -52,6 +52,11 @@
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
+  }
+
+  /* Wordmark de marque uniquement (Mitsuha = glyphes ASCII, pas d'accents). */
+  .font-wordmark {
+    font-family: 'Mitsuha', var(--font-heading);
   }
 }
 
