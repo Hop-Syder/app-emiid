@@ -59,7 +59,7 @@ export const CreerProfilForm = React.memo(function CreerProfilForm({
     const [currentStep, setCurrentStep] = useState(0)
     const [direction, setDirection] = useState(1)
 
-    const inputClasses = "h-14 rounded-2xl bg-slate-50/80 border-slate-200 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all duration-300 shadow-sm"
+    const inputClasses = "h-14 rounded-2xl bg-slate-50/80 border-slate-200 text-slate-900 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all duration-300 shadow-sm"
 
     const steps = [
         { id: 0, title: "Identité", icon: Camera, subtitle: "Votre présentation de base" },
