@@ -41,7 +41,7 @@ export default function AuthCodeErrorPage() {
         <div className="space-y-3 pt-4 border-t border-slate-100 mt-4">
           <Button 
             asChild
-            className="w-full h-14 rounded-2xl bg-[#022753] hover:bg-[#022753]/90 text-white font-bold shadow-xl shadow-[#022753]/20 gap-3 transition-all hover:-translate-y-1"
+            className="w-full h-14 rounded-2xl bg-[#013ff4] hover:bg-[#013ff4]/90 text-white font-bold shadow-xl shadow-[#013ff4]/20 gap-3 transition-all hover:-translate-y-1"
           >
             <Link href="/login">
               <RefreshCw className="h-5 w-5" />

@@ -101,7 +101,7 @@ export function MfaDialog({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-md rounded-2xl">
                 <DialogHeader>
-                    <DialogTitle className="text-2xl font-black text-[#022753]">
+                    <DialogTitle className="text-2xl font-black text-[#013ff4]">
                         {mfaStep === "phone" ? "Activer la 2FA" : "Vérification"}
                     </DialogTitle>
                     <DialogDescription>
@@ -157,7 +157,7 @@ export function MfaDialog({
                         <Button
                             onClick={onEnroll}
                             disabled={mfaLoading || !mfaPhoneNumber}
-                            className="w-full h-12 rounded-xl bg-[#022753] hover:bg-[#033a7a]"
+                            className="w-full h-12 rounded-xl bg-[#013ff4] hover:bg-[#033a7a]"
                         >
                             {mfaLoading ? "Envoi en cours..." : "Recevoir le code"}
                         </Button>
@@ -237,9 +237,9 @@ export function ReauthDialog({
             <DialogContent className="sm:max-w-md rounded-2xl border-none shadow-2xl">
                 <DialogHeader>
                     <div className="mx-auto w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mb-4">
-                        <Lock className="h-6 w-6 text-[#022753]" />
+                        <Lock className="h-6 w-6 text-[#013ff4]" />
                     </div>
-                    <DialogTitle className="text-2xl font-black text-center text-[#022753]">
+                    <DialogTitle className="text-2xl font-black text-center text-[#013ff4]">
                         Vérification de sécurité
                     </DialogTitle>
                     <DialogDescription className="text-center px-4">
@@ -284,7 +284,7 @@ export function ReauthDialog({
                                         placeholder="••••••••"
                                         value={reauthPassword}
                                         onChange={(e) => setReauthPassword(e.target.value)}
-                                        className="pr-10 rounded-xl h-12 border-slate-200 focus:border-[#022753] focus:ring-[#022753]/10"
+                                        className="pr-10 rounded-xl h-12 border-slate-200 focus:border-[#013ff4] focus:ring-[#013ff4]/10"
                                     />
                                     <button
                                         type="button"
@@ -315,7 +315,7 @@ export function ReauthDialog({
                         <Button
                             type="submit"
                             disabled={reauthLoading || (profile.pin_enabled ? reauthPin.length !== 6 : !reauthPassword)}
-                            className="flex-[2] h-12 rounded-xl bg-[#022753] hover:bg-[#033a7a] text-white font-bold shadow-lg shadow-blue-900/10"
+                            className="flex-[2] h-12 rounded-xl bg-[#013ff4] hover:bg-[#033a7a] text-white font-bold shadow-lg shadow-blue-900/10"
                         >
                             {reauthLoading ? (
                                 <div className="flex items-center gap-2">

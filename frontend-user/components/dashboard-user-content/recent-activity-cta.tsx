@@ -19,7 +19,7 @@ export function RecentActivityCta() {
   return (
     <div className="relative group cursor-pointer transition-all duration-300 hover:-translate-y-1">
       {/* Glow effect derrière la carte */}
-      <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500/20 via-blue-500/20 to-purple-500/20 rounded-3xl blur opacity-0 group-hover:opacity-100 transition duration-500" />
+      <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500/20 via-blue-500/20 to-cyan-500/20 rounded-3xl blur opacity-0 group-hover:opacity-100 transition duration-500" />
       
       <div className="bg-white rounded-3xl border border-slate-200/60 p-6 sm:p-8 shadow-sm overflow-hidden relative w-full h-full z-10">
         

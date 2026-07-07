@@ -39,7 +39,7 @@ export function HubContextualCta() {
             Ton profil n&apos;est pas encore{" "}
             <span className="relative whitespace-nowrap">
               <span className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 blur-lg rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"></span>
-              <span className="relative text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 animate-gradient-x">
+              <span className="relative text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-cyan-400 animate-gradient-x">
                 visible
               </span>
             </span>

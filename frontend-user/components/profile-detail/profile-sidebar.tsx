@@ -40,7 +40,7 @@ export function ProfileSidebar({
             {/* Coordinates card */}
             <div className="bg-white/70 backdrop-blur-xl border border-white/50 rounded-[28px] sm:rounded-[32px] p-5 sm:p-6 shadow-xl shadow-slate-100/40 relative overflow-hidden">
                 <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                    <Globe className="h-4 w-4 text-[#022753]" />
+                    <Globe className="h-4 w-4 text-[#013ff4]" />
                     Coordonnées
                 </h3>
 
@@ -90,7 +90,7 @@ export function ProfileSidebar({
             {/* Share card */}
             <div className="bg-white/70 backdrop-blur-xl border border-white/50 rounded-[28px] sm:rounded-[32px] p-5 sm:p-6 shadow-xl shadow-slate-100/40 overflow-hidden">
                 <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                    <Share2 className="h-4 w-4 text-[#022753] shrink-0" />
+                    <Share2 className="h-4 w-4 text-[#013ff4] shrink-0" />
                     Partage
                 </h3>
 
@@ -117,7 +117,7 @@ export function ProfileSidebar({
                             className="h-11 rounded-2xl border-slate-200 bg-white/80 hover:bg-slate-50 font-black text-xs gap-2 transition-all duration-300 hover:-translate-y-0.5 shadow-sm"
                             onClick={() => setIsShareModalOpen(true)}
                         >
-                            <Share className="h-4 w-4 text-[#022753]" />
+                            <Share className="h-4 w-4 text-[#013ff4]" />
                             Partager
                         </Button>
                         <Button
@@ -125,7 +125,7 @@ export function ProfileSidebar({
                             className="h-11 rounded-2xl border-slate-200 bg-white/80 hover:bg-slate-50 font-black text-xs gap-2 transition-all duration-300 hover:-translate-y-0.5 shadow-sm"
                             onClick={downloadVCard}
                         >
-                            <Download className="h-4 w-4 text-[#CE1126]" />
+                            <Download className="h-4 w-4 text-[#03b3f8]" />
                             vCard
                         </Button>
                     </div>

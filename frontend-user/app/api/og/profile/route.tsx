@@ -64,8 +64,8 @@ export async function GET(request: Request) {
             flexDirection: 'column',
             alignItems: 'flex-start',
             justifyContent: 'center',
-            backgroundColor: '#022753', // EmiID dark blue
-            backgroundImage: 'linear-gradient(to bottom right, #022753 0%, #011833 100%)',
+            backgroundColor: '#013ff4', // EmiID dark blue
+            backgroundImage: 'linear-gradient(to bottom right, #013ff4 0%, #011833 100%)',
             padding: '80px',
             position: 'relative',
             fontFamily: 'sans-serif',
@@ -78,7 +78,7 @@ export async function GET(request: Request) {
             right: -100,
             width: 500,
             height: 500,
-            backgroundColor: 'rgba(206, 17, 38, 0.15)', // EmiID red accent
+            backgroundColor: 'rgba(3, 179, 248, 0.18)', // EmiID cyan accent (charte)
             borderRadius: '50%',
             filter: 'blur(80px)',
           }} />
@@ -147,7 +147,7 @@ export async function GET(request: Request) {
               <p style={{
                 fontSize: '36px',
                 fontWeight: 700,
-                color: '#CE1126',
+                color: '#03b3f8',
                 margin: '0 0 10px 0',
                 textTransform: 'uppercase',
                 letterSpacing: '1px'

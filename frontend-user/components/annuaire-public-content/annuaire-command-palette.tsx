@@ -101,7 +101,7 @@ const SECTORS: Option[] = [
 const itemClass = (isActive: boolean) =>
   `group rounded-xl my-0.5 mx-1 px-2.5 py-2.5 flex items-center gap-3 cursor-pointer transition-colors
    data-[selected=true]:bg-slate-100 data-[selected=true]:text-slate-900
-   ${isActive ? "bg-[#022753]/[0.06] text-[#022753] ring-1 ring-[#022753]/15" : "text-slate-700"}`
+   ${isActive ? "bg-[#013ff4]/[0.06] text-[#013ff4] ring-1 ring-[#013ff4]/15" : "text-slate-700"}`
 
 export function AnnuaireCommandPalette({ open, setOpen, filters, onFilterChange }: AnnuaireCommandPaletteProps) {
   const [inputValue, setInputValue] = React.useState(filters.search)
@@ -130,7 +130,7 @@ export function AnnuaireCommandPalette({ open, setOpen, filters, onFilterChange 
           <Icon className={`h-4 w-4 ${opt.color}`} />
         </span>
         <span className="font-semibold text-sm truncate">{opt.label}</span>
-        {isActive && <Check className="ml-auto h-4 w-4 text-[#022753] shrink-0" strokeWidth={3} />}
+        {isActive && <Check className="ml-auto h-4 w-4 text-[#013ff4] shrink-0" strokeWidth={3} />}
       </CommandItem>
     )
   }
@@ -144,7 +144,7 @@ export function AnnuaireCommandPalette({ open, setOpen, filters, onFilterChange 
       className="sm:max-w-xl overflow-hidden rounded-3xl border border-slate-200 bg-white/95 backdrop-blur-2xl text-slate-900 shadow-[0_24px_70px_-15px_rgba(2,39,83,0.25)]"
     >
       {/* Liseré dégradé brand en haut */}
-      <div className="h-1 w-full bg-gradient-to-r from-[#022753] via-indigo-500 to-[#CE1126]" />
+      <div className="h-1 w-full bg-gradient-to-r from-[#013ff4] via-indigo-500 to-[#03b3f8]" />
 
       <CommandInput
         placeholder="Rechercher par nom, métier, compétence…"

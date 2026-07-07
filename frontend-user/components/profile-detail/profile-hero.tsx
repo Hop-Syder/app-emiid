@@ -125,7 +125,7 @@ export function ProfileHero({
                             alt={profile.name}
                             className="object-cover rounded-full"
                         />
-                        <AvatarFallback className="bg-gradient-to-br from-[#022753] to-slate-800 text-white text-3xl font-bold rounded-full flex items-center justify-center">
+                        <AvatarFallback className="bg-gradient-to-br from-[#013ff4] to-slate-800 text-white text-3xl font-bold rounded-full flex items-center justify-center">
                             {initials}
                         </AvatarFallback>
                     </Avatar>
@@ -171,7 +171,7 @@ export function ProfileHero({
                         <Button
                             size="default"
                             disabled={followLoading}
-                            className="rounded-full h-11 text-xs px-5 gap-2 font-semibold tracking-wide bg-[#022753] hover:bg-[#022753]/90 shadow-lg shadow-[#022753]/20 transition-all hover:-translate-y-0.5 active:translate-y-0 text-white flex-1 sm:flex-none min-w-[120px]"
+                            className="rounded-full h-11 text-xs px-5 gap-2 font-semibold tracking-wide bg-[#013ff4] hover:bg-[#013ff4]/90 shadow-lg shadow-[#013ff4]/20 transition-all hover:-translate-y-0.5 active:translate-y-0 text-white flex-1 sm:flex-none min-w-[120px]"
                             onClick={handleFollow}
                         >
                             {followLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Users className="h-4 w-4" />}
@@ -205,17 +205,17 @@ export function ProfileHero({
                 {/* Statistiques (ligne dédiée avec séparateur) */}
                 <div className="flex items-center gap-6 sm:gap-10 mt-6 pt-6 border-t border-slate-200/50">
                     <div className="flex flex-col items-start group cursor-default">
-                        <div className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight leading-none group-hover:text-[#022753] transition-colors">{followersCount}</div>
+                        <div className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight leading-none group-hover:text-[#013ff4] transition-colors">{followersCount}</div>
                         <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.15em] mt-1.5">Abonnés</div>
                     </div>
                     <div className="w-px h-8 bg-slate-200/60 rotate-12" />
                     <div className="flex flex-col items-start group cursor-default">
-                        <div className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight leading-none group-hover:text-[#022753] transition-colors">{profile.following}</div>
+                        <div className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight leading-none group-hover:text-[#013ff4] transition-colors">{profile.following}</div>
                         <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.15em] mt-1.5">Suivis</div>
                     </div>
                     <div className="w-px h-8 bg-slate-200/60 rotate-12" />
                     <div className="flex flex-col items-start group cursor-default">
-                        <div className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight leading-none group-hover:text-[#022753] transition-colors">{profile.skills.length}</div>
+                        <div className="text-xl sm:text-2xl font-semibold text-slate-900 tracking-tight leading-none group-hover:text-[#013ff4] transition-colors">{profile.skills.length}</div>
                         <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.15em] mt-1.5">Skills</div>
                     </div>
                 </div>

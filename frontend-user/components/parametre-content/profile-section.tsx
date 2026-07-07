@@ -238,9 +238,9 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
                 Numéro certifié
               </div>
             ) : verifyMethod ? (
-              <div className="p-4 bg-[#022753]/5 border border-[#022753]/20 rounded-xl">
-                <p className="text-sm font-bold text-[#022753] mb-0.5">Code envoyé</p>
-                <p className="text-xs text-[#022753]/80 mb-4">
+              <div className="p-4 bg-[#013ff4]/5 border border-[#013ff4]/20 rounded-xl">
+                <p className="text-sm font-bold text-[#013ff4] mb-0.5">Code envoyé</p>
+                <p className="text-xs text-[#013ff4]/80 mb-4">
                   Entrez le code à 6 chiffres reçu sur <strong>{profile.phone}</strong>.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-2">
@@ -252,13 +252,13 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
                     onChange={e => setOtpCode(e.target.value.replace(/[^0-9]/g, ""))}
                     placeholder="000000"
                     maxLength={6}
-                    className="h-11 text-center text-xl tracking-[0.4em] font-black rounded-xl border-[#022753]/30 bg-white flex-1"
+                    className="h-11 text-center text-xl tracking-[0.4em] font-black rounded-xl border-[#013ff4]/30 bg-white flex-1"
                   />
                   <div className="flex gap-2 shrink-0">
                     <Button type="button" variant="ghost" onClick={() => { setVerifyMethod(null); setOtpCode("") }} className="h-11 px-4 rounded-xl text-slate-500">
                       Annuler
                     </Button>
-                    <Button type="button" onClick={handleVerifySubmit} disabled={otpCode.length < 6 || verifying} className="h-11 px-5 rounded-xl bg-[#022753] hover:bg-[#033a7a] text-white font-bold">
+                    <Button type="button" onClick={handleVerifySubmit} disabled={otpCode.length < 6 || verifying} className="h-11 px-5 rounded-xl bg-[#013ff4] hover:bg-[#033a7a] text-white font-bold">
                       {verifying ? <Loader2 className="h-4 w-4 animate-spin" /> : "Confirmer"}
                     </Button>
                   </div>

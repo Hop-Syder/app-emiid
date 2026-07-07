@@ -203,7 +203,7 @@ export function ShareModal({ isOpen, onOpenChange, profile, profileUrl }: ShareM
                     {/* Profile custom link */}
                     <div className="space-y-2.5">
                         <span className="text-xs font-black text-slate-400 uppercase tracking-wider ml-1">Lien personnalisé</span>
-                        <div className="flex items-center gap-2 p-1.5 bg-slate-50 border border-slate-200/60 rounded-2xl transition-all focus-within:border-[#022753]/30 focus-within:ring-2 focus-within:ring-[#022753]/5">
+                        <div className="flex items-center gap-2 p-1.5 bg-slate-50 border border-slate-200/60 rounded-2xl transition-all focus-within:border-[#013ff4]/30 focus-within:ring-2 focus-within:ring-[#013ff4]/5">
                             <span className="pl-3 text-xs text-slate-400 font-bold select-none">app.emiid.com/profil/</span>
                             <Input
                                 readOnly

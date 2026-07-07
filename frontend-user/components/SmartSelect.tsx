@@ -103,12 +103,12 @@ export function SmartSelect({ table, label, value, onChange, placeholder }: Smar
 
     return (
         <div className="flex flex-col gap-2 relative group" ref={commandRef}>
-            <label className="text-sm font-medium text-gray-700 group-focus-within:text-[#022753] transition-colors">
+            <label className="text-sm font-medium text-gray-700 group-focus-within:text-[#013ff4] transition-colors">
                 {label}
             </label>
 
             <div className="relative">
-                <Command className="rounded-xl border border-gray-200 bg-white overflow-visible shadow-sm focus-within:ring-2 focus-within:ring-[#022753]/20 focus-within:border-[#022753] transition-all">
+                <Command className="rounded-xl border border-gray-200 bg-white overflow-visible shadow-sm focus-within:ring-2 focus-within:ring-[#013ff4]/20 focus-within:border-[#013ff4] transition-all">
                     <div className="flex items-center px-3 border-b-0">
                         <CommandInput
                             placeholder={placeholder || "Rechercher ou créer..."}
@@ -155,7 +155,7 @@ export function SmartSelect({ table, label, value, onChange, placeholder }: Smar
                                             >
                                                 <Check
                                                     className={cn(
-                                                        "mr-2 h-4 w-4 text-[#022753]",
+                                                        "mr-2 h-4 w-4 text-[#013ff4]",
                                                         value === option ? "opacity-100" : "opacity-0"
                                                     )}
                                                 />

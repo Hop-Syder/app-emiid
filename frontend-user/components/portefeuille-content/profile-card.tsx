@@ -182,7 +182,7 @@ export function ProfileCard({ profile, onUnfollow, onViewProfile, onSaveNote, on
                         placeholder="Ajouter des notes stratégiques..."
                         className={cn(
                             "w-full h-full min-h-[120px] text-sm resize-none bg-transparent border-0 focus-visible:ring-0 p-0 shadow-none font-medium leading-relaxed",
-                            profile.premium ? "placeholder:text-slate-500" : "placeholder:text-[#a6abb3]/60 text-[#022753]"
+                            profile.premium ? "placeholder:text-slate-500" : "placeholder:text-[#a6abb3]/60 text-[#013ff4]"
                         )}
                     />
                 </div>
@@ -200,7 +200,7 @@ export function ProfileCard({ profile, onUnfollow, onViewProfile, onSaveNote, on
                             variant="ghost"
                             size="sm"
                             onClick={() => onViewProfile?.(profile.slug || profile.id)}
-                            className={cn("h-9 px-3 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-all", profile.premium ? "text-slate-400 hover:text-white" : "text-[#a6abb3] hover:bg-[#a6abb3]/20 hover:text-[#022753]")}
+                            className={cn("h-9 px-3 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-all", profile.premium ? "text-slate-400 hover:text-white" : "text-[#a6abb3] hover:bg-[#a6abb3]/20 hover:text-[#013ff4]")}
                         >
                             <ExternalLink className="h-4 w-4 mr-2" /> Profil
                         </Button>

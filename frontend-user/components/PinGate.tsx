@@ -172,7 +172,7 @@ export function PinGate({ children }: { children: React.ReactNode }) {
         // Écran de chargement minimaliste pour éviter le flash
         return (
             <div className="flex h-screen w-full items-center justify-center bg-white">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#022753] border-t-transparent" />
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#013ff4] border-t-transparent" />
             </div>
         )
     }
@@ -184,12 +184,12 @@ export function PinGate({ children }: { children: React.ReactNode }) {
                     
                     {recoveryStep === "none" ? (
                         <>
-                            <div className={`h-16 w-16 rounded-full flex items-center justify-center mb-2 ${isHardLocked ? 'bg-red-50' : 'bg-[#022753]/5'}`}>
-                                <Lock className={`h-7 w-7 ${isHardLocked ? 'text-red-600' : 'text-[#022753]'}`} />
+                            <div className={`h-16 w-16 rounded-full flex items-center justify-center mb-2 ${isHardLocked ? 'bg-red-50' : 'bg-[#013ff4]/5'}`}>
+                                <Lock className={`h-7 w-7 ${isHardLocked ? 'text-red-600' : 'text-[#013ff4]'}`} />
                             </div>
 
                             <div className="text-center space-y-2">
-                                <h2 className={`text-xl font-bold ${isHardLocked ? 'text-red-600' : 'text-[#022753]'}`}>
+                                <h2 className={`text-xl font-bold ${isHardLocked ? 'text-red-600' : 'text-[#013ff4]'}`}>
                                     {isHardLocked ? "Compte Bloqué" : "Sécurité EmiID"}
                                 </h2>
                                 <p className="text-sm text-gray-500">
@@ -253,16 +253,16 @@ export function PinGate({ children }: { children: React.ReactNode }) {
                         </>
                     ) : recoveryStep === "request" ? (
                         <>
-                            <div className="h-16 w-16 rounded-full bg-[#022753]/5 flex items-center justify-center mb-2">
-                                <KeyRound className="h-7 w-7 text-[#022753]" />
+                            <div className="h-16 w-16 rounded-full bg-[#013ff4]/5 flex items-center justify-center mb-2">
+                                <KeyRound className="h-7 w-7 text-[#013ff4]" />
                             </div>
 
                             <div className="text-center space-y-2">
-                                <h2 className="text-xl font-bold text-[#022753]">
+                                <h2 className="text-xl font-bold text-[#013ff4]">
                                     Code PIN oublié ?
                                 </h2>
                                 <p className="text-sm text-gray-500 px-2 leading-relaxed">
-                                    Nous allons envoyer un <span className="font-semibold text-[#022753]">code de vérification</span> sur votre adresse e-mail pour confirmer votre identité et réinitialiser votre code PIN.
+                                    Nous allons envoyer un <span className="font-semibold text-[#013ff4]">code de vérification</span> sur votre adresse e-mail pour confirmer votre identité et réinitialiser votre code PIN.
                                 </p>
                             </div>
 
@@ -275,7 +275,7 @@ export function PinGate({ children }: { children: React.ReactNode }) {
                                 <Button 
                                     onClick={() => void handleRequestRecovery()}
                                     disabled={recoveryLoading}
-                                    className="w-full h-11 rounded-xl bg-[#022753] hover:bg-[#033a7a]"
+                                    className="w-full h-11 rounded-xl bg-[#013ff4] hover:bg-[#033a7a]"
                                 >
                                     {recoveryLoading ? (
                                         <div className="flex items-center gap-2">
@@ -306,7 +306,7 @@ export function PinGate({ children }: { children: React.ReactNode }) {
                             </div>
 
                             <div className="text-center space-y-2">
-                                <h2 className="text-xl font-bold text-[#022753]">
+                                <h2 className="text-xl font-bold text-[#013ff4]">
                                     Vérification par e-mail
                                 </h2>
                                 <p className="text-sm text-gray-500 px-2 leading-relaxed">
@@ -395,7 +395,7 @@ export function PinGate({ children }: { children: React.ReactNode }) {
                                     setRecoveryStep("none")
                                     setError("")
                                 }}
-                                className="w-full h-11 rounded-xl bg-[#022753] hover:bg-[#033a7a]"
+                                className="w-full h-11 rounded-xl bg-[#013ff4] hover:bg-[#033a7a]"
                             >
                                 Continuer
                             </Button>

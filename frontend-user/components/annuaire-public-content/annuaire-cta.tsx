@@ -36,20 +36,20 @@ export function AnnuaireCTA() {
                     className="group relative inline-flex items-center justify-center gap-2 sm:gap-3 px-6 py-4 sm:px-10 sm:py-5 rounded-2xl overflow-hidden transition-all duration-500 hover:scale-105 active:scale-95 shadow-[0_0_40px_rgba(99,102,241,0.4)] hover:shadow-[0_0_60px_rgba(99,102,241,0.6)]"
                 >
                     {/* Glowing Borders & Background Layers */}
-                    <div className="absolute inset-0 rounded-2xl p-[2px] bg-gradient-to-b from-blue-400 via-indigo-600 to-purple-900">
+                    <div className="absolute inset-0 rounded-2xl p-[2px] bg-gradient-to-b from-blue-400 via-indigo-600 to-blue-900">
                         <div className="absolute inset-0 bg-slate-950 rounded-2xl opacity-90" />
                     </div>
 
                     <div className="absolute inset-[2px] bg-slate-950 rounded-2xl opacity-95" />
                     <div className="absolute inset-[2px] bg-gradient-to-r from-slate-950 via-indigo-950/80 to-slate-950 rounded-2xl opacity-90" />
-                    <div className="absolute inset-[2px] bg-gradient-to-b from-blue-500/30 via-indigo-950 to-purple-900/30 rounded-2xl opacity-80" />
+                    <div className="absolute inset-[2px] bg-gradient-to-b from-blue-500/30 via-indigo-950 to-blue-900/30 rounded-2xl opacity-80" />
                     <div className="absolute inset-[2px] bg-gradient-to-br from-indigo-400/20 via-slate-950 to-blue-900/40 rounded-2xl" />
                     
                     {/* Inner Shadow / Glow */}
                     <div className="absolute inset-[2px] shadow-[inset_0_0_20px_rgba(99,102,241,0.3)] rounded-2xl" />
 
                     {/* Hover State Glow */}
-                    <div className="absolute inset-[2px] opacity-0 transition-opacity duration-500 bg-gradient-to-r from-blue-500/20 via-indigo-400/20 to-purple-500/20 group-hover:opacity-100 rounded-2xl" />
+                    <div className="absolute inset-[2px] opacity-0 transition-opacity duration-500 bg-gradient-to-r from-blue-500/20 via-indigo-400/20 to-blue-500/20 group-hover:opacity-100 rounded-2xl" />
 
                     {/* Content */}
                     <div className="relative z-10 flex items-center justify-center gap-2 sm:gap-3">

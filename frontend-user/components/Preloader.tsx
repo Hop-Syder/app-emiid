@@ -30,7 +30,7 @@ export function Preloader({
     return (
         <div className={cn("flex flex-col items-center justify-center relative overflow-hidden px-4 w-full", minHeight, className)}>
             {/* Glow d'ambiance en arrière-plan */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[260px] h-[260px] sm:w-[350px] sm:h-[350px] bg-gradient-to-tr from-primary/10 via-violet-500/5 to-indigo-500/10 rounded-full blur-3xl animate-pulse" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[260px] h-[260px] sm:w-[350px] sm:h-[350px] bg-gradient-to-tr from-primary/10 via-secondary/5 to-secondary/10 rounded-full blur-3xl animate-pulse" />
 
             <div className="z-10 flex flex-col items-center gap-6 sm:gap-8 max-w-md w-full">
                 {/* Anneaux + logo central */}
@@ -46,7 +46,7 @@ export function Preloader({
                     <motion.div
                         animate={{ rotate: -360 }}
                         transition={{ duration: 3.5, repeat: Infinity, ease: "linear" }}
-                        className="absolute inset-2 rounded-full border-2 border-b-violet-500/40 border-l-violet-500/20 border-t-transparent border-r-transparent"
+                        className="absolute inset-2 rounded-full border-2 border-b-secondary/50 border-l-secondary/30 border-t-transparent border-r-transparent"
                     />
 
                     {/* Disque central en verre poli avec le LOGO EmiID */}

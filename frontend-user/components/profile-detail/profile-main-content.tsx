@@ -17,7 +17,7 @@ import Image from "next/image"
 const getSkillBadgeStyles = (idx: number) => {
     const presets = [
         "from-blue-500/10 to-indigo-500/10 text-blue-700 border-blue-200/50 hover:bg-blue-100/20",
-        "from-[#CE1126]/5 to-[#CE1126]/10 text-[#CE1126] border-[#CE1126]/20 hover:bg-[#CE1126]/15",
+        "from-[#03b3f8]/5 to-[#03b3f8]/10 text-[#03b3f8] border-[#03b3f8]/20 hover:bg-[#03b3f8]/15",
         "from-emerald-500/10 to-teal-500/10 text-emerald-700 border-emerald-200/50 hover:bg-emerald-100/20",
         "from-amber-500/10 to-orange-500/10 text-amber-700 border-amber-200/50 hover:bg-amber-100/20",
         "from-purple-500/10 to-pink-500/10 text-purple-700 border-purple-200/50 hover:bg-purple-100/20",
@@ -57,9 +57,9 @@ export function ProfileMainContent({ profile, gallery, loadingGallery }: Profile
             {/* About card */}
             <div className="bg-white/70 backdrop-blur-xl border border-white/50 rounded-[28px] sm:rounded-[32px] p-5 sm:p-8 shadow-xl shadow-slate-100/40 relative overflow-hidden group">
                 {/* Decorative element */}
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-[#CE1126]/5 to-transparent rounded-bl-full pointer-events-none" />
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-[#03b3f8]/5 to-transparent rounded-bl-full pointer-events-none" />
                 <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                    <Award className="h-4 w-4 text-[#CE1126] shrink-0" />
+                    <Award className="h-4 w-4 text-[#03b3f8] shrink-0" />
                     À propos de moi
                 </h2>
                 <p className="mt-5 text-slate-700 leading-relaxed text-sm sm:text-base whitespace-pre-line break-words font-medium">
@@ -73,19 +73,19 @@ export function ProfileMainContent({ profile, gallery, loadingGallery }: Profile
                     <TabsList className="bg-slate-100/50 border border-slate-200/50 w-full justify-start h-auto p-1.5 mb-6 gap-2 rounded-2xl backdrop-blur-sm flex overflow-x-auto no-scrollbar snap-x whitespace-nowrap">
                         <TabsTrigger
                             value="skills"
-                            className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-[#022753] data-[state=active]:shadow-md data-[state=active]:border-white/80 bg-transparent px-5 py-2.5 text-xs sm:text-sm font-black text-slate-500 transition-all duration-300 snap-start shrink-0"
+                            className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-[#013ff4] data-[state=active]:shadow-md data-[state=active]:border-white/80 bg-transparent px-5 py-2.5 text-xs sm:text-sm font-black text-slate-500 transition-all duration-300 snap-start shrink-0"
                         >
                             Compétences
                         </TabsTrigger>
                         <TabsTrigger
                             value="portfolio"
-                            className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-[#022753] data-[state=active]:shadow-md data-[state=active]:border-white/80 bg-transparent px-5 py-2.5 text-xs sm:text-sm font-black text-slate-500 transition-all duration-300 snap-start shrink-0"
+                            className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-[#013ff4] data-[state=active]:shadow-md data-[state=active]:border-white/80 bg-transparent px-5 py-2.5 text-xs sm:text-sm font-black text-slate-500 transition-all duration-300 snap-start shrink-0"
                         >
                             Portfolio & Réalisations
                         </TabsTrigger>
                         <TabsTrigger
                             value="experience"
-                            className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-[#022753] data-[state=active]:shadow-md data-[state=active]:border-white/80 bg-transparent px-5 py-2.5 text-xs sm:text-sm font-black text-slate-500 transition-all duration-300 snap-start shrink-0"
+                            className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-[#013ff4] data-[state=active]:shadow-md data-[state=active]:border-white/80 bg-transparent px-5 py-2.5 text-xs sm:text-sm font-black text-slate-500 transition-all duration-300 snap-start shrink-0"
                         >
                             Parcours & Expériences
                         </TabsTrigger>
@@ -117,7 +117,7 @@ export function ProfileMainContent({ profile, gallery, loadingGallery }: Profile
                     <TabsContent value="portfolio" className="animate-in fade-in duration-300 focus-visible:outline-none">
                         {loadingGallery ? (
                             <div className="flex flex-col items-center justify-center p-12 text-center">
-                                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#022753] mb-4"></div>
+                                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#013ff4] mb-4"></div>
                                 <p className="text-slate-500 text-xs font-bold">Chargement du portfolio...</p>
                             </div>
                         ) : gallery.length > 0 ? (
@@ -142,7 +142,7 @@ export function ProfileMainContent({ profile, gallery, loadingGallery }: Profile
                                             )}
                                         </div>
                                         <div className="p-5">
-                                            <h4 className="text-sm font-extrabold text-slate-900 group-hover:text-[#022753] transition-colors duration-300">
+                                            <h4 className="text-sm font-extrabold text-slate-900 group-hover:text-[#013ff4] transition-colors duration-300">
                                                 {item.title}
                                             </h4>
                                             {item.description && (
@@ -167,8 +167,8 @@ export function ProfileMainContent({ profile, gallery, loadingGallery }: Profile
                                 <div className="relative border-l-2 border-slate-200 pl-6 ml-3 space-y-6 py-2">
                                     {profile.experiences.map((exp: ExperienceItem, idx: number) => (
                                         <div key={idx} className="relative group">
-                                            <div className="absolute -left-[31px] top-1 h-3.5 w-3.5 rounded-full bg-white border-2 border-[#022753] flex items-center justify-center transition-all duration-300 group-hover:scale-110">
-                                                <div className="h-1 w-1 rounded-full bg-[#022753]" />
+                                            <div className="absolute -left-[31px] top-1 h-3.5 w-3.5 rounded-full bg-white border-2 border-[#013ff4] flex items-center justify-center transition-all duration-300 group-hover:scale-110">
+                                                <div className="h-1 w-1 rounded-full bg-[#013ff4]" />
                                             </div>
                                             <div className="transition-all duration-300 group-hover:translate-x-1">
                                                 <h4 className="text-sm font-extrabold text-slate-900">{exp.title}</h4>

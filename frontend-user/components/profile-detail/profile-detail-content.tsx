@@ -111,7 +111,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                 <Button
                     onClick={() => router.push("/annuaire")}
                     size="lg"
-                    className="rounded-2xl gap-2 font-bold bg-[#022753] hover:bg-[#022753]/95 shadow-lg shadow-[#022753]/20 transition-all active:scale-95"
+                    className="rounded-2xl gap-2 font-bold bg-[#013ff4] hover:bg-[#013ff4]/95 shadow-lg shadow-[#013ff4]/20 transition-all active:scale-95"
                 >
                     <ArrowLeft className="h-4 w-4" />
                     Retour à l&apos;annuaire
@@ -121,7 +121,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-tr from-[#022753]/5 via-[#f8fafc] to-[#CE1126]/5 text-slate-900 antialiased selection:bg-[#022753]/10 selection:text-[#022753]">
+        <div className="min-h-screen bg-gradient-to-tr from-[#013ff4]/5 via-[#f8fafc] to-[#03b3f8]/5 text-slate-900 antialiased selection:bg-[#013ff4]/10 selection:text-[#013ff4]">
             <div
                 className={cn(
                     "sticky top-0 z-50 transition-all duration-300",
@@ -256,7 +256,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
 
 function ProfileSkeleton() {
     return (
-        <div className="min-h-screen bg-gradient-to-tr from-[#022753]/5 via-[#f8fafc] to-[#CE1126]/5 animate-pulse">
+        <div className="min-h-screen bg-gradient-to-tr from-[#013ff4]/5 via-[#f8fafc] to-[#03b3f8]/5 animate-pulse">
             <div className="h-16 container max-w-6xl mx-auto px-4 flex items-center justify-between py-6">
                 <div className="h-10 w-24 bg-slate-200 rounded-2xl" />
                 <div className="h-10 w-28 bg-slate-200 rounded-2xl" />

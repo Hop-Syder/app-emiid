@@ -1,14 +1,43 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Styles globaux de l'application avec configuration des polices de la charte (Satoshi & General Sans)
+ * @description Styles globaux de l'application avec configuration des polices de la charte (Mitsuha titres + Inter corps, Satoshi en secours)
  * @created 2026-06-02
  * @updated 2026-06-02
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
 
-@import url('https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700,900&f[]=general-sans@300,400,500,600,700&display=swap');
+/* Charte typographique EmiID —
+ *  • Corps : Inter (substitut libre de « Google Sans », non licenciable).
+ *  • Titres : Mitsuha (auto-hébergée, cf. @font-face ci-dessous), Satoshi en secours. */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700,900&display=swap');
+
+/* ── Mitsuha (titres, charte) — auto-hébergée.
+ * Déposez les fichiers dans frontend-user/public/fonts/ (voir public/fonts/README.md).
+ * Tant que les fichiers sont absents, les titres retombent proprement sur Satoshi. */
+@font-face {
+  font-family: 'Mitsuha';
+  src: url('/fonts/Mitsuha-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Mitsuha';
+  src: url('/fonts/Mitsuha-Medium.woff2') format('woff2');
+  font-weight: 500 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Mitsuha';
+  src: url('/fonts/Mitsuha-Bold.woff2') format('woff2');
+  font-weight: 700 900;
+  font-style: normal;
+  font-display: swap;
+}
 
 @tailwind base;
 @tailwind components;
@@ -25,125 +54,141 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  /* ── Dégradé de marque EmiID (charte) : bleu roi → bleu nuit, 45° ── */
+  .bg-brand-gradient {
+    background-image: linear-gradient(45deg, #013ff4 0%, #000616 150%);
+  }
+  .text-brand-gradient {
+    background-image: linear-gradient(45deg, #013ff4, #03b3f8);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
 }
 
 @layer base {
   :root {
-    --font-sans: 'General Sans', 'Inter', system-ui, sans-serif;
-    --font-heading: 'Satoshi', sans-serif;
+    --font-sans: 'Inter', system-ui, sans-serif;
+    --font-heading: 'Mitsuha', 'Satoshi', sans-serif;
     --font-mono: ui-monospace, monospace;
 
-    /* Background - Soft Lavender #FAF5FF */
-    --background: 270 100% 98%;
-    --foreground: 262 67% 35%;
+    /* Hex exacts de la charte EmiID (valeurs de référence) */
+    --brand-blue: #013ff4;   /* Bleu roi (primaire) */
+    --brand-cyan: #03b3f8;   /* Bleu clair (secondaire) */
+    --brand-navy: #000616;   /* Bleu nuit (sombre) */
+
+    /* ── CHARTE EmiID — fond blanc, texte bleu nuit #000616 ── */
+    --background: 0 0% 100%;
+    --foreground: 224 100% 4%;
 
     /* Cards */
     --card: 0 0% 100%;
-    --card-foreground: 210 100% 10%;
+    --card-foreground: 224 100% 4%;
 
     /* Popovers */
     --popover: 0 0% 100%;
-    --popover-foreground: 210 100% 10%;
+    --popover-foreground: 224 100% 4%;
 
-    /* Primary - Violet #7C3AED */
-    --primary: 262 83% 58%;
+    /* Primaire — Bleu roi #013ff4 */
+    --primary: 225 99% 48%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary - Light Purple #A78BFA */
-    --secondary: 262 89% 76%;
-    --secondary-foreground: 210 100% 10%;
+    /* Secondaire — Bleu clair / cyan #03b3f8 */
+    --secondary: 197 98% 49%;
+    --secondary-foreground: 0 0% 100%;
 
     /* Muted - Gris Chaud */
     --muted: 220 14% 96%;
     --muted-foreground: 220 9% 46%;
 
-    /* Accent - Green CTA #22C55E */
-    --accent: 142 71% 45%;
-    --accent-foreground: 0 0% 100%;
+    /* Accent — bleu très clair (surfaces de survol) */
+    --accent: 210 100% 96%;
+    --accent-foreground: 224 100% 4%;
 
-    /* Destructive */
+    /* Destructive — rouge SÉMANTIQUE (erreurs uniquement, hors marque) */
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
     /* Borders & Inputs */
     --border: 220 13% 91%;
     --input: 220 13% 91%;
-    --ring: 210 95% 16%;
+    --ring: 225 99% 48%;
 
-    /* Charts */
-    --chart-1: 210 95% 16%;
-    --chart-2: 0 100% 71%;
-    --chart-3: 38 92% 50%;
-    --chart-4: 142 71% 45%;
+    /* Charts — famille bleue de la charte */
+    --chart-1: 225 99% 48%;
+    --chart-2: 197 98% 49%;
+    --chart-3: 224 100% 12%;
+    --chart-4: 210 90% 66%;
     --chart-5: 220 9% 46%;
 
     --radius: 0.75rem;
 
     /* Sidebar */
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 210 100% 10%;
-    --sidebar-primary: 210 95% 16%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 224 100% 4%;
+    --sidebar-primary: 225 99% 48%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 14% 96%;
-    --sidebar-accent-foreground: 210 100% 10%;
+    --sidebar-accent: 210 100% 96%;
+    --sidebar-accent-foreground: 224 100% 4%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 210 95% 16%;
+    --sidebar-ring: 225 99% 48%;
   }
 
   .dark {
-    /* Backgrounds */
-    --background: 210 100% 6%;
+    /* ── CHARTE EmiID (sombre) — fond bleu nuit #000616 ── */
+    --background: 224 100% 4%;
     --foreground: 0 0% 98%;
 
     /* Cards */
-    --card: 210 50% 10%;
+    --card: 222 47% 9%;
     --card-foreground: 0 0% 98%;
 
     /* Popovers */
-    --popover: 210 50% 10%;
+    --popover: 222 47% 9%;
     --popover-foreground: 0 0% 98%;
 
-    /* Primary - Bleu Marine (plus clair en dark) */
-    --primary: 210 100% 70%;
-    --primary-foreground: 210 100% 10%;
+    /* Primaire — bleu roi éclairci pour le sombre */
+    --primary: 222 100% 66%;
+    --primary-foreground: 224 100% 6%;
 
-    /* Secondary - Or/Ambre */
-    --secondary: 38 92% 50%;
-    --secondary-foreground: 210 100% 10%;
+    /* Secondaire — cyan #03b3f8 */
+    --secondary: 197 98% 55%;
+    --secondary-foreground: 224 100% 6%;
 
     /* Muted */
-    --muted: 210 30% 20%;
-    --muted-foreground: 220 9% 70%;
+    --muted: 217 40% 16%;
+    --muted-foreground: 220 12% 72%;
 
-    /* Accent - Corail */
-    --accent: 0 100% 71%;
-    --accent-foreground: 210 100% 10%;
+    /* Accent — bleu nuit clair (surfaces de survol) */
+    --accent: 222 47% 16%;
+    --accent-foreground: 0 0% 98%;
 
-    /* Destructive */
+    /* Destructive — rouge sémantique */
     --destructive: 0 62.8% 50%;
     --destructive-foreground: 0 0% 98%;
 
     /* Borders & Inputs */
-    --border: 210 30% 25%;
-    --input: 210 30% 25%;
-    --ring: 210 100% 70%;
+    --border: 217 33% 20%;
+    --input: 217 33% 20%;
+    --ring: 222 100% 66%;
 
-    /* Charts */
-    --chart-1: 210 100% 70%;
-    --chart-2: 0 100% 71%;
-    --chart-3: 38 92% 60%;
-    --chart-4: 142 71% 55%;
+    /* Charts — famille bleue */
+    --chart-1: 222 100% 66%;
+    --chart-2: 197 98% 55%;
+    --chart-3: 210 90% 78%;
+    --chart-4: 210 60% 50%;
     --chart-5: 220 9% 70%;
 
     /* Sidebar */
-    --sidebar-background: 210 50% 10%;
+    --sidebar-background: 222 47% 9%;
     --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 210 100% 70%;
-    --sidebar-primary-foreground: 210 100% 10%;
-    --sidebar-accent: 210 30% 20%;
+    --sidebar-primary: 222 100% 66%;
+    --sidebar-primary-foreground: 224 100% 6%;
+    --sidebar-accent: 222 47% 16%;
     --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 210 30% 25%;
-    --sidebar-ring: 210 100% 70%;
+    --sidebar-border: 217 33% 20%;
+    --sidebar-ring: 222 100% 66%;
   }
 }
 

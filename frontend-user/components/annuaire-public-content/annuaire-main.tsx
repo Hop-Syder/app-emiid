@@ -89,7 +89,7 @@ export function AnnuairePublicContent({
         <div className="w-full relative overflow-x-clip bg-slate-50/50 min-h-screen pb-20">
             {/* Ambient Background Glow */}
             <div className="absolute top-[20%] left-0 w-96 h-96 bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
-            <div className="absolute top-[60%] right-0 w-96 h-96 bg-purple-500/10 rounded-full blur-[120px] pointer-events-none" />
+            <div className="absolute top-[60%] right-0 w-96 h-96 bg-secondary/10 rounded-full blur-[120px] pointer-events-none" />
 
             <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-16 py-8">
                 
