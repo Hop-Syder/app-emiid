@@ -137,5 +137,11 @@
 - [2026-07-07] Design System : Mise à jour du master design system (`design-system/emiid/MASTER.md`) et des READMEs pour refléter officiellement la nouvelle charte graphique EmiID (polices Mitsuha/Inter, couleurs Bleu Roi, Bleu Cyan et Bleu Nuit, et style Luxury Bento / Glassmorphism).
 - [2026-07-08] Avatar par défaut : Modification d'AvatarUpload.tsx pour initialiser la prévisualisation avec l'avatar par défaut `/profil/avatar.jpg` et s'assurer que l'image change dynamiquement dès que l'utilisateur téléverse son propre fichier.
 - [2026-07-08] Avatar par défaut global : Extension de l'utilisation de l'image d'avatar par défaut `/profil/avatar.jpg` sur l'ensemble de l'application utilisateur (barre de navigation, panneau de messagerie, éléments de conversation et paramètres) lorsqu'aucune photo personnalisée n'est disponible.
+- [2026-07-08] Tooltips Admin : Intégration de Tooltips customisés (via Radix Tooltip) au survol de chaque icône du tableau d'actions d'administration des utilisateurs (`users-client.tsx`) afin de clarifier le rôle de chaque bouton et prévenir les erreurs d'activation d'actions.
+- [2026-07-08] P0 Admin - Suspension & Audit (par Claude Code) :
+  - Création de la migration SQL `20260708_admin_p0_suspension_audit.sql` ajoutant les colonnes de suspension sur `user_profiles`, créant la table `admin_audit_log` (RLS réservé aux admins) et mettant à jour la vue `public_profiles` pour en exclure automatiquement les profils suspendus.
+  - Implémentation côté serveur des actions d'administration (`suspendUser`, `reactivateUser`, `toggleAdmin`) dans `lib/actions/admin.ts`.
+  - Intégration côté client dans `users-client.tsx` (badge d'état "Suspendu", boîte de dialogue de saisie de motif et de durée de suspension, appel des actions de réactivation/suspension).
+  - Création du composant journal d'audit `audit-log-client.tsx` et sa route protégée `/audit` correspondante.
 
 

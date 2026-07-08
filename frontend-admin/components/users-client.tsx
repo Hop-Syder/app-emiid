@@ -3,6 +3,7 @@
  * @organization Nexus Partners
  * @description Page Utilisateurs Client avec donnees Supabase
  * @created 2026-03-18
+ * @updated 2026-07-08
  */
 
 "use client"
@@ -35,6 +36,12 @@ import {
   UserCog
 } from "lucide-react"
 import Image from "next/image"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import {
   getUsers,
   updateUserProfile,
@@ -242,7 +249,8 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
   ]
 
   return (
-    <div className="space-y-6">
+    <TooltipProvider>
+      <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
@@ -463,77 +471,131 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
 
                 {/* Actions */}
                 <div className="col-span-2 flex items-center justify-end gap-2">
-                  <button
-                    onClick={() => openUserDetail(user)}
-                    className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
-                    title="Voir details"
-                  >
-                    <Eye className="h-4 w-4 text-slate-400" />
-                  </button>
-                  <button 
-                    onClick={() => handleToggleVerified(user.id, user.is_verified || false)}
-                    className="p-2 hover:bg-slate-100 rounded-lg transition-colors" 
-                    title={user.is_verified ? "Révoquer la vérification" : "Vérifier l'identité"}
-                  >
-                    {user.is_verified ? (
-                      <BadgeCheck className="h-4 w-4 text-blue-500" />
-                    ) : (
-                      <BadgeCheck className="h-4 w-4 text-slate-300" />
-                    )}
-                  </button>
-                  <button 
-                    onClick={() => handleTogglePremium(user.id, user.is_premium || false)}
-                    className="p-2 hover:bg-slate-100 rounded-lg transition-colors" 
-                    title={user.is_premium ? "Retirer statut Premium" : "Passer en Premium"}
-                  >
-                    {user.is_premium ? (
-                      <Crown className="h-4 w-4 text-amber-500" />
-                    ) : (
-                      <Crown className="h-4 w-4 text-slate-300" />
-                    )}
-                  </button>
-                  <button 
-                    onClick={() => handleTogglePublished(user.id, user.is_published || false)}
-                    className="p-2 hover:bg-slate-100 rounded-lg transition-colors" 
-                    title={user.is_published ? "Depublier" : "Publier"}
-                  >
-                    {user.is_published ? (
-                      <ShieldX className="h-4 w-4 text-amber-500" />
-                    ) : (
-                      <ShieldCheck className="h-4 w-4 text-emerald-500" />
-                    )}
-                  </button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => openUserDetail(user)}
+                        className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                      >
+                        <Eye className="h-4 w-4 text-slate-400" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Voir détails</p>
+                    </TooltipContent>
+                  </Tooltip>
+
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={() => handleToggleVerified(user.id, user.is_verified || false)}
+                        className="p-2 hover:bg-slate-100 rounded-lg transition-colors" 
+                      >
+                        {user.is_verified ? (
+                          <BadgeCheck className="h-4 w-4 text-blue-500" />
+                        ) : (
+                          <BadgeCheck className="h-4 w-4 text-slate-300" />
+                        )}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{user.is_verified ? "Révoquer la vérification" : "Vérifier l'identité"}</p>
+                    </TooltipContent>
+                  </Tooltip>
+
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={() => handleTogglePremium(user.id, user.is_premium || false)}
+                        className="p-2 hover:bg-slate-100 rounded-lg transition-colors" 
+                      >
+                        {user.is_premium ? (
+                          <Crown className="h-4 w-4 text-amber-500" />
+                        ) : (
+                          <Crown className="h-4 w-4 text-slate-300" />
+                        )}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{user.is_premium ? "Retirer statut Premium" : "Passer en Premium"}</p>
+                    </TooltipContent>
+                  </Tooltip>
+
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={() => handleTogglePublished(user.id, user.is_published || false)}
+                        className="p-2 hover:bg-slate-100 rounded-lg transition-colors" 
+                      >
+                        {user.is_published ? (
+                          <ShieldX className="h-4 w-4 text-amber-500" />
+                        ) : (
+                          <ShieldCheck className="h-4 w-4 text-emerald-500" />
+                        )}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{user.is_published ? "Dépublier" : "Publier"}</p>
+                    </TooltipContent>
+                  </Tooltip>
+
                   {user.is_suspended ? (
-                    <button
-                      onClick={() => handleReactivate(user.id)}
-                      className="p-2 hover:bg-emerald-50 rounded-lg transition-colors"
-                      title="Réactiver le compte"
-                    >
-                      <RotateCcw className="h-4 w-4 text-emerald-500" />
-                    </button>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => handleReactivate(user.id)}
+                          className="p-2 hover:bg-emerald-50 rounded-lg transition-colors"
+                        >
+                          <RotateCcw className="h-4 w-4 text-emerald-500" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Réactiver le compte</p>
+                      </TooltipContent>
+                    </Tooltip>
                   ) : (
-                    <button
-                      onClick={() => handleSuspend(user.id)}
-                      className="p-2 hover:bg-orange-50 rounded-lg transition-colors"
-                      title="Suspendre le compte"
-                    >
-                      <Ban className="h-4 w-4 text-slate-400 hover:text-orange-500" />
-                    </button>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => handleSuspend(user.id)}
+                          className="p-2 hover:bg-orange-50 rounded-lg transition-colors"
+                        >
+                          <Ban className="h-4 w-4 text-slate-400 hover:text-orange-500" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Suspendre le compte</p>
+                      </TooltipContent>
+                    </Tooltip>
                   )}
-                  <button
-                    onClick={() => handleToggleAdmin(user.id, user.is_admin || false)}
-                    className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
-                    title={user.is_admin ? "Révoquer le rôle admin" : "Promouvoir administrateur"}
-                  >
-                    <UserCog className={`h-4 w-4 ${user.is_admin ? "text-[#013ff4]" : "text-slate-300"}`} />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteUser(user.id)}
-                    className="p-2 hover:bg-rose-50 rounded-lg transition-colors"
-                    title="Supprimer"
-                  >
-                    <Trash2 className="h-4 w-4 text-slate-400 hover:text-rose-500" />
-                  </button>
+
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => handleToggleAdmin(user.id, user.is_admin || false)}
+                        className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                      >
+                        <UserCog className={`h-4 w-4 ${user.is_admin ? "text-[#013ff4]" : "text-slate-300"}`} />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{user.is_admin ? "Révoquer le rôle admin" : "Promouvoir administrateur"}</p>
+                    </TooltipContent>
+                  </Tooltip>
+
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => handleDeleteUser(user.id)}
+                        className="p-2 hover:bg-rose-50 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="h-4 w-4 text-slate-400 hover:text-rose-500" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Supprimer</p>
+                    </TooltipContent>
+                  </Tooltip>
                 </div>
               </div>
             ))
@@ -789,6 +851,7 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+      </div>
+    </TooltipProvider>
   )
 }
