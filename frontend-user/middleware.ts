@@ -40,8 +40,43 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
+  // --- VERROU DE SUSPENSION ---
+  // Un compte suspendu (et non expiré) est verrouillé : aucune action possible,
+  // toute navigation est renvoyée vers /suspendu. Vérifié à chaque requête.
+  let isSuspended = false
+  if (user) {
+    // eslint-disable-next-line no-restricted-syntax -- accès authentifié à SA PROPRE ligne (RLS OK) pour lire l'état de suspension
+    const { data: prof } = await supabase
+      .from('user_profiles')
+      .select('is_suspended, suspended_until')
+      .eq('user_id', user.id)
+      .maybeSingle()
+    isSuspended = !!prof?.is_suspended &&
+      (!prof.suspended_until || new Date(prof.suspended_until as string).getTime() > Date.now())
+  }
+
   if (path.startsWith('/api')) {
+    // Un compte suspendu ne peut effectuer AUCUNE action via l'API.
+    if (isSuspended) {
+      return NextResponse.json({ error: 'ACCOUNT_SUSPENDED' }, { status: 403 })
+    }
     return response
+  }
+
+  if (isSuspended) {
+    // Seules la page /suspendu et le callback d'auth (déconnexion) restent accessibles.
+    if (path !== '/suspendu' && path !== '/auth/callback') {
+      url.pathname = '/suspendu'
+      url.search = ''
+      return NextResponse.redirect(url)
+    }
+    return response
+  }
+
+  // Un utilisateur NON suspendu ne doit jamais rester bloqué sur /suspendu.
+  if (path === '/suspendu') {
+    url.pathname = user ? '/dashboard-user' : '/login'
+    return NextResponse.redirect(url)
   }
 
   if (user?.user_metadata?.account_disabled) {
