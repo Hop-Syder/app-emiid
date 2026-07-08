@@ -23,6 +23,7 @@ import {
     MessageSquare,
     ShieldAlert,
     Flag,
+    ScrollText,
 } from "lucide-react"
 import { motion } from "framer-motion"
 import Link from "next/link"
@@ -67,6 +68,7 @@ export function AdminLayout({ children, adminProfile, moderationCounts }: AdminL
         { title: "Modération", icon: ShieldAlert, href: "/moderation", badge: counts.totalPending, testId: "nav-moderation-hub" },
         { title: "— Galeries", icon: ImageIcon, href: "/moderation/galerie", badge: counts.galleryPending, testId: "nav-moderation-gallery" },
         { title: "— Signalements", icon: Flag, href: "/moderation/signalements", badge: counts.reportsOpen, testId: "nav-moderation-reports" },
+        { title: "Journal d'audit", icon: ScrollText, href: "/audit", testId: "nav-audit" },
         { title: "Paramètres", icon: Settings, href: "/settings", testId: "nav-settings" },
     ]
 

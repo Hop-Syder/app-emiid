@@ -29,19 +29,25 @@ import {
   Crown,
   BadgeCheck,
   Loader2,
-  RefreshCw
+  RefreshCw,
+  Ban,
+  RotateCcw,
+  UserCog
 } from "lucide-react"
 import Image from "next/image"
-import { 
-  getUsers, 
-  updateUserProfile, 
-  toggleUserPublished, 
+import {
+  getUsers,
+  updateUserProfile,
+  toggleUserPublished,
   toggleUserVerified,
   toggleUserPremium,
   unlockUserPin,
   deleteUser,
-  type UserProfile, 
-  type Country 
+  suspendUser,
+  reactivateUser,
+  toggleAdmin,
+  type UserProfile,
+  type Country
 } from "@/lib/actions/admin"
 
 interface UsersClientProps {
@@ -135,6 +141,42 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
       setUsers(prev => prev.filter(u => u.id !== userId))
       setTotal(prev => prev - 1)
       setShowUserModal(false)
+    }
+  }
+
+  const handleSuspend = async (userId: string) => {
+    const reason = prompt("Motif de la suspension (visible dans le journal d'audit) :") ?? undefined
+    if (reason === undefined) return // annulé
+    const daysStr = prompt("Durée en jours (laisser vide = suspension permanente) :") ?? ""
+    const days = daysStr.trim() ? Math.max(1, parseInt(daysStr, 10) || 0) : null
+    const result = await suspendUser(userId, { reason: reason || undefined, days })
+    if (result.success) {
+      setUsers(prev => prev.map(u => u.id === userId ? { ...u, is_suspended: true } : u))
+      if (selectedUser?.id === userId) setSelectedUser(prev => prev ? { ...prev, is_suspended: true } : null)
+    } else {
+      alert(`Erreur : ${result.error}`)
+    }
+  }
+
+  const handleReactivate = async (userId: string) => {
+    const result = await reactivateUser(userId)
+    if (result.success) {
+      setUsers(prev => prev.map(u => u.id === userId ? { ...u, is_suspended: false } : u))
+      if (selectedUser?.id === userId) setSelectedUser(prev => prev ? { ...prev, is_suspended: false } : null)
+    } else {
+      alert(`Erreur : ${result.error}`)
+    }
+  }
+
+  const handleToggleAdmin = async (userId: string, currentIsAdmin: boolean) => {
+    const verb = currentIsAdmin ? "révoquer le rôle admin de" : "promouvoir administrateur"
+    if (!confirm(`Confirmer : ${verb} cet utilisateur ?`)) return
+    const result = await toggleAdmin(userId, !currentIsAdmin)
+    if (result.success) {
+      setUsers(prev => prev.map(u => u.id === userId ? { ...u, is_admin: !currentIsAdmin } : u))
+      if (selectedUser?.id === userId) setSelectedUser(prev => prev ? { ...prev, is_admin: !currentIsAdmin } : null)
+    } else {
+      alert(`Erreur : ${result.error}`)
     }
   }
 
@@ -372,9 +414,15 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
                         {user.first_name || ""} {user.last_name || ""}
                         {user.is_verified && <BadgeCheck className="h-4 w-4 text-blue-500" />}
                         {user.is_premium && <Crown className="h-4 w-4 text-amber-500" />}
+                        {user.is_admin && <span title="Administrateur"><UserCog className="h-4 w-4 text-[#013ff4]" /></span>}
                         {user.is_locked && <span title="Compte verrouillé (PIN)"><ShieldX className="h-4 w-4 text-red-500" /></span>}
                       </p>
                       {user.has_profile && !user.is_verified && <BadgeCheck className="h-4 w-4 text-slate-300" />}
+                      {user.is_suspended && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-orange-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-orange-700">
+                          <Ban className="h-3 w-3" /> Suspendu
+                        </span>
+                      )}
                     </div>
                     <p className="text-xs text-slate-500">{user.email || "Pas d'email"}</p>
                   </div>
@@ -455,9 +503,33 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
                       <ShieldCheck className="h-4 w-4 text-emerald-500" />
                     )}
                   </button>
-                  <button 
+                  {user.is_suspended ? (
+                    <button
+                      onClick={() => handleReactivate(user.id)}
+                      className="p-2 hover:bg-emerald-50 rounded-lg transition-colors"
+                      title="Réactiver le compte"
+                    >
+                      <RotateCcw className="h-4 w-4 text-emerald-500" />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleSuspend(user.id)}
+                      className="p-2 hover:bg-orange-50 rounded-lg transition-colors"
+                      title="Suspendre le compte"
+                    >
+                      <Ban className="h-4 w-4 text-slate-400 hover:text-orange-500" />
+                    </button>
+                  )}
+                  <button
+                    onClick={() => handleToggleAdmin(user.id, user.is_admin || false)}
+                    className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                    title={user.is_admin ? "Révoquer le rôle admin" : "Promouvoir administrateur"}
+                  >
+                    <UserCog className={`h-4 w-4 ${user.is_admin ? "text-[#013ff4]" : "text-slate-300"}`} />
+                  </button>
+                  <button
                     onClick={() => handleDeleteUser(user.id)}
-                    className="p-2 hover:bg-rose-50 rounded-lg transition-colors" 
+                    className="p-2 hover:bg-rose-50 rounded-lg transition-colors"
                     title="Supprimer"
                   >
                     <Trash2 className="h-4 w-4 text-slate-400 hover:text-rose-500" />

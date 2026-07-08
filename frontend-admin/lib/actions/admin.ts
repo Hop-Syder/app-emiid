@@ -1,6 +1,6 @@
 "use server"
 
-import { createAdminClient, requireAdminSession } from "@/lib/supabase/server"
+import { createAdminClient, requireAdminSession, type AdminSessionProfile } from "@/lib/supabase/server"
 
 export interface UserProfile {
   id: string
@@ -26,9 +26,26 @@ export interface UserProfile {
   is_verified?: boolean | null
   is_premium?: boolean | null
   is_locked?: boolean | null
+  is_admin?: boolean | null
+  is_suspended?: boolean | null
+  suspended_at?: string | null
+  suspended_until?: string | null
+  suspended_reason?: string | null
   pin_attempts?: number | null
   created_at: string
   updated_at: string | null
+}
+
+export interface AuditLogEntry {
+  id: string
+  admin_id: string
+  admin_email: string | null
+  action: string
+  target_type: string | null
+  target_id: string | null
+  target_label: string | null
+  details: Record<string, unknown>
+  created_at: string
 }
 
 export interface Country {
@@ -148,6 +165,11 @@ const USER_PROFILE_SAFE_SELECT = `
   is_verified,
   is_premium,
   is_locked,
+  is_admin,
+  is_suspended,
+  suspended_at,
+  suspended_until,
+  suspended_reason,
   pin_attempts,
   created_at,
   updated_at,
@@ -480,15 +502,25 @@ export async function unlockUserPin(userId: string): Promise<{ success: boolean;
 
 export async function deleteUser(userId: string): Promise<{ success: boolean; error?: string }> {
   const supabase = await createAdminClient()
+  const admin = await requireAdminSession()
+  if (!admin) return { success: false, error: "Non autorisé" }
 
   const { data: profile, error: profileError } = await supabase
     .from("user_profiles")
-    .select("user_id")
+    .select("user_id, first_name, last_name, email, is_admin")
     .eq("id", userId)
     .single()
 
   if (profileError || !profile?.user_id) {
     return { success: false, error: profileError?.message || "Utilisateur introuvable" }
+  }
+
+  // Garde-fous : jamais se supprimer soi-même ni un autre administrateur.
+  if (profile.user_id === admin.userId) {
+    return { success: false, error: "Vous ne pouvez pas supprimer votre propre compte." }
+  }
+  if (profile.is_admin) {
+    return { success: false, error: "Impossible de supprimer un administrateur. Révoquez d'abord son rôle." }
   }
 
   const { error } = await supabase.auth.admin.deleteUser(profile.user_id)
@@ -497,7 +529,198 @@ export async function deleteUser(userId: string): Promise<{ success: boolean; er
     return { success: false, error: error.message }
   }
 
+  await logAdminAction(supabase, admin, {
+    action: "user.delete",
+    targetType: "user",
+    targetId: profile.user_id,
+    targetLabel: label(profile.first_name, profile.last_name, profile.email, userId),
+  })
+
   return { success: true }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  P0 ADMIN — Suspension, rôles & journal d'audit
+// ─────────────────────────────────────────────────────────────────────────────
+
+type ServiceClient = Awaited<ReturnType<typeof createAdminClient>>
+
+function label(first?: string | null, last?: string | null, email?: string | null, fallback = "?") {
+  return `${first ?? ""} ${last ?? ""}`.trim() || email || fallback
+}
+
+/** Écrit une entrée dans admin_audit_log. Ne fait jamais échouer l'action métier. */
+async function logAdminAction(
+  supabase: ServiceClient,
+  admin: AdminSessionProfile,
+  entry: {
+    action: string
+    targetType?: string
+    targetId?: string
+    targetLabel?: string
+    details?: Record<string, unknown>
+  },
+): Promise<void> {
+  try {
+    await supabase.from("admin_audit_log").insert({
+      admin_id: admin.userId,
+      admin_email: admin.email,
+      action: entry.action,
+      target_type: entry.targetType ?? null,
+      target_id: entry.targetId ?? null,
+      target_label: entry.targetLabel ?? null,
+      details: entry.details ?? {},
+    })
+  } catch (e) {
+    console.error("[audit] échec d'écriture:", entry.action, e)
+  }
+}
+
+/** Suspend un utilisateur (réversible). `days` null/absent = suspension permanente. */
+export async function suspendUser(
+  userId: string,
+  opts?: { reason?: string; days?: number | null },
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createAdminClient()
+  const admin = await requireAdminSession()
+  if (!admin) return { success: false, error: "Non autorisé" }
+
+  const { data: target } = await supabase
+    .from("user_profiles")
+    .select("id, user_id, first_name, last_name, email, is_admin")
+    .eq("id", userId)
+    .single()
+
+  if (!target?.user_id) return { success: false, error: "Utilisateur introuvable" }
+  if (target.user_id === admin.userId) return { success: false, error: "Vous ne pouvez pas vous suspendre vous-même." }
+  if (target.is_admin) return { success: false, error: "Impossible de suspendre un administrateur. Révoquez d'abord son rôle." }
+
+  const until = opts?.days && opts.days > 0
+    ? new Date(Date.now() + opts.days * 86_400_000).toISOString()
+    : null
+
+  const { error } = await supabase
+    .from("user_profiles")
+    .update({
+      is_suspended: true,
+      suspended_at: new Date().toISOString(),
+      suspended_until: until,
+      suspended_reason: opts?.reason ?? null,
+      suspended_by: admin.userId,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", userId)
+
+  if (error) return { success: false, error: error.message }
+
+  await logAdminAction(supabase, admin, {
+    action: "user.suspend",
+    targetType: "user",
+    targetId: target.user_id,
+    targetLabel: label(target.first_name, target.last_name, target.email, userId),
+    details: { reason: opts?.reason ?? null, until },
+  })
+  return { success: true }
+}
+
+/** Réactive un utilisateur suspendu. */
+export async function reactivateUser(userId: string): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createAdminClient()
+  const admin = await requireAdminSession()
+  if (!admin) return { success: false, error: "Non autorisé" }
+
+  const { data: target } = await supabase
+    .from("user_profiles")
+    .select("id, user_id, first_name, last_name, email")
+    .eq("id", userId)
+    .single()
+
+  if (!target?.user_id) return { success: false, error: "Utilisateur introuvable" }
+
+  const { error } = await supabase
+    .from("user_profiles")
+    .update({
+      is_suspended: false,
+      suspended_at: null,
+      suspended_until: null,
+      suspended_reason: null,
+      suspended_by: null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", userId)
+
+  if (error) return { success: false, error: error.message }
+
+  await logAdminAction(supabase, admin, {
+    action: "user.reactivate",
+    targetType: "user",
+    targetId: target.user_id,
+    targetLabel: label(target.first_name, target.last_name, target.email, userId),
+  })
+  return { success: true }
+}
+
+/** Accorde ou révoque le rôle admin, avec garde-fous (dernier admin / soi-même). */
+export async function toggleAdmin(
+  userId: string,
+  makeAdmin: boolean,
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createAdminClient()
+  const admin = await requireAdminSession()
+  if (!admin) return { success: false, error: "Non autorisé" }
+
+  const { data: target } = await supabase
+    .from("user_profiles")
+    .select("id, user_id, first_name, last_name, email, is_admin")
+    .eq("id", userId)
+    .single()
+
+  if (!target?.user_id) return { success: false, error: "Utilisateur introuvable" }
+
+  if (!makeAdmin) {
+    if (target.user_id === admin.userId) {
+      return { success: false, error: "Vous ne pouvez pas révoquer votre propre rôle admin." }
+    }
+    const { count } = await supabase
+      .from("user_profiles")
+      .select("id", { count: "exact", head: true })
+      .eq("is_admin", true)
+    if ((count ?? 0) <= 1) {
+      return { success: false, error: "Impossible de révoquer le dernier administrateur." }
+    }
+  }
+
+  const { error } = await supabase
+    .from("user_profiles")
+    .update({ is_admin: makeAdmin, updated_at: new Date().toISOString() })
+    .eq("id", userId)
+
+  if (error) return { success: false, error: error.message }
+
+  await logAdminAction(supabase, admin, {
+    action: makeAdmin ? "user.grant_admin" : "user.revoke_admin",
+    targetType: "user",
+    targetId: target.user_id,
+    targetLabel: label(target.first_name, target.last_name, target.email, userId),
+  })
+  return { success: true }
+}
+
+/** Journal d'audit (lecture, réservé admin). */
+export async function getAuditLog(params?: { limit?: number; action?: string }): Promise<AuditLogEntry[]> {
+  const supabase = await createAdminClient()
+  let query = supabase
+    .from("admin_audit_log")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(params?.limit ?? 200)
+
+  if (params?.action && params.action !== "all") {
+    query = query.eq("action", params.action)
+  }
+
+  const { data } = await query
+  return (data as AuditLogEntry[]) || []
 }
 
 export async function getCountries(): Promise<Country[]> {
