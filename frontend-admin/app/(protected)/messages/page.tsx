@@ -18,7 +18,7 @@ export default function AdminMessagesPage() {
     <div className="flex-1 h-screen overflow-hidden bg-slate-50">
       <Suspense fallback={
         <div className="flex-1 flex items-center justify-center h-full">
-          <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          <div className="w-10 h-10 border-4 border-[#013ff4] border-t-transparent rounded-full animate-spin" />
         </div>
       }>
         <AdminMessagesContent />

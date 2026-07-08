@@ -1,19 +1,20 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Interface de messagerie pour l'administration (Médiation)
+ * @description Centre de médiation admin — litiges, réponses, statuts & outils modérateur.
  * @created 2026-03-23
-*/
+ * @updated 2026-07-08
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+ */
 
 "use client"
 
-import { useState, useRef, useEffect, useCallback } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { 
-  Send, Search, Image, Paperclip, Smile, Mic, Phone, Video, 
-  MoreHorizontal, ArrowLeft, Check, CheckCheck, X, Plus,
-  Settings, Bell, Pin, Trash2, Archive, Star, Filter, Shield, Gavel, AlertTriangle,
-  ExternalLink, User
+import { useState, useRef, useEffect, useMemo, useCallback } from "react"
+import {
+  Send, Search, ArrowLeft, RefreshCw, ExternalLink, Copy, Loader2,
+  Gavel, Shield, CircleDot, Clock, CheckCircle2, MessageSquareText,
+  ChevronDown, User, CheckCheck,
 } from "lucide-react"
 import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -24,32 +25,33 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { 
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
-import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
-import { format } from "date-fns"
+import { format, isSameDay, formatDistanceToNow } from "date-fns"
 import { fr } from "date-fns/locale"
 
 const supabase = createClient()
 
+// URL de l'app utilisateur (pour ouvrir les profils des parties)
+const USER_APP_URL = process.env.NEXT_PUBLIC_USER_APP_URL || "https://app.emiid.com"
+
+type MediationStatus = "pending" | "in_progress" | "resolved"
+
+interface Party { id: string; name: string; avatar: string; role: string }
+
 interface AdminConversation {
   id: string
-  user1: { id: string; name: string; avatar: string; role: string }
-  user2: { id: string; name: string; avatar: string; role: string }
-  lastMessage: string
-  lastMessageAt: string
-  status: "pending" | "in_progress" | "resolved"
+  user1: Party
+  user2: Party
+  lastMessage: string | null
+  lastMessageAt: string | null
+  status: MediationStatus
 }
 
 interface Message {
@@ -61,6 +63,21 @@ interface Message {
   created_at: string
 }
 
+// ─── Métadonnées de statut ───────────────────────────────────────────────────
+const STATUS_META: Record<MediationStatus, { label: string; short: string; icon: typeof CircleDot; dot: string; chip: string; btn: string }> = {
+  pending:     { label: "Médiation ouverte",     short: "Ouvert",   icon: CircleDot,     dot: "bg-amber-500",   chip: "bg-amber-100 text-amber-700",     btn: "data-[on=true]:bg-amber-500 data-[on=true]:text-white" },
+  in_progress: { label: "Médiation en cours",    short: "En cours", icon: Clock,         dot: "bg-blue-500",    chip: "bg-blue-100 text-blue-700",       btn: "data-[on=true]:bg-[#013ff4] data-[on=true]:text-white" },
+  resolved:    { label: "Médiation résolue",     short: "Résolu",   icon: CheckCircle2,  dot: "bg-emerald-500", chip: "bg-emerald-100 text-emerald-700", btn: "data-[on=true]:bg-emerald-500 data-[on=true]:text-white" },
+}
+
+// ─── Réponses rapides (templates de médiation) ───────────────────────────────
+const QUICK_REPLIES: { label: string; text: string }[] = [
+  { label: "Introduction du médiateur", text: "Bonjour, je suis médiateur EmiID. J'ai pris connaissance de votre litige et je vais vous accompagner vers une résolution équitable." },
+  { label: "Demander les faits",        text: "Merci de bien vouloir détailler votre version des faits (dates, montants, prestations concernées) afin que je puisse évaluer la situation." },
+  { label: "Proposer une résolution",   text: "Après analyse des échanges, voici ma recommandation : " },
+  { label: "Clôturer le litige",        text: "Ce litige est désormais clos. Merci à tous les deux pour votre coopération. N'hésitez pas à recontacter le support en cas de besoin." },
+]
+
 export default function AdminMessagesContent() {
   const [conversations, setConversations] = useState<AdminConversation[]>([])
   const [selectedConv, setSelectedConv] = useState<AdminConversation | null>(null)
@@ -69,152 +86,126 @@ export default function AdminMessagesContent() {
   const [isLoading, setIsLoading] = useState(true)
   const [isMessagesLoading, setIsMessagesLoading] = useState(false)
   const [isSending, setIsSending] = useState(false)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [currentAdminId, setCurrentAdminId] = useState<string | null>(null)
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [statusFilter, setStatusFilter] = useState<MediationStatus | "all">("all")
+  const [currentAdminId, setCurrentAdminId] = useState<string | null>(null)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
-  // 1. Initialisation
-  useEffect(() => {
-    const init = async () => {
-      // Get current admin ID
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) setCurrentAdminId(user.id)
-
-      loadConversations()
-    }
-    init()
-  }, [])
-
-  // 2. Charger les conversations (Litiges)
-  const loadConversations = async () => {
+  // ─── Chargements ───────────────────────────────────────────────────────────
+  const loadConversations = useCallback(async () => {
     setIsLoading(true)
     try {
       const res = await fetchWithAuth("/api/messages/admin/disputes")
       if (res.ok) {
-        const data = await res.json()
-        setConversations(data)
+        setConversations(await res.json())
       } else {
-        const errorData = await res.json().catch(() => ({ error: "Erreur de chargement des litiges" }))
-        toast.error(errorData.error || "Erreur de chargement des litiges")
+        const err = await res.json().catch(() => ({ error: "Erreur de chargement des litiges" }))
+        toast.error(err.error || "Erreur de chargement des litiges")
       }
-    } catch (err) {
+    } catch {
       toast.error("Erreur de chargement des litiges")
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [])
 
-  // 3. Charger les messages d'une conversation
+  useEffect(() => {
+    ;(async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) setCurrentAdminId(user.id)
+      loadConversations()
+    })()
+  }, [loadConversations])
+
+  // Messages de la conversation sélectionnée + realtime
   useEffect(() => {
     if (!selectedConv) return
+    const convId = selectedConv.id
 
     const loadMessages = async () => {
       setIsMessagesLoading(true)
       try {
-        const res = await fetchWithAuth(`/api/messages/admin/conversation/${selectedConv.id}`)
+        const res = await fetchWithAuth(`/api/messages/admin/conversation/${convId}`)
         if (res.ok) {
-          const data = await res.json()
-          setMessages(data)
-          // Mark as read (Admin view)
-          void fetchWithAuth(`/api/messages/admin/read/${selectedConv.id}`, { method: "POST" })
+          setMessages(await res.json())
+          void fetchWithAuth(`/api/messages/admin/read/${convId}`, { method: "POST" })
         } else {
-          const errorData = await res.json().catch(() => ({ error: "Erreur de chargement des messages" }))
-          toast.error(errorData.error || "Erreur de chargement des messages")
+          const err = await res.json().catch(() => ({ error: "Erreur de chargement des messages" }))
+          toast.error(err.error || "Erreur de chargement des messages")
         }
-      } catch (err) {
+      } catch {
         toast.error("Erreur de chargement des messages")
       } finally {
         setIsMessagesLoading(false)
       }
     }
-
     loadMessages()
 
-    // Realtime subscription
     const channel = supabase
-      .channel(`admin-room-${selectedConv.id}`)
+      .channel(`admin-room-${convId}`)
       .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'messages', filter: `conversation_id=eq.${selectedConv.id}` },
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "messages", filter: `conversation_id=eq.${convId}` },
         (payload) => {
           const newMsg = payload.new as Message
-          setMessages(prev => {
-            if (prev.some(m => m.id === newMsg.id)) return prev
-            return [...prev, newMsg]
-          })
-        }
+          setMessages((prev) => (prev.some((m) => m.id === newMsg.id) ? prev : [...prev, newMsg]))
+        },
       )
       .subscribe()
 
-    return () => { supabase.removeChannel(channel) }
+    return () => { void supabase.removeChannel(channel) }
   }, [selectedConv])
 
-  // 4. Scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
-  // 5. Envoyer réponse admin
+  // ─── Actions ─────────────────────────────────────────────────────────────
   const handleSendAdminReply = async () => {
     if (!message.trim() || !selectedConv || isSending) return
-
     setIsSending(true)
     try {
       const res = await fetchWithAuth(`/api/messages/admin/reply/${selectedConv.id}`, {
         method: "POST",
-        body: JSON.stringify({ content: message })
+        body: JSON.stringify({ content: message }),
       })
-
       if (res.ok) {
-        const sentMessage = await res.json()
-        setMessages(prev => prev.some(existingMessage => existingMessage.id === sentMessage.id) ? prev : [...prev, sentMessage])
-        setConversations(prev => prev.map(conv =>
-          conv.id === selectedConv.id
-            ? { ...conv, lastMessage: sentMessage.content, lastMessageAt: sentMessage.created_at }
-            : conv,
-        ))
+        const sent: Message = await res.json()
+        setMessages((prev) => (prev.some((m) => m.id === sent.id) ? prev : [...prev, sent]))
+        setConversations((prev) => prev.map((c) => c.id === selectedConv.id ? { ...c, lastMessage: sent.content, lastMessageAt: sent.created_at } : c))
         setMessage("")
         inputRef.current?.focus()
       } else {
-        const errorData = await res.json().catch(() => ({ error: "Erreur lors de l'envoi" }))
-        toast.error(errorData.error || "Erreur lors de l'envoi")
+        const err = await res.json().catch(() => ({ error: "Erreur lors de l'envoi" }))
+        toast.error(err.error || "Erreur lors de l'envoi")
       }
-    } catch (err) {
+    } catch {
       toast.error("Erreur de connexion")
     } finally {
       setIsSending(false)
     }
   }
 
-  // Filtrage
-  const filteredConversations = conversations.filter(conv => 
-    conv.user1.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    conv.user2.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    conv.lastMessage?.toLowerCase().includes(searchQuery.toLowerCase())
-  )
-
-  const handleUpdateStatus = async (status: AdminConversation["status"]) => {
-    if (!selectedConv) return
-
+  const handleUpdateStatus = async (status: MediationStatus) => {
+    if (!selectedConv || isUpdatingStatus || selectedConv.status === status) return
+    if (status === "resolved" && !confirm("Marquer ce litige comme résolu ?")) return
     setIsUpdatingStatus(true)
     try {
       const res = await fetchWithAuth(`/api/messages/admin/status/${selectedConv.id}`, {
         method: "POST",
-        body: JSON.stringify({ status })
+        body: JSON.stringify({ status }),
       })
-
       if (!res.ok) {
-        const errorData = await res.json().catch(() => ({ error: "Erreur de mise à jour du statut" }))
-        toast.error(errorData.error || "Erreur de mise à jour du statut")
+        const err = await res.json().catch(() => ({ error: "Erreur de mise à jour du statut" }))
+        toast.error(err.error || "Erreur de mise à jour du statut")
         return
       }
-
-      setConversations(prev => prev.map((conv) => conv.id === selectedConv.id ? { ...conv, status } : conv))
-      setSelectedConv((prev) => prev ? { ...prev, status } : null)
-      toast.success("Statut de médiation mis à jour")
+      setConversations((prev) => prev.map((c) => c.id === selectedConv.id ? { ...c, status } : c))
+      setSelectedConv((prev) => (prev ? { ...prev, status } : null))
+      toast.success(`Litige : ${STATUS_META[status].short.toLowerCase()}`)
     } catch {
       toast.error("Erreur de connexion")
     } finally {
@@ -222,326 +213,394 @@ export default function AdminMessagesContent() {
     }
   }
 
-  return (
-    <TooltipProvider>
-      <div className="flex h-full bg-slate-50">
-        
-        {/* Sidebar */}
-        <aside className={cn(
-          "w-full lg:w-96 flex flex-col border-r bg-white",
-          selectedConv ? "hidden lg:flex" : "flex"
-        )}>
-          <header className="p-6 border-b space-y-4">
-            <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                <Gavel className="h-6 w-6 text-primary" />
-                Médiations
-              </h1>
-              <Badge variant="secondary" className="bg-amber-100 text-amber-700 hover:bg-amber-100 border-none px-3 py-1 font-bold">
-                {conversations.length} Litiges
-              </Badge>
-            </div>
-            
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-              <Input 
-                placeholder="Rechercher un litige..." 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-11 rounded-xl bg-slate-100 border-none focus-visible:ring-primary/20 font-medium"
-              />
-            </div>
-          </header>
+  const insertTemplate = (text: string) => {
+    setMessage((prev) => (prev ? `${prev.trimEnd()} ${text}` : text))
+    inputRef.current?.focus()
+  }
 
-          <ScrollArea className="flex-1">
-            <div className="p-3 space-y-1">
-              {isLoading ? (
-                Array(5).fill(0).map((_, i) => (
-                  <div key={i} className="h-20 rounded-2xl bg-slate-50 animate-pulse m-2" />
-                ))
-              ) : filteredConversations.length > 0 ? (
-                filteredConversations.map((conv) => (
+  const copyTranscript = async () => {
+    if (!selectedConv) return
+    const nameFor = (id: string) =>
+      id === selectedConv.user1.id ? selectedConv.user1.name
+        : id === selectedConv.user2.id ? selectedConv.user2.name
+          : "Médiateur EmiID"
+    const text = messages
+      .map((m) => `[${format(new Date(m.created_at), "dd/MM HH:mm")}] ${nameFor(m.sender_id)} : ${m.content}`)
+      .join("\n")
+    try {
+      await navigator.clipboard.writeText(text)
+      toast.success("Conversation copiée")
+    } catch {
+      toast.error("Copie impossible")
+    }
+  }
+
+  // ─── Dérivés ────────────────────────────────────────────────────────────────
+  const counts = useMemo(() => ({
+    all: conversations.length,
+    pending: conversations.filter((c) => c.status === "pending").length,
+    in_progress: conversations.filter((c) => c.status === "in_progress").length,
+    resolved: conversations.filter((c) => c.status === "resolved").length,
+  }), [conversations])
+
+  const filteredConversations = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase()
+    return conversations.filter((c) => {
+      if (statusFilter !== "all" && c.status !== statusFilter) return false
+      if (!q) return true
+      return [c.user1.name, c.user2.name, c.lastMessage].filter(Boolean).some((v) => v!.toLowerCase().includes(q))
+    })
+  }, [conversations, searchQuery, statusFilter])
+
+  const openProfile = (id: string) => window.open(`${USER_APP_URL}/profil/${id}`, "_blank", "noopener,noreferrer")
+
+  // ─── Rendu ────────────────────────────────────────────────────────────────
+  return (
+    <div className="flex h-full bg-slate-50">
+      {/* ───────── Liste des litiges ───────── */}
+      <aside className={cn("w-full lg:w-96 flex flex-col border-r bg-white", selectedConv ? "hidden lg:flex" : "flex")}>
+        <header className="p-5 border-b space-y-4">
+          <div className="flex items-center justify-between">
+            <h1 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+              <Gavel className="h-5 w-5 text-[#013ff4]" />
+              Médiations
+            </h1>
+            <button
+              onClick={loadConversations}
+              className="p-2 rounded-xl text-slate-400 hover:text-[#013ff4] hover:bg-slate-100 transition-colors"
+              title="Actualiser"
+            >
+              <RefreshCw className={cn("h-4 w-4", isLoading && "animate-spin")} />
+            </button>
+          </div>
+
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Input
+              placeholder="Rechercher un litige, une partie…"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 h-11 rounded-xl bg-slate-100 border-none focus-visible:ring-[#013ff4]/20 font-medium"
+            />
+          </div>
+
+          {/* Filtres par statut */}
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+            {([
+              ["all", "Tous", counts.all],
+              ["pending", "Ouverts", counts.pending],
+              ["in_progress", "En cours", counts.in_progress],
+              ["resolved", "Résolus", counts.resolved],
+            ] as const).map(([key, label, n]) => (
+              <button
+                key={key}
+                onClick={() => setStatusFilter(key)}
+                className={cn(
+                  "shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-colors",
+                  statusFilter === key ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200",
+                )}
+              >
+                {label}
+                <span className={cn("min-w-[18px] text-center rounded-full px-1 text-[10px]", statusFilter === key ? "bg-white/20" : "bg-white")}>{n}</span>
+              </button>
+            ))}
+          </div>
+        </header>
+
+        <ScrollArea className="flex-1">
+          <div className="p-3 space-y-1">
+            {isLoading ? (
+              Array(5).fill(0).map((_, i) => <div key={i} className="h-[76px] rounded-2xl bg-slate-50 animate-pulse m-1" />)
+            ) : filteredConversations.length > 0 ? (
+              filteredConversations.map((conv) => {
+                const active = selectedConv?.id === conv.id
+                const st = STATUS_META[conv.status]
+                return (
                   <button
                     key={conv.id}
                     onClick={() => setSelectedConv(conv)}
                     className={cn(
-                      "w-full p-4 rounded-2xl transition-all group relative border",
-                      selectedConv?.id === conv.id 
-                        ? "bg-slate-900 text-white border-slate-900 shadow-lg shadow-slate-200" 
-                        : "hover:bg-slate-50 border-transparent text-slate-600"
+                      "w-full p-3.5 rounded-2xl transition-all group border text-left",
+                      active ? "bg-slate-900 text-white border-slate-900 shadow-lg" : "hover:bg-slate-50 border-transparent",
                     )}
                   >
-                    <div className="flex gap-4 items-center">
-                      <div className="flex -space-x-3">
-                        <Avatar className="h-10 w-10 border-2 border-white ring-2 ring-slate-100 ring-offset-0 group-hover:ring-offset-2 transition-all">
+                    <div className="flex gap-3 items-center">
+                      <div className="flex -space-x-3 shrink-0">
+                        <Avatar className="h-10 w-10 border-2 border-white ring-1 ring-slate-100">
                           <AvatarImage src={conv.user1.avatar} />
                           <AvatarFallback>{conv.user1.name[0]}</AvatarFallback>
                         </Avatar>
-                        <Avatar className="h-10 w-10 border-2 border-white ring-2 ring-slate-100 ring-offset-0 group-hover:ring-offset-2 transition-all">
+                        <Avatar className="h-10 w-10 border-2 border-white ring-1 ring-slate-100">
                           <AvatarImage src={conv.user2.avatar} />
                           <AvatarFallback>{conv.user2.name[0]}</AvatarFallback>
                         </Avatar>
                       </div>
-                      <div className="flex-1 text-left overflow-hidden min-w-0">
-                        <div className="flex justify-between items-start">
-                          <h3 className={cn(
-                            "font-bold text-sm truncate pr-2",
-                            selectedConv?.id === conv.id ? "text-white" : "text-slate-900"
-                          )}>
-                            {conv.user1.name} vs {conv.user2.name}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <h3 className={cn("font-bold text-sm truncate", active ? "text-white" : "text-slate-900")}>
+                            {conv.user1.name} <span className="opacity-40">vs</span> {conv.user2.name}
                           </h3>
-                          <span className={cn(
-                            "text-[10px] px-2 py-1 rounded-full font-semibold uppercase",
-                            conv.status === "resolved"
-                              ? "bg-emerald-100 text-emerald-700"
-                              : conv.status === "in_progress"
-                                ? "bg-blue-100 text-blue-700"
-                                : "bg-amber-100 text-amber-700"
-                          )}>
-                            {conv.status === "resolved" ? "Résolu" : conv.status === "in_progress" ? "En cours" : "Ouvert"}
-                          </span>
+                          <span className={cn("shrink-0 text-[9px] px-2 py-0.5 rounded-full font-bold uppercase", st.chip)}>{st.short}</span>
                         </div>
-                        <p className={cn(
-                          "text-xs mt-0.5 truncate leading-relaxed opacity-80",
-                          selectedConv?.id === conv.id ? "text-slate-200" : "text-slate-500"
-                        )}>
-                          {conv.lastMessage || "Pas encore de message"}
-                        </p>
+                        <div className="flex items-center justify-between gap-2 mt-0.5">
+                          <p className={cn("text-xs truncate", active ? "text-slate-300" : "text-slate-500")}>
+                            {conv.lastMessage || "Pas encore de message"}
+                          </p>
+                          {conv.lastMessageAt && (
+                            <span className={cn("shrink-0 text-[10px]", active ? "text-slate-400" : "text-slate-400")}>
+                              {formatDistanceToNow(new Date(conv.lastMessageAt), { locale: fr, addSuffix: false })}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </button>
-                ))
-              ) : (
-                <div className="flex flex-col items-center justify-center py-20 text-center opacity-40 grayscale">
-                  <div className="p-4 bg-slate-100 rounded-3xl mb-4">
-                    <CheckCheck className="h-10 w-10" />
-                  </div>
-                  <p className="text-sm font-bold">Aucun litige en cours</p>
-                </div>
-              )}
-            </div>
-          </ScrollArea>
-        </aside>
+                )
+              })
+            ) : (
+              <div className="flex flex-col items-center justify-center py-20 text-center text-slate-300">
+                <div className="p-4 bg-slate-100 rounded-3xl mb-4"><CheckCheck className="h-9 w-9" /></div>
+                <p className="text-sm font-bold text-slate-400">Aucun litige {statusFilter !== "all" ? "dans ce filtre" : "en cours"}</p>
+              </div>
+            )}
+          </div>
+        </ScrollArea>
+      </aside>
 
-        {/* Chat Area */}
-        <main className={cn(
-          "flex-1 flex flex-col h-full bg-white lg:rounded-l-[40px] shadow-2xl relative z-10 overflow-hidden",
-          !selectedConv && "hidden lg:flex lg:items-center lg:justify-center bg-slate-50 shadow-none border-l"
-        )}>
-          {selectedConv ? (
-            <>
-              {/* Header */}
-              <header className="h-20 border-b flex items-center justify-between px-6 lg:px-10 shrink-0 bg-white/80 backdrop-blur-md sticky top-0 z-20">
-                <div className="flex items-center gap-4">
-                  <Button variant="ghost" size="icon" className="lg:hidden rounded-xl" onClick={() => setSelectedConv(null)}>
+      {/* ───────── Zone de médiation ───────── */}
+      <main className={cn("flex-1 flex flex-col h-full bg-white relative", !selectedConv && "hidden lg:flex lg:items-center lg:justify-center bg-slate-50 border-l")}>
+        {selectedConv ? (
+          <>
+            {/* En-tête */}
+            <header className="border-b bg-white/90 backdrop-blur-md sticky top-0 z-20">
+              <div className="h-[68px] flex items-center justify-between px-4 lg:px-8">
+                <div className="flex items-center gap-3 min-w-0">
+                  <Button variant="ghost" size="icon" className="lg:hidden rounded-xl shrink-0" onClick={() => setSelectedConv(null)}>
                     <ArrowLeft className="h-5 w-5" />
                   </Button>
-                  
-                  <div className="flex items-center gap-4">
-                    <div className="flex -space-x-4">
-                      <Avatar className="h-12 w-12 border-4 border-white shadow-md">
-                        <AvatarImage src={selectedConv.user1.avatar} />
-                        <AvatarFallback>{selectedConv.user1.name[0]}</AvatarFallback>
-                      </Avatar>
-                      <Avatar className="h-12 w-12 border-4 border-white shadow-md">
-                        <AvatarImage src={selectedConv.user2.avatar} />
-                        <AvatarFallback>{selectedConv.user2.name[0]}</AvatarFallback>
-                      </Avatar>
-                    </div>
-                    <div>
-                      <h2 className="font-black text-slate-900 items-center gap-2 flex">
-                        Conflit : {selectedConv.user1.name} & {selectedConv.user2.name}
-                        <Shield className="h-4 w-4 text-amber-500" />
-                      </h2>
-                      <p className="text-xs font-bold text-amber-600 uppercase tracking-widest flex items-center gap-1.5 mt-0.5">
-                        <span className={cn(
-                          "w-1.5 h-1.5 rounded-full",
-                          selectedConv.status === "resolved"
-                            ? "bg-emerald-500"
-                            : selectedConv.status === "in_progress"
-                              ? "bg-blue-500 animate-pulse"
-                              : "bg-amber-500 animate-pulse"
-                        )} />
-                        {selectedConv.status === "resolved" ? "Médiation résolue" : selectedConv.status === "in_progress" ? "Médiation en cours" : "Médiation ouverte"}
-                      </p>
-                    </div>
+                  <div className="flex -space-x-3 shrink-0">
+                    <Avatar className="h-11 w-11 border-2 border-white shadow-sm">
+                      <AvatarImage src={selectedConv.user1.avatar} />
+                      <AvatarFallback>{selectedConv.user1.name[0]}</AvatarFallback>
+                    </Avatar>
+                    <Avatar className="h-11 w-11 border-2 border-white shadow-sm">
+                      <AvatarImage src={selectedConv.user2.avatar} />
+                      <AvatarFallback>{selectedConv.user2.name[0]}</AvatarFallback>
+                    </Avatar>
+                  </div>
+                  <div className="min-w-0">
+                    <h2 className="font-black text-slate-900 truncate flex items-center gap-1.5">
+                      {selectedConv.user1.name} <span className="text-slate-300 font-normal">&amp;</span> {selectedConv.user2.name}
+                      <Shield className="h-4 w-4 text-amber-500 shrink-0" />
+                    </h2>
+                    <p className="text-[11px] font-bold uppercase tracking-widest flex items-center gap-1.5 text-slate-500">
+                      <span className={cn("w-1.5 h-1.5 rounded-full", STATUS_META[selectedConv.status].dot, selectedConv.status !== "resolved" && "animate-pulse")} />
+                      {STATUS_META[selectedConv.status].label}
+                    </p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="icon" className="rounded-xl h-10 w-10 hover:bg-slate-100">
-                    <User className="h-5 w-5 text-slate-400" />
-                  </Button>
+                <div className="flex items-center gap-1 shrink-0">
+                  <button onClick={copyTranscript} title="Copier la conversation" className="hidden sm:flex p-2.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors">
+                    <Copy className="h-4 w-4" />
+                  </button>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="rounded-xl h-10 w-10 hover:bg-slate-100">
-                        <MoreHorizontal className="h-5 w-5 text-slate-400" />
-                      </Button>
+                      <button className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors text-sm font-semibold">
+                        <User className="h-4 w-4" /> Parties <ChevronDown className="h-3.5 w-3.5" />
+                      </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => void handleUpdateStatus("pending")} disabled={isUpdatingStatus}>Marquer ouvert</DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => void handleUpdateStatus("in_progress")} disabled={isUpdatingStatus}>Marquer en cours</DropdownMenuItem>
+                    <DropdownMenuContent align="end" className="w-56">
+                      <DropdownMenuLabel>Consulter un profil</DropdownMenuLabel>
+                      <DropdownMenuItem onClick={() => openProfile(selectedConv.user1.id)}>
+                        <ExternalLink className="mr-2 h-4 w-4" /> {selectedConv.user1.name}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => openProfile(selectedConv.user2.id)}>
+                        <ExternalLink className="mr-2 h-4 w-4" /> {selectedConv.user2.name}
+                      </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => void handleUpdateStatus("resolved")} disabled={isUpdatingStatus}>Marquer résolu</DropdownMenuItem>
+                      <DropdownMenuItem onClick={copyTranscript} className="sm:hidden">
+                        <Copy className="mr-2 h-4 w-4" /> Copier la conversation
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
-              </header>
+              </div>
 
-              {/* Messages Area */}
-              <ScrollArea className="flex-1 px-6 lg:px-10 py-8 bg-slate-50/10">
-                {isMessagesLoading ? (
-                  <div className="h-full flex items-center justify-center">
-                    <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-                  </div>
-                ) : (
-                  <div className="space-y-6 max-w-4xl mx-auto">
-                    {messages.map((msg, index) => {
-                      const isOwn = msg.sender_id === currentAdminId
-                      const sender = msg.sender_id === selectedConv.user1.id ? selectedConv.user1 : 
-                                     msg.sender_id === selectedConv.user2.id ? selectedConv.user2 : 
-                                     { name: "EmiID Admin", avatar: "", role: "admin" }
+              {/* Barre d'actions de statut */}
+              <div className="flex items-center gap-2 px-4 lg:px-8 pb-3">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mr-1">Statut :</span>
+                {(Object.keys(STATUS_META) as MediationStatus[]).map((s) => {
+                  const meta = STATUS_META[s]
+                  const on = selectedConv.status === s
+                  const Icon = meta.icon
+                  return (
+                    <button
+                      key={s}
+                      data-on={on}
+                      onClick={() => handleUpdateStatus(s)}
+                      disabled={isUpdatingStatus || on}
+                      className={cn(
+                        "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border transition-all disabled:cursor-default",
+                        on ? "border-transparent" : "border-slate-200 text-slate-500 hover:bg-slate-100",
+                        meta.btn,
+                      )}
+                    >
+                      <Icon className="h-3.5 w-3.5" /> {meta.short}
+                    </button>
+                  )
+                })}
+                {isUpdatingStatus && <Loader2 className="h-4 w-4 animate-spin text-slate-400 ml-1" />}
+              </div>
+            </header>
 
-                      const isMediation = msg.content.includes("[MÉDIATION DEMANDÉE]")
-                      const isStatusUpdate = msg.content.includes("[MÉDIATION STATUT]")
-                      
-                      if (isMediation) {
-                        return (
-                          <div key={msg.id} className="flex justify-center my-8">
-                            <div className="bg-amber-50 border border-amber-200 rounded-3xl px-8 py-4 flex items-center gap-4 max-w-lg shadow-sm">
-                              <Shield className="h-6 w-6 text-amber-600 shrink-0" />
+            {/* Messages */}
+            <ScrollArea className="flex-1 px-4 lg:px-10 py-6 bg-slate-50/40">
+              {isMessagesLoading ? (
+                <div className="h-full flex items-center justify-center">
+                  <Loader2 className="h-7 w-7 animate-spin text-[#013ff4]" />
+                </div>
+              ) : (
+                <div className="space-y-4 max-w-3xl mx-auto">
+                  {messages.map((msg, i) => {
+                    const prev = messages[i - 1]
+                    const showDay = !prev || !isSameDay(new Date(prev.created_at), new Date(msg.created_at))
+                    const isOwn = msg.sender_id === currentAdminId
+                    const sender = msg.sender_id === selectedConv.user1.id ? selectedConv.user1
+                      : msg.sender_id === selectedConv.user2.id ? selectedConv.user2
+                        : { id: "admin", name: "Médiateur EmiID", avatar: "", role: "admin" }
+
+                    const isMediation = msg.content.includes("[MÉDIATION DEMANDÉE]")
+                    const isStatusUpdate = msg.content.includes("[MÉDIATION STATUT]")
+
+                    return (
+                      <div key={msg.id}>
+                        {showDay && (
+                          <div className="flex justify-center my-4">
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 bg-white border border-slate-200 rounded-full px-3 py-1">
+                              {format(new Date(msg.created_at), "EEEE d MMMM", { locale: fr })}
+                            </span>
+                          </div>
+                        )}
+
+                        {isMediation ? (
+                          <div className="flex justify-center my-4">
+                            <div className="bg-amber-50 border border-amber-200 rounded-2xl px-6 py-3.5 flex items-center gap-3 max-w-lg shadow-sm">
+                              <Shield className="h-5 w-5 text-amber-600 shrink-0" />
                               <div>
-                                <p className="text-xs font-black text-amber-900 uppercase tracking-tighter mb-1">Alerte Médiation</p>
-                                <p className="text-sm font-bold text-amber-800 leading-normal italic">
+                                <p className="text-[10px] font-black text-amber-900 uppercase tracking-wide mb-0.5">Alerte médiation</p>
+                                <p className="text-sm font-semibold text-amber-800 italic">
                                   {msg.content.replace(/⚠️ \[MÉDIATION DEMANDÉE\] Motif : .*?\. /, "")}
                                 </p>
                               </div>
                             </div>
                           </div>
-                        )
-                      }
-
-                      if (isStatusUpdate) {
-                        const statusLabel = msg.content.toLowerCase().includes("resolved")
-                          ? "Médiation marquée comme résolue"
-                          : msg.content.toLowerCase().includes("in_progress")
-                            ? "Médiation prise en charge"
-                            : "Médiation rouverte"
-
-                        return (
-                          <div key={msg.id} className="flex justify-center my-6">
-                            <div className="bg-blue-50 border border-blue-200 rounded-3xl px-6 py-3 text-sm font-semibold text-blue-800 shadow-sm">
-                              {statusLabel}
+                        ) : isStatusUpdate ? (
+                          <div className="flex justify-center my-3">
+                            <div className="bg-blue-50 border border-blue-200 rounded-full px-5 py-2 text-xs font-semibold text-blue-800">
+                              {msg.content.toLowerCase().includes("resolved") ? "Médiation marquée comme résolue"
+                                : msg.content.toLowerCase().includes("in_progress") ? "Médiation prise en charge"
+                                  : "Médiation rouverte"}
                             </div>
                           </div>
-                        )
-                      }
-
-                      return (
-                        <div key={msg.id} className={cn(
-                          "flex gap-4 group",
-                          isOwn ? "flex-row-reverse" : "flex-row"
-                        )}>
-                          <div className="shrink-0 pt-1">
-                            <Avatar className="h-10 w-10 border-2 border-white shadow-sm ring-1 ring-slate-100">
+                        ) : (
+                          <div className={cn("flex gap-3 group", isOwn ? "flex-row-reverse" : "flex-row")}>
+                            <Avatar className="h-9 w-9 border-2 border-white shadow-sm shrink-0 mt-1">
                               <AvatarImage src={sender.avatar} />
                               <AvatarFallback className="text-xs bg-slate-100 font-bold">{sender.name[0]}</AvatarFallback>
                             </Avatar>
-                          </div>
-                          
-                          <div className={cn(
-                            "flex flex-col gap-1.5",
-                            isOwn ? "items-end" : "items-start",
-                            "max-w-[75%]"
-                          )}>
-                            <div className="flex items-center gap-2 px-1">
-                              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{sender.name}</span>
-                              <span className="text-[10px] text-slate-300">{format(new Date(msg.created_at), 'HH:mm', { locale: fr })}</span>
-                            </div>
-                            <div className={cn(
-                              "px-5 py-3 rounded-2xl text-sm leading-relaxed shadow-sm transition-all",
-                              isOwn 
-                                ? "bg-slate-900 text-white rounded-tr-none" 
-                                : sender.role === "admin"
-                                  ? "bg-amber-100 text-amber-900 border border-amber-200 rounded-tl-none font-bold"
-                                  : "bg-white text-slate-700 border border-slate-100 rounded-tl-none"
-                            )}>
-                              {msg.content}
+                            <div className={cn("flex flex-col gap-1 max-w-[78%]", isOwn ? "items-end" : "items-start")}>
+                              <div className="flex items-center gap-2 px-1">
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{sender.name}</span>
+                                <span className="text-[10px] text-slate-300">{format(new Date(msg.created_at), "HH:mm", { locale: fr })}</span>
+                              </div>
+                              <div className={cn(
+                                "px-4 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm",
+                                isOwn ? "bg-[#013ff4] text-white rounded-tr-sm"
+                                  : sender.role === "admin" ? "bg-amber-100 text-amber-900 border border-amber-200 rounded-tl-sm font-semibold"
+                                    : "bg-white text-slate-700 border border-slate-100 rounded-tl-sm",
+                              )}>
+                                {msg.content}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      )
-                    })}
-                    <div ref={messagesEndRef} />
-                  </div>
-                )}
-              </ScrollArea>
+                        )}
+                      </div>
+                    )
+                  })}
+                  <div ref={messagesEndRef} />
+                </div>
+              )}
+            </ScrollArea>
 
-              {/* Input */}
-              <footer className="p-6 lg:px-10 border-t bg-white relative z-20">
-                <div className="max-w-4xl mx-auto flex items-end gap-3">
-                  <div className="flex-1 relative group">
+            {/* Saisie */}
+            <footer className="p-4 lg:px-10 border-t bg-white">
+              <div className="max-w-3xl mx-auto">
+                <div className="flex items-end gap-2.5">
+                  <div className="flex-1 relative">
                     <Textarea
                       ref={inputRef}
-                      placeholder="Votre intervention en tant qu'administrateur..."
+                      placeholder="Votre intervention en tant que médiateur…"
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
                       onKeyDown={(e) => {
-                        if (e.key === "Enter" && !e.shiftKey) {
-                          e.preventDefault()
-                          handleSendAdminReply()
-                        }
+                        if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSendAdminReply() }
                       }}
-                      className="min-h-[56px] max-h-[200px] py-4 px-6 rounded-2xl bg-slate-50 border-none focus-visible:ring-1 focus-visible:ring-amber-400/30 text-slate-800 placeholder:text-slate-400 transition-all font-medium resize-none"
+                      className="min-h-[52px] max-h-[180px] py-3.5 pl-4 pr-12 rounded-2xl bg-slate-50 border border-slate-200 focus-visible:ring-1 focus-visible:ring-[#013ff4]/40 text-slate-800 placeholder:text-slate-400 resize-none"
                       rows={1}
                     />
-                    <div className="absolute right-3 bottom-3 flex gap-1 opacity-0 group-focus-within:opacity-100 transition-opacity">
-                      <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-slate-200 rounded-lg">
-                        <Image className="h-4 w-4 text-slate-500" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-slate-200 rounded-lg">
-                        <Paperclip className="h-4 w-4 text-slate-500" />
-                      </Button>
-                    </div>
+                    {/* Réponses rapides */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button title="Réponses rapides" className="absolute right-2.5 bottom-2.5 p-1.5 rounded-lg text-slate-400 hover:text-[#013ff4] hover:bg-slate-200 transition-colors">
+                          <MessageSquareText className="h-4 w-4" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent side="top" align="end" className="w-80">
+                        <DropdownMenuLabel>Réponses rapides</DropdownMenuLabel>
+                        {QUICK_REPLIES.map((q) => (
+                          <DropdownMenuItem key={q.label} onClick={() => insertTemplate(q.text)} className="flex-col items-start gap-0.5 py-2">
+                            <span className="text-xs font-bold text-slate-800">{q.label}</span>
+                            <span className="text-[11px] text-slate-400 line-clamp-2">{q.text}</span>
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
 
-                  <Button 
-                    size="icon" 
-                    className="h-14 w-14 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white shadow-lg shadow-amber-200 transition-all active:scale-95"
+                  <Button
+                    size="icon"
+                    className="h-[52px] w-[52px] rounded-2xl bg-[#013ff4] hover:bg-[#012fc0] text-white shadow-lg shadow-[#013ff4]/20 transition-all active:scale-95 shrink-0"
                     onClick={handleSendAdminReply}
                     disabled={!message.trim() || isSending}
                   >
-                    {isSending ? (
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <Send className="h-5 w-5 fill-white" />
-                    )}
+                    {isSending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
                   </Button>
                 </div>
-              </footer>
-            </>
-          ) : (
-            <div className="flex flex-col items-center justify-center p-20 text-center space-y-8 animate-in fade-in zoom-in duration-500">
-               <div className="w-32 h-32 bg-white rounded-[40px] shadow-2xl flex items-center justify-center text-slate-300 relative">
-                 <Shield className="h-16 w-16" />
-                 <div className="absolute -top-2 -right-2 w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center text-white ring-8 ring-slate-50">
-                   <Gavel className="h-4 w-4" />
-                 </div>
-               </div>
-               <div className="space-y-2 max-w-sm">
-                 <h2 className="text-2xl font-black text-slate-900 italic tracking-tight uppercase">Centre de Médiation</h2>
-                 <p className="text-sm font-bold text-slate-400 leading-relaxed">
-                   Sélectionnez un litige dans la liste latérale pour analyser les échanges et rétablir l’ordre sur la plateforme.
-                 </p>
-               </div>
-               <Button variant="outline" className="rounded-2xl border-2 border-slate-200 h-12 px-8 font-black text-slate-900 group" onClick={loadConversations}>
-                 Actualiser les litiges
-                 <ExternalLink className="ml-2 h-4 w-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-               </Button>
+                <p className="text-[10px] text-slate-400 mt-2 pl-1">Entrée pour envoyer · Maj+Entrée pour un saut de ligne</p>
+              </div>
+            </footer>
+          </>
+        ) : (
+          <div className="flex flex-col items-center justify-center p-16 text-center space-y-6">
+            <div className="w-28 h-28 bg-white rounded-[36px] shadow-xl flex items-center justify-center text-slate-300 relative">
+              <Shield className="h-14 w-14" />
+              <div className="absolute -top-2 -right-2 w-8 h-8 bg-[#013ff4] rounded-full flex items-center justify-center text-white ring-8 ring-slate-50">
+                <Gavel className="h-4 w-4" />
+              </div>
             </div>
-          )}
-        </main>
-      </div>
-    </TooltipProvider>
+            <div className="space-y-1.5 max-w-sm">
+              <h2 className="text-xl font-black text-slate-900 tracking-tight">Centre de médiation</h2>
+              <p className="text-sm font-medium text-slate-400 leading-relaxed">
+                Sélectionnez un litige pour analyser les échanges, répondre aux parties et faire évoluer le statut de la médiation.
+              </p>
+            </div>
+            <Button variant="outline" className="rounded-2xl border-2 border-slate-200 h-11 px-6 font-bold text-slate-900" onClick={loadConversations}>
+              <RefreshCw className={cn("mr-2 h-4 w-4", isLoading && "animate-spin")} /> Actualiser les litiges
+            </Button>
+          </div>
+        )}
+      </main>
+    </div>
   )
 }
