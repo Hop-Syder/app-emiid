@@ -7,7 +7,7 @@ const COMMUNITIES = [
     name: "WhatsApp",
     role: "Discussions de groupe",
     desc: "Échangez en direct avec des professionnels de votre secteur.",
-    href: "https://chat.whatsapp.com/",
+    href: "https://chat.whatsapp.com/G8chvOhoky5BPw9QFcLJEI",
     color: "text-emerald-500",
     bg: "bg-emerald-500/10",
     border: "border-emerald-500/20",
