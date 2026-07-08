@@ -79,7 +79,7 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
             "h-11 w-11 border-2 transition-all duration-200",
             isActive ? "border-primary/20 shadow-sm" : "border-white shadow-sm group-hover:border-slate-200"
           )}>
-            <AvatarImage src={p?.avatar_url || ''} alt={fullName} />
+            <AvatarImage src={p?.avatar_url || '/profil/avatar.jpg'} alt={fullName} />
             <AvatarFallback className={cn(
               "font-bold text-sm",
               isActive

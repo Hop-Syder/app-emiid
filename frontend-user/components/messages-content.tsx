@@ -172,7 +172,7 @@ export function MessagesContent() {
                 user_id: resolvedUserId,
                 first_name: profileData?.first_name || "Nouveau",
                 last_name: profileData?.last_name || "Contact",
-                avatar_url: profileData?.avatar_url || "",
+                avatar_url: profileData?.avatar_url || "/profil/avatar.jpg",
               },
             })
             setShowChatMobile(true)
@@ -362,7 +362,7 @@ export function MessagesContent() {
                 </Button>
                 <div className="relative cursor-pointer group">
                   <Avatar className="h-10 w-10 ring-2 ring-indigo-100 transition-transform group-hover:scale-105">
-                    <AvatarImage src={selectedConv.other_participant.avatar_url} />
+                    <AvatarImage src={selectedConv.other_participant.avatar_url || "/profil/avatar.jpg"} />
                     <AvatarFallback className="bg-gradient-to-br from-indigo-400 to-primary text-white font-bold text-sm">
                       {selectedConv.other_participant.first_name[0]}
                     </AvatarFallback>

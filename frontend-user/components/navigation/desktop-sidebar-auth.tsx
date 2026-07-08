@@ -132,7 +132,7 @@ export function DesktopSidebarAuth() {
           <DropdownMenuTrigger className="w-full outline-none">
             <div className="flex items-center h-14 rounded-2xl hover:bg-white/5 transition-colors cursor-pointer border border-transparent hover:border-white/10 px-2">
               <Avatar className="size-10 rounded-xl border border-white/20 shrink-0">
-                <AvatarImage src={profile?.avatar_url || ""} />
+                <AvatarImage src={profile?.avatar_url || "/profil/avatar.jpg"} />
                 <AvatarFallback className="bg-slate-800 text-white rounded-xl">
                   {profile?.full_name?.substring(0, 2).toUpperCase() || <User className="size-5" />}
                 </AvatarFallback>

@@ -76,7 +76,7 @@ export function ParametresContent() {
           last_name:       data.last_name      || authUser?.user_metadata?.last_name   || authUser?.user_metadata?.family_name || "",
           email:           data.email          || authUser?.email || "",
           bio:             data.bio            || "",
-          avatar_url:      data.avatar_url     || authUser?.user_metadata?.avatar_url  || "",
+          avatar_url:      data.avatar_url     || authUser?.user_metadata?.avatar_url  || "/profil/avatar.jpg",
           category:        data.category       || "Artisan",
           role:            data.role           || "",
           specialty:       data.specialty      || "",

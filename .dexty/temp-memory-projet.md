@@ -136,5 +136,6 @@
 - [2026-06-22] Qualité & Perf : Résorption majeure de plus de 55 warnings ESLint. Conversion systématique des balises `<img>` vers `next/image` dans les composants clés, correction de typage explicit-any et nettoyage des dépendances manquantes/inutilisées des hooks React (Vague 1, 3, 4 et partie de la Vague 2 terminées).
 - [2026-07-07] Design System : Mise à jour du master design system (`design-system/emiid/MASTER.md`) et des READMEs pour refléter officiellement la nouvelle charte graphique EmiID (polices Mitsuha/Inter, couleurs Bleu Roi, Bleu Cyan et Bleu Nuit, et style Luxury Bento / Glassmorphism).
 - [2026-07-08] Avatar par défaut : Modification d'AvatarUpload.tsx pour initialiser la prévisualisation avec l'avatar par défaut `/profil/avatar.jpg` et s'assurer que l'image change dynamiquement dès que l'utilisateur téléverse son propre fichier.
+- [2026-07-08] Avatar par défaut global : Extension de l'utilisation de l'image d'avatar par défaut `/profil/avatar.jpg` sur l'ensemble de l'application utilisateur (barre de navigation, panneau de messagerie, éléments de conversation et paramètres) lorsqu'aucune photo personnalisée n'est disponible.
 
 
