@@ -53,6 +53,8 @@ import {
   suspendUser,
   reactivateUser,
   toggleAdmin,
+  exportUsers,
+  bulkUserAction,
   type UserProfile,
   type Country
 } from "@/lib/actions/admin"
@@ -68,6 +70,10 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
   const [total, setTotal] = useState(initialTotal)
   const [search, setSearch] = useState("")
   const [roleFilter, setRoleFilter] = useState("all")
+  const [countryFilter, setCountryFilter] = useState("all")
+  const [statusFilter, setStatusFilter] = useState("all")
+  const [isExporting, setIsExporting] = useState(false)
+  const [isBulkPending, setIsBulkPending] = useState(false)
   const [selectedUsers, setSelectedUsers] = useState<string[]>([])
   const [currentPage, setCurrentPage] = useState(1)
   const [showUserModal, setShowUserModal] = useState(false)
@@ -84,6 +90,8 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
       const result = await getUsers({
         search: search || undefined,
         role: roleFilter !== "all" ? roleFilter : undefined,
+        country: countryFilter !== "all" ? countryFilter : undefined,
+        status: statusFilter !== "all" ? statusFilter : undefined,
         page,
         limit
       })
@@ -106,6 +114,55 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
     startTransition(() => {
       fetchUsers(page)
     })
+  }
+
+  const currentFilters = () => ({
+    search: search || undefined,
+    role: roleFilter !== "all" ? roleFilter : undefined,
+    country: countryFilter !== "all" ? countryFilter : undefined,
+    status: statusFilter !== "all" ? statusFilter : undefined,
+  })
+
+  const handleExport = async () => {
+    setIsExporting(true)
+    try {
+      const csv = await exportUsers(currentFilters())
+      // BOM UTF-8 pour un affichage correct des accents dans Excel.
+      const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `emiid-utilisateurs-${new Date().toISOString().slice(0, 10)}.csv`
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch {
+      alert("Export impossible")
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
+  const handleBulk = async (action: "publish" | "unpublish" | "verify" | "suspend") => {
+    if (selectedUsers.length === 0) return
+    const labels: Record<typeof action, string> = { publish: "publier", unpublish: "dépublier", verify: "vérifier", suspend: "suspendre" }
+    if (action === "suspend" && !confirm(`Suspendre ${selectedUsers.length} utilisateur(s) ? (les administrateurs seront ignorés)`)) return
+    setIsBulkPending(true)
+    try {
+      const res = await bulkUserAction(selectedUsers, action)
+      if (!res.success) { alert(`Erreur : ${res.error}`); return }
+      const ids = new Set(selectedUsers)
+      setUsers(prev => prev.map(u => !ids.has(u.id) ? u : {
+        ...u,
+        ...(action === "publish" ? { is_published: true } : {}),
+        ...(action === "unpublish" ? { is_published: false } : {}),
+        ...(action === "verify" ? { is_verified: true } : {}),
+        ...(action === "suspend" && !u.is_admin ? { is_suspended: true } : {}),
+      }))
+      setSelectedUsers([])
+      alert(`${res.count} utilisateur(s) : ${labels[action]}`)
+    } finally {
+      setIsBulkPending(false)
+    }
   }
 
   const handleTogglePublished = async (userId: string, currentStatus: boolean) => {
@@ -270,9 +327,13 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
             <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
             Actualiser
           </button>
-          <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
-            <Download className="h-4 w-4" />
-            Exporter
+          <button
+            onClick={handleExport}
+            disabled={isExporting}
+            className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50"
+          >
+            {isExporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+            Exporter CSV
           </button>
         </div>
       </div>
@@ -304,14 +365,37 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
               className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border-none rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all outline-none"
             />
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <select
+              value={statusFilter}
+              onChange={(e) => { setStatusFilter(e.target.value); startTransition(() => fetchUsers(1)) }}
+              className="px-4 py-2.5 bg-slate-50 border-none rounded-lg text-sm font-medium text-slate-700 focus:ring-2 focus:ring-[#013ff4]/20 outline-none cursor-pointer"
+            >
+              <option value="all">Tous les statuts</option>
+              <option value="published">Publiés</option>
+              <option value="unpublished">Non publiés</option>
+              <option value="verified">Vérifiés</option>
+              <option value="premium">Premium</option>
+              <option value="suspended">Suspendus</option>
+              <option value="admin">Administrateurs</option>
+            </select>
+            <select
+              value={countryFilter}
+              onChange={(e) => { setCountryFilter(e.target.value); startTransition(() => fetchUsers(1)) }}
+              className="px-4 py-2.5 bg-slate-50 border-none rounded-lg text-sm font-medium text-slate-700 focus:ring-2 focus:ring-[#013ff4]/20 outline-none cursor-pointer max-w-[180px]"
+            >
+              <option value="all">Tous les pays</option>
+              {countries.map((c) => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
             <select
               value={roleFilter}
               onChange={(e) => {
                 setRoleFilter(e.target.value)
                 startTransition(() => fetchUsers(1))
               }}
-              className="px-4 py-2.5 bg-slate-50 border-none rounded-lg text-sm font-medium text-slate-700 focus:ring-2 focus:ring-blue-500/20 outline-none cursor-pointer"
+              className="px-4 py-2.5 bg-slate-50 border-none rounded-lg text-sm font-medium text-slate-700 focus:ring-2 focus:ring-[#013ff4]/20 outline-none cursor-pointer"
             >
               <option value="all">Toutes les categories</option>
               <option value="Entrepreneur">Entrepreneurs</option>
@@ -341,15 +425,30 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
               exit={{ height: 0, opacity: 0 }}
               className="bg-blue-50 border-b border-blue-100 px-6 py-3 flex items-center justify-between"
             >
-              <span className="text-sm font-medium text-blue-700">
-                {selectedUsers.length} utilisateur(s) selectionne(s)
+              <span className="text-sm font-medium text-[#013ff4] flex items-center gap-2">
+                {isBulkPending && <Loader2 className="h-4 w-4 animate-spin" />}
+                {selectedUsers.length} utilisateur(s) sélectionné(s)
               </span>
-              <div className="flex items-center gap-2">
-                <button className="px-3 py-1.5 text-xs font-semibold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors">
+              <div className="flex items-center gap-2 flex-wrap">
+                <button onClick={() => handleBulk("publish")} disabled={isBulkPending}
+                  className="px-3 py-1.5 text-xs font-semibold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors disabled:opacity-50">
                   Publier
                 </button>
-                <button className="px-3 py-1.5 text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg transition-colors">
-                  Supprimer
+                <button onClick={() => handleBulk("unpublish")} disabled={isBulkPending}
+                  className="px-3 py-1.5 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors disabled:opacity-50">
+                  Dépublier
+                </button>
+                <button onClick={() => handleBulk("verify")} disabled={isBulkPending}
+                  className="px-3 py-1.5 text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors disabled:opacity-50">
+                  Vérifier
+                </button>
+                <button onClick={() => handleBulk("suspend")} disabled={isBulkPending}
+                  className="px-3 py-1.5 text-xs font-semibold text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors disabled:opacity-50">
+                  Suspendre
+                </button>
+                <button onClick={() => setSelectedUsers([])} disabled={isBulkPending}
+                  className="px-3 py-1.5 text-xs font-semibold text-slate-500 hover:bg-slate-100 rounded-lg transition-colors disabled:opacity-50">
+                  Annuler
                 </button>
               </div>
             </motion.div>

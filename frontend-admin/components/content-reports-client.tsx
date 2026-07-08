@@ -10,9 +10,11 @@ import {
   UserX,
   Flag,
   Search,
+  Ban,
+  Trash2,
 } from "lucide-react"
 import { toast } from "sonner"
-import { resolveContentReport, dismissContentReport, getContentReports, type ContentReport } from "@/lib/actions/admin"
+import { resolveContentReport, dismissContentReport, actOnReport, getContentReports, type ContentReport } from "@/lib/actions/admin"
 
 type FilterStatus = "open" | "resolved" | "dismissed" | "all"
 type FilterType = "all" | "gallery" | "message" | "profile"
@@ -67,6 +69,16 @@ export function ContentReportsClient({ initialReports }: ContentReportsClientPro
       if (!res.success) { toast.error(res.error || "Échec"); return }
       setReports((prev) => prev.filter((r) => r.id !== id))
       toast.success("Signalement résolu")
+    })
+  }
+
+  const handleActOnReport = (id: string, action: "suspend_author" | "delete_content", label: string) => {
+    if (typeof window !== "undefined" && !window.confirm(`Confirmer : ${label} ?\nLe signalement sera clôturé (résolu).`)) return
+    startTransition(async () => {
+      const res = await actOnReport(id, action)
+      if (!res.success) { toast.error(res.error || "Échec"); return }
+      setReports((prev) => prev.filter((r) => r.id !== id))
+      toast.success(action === "suspend_author" ? "Auteur suspendu · signalement résolu" : "Contenu supprimé · signalement résolu")
     })
   }
 
@@ -179,7 +191,27 @@ export function ContentReportsClient({ initialReports }: ContentReportsClientPro
                   </div>
                 </div>
                 {r.status === "open" && (
-                  <div className="flex gap-2 lg:flex-col lg:w-40 flex-shrink-0">
+                  <div className="flex flex-wrap gap-2 lg:flex-col lg:w-44 flex-shrink-0">
+                    {/* Actions directes sur la cible du signalement */}
+                    <button
+                      onClick={() => handleActOnReport(r.id, "suspend_author", "suspendre l'auteur")}
+                      disabled={isPending}
+                      data-testid={`report-suspend-${r.id}`}
+                      className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-orange-500 px-3 py-2 text-sm font-semibold text-white hover:bg-orange-600 disabled:opacity-60"
+                    >
+                      <Ban className="h-4 w-4" /> Suspendre l&apos;auteur
+                    </button>
+                    {(r.subject_type === "gallery" || r.subject_type === "message") && (
+                      <button
+                        onClick={() => handleActOnReport(r.id, "delete_content", "supprimer le contenu")}
+                        disabled={isPending}
+                        data-testid={`report-delete-${r.id}`}
+                        className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-rose-600 px-3 py-2 text-sm font-semibold text-white hover:bg-rose-700 disabled:opacity-60"
+                      >
+                        <Trash2 className="h-4 w-4" /> Supprimer le contenu
+                      </button>
+                    )}
+                    <div className="hidden lg:block h-px bg-slate-100 my-0.5" />
                     <button
                       onClick={() => handleResolve(r.id)}
                       disabled={isPending}

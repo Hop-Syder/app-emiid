@@ -407,37 +407,47 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   }
 }
 
-export async function getUsers(params?: {
+export interface UserFilters {
   search?: string
-  status?: string
-  role?: string
+  status?: string   // all | published | unpublished | verified | premium | suspended | admin
+  role?: string     // catégorie
+  country?: string  // country_id
   page?: number
   limit?: number
-}): Promise<{ users: UserProfile[]; total: number }> {
+}
+
+// Applique les filtres communs (recherche, rôle, pays, statut) à une requête user_profiles.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- le query builder Supabase n'est pas générique ici
+function applyUserFilters(query: any, f: UserFilters) {
+  const { search, role, country, status } = f
+  if (search) {
+    const safe = String(search).replace(/[,()%*]/g, " ").trim().slice(0, 100)
+    if (safe) {
+      query = query.or(`first_name.ilike.%${safe}%,last_name.ilike.%${safe}%,email.ilike.%${safe}%`)
+    }
+  }
+  if (role && role !== "all") query = query.eq("category", role)
+  if (country && country !== "all") query = query.eq("country_id", country)
+  if (status && status !== "all") {
+    if (status === "published") query = query.eq("is_published", true)
+    else if (status === "unpublished") query = query.eq("is_published", false)
+    else if (status === "verified") query = query.eq("is_verified", true)
+    else if (status === "premium") query = query.eq("is_premium", true)
+    else if (status === "suspended") query = query.eq("is_suspended", true)
+    else if (status === "admin") query = query.eq("is_admin", true)
+  }
+  return query
+}
+
+export async function getUsers(params?: UserFilters): Promise<{ users: UserProfile[]; total: number }> {
   const supabase = await createAdminClient()
-  const { search, role, page = 1, limit = 10 } = params || {}
+  const { page = 1, limit = 10 } = params || {}
 
   let query = supabase
     .from("user_profiles")
     .select(USER_PROFILE_SAFE_SELECT, { count: "exact" })
 
-  if (search) {
-    // Sanitization anti-injection PostgREST : échappe les caractères qui pourraient
-    // casser la structure `.or()` (virgules, parenthèses, astérisques).
-    const safeSearch = String(search)
-      .replace(/[,()%*]/g, ' ')
-      .trim()
-      .slice(0, 100)
-    if (safeSearch) {
-      query = query.or(
-        `first_name.ilike.%${safeSearch}%,last_name.ilike.%${safeSearch}%,email.ilike.%${safeSearch}%`,
-      )
-    }
-  }
-
-  if (role && role !== "all") {
-    query = query.eq("category", role)
-  }
+  query = applyUserFilters(query, params || {})
 
   const offset = (page - 1) * limit
   query = query.range(offset, offset + limit - 1).order("created_at", { ascending: false })
@@ -448,6 +458,80 @@ export async function getUsers(params?: {
     users: (data as UserProfile[]) || [],
     total: count || 0,
   }
+}
+
+/** Export CSV des utilisateurs correspondant aux filtres (max 5000 lignes). */
+export async function exportUsers(params?: UserFilters): Promise<string> {
+  const supabase = await createAdminClient()
+  let query = supabase
+    .from("user_profiles")
+    .select("first_name,last_name,email,phone,category,city,is_published,is_verified,is_premium,is_suspended,is_admin,created_at")
+    .order("created_at", { ascending: false })
+    .limit(5000)
+
+  query = applyUserFilters(query, params || {})
+
+  const { data } = await query
+  type Row = Record<string, string | boolean | null>
+  const rows = (data as Row[]) || []
+
+  const esc = (v: unknown) => {
+    const s = v == null ? "" : String(v)
+    return /[",\n;]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
+  }
+  const b = (v: unknown) => (v ? "oui" : "non")
+  const header = ["Prénom", "Nom", "Email", "Téléphone", "Catégorie", "Ville", "Publié", "Vérifié", "Premium", "Suspendu", "Admin", "Inscription"]
+  const lines = rows.map((r) => [
+    r.first_name, r.last_name, r.email, r.phone, r.category, r.city,
+    b(r.is_published), b(r.is_verified), b(r.is_premium), b(r.is_suspended), b(r.is_admin),
+    r.created_at ? new Date(r.created_at as string).toISOString().slice(0, 10) : "",
+  ].map(esc).join(","))
+
+  return [header.join(","), ...lines].join("\n")
+}
+
+/** Action groupée sur une sélection d'utilisateurs. */
+export async function bulkUserAction(
+  userIds: string[],
+  action: "publish" | "unpublish" | "verify" | "unverify" | "suspend" | "reactivate",
+): Promise<{ success: boolean; count: number; error?: string }> {
+  const supabase = await createAdminClient()
+  const admin = await requireAdminSession()
+  if (!admin) return { success: false, count: 0, error: "Non autorisé" }
+  if (!userIds.length) return { success: false, count: 0, error: "Aucun utilisateur sélectionné" }
+
+  const now = new Date().toISOString()
+  let error: string | undefined
+
+  if (action === "publish" || action === "unpublish") {
+    const { error: e } = await supabase.from("user_profiles").update({ is_published: action === "publish", updated_at: now }).in("id", userIds)
+    error = e?.message
+  } else if (action === "verify" || action === "unverify") {
+    const { error: e } = await supabase.from("user_profiles").update({ is_verified: action === "verify", updated_at: now }).in("id", userIds)
+    error = e?.message
+  } else if (action === "reactivate") {
+    const { error: e } = await supabase.from("user_profiles")
+      .update({ is_suspended: false, suspended_at: null, suspended_until: null, suspended_reason: null, suspended_by: null, updated_at: now })
+      .in("id", userIds)
+    error = e?.message
+  } else if (action === "suspend") {
+    // Garde-fou : ne jamais suspendre un administrateur via une action groupée.
+    const { error: e } = await supabase.from("user_profiles")
+      .update({ is_suspended: true, suspended_at: now, suspended_reason: "Action groupée admin", suspended_by: admin.userId, updated_at: now })
+      .in("id", userIds)
+      .neq("is_admin", true)
+    error = e?.message
+  }
+
+  if (error) return { success: false, count: 0, error }
+
+  await logAdminAction(supabase, admin, {
+    action: `user.bulk_${action}`,
+    targetType: "user",
+    targetLabel: `${userIds.length} utilisateur(s)`,
+    details: { action, count: userIds.length },
+  })
+  return { success: true, count: userIds.length }
 }
 
 export async function updateUserProfile(
@@ -1178,6 +1262,80 @@ export async function resolveContentReport(
     .eq("id", reportId)
 
   if (error) return { success: false, error: error.message }
+  return { success: true }
+}
+
+/**
+ * Action directe depuis un signalement : suspend l'auteur du contenu OU supprime
+ * le contenu incriminé, puis clôture le signalement (résolu) + audit.
+ */
+export async function actOnReport(
+  reportId: string,
+  action: "suspend_author" | "delete_content",
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createAdminClient()
+  const admin = await requireAdminSession()
+  if (!admin) return { success: false, error: "Non autorisé" }
+
+  const { data: report } = await supabase
+    .from("content_reports")
+    .select("id, subject_type, subject_id, reason")
+    .eq("id", reportId)
+    .single()
+  if (!report) return { success: false, error: "Signalement introuvable" }
+
+  // Résoudre l'auteur (user_profiles.id) selon le type de contenu.
+  let authorProfileId: string | null = null
+  if (report.subject_type === "profile") {
+    authorProfileId = report.subject_id // subject_id EST déjà user_profiles.id
+  } else if (report.subject_type === "gallery") {
+    const { data: g } = await supabase.from("project_gallery").select("user_id").eq("id", report.subject_id).single()
+    if (g?.user_id) {
+      const { data: p } = await supabase.from("user_profiles").select("id").eq("user_id", g.user_id).single()
+      authorProfileId = p?.id ?? null
+    }
+  } else if (report.subject_type === "message") {
+    const { data: m } = await supabase.from("messages").select("sender_id").eq("id", report.subject_id).single()
+    if (m?.sender_id) {
+      const { data: p } = await supabase.from("user_profiles").select("id").eq("user_id", m.sender_id).single()
+      authorProfileId = p?.id ?? null
+    }
+  }
+
+  if (action === "delete_content") {
+    if (report.subject_type === "gallery") {
+      const { error } = await supabase.from("project_gallery").delete().eq("id", report.subject_id)
+      if (error) return { success: false, error: error.message }
+    } else if (report.subject_type === "message") {
+      const { error } = await supabase.from("messages").delete().eq("id", report.subject_id)
+      if (error) return { success: false, error: error.message }
+    } else {
+      return { success: false, error: "Suppression non applicable à un profil — utilisez « Suspendre l'auteur »." }
+    }
+  }
+
+  if (action === "suspend_author") {
+    if (!authorProfileId) return { success: false, error: "Auteur introuvable pour ce signalement." }
+    const r = await suspendUser(authorProfileId, { reason: `Signalement : ${report.reason}`, days: null })
+    if (!r.success) return r
+  }
+
+  // Clôture du signalement.
+  await supabase.from("content_reports").update({
+    status: "resolved",
+    resolved_at: new Date().toISOString(),
+    resolved_by: admin.userId,
+    admin_note: action === "suspend_author" ? "Auteur suspendu depuis le signalement" : "Contenu supprimé depuis le signalement",
+  }).eq("id", reportId)
+
+  await logAdminAction(supabase, admin, {
+    action: `report.${action}`,
+    targetType: "report",
+    targetId: reportId,
+    targetLabel: `${report.subject_type} · ${report.reason}`,
+    details: { subject_type: report.subject_type, subject_id: report.subject_id, authorProfileId },
+  })
+
   return { success: true }
 }
 
