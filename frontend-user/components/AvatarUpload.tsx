@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Composant d'upload d'avatar vers Supabase Storage avec déclenchement par ref
  * @created 2026-01-05
- * @updated 2026-06-05
+ * @updated 2026-07-08
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
 */
@@ -27,12 +27,12 @@ interface AvatarUploadProps {
 
 export const AvatarUpload = React.memo(function AvatarUpload({ currentAvatarUrl, onUploadComplete, disabled }: AvatarUploadProps) {
     const [uploading, setUploading] = useState(false)
-    const [preview, setPreview] = useState<string | null>(currentAvatarUrl)
+    const [preview, setPreview] = useState<string | null>(currentAvatarUrl || "/profil/avatar.jpg")
     const fileInputRef = useRef<HTMLInputElement>(null)
 
     // Synchronisation de la prévisualisation quand l'URL parente change
     useEffect(() => {
-        setPreview(currentAvatarUrl)
+        setPreview(currentAvatarUrl || "/profil/avatar.jpg")
     }, [currentAvatarUrl])
 
     const supabase = createClient()
