@@ -80,7 +80,7 @@ export function AdminLayout({ children, adminProfile, moderationCounts }: AdminL
                 animate={{ width: sidebarOpen ? 280 : 80 }}
                 className="relative z-30 flex flex-col bg-white border-r border-slate-200 shadow-sm"
             >
-                <div className="flex items-center gap-3 p-6">
+                <div className={cn("flex items-center gap-3 p-4 h-20", sidebarOpen ? "px-6" : "justify-center")}>
                     <div className="w-10 h-10 bg-gradient-to-tr from-slate-900 to-slate-800 rounded-xl flex items-center justify-center border border-slate-200/10 shadow-lg overflow-hidden shrink-0">
                         <Image
                             src="/logo/icon.svg"
@@ -101,45 +101,56 @@ export function AdminLayout({ children, adminProfile, moderationCounts }: AdminL
                     )}
                 </div>
 
-                <nav className="flex-1 px-4 space-y-2 mt-4 overflow-y-auto">
+                <nav className="flex-1 px-3 space-y-1 mt-4 overflow-y-auto">
                     {menuItems.map((item) => {
                         const isActive = pathname === item.href
                         const isSubItem = item.title.startsWith("—")
                         const label = isSubItem ? item.title.replace(/^—\s*/, "") : item.title
+                        const hasBadge = !!item.badge && item.badge > 0
                         return (
                             <Link
                                 key={item.href}
                                 href={item.href}
                                 data-testid={item.testId}
+                                title={!sidebarOpen ? label : undefined}
                                 className={cn(
-                                    "flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 group",
-                                    isSubItem && "ml-3 py-2",
+                                    "relative flex items-center h-11 rounded-2xl transition-all duration-300 group",
+                                    sidebarOpen ? "gap-3 px-3" : "justify-center px-0",
+                                    sidebarOpen && isSubItem && "ml-4",
                                     isActive
-                                        ? "bg-blue-600 text-white shadow-lg shadow-blue-200"
-                                        : "text-slate-500 hover:bg-slate-50 hover:text-blue-600"
+                                        ? "bg-[#013ff4] text-white shadow-lg shadow-[#013ff4]/20"
+                                        : "text-slate-500 hover:bg-slate-100 hover:text-[#013ff4]"
                                 )}
                             >
-                                <item.icon className={cn("h-5 w-5 shrink-0", isActive ? "text-white" : "group-hover:scale-110 transition-transform")} />
+                                {/* Icône (+ pastille de compteur quand la sidebar est repliée) */}
+                                <span className="relative shrink-0 flex items-center justify-center">
+                                    <item.icon className={cn("h-5 w-5", isActive ? "text-white" : "group-hover:scale-110 transition-transform")} />
+                                    {!sidebarOpen && hasBadge && (
+                                        <span
+                                            data-testid={`${item.testId}-badge`}
+                                            className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full bg-rose-500 text-white text-[9px] font-bold leading-none ring-2 ring-white"
+                                        >
+                                            {item.badge! > 9 ? "9+" : item.badge}
+                                        </span>
+                                    )}
+                                </span>
+
                                 {sidebarOpen && (
-                                    <motion.span
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        className="font-medium text-sm flex-1"
-                                    >
-                                        {label}
-                                    </motion.span>
-                                )}
-                                {sidebarOpen && item.badge && item.badge > 0 ? (
-                                    <span
-                                        data-testid={`${item.testId}-badge`}
-                                        className={cn(
-                                            "inline-flex items-center justify-center min-w-[22px] h-5 px-1.5 rounded-full text-[11px] font-bold",
-                                            isActive ? "bg-white text-blue-600" : "bg-rose-100 text-rose-700",
+                                    <>
+                                        <span className="font-medium text-sm flex-1 truncate">{label}</span>
+                                        {hasBadge && (
+                                            <span
+                                                data-testid={`${item.testId}-badge`}
+                                                className={cn(
+                                                    "inline-flex items-center justify-center min-w-[22px] h-5 px-1.5 rounded-full text-[11px] font-bold",
+                                                    isActive ? "bg-white text-[#013ff4]" : "bg-rose-100 text-rose-700",
+                                                )}
+                                            >
+                                                {item.badge! > 99 ? "99+" : item.badge}
+                                            </span>
                                         )}
-                                    >
-                                        {item.badge > 99 ? "99+" : item.badge}
-                                    </span>
-                                ) : null}
+                                    </>
+                                )}
                             </Link>
                         )
                     })}
@@ -148,10 +159,14 @@ export function AdminLayout({ children, adminProfile, moderationCounts }: AdminL
                 <div className="p-4 border-t border-slate-100">
                     <button
                         data-testid="admin-logout-btn"
-                        className="flex items-center gap-3 w-full px-4 py-3 text-red-500 hover:bg-red-50 rounded-2xl transition-colors font-medium text-sm"
+                        title={!sidebarOpen ? "Déconnexion" : undefined}
+                        className={cn(
+                            "flex items-center h-11 w-full text-red-500 hover:bg-red-50 rounded-2xl transition-colors font-medium text-sm",
+                            sidebarOpen ? "gap-3 px-4" : "justify-center px-0"
+                        )}
                         onClick={() => void handleLogout()}
                     >
-                        <LogOut className="h-5 w-5" />
+                        <LogOut className="h-5 w-5 shrink-0" />
                         {sidebarOpen && <span>Déconnexion</span>}
                     </button>
                 </div>
