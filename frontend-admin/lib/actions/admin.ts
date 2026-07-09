@@ -64,7 +64,12 @@ export interface SystemCheck {
 export interface DashboardStats {
   totalUsers: number
   publishedProfiles: number
+  verifiedProfiles: number
+  premiumProfiles: number
+  suspendedProfiles: number
   totalMessages: number
+  newUsersThisWeek: number
+  newUsersPrevWeek: number
   usersByCountry: { country: string; count: number }[]
   recentUsers: UserProfile[]
   weeklyActivity: { day: string; users: number }[]
@@ -244,7 +249,12 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   // Initialize default values
   let totalUsers = 0
   let publishedProfiles = 0
+  let verifiedProfiles = 0
+  let premiumProfiles = 0
+  let suspendedProfiles = 0
   let totalMessages = 0
+  let newUsersThisWeek = 0
+  let newUsersPrevWeek = 0
   let usersByCountry: { country: string; count: number }[] = []
   let recentUsers: UserProfile[] = []
   const weeklyActivity: { day: string; users: number }[] = []
@@ -283,6 +293,29 @@ export async function getDashboardStats(): Promise<DashboardStats> {
       console.error('[Dashboard] Error fetching total messages:', messagesError)
     } else {
       totalMessages = messagesCount || 0
+    }
+
+    // Compteurs de qualité + croissance (parallélisés, tolérants aux colonnes absentes)
+    try {
+      const weekMs = 7 * 24 * 60 * 60 * 1000
+      const now = Date.now()
+      const startThisWeek = new Date(now - weekMs).toISOString()
+      const startPrevWeek = new Date(now - 2 * weekMs).toISOString()
+
+      const [verifiedRes, premiumRes, suspendedRes, thisWeekRes, prevWeekRes] = await Promise.all([
+        supabase.from("user_profiles").select("*", { count: "exact", head: true }).eq("is_verified", true),
+        supabase.from("user_profiles").select("*", { count: "exact", head: true }).eq("is_premium", true),
+        supabase.from("user_profiles").select("*", { count: "exact", head: true }).eq("is_suspended", true),
+        supabase.from("user_profiles").select("*", { count: "exact", head: true }).gte("created_at", startThisWeek),
+        supabase.from("user_profiles").select("*", { count: "exact", head: true }).gte("created_at", startPrevWeek).lt("created_at", startThisWeek),
+      ])
+      verifiedProfiles = verifiedRes.count || 0
+      premiumProfiles = premiumRes.count || 0
+      suspendedProfiles = suspendedRes.error ? 0 : (suspendedRes.count || 0)
+      newUsersThisWeek = thisWeekRes.count || 0
+      newUsersPrevWeek = prevWeekRes.count || 0
+    } catch (err) {
+      console.error('[Dashboard] Exception in quality counters:', err)
     }
 
     // Get users by country
@@ -399,7 +432,12 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   return {
     totalUsers,
     publishedProfiles,
+    verifiedProfiles,
+    premiumProfiles,
+    suspendedProfiles,
     totalMessages,
+    newUsersThisWeek,
+    newUsersPrevWeek,
     usersByCountry,
     recentUsers,
     weeklyActivity,
@@ -1361,3 +1399,60 @@ export async function dismissContentReport(
   return { success: true }
 }
 
+
+// ============================================================
+// P2 — Broadcast / Annonces
+// ============================================================
+
+export type BroadcastSegment = "all" | "published" | "premium" | "verified" | "suspended"
+
+/** Envoie une notification (annonce) à tous les utilisateurs d'un segment. */
+export async function broadcastAnnouncement(input: {
+  title: string
+  content: string
+  segment: BroadcastSegment
+  link?: string
+}): Promise<{ success: boolean; count: number; error?: string }> {
+  const supabase = await createAdminClient()
+  const admin = await requireAdminSession()
+  if (!admin) return { success: false, count: 0, error: "Non autorisé" }
+
+  const title = input.title?.trim()
+  const content = input.content?.trim()
+  if (!title || !content) return { success: false, count: 0, error: "Titre et message requis" }
+  if (title.length > 120) return { success: false, count: 0, error: "Titre trop long (120 max)" }
+
+  // Résolution du segment → liste de user_id destinataires.
+  let q = supabase.from("user_profiles").select("user_id")
+  if (input.segment === "published") q = q.eq("is_published", true)
+  else if (input.segment === "premium") q = q.eq("is_premium", true)
+  else if (input.segment === "verified") q = q.eq("is_verified", true)
+  else if (input.segment === "suspended") q = q.eq("is_suspended", true)
+
+  const { data, error } = await q
+  if (error) return { success: false, count: 0, error: error.message }
+
+  const userIds = Array.from(new Set(
+    (data as { user_id: string | null }[]).map((r) => r.user_id).filter((v): v is string => !!v),
+  ))
+  if (!userIds.length) return { success: false, count: 0, error: "Aucun destinataire pour ce segment" }
+
+  const link = input.link?.trim() || null
+  const rows = userIds.map((uid) => ({ user_id: uid, type: "admin", title, content, link }))
+
+  // Insertion par lots pour éviter les payloads trop volumineux.
+  const chunkSize = 500
+  for (let i = 0; i < rows.length; i += chunkSize) {
+    const { error: e } = await supabase.from("notifications").insert(rows.slice(i, i + chunkSize))
+    if (e) return { success: false, count: i, error: e.message }
+  }
+
+  await logAdminAction(supabase, admin, {
+    action: "broadcast",
+    targetType: "segment",
+    targetLabel: `${input.segment} · ${userIds.length} destinataire(s)`,
+    details: { title, segment: input.segment, count: userIds.length },
+  })
+
+  return { success: true, count: userIds.length }
+}

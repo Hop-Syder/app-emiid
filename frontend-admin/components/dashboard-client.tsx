@@ -13,49 +13,61 @@ import {
   Users,
   MessageSquare,
   TrendingUp,
+  TrendingDown,
   Globe,
   Activity,
   Server,
   Database,
   HardDrive,
   CheckCircle2,
+  BadgeCheck,
+  Crown,
   UserPlus,
-  BarChart3
+  BarChart3,
+  RefreshCw,
 } from "lucide-react"
-import type { DashboardStats, UserProfile } from "@/lib/actions/admin"
+import { getDashboardStats, type DashboardStats } from "@/lib/actions/admin"
 
 interface DashboardClientProps {
   initialStats: DashboardStats
 }
 
 export function DashboardClient({ initialStats }: DashboardClientProps) {
-  const [stats] = useState(initialStats)
+  const [stats, setStats] = useState(initialStats)
+  const [refreshing, setRefreshing] = useState(false)
+
+  const handleRefresh = async () => {
+    setRefreshing(true)
+    try {
+      setStats(await getDashboardStats())
+    } finally {
+      setRefreshing(false)
+    }
+  }
+
+  // Croissance des inscriptions (7 derniers jours vs 7 précédents)
+  const growth = stats.newUsersPrevWeek > 0
+    ? Math.round(((stats.newUsersThisWeek - stats.newUsersPrevWeek) / stats.newUsersPrevWeek) * 100)
+    : (stats.newUsersThisWeek > 0 ? 100 : 0)
+  const growthUp = growth >= 0
+
+  const pct = (n: number) => (stats.totalUsers > 0 ? Math.round((n / stats.totalUsers) * 100) : 0)
 
   const statCards = [
-    {
-      title: "Utilisateurs",
-      value: stats.totalUsers,
-      icon: Users,
-      color: "bg-blue-500",
-      lightColor: "bg-blue-50",
-      textColor: "text-blue-600"
-    },
-    {
-      title: "Profils Publies",
-      value: stats.publishedProfiles,
-      icon: CheckCircle2,
-      color: "bg-emerald-500",
-      lightColor: "bg-emerald-50",
-      textColor: "text-emerald-600"
-    },
-    {
-      title: "Messages",
-      value: stats.totalMessages,
-      icon: MessageSquare,
-      color: "bg-violet-500",
-      lightColor: "bg-violet-50",
-      textColor: "text-violet-600"
-    }
+    { title: "Utilisateurs", value: stats.totalUsers, icon: Users, lightColor: "bg-blue-50", textColor: "text-[#013ff4]", sub: null as string | null },
+    { title: "Nouveaux (7 j)", value: stats.newUsersThisWeek, icon: UserPlus, lightColor: "bg-sky-50", textColor: "text-sky-600", sub: `${growthUp ? "+" : ""}${growth}% vs 7 j préc.`, up: growthUp },
+    { title: "Profils publiés", value: stats.publishedProfiles, icon: CheckCircle2, lightColor: "bg-emerald-50", textColor: "text-emerald-600", sub: `${pct(stats.publishedProfiles)}% du total` },
+    { title: "Vérifiés", value: stats.verifiedProfiles, icon: BadgeCheck, lightColor: "bg-cyan-50", textColor: "text-cyan-600", sub: `${pct(stats.verifiedProfiles)}% du total` },
+    { title: "Premium", value: stats.premiumProfiles, icon: Crown, lightColor: "bg-amber-50", textColor: "text-amber-600", sub: `${pct(stats.premiumProfiles)}% du total` },
+    { title: "Messages", value: stats.totalMessages, icon: MessageSquare, lightColor: "bg-violet-50", textColor: "text-violet-600", sub: null },
+  ]
+
+  // Funnel de conversion
+  const funnel = [
+    { label: "Utilisateurs", value: stats.totalUsers, color: "bg-[#013ff4]" },
+    { label: "Publiés", value: stats.publishedProfiles, color: "bg-emerald-500" },
+    { label: "Vérifiés", value: stats.verifiedProfiles, color: "bg-cyan-500" },
+    { label: "Premium", value: stats.premiumProfiles, color: "bg-amber-500" },
   ]
 
   const maxWeeklyUsers = Math.max(...stats.weeklyActivity.map(d => d.users), 1)
@@ -64,35 +76,73 @@ export function DashboardClient({ initialStats }: DashboardClientProps) {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 tracking-tight">
-          Tableau de Bord
-        </h1>
-        <p className="text-slate-500 text-sm mt-1">
-          Vue d’ensemble de la plateforme EmiID
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 tracking-tight">
+            Tableau de Bord
+          </h1>
+          <p className="text-slate-500 text-sm mt-1">
+            Vue d’ensemble de la plateforme EmiID
+          </p>
+        </div>
+        <button
+          onClick={handleRefresh}
+          disabled={refreshing}
+          className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50 shrink-0"
+        >
+          <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
+          Rafraîchir
+        </button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         {statCards.map((stat, index) => (
           <motion.div
             key={stat.title}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition-shadow"
+            transition={{ delay: index * 0.06 }}
+            className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm hover:shadow-md transition-shadow"
           >
-            <div className="flex items-center justify-between mb-4">
-              <div className={`w-12 h-12 ${stat.lightColor} rounded-xl flex items-center justify-center`}>
-                <stat.icon className={`h-6 w-6 ${stat.textColor}`} />
-              </div>
-              <TrendingUp className="h-4 w-4 text-emerald-500" />
+            <div className={`w-10 h-10 ${stat.lightColor} rounded-xl flex items-center justify-center mb-3`}>
+              <stat.icon className={`h-5 w-5 ${stat.textColor}`} />
             </div>
-            <p className="text-3xl font-bold text-slate-900">{stat.value.toLocaleString()}</p>
-            <p className="text-sm text-slate-500 mt-1">{stat.title}</p>
+            <p className="text-2xl font-bold text-slate-900">{stat.value.toLocaleString()}</p>
+            <p className="text-xs text-slate-500 mt-0.5">{stat.title}</p>
+            {stat.sub && (
+              <p className={`text-[11px] font-semibold mt-1.5 flex items-center gap-1 ${
+                "up" in stat ? (stat.up ? "text-emerald-600" : "text-rose-600") : "text-slate-400"
+              }`}>
+                {"up" in stat && (stat.up ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />)}
+                {stat.sub}
+              </p>
+            )}
           </motion.div>
         ))}
+      </div>
+
+      {/* Funnel de conversion */}
+      <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+        <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2 mb-4">
+          <BarChart3 className="h-4 w-4 text-[#013ff4]" /> Entonnoir de conversion
+        </h2>
+        <div className="space-y-3">
+          {funnel.map((step) => {
+            const width = stats.totalUsers > 0 ? Math.max(4, Math.round((step.value / stats.totalUsers) * 100)) : 0
+            return (
+              <div key={step.label} className="flex items-center gap-3">
+                <span className="w-24 text-xs font-semibold text-slate-500 shrink-0">{step.label}</span>
+                <div className="flex-1 h-7 bg-slate-100 rounded-lg overflow-hidden">
+                  <div className={`h-full ${step.color} rounded-lg flex items-center justify-end px-2 transition-all`} style={{ width: `${width}%` }}>
+                    <span className="text-[11px] font-bold text-white">{step.value.toLocaleString()}</span>
+                  </div>
+                </div>
+                <span className="w-10 text-right text-xs font-bold text-slate-400 shrink-0">{width}%</span>
+              </div>
+            )
+          })}
+        </div>
       </div>
 
       {/* Main Grid */}
