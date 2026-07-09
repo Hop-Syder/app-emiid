@@ -1456,3 +1456,36 @@ export async function broadcastAnnouncement(input: {
 
   return { success: true, count: userIds.length }
 }
+
+// ============================================================
+// P2 #10 — Fiche utilisateur détaillée
+// ============================================================
+
+export interface UserDetail {
+  reportsAbout: { id: string; reason: string; status: string; created_at: string }[]
+  reportsFiledCount: number
+  galleryCount: number
+  auditTrail: AuditLogEntry[]
+}
+
+/** Enrichissement d'un utilisateur pour la fiche détaillée (signalements, activité, historique admin). */
+export async function getUserDetail(profileId: string, userId: string): Promise<UserDetail> {
+  const supabase = await createAdminClient()
+
+  const [aboutRes, filedRes, galleryRes, auditRes] = await Promise.all([
+    supabase.from("content_reports")
+      .select("id, reason, status, created_at")
+      .eq("subject_type", "profile").eq("subject_id", profileId)
+      .order("created_at", { ascending: false }).limit(10),
+    supabase.from("content_reports").select("id", { count: "exact", head: true }).eq("reporter_id", userId),
+    supabase.from("project_gallery").select("id", { count: "exact", head: true }).eq("user_id", userId),
+    supabase.from("admin_audit_log").select("*").eq("target_id", userId).order("created_at", { ascending: false }).limit(10),
+  ])
+
+  return {
+    reportsAbout: (aboutRes.data as UserDetail["reportsAbout"]) || [],
+    reportsFiledCount: filedRes.error ? 0 : (filedRes.count || 0),
+    galleryCount: galleryRes.error ? 0 : (galleryRes.count || 0),
+    auditTrail: (auditRes.data as AuditLogEntry[]) || [],
+  }
+}

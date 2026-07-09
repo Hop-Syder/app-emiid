@@ -33,7 +33,10 @@ import {
   RefreshCw,
   Ban,
   RotateCcw,
-  UserCog
+  UserCog,
+  Flag,
+  ScrollText,
+  Activity
 } from "lucide-react"
 import Image from "next/image"
 import {
@@ -55,8 +58,10 @@ import {
   toggleAdmin,
   exportUsers,
   bulkUserAction,
+  getUserDetail,
   type UserProfile,
-  type Country
+  type Country,
+  type UserDetail
 } from "@/lib/actions/admin"
 
 interface UsersClientProps {
@@ -78,6 +83,8 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
   const [currentPage, setCurrentPage] = useState(1)
   const [showUserModal, setShowUserModal] = useState(false)
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null)
+  const [detail, setDetail] = useState<UserDetail | null>(null)
+  const [detailLoading, setDetailLoading] = useState(false)
   const [isPending, startTransition] = useTransition()
   const [isLoading, setIsLoading] = useState(false)
 
@@ -277,6 +284,12 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
   const openUserDetail = (user: UserProfile) => {
     setSelectedUser(user)
     setShowUserModal(true)
+    setDetail(null)
+    setDetailLoading(true)
+    getUserDetail(user.id, user.user_id)
+      .then(setDetail)
+      .catch(() => setDetail(null))
+      .finally(() => setDetailLoading(false))
   }
 
   const getCountryName = (countryId: string | null) => {
@@ -791,6 +804,7 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
                           {selectedUser.first_name || ""} {selectedUser.last_name || ""}
                           {selectedUser.is_verified && <BadgeCheck className="h-5 w-5 text-blue-500" />}
                           {selectedUser.is_premium && <Crown className="h-5 w-5 text-amber-500" />}
+                          {selectedUser.is_admin && <span title="Administrateur"><UserCog className="h-5 w-5 text-[#013ff4]" /></span>}
                           {selectedUser.is_locked && <span title="Compte verrouillé (PIN)"><ShieldX className="h-5 w-5 text-red-500" /></span>}
                         </h2>
                         {selectedUser.has_profile && !selectedUser.is_verified && <BadgeCheck className="h-5 w-5 text-slate-300" />}
@@ -880,8 +894,108 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
                   </div>
                 </div>
 
+                {/* Bandeau suspension */}
+                {selectedUser.is_suspended && (
+                  <div className="rounded-xl bg-orange-50 border border-orange-200 px-4 py-3">
+                    <p className="text-xs font-black uppercase tracking-wide text-orange-700 flex items-center gap-1.5">
+                      <Ban className="h-3.5 w-3.5" /> Compte suspendu
+                    </p>
+                    {selectedUser.suspended_reason && <p className="text-sm text-orange-800 mt-1">{selectedUser.suspended_reason}</p>}
+                    <p className="text-[11px] text-orange-600 mt-0.5">
+                      {selectedUser.suspended_until ? `Jusqu'au ${formatDate(selectedUser.suspended_until)}` : "Suspension permanente"}
+                    </p>
+                  </div>
+                )}
+
+                {/* Fiche enrichie : activité, signalements, historique admin */}
+                <div className="rounded-xl border border-slate-100 divide-y divide-slate-100">
+                  {/* Activité */}
+                  <div className="p-4 grid grid-cols-3 gap-2 text-center">
+                    <div>
+                      <p className="text-lg font-bold text-slate-900">{detailLoading ? "…" : detail?.galleryCount ?? 0}</p>
+                      <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wide">Galerie</p>
+                    </div>
+                    <div>
+                      <p className="text-lg font-bold text-slate-900">{detailLoading ? "…" : detail?.reportsFiledCount ?? 0}</p>
+                      <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wide">Signalés</p>
+                    </div>
+                    <div>
+                      <p className="text-lg font-bold text-slate-900">{selectedUser.followers_count || 0}</p>
+                      <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wide">Abonnés</p>
+                    </div>
+                  </div>
+
+                  {/* Signalements reçus */}
+                  {(detail?.reportsAbout?.length ?? 0) > 0 && (
+                    <div className="p-4">
+                      <p className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1.5 mb-2">
+                        <Flag className="h-3.5 w-3.5 text-rose-500" /> Signalements reçus ({detail!.reportsAbout.length})
+                      </p>
+                      <div className="space-y-1.5 max-h-32 overflow-y-auto">
+                        {detail!.reportsAbout.map((r) => (
+                          <div key={r.id} className="flex items-center justify-between gap-2 text-xs">
+                            <span className="text-slate-600 truncate">« {r.reason} »</span>
+                            <span className={`shrink-0 px-2 py-0.5 rounded-full font-semibold ${
+                              r.status === "open" ? "bg-rose-100 text-rose-700" : "bg-slate-100 text-slate-500"
+                            }`}>{r.status === "open" ? "Ouvert" : r.status === "resolved" ? "Résolu" : "Écarté"}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Historique admin */}
+                  {(detail?.auditTrail?.length ?? 0) > 0 && (
+                    <div className="p-4">
+                      <p className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1.5 mb-2">
+                        <ScrollText className="h-3.5 w-3.5 text-[#013ff4]" /> Historique admin
+                      </p>
+                      <div className="space-y-1.5 max-h-32 overflow-y-auto">
+                        {detail!.auditTrail.map((a) => (
+                          <div key={a.id} className="flex items-center justify-between gap-2 text-xs">
+                            <span className="text-slate-600 truncate">{a.action}</span>
+                            <span className="shrink-0 text-slate-400">{formatDate(a.created_at)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {detailLoading && (
+                    <div className="p-4 flex items-center gap-2 text-xs text-slate-400">
+                      <Activity className="h-3.5 w-3.5 animate-pulse" /> Chargement de la fiche…
+                    </div>
+                  )}
+                </div>
+
                 {/* Actions */}
                 <div className="flex flex-col gap-3 pt-4 border-t border-slate-100">
+                  {/* Modération : suspension + rôle admin */}
+                  <div className="flex items-center gap-3">
+                    {selectedUser.is_suspended ? (
+                      <button
+                        onClick={() => handleReactivate(selectedUser.id)}
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors"
+                      >
+                        <RotateCcw className="h-4 w-4" /> Réactiver
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleSuspend(selectedUser.id)}
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors"
+                      >
+                        <Ban className="h-4 w-4" /> Suspendre
+                      </button>
+                    )}
+                    <button
+                      onClick={() => handleToggleAdmin(selectedUser.id, selectedUser.is_admin || false)}
+                      className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
+                        selectedUser.is_admin ? "bg-[#013ff4]/10 text-[#013ff4] hover:bg-[#013ff4]/20" : "bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200"
+                      }`}
+                    >
+                      <UserCog className="h-4 w-4" /> {selectedUser.is_admin ? "Admin" : "Rendre admin"}
+                    </button>
+                  </div>
                   <div className="flex items-center gap-3">
                     <button
                       onClick={() => handleToggleVerified(selectedUser.id, selectedUser.is_verified || false)}
