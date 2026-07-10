@@ -13,6 +13,7 @@ const express_1 = require("express");
 const userController_1 = require("../../controllers/userController");
 const followController_1 = require("../../controllers/followController");
 const authMiddleware_1 = require("../../middlewares/authMiddleware");
+const rateLimiter_1 = require("../../middlewares/rateLimiter");
 const router = (0, express_1.Router)();
 // Toutes les routes ici nécessitent une authentification
 router.use(authMiddleware_1.requireAuth);
@@ -33,7 +34,7 @@ router.post('/account/deactivate', userController_1.deactivateMyAccount);
 router.delete('/account', userController_1.deleteMyAccount);
 // @route   POST /api/users/verify-pin
 // @desc    Vérifier le code PIN
-router.post('/verify-pin', userController_1.verifyPin);
+router.post('/verify-pin', rateLimiter_1.pinLimiter, userController_1.verifyPin);
 // @route   POST /api/users/reset-pin
 // @desc    Réinitialiser le code PIN (après vérification d'identité par OTP email)
 router.post('/reset-pin', userController_1.resetMyPin);
@@ -51,10 +52,10 @@ router.post('/follow/:id', followController_1.toggleFollowProfile);
 router.put('/follow/:id/note', followController_1.updateFollowNote);
 // @route   POST /api/users/phone/request
 // @desc    Demander un code OTP par WhatsApp ou SMS
-router.post('/phone/request', userController_1.requestPhoneVerification);
+router.post('/phone/request', rateLimiter_1.phoneVerificationLimiter, userController_1.requestPhoneVerification);
 // @route   POST /api/users/phone/verify
 // @desc    Vérifier le code OTP
-router.post('/phone/verify', userController_1.verifyPhone);
+router.post('/phone/verify', rateLimiter_1.phoneVerifyLimiter, userController_1.verifyPhone);
 // @route   POST /api/users/:id/unlock-pin
 // @desc    Débloquer le PIN d'un utilisateur (Admin seulement)
 router.post('/:id/unlock-pin', authMiddleware_1.requireAdmin, userController_1.unlockUserPin);

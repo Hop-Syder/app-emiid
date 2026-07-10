@@ -35,11 +35,22 @@ interface DashboardClientProps {
 export function DashboardClient({ initialStats }: DashboardClientProps) {
   const [stats, setStats] = useState(initialStats)
   const [refreshing, setRefreshing] = useState(false)
+  const [period, setPeriod] = useState(7)
 
   const handleRefresh = async () => {
     setRefreshing(true)
     try {
-      setStats(await getDashboardStats())
+      setStats(await getDashboardStats(period))
+    } finally {
+      setRefreshing(false)
+    }
+  }
+
+  const handlePeriodChange = async (days: number) => {
+    setPeriod(days)
+    setRefreshing(true)
+    try {
+      setStats(await getDashboardStats(days))
     } finally {
       setRefreshing(false)
     }
@@ -152,33 +163,74 @@ export function DashboardClient({ initialStats }: DashboardClientProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="lg:col-span-2 bg-white rounded-2xl p-6 border border-slate-100 shadow-sm"
+          className="lg:col-span-2 bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col justify-between"
         >
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
-              <h2 className="text-lg font-bold text-slate-900">Activite Hebdomadaire</h2>
-              <p className="text-sm text-slate-500">Nouveaux utilisateurs cette semaine</p>
+              <h2 className="text-lg font-bold text-slate-900">Activité des Inscriptions</h2>
+              <p className="text-sm text-slate-500">
+                Nouveaux profils sur les {period} derniers jours
+              </p>
             </div>
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-lg">
-              <BarChart3 className="h-4 w-4 text-slate-400" />
-              <span className="text-sm font-medium text-slate-600">7 jours</span>
+            
+            {/* Filtre de période Bento */}
+            <div className="flex items-center gap-1 p-1 bg-slate-100/80 rounded-xl border border-slate-200/50 self-start sm:self-auto">
+              {[
+                { label: "7j", value: 7 },
+                { label: "14j", value: 14 },
+                { label: "30j", value: 30 },
+                { label: "90j", value: 90 },
+              ].map((p) => (
+                <button
+                  key={p.value}
+                  type="button"
+                  onClick={() => handlePeriodChange(p.value)}
+                  disabled={refreshing}
+                  className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all active:scale-95 cursor-pointer ${
+                    period === p.value
+                      ? "bg-white text-blue-600 shadow-sm border border-slate-200/40"
+                      : "text-slate-500 hover:text-slate-800"
+                  }`}
+                >
+                  {p.label}
+                </button>
+              ))}
             </div>
           </div>
 
-          <div className="flex items-end justify-between h-48 gap-2">
-            {stats.weeklyActivity.map((day, index) => (
-              <div key={day.day} className="flex-1 flex flex-col items-center gap-2">
-                <motion.div
-                  initial={{ height: 0 }}
-                  animate={{ height: `${(day.users / maxWeeklyUsers) * 100}%` }}
-                  transition={{ delay: 0.5 + index * 0.1, duration: 0.5 }}
-                  className="w-full bg-gradient-to-t from-blue-500 to-blue-400 rounded-t-lg min-h-[4px]"
-                  style={{ maxHeight: "100%" }}
-                />
-                <span className="text-xs font-medium text-slate-400">{day.day}</span>
-                <span className="text-xs font-semibold text-slate-600">{day.users}</span>
-              </div>
-            ))}
+          <div className="flex items-end justify-between h-48 gap-1.5 sm:gap-2 pt-4">
+            {stats.weeklyActivity.map((day, index) => {
+              const showLabel = 
+                period <= 7 || 
+                (period <= 14 && index % 2 === 0) || 
+                (period <= 30 && index % 5 === 0) || 
+                (period <= 90 && index % 15 === 0) || 
+                index === stats.weeklyActivity.length - 1;
+
+              return (
+                <div key={day.day + index} className="flex-1 flex flex-col items-center gap-2 h-full justify-end min-w-0">
+                  <div className="relative group/bar flex flex-col items-center w-full h-full justify-end">
+                    <span className="absolute -top-7 scale-0 group-hover/bar:scale-100 transition-all text-[10px] font-bold bg-slate-900 text-white px-2 py-0.5 rounded-md shadow-lg z-10 whitespace-nowrap">
+                      {day.users} inscrit{day.users !== 1 ? "s" : ""}
+                    </span>
+                    <motion.div
+                      initial={{ height: 0 }}
+                      animate={{ height: `${(day.users / maxWeeklyUsers) * 100}%` }}
+                      transition={{ delay: 0.2 + (index * (0.3 / period)), duration: 0.4 }}
+                      className="w-full bg-gradient-to-t from-blue-600 to-blue-400 hover:from-blue-700 hover:to-blue-500 rounded-t-md min-h-[4px] cursor-pointer transition-colors shadow-sm"
+                      style={{ maxHeight: "100%" }}
+                    />
+                  </div>
+                  {showLabel ? (
+                    <span className="text-[10px] font-bold text-slate-400 select-none whitespace-nowrap truncate w-full text-center">
+                      {day.day}
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-bold text-slate-300/40 select-none">•</span>
+                  )}
+                </div>
+              )
+            })}
           </div>
         </motion.div>
 

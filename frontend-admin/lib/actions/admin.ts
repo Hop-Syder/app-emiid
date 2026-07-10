@@ -243,7 +243,7 @@ async function getBackendHealth(): Promise<SystemCheck[]> {
   }
 }
 
-export async function getDashboardStats(): Promise<DashboardStats> {
+export async function getDashboardStats(days: number = 7): Promise<DashboardStats> {
   const supabase = await createAdminClient()
 
   // Initialize default values
@@ -361,52 +361,70 @@ export async function getDashboardStats(): Promise<DashboardStats> {
       console.error('[Dashboard] Exception in recent users:', err)
     }
 
-    // Get weekly activity (parallélisé pour perf)
+    // Get activity for X days (optimisé à 1 seule requête globale)
     try {
       const now = new Date()
-      const dayBounds: { start: string; end: string; day: string }[] = []
-      for (let i = 6; i >= 0; i--) {
-        const date = new Date(now)
-        date.setDate(date.getDate() - i)
-        const startOfDay = new Date(new Date(date).setHours(0, 0, 0, 0)).toISOString()
-        const endOfDay = new Date(new Date(date).setHours(23, 59, 59, 999)).toISOString()
-        dayBounds.push({
-          start: startOfDay,
-          end: endOfDay,
-          day: dayNames[new Date(startOfDay).getDay()],
-        })
-      }
+      const startDate = new Date(now)
+      startDate.setDate(startDate.getDate() - (days - 1))
+      startDate.setHours(0, 0, 0, 0)
+      
+      const { data: activityData, error: activityError } = await supabase
+        .from("user_profiles")
+        .select("created_at")
+        .gte("created_at", startDate.toISOString())
+        .order("created_at", { ascending: true })
 
-      const weeklyResults = await Promise.all(
-        dayBounds.map(({ start, end }) =>
-          supabase
-            .from("user_profiles")
-            .select("*", { count: "exact", head: true })
-            .gte("created_at", start)
-            .lte("created_at", end),
-        ),
-      )
-
-      weeklyResults.forEach((result, index) => {
-        if (result.error) {
-          console.error(
-            `[Dashboard] Error fetching weekly activity for ${dayBounds[index].start}:`,
-            result.error,
-          )
+      if (activityError) {
+        console.error('[Dashboard] Error fetching activity data:', activityError)
+      } else {
+        const countsMap = new Map<string, number>()
+        
+        // Initialiser toutes les dates à 0
+        for (let i = 0; i < days; i++) {
+          const date = new Date(startDate)
+          date.setDate(startDate.getDate() + i)
+          const key = date.toISOString().split('T')[0]
+          countsMap.set(key, 0)
         }
-        weeklyActivity.push({
-          day: dayBounds[index].day,
-          users: result.count || 0,
-        })
-      })
+
+        if (activityData) {
+          activityData.forEach((row) => {
+            if (row.created_at) {
+              const key = new Date(row.created_at).toISOString().split('T')[0]
+              if (countsMap.has(key)) {
+                countsMap.set(key, (countsMap.get(key) || 0) + 1)
+              }
+            }
+          })
+        }
+
+        for (let i = 0; i < days; i++) {
+          const date = new Date(startDate)
+          date.setDate(startDate.getDate() + i)
+          const key = date.toISOString().split('T')[0]
+          
+          let dayLabel = ""
+          if (days <= 7) {
+            dayLabel = dayNames[date.getDay()]
+          } else if (days <= 30) {
+            dayLabel = date.toLocaleDateString("fr-FR", { day: "numeric", month: "short" })
+          } else {
+            dayLabel = `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`
+          }
+
+          weeklyActivity.push({
+            day: dayLabel,
+            users: countsMap.get(key) || 0,
+          })
+        }
+      }
     } catch (err) {
-      console.error('[Dashboard] Exception in weekly activity:', err)
-      // Fill with zeros if fails
-      for (let i = 6; i >= 0; i--) {
+      console.error('[Dashboard] Exception in weekly activity calculation:', err)
+      for (let i = days - 1; i >= 0; i--) {
         const date = new Date()
         date.setDate(date.getDate() - i)
         weeklyActivity.push({
-          day: dayNames[date.getDay()],
+          day: days <= 7 ? dayNames[date.getDay()] : date.toLocaleDateString("fr-FR", { day: "numeric", month: "short" }),
           users: 0,
         })
       }

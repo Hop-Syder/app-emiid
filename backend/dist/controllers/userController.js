@@ -96,8 +96,10 @@ const getMyProfile = async (req, res) => {
             return res.status(400).json({ error: error.message });
         }
         if (data) {
-            data.tags = data.profile_tags?.map((pt) => pt.tags?.name).filter(Boolean) || [];
-            delete data.profile_tags;
+            // Reshape DTO : on aplatit la jointure profile_tags(tags(name)) en data.tags
+            const profileData = data;
+            profileData.tags = data.profile_tags?.map((pt) => pt.tags?.name).filter(Boolean) || [];
+            delete profileData.profile_tags;
             data.first_name = data.first_name || authFallback.first_name;
             data.last_name = data.last_name || authFallback.last_name;
             data.email = data.email || authFallback.email;
@@ -120,7 +122,7 @@ const updateMyProfile = async (req, res) => {
     const userId = req.user.id;
     try {
         const { body } = userValidations_1.updateProfileSchema.parse(req);
-        const { first_name, last_name, bio, avatar_url, role, specialty, category, activity_domain, country_id, country_code, country_name, city, job_title, industry, pin_enabled, pin_code, phone, website, is_published, tags, card_variant, slug } = body;
+        const { first_name, last_name, bio, avatar_url, role, specialty, category, activity_domain, country_id, country_code, country_name, city, job_title, industry, pin_enabled, pin_code, phone, website, is_published, tags, card_variant, slug, show_contact } = body;
         let finalCountryId = country_id;
         // Si on a un code pays mais pas d'ID, on cherche ou on crée
         if (!finalCountryId && country_code) {
@@ -192,6 +194,9 @@ const updateMyProfile = async (req, res) => {
         // Ajout conditionnel des champs PIN (seulement si présents)
         if (pin_enabled !== undefined)
             updates.pin_enabled = pin_enabled;
+        // R7 — visibilité du contact (opt-in) : uniquement si le champ est fourni.
+        if (show_contact !== undefined)
+            updates.show_contact = show_contact;
         // Si un nouveau code PIN est envoyé, on le hashe
         if (pin_code && pin_code.length === 6) {
             const salt = await bcrypt_1.default.genSalt(10);
@@ -234,55 +239,25 @@ const updateMyProfile = async (req, res) => {
                 if (deleteError) {
                     logger_1.logger.error('Erreur lors de la suppression des anciennes liaisons profile_tags:', deleteError);
                 }
-                // Filtrer pour éliminer les doublons éventuels du tableau
-                const uniqueTags = Array.from(new Set(tags));
-                for (const tagName of uniqueTags) {
-                    const cleanTag = tagName.toLowerCase().trim();
-                    if (cleanTag) {
-                        // Étape 1 : Récupérer le tag s'il existe déjà
-                        const { data: existingTag, error: selectError } = await supabase_1.supabaseAdmin
-                            .from('tags')
-                            .select('id')
-                            .eq('name', cleanTag)
-                            .maybeSingle();
-                        let finalTagId = existingTag?.id;
-                        if (selectError) {
-                            logger_1.logger.error(`Erreur lors de la recherche du tag "${cleanTag}":`, selectError);
-                        }
-                        // Étape 2 : Si le tag n'existe pas, on tente de l'insérer
-                        if (!finalTagId) {
-                            const { data: newTag, error: insertError } = await supabase_1.supabaseAdmin
-                                .from('tags')
-                                .insert({ name: cleanTag })
-                                .select('id')
-                                .maybeSingle();
-                            finalTagId = newTag?.id;
-                            // Étape 3 : Si conflit d'unicité concurrent (insertError de type duplicate key), on ré-essaie de le lire
-                            if (insertError) {
-                                if (insertError.code === '23505') {
-                                    const { data: retryTag } = await supabase_1.supabaseAdmin
-                                        .from('tags')
-                                        .select('id')
-                                        .eq('name', cleanTag)
-                                        .maybeSingle();
-                                    finalTagId = retryTag?.id;
-                                }
-                                else {
-                                    logger_1.logger.error(`Erreur d'insertion du tag "${cleanTag}":`, insertError);
-                                }
-                            }
-                        }
-                        // Étape 4 : Lier le tag au profil (un simple insert est suffisant et beaucoup plus robuste)
-                        if (finalTagId) {
-                            const { error: ptError } = await supabase_1.supabaseAdmin
-                                .from('profile_tags')
-                                .insert({ profile_id: profileId, tag_id: finalTagId });
-                            if (ptError) {
-                                logger_1.logger.error(`Erreur lors de la liaison du tag "${cleanTag}" (ID: ${finalTagId}) au profil (ID: ${profileId}):`, ptError);
-                            }
-                        }
-                        else {
-                            logger_1.logger.error(`Impossible d'obtenir un ID de tag valide pour "${cleanTag}"`);
+                // Normaliser + dédupliquer.
+                const cleanTags = Array.from(new Set(tags.map((t) => t.toLowerCase().trim()).filter(Boolean)));
+                if (cleanTags.length > 0) {
+                    // Upsert BATCH : une seule requête. ON CONFLICT(name) gère la concurrence
+                    // au niveau BDD (fini la boucle N+1 select-then-insert + retry 23505).
+                    const { data: tagRows, error: upsertError } = await supabase_1.supabaseAdmin
+                        .from('tags')
+                        .upsert(cleanTags.map((name) => ({ name })), { onConflict: 'name' })
+                        .select('id');
+                    if (upsertError) {
+                        logger_1.logger.error('Erreur lors de l\'upsert batch des tags:', upsertError);
+                    }
+                    else if (tagRows && tagRows.length > 0) {
+                        // Liaison BATCH profile_tags (une seule requête).
+                        const { error: linkError } = await supabase_1.supabaseAdmin
+                            .from('profile_tags')
+                            .insert(tagRows.map((t) => ({ profile_id: profileId, tag_id: t.id })));
+                        if (linkError) {
+                            logger_1.logger.error(`Erreur lors de la liaison batch des tags au profil (ID: ${profileId}):`, linkError);
                         }
                     }
                 }
@@ -299,8 +274,10 @@ const updateMyProfile = async (req, res) => {
                 .eq('user_id', userId)
                 .single();
             if (!refetchError && updatedProfile) {
-                updatedProfile.tags = updatedProfile.profile_tags?.map((pt) => pt.tags?.name).filter(Boolean) || [];
-                delete updatedProfile.profile_tags;
+                // Reshape DTO : on aplatit la jointure profile_tags(tags(name)) en tags
+                const profileData = updatedProfile;
+                profileData.tags = updatedProfile.profile_tags?.map((pt) => pt.tags?.name).filter(Boolean) || [];
+                delete profileData.profile_tags;
                 // Compléter avec les données d'authentification fallback
                 const authFallback = {
                     first_name: req.user.user_metadata?.first_name || req.user.user_metadata?.given_name || null,

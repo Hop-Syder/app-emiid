@@ -48,4 +48,13 @@ router.post('/send', messageController_1.sendMessage);
 // @route   POST /api/messages/upload/:conversationId
 // @desc    Uploader une image et envoyer le message image (max 5 Mo, JPG/PNG/GIF/WEBP)
 router.post('/upload/:conversationId', messageController_1.upload.single('image'), messageController_1.uploadMessageImage);
+// ─── Groupes de discussion ───────────────────────────────────────────────────
+// @route   POST /api/messages/groups                     Créer un groupe
+router.post('/groups', messageController_1.createGroup);
+// @route   GET  /api/messages/groups/:id/members         Roster (membres)
+router.get('/groups/:id/members', messageController_1.getGroupMembers);
+// @route   POST /api/messages/groups/:id/leave           Quitter le groupe
+router.post('/groups/:id/leave', messageController_1.leaveGroup);
+// @route   POST /api/messages/groups/:id/participant     Action admin sur un participant
+router.post('/groups/:id/participant', messageController_1.manageParticipant);
 exports.default = router;
