@@ -786,3 +786,174 @@ export const deleteConversation = async (req: Request, res: Response) => {
         res.status(500).json({ error: "Erreur lors de la suppression de la conversation" });
     }
 };
+
+// ═══════════════════ GROUPES DE DISCUSSION (Étape 3) ═══════════════════════
+
+const slugify = (s: string): string =>
+  s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'groupe';
+
+/**
+ * Crée un groupe de discussion. Le créateur devient 'owner'.
+ * POST /api/messages/groups
+ */
+export const createGroup = async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  if (!userId) return res.status(401).json({ error: 'Non authentifié' });
+
+  try {
+    const { body } = z.object({
+      body: z.object({
+        name: z.string().trim().min(2).max(80),
+        avatar_url: z.string().url().nullable().optional(),
+        is_community: z.boolean().optional(),
+        join_policy: z.enum(['invite', 'request', 'open']).optional(),
+        badge_style: z.string().nullable().optional(),
+        member_ids: z.array(z.string().uuid()).max(200).optional(),
+      }),
+    }).parse(req);
+
+    const isCommunity = !!body.is_community;
+    const slug = isCommunity ? `${slugify(body.name)}-${Math.random().toString(36).slice(2, 7)}` : null;
+
+    const { data: conv, error: convErr } = await ((supabaseAdmin as any)
+      .from('conversations')
+      .insert({
+        is_group: true,
+        name: body.name,
+        avatar_url: body.avatar_url || null,
+        created_by: userId,
+        is_community: isCommunity,
+        join_policy: body.join_policy || 'invite',
+        badge_style: body.badge_style || null,
+        slug,
+      })
+      .select('id, slug')
+      .single() as any);
+
+    if (convErr) throw convErr;
+
+    const now = new Date().toISOString();
+    const rows: any[] = [{ conversation_id: conv.id, user_id: userId, role: 'owner', status: 'joined', joined_at: now }];
+    for (const mid of (body.member_ids || [])) {
+      if (mid && mid !== userId) {
+        rows.push({ conversation_id: conv.id, user_id: mid, role: 'member', status: 'joined', joined_at: now, invited_by: userId });
+      }
+    }
+    const { error: partErr } = await (supabaseAdmin.from('conversation_participants' as never) as any).insert(rows);
+    if (partErr) throw partErr;
+
+    return res.status(201).json({ id: conv.id, slug: conv.slug });
+  } catch (err) {
+    logger.error('Error creating group', err);
+    return res.status(500).json({ error: 'Erreur lors de la création du groupe' });
+  }
+};
+
+/**
+ * Liste des membres d'un groupe (réservé aux membres).
+ * GET /api/messages/groups/:id/members
+ */
+export const getGroupMembers = async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  if (!userId) return res.status(401).json({ error: 'Non authentifié' });
+
+  try {
+    const id = String(req.params.id);
+    if (!(await isMember(id, userId))) {
+      return res.status(403).json({ error: 'Accès refusé' });
+    }
+
+    const { data: parts } = await (supabaseAdmin.from('conversation_participants' as never) as any)
+      .select('user_id, role, status, joined_at')
+      .eq('conversation_id', id)
+      .neq('status', 'left')
+      .order('role', { ascending: true });
+
+    const profiles = await getProfilesByUserIds((parts || []).map((p: any) => p.user_id));
+    const members = (parts || []).map((p: any) => ({
+      user_id: p.user_id,
+      role: p.role,
+      status: p.status,
+      joined_at: p.joined_at,
+      profile: profiles[p.user_id] || null,
+    }));
+
+    return res.json(members);
+  } catch (err) {
+    logger.error('Error fetching group members', err);
+    return res.status(500).json({ error: 'Erreur lors de la récupération des membres' });
+  }
+};
+
+/**
+ * Quitter un groupe (status → 'left'). L'owner doit d'abord transférer ou supprimer.
+ * POST /api/messages/groups/:id/leave
+ */
+export const leaveGroup = async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  if (!userId) return res.status(401).json({ error: 'Non authentifié' });
+
+  try {
+    const id = String(req.params.id);
+    const { data: me } = await (supabaseAdmin.from('conversation_participants' as never) as any)
+      .select('role').eq('conversation_id', id).eq('user_id', userId).maybeSingle();
+
+    if (!me) return res.status(404).json({ error: 'Vous n\'êtes pas membre de ce groupe' });
+    if (me.role === 'owner') {
+      return res.status(400).json({ error: 'Le propriétaire doit transférer le groupe ou le supprimer.' });
+    }
+
+    await (supabaseAdmin.from('conversation_participants' as never) as any)
+      .update({ status: 'left' }).eq('conversation_id', id).eq('user_id', userId);
+
+    return res.json({ success: true });
+  } catch (err) {
+    logger.error('Error leaving group', err);
+    return res.status(500).json({ error: 'Erreur lors de la sortie du groupe' });
+  }
+};
+
+/**
+ * Actions admin sur un participant : accept | remove | ban | promote | demote.
+ * POST /api/messages/groups/:id/participant
+ */
+export const manageParticipant = async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  if (!userId) return res.status(401).json({ error: 'Non authentifié' });
+
+  try {
+    const id = String(req.params.id);
+    const { body } = z.object({
+      body: z.object({
+        user_id: z.string().uuid(),
+        action: z.enum(['accept', 'remove', 'ban', 'promote', 'demote']),
+      }),
+    }).parse(req);
+
+    // Vérifier que l'appelant est admin/owner du groupe
+    const { data: caller } = await (supabaseAdmin.from('conversation_participants' as never) as any)
+      .select('role').eq('conversation_id', id).eq('user_id', userId).eq('status', 'joined').maybeSingle();
+    if (!caller || !['owner', 'admin'].includes(caller.role)) {
+      return res.status(403).json({ error: 'Action réservée aux administrateurs du groupe' });
+    }
+    if (body.user_id === userId) {
+      return res.status(400).json({ error: 'Action impossible sur soi-même' });
+    }
+
+    const patch: Record<string, unknown> = {};
+    if (body.action === 'accept') { patch.status = 'joined'; patch.joined_at = new Date().toISOString(); }
+    else if (body.action === 'remove') patch.status = 'left';
+    else if (body.action === 'ban') patch.status = 'banned';
+    else if (body.action === 'promote') patch.role = 'admin';
+    else if (body.action === 'demote') patch.role = 'member';
+
+    await (supabaseAdmin.from('conversation_participants' as never) as any)
+      .update(patch).eq('conversation_id', id).eq('user_id', body.user_id);
+
+    return res.json({ success: true });
+  } catch (err) {
+    logger.error('Error managing participant', err);
+    return res.status(500).json({ error: 'Erreur lors de la gestion du participant' });
+  }
+};

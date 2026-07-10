@@ -12,7 +12,7 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
-import { ArrowLeft, MoreHorizontal, Gavel, Trash2, MessageSquare, Search, X } from "lucide-react"
+import { ArrowLeft, MoreHorizontal, Gavel, Trash2, MessageSquare, Search, X, UsersRound } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 import { ChatSidebar } from "./messages/chat-sidebar"
+import { NewGroupModal } from "./messages/new-group-modal"
 import { MessageList } from "./messages/message-list"
 import { MessageInput } from "./messages/message-input"
 import { MediationDialog } from "./messages/mediation-dialog"
@@ -54,6 +55,22 @@ export function MessagesContent() {
 
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [selectedConv, setSelectedConv] = useState<Conversation | null>(null)
+  const [showNewGroup, setShowNewGroup] = useState(false)
+
+  const handleGroupCreated = async (groupId: string) => {
+    try {
+      const data = await fetchConversations()
+      setConversations(data)
+      const group = data.find((c) => c.id === groupId)
+      if (group) {
+        setSelectedConv(group)
+        setShowChatMobile(true)
+        router.push(`/messages?conv=${groupId}`, { scroll: false })
+      }
+    } catch {
+      // silencieux : le groupe est créé, la liste se rechargera au prochain fetch
+    }
+  }
   const [messages, setMessages] = useState<Message[]>([])
   const [loadingConv, setLoadingConv] = useState(true)
   const [loadingMsgs, setLoadingMsgs] = useState(false)
@@ -325,7 +342,16 @@ export function MessagesContent() {
       <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-indigo-100/40 blur-3xl opacity-50 mix-blend-multiply pointer-events-none" />
 
       {/* Left column: conversation list */}
-      <div className={cn("h-full w-full shrink-0 md:w-[360px] md:block md:shrink-0", showChatMobile && "hidden md:block")}>
+      <div className={cn("relative h-full w-full shrink-0 md:w-[360px] md:block md:shrink-0", showChatMobile && "hidden md:block")}>
+        {/* FAB — Nouveau groupe */}
+        <button
+          onClick={() => setShowNewGroup(true)}
+          title="Nouveau groupe"
+          aria-label="Nouveau groupe"
+          className="absolute bottom-5 right-5 z-30 h-12 w-12 rounded-2xl bg-[#013ff4] text-white shadow-lg shadow-[#013ff4]/30 flex items-center justify-center hover:bg-[#012fc0] active:scale-95 transition-all"
+        >
+          <UsersRound className="h-5 w-5" />
+        </button>
         <ChatSidebar
           conversations={filteredConversations}
           activeId={selectedConv?.id || null}
@@ -510,6 +536,12 @@ export function MessagesContent() {
         title="Supprimer la conversation ?"
         description="Cette action supprimera tout l'historique des messages pour vous. Cette action est irréversible."
         confirmText="Supprimer définitivement"
+      />
+
+      <NewGroupModal
+        open={showNewGroup}
+        onOpenChange={setShowNewGroup}
+        onCreated={handleGroupCreated}
       />
     </div>
   )

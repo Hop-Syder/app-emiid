@@ -20,6 +20,10 @@ import {
   sendMessage,
   uploadMessageImage,
   upload,
+  createGroup,
+  getGroupMembers,
+  leaveGroup,
+  manageParticipant,
 } from '../../controllers/messageController';
 import { requireAuth, requireAdmin } from '../../middlewares/authMiddleware';
 import {
@@ -80,5 +84,15 @@ router.post('/send', sendMessage);
 // @route   POST /api/messages/upload/:conversationId
 // @desc    Uploader une image et envoyer le message image (max 5 Mo, JPG/PNG/GIF/WEBP)
 router.post('/upload/:conversationId', upload.single('image'), uploadMessageImage);
+
+// ─── Groupes de discussion ───────────────────────────────────────────────────
+// @route   POST /api/messages/groups                     Créer un groupe
+router.post('/groups', createGroup);
+// @route   GET  /api/messages/groups/:id/members         Roster (membres)
+router.get('/groups/:id/members', getGroupMembers);
+// @route   POST /api/messages/groups/:id/leave           Quitter le groupe
+router.post('/groups/:id/leave', leaveGroup);
+// @route   POST /api/messages/groups/:id/participant     Action admin sur un participant
+router.post('/groups/:id/participant', manageParticipant);
 
 export default router;
