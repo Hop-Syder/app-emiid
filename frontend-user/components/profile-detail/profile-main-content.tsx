@@ -12,7 +12,7 @@ import { Award } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
-import Image from "next/image"
+import { PortfolioGallery } from "./portfolio-gallery"
 
 const getSkillBadgeStyles = (idx: number) => {
     const presets = [
@@ -115,50 +115,7 @@ export function ProfileMainContent({ profile, gallery, loadingGallery }: Profile
                     </TabsContent>
 
                     <TabsContent value="portfolio" className="animate-in fade-in duration-300 focus-visible:outline-none">
-                        {loadingGallery ? (
-                            <div className="flex flex-col items-center justify-center p-12 text-center">
-                                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#013ff4] mb-4"></div>
-                                <p className="text-slate-500 text-xs font-bold">Chargement du portfolio...</p>
-                            </div>
-                        ) : gallery.length > 0 ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
-                                {gallery.map((item: GalleryItem) => (
-                                    <div
-                                        key={item.id}
-                                        className="group bg-white/50 backdrop-blur-md border border-slate-200/50 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 relative"
-                                    >
-                                        <div className="aspect-video w-full overflow-hidden bg-slate-100 relative">
-                                            <Image
-                                                 src={item.imageUrl}
-                                                 alt={item.title || "Portfolio item"}
-                                                 fill
-                                                 sizes="(max-width: 640px) 100vw, 50vw"
-                                                 className="object-cover transition-transform duration-500 group-hover:scale-105"
-                                             />
-                                            {item.status === "pending" && (
-                                                <div className="absolute top-2 right-2 bg-amber-500/90 backdrop-blur-md text-white text-[10px] font-black px-2.5 py-1 rounded-lg border border-amber-400/30">
-                                                    En attente de validation
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div className="p-5">
-                                            <h4 className="text-sm font-extrabold text-slate-900 group-hover:text-[#013ff4] transition-colors duration-300">
-                                                {item.title}
-                                            </h4>
-                                            {item.description && (
-                                                <p className="text-xs text-slate-500 font-medium mt-1.5 line-clamp-2">
-                                                    {item.description}
-                                                </p>
-                                            )}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="p-8 border border-dashed border-slate-200 text-center w-full rounded-2xl bg-slate-50/50">
-                                <p className="text-slate-500 font-bold text-xs">Aucune réalisation publiée pour le moment.</p>
-                            </div>
-                        )}
+                        <PortfolioGallery gallery={gallery} loadingGallery={loadingGallery} />
                     </TabsContent>
 
                     <TabsContent value="experience" className="animate-in fade-in duration-300 focus-visible:outline-none">
