@@ -301,3 +301,50 @@ GRANT EXECUTE ON FUNCTION public.set_participant_status(uuid, uuid, text) TO aut
 --    les badges disparaissent alors automatiquement des cartes (dérivés à la lecture).
 
 SELECT '✅ Schéma communautés & badges appliqué (messagerie générique + participants + RLS + badges).' AS status;
+
+
+-- ─── 1.7 RPC — trouver/créer un DM (dual-write atomique) ────────────────────
+--     Appelée par le frontend à la place de l'INSERT direct : garantit que les
+--     lignes conversation_participants existent (sinon getConversations, qui lit
+--     désormais via les participants, ne verrait pas les nouveaux DM).
+CREATE OR REPLACE FUNCTION public.get_or_create_dm(p_other uuid)
+RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+DECLARE v_me uuid := auth.uid(); v_conv uuid; v_p1 uuid; v_p2 uuid;
+BEGIN
+  IF v_me IS NULL THEN RAISE EXCEPTION 'auth required'; END IF;
+  IF p_other IS NULL OR p_other = v_me THEN RAISE EXCEPTION 'invalid recipient'; END IF;
+
+  v_p1 := LEAST(v_me, p_other);
+  v_p2 := GREATEST(v_me, p_other);
+
+  -- 1) DM existant via les participants (source de vérité)
+  SELECT c.id INTO v_conv
+  FROM public.conversations c
+  WHERE c.is_group = false
+    AND EXISTS (SELECT 1 FROM public.conversation_participants a WHERE a.conversation_id = c.id AND a.user_id = v_me)
+    AND EXISTS (SELECT 1 FROM public.conversation_participants b WHERE b.conversation_id = c.id AND b.user_id = p_other)
+  LIMIT 1;
+  IF v_conv IS NOT NULL THEN RETURN v_conv; END IF;
+
+  -- 2) Repli : DM legacy via participant1/2 (au cas où non backfillé) → on complète les participants
+  SELECT id INTO v_conv FROM public.conversations
+  WHERE is_group = false AND participant1_id = v_p1 AND participant2_id = v_p2 LIMIT 1;
+  IF v_conv IS NOT NULL THEN
+    INSERT INTO public.conversation_participants (conversation_id, user_id, role, status, joined_at)
+    VALUES (v_conv, v_me, 'member', 'joined', now()), (v_conv, p_other, 'member', 'joined', now())
+    ON CONFLICT (conversation_id, user_id) DO NOTHING;
+    RETURN v_conv;
+  END IF;
+
+  -- 3) Créer (dual-write : participant1/2 legacy + participants)
+  INSERT INTO public.conversations (participant1_id, participant2_id, is_group)
+  VALUES (v_p1, v_p2, false) RETURNING id INTO v_conv;
+
+  INSERT INTO public.conversation_participants (conversation_id, user_id, role, status, joined_at)
+  VALUES (v_conv, v_me, 'member', 'joined', now()), (v_conv, p_other, 'member', 'joined', now())
+  ON CONFLICT (conversation_id, user_id) DO NOTHING;
+
+  RETURN v_conv;
+END $$;
+
+GRANT EXECUTE ON FUNCTION public.get_or_create_dm(uuid) TO authenticated;

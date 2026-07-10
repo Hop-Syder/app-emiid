@@ -30,26 +30,11 @@ export function useConversationActions({
         let convId = selectedConv?.id
 
         if (!convId || convId.startsWith("new-")) {
-            const p1 = currentUserId < receiverId ? currentUserId : receiverId
-            const p2 = currentUserId < receiverId ? receiverId : currentUserId
-
-            const { data: existingConv } = await supabase
-                .from("conversations")
-                .select("id")
-                .or(`and(participant1_id.eq.${p1},participant2_id.eq.${p2}),and(participant1_id.eq.${p2},participant2_id.eq.${p1})`)
-                .maybeSingle()
-
-            if (!existingConv) {
-                const { data: newConv, error: createError } = await supabase
-                    .from("conversations")
-                    .insert({ participant1_id: p1, participant2_id: p2 })
-                    .select("id")
-                    .single()
-                if (createError) throw createError
-                convId = newConv.id
-            } else {
-                convId = existingConv.id
-            }
+            // RPC dual-write : crée/retrouve le DM ET garantit les lignes
+            // conversation_participants (source de vérité de la liste de conversations).
+            const { data, error } = await supabase.rpc("get_or_create_dm", { p_other: receiverId })
+            if (error) throw error
+            convId = data as string
         }
         if (!convId) throw new Error("Impossible de trouver ou créer la conversation")
         return convId

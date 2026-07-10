@@ -123,6 +123,20 @@ const formatConversation = (
 
 
 
+// ─── Appartenance à une conversation ────────────────────────────────────────
+// Vérifie via conversation_participants (compatible DM legacy — backfillés — ET
+// groupes). Remplace l'ancien check .or(participant1/2_id) qui ne gère pas les groupes.
+// NB: table récente non encore dans database.types.ts → cast until Étape 5 (regen types).
+const isMember = async (conversationId: string, userId: string): Promise<boolean> => {
+  const { data } = await (supabaseAdmin.from('conversation_participants' as never) as any)
+    .select('id')
+    .eq('conversation_id', conversationId)
+    .eq('user_id', userId)
+    .eq('status', 'joined')
+    .maybeSingle();
+  return !!data;
+};
+
 // ─── Stockage en mémoire pour multer (images) ────────────────────────────────
 export const upload = multer({
   storage: multer.memoryStorage(),
@@ -150,15 +164,8 @@ export const sendMessage = async (req: Request, res: Response) => {
   try {
     const { body: { conversation_id, content, message_type } } = sendMessageSchema.parse(req);
 
-    // Vérifier que l'utilisateur est bien participant
-    const { data: conv, error: convError } = await supabaseAdmin
-      .from('conversations')
-      .select('id')
-      .eq('id', conversation_id)
-      .or(`participant1_id.eq.${userId},participant2_id.eq.${userId}`)
-      .single();
-
-    if (convError || !conv) {
+    // Vérifier que l'utilisateur est bien membre (DM ou groupe)
+    if (!(await isMember(conversation_id, userId))) {
       return res.status(403).json({ error: 'Accès refusé à cette conversation' });
     }
 
@@ -209,15 +216,8 @@ export const uploadMessageImage = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Aucun fichier fourni' });
     }
 
-    // Vérifier accès à la conversation
-    const { data: conv, error: convError } = await supabaseAdmin
-      .from('conversations')
-      .select('id')
-      .eq('id', conversationId)
-      .or(`participant1_id.eq.${userId},participant2_id.eq.${userId}`)
-      .single();
-
-    if (convError || !conv) {
+    // Vérifier accès à la conversation (membre DM ou groupe)
+    if (!(await isMember(conversationId, userId))) {
       return res.status(403).json({ error: 'Accès refusé à cette conversation' });
     }
 
@@ -607,25 +607,39 @@ export const getConversations = async (req: Request, res: Response) => {
     if (!userId) return res.status(401).json({ error: "Non authentifié" });
 
     try {
-        // 1. Charger les conversations
+        // 1. Conversations où je suis membre (joined) — DM + groupes
+        const { data: memberships, error: mErr } = await (supabaseAdmin
+            .from('conversation_participants' as never) as any)
+            .select('conversation_id')
+            .eq('user_id', userId)
+            .eq('status', 'joined');
+
+        if (mErr) throw mErr;
+
+        const convIds = (memberships || []).map((m: any) => m.conversation_id);
+        if (convIds.length === 0) {
+            return res.json([]);
+        }
+
+        // 2. Charger ces conversations
         const { data: convData, error: convError } = await supabaseAdmin
             .from('conversations')
             .select('*')
-            .or(`participant1_id.eq.${userId},participant2_id.eq.${userId}`)
+            .in('id', convIds)
             .order('last_message_at', { ascending: false });
 
         if (convError) throw convError;
 
-        if (!convData || convData.length === 0) {
-            return res.json([]);
-        }
+        const rows = (convData || []) as any[];
 
-        // 2. Récupérer les profils des autres participants
-        const otherUserIds = convData.map(c => c.participant1_id === userId ? c.participant2_id : c.participant1_id);
+        // 3. Profils des autres membres (DM uniquement, dérivés de participant1/2 legacy)
+        const otherUserIds = rows
+            .filter(c => !c.is_group)
+            .map(c => (c.participant1_id === userId ? c.participant2_id : c.participant1_id))
+            .filter(Boolean);
         const profileLookup = await getProfilesByUserIds(otherUserIds);
 
-        // 3. Récupérer les compteurs non lus
-        const convIds = convData.map(c => c.id);
+        // 4. Compteurs non lus
         const { data: unreadData } = await supabaseAdmin
             .from('messages')
             .select('conversation_id')
@@ -638,19 +652,33 @@ export const getConversations = async (req: Request, res: Response) => {
             return acc;
         }, {});
 
-        // 4. Formater la réponse
-        const formatted = convData.map(conv => {
-            const otherUserId = conv.participant1_id === userId ? conv.participant2_id : conv.participant1_id;
-            const otherUser = profileLookup[otherUserId];
-
-            return {
+        // 5. Formater : DM → other_participant (rétro-compatible) ; groupe → infos du groupe
+        const formatted = rows.map((conv: any) => {
+            const base = {
                 id: conv.id,
-                participant1_id: conv.participant1_id,
-                participant2_id: conv.participant2_id,
+                is_group: !!conv.is_group,
                 last_message: conv.last_message_content,
                 last_message_at: conv.last_message_at,
                 unread_count: unreadCountMap[conv.id] || 0,
                 updated_at: conv.updated_at || conv.last_message_at || new Date().toISOString(),
+            };
+
+            if (conv.is_group) {
+                return {
+                    ...base,
+                    name: conv.name,
+                    avatar_url: conv.avatar_url,
+                    is_community: !!conv.is_community,
+                    member_count: conv.member_count ?? 0,
+                };
+            }
+
+            const otherUserId = conv.participant1_id === userId ? conv.participant2_id : conv.participant1_id;
+            const otherUser = profileLookup[otherUserId];
+            return {
+                ...base,
+                participant1_id: conv.participant1_id,
+                participant2_id: conv.participant2_id,
                 other_participant: {
                     id: otherUserId,
                     user_id: otherUserId,
@@ -679,15 +707,8 @@ export const getConversationMessages = async (req: Request, res: Response) => {
 
     try {
         const { params: { id: conversationId } } = z.object({ params: z.object({ id: z.string() }) }).parse(req);
-        // Vérifier l'accès
-        const { data: conv, error: convError } = await supabaseAdmin
-            .from('conversations')
-            .select('id')
-            .eq('id', conversationId)
-            .or(`participant1_id.eq.${userId},participant2_id.eq.${userId}`)
-            .single();
-
-        if (convError || !conv) {
+        // Vérifier l'accès (membre DM ou groupe)
+        if (!(await isMember(conversationId, userId))) {
             return res.status(403).json({ error: "Accès refusé" });
         }
 
@@ -716,16 +737,21 @@ export const deleteConversation = async (req: Request, res: Response) => {
 
     try {
         const { params: { id: conversationId } } = z.object({ params: z.object({ id: z.string() }) }).parse(req);
-        // Vérifier l'accès
-        const { data: conv, error: convError } = await supabaseAdmin
-            .from('conversations')
-            .select('id')
-            .eq('id', conversationId)
-            .or(`participant1_id.eq.${userId},participant2_id.eq.${userId}`)
-            .single();
-
-        if (convError || !conv) {
+        // Vérifier l'accès (membre)
+        if (!(await isMember(conversationId, userId))) {
             return res.status(403).json({ error: "Accès refusé ou conversation introuvable" });
+        }
+
+        // Garde-fou groupe : seul le propriétaire peut supprimer un salon de groupe
+        // (un simple membre doit « quitter », pas détruire le groupe pour tous).
+        const { data: convMeta } = await (supabaseAdmin
+            .from('conversations').select('is_group').eq('id', conversationId).maybeSingle() as any);
+        if (convMeta?.is_group) {
+            const { data: myPart } = await (supabaseAdmin.from('conversation_participants' as never) as any)
+                .select('role').eq('conversation_id', conversationId).eq('user_id', userId).maybeSingle();
+            if (myPart?.role !== 'owner') {
+                return res.status(403).json({ error: "Seul le propriétaire peut supprimer ce groupe. Vous pouvez le quitter." });
+            }
         }
 
         // Supprimer les messages d'abord (cascade normalement gérée par DB, mais on assure)

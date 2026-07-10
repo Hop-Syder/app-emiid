@@ -57,65 +57,75 @@ router.post('/supabase', verifyWebhookSecret, async (req: Request, res: Response
     if (type === 'INSERT' && table === 'messages') {
       const { conversation_id, sender_id, content } = record;
 
-      // Récupérer la conversation pour trouver le destinataire
-      const { data: conv, error: convError } = await supabaseAdmin
+      // Récupérer la conversation (DM: participant1/2 ; groupe: participants)
+      const { data: conv, error: convError } = await (supabaseAdmin
         .from('conversations')
-        .select('participant1_id, participant2_id')
+        .select('participant1_id, participant2_id, is_group')
         .eq('id', conversation_id)
-        .single();
+        .single() as any);
 
       if (convError || !conv) throw new Error("Conversation introuvable");
 
-      const recipientId = conv.participant1_id === sender_id ? conv.participant2_id : conv.participant1_id;
-
-      // Récupérer les infos du destinataire (Email + Préférences)
-      const { data: recipient, error: recipientError } = await supabaseAdmin.auth.admin.getUserById(recipientId);
-      
-      if (recipientError || !recipient) throw new Error("Destinataire introuvable");
-
-      const preferences = recipient.user.user_metadata?.notification_preferences;
-      const email = recipient.user.email;
-
-      // Récupérer le nom de l'expéditeur
-      const { data: senderProfile } = await supabaseAdmin
-        .from('user_profiles')
-        .select('first_name, last_name')
-        .eq('user_id', sender_id)
-        .single();
-
-      const senderName = senderProfile 
-        ? `${senderProfile.first_name || ''} ${senderProfile.last_name || ''}`.trim() 
-        : "Un membre EmiID";
-
-      // Notifications Mail — newsletter=false désactive tous les emails EmiID
-      if (email && preferences?.messages !== false && preferences?.newsletter !== false) {
-        await sendNewMessageNotification(email, senderName, content.substring(0, 100));
-        logger.info(`Notification email envoyée à ${email} pour le message de ${senderName}`);
+      // Destinataires : DM → l'autre ; groupe → tous les membres 'joined' sauf l'expéditeur
+      const isGroup = !!conv.is_group;
+      let recipientIds: string[] = [];
+      if (!isGroup && (conv.participant1_id || conv.participant2_id)) {
+        const other = conv.participant1_id === sender_id ? conv.participant2_id : conv.participant1_id;
+        if (other) recipientIds = [other];
+      } else {
+        const { data: parts } = await (supabaseAdmin.from('conversation_participants' as never) as any)
+          .select('user_id')
+          .eq('conversation_id', conversation_id)
+          .eq('status', 'joined')
+          .neq('user_id', sender_id);
+        recipientIds = (parts || []).map((p: any) => p.user_id).filter(Boolean);
       }
 
-      // Notification In-App (toujours — indépendant des préférences push/email)
-      const { error: notifError } = await supabaseAdmin
-        .from('notifications')
-        .insert({
-          user_id: recipientId,
-          type: 'message',
-          title: `Nouveau message de ${senderName}`,
-          content: content.substring(0, 100),
-          link: `/messages?conv=${conversation_id}`,
-          is_read: false
-        });
+      if (recipientIds.length > 0) {
+        // Nom de l'expéditeur
+        const { data: senderProfile } = await supabaseAdmin
+          .from('user_profiles')
+          .select('first_name, last_name')
+          .eq('user_id', sender_id)
+          .single();
+        const senderName = senderProfile
+          ? `${senderProfile.first_name || ''} ${senderProfile.last_name || ''}`.trim()
+          : "Un membre EmiID";
 
-      if (notifError) logger.error("Erreur notification in-app message", notifError);
+        // Notification In-App pour tous les destinataires
+        const { error: notifError } = await supabaseAdmin
+          .from('notifications')
+          .insert(recipientIds.map((rid) => ({
+            user_id: rid,
+            type: 'message',
+            title: `Nouveau message de ${senderName}`,
+            content: content.substring(0, 100),
+            link: `/messages?conv=${conversation_id}`,
+            is_read: false,
+          })));
+        if (notifError) logger.error("Erreur notification in-app message", notifError);
 
-      // Notification Push — vérifier messages ET push activés
-      if (preferences?.push !== false && preferences?.messages !== false) {
-        await sendPushNotification(
-          recipientId,
-          `Nouveau message de ${senderName}`,
-          content.substring(0, 100),
-          undefined,
-          `/messages?conv=${conversation_id}`
-        );
+        // Email + Push : uniquement en DM (éviter le spam de groupe — fan-out groupe = Étape 3)
+        if (!isGroup && recipientIds.length === 1) {
+          const recipientId = recipientIds[0];
+          const { data: recipient } = await supabaseAdmin.auth.admin.getUserById(recipientId);
+          const preferences = recipient?.user?.user_metadata?.notification_preferences;
+          const email = recipient?.user?.email;
+
+          if (email && preferences?.messages !== false && preferences?.newsletter !== false) {
+            await sendNewMessageNotification(email, senderName, content.substring(0, 100));
+            logger.info(`Notification email envoyée à ${email} pour le message de ${senderName}`);
+          }
+          if (preferences?.push !== false && preferences?.messages !== false) {
+            await sendPushNotification(
+              recipientId,
+              `Nouveau message de ${senderName}`,
+              content.substring(0, 100),
+              undefined,
+              `/messages?conv=${conversation_id}`
+            );
+          }
+        }
       }
     }
 
