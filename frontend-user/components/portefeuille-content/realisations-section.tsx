@@ -31,6 +31,8 @@ interface GalleryItem {
   rejection_reason: string | null
   order_index: number
   created_at: string
+  project_url: string | null
+  drive_url: string | null
 }
 
 interface RealisationsSectionProps {
@@ -54,6 +56,8 @@ export function RealisationsSection({ userId, profileId }: RealisationsSectionPr
   const [preview, setPreview]       = useState<string | null>(null)
   const [title, setTitle]           = useState("")
   const [description, setDescription] = useState("")
+  const [projectUrl, setProjectUrl]   = useState("")
+  const [driveUrl, setDriveUrl]       = useState("")
 
   const supabase = createClient()
 
@@ -107,12 +111,14 @@ export function RealisationsSection({ userId, profileId }: RealisationsSectionPr
           description: description.trim() || null,
           status:      "pending",
           order_index: items.length,
+          project_url: projectUrl.trim() || null,
+          drive_url:   driveUrl.trim() || null,
         })
       if (insertError) throw insertError
 
       toast.success("Réalisation envoyée en modération")
       setDialogOpen(false)
-      setFile(null); setPreview(null); setTitle(""); setDescription("")
+      setFile(null); setPreview(null); setTitle(""); setDescription(""); setProjectUrl(""); setDriveUrl("")
       void load()
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : "Erreur lors de l'upload"
@@ -282,6 +288,26 @@ export function RealisationsSection({ userId, profileId }: RealisationsSectionPr
                 placeholder="Décrivez brièvement ce travail..."
                 className="rounded-xl bg-slate-50 border-slate-200 text-sm resize-none"
                 rows={3}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-[11px] font-black text-slate-400 uppercase tracking-wider">Lien du projet (optionnel)</Label>
+              <Input
+                value={projectUrl}
+                onChange={e => setProjectUrl(e.target.value)}
+                placeholder="Ex. : https://monprojet.com"
+                className="h-11 rounded-xl bg-slate-50 border-slate-200 text-sm"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-[11px] font-black text-slate-400 uppercase tracking-wider">Lien Google Drive / Photos (optionnel)</Label>
+              <Input
+                value={driveUrl}
+                onChange={e => setDriveUrl(e.target.value)}
+                placeholder="Ex. : https://drive.google.com/..."
+                className="h-11 rounded-xl bg-slate-50 border-slate-200 text-sm"
               />
             </div>
 

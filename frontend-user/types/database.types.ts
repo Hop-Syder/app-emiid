@@ -346,6 +346,8 @@ export interface Database {
           order_index: number
           created_at: string
           updated_at: string
+          project_url: string | null
+          drive_url: string | null
         }
         Insert: {
           id?: string
@@ -359,6 +361,8 @@ export interface Database {
           order_index?: number
           created_at?: string
           updated_at?: string
+          project_url?: string | null
+          drive_url?: string | null
         }
         Update: {
           id?: string
@@ -372,6 +376,8 @@ export interface Database {
           order_index?: number
           created_at?: string
           updated_at?: string
+          project_url?: string | null
+          drive_url?: string | null
         }
         Relationships: []
       }

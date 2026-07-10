@@ -11,7 +11,7 @@
 
 import { useState } from "react"
 import Image from "next/image"
-import { Maximize2 } from "lucide-react"
+import { Maximize2, ExternalLink, FolderOpen } from "lucide-react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { getOptimizedImageUrl } from "@/lib/image-optimization"
 
@@ -21,6 +21,8 @@ export interface GalleryItem {
     description: string | null
     imageUrl: string
     status?: string
+    projectUrl?: string | null
+    driveUrl?: string | null
 }
 
 interface PortfolioGalleryProps {
@@ -129,6 +131,34 @@ export function PortfolioGallery({ gallery, loadingGallery }: PortfolioGalleryPr
                                     <DialogDescription className="text-sm text-slate-400 italic mt-3">
                                         Aucune description fournie pour cette réalisation.
                                     </DialogDescription>
+                                )}
+
+                                {/* Liens externes */}
+                                {(selected.projectUrl || selected.driveUrl) && (
+                                    <div className="mt-6 pt-6 border-t border-slate-100 flex flex-col sm:flex-row gap-3">
+                                        {selected.projectUrl && (
+                                            <a
+                                                href={selected.projectUrl.startsWith('http') ? selected.projectUrl : `https://${selected.projectUrl}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="flex-1 flex items-center justify-center gap-2 h-11 px-4 rounded-xl text-xs font-bold text-white bg-[#013ff4] hover:bg-[#013ff4]/90 active:scale-95 transition-all shadow-sm cursor-pointer"
+                                            >
+                                                <ExternalLink className="h-4 w-4" />
+                                                Consulter le projet
+                                            </a>
+                                        )}
+                                        {selected.driveUrl && (
+                                            <a
+                                                href={selected.driveUrl.startsWith('http') ? selected.driveUrl : `https://${selected.driveUrl}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="flex-1 flex items-center justify-center gap-2 h-11 px-4 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 active:scale-95 transition-all border border-slate-200 cursor-pointer"
+                                            >
+                                                <FolderOpen className="h-4 w-4" />
+                                                Voir les photos (Drive)
+                                            </a>
+                                        )}
+                                    </div>
                                 )}
                             </div>
                         </>

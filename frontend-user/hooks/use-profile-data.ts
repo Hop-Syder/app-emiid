@@ -63,6 +63,8 @@ export type GalleryItem = {
     description: string
     imageUrl: string
     status?: string
+    projectUrl?: string | null
+    driveUrl?: string | null
 }
 
 export function useProfileData(profileId: string) {
@@ -157,7 +159,7 @@ export function useProfileData(profileId: string) {
 
                         supabase
                             .from("project_gallery")
-                            .select("id, title, description, image_url")
+                            .select("id, title, description, image_url, project_url, drive_url")
                             .eq("profile_id", data.id)
                             .order("order_index", { ascending: true }),
 
@@ -181,6 +183,8 @@ export function useProfileData(profileId: string) {
                                 title: item.title || "",
                                 description: item.description || "",
                                 imageUrl: item.image_url,
+                                projectUrl: item.project_url || null,
+                                driveUrl: item.drive_url || null,
                             }))
                         )
                     }
