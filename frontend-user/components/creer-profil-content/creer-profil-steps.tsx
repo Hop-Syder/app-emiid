@@ -300,7 +300,7 @@ interface StepCompetencesProps {
     inputClasses: string
 }
 
-const SUGGESTED_TAGS = ["React", "TypeScript", "UI/UX", "Marketing", "Photographie", "BTP", "Vente", "Gestion de Projet"]
+const SUGGESTED_TAGS = ["React", "TypeScript", "UI/UX", "Marketing", "Photographie", "BTP", "Artisan", "Coiffeur", "Couturier", "Styliste", "Peintre", "Staffeur", "Jardinier", "Vente", "Gestion de Projet"]
 
 export function StepCompetences({ tags, tagInput, setTagInput, addTag, addSuggestedTag, removeTag, inputClasses }: StepCompetencesProps) {
     return (
