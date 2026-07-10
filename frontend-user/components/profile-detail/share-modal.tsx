@@ -1,9 +1,9 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Modale de partage de profil (WhatsApp, LinkedIn, X, Email, vCard, QR/Lien).
+ * @description Modale de partage de profil avec QR Code, vCard interactive, et boutons de partage Bento responsive.
  * @created 2026-06-11
- * @updated 2026-06-22
+ * @updated 2026-07-10
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -11,8 +11,10 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { Check, Copy, Download, Share2 } from "lucide-react"
+import { Check, Copy, Download, Share2, QrCode, ExternalLink, Mail, FolderOpen, User } from "lucide-react"
 import { toast } from "sonner"
+import { motion } from "framer-motion"
+import Image from "next/image"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -33,7 +35,7 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
 
 const LinkedInIcon = ({ className }: { className?: string }) => (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-        <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+        <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764.784-1.764 1.75-1.764.784-1.764 1.75-1.764-.783-1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
     </svg>
 )
 
@@ -57,6 +59,7 @@ interface ShareModalProps {
         id: string
         name: string
         role: string
+        avatar_url?: string | null
         email?: string
         phone?: string
         website?: string
@@ -69,6 +72,7 @@ interface ShareModalProps {
 export function ShareModal({ isOpen, onOpenChange, profile, profileUrl }: ShareModalProps) {
     const [copiedLink, setCopiedLink] = useState<string | null>(null)
     const [copiedVCard, setCopiedVCard] = useState(false)
+    const [qrLoading, setQrLoading] = useState(false)
 
     const initials = useMemo(() => {
         const value = profile.name || "EmiID"
@@ -81,6 +85,10 @@ export function ShareModal({ isOpen, onOpenChange, profile, profileUrl }: ShareM
                 .join("") || "EM"
         )
     }, [profile.name])
+
+    const qrCodeUrl = useMemo(() => {
+        return `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(profileUrl)}&margin=10`
+    }, [profileUrl])
 
     const copyToClipboard = async (value: string) => {
         try {
@@ -125,7 +133,7 @@ export function ShareModal({ isOpen, onOpenChange, profile, profileUrl }: ShareM
         try {
             await navigator.clipboard.writeText(getVCard())
             setCopiedVCard(true)
-            toast.success("vCard copiée !", { description: "Coller dans un email ou une note." })
+            toast.success("vCard copiée !", { description: "Prêt à être importée." })
             setTimeout(() => setCopiedVCard(false), 2000)
         } catch {
             toast.error("Impossible de copier la vCard")
@@ -148,6 +156,27 @@ export function ShareModal({ isOpen, onOpenChange, profile, profileUrl }: ShareM
             toast.success("vCard téléchargée", { description: "Ajoutez ce contact à votre carnet." })
         } catch {
             toast.error("Impossible de télécharger la vCard")
+        }
+    }
+
+    const downloadQRCode = async () => {
+        setQrLoading(true)
+        try {
+            const response = await fetch(qrCodeUrl)
+            const blob = await response.blob()
+            const url = URL.createObjectURL(blob)
+            const a = document.createElement("a")
+            a.href = url
+            a.download = `qrcode-${profile.name.replace(/\s+/g, '-').toLowerCase()}.png`
+            document.body.appendChild(a)
+            a.click()
+            a.remove()
+            URL.revokeObjectURL(url)
+            toast.success("QR Code téléchargé", { description: "Prêt à être scanné." })
+        } catch {
+            toast.error("Impossible de télécharger le QR Code")
+        } finally {
+            setQrLoading(false)
         }
     }
 
@@ -184,136 +213,189 @@ export function ShareModal({ isOpen, onOpenChange, profile, profileUrl }: ShareM
                 })
                 return
             } catch {
-                // Annulation utilisateur ou refus navigateur → fallback modal.
+                // Annulation utilisateur ou refus
             }
         }
     }
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-md rounded-[32px] border border-slate-100 bg-white/95 backdrop-blur-xl shadow-2xl p-6 overflow-hidden animate-in fade-in duration-300">
-                <DialogHeader className="pb-4 border-b border-slate-100">
-                    <DialogTitle className="text-xl font-black tracking-tight text-slate-900">Partager le profil</DialogTitle>
-                    <DialogDescription className="text-xs text-slate-500 font-bold mt-1">
-                        Faites découvrir le profil de <span className="font-extrabold text-slate-700">{profile.name}</span> à votre réseau professionnel.
+            <DialogContent className="max-w-[92vw] sm:max-w-xl md:max-w-2xl rounded-[32px] border border-slate-200/50 dark:border-white/10 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl shadow-2xl p-0 overflow-hidden">
+                <DialogHeader className="p-6 pb-4 border-b border-slate-100 dark:border-white/5 text-left">
+                    <DialogTitle className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white">Partager le profil</DialogTitle>
+                    <DialogDescription className="text-xs text-slate-500 dark:text-slate-400 font-bold mt-1">
+                        Faites découvrir le profil de <span className="font-extrabold text-[#013ff4] dark:text-blue-400">{profile.name}</span> à votre réseau.
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="space-y-6 py-4">
-                    {/* Profile custom link */}
-                    <div className="space-y-2.5">
-                        <span className="text-xs font-black text-slate-400 uppercase tracking-wider ml-1">Lien personnalisé</span>
-                        <div className="flex items-center gap-2 p-1.5 bg-slate-50 border border-slate-200/60 rounded-2xl transition-all focus-within:border-[#013ff4]/30 focus-within:ring-2 focus-within:ring-[#013ff4]/5">
-                            <span className="pl-3 text-xs text-slate-400 font-bold select-none">app.emiid.com/profil/</span>
-                            <Input
-                                readOnly
-                                value={profile.slug || profile.id || ""}
-                                className="h-9 border-none bg-transparent shadow-none focus-visible:ring-0 px-1 font-bold text-slate-700 text-xs lowercase select-all flex-1 min-w-0"
+                <div className="flex flex-col md:flex-row gap-0">
+                    {/* Colonne Gauche : QR Code */}
+                    <div className="flex-1 p-6 flex flex-col items-center justify-center bg-slate-50/50 dark:bg-slate-950/20 border-b md:border-b-0 md:border-r border-slate-100 dark:border-white/5 text-center min-w-0">
+                        <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-1.5 justify-center">
+                            <QrCode className="h-3.5 w-3.5" /> Scan en direct
+                        </span>
+                        
+                        <div className="relative w-44 h-44 sm:w-48 sm:h-48 bg-white p-3 rounded-3xl border border-slate-200/60 dark:border-white/10 shadow-lg flex items-center justify-center overflow-hidden group">
+                            <Image
+                                src={qrCodeUrl}
+                                alt={`QR Code de ${profile.name}`}
+                                width={180}
+                                height={180}
+                                className="object-contain"
+                                priority
                             />
-                            <Button
-                                size="icon"
-                                variant="ghost"
-                                className="h-9 w-9 rounded-xl shrink-0 hover:bg-slate-200/50 hover:text-slate-500 transition-all active:scale-95"
-                                onClick={() => copyToClipboard(profileUrl)}
-                            >
-                                {copiedLink === profileUrl ? <Check className="h-4 w-4 text-green-600 animate-in zoom-in duration-200" /> : <Copy className="h-4 w-4 text-slate-500" />}
-                            </Button>
                         </div>
 
+                        <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold mt-3 max-w-[200px]">
+                            Présentez cet écran pour qu&apos;on scanne votre profil directement.
+                        </p>
+
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            className="mt-4 h-9 rounded-xl border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 font-bold text-[11px] px-4 gap-1.5 shadow-sm hover:bg-slate-100 dark:hover:bg-white/5 active:scale-95 transition-all"
+                            onClick={downloadQRCode}
+                            disabled={qrLoading}
+                        >
+                            <Download className="h-3.5 w-3.5" />
+                            {qrLoading ? "Téléchargement..." : "Enregistrer l'image"}
+                        </Button>
+                    </div>
+
+                    {/* Colonne Droite : Partage Social & Liens */}
+                    <div className="flex-[1.2] p-6 space-y-6 min-w-0">
+                        {/* Custom link */}
+                        <div className="space-y-2.5">
+                            <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Lien personnalisé</span>
+                            <div className="flex items-center gap-2 p-1.5 bg-slate-50 dark:bg-slate-950/40 border border-slate-200/60 dark:border-white/10 rounded-2xl focus-within:border-[#013ff4]/30 dark:focus-within:border-blue-500/30 focus-within:ring-2 focus-within:ring-[#013ff4]/5 dark:focus-within:ring-blue-500/5 transition-all">
+                                <span className="pl-3 text-[11px] text-slate-400 dark:text-slate-500 font-bold select-none truncate max-w-[120px] sm:max-w-none">emiid.com/profil/</span>
+                                <Input
+                                    readOnly
+                                    value={profile.slug || profile.id || ""}
+                                    className="h-9 border-none bg-transparent shadow-none focus-visible:ring-0 px-1 font-bold text-slate-700 dark:text-slate-200 text-xs lowercase select-all flex-1 min-w-0"
+                                />
+                                <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    className="h-9 w-9 rounded-xl shrink-0 hover:bg-slate-200/50 dark:hover:bg-white/5 text-slate-500 dark:text-slate-400 transition-all active:scale-95"
+                                    onClick={() => copyToClipboard(profileUrl)}
+                                >
+                                    {copiedLink === profileUrl ? <Check className="h-4 w-4 text-green-600 animate-in zoom-in duration-200" /> : <Copy className="h-4 w-4" />}
+                                </Button>
+                            </div>
+                        </div>
+
+                        {/* Partage rapide (Grille Responsive) */}
+                        <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-white/5">
+                            <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Partager vers</span>
+                            <div className="grid grid-cols-4 gap-2 sm:gap-3 py-1">
+                                <button
+                                    className="flex flex-col items-center gap-1.5 group outline-none cursor-pointer"
+                                    onClick={() => shareToWhatsApp(profileUrl)}
+                                >
+                                    <div className="h-11 w-11 sm:h-12 sm:w-12 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-100/60 dark:border-emerald-500/10 flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:bg-emerald-500 group-hover:text-white group-active:scale-95">
+                                        <WhatsAppIcon className="h-5 w-5 transition-transform group-hover:rotate-6" />
+                                    </div>
+                                    <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors truncate w-full text-center">WhatsApp</span>
+                                </button>
+
+                                <button
+                                    className="flex flex-col items-center gap-1.5 group outline-none cursor-pointer"
+                                    onClick={() => shareToLinkedIn(profileUrl)}
+                                >
+                                    <div className="h-11 w-11 sm:h-12 sm:w-12 rounded-2xl bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-100/60 dark:border-blue-500/10 flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:bg-[#0a66c2] group-hover:text-white group-active:scale-95">
+                                        <LinkedInIcon className="h-5 w-5 transition-transform group-hover:-rotate-6" />
+                                    </div>
+                                    <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors truncate w-full text-center">LinkedIn</span>
+                                </button>
+
+                                <button
+                                    className="flex flex-col items-center gap-1.5 group outline-none cursor-pointer"
+                                    onClick={() => shareToTwitter(profileUrl)}
+                                >
+                                    <div className="h-11 w-11 sm:h-12 sm:w-12 rounded-2xl bg-slate-50 dark:bg-white/5 text-slate-900 dark:text-slate-300 border border-slate-200/60 dark:border-white/10 flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:bg-black dark:group-hover:bg-white dark:group-hover:text-black group-hover:text-white group-active:scale-95">
+                                        <XIcon className="h-4.5 w-4.5 transition-transform" />
+                                    </div>
+                                    <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors truncate w-full text-center">X</span>
+                                </button>
+
+                                <button
+                                    className="flex flex-col items-center gap-1.5 group outline-none cursor-pointer"
+                                    onClick={() => {
+                                        const subject = encodeURIComponent(`Profil EmiID de ${profile.name}`);
+                                        const body = encodeURIComponent(`Découvrez le profil professionnel de ${profile.name} sur EmiID :\n\n${profileUrl}`);
+                                        window.open(`mailto:?subject=${subject}&body=${body}`, "_self");
+                                    }}
+                                >
+                                    <div className="h-11 w-11 sm:h-12 sm:w-12 rounded-2xl bg-indigo-50/50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-100/60 dark:border-indigo-500/10 flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:bg-indigo-600 group-hover:text-white group-active:scale-95">
+                                        <EmailIcon className="h-4.5 w-4.5 transition-transform group-hover:-translate-y-0.5" />
+                                    </div>
+                                    <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors truncate w-full text-center">Email</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Partager via système de partage natif de l'appareil si supporté */}
                         {typeof navigator !== "undefined" && "share" in navigator && (
                             <Button
                                 variant="outline"
-                                className="w-full h-12 rounded-2xl border-slate-200 text-slate-900 bg-white hover:bg-slate-50 flex gap-2 text-xs font-black transition-all active:scale-95 shadow-sm"
+                                className="w-full h-11 rounded-2xl border-slate-200 dark:border-white/10 text-slate-900 dark:text-slate-200 bg-white dark:bg-slate-950/20 hover:bg-slate-50 dark:hover:bg-white/5 flex gap-2 text-xs font-black transition-all active:scale-95 shadow-sm mt-2"
                                 onClick={handleShare}
                             >
-                                <Share2 className="h-4 w-4 text-slate-600" />
-                                Partager via le système
+                                <Share2 className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                                Options système de l&apos;appareil
                             </Button>
                         )}
                     </div>
+                </div>
 
-                    {/* Quick share button icons */}
-                    <div className="space-y-3 pt-2 border-t border-slate-100">
-                        <span className="text-xs font-black text-slate-400 uppercase tracking-wider ml-1">Partage rapide</span>
-                        <div className="flex justify-around items-center py-2">
-                            <button
-                                className="flex flex-col items-center gap-2 group outline-none"
-                                onClick={() => shareToWhatsApp(profileUrl)}
-                            >
-                                <div className="h-14 w-14 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100/60 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-white group-hover:shadow-lg group-hover:shadow-emerald-200 group-active:scale-95">
-                                    <WhatsAppIcon className="h-6 w-6 transition-transform group-hover:rotate-6" />
-                                </div>
-                                <span className="text-[11px] font-bold text-slate-600 group-hover:text-slate-950 transition-colors">WhatsApp</span>
-                            </button>
-
-                            <button
-                                className="flex flex-col items-center gap-2 group outline-none"
-                                onClick={() => shareToLinkedIn(profileUrl)}
-                            >
-                                <div className="h-14 w-14 rounded-full bg-blue-50 text-blue-600 border border-blue-100/60 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-[#0a66c2] group-hover:text-white group-hover:shadow-lg group-hover:shadow-blue-200 group-active:scale-95">
-                                    <LinkedInIcon className="h-6 w-6 transition-transform group-hover:-rotate-6" />
-                                </div>
-                                <span className="text-[11px] font-bold text-slate-600 group-hover:text-slate-950 transition-colors">LinkedIn</span>
-                            </button>
-
-                            <button
-                                className="flex flex-col items-center gap-2 group outline-none"
-                                onClick={() => shareToTwitter(profileUrl)}
-                            >
-                                <div className="h-14 w-14 rounded-full bg-slate-50 text-slate-900 border border-slate-200/60 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-black group-hover:text-white group-hover:shadow-lg group-hover:shadow-slate-300 group-active:scale-95">
-                                    <XIcon className="h-5 w-5 transition-transform group-hover:scale-105" />
-                                </div>
-                                <span className="text-[11px] font-bold text-slate-600 group-hover:text-slate-950 transition-colors">X</span>
-                            </button>
-
-                            <button
-                                className="flex flex-col items-center gap-2 group outline-none"
-                                onClick={() => {
-                                    const subject = encodeURIComponent(`Profil EmiID de ${profile.name}`);
-                                    const body = encodeURIComponent(`Découvrez le profil professionnel de ${profile.name} sur EmiID :\n\n${profileUrl}`);
-                                    window.open(`mailto:?subject=${subject}&body=${body}`, "_self");
-                                }}
-                            >
-                                <div className="h-14 w-14 rounded-full bg-indigo-50/50 text-indigo-600 border border-indigo-100/60 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-indigo-600 group-hover:text-white group-hover:shadow-lg group-hover:shadow-indigo-200 group-active:scale-95">
-                                    <EmailIcon className="h-5 w-5 transition-transform group-hover:translate-y-[-2px]" />
-                                </div>
-                                <span className="text-[11px] font-bold text-slate-600 group-hover:text-slate-950 transition-colors">E-mail</span>
-                            </button>
+                {/* Section du bas : vCard interactive (imite le design de la carte EmiID) */}
+                <div className="p-6 bg-slate-50 dark:bg-slate-950/40 border-t border-slate-100 dark:border-white/5 space-y-4">
+                    <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Carte de contact (vCard)</span>
+                    
+                    <div className="relative p-5 bg-gradient-to-br from-[#013ff4] to-[#013ff4]/80 text-white rounded-3xl overflow-hidden shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full blur-2xl" />
+                        <div className="absolute bottom-0 left-0 w-20 h-20 bg-blue-400/10 rounded-full blur-xl" />
+                        
+                        <div className="flex items-center gap-3.5 min-w-0 flex-1 relative z-10">
+                            <div className="h-12 w-12 rounded-2xl bg-white/10 border border-white/20 text-white flex items-center justify-center font-black text-sm shadow-md shrink-0">
+                                {profile.avatar_url ? (
+                                    <Image
+                                        src={profile.avatar_url}
+                                        alt={profile.name}
+                                        width={48}
+                                        height={48}
+                                        className="rounded-2xl object-cover h-full w-full"
+                                    />
+                                ) : (
+                                    initials
+                                )}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                                <h4 className="text-sm font-extrabold line-clamp-1">{profile.name}</h4>
+                                <p className="text-[10px] font-bold text-blue-200 uppercase tracking-wider line-clamp-1 mt-0.5">{profile.role}</p>
+                            </div>
                         </div>
-                    </div>
 
-                    {/* Business card widget (vCard) */}
-                    <div className="pt-4 border-t border-slate-100 space-y-3">
-                        <span className="text-xs font-black text-slate-400 uppercase tracking-wider ml-1">Carte de contact (vCard)</span>
-                        <div className="p-4 bg-slate-50/80 border border-slate-200/40 rounded-2xl flex items-center justify-between gap-4">
-                            <div className="flex items-center gap-3 min-w-0 flex-1">
-                                <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 text-white flex items-center justify-center font-black shadow-md shadow-indigo-200/50 shrink-0">
-                                    {initials}
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                    <h4 className="text-xs font-black text-slate-800 line-clamp-1">{profile.name}</h4>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight line-clamp-1">{profile.role}</p>
-                                </div>
-                            </div>
-                            <div className="flex gap-2 shrink-0">
-                                <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="h-9 rounded-xl border-slate-200 text-slate-700 bg-white font-bold text-[11px] px-3 gap-1 hover:bg-slate-50"
-                                    onClick={copyVCardToClipboard}
-                                >
-                                    {copiedVCard ? <Check className="h-3.5 w-3.5 text-green-600" /> : <Copy className="h-3.5 w-3.5" />}
-                                    Copier
-                                </Button>
-                                <Button
-                                    size="sm"
-                                    className="h-9 rounded-xl bg-slate-900 text-white font-bold text-[11px] px-3 gap-1 hover:bg-slate-800"
-                                    onClick={downloadVCard}
-                                >
-                                    <Download className="h-3.5 w-3.5" />
-                                    vCard
-                                </Button>
-                            </div>
+                        <div className="flex gap-2 w-full sm:w-auto shrink-0 relative z-10">
+                            <Button
+                                size="sm"
+                                variant="secondary"
+                                className="flex-1 sm:flex-initial h-10 rounded-xl bg-white/15 hover:bg-white/25 border-none text-white font-bold text-[11px] px-4 gap-1.5 active:scale-95 transition-all"
+                                onClick={copyVCardToClipboard}
+                            >
+                                {copiedVCard ? <Check className="h-3.5 w-3.5 text-green-300 animate-in zoom-in duration-200" /> : <Copy className="h-3.5 w-3.5 text-blue-100" />}
+                                Copier
+                            </Button>
+                            <Button
+                                size="sm"
+                                variant="secondary"
+                                className="flex-1 sm:flex-initial h-10 rounded-xl bg-white text-[#013ff4] font-bold text-[11px] px-4 gap-1.5 hover:bg-white/90 active:scale-95 transition-all shadow-md"
+                                onClick={downloadVCard}
+                            >
+                                <Download className="h-3.5 w-3.5 text-[#013ff4]" />
+                                Télécharger
+                            </Button>
                         </div>
                     </div>
                 </div>
