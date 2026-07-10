@@ -29,13 +29,21 @@ export interface Message {
 
 export interface Conversation {
   id: string
-  participant1_id: string
-  participant2_id: string
+  participant1_id?: string
+  participant2_id?: string
   last_message?: string
   last_message_at?: string
   unread_count: number
+  // Pour un DM : l'autre membre. Pour un groupe : objet de compatibilité
+  // (name → first_name, avatar → avatar_url) renvoyé par le backend.
   other_participant: Profile
   updated_at: string
   isPinned?: boolean
   isArchived?: boolean
+  // ─── Groupes / communautés (Étape 2+) ───
+  is_group?: boolean
+  name?: string | null
+  avatar_url?: string | null
+  is_community?: boolean
+  member_count?: number
 }

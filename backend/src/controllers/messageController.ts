@@ -670,6 +670,16 @@ export const getConversations = async (req: Request, res: Response) => {
                     avatar_url: conv.avatar_url,
                     is_community: !!conv.is_community,
                     member_count: conv.member_count ?? 0,
+                    // Compat rendu : le frontend affiche other_participant (name/avatar).
+                    // Un groupe est présenté comme un pseudo-interlocuteur (nom + avatar du groupe).
+                    other_participant: {
+                        id: conv.id,
+                        user_id: '',
+                        first_name: conv.name || 'Groupe',
+                        last_name: '',
+                        avatar_url: conv.avatar_url || '',
+                        role: null,
+                    },
                 };
             }
 

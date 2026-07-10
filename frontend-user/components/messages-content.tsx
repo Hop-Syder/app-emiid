@@ -332,8 +332,12 @@ export function MessagesContent() {
           onSelect={(conv: Conversation) => {
             setSelectedConv(conv)
             setShowChatMobile(true)
-            const resolvedId = conv.other_participant.user_id || conv.other_participant.id
-            router.push(`/messages?contact=${resolvedId}`, { scroll: false })
+            if (conv.is_group) {
+              router.push(`/messages?conv=${conv.id}`, { scroll: false })
+            } else {
+              const resolvedId = conv.other_participant.user_id || conv.other_participant.id
+              router.push(`/messages?contact=${resolvedId}`, { scroll: false })
+            }
           }}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
@@ -367,21 +371,29 @@ export function MessagesContent() {
                       {selectedConv.other_participant.first_name[0]}
                     </AvatarFallback>
                   </Avatar>
-                  <span className={cn(
-                    "absolute bottom-0 right-0 w-2.5 h-2.5 border-2 border-white rounded-full transition-colors",
-                    onlineUserIds.has(selectedConv.other_participant.user_id) ? "bg-emerald-500" : "bg-slate-300"
-                  )} />
+                  {!selectedConv.is_group && (
+                    <span className={cn(
+                      "absolute bottom-0 right-0 w-2.5 h-2.5 border-2 border-white rounded-full transition-colors",
+                      onlineUserIds.has(selectedConv.other_participant.user_id) ? "bg-emerald-500" : "bg-slate-300"
+                    )} />
+                  )}
                 </div>
                 <div>
                   <h2 className="text-sm font-bold text-slate-800 leading-tight">
                     {selectedConv.other_participant.first_name} {selectedConv.other_participant.last_name}
                   </h2>
-                  <span className={cn(
-                    "text-[11px] font-semibold",
-                    onlineUserIds.has(selectedConv.other_participant.user_id) ? "text-emerald-600" : "text-slate-400"
-                  )}>
-                    {onlineUserIds.has(selectedConv.other_participant.user_id) ? "En ligne" : "Hors ligne"}
-                  </span>
+                  {selectedConv.is_group ? (
+                    <span className="text-[11px] font-semibold text-slate-400">
+                      {(selectedConv.member_count ?? 0)} membre{(selectedConv.member_count ?? 0) > 1 ? "s" : ""}
+                    </span>
+                  ) : (
+                    <span className={cn(
+                      "text-[11px] font-semibold",
+                      onlineUserIds.has(selectedConv.other_participant.user_id) ? "text-emerald-600" : "text-slate-400"
+                    )}>
+                      {onlineUserIds.has(selectedConv.other_participant.user_id) ? "En ligne" : "Hors ligne"}
+                    </span>
+                  )}
                 </div>
               </div>
 
