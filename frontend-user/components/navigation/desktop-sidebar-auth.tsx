@@ -65,10 +65,10 @@ export function DesktopSidebarAuth() {
   }
 
   return (
-    <div className="hidden lg:flex fixed left-0 top-0 h-screen w-[88px] hover:w-[240px] transition-all duration-300 z-50 flex-col bg-white/10 backdrop-blur-2xl border-r border-white/10 group shadow-2xl">
+    <div className="hidden lg:flex fixed left-0 top-0 h-screen w-[88px] hover:w-[240px] transition-all duration-300 z-50 flex-col bg-white/80 dark:bg-white/10 backdrop-blur-2xl border-r border-slate-200 dark:border-white/10 group shadow-2xl">
       {/* Logo */}
       <div className="h-24 flex items-center px-4 pt-4">
-        <div className="relative w-14 h-14 min-w-[56px] flex items-center justify-center bg-white/5 rounded-xl border border-white/10 group-hover:bg-transparent group-hover:border-transparent transition-all">
+        <div className="relative w-14 h-14 min-w-[56px] flex items-center justify-center bg-slate-50 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/10 group-hover:bg-transparent group-hover:border-transparent transition-all">
           <Image
             src="/logo/icon.svg"
             alt="EmiID"
@@ -130,18 +130,18 @@ export function DesktopSidebarAuth() {
       <div className="p-4 mb-4">
         <DropdownMenu>
           <DropdownMenuTrigger className="w-full outline-none">
-            <div className="flex items-center h-14 rounded-2xl hover:bg-white/5 transition-colors cursor-pointer border border-transparent hover:border-white/10 px-2">
-              <Avatar className="size-10 rounded-xl border border-white/20 shrink-0">
+            <div className="flex items-center h-14 rounded-2xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors cursor-pointer border border-transparent hover:border-slate-200 dark:hover:border-white/10 px-2">
+              <Avatar className="size-10 rounded-xl border border-slate-200 dark:border-white/20 shrink-0">
                 <AvatarImage src={profile?.avatar_url || "/profil/avatar.jpg"} />
                 <AvatarFallback className="bg-slate-800 text-white rounded-xl">
                   {profile?.full_name?.substring(0, 2).toUpperCase() || <User className="size-5" />}
                 </AvatarFallback>
               </Avatar>
               <div className="ml-3 flex-1 text-left overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <p className="text-sm font-bold text-white truncate">
+                <p className="text-sm font-bold text-slate-900 dark:text-white truncate">
                   {profile?.full_name || "Profil"}
                 </p>
-                <p className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold">
                   Compte Élite
                 </p>
               </div>
