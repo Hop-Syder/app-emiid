@@ -7,6 +7,7 @@
  */
 
 import { Request, Response } from 'express';
+import { randomInt } from 'crypto';
 import { z } from 'zod';
 import { supabase, supabaseAdmin } from '../config/supabase';
 import bcrypt from 'bcrypt';
@@ -663,7 +664,9 @@ export const requestPhoneVerification = async (req: any, res: Response) => {
     const { body: { phone, method } } = requestPhoneVerificationSchema.parse(req) as { body: any };
     if (!phone) return res.status(400).json({ error: "Numéro de téléphone requis" });
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    // SÉCURITÉ : générateur cryptographique — Math.random() est prédictible
+    // et inadapté à un code de vérification.
+    const otp = randomInt(100000, 1000000).toString();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
     const { error } = await supabaseAdmin

@@ -74,12 +74,14 @@ export function createApp(): Application {
         .select('id', { count: 'exact', head: true })
 
       if (error) {
+        // SÉCURITÉ : le détail de l'erreur BDD est loggué côté serveur uniquement,
+        // jamais renvoyé au client (risque de divulgation d'information).
+        logger.error('Health check database error', error)
         return res.status(503).json({
           status: 'degraded',
           checks: {
             database: {
               status: 'down',
-              message: error.message,
             },
           },
         })
@@ -97,12 +99,12 @@ export function createApp(): Application {
         },
       })
     } catch (error) {
+      logger.error('Health check failure', error)
       return res.status(503).json({
         status: 'degraded',
         checks: {
           database: {
             status: 'down',
-            message: error instanceof Error ? error.message : 'Erreur inconnue',
           },
         },
       })
