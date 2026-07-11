@@ -8,7 +8,7 @@
  * 📧 daoudaabassichristian@gmail.com
  */
 
-import { Camera, Loader2, MapPin, MessageCircle, Share2, Shield, Star, Users } from "lucide-react"
+import { Camera, Check, Loader2, MapPin, MessageCircle, Share2, Shield, Star, Users } from "lucide-react"
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -171,10 +171,15 @@ export function ProfileHero({
                         <Button
                             size="default"
                             disabled={followLoading}
-                            className="rounded-full h-11 text-xs px-5 gap-2 font-semibold tracking-wide bg-[#013ff4] hover:bg-[#013ff4]/90 shadow-lg shadow-[#013ff4]/20 transition-all hover:-translate-y-0.5 active:translate-y-0 text-white flex-1 sm:flex-none min-w-[120px]"
+                            className={cn(
+                                "rounded-full h-11 text-xs px-5 gap-2 font-semibold tracking-wide transition-all hover:-translate-y-0.5 active:translate-y-0 flex-1 sm:flex-none min-w-[120px]",
+                                isFollowed
+                                    ? "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200/60 dark:border-slate-700/50"
+                                    : "bg-[#013ff4] hover:bg-[#013ff4]/90 shadow-lg shadow-[#013ff4]/20 text-white border-none"
+                            )}
                             onClick={handleFollow}
                         >
-                            {followLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Users className="h-4 w-4" />}
+                            {followLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : isFollowed ? <Check className="h-4 w-4 text-emerald-500" /> : <Users className="h-4 w-4" />}
                             {isFollowed ? "Abonné" : "Suivre"}
                         </Button>
                         {isLoggedIn && (

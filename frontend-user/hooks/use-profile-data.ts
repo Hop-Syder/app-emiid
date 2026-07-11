@@ -150,6 +150,19 @@ export function useProfileData(profileId: string) {
 
                     const resolvedUserId = data.user_id || data.id
 
+                    // Tracking de vue : enregistre une visite (fire-and-forget) si le
+                    // visiteur n'est pas le propriétaire. Alimente les stats d'impact.
+                    void (async () => {
+                        try {
+                            const { data: { user: viewer } } = await supabase.auth.getUser()
+                            if (viewer?.id === resolvedUserId) return // pas d'auto-vue
+                            await supabase.from("profile_views").insert({
+                                profile_id: resolvedUserId,
+                                viewer_id: viewer?.id ?? null,
+                            })
+                        } catch { /* silencieux : le tracking ne doit jamais casser l'affichage */ }
+                    })()
+
                     setLoadingGallery(true)
                     const [followsRes, galleryRes, isFollowedRes] = await Promise.all([
                         supabase
