@@ -13,13 +13,14 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Crown, Sparkles, LayoutGrid, ArrowRight } from "lucide-react"
+import { Crown, Sparkles, LayoutGrid, ArrowRight, Images } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { PublicProfile } from "@/types"
 import { EntrepreneursSection } from "./entrepreneurs-section"
 import { CategoriesExplorer } from "./categories-explorer"
+import { RealisationsShowcase } from "./realisations-showcase"
 
-type TabId = "new" | "premium" | "categories"
+type TabId = "new" | "premium" | "categories" | "realisations"
 
 interface ExplorerHubProps {
   premiumProfiles: PublicProfile[]
@@ -33,6 +34,7 @@ export function ExplorerHub({ premiumProfiles, newProfiles, categoryCounts }: Ex
   const tabs = [
     { id: "new" as const, label: "Nouveaux", icon: Sparkles, color: "text-blue-500", chip: "bg-blue-100" },
     ...(hasPremium ? [{ id: "premium" as const, label: "Premium", icon: Crown, color: "text-amber-500", chip: "bg-amber-100" }] : []),
+    { id: "realisations" as const, label: "Réalisations", icon: Images, color: "text-[#03b3f8]", chip: "bg-[#03b3f8]/10" },
     { id: "categories" as const, label: "Catégories", icon: LayoutGrid, color: "text-[#013ff4]", chip: "bg-[#013ff4]/10" },
   ]
 
@@ -68,7 +70,7 @@ export function ExplorerHub({ premiumProfiles, newProfiles, categoryCounts }: Ex
           })}
         </div>
 
-        {active !== "categories" && (
+        {(active === "new" || active === "premium") && (
           <Link
             href={seeAllHref}
             className="shrink-0 text-xs sm:text-sm font-semibold text-slate-500 hover:text-[#013ff4] flex items-center gap-1 group self-start sm:self-auto"
@@ -86,6 +88,7 @@ export function ExplorerHub({ premiumProfiles, newProfiles, categoryCounts }: Ex
         {active === "premium" && hasPremium && (
           <EntrepreneursSection entrepreneursList={premiumProfiles} loading={false} variant="elite" />
         )}
+        {active === "realisations" && <RealisationsShowcase />}
         {active === "categories" && <CategoriesExplorer categoryCounts={categoryCounts} />}
       </div>
     </div>

@@ -12,7 +12,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Eye, Users, TrendingUp, TrendingDown, Crown, ArrowRight, Sparkles, MessageSquare } from "lucide-react"
+import { Eye, Users, TrendingUp, TrendingDown, Crown, ArrowRight, Sparkles, MessageSquare, Images } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useImpactStats } from "@/hooks/use-impact-stats"
 import { cn } from "@/lib/utils"
@@ -68,6 +68,7 @@ export function PersonalHero() {
   const { stats } = useImpactStats()
   const [profile, setProfile] = useState<OwnProfile | null>(null)
   const [unreadMsgs, setUnreadMsgs] = useState(0)
+  const [realisationsCount, setRealisationsCount] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -89,10 +90,16 @@ export function PersonalHero() {
         .eq("type", "message")
         .eq("is_read", false)
 
-      const [{ data }, { count }] = await Promise.all([profileReq, msgReq])
+      const realisationsReq = supabase
+        .from("project_gallery")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user.id)
+
+      const [{ data }, { count }, galleryRes] = await Promise.all([profileReq, msgReq, realisationsReq])
       if (active) {
         setProfile((data as OwnProfile) || null)
         setUnreadMsgs(count ?? 0)
+        setRealisationsCount(galleryRes.count ?? 0)
         setLoading(false)
       }
     })()
@@ -179,6 +186,24 @@ export function PersonalHero() {
           </span>
           <span className="flex items-center gap-1 text-xs font-black text-[#013ff4] shrink-0">
             Répondre <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
+          </span>
+        </Link>
+      )}
+
+      {/* Activation — aucune réalisation → inciter à exposer son travail */}
+      {realisationsCount === 0 && !loading && (
+        <Link
+          href="/portefeuille"
+          className="mt-4 flex items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-[#03b3f8]/[0.06] to-[#013ff4]/[0.06] border border-[#03b3f8]/20 px-4 py-3 hover:from-[#03b3f8]/10 transition-colors group"
+        >
+          <span className="flex items-center gap-2.5 min-w-0">
+            <Images className="h-5 w-5 text-[#03b3f8] shrink-0" />
+            <span className="text-sm font-bold text-slate-900 truncate">
+              Exposez votre talent — ajoutez votre 1<sup>re</sup> réalisation
+            </span>
+          </span>
+          <span className="flex items-center gap-1 text-xs font-black text-[#03b3f8] shrink-0">
+            Ajouter <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
           </span>
         </Link>
       )}
