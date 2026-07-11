@@ -5,17 +5,12 @@ import { fetchWithAuth } from "@/lib/apiClient"
 import type { PublicProfile } from "@/types"
 
 import { DashboardBentoHeader } from "./dashboard-bento-header"
-import { EntrepreneursSection } from "./entrepreneurs-section"
-import { Sparkles, LayoutGrid, Crown } from "lucide-react"
-import Link from "next/link"
-import { ArrowRight } from "lucide-react"
-
-import { CategoriesExplorer } from "./categories-explorer"
 import { InlineActivityFeed } from "./inline-activity-feed"
 import { ProximitySection } from "./proximity-section"
 import { HubContextualCta } from "./hub-contextual-cta"
 import { HubCommunities } from "./hub-communities"
 import { PersonalHero } from "./personal-hero"
+import { ExplorerHub } from "./explorer-hub"
 
 interface DashboardHubContentProps {
   initialPremiumProfiles: PublicProfile[]
@@ -77,66 +72,13 @@ export function DashboardHubContent({
         <ProximitySection fallbackLocation={userLocation} initialProfiles={initialProximityProfiles} />
 
         {/* =========================================
-            SECTION 4 : PROFILS PREMIUM
+            SECTION 4 : EXPLORER (Premium / Nouveaux / Catégories — onglets)
             ========================================= */}
-        {initialPremiumProfiles.length > 0 && (
-          <div className="space-y-4 pt-4">
-            <div className="flex flex-row items-center justify-between px-1 sm:px-2 gap-2">
-              <h3 className="text-lg sm:text-2xl font-black text-slate-800 flex items-center gap-2 sm:gap-3 tracking-tight">
-                <div className="p-1.5 sm:p-2 bg-amber-100 rounded-xl shrink-0">
-                  <Crown className="text-amber-500 w-4 h-4 sm:w-5 sm:h-5" />
-                </div>
-                <span className="truncate">Profils Premium</span>
-              </h3>
-              <Link href="/annuaire?filter=premium" className="text-xs sm:text-sm font-semibold text-amber-600 hover:text-amber-700 flex items-center gap-1 group shrink-0">
-                Voir tout <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </div>
-            <EntrepreneursSection
-              entrepreneursList={initialPremiumProfiles}
-              loading={false}
-              variant="elite"
-            />
-          </div>
-        )}
-
-        {/* =========================================
-            SECTION 5 : NOUVEAUX TALENTS
-            ========================================= */}
-        <div className="space-y-4 pt-4">
-          <div className="flex flex-row items-center justify-between px-1 sm:px-2 gap-2">
-            <h3 className="text-lg sm:text-2xl font-black text-slate-800 flex items-center gap-2 sm:gap-3 tracking-tight">
-              <div className="p-1.5 sm:p-2 bg-blue-100 rounded-xl shrink-0">
-                <Sparkles className="text-blue-500 w-4 h-4 sm:w-5 sm:h-5" />
-              </div>
-              <span className="truncate">Nouveaux Talents</span>
-            </h3>
-            <Link href="/annuaire?filter=new" className="text-xs sm:text-sm font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1 group shrink-0">
-              Voir tout <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </div>
-          <EntrepreneursSection
-            entrepreneursList={initialNewProfiles.slice(0, 8)}
-            loading={false}
-            variant="glass-blue"
-          />
-        </div>
-
-        {/* =========================================
-            SECTION 6 : EXPLORER PAR CATÉGORIE
-            ========================================= */}
-        <div className="space-y-6 pt-8 pb-10 px-4 sm:px-8 -mx-4 sm:-mx-8 bg-slate-50/80 rounded-[2.5rem] border border-slate-100/80 shadow-sm relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/5 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
-          <div className="relative z-10 flex flex-row items-center justify-between px-1 sm:px-2 gap-2">
-            <h3 className="text-lg sm:text-2xl font-black text-slate-800 flex items-center gap-2 sm:gap-3 tracking-tight">
-              <div className="p-1.5 sm:p-2 bg-purple-100 rounded-xl shrink-0">
-                <LayoutGrid className="text-purple-500 w-4 h-4 sm:w-5 sm:h-5" />
-              </div>
-              <span className="truncate">Explorer par Type de Profil</span>
-            </h3>
-          </div>
-          <CategoriesExplorer categoryCounts={stats?.categoryCounts} />
-        </div>
+        <ExplorerHub
+          premiumProfiles={initialPremiumProfiles}
+          newProfiles={initialNewProfiles}
+          categoryCounts={stats?.categoryCounts}
+        />
 
         {/* =========================================
             SECTION 7 : CTA CONTEXTUEL
