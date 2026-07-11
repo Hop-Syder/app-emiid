@@ -20,6 +20,7 @@ import { ProfileSection } from "./profile-section"
 import { SecuritySection } from "./security-section"
 import { NotificationsSection } from "./notifications-section"
 import { PreferencesSection } from "./preferences-section"
+import { PlanSection } from "./plan-section"
 
 // ─── Defaults ────────────────────────────────────────────────────────────────
 
@@ -29,13 +30,14 @@ const defaultSecuritySettings      = { two_factor_enabled: false }
 
 // ─── Tab config ───────────────────────────────────────────────────────────────
 
-type TabId = "profil" | "securite" | "notifications" | "preferences"
+type TabId = "profil" | "securite" | "notifications" | "preferences" | "plan"
 
 const TABS: { id: TabId; label: string; icon: React.ElementType; desc: string }[] = [
   { id: "profil",         label: "Profil",        icon: User,     desc: "Informations personnelles et professionnelles" },
   { id: "securite",       label: "Sécurité",      icon: Shield,   desc: "Accès, PIN et authentification" },
   { id: "notifications",  label: "Notifications", icon: Bell,     desc: "Alertes et préférences de messages" },
   { id: "preferences",    label: "Préférences",   icon: Settings, desc: "Langue, thème et confidentialité" },
+  { id: "plan",           label: "Abonnement",    icon: Star,     desc: "Gérez votre offre EmiID Premium" },
 ]
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -228,6 +230,7 @@ export function ParametresContent() {
     securite:      <SecuritySection profile={profile} setProfile={setProfile} securitySettings={securitySettings} setSecuritySettings={setSecuritySettings} saveSettings={saveSettings} />,
     notifications: <NotificationsSection settings={notificationSettings} setSettings={setNotificationSettings} saving={saving} handleSave={() => saveSettings({ notification_preferences: notificationSettings }, "Notifications mises à jour")} handleCancel={() => { loadUserProfile(); toast.info("Annulé") }} />,
     preferences:   <PreferencesSection  settings={preferences}           setSettings={setPreferences}           saving={saving} handleSave={() => saveSettings({ app_preferences: preferences },              "Préférences mises à jour")}  handleCancel={() => { loadUserProfile(); toast.info("Annulé") }} />,
+    plan:          <PlanSection profile={profile} />,
   }
 
   return (
