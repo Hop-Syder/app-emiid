@@ -25,6 +25,8 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://emiid.com"),
   title: "Emiid - Votre empreinte numérique professionnelle",
   description: "L'annuaire de référence pour les acteurs de l'écosystème africain.",
+  keywords: ["Emiid", "réseau professionnel", "Afrique", "annuaire", "profil professionnel", "freelance", "entreprise", "FCFA"],
+  alternates: { canonical: "/" },
   openGraph: {
     title: "Emiid - L'annuaire de l'écosystème africain",
     description: "Rejoignez l'annuaire Emiid pour augmenter votre visibilité et développer votre réseau.",
@@ -90,6 +92,33 @@ export default function RootLayout({
             gtag('config', 'G-KYGF0JWYZE');
           `}
         </Script>
+
+        {/* Données structurées — Organization + WebSite */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "Emiid",
+              url: "https://emiid.com",
+              logo: "https://emiid.com/logo/logo-emiid-dark.png",
+              description:
+                "Le réseau professionnel certifié pensé pour l'Afrique : profils vérifiés, annuaire et messagerie.",
+            }).replace(/</g, "\\u003c"),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              name: "Emiid",
+              url: "https://emiid.com",
+            }).replace(/</g, "\\u003c"),
+          }}
+        />
       </head>
       <body className={`${inter.variable} font-sans antialiased bg-background text-foreground`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>

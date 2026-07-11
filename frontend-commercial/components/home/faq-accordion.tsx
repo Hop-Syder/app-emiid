@@ -144,6 +144,22 @@ const categories: Category[] = [
   },
 ];
 
+// Données structurées FAQPage (rich results Google). Le markdown (**, \n) est nettoyé.
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: categories.flatMap((cat) =>
+    cat.faqs.map((f) => ({
+      "@type": "Question",
+      name: f.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: f.answer.replace(/\*\*/g, "").replace(/\s*\n+\s*/g, " ").trim(),
+      },
+    })),
+  ),
+};
+
 export function FaqAccordion() {
   const [openKey, setOpenKey] = useState<string | null>("0-0");
 
@@ -151,6 +167,11 @@ export function FaqAccordion() {
 
   return (
     <div className="w-full max-w-4xl mx-auto mt-12 space-y-10">
+      {/* JSON-LD FAQPage — rendu SSR, lu par les moteurs de recherche */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd).replace(/</g, "\\u003c") }}
+      />
       {categories.map((cat, catIdx) => {
         const Icon = cat.icon;
         return (

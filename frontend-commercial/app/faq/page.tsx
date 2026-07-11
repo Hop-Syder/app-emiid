@@ -14,6 +14,15 @@ import { FaqAccordion } from "@/components/home/faq-accordion";
 export const metadata: Metadata = {
   title: "Questions Fréquentes | Emiid",
   description: "Trouvez les réponses à toutes vos questions sur Emiid, le réseau professionnel conçu pour l'Afrique.",
+  alternates: { canonical: "/faq" },
+  openGraph: {
+    title: "Questions Fréquentes | Emiid",
+    description: "Toutes les réponses sur Emiid : profils, abonnements FCFA, sécurité, messagerie.",
+    url: "https://emiid.com/faq",
+    siteName: "Emiid",
+    locale: "fr_FR",
+    type: "website",
+  },
 };
 
 const USER_APP_URL = process.env.NEXT_PUBLIC_USER_APP_URL || "https://app.emiid.com";
