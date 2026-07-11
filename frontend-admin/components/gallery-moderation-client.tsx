@@ -464,4 +464,3 @@ export function GalleryModerationClient({ initialItems }: GalleryModerationClien
     </div>
   )
 }
-}

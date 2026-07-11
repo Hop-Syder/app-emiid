@@ -1438,21 +1438,65 @@ export async function dismissContentReport(
 
 export type BroadcastSegment = "all" | "published" | "premium" | "verified" | "suspended"
 
+/** Nombre estimé de destinataires d'un segment (portée) — sans transfert de données. */
+export async function countSegment(segment: BroadcastSegment): Promise<{ count: number; error?: string }> {
+  const supabase = await createAdminClient()
+  const admin = await requireAdminSession()
+  if (!admin) return { count: 0, error: "Non autorisé" }
+
+  let q = supabase.from("user_profiles").select("user_id", { count: "exact", head: true })
+  if (segment === "published") q = q.eq("is_published", true)
+  else if (segment === "premium") q = q.eq("is_premium", true)
+  else if (segment === "verified") q = q.eq("is_verified", true)
+  else if (segment === "suspended") q = q.eq("is_suspended", true)
+
+  const { count, error } = await q
+  if (error) return { count: 0, error: error.message }
+  return { count: count ?? 0 }
+}
+
+export interface BroadcastResult {
+  success: boolean
+  /** Nombre de destinataires réellement notifiés. */
+  count: number
+  /** Nombre total de destinataires visés (pour distinguer un échec partiel). */
+  total: number
+  error?: string
+}
+
 /** Envoie une notification (annonce) à tous les utilisateurs d'un segment. */
 export async function broadcastAnnouncement(input: {
   title: string
   content: string
   segment: BroadcastSegment
   link?: string
-}): Promise<{ success: boolean; count: number; error?: string }> {
+}): Promise<BroadcastResult> {
   const supabase = await createAdminClient()
   const admin = await requireAdminSession()
-  if (!admin) return { success: false, count: 0, error: "Non autorisé" }
+  if (!admin) return { success: false, count: 0, total: 0, error: "Non autorisé" }
 
   const title = input.title?.trim()
   const content = input.content?.trim()
-  if (!title || !content) return { success: false, count: 0, error: "Titre et message requis" }
-  if (title.length > 120) return { success: false, count: 0, error: "Titre trop long (120 max)" }
+  if (!title || !content) return { success: false, count: 0, total: 0, error: "Titre et message requis" }
+  if (title.length > 120) return { success: false, count: 0, total: 0, error: "Titre trop long (120 max)" }
+
+  // Anti-double-envoi : refuse une annonce identique (même titre + segment) par le même
+  // admin il y a moins de 2 minutes (protège contre le double-clic / retry).
+  const twoMinAgo = new Date(Date.now() - 2 * 60 * 1000).toISOString()
+  const { data: recent } = await supabase
+    .from("admin_audit_log")
+    .select("details, created_at")
+    .eq("action", "broadcast")
+    .eq("admin_id", admin.userId)
+    .gte("created_at", twoMinAgo)
+    .order("created_at", { ascending: false })
+    .limit(10)
+  const isDuplicate = (recent as { details: { title?: string; segment?: string } | null }[] | null)?.some(
+    (r) => r.details?.title === title && r.details?.segment === input.segment,
+  )
+  if (isDuplicate) {
+    return { success: false, count: 0, total: 0, error: "Annonce identique déjà envoyée il y a moins de 2 minutes." }
+  }
 
   // Résolution du segment → liste de user_id destinataires.
   let q = supabase.from("user_profiles").select("user_id")
@@ -1462,31 +1506,41 @@ export async function broadcastAnnouncement(input: {
   else if (input.segment === "suspended") q = q.eq("is_suspended", true)
 
   const { data, error } = await q
-  if (error) return { success: false, count: 0, error: error.message }
+  if (error) return { success: false, count: 0, total: 0, error: error.message }
 
   const userIds = Array.from(new Set(
     (data as { user_id: string | null }[]).map((r) => r.user_id).filter((v): v is string => !!v),
   ))
-  if (!userIds.length) return { success: false, count: 0, error: "Aucun destinataire pour ce segment" }
+  const total = userIds.length
+  if (!total) return { success: false, count: 0, total: 0, error: "Aucun destinataire pour ce segment" }
 
   const link = input.link?.trim() || null
   const rows = userIds.map((uid) => ({ user_id: uid, type: "admin", title, content, link }))
 
-  // Insertion par lots pour éviter les payloads trop volumineux.
+  // Insertion par lots pour éviter les payloads trop volumineux. En cas d'échec au
+  // milieu, on remonte le nombre réellement envoyé (échec partiel explicite).
   const chunkSize = 500
+  let sent = 0
+  let sendError: string | undefined
   for (let i = 0; i < rows.length; i += chunkSize) {
-    const { error: e } = await supabase.from("notifications").insert(rows.slice(i, i + chunkSize))
-    if (e) return { success: false, count: i, error: e.message }
+    const chunk = rows.slice(i, i + chunkSize)
+    const { error: e } = await supabase.from("notifications").insert(chunk)
+    if (e) { sendError = e.message; break }
+    sent += chunk.length
   }
 
+  // Journal d'audit : toujours tracé, avec le résultat réel (même partiel).
   await logAdminAction(supabase, admin, {
     action: "broadcast",
     targetType: "segment",
-    targetLabel: `${input.segment} · ${userIds.length} destinataire(s)`,
-    details: { title, segment: input.segment, count: userIds.length },
+    targetLabel: `${input.segment} · ${sent}/${total} destinataire(s)`,
+    details: { title, segment: input.segment, count: sent, total, partial: sent < total },
   })
 
-  return { success: true, count: userIds.length }
+  if (sendError) {
+    return { success: false, count: sent, total, error: `Échec partiel : ${sent}/${total} notifiés. ${sendError}` }
+  }
+  return { success: true, count: sent, total }
 }
 
 // ============================================================
