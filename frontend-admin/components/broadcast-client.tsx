@@ -8,10 +8,10 @@
 
 "use client"
 
-import { useEffect, useState } from "react"
-import { Megaphone, Send, Loader2, Users, CheckCircle2, Globe, Crown, BadgeCheck, Ban, AlertTriangle, Link2 } from "lucide-react"
+import { useEffect, useMemo, useState } from "react"
+import { Megaphone, Send, Loader2, Users, CheckCircle2, Globe, Crown, BadgeCheck, Ban, AlertTriangle, Link2, History, Sparkles, XCircle } from "lucide-react"
 import { toast } from "sonner"
-import { broadcastAnnouncement, countSegment, type BroadcastSegment } from "@/lib/actions/admin"
+import { broadcastAnnouncement, countSegment, getAuditLog, getBroadcastReadCounts, type BroadcastSegment, type AuditLogEntry } from "@/lib/actions/admin"
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog"
@@ -23,8 +23,38 @@ const SEGMENTS: { id: BroadcastSegment; label: string; desc: string; icon: typeo
   { id: "premium",   label: "Membres Premium",       desc: "Abonnés Premium uniquement", icon: Crown },
   { id: "suspended", label: "Comptes suspendus",     desc: "Utilisateurs actuellement suspendus", icon: Ban },
 ]
+const SEGMENT_LABEL: Record<string, string> = Object.fromEntries(SEGMENTS.map((s) => [s.id, s.label]))
+
+// Templates pré-remplis (P2 #9) — cohérence de ton + adoption admin.
+const TEMPLATES: { id: string; label: string; title: string; content: string; link?: string }[] = [
+  { id: "feature", label: "Nouvelle fonctionnalité", title: "Nouvelle fonctionnalité disponible 🎉", content: "Nous venons de lancer une nouveauté sur EmiID. Découvrez-la dès maintenant depuis votre tableau de bord.", link: "/dashboard-user" },
+  { id: "premium", label: "Offre Premium", title: "Passez à EmiID Premium", content: "Boostez votre visibilité : profil mis en avant, badge et statistiques avancées. Profitez de l'offre Premium.", link: "/premium" },
+  { id: "maintenance", label: "Maintenance", title: "Maintenance planifiée", content: "Une maintenance est prévue prochainement. Le service pourra être momentanément indisponible. Merci de votre compréhension." },
+]
+
+// Routes internes suggérées pour le champ lien (P1 #3).
+const INTERNAL_ROUTES = ["/dashboard-user", "/creer-profil", "/premium", "/annuaire", "/portefeuille", "/messages", "/parametres"]
 
 const fmt = (n: number) => n.toLocaleString("fr-FR")
+
+// Validation du lien : vide OK ; route interne (commence par "/") OK ; sinon https:// valide requis.
+function linkError(raw: string): string | null {
+  const v = raw.trim()
+  if (!v) return null
+  if (v.startsWith("/")) return null
+  try {
+    const u = new URL(v)
+    if (u.protocol !== "https:") return "Le lien externe doit commencer par https://"
+    return null
+  } catch {
+    return "Lien invalide : utilisez une route interne (/premium) ou une URL https://"
+  }
+}
+
+function timeAgo(iso: string): string {
+  const d = new Date(iso)
+  return d.toLocaleDateString("fr-FR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })
+}
 
 export function BroadcastClient() {
   const [title, setTitle] = useState("")
@@ -38,6 +68,11 @@ export function BroadcastClient() {
   // Portée par segment (nombre de destinataires) — chargée à l'ouverture.
   const [counts, setCounts] = useState<Partial<Record<BroadcastSegment, number>>>({})
   const [countsLoading, setCountsLoading] = useState(true)
+
+  // Historique des annonces (P1 #2) — surfacé depuis le journal d'audit.
+  const [history, setHistory] = useState<AuditLogEntry[]>([])
+  // Taux de lecture par campagne (P2 #10) : broadcast_id → nb de notifs lues.
+  const [readCounts, setReadCounts] = useState<Record<string, number>>({})
 
   const loadCounts = async () => {
     setCountsLoading(true)
@@ -53,11 +88,29 @@ export function BroadcastClient() {
     }
   }
 
-  useEffect(() => { loadCounts() }, [])
+  const loadHistory = async () => {
+    try {
+      const entries = await getAuditLog({ action: "broadcast", limit: 8 })
+      setHistory(entries)
+      const ids = entries
+        .map((e) => (e.details as { broadcast_id?: string }).broadcast_id)
+        .filter((v): v is string => !!v)
+      if (ids.length) setReadCounts(await getBroadcastReadCounts(ids))
+    } catch {
+      /* silencieux */
+    }
+  }
+
+  useEffect(() => { loadCounts(); loadHistory() }, [])
 
   const reach = counts[segment]
-  const canSend = title.trim().length > 0 && content.trim().length > 0 && !sending
+  const linkErr = useMemo(() => linkError(link), [link])
+  const canSend = title.trim().length > 0 && content.trim().length > 0 && !linkErr && !sending
   const segLabel = SEGMENTS.find((s) => s.id === segment)?.label ?? segment
+
+  const applyTemplate = (t: (typeof TEMPLATES)[number]) => {
+    setTitle(t.title); setContent(t.content); setLink(t.link ?? "")
+  }
 
   const doSend = async () => {
     setSending(true)
@@ -69,6 +122,7 @@ export function BroadcastClient() {
       toast.success(`Annonce envoyée à ${fmt(res.count)} destinataire(s)`)
       setTitle(""); setContent(""); setLink("")
       setConfirmOpen(false)
+      loadHistory()
     } catch {
       toast.error("Erreur de connexion")
     } finally {
@@ -97,6 +151,25 @@ export function BroadcastClient() {
       <div className="grid lg:grid-cols-[1fr_320px] gap-6 items-start">
         {/* Formulaire */}
         <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-5">
+          {/* Templates */}
+          <div>
+            <label className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500">
+              <Sparkles className="h-3.5 w-3.5 text-[#013ff4]" /> Modèles
+            </label>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {TEMPLATES.map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => applyTemplate(t)}
+                  className="text-xs font-semibold px-3 py-1.5 rounded-full border border-slate-200 text-slate-600 hover:border-[#013ff4] hover:text-[#013ff4] hover:bg-[#013ff4]/5 transition-colors"
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Segment */}
           <div>
             <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Destinataires</label>
@@ -163,9 +236,20 @@ export function BroadcastClient() {
             <input
               value={link}
               onChange={(e) => setLink(e.target.value)}
-              placeholder="/creer-profil ou https://…"
-              className="mt-2 w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#013ff4]/30"
+              list="broadcast-internal-routes"
+              placeholder="/premium ou https://…"
+              className={`mt-2 w-full px-4 py-2.5 bg-slate-50 border rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 ${
+                linkErr ? "border-red-300 focus:ring-red-300/40" : "border-slate-200 focus:ring-[#013ff4]/30"
+              }`}
             />
+            <datalist id="broadcast-internal-routes">
+              {INTERNAL_ROUTES.map((r) => <option key={r} value={r} />)}
+            </datalist>
+            {linkErr && (
+              <p className="flex items-center gap-1 text-[11px] font-semibold text-red-500 mt-1.5">
+                <XCircle className="h-3 w-3" /> {linkErr}
+              </p>
+            )}
           </div>
 
           <div className="flex justify-end pt-1">
@@ -207,6 +291,56 @@ export function BroadcastClient() {
             Tel qu&apos;affiché dans les notifications in-app. Chaque envoi est enregistré dans le journal d&apos;audit.
           </p>
         </aside>
+      </div>
+
+      {/* Historique des annonces (P1 #2) */}
+      <div>
+        <h2 className="flex items-center gap-2 text-sm font-bold text-slate-700 mb-3">
+          <History className="h-4 w-4 text-slate-400" /> Dernières annonces
+        </h2>
+        {history.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-slate-200 p-6 text-center text-sm text-slate-400">
+            Aucune annonce envoyée pour le moment.
+          </div>
+        ) : (
+          <ul className="divide-y divide-slate-100 rounded-2xl border border-slate-200 bg-white overflow-hidden">
+            {history.map((h) => {
+              const d = h.details as { title?: string; segment?: string; count?: number; total?: number; partial?: boolean; broadcast_id?: string }
+              const seg = d.segment ? (SEGMENT_LABEL[d.segment] ?? d.segment) : "—"
+              const sent = d.count ?? 0
+              const read = d.broadcast_id ? readCounts[d.broadcast_id] : undefined
+              const rate = read !== undefined && sent > 0 ? Math.round((read / sent) * 100) : undefined
+              return (
+                <li key={h.id} className="flex items-start gap-3 p-4">
+                  <div className="w-8 h-8 rounded-lg bg-[#013ff4]/10 flex items-center justify-center shrink-0">
+                    <Megaphone className="h-4 w-4 text-[#013ff4]" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-bold text-slate-900 truncate">{d.title || "(sans titre)"}</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      {timeAgo(h.created_at)} · {seg}
+                      {h.admin_email ? ` · ${h.admin_email}` : ""}
+                    </p>
+                    {rate !== undefined && (
+                      <div className="flex items-center gap-2 mt-1.5">
+                        <div className="h-1.5 w-24 rounded-full bg-slate-100 overflow-hidden">
+                          <div className="h-full rounded-full bg-[#013ff4]" style={{ width: `${rate}%` }} />
+                        </div>
+                        <span className="text-[10px] font-bold text-slate-500">{rate}% lu ({fmt(read ?? 0)}/{fmt(sent)})</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="text-right shrink-0">
+                    <span className={`text-xs font-bold ${d.partial ? "text-amber-600" : "text-emerald-600"}`}>
+                      {fmt(sent)}{d.total !== undefined && d.total !== sent ? `/${fmt(d.total)}` : ""}
+                    </span>
+                    <p className="text-[10px] text-slate-400">{d.partial ? "partiel" : "envoyés"}</p>
+                  </div>
+                </li>
+              )
+            })}
+          </ul>
+        )}
       </div>
 
       {/* Modale de confirmation — portée + aperçu */}

@@ -1515,7 +1515,9 @@ export async function broadcastAnnouncement(input: {
   if (!total) return { success: false, count: 0, total: 0, error: "Aucun destinataire pour ce segment" }
 
   const link = input.link?.trim() || null
-  const rows = userIds.map((uid) => ({ user_id: uid, type: "admin", title, content, link }))
+  // Identifiant de campagne : corrèle l'annonce à ses notifications (taux de lecture).
+  const broadcastId = crypto.randomUUID()
+  const rows = userIds.map((uid) => ({ user_id: uid, type: "admin", title, content, link, broadcast_id: broadcastId }))
 
   // Insertion par lots pour éviter les payloads trop volumineux. En cas d'échec au
   // milieu, on remonte le nombre réellement envoyé (échec partiel explicite).
@@ -1534,13 +1536,34 @@ export async function broadcastAnnouncement(input: {
     action: "broadcast",
     targetType: "segment",
     targetLabel: `${input.segment} · ${sent}/${total} destinataire(s)`,
-    details: { title, segment: input.segment, count: sent, total, partial: sent < total },
+    details: { title, segment: input.segment, count: sent, total, partial: sent < total, broadcast_id: broadcastId },
   })
 
   if (sendError) {
     return { success: false, count: sent, total, error: `Échec partiel : ${sent}/${total} notifiés. ${sendError}` }
   }
   return { success: true, count: sent, total }
+}
+
+/** Nombre de notifications LUES par campagne (broadcast_id) → taux de lecture. */
+export async function getBroadcastReadCounts(broadcastIds: string[]): Promise<Record<string, number>> {
+  const ids = Array.from(new Set(broadcastIds.filter(Boolean)))
+  if (!ids.length) return {}
+  const supabase = await createAdminClient()
+  const admin = await requireAdminSession()
+  if (!admin) return {}
+
+  const entries = await Promise.all(
+    ids.map(async (id) => {
+      const { count } = await supabase
+        .from("notifications")
+        .select("id", { count: "exact", head: true })
+        .eq("broadcast_id", id)
+        .eq("is_read", true)
+      return [id, count ?? 0] as const
+    }),
+  )
+  return Object.fromEntries(entries)
 }
 
 // ============================================================
