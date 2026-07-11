@@ -10,7 +10,7 @@
 
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { motion } from "framer-motion"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { AnnuaireCard } from "./annuaire-card"
@@ -34,13 +34,90 @@ interface AnnuaireGridProps {
     theme?: "default" | "red" | "orange"
 }
 
+// Nombre de cartes par ligne défilante avant passage à la ligne suivante.
+const ROW_SIZE = 10
+
+/** Ligne horizontale défilante de profils avec flèches de contrôle. */
+function ProfileRow({ profiles, theme }: { profiles: PublicProfile[]; theme: "default" | "red" | "orange" }) {
+    const scrollRef = useRef<HTMLDivElement>(null)
+    const [canScrollLeft, setCanScrollLeft] = useState(false)
+    const [canScrollRight, setCanScrollRight] = useState(false)
+
+    const updateArrows = useCallback(() => {
+        const el = scrollRef.current
+        if (!el) return
+        setCanScrollLeft(el.scrollLeft > 4)
+        setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 4)
+    }, [])
+
+    useEffect(() => {
+        updateArrows()
+        window.addEventListener("resize", updateArrows)
+        return () => window.removeEventListener("resize", updateArrows)
+    }, [updateArrows, profiles.length])
+
+    const scrollByCards = (direction: 1 | -1) => {
+        const el = scrollRef.current
+        if (!el) return
+        el.scrollBy({ left: direction * el.clientWidth * 0.9, behavior: "smooth" })
+    }
+
+    return (
+        <div className="relative group">
+            {/* Flèche gauche */}
+            {canScrollLeft && (
+                <button
+                    type="button"
+                    aria-label="Faire défiler vers la gauche"
+                    onClick={() => scrollByCards(-1)}
+                    className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 z-20 w-10 h-10 rounded-full bg-white shadow-lg border border-slate-200 flex items-center justify-center text-slate-600 hover:text-slate-900 hover:scale-105 transition-all"
+                >
+                    <ChevronLeft className="w-5 h-5" />
+                </button>
+            )}
+
+            {/* Piste défilante */}
+            <div
+                ref={scrollRef}
+                onScroll={updateArrows}
+                className="flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+                {profiles.map((profile, index) => (
+                    <motion.div
+                        key={profile.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, delay: Math.min(index, 8) * 0.04 }}
+                        className="w-[260px] sm:w-[280px] shrink-0 snap-start"
+                    >
+                        <AnnuaireCard profile={profile} theme={theme} />
+                    </motion.div>
+                ))}
+            </div>
+
+            {/* Flèche droite */}
+            {canScrollRight && (
+                <button
+                    type="button"
+                    aria-label="Faire défiler vers la droite"
+                    onClick={() => scrollByCards(1)}
+                    className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-20 w-10 h-10 rounded-full bg-white shadow-lg border border-slate-200 flex items-center justify-center text-slate-600 hover:text-slate-900 hover:scale-105 transition-all"
+                >
+                    <ChevronRight className="w-5 h-5" />
+                </button>
+            )}
+        </div>
+    )
+}
+
 export function AnnuaireGrid({ filters, initialProfiles = [], onlyPremium = false, theme = "default" }: AnnuaireGridProps) {
     const [profiles, setProfiles] = useState<PublicProfile[]>(initialProfiles)
     const [loading, setLoading] = useState(false)
     const [isFirstRender, setIsFirstRender] = useState(true)
     const [page, setPage] = useState(1)
     const [totalCount, setTotalCount] = useState(initialProfiles.length)
-    const limit = 24
+    // Multiple de ROW_SIZE : chaque page affiche des lignes complètes de 10 cartes.
+    const limit = 30
 
     // Reset page on filter change
     useEffect(() => {
@@ -169,19 +246,14 @@ export function AnnuaireGrid({ filters, initialProfiles = [], onlyPremium = fals
 
     return (
         <div className="space-y-8">
-            {/* Grille verticale responsive (fini les carrousels horizontaux) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full">
-                {profiles.map((profile, index) => (
-                    <motion.div
-                        key={profile.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.4, delay: Math.min(index, 8) * 0.04 }}
-                    >
-                        <AnnuaireCard profile={profile} theme={theme} />
-                    </motion.div>
-                ))}
-            </div>
+            {/* Lignes horizontales défilantes : ROW_SIZE cartes par ligne, puis passage à la ligne suivante */}
+            {Array.from({ length: Math.ceil(profiles.length / ROW_SIZE) }, (_, rowIndex) => (
+                <ProfileRow
+                    key={`row-${rowIndex}-${profiles[rowIndex * ROW_SIZE]?.id ?? rowIndex}`}
+                    profiles={profiles.slice(rowIndex * ROW_SIZE, (rowIndex + 1) * ROW_SIZE)}
+                    theme={theme}
+                />
+            ))}
 
             {/* Pagination Controls */}
             {totalPages > 1 && (
