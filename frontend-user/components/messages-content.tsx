@@ -30,6 +30,7 @@ import {
 
 import { ChatSidebar } from "./messages/chat-sidebar"
 import { NewGroupModal } from "./messages/new-group-modal"
+import { GroupInfoPanel } from "./messages/group-info-panel"
 import { MessageList } from "./messages/message-list"
 import { MessageInput } from "./messages/message-input"
 import { MediationDialog } from "./messages/mediation-dialog"
@@ -56,6 +57,29 @@ export function MessagesContent() {
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [selectedConv, setSelectedConv] = useState<Conversation | null>(null)
   const [showNewGroup, setShowNewGroup] = useState(false)
+  const [groupPanelOpen, setGroupPanelOpen] = useState(false)
+
+  // Synchro locale des méta du groupe (nom/description/nb membres) éditées dans le panneau.
+  const handleGroupUpdated = useCallback((patch: Partial<Conversation>) => {
+    setSelectedConv((prev) => (prev ? { ...prev, ...patch } : prev))
+    setConversations((prev) => prev.map((c) => {
+      if (!selectedConv || c.id !== selectedConv.id) return c
+      const next = { ...c, ...patch }
+      // Le groupe est rendu via other_participant (compat) : refléter le nom.
+      if (patch.name && next.other_participant) {
+        next.other_participant = { ...next.other_participant, first_name: patch.name }
+      }
+      return next
+    }))
+  }, [selectedConv])
+
+  // L'utilisateur a quitté / supprimé le groupe : on le retire de la liste et on ferme.
+  const handleGroupLeft = useCallback((conversationId: string) => {
+    setConversations((prev) => prev.filter((c) => c.id !== conversationId))
+    setSelectedConv((prev) => (prev?.id === conversationId ? null : prev))
+    setShowChatMobile(false)
+    router.push("/messages", { scroll: false })
+  }, [router])
 
   const handleGroupCreated = async (groupId: string) => {
     try {
@@ -385,42 +409,54 @@ export function MessagesContent() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="md:hidden -ml-2 hover:bg-slate-100/50 h-8 w-8"
+                  className="md:hidden -ml-2 hover:bg-slate-100/50 h-8 w-8 text-slate-900 dark:text-white"
                   onClick={() => { setShowChatMobile(false); router.push("/messages", { scroll: false }) }}
                 >
-                  <ArrowLeft className="h-4 w-4" />
+                  <ArrowLeft className="h-4 w-4 text-slate-900 dark:text-white" />
                 </Button>
-                <div className="relative cursor-pointer group">
-                  <Avatar className="h-10 w-10 ring-2 ring-indigo-100 transition-transform group-hover:scale-105">
-                    <AvatarImage src={selectedConv.other_participant.avatar_url || "/profil/avatar.jpg"} />
-                    <AvatarFallback className="bg-gradient-to-br from-indigo-400 to-primary text-white font-bold text-sm">
-                      {selectedConv.other_participant.first_name[0]}
-                    </AvatarFallback>
-                  </Avatar>
-                  {!selectedConv.is_group && (
-                    <span className={cn(
-                      "absolute bottom-0 right-0 w-2.5 h-2.5 border-2 border-white rounded-full transition-colors",
-                      onlineUserIds.has(selectedConv.other_participant.user_id) ? "bg-emerald-500" : "bg-slate-300"
-                    )} />
+                {/* En-tête cliquable : ouvre le panneau d'info seulement pour un groupe. */}
+                <button
+                  type="button"
+                  disabled={!selectedConv.is_group}
+                  onClick={() => selectedConv.is_group && setGroupPanelOpen(true)}
+                  aria-label={selectedConv.is_group ? "Voir les informations du groupe" : undefined}
+                  className={cn(
+                    "flex items-center gap-3 text-left rounded-xl -m-1 p-1 transition-colors",
+                    selectedConv.is_group ? "cursor-pointer hover:bg-slate-100/60" : "cursor-default"
                   )}
-                </div>
-                <div>
-                  <h2 className="text-sm font-bold text-slate-800 leading-tight">
-                    {selectedConv.other_participant.first_name} {selectedConv.other_participant.last_name}
-                  </h2>
-                  {selectedConv.is_group ? (
-                    <span className="text-[11px] font-semibold text-slate-400">
-                      {(selectedConv.member_count ?? 0)} membre{(selectedConv.member_count ?? 0) > 1 ? "s" : ""}
-                    </span>
-                  ) : (
-                    <span className={cn(
-                      "text-[11px] font-semibold",
-                      onlineUserIds.has(selectedConv.other_participant.user_id) ? "text-emerald-600" : "text-slate-400"
-                    )}>
-                      {onlineUserIds.has(selectedConv.other_participant.user_id) ? "En ligne" : "Hors ligne"}
-                    </span>
-                  )}
-                </div>
+                >
+                  <div className="relative group">
+                    <Avatar className="h-10 w-10 ring-2 ring-indigo-100 transition-transform group-hover:scale-105">
+                      <AvatarImage src={selectedConv.other_participant.avatar_url || "/profil/avatar.jpg"} />
+                      <AvatarFallback className="bg-gradient-to-br from-indigo-400 to-primary text-white font-bold text-sm">
+                        {selectedConv.other_participant.first_name[0]}
+                      </AvatarFallback>
+                    </Avatar>
+                    {!selectedConv.is_group && (
+                      <span className={cn(
+                        "absolute bottom-0 right-0 w-2.5 h-2.5 border-2 border-white rounded-full transition-colors",
+                        onlineUserIds.has(selectedConv.other_participant.user_id) ? "bg-emerald-500" : "bg-slate-300"
+                      )} />
+                    )}
+                  </div>
+                  <div>
+                    <h2 className="text-sm font-bold text-slate-800 leading-tight">
+                      {selectedConv.other_participant.first_name} {selectedConv.other_participant.last_name}
+                    </h2>
+                    {selectedConv.is_group ? (
+                      <span className="text-[11px] font-semibold text-slate-400">
+                        {(selectedConv.member_count ?? 0)} membre{(selectedConv.member_count ?? 0) > 1 ? "s" : ""}
+                      </span>
+                    ) : (
+                      <span className={cn(
+                        "text-[11px] font-semibold",
+                        onlineUserIds.has(selectedConv.other_participant.user_id) ? "text-emerald-600" : "text-slate-400"
+                      )}>
+                        {onlineUserIds.has(selectedConv.other_participant.user_id) ? "En ligne" : "Hors ligne"}
+                      </span>
+                    )}
+                  </div>
+                </button>
               </div>
 
               <div className="flex items-center gap-0.5">
@@ -543,6 +579,17 @@ export function MessagesContent() {
         onOpenChange={setShowNewGroup}
         onCreated={handleGroupCreated}
       />
+
+      {selectedConv?.is_group && (
+        <GroupInfoPanel
+          open={groupPanelOpen}
+          onOpenChange={setGroupPanelOpen}
+          conversation={selectedConv}
+          currentUserId={currentUserId}
+          onGroupUpdated={handleGroupUpdated}
+          onLeft={handleGroupLeft}
+        />
+      )}
     </div>
   )
 }

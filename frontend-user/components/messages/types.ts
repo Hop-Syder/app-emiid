@@ -43,7 +43,25 @@ export interface Conversation {
   // ─── Groupes / communautés (Étape 2+) ───
   is_group?: boolean
   name?: string | null
+  description?: string | null
   avatar_url?: string | null
   is_community?: boolean
+  created_by?: string | null
   member_count?: number
+}
+
+export type GroupRole = "owner" | "admin" | "member"
+
+export interface GroupMember {
+  user_id: string
+  role: GroupRole
+  status: "joined" | "pending" | "left" | "banned"
+  joined_at: string | null
+  profile: {
+    user_id: string
+    first_name: string
+    last_name: string
+    avatar_url: string | null
+    role?: string | null
+  } | null
 }

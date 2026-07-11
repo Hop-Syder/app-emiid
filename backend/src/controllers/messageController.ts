@@ -667,8 +667,10 @@ export const getConversations = async (req: Request, res: Response) => {
                 return {
                     ...base,
                     name: conv.name,
+                    description: conv.description ?? null,
                     avatar_url: conv.avatar_url,
                     is_community: !!conv.is_community,
+                    created_by: conv.created_by ?? null,
                     member_count: conv.member_count ?? 0,
                     // Compat rendu : le frontend affiche other_participant (name/avatar).
                     // Un groupe est présenté comme un pseudo-interlocuteur (nom + avatar du groupe).
@@ -941,6 +943,14 @@ export const manageParticipant = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Action impossible sur soi-même' });
     }
 
+    // Protection du propriétaire : personne (même un admin) ne peut le retirer,
+    // le bannir ou le rétrograder. Seul le propriétaire lui-même reste intouchable.
+    const { data: target } = await (supabaseAdmin.from('conversation_participants' as never) as any)
+      .select('role').eq('conversation_id', id).eq('user_id', body.user_id).maybeSingle();
+    if (target?.role === 'owner') {
+      return res.status(403).json({ error: 'Le propriétaire du groupe ne peut pas être modifié.' });
+    }
+
     const patch: Record<string, unknown> = {};
     if (body.action === 'accept') { patch.status = 'joined'; patch.joined_at = new Date().toISOString(); }
     else if (body.action === 'remove') patch.status = 'left';
@@ -955,5 +965,93 @@ export const manageParticipant = async (req: Request, res: Response) => {
   } catch (err) {
     logger.error('Error managing participant', err);
     return res.status(500).json({ error: 'Erreur lors de la gestion du participant' });
+  }
+};
+
+// @desc  Modifier le nom / la description d'un groupe (owner ou admin)
+export const updateGroup = async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  if (!userId) return res.status(401).json({ error: 'Non authentifié' });
+
+  try {
+    const id = String(req.params.id);
+    const { body } = z.object({
+      body: z.object({
+        name: z.string().trim().min(2).max(80).optional(),
+        description: z.string().trim().max(500).nullable().optional(),
+      }),
+    }).parse(req);
+
+    const { data: caller } = await (supabaseAdmin.from('conversation_participants' as never) as any)
+      .select('role').eq('conversation_id', id).eq('user_id', userId).eq('status', 'joined').maybeSingle();
+    if (!caller || !['owner', 'admin'].includes(caller.role)) {
+      return res.status(403).json({ error: 'Action réservée aux administrateurs du groupe' });
+    }
+
+    const patch: Record<string, unknown> = {};
+    if (body.name !== undefined) patch.name = body.name;
+    if (body.description !== undefined) patch.description = body.description;
+    if (Object.keys(patch).length === 0) {
+      return res.status(400).json({ error: 'Aucune modification fournie' });
+    }
+
+    const { error } = await ((supabaseAdmin as any).from('conversations').update(patch).eq('id', id).eq('is_group', true));
+    if (error) throw error;
+
+    return res.json({ success: true });
+  } catch (err) {
+    logger.error('Error updating group', err);
+    return res.status(500).json({ error: 'Erreur lors de la mise à jour du groupe' });
+  }
+};
+
+// @desc  Ajouter des membres à un groupe (owner ou admin)
+export const addParticipants = async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  if (!userId) return res.status(401).json({ error: 'Non authentifié' });
+
+  try {
+    const id = String(req.params.id);
+    const { body } = z.object({
+      body: z.object({
+        member_ids: z.array(z.string().uuid()).min(1).max(50),
+      }),
+    }).parse(req);
+
+    const { data: caller } = await (supabaseAdmin.from('conversation_participants' as never) as any)
+      .select('role').eq('conversation_id', id).eq('user_id', userId).eq('status', 'joined').maybeSingle();
+    if (!caller || !['owner', 'admin'].includes(caller.role)) {
+      return res.status(403).json({ error: 'Action réservée aux administrateurs du groupe' });
+    }
+
+    // Membres déjà présents (pour réactiver ceux qui étaient partis / éviter les doublons)
+    const { data: existing } = await (supabaseAdmin.from('conversation_participants' as never) as any)
+      .select('user_id, status').eq('conversation_id', id);
+    const existingMap = new Map<string, string>((existing || []).map((p: any) => [p.user_id, p.status]));
+
+    const now = new Date().toISOString();
+    const toInsert: any[] = [];
+    for (const mid of body.member_ids) {
+      if (mid === userId) continue;
+      const status = existingMap.get(mid);
+      if (status === 'joined' || status === 'banned') continue;
+      if (status === 'left') {
+        // Réintégration
+        await (supabaseAdmin.from('conversation_participants' as never) as any)
+          .update({ status: 'joined', joined_at: now, invited_by: userId })
+          .eq('conversation_id', id).eq('user_id', mid);
+      } else {
+        toInsert.push({ conversation_id: id, user_id: mid, role: 'member', status: 'joined', joined_at: now, invited_by: userId });
+      }
+    }
+    if (toInsert.length > 0) {
+      const { error } = await (supabaseAdmin.from('conversation_participants' as never) as any).insert(toInsert);
+      if (error) throw error;
+    }
+
+    return res.json({ success: true, added: toInsert.length });
+  } catch (err) {
+    logger.error('Error adding participants', err);
+    return res.status(500).json({ error: 'Erreur lors de l\'ajout de membres' });
   }
 };

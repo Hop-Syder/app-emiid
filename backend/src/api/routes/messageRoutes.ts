@@ -24,6 +24,8 @@ import {
   getGroupMembers,
   leaveGroup,
   manageParticipant,
+  updateGroup,
+  addParticipants,
 } from '../../controllers/messageController';
 import { requireAuth, requireAdmin } from '../../middlewares/authMiddleware';
 import {
@@ -86,13 +88,17 @@ router.post('/send', sendMessage);
 router.post('/upload/:conversationId', upload.single('image'), uploadMessageImage);
 
 // ─── Groupes de discussion ───────────────────────────────────────────────────
-// @route   POST /api/messages/groups                     Créer un groupe
+// @route   POST  /api/messages/groups                    Créer un groupe
 router.post('/groups', createGroup);
-// @route   GET  /api/messages/groups/:id/members         Roster (membres)
+// @route   PATCH /api/messages/groups/:id                 Modifier nom / description (admin)
+router.patch('/groups/:id', updateGroup);
+// @route   GET   /api/messages/groups/:id/members         Roster (membres)
 router.get('/groups/:id/members', getGroupMembers);
-// @route   POST /api/messages/groups/:id/leave           Quitter le groupe
+// @route   POST  /api/messages/groups/:id/members         Ajouter des membres (admin)
+router.post('/groups/:id/members', addParticipants);
+// @route   POST  /api/messages/groups/:id/leave           Quitter le groupe
 router.post('/groups/:id/leave', leaveGroup);
-// @route   POST /api/messages/groups/:id/participant     Action admin sur un participant
+// @route   POST  /api/messages/groups/:id/participant     Action admin sur un participant
 router.post('/groups/:id/participant', manageParticipant);
 
 export default router;
