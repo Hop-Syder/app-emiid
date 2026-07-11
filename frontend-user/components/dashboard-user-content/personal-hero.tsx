@@ -12,7 +12,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Eye, Users, TrendingUp, TrendingDown, Crown, ArrowRight, Sparkles } from "lucide-react"
+import { Eye, Users, TrendingUp, TrendingDown, Crown, ArrowRight, Sparkles, MessageSquare } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useImpactStats } from "@/hooks/use-impact-stats"
 import { cn } from "@/lib/utils"
@@ -67,6 +67,7 @@ export function PersonalHero() {
   const supabase = createClient()
   const { stats } = useImpactStats()
   const [profile, setProfile] = useState<OwnProfile | null>(null)
+  const [unreadMsgs, setUnreadMsgs] = useState(0)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -75,12 +76,25 @@ export function PersonalHero() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { if (active) setLoading(false); return }
       // eslint-disable-next-line no-restricted-syntax -- accès authentifié à SA PROPRE ligne (RLS OK) pour la complétude
-      const { data } = await supabase
+      const profileReq = supabase
         .from("user_profiles")
         .select("avatar_url, bio, specialty, city, phone, website, role, category, is_premium")
         .eq("user_id", user.id)
         .maybeSingle()
-      if (active) { setProfile((data as OwnProfile) || null); setLoading(false) }
+      // Messages non lus = notifications de type 'message' non lues (alimentées par le webhook)
+      const msgReq = supabase
+        .from("notifications")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("type", "message")
+        .eq("is_read", false)
+
+      const [{ data }, { count }] = await Promise.all([profileReq, msgReq])
+      if (active) {
+        setProfile((data as OwnProfile) || null)
+        setUnreadMsgs(count ?? 0)
+        setLoading(false)
+      }
     })()
     return () => { active = false }
   }, [supabase])
@@ -145,6 +159,29 @@ export function PersonalHero() {
           <StatTile icon={Users} value={stats.totalFollowers} label="Abonnés" growth={stats.followersGrowthPercent} tone="bg-violet-500/10 text-violet-600" />
         </div>
       </div>
+
+      {/* Messages non lus — signal d'action prioritaire */}
+      {unreadMsgs > 0 && (
+        <Link
+          href="/messages"
+          className="mt-4 flex items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-[#013ff4]/[0.06] to-[#03b3f8]/[0.06] border border-[#013ff4]/20 px-4 py-3 hover:from-[#013ff4]/10 transition-colors group"
+        >
+          <span className="flex items-center gap-2.5 min-w-0">
+            <span className="relative shrink-0">
+              <MessageSquare className="h-5 w-5 text-[#013ff4]" />
+              <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full bg-rose-500 text-white text-[9px] font-black ring-2 ring-white">
+                {unreadMsgs > 9 ? "9+" : unreadMsgs}
+              </span>
+            </span>
+            <span className="text-sm font-bold text-slate-900 truncate">
+              Vous avez {unreadMsgs} message{unreadMsgs > 1 ? "s" : ""} non lu{unreadMsgs > 1 ? "s" : ""}
+            </span>
+          </span>
+          <span className="flex items-center gap-1 text-xs font-black text-[#013ff4] shrink-0">
+            Répondre <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
+          </span>
+        </Link>
+      )}
 
       {/* Upsell Premium contextuel */}
       {!isPremium && !loading && (
