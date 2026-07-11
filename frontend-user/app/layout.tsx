@@ -85,8 +85,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr" suppressHydrationWarning>
-      <head>
-        {/* Google Tag (gtag.js) */}
+      <body className="font-sans antialiased">
+        {/* Google Analytics 4 — via next/script (afterInteractive), sans <head> manuel
+            afin de laisser la Metadata API de Next gérer entièrement le <head> (SEO). */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-KYGF0JWYZE"
           strategy="afterInteractive"
@@ -99,8 +100,6 @@ export default function RootLayout({
             gtag('config', 'G-KYGF0JWYZE');
           `}
         </Script>
-      </head>
-      <body className="font-sans antialiased">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           {children}
           <Analytics />

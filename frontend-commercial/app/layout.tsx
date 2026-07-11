@@ -78,8 +78,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr" className="scroll-smooth" suppressHydrationWarning>
-      <head>
-        {/* Google Tag (gtag.js) */}
+      <body className={`${inter.variable} font-sans antialiased bg-background text-foreground`}>
+        {/* Google Analytics 4 — via next/script (hors <head> manuel, laisse la
+            Metadata API gérer le <head> SEO). */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-KYGF0JWYZE"
           strategy="afterInteractive"
@@ -93,7 +94,7 @@ export default function RootLayout({
           `}
         </Script>
 
-        {/* Données structurées — Organization + WebSite */}
+        {/* Données structurées — Organization + WebSite (valides en body pour Google) */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -119,8 +120,7 @@ export default function RootLayout({
             }).replace(/</g, "\\u003c"),
           }}
         />
-      </head>
-      <body className={`${inter.variable} font-sans antialiased bg-background text-foreground`}>
+
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <Header />
           {children}
