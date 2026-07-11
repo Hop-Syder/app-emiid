@@ -3,7 +3,7 @@
 import { EmiIDProfileCard } from "@/components/carte-profil/emiid-profile-card"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { useCurrentUserProfile } from "@/hooks/use-current-user-profile"
 
@@ -33,6 +33,9 @@ export function AnnuaireCard({ profile, theme = 'default' }: AnnuaireCardProps) 
     const { session } = useCurrentUserProfile()
     const [isFollowed, setIsFollowed] = useState(!!profile.isFollowed)
     const [followersCount, setFollowersCount] = useState(profile.followers)
+    // Ref miroir de isFollowed pour le guard de synchro globale (évite le double-comptage).
+    const isFollowedRef = useRef(!!profile.isFollowed)
+    useEffect(() => { isFollowedRef.current = isFollowed }, [isFollowed])
 
     // Synchronisation de l'état local avec les props (important pour le premier chargement)
     useEffect(() => {
@@ -42,6 +45,19 @@ export function AnnuaireCard({ profile, theme = 'default' }: AnnuaireCardProps) 
     useEffect(() => {
         setFollowersCount(profile.followers)
     }, [profile.followers])
+
+    // Synchro temps réel : écoute les changements de suivi émis ailleurs dans l'app.
+    useEffect(() => {
+        const handler = (e: Event) => {
+            const { userId, followed } = (e as CustomEvent).detail || {}
+            if (userId !== profile.id || isFollowedRef.current === followed) return
+            isFollowedRef.current = followed
+            setIsFollowed(followed)
+            setFollowersCount((c) => (followed ? c + 1 : Math.max(0, c - 1)))
+        }
+        window.addEventListener("emiid-follow-toggle", handler)
+        return () => window.removeEventListener("emiid-follow-toggle", handler)
+    }, [profile.id])
 
     const handleAction = async (type: 'message' | 'follow' | 'view') => {
         if (type === 'view') {
@@ -70,8 +86,13 @@ export function AnnuaireCard({ profile, theme = 'default' }: AnnuaireCardProps) 
                 const res = await fetchWithAuth(`/api/users/follow/${profile.id}`, { method: 'POST' })
                 if (res.ok) {
                     const data = await res.json()
+                    isFollowedRef.current = data.followed
                     setIsFollowed(data.followed)
                     setFollowersCount(prev => data.followed ? prev + 1 : Math.max(0, prev - 1))
+                    // Propage le changement aux autres surfaces (dashboard, page profil…)
+                    window.dispatchEvent(new CustomEvent("emiid-follow-toggle", {
+                        detail: { userId: profile.id, followed: data.followed },
+                    }))
                     toast.success(data.followed ? "Abonnement effectué" : "Désabonné avec succès")
                 } else {
                     toast.error("Impossible de suivre ce membre pour le moment")

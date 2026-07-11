@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import dynamic from "next/dynamic"
 import { useRouter } from "next/navigation"
 import {
@@ -76,7 +76,25 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
         handleReportSubmit,
         handleBlock,
         handleCoverUpload,
-    } = useProfileActions(profile, profileUrl, { currentUserId, setProfile, setIsFollowed, setFollowersCount })
+    } = useProfileActions(profile, profileUrl, { currentUserId, setProfile })
+
+    // Synchro temps réel des suivis : la page profil est la source de vérité de son
+    // propre bouton (le hook émet, on écoute ici) + reflète les changements émis ailleurs.
+    const isFollowedRef = useRef(isFollowed)
+    useEffect(() => { isFollowedRef.current = isFollowed }, [isFollowed])
+    useEffect(() => {
+        const targetId = profile?.id
+        if (!targetId) return
+        const handler = (e: Event) => {
+            const { userId, followed } = (e as CustomEvent).detail || {}
+            if (userId !== targetId || isFollowedRef.current === followed) return
+            isFollowedRef.current = followed
+            setIsFollowed(followed)
+            setFollowersCount((c) => (followed ? c + 1 : Math.max(0, c - 1)))
+        }
+        window.addEventListener("emiid-follow-toggle", handler)
+        return () => window.removeEventListener("emiid-follow-toggle", handler)
+    }, [profile?.id, setIsFollowed, setFollowersCount])
 
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 16)

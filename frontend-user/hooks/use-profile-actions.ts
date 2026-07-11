@@ -10,14 +10,12 @@ import type { ProfileData } from "./use-profile-data"
 interface UseProfileActionsOptions {
     currentUserId: string | null
     setProfile: React.Dispatch<React.SetStateAction<ProfileData | null>>
-    setIsFollowed: React.Dispatch<React.SetStateAction<boolean>>
-    setFollowersCount: React.Dispatch<React.SetStateAction<number>>
 }
 
 export function useProfileActions(
     profile: ProfileData | null,
     profileUrl: string,
-    { currentUserId, setProfile, setIsFollowed, setFollowersCount }: UseProfileActionsOptions
+    { currentUserId, setProfile }: UseProfileActionsOptions
 ) {
     const router = useRouter()
     const [copiedLink, setCopiedLink] = useState<string | null>(null)
@@ -108,8 +106,13 @@ export function useProfileActions(
             const res = await fetchWithAuth(`/api/users/follow/${profile.id}`, { method: "POST" })
             if (res.ok) {
                 const data = await res.json()
-                setIsFollowed(data.followed)
-                setFollowersCount((prev) => (data.followed ? prev + 1 : prev - 1))
+                // Source de vérité unique : on émet l'événement global ; le listener de
+                // profile-detail-content met à jour isFollowed + followersCount (évite le double-comptage).
+                if (typeof window !== "undefined") {
+                    window.dispatchEvent(new CustomEvent("emiid-follow-toggle", {
+                        detail: { userId: profile.id, followed: data.followed },
+                    }))
+                }
                 toast.success(data.followed ? "Vous suivez ce membre" : "Abonnement retiré")
             } else {
                 toast.error("Veuillez vous connecter pour suivre ce membre")
@@ -119,7 +122,7 @@ export function useProfileActions(
         } finally {
             setFollowLoading(false)
         }
-    }, [profile, followLoading, setIsFollowed, setFollowersCount])
+    }, [profile, followLoading])
 
     const openReport = useCallback(() => {
         if (!currentUserId) {

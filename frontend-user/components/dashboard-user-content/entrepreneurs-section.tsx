@@ -39,6 +39,39 @@ export function EntrepreneursSection({ entrepreneursList, loading, variant = "te
         setProfiles(entrepreneursList)
     }, [entrepreneursList])
 
+    // [Étape 2] Synchro temps réel : maj de l'élément correspondant dans la liste.
+    // Le guard `!!p.isFollowed === followed` évite le double-comptage (émetteur déjà à jour).
+    useEffect(() => {
+        const handler = (e: Event) => {
+            const { userId, followed } = (e as CustomEvent).detail || {}
+            if (!userId) return
+            setProfiles((prev) => prev.map((p) =>
+                p.id !== userId || !!p.isFollowed === followed
+                    ? p
+                    : { ...p, isFollowed: followed, followers: followed ? p.followers + 1 : Math.max(0, p.followers - 1) }
+            ))
+        }
+        window.addEventListener("emiid-follow-toggle", handler)
+        return () => window.removeEventListener("emiid-follow-toggle", handler)
+    }, [])
+
+    // [Étape 3] Hydrater les suivis réels du dashboard au chargement client.
+    useEffect(() => {
+        if (!session) return
+        let active = true
+        ;(async () => {
+            try {
+                const res = await fetchWithAuth("/api/users/follows")
+                if (!res.ok) return
+                const follows = await res.json()
+                const followedIds = new Set((follows || []).map((f: { user_id?: string; id?: string }) => f.user_id || f.id))
+                if (!active) return
+                setProfiles((prev) => prev.map((p) => (followedIds.has(p.id) ? { ...p, isFollowed: true } : p)))
+            } catch { /* silencieux */ }
+        })()
+        return () => { active = false }
+    }, [session])
+
     const scroll = (direction: "left" | "right") => {
         if (scrollRef.current) {
             const { current } = scrollRef
@@ -79,6 +112,10 @@ export function EntrepreneursSection({ entrepreneursList, loading, variant = "te
                             isFollowed: data.followed,
                             followers: data.followed ? profile.followers + 1 : Math.max(0, profile.followers - 1),
                         }
+                    }))
+                    // Propage aux autres surfaces (annuaire, page profil…)
+                    window.dispatchEvent(new CustomEvent("emiid-follow-toggle", {
+                        detail: { userId: entrepreneurId, followed: data.followed },
                     }))
                     toast.success(data.followed ? "Abonnement effectué" : "Désabonné avec succès")
                 } else {
