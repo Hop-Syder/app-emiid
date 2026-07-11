@@ -8,7 +8,7 @@
 
 "use client"
 
-import { useState, useTransition } from "react"
+import { useState, useTransition, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Users,
@@ -36,7 +36,9 @@ import {
   UserCog,
   Flag,
   ScrollText,
-  Activity
+  Activity,
+  Unlock,
+  AlertTriangle,
 } from "lucide-react"
 import Image from "next/image"
 import {
@@ -45,6 +47,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import {
   getUsers,
   updateUserProfile,
@@ -74,6 +84,7 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
   const [users, setUsers] = useState(initialUsers)
   const [total, setTotal] = useState(initialTotal)
   const [search, setSearch] = useState("")
+  const [debouncedSearch, setDebouncedSearch] = useState("")
   const [roleFilter, setRoleFilter] = useState("all")
   const [countryFilter, setCountryFilter] = useState("all")
   const [statusFilter, setStatusFilter] = useState("all")
@@ -87,9 +98,18 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
   const [detailLoading, setDetailLoading] = useState(false)
   const [isPending, startTransition] = useTransition()
   const [isLoading, setIsLoading] = useState(false)
+  const isMounted = useRef(false)
 
   const limit = 10
   const totalPages = Math.ceil(total / limit)
+
+  // Effet de debounce pour la recherche
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search)
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [search])
 
   const fetchUsers = async (page: number = currentPage) => {
     setIsLoading(true)
@@ -109,6 +129,17 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
       setIsLoading(false)
     }
   }
+
+  // Actualiser automatiquement quand la recherche ou les filtres changent
+  useEffect(() => {
+    if (!isMounted.current) {
+      isMounted.current = true
+      return
+    }
+    startTransition(() => {
+      fetchUsers(1)
+    })
+  }, [debouncedSearch, roleFilter, countryFilter, statusFilter])
 
   const handleSearch = () => {
     startTransition(() => {
@@ -324,18 +355,18 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 tracking-tight">
+          <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
             Gestion des Utilisateurs
           </h1>
-          <p className="text-slate-500 text-sm mt-1">
-            Gerez les comptes et permissions des utilisateurs
+          <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
+            Gérez les comptes et permissions des utilisateurs
           </p>
         </div>
         <div className="flex items-center gap-3">
           <button 
             onClick={() => fetchUsers()}
             disabled={isLoading}
-            className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors disabled:opacity-50 cursor-pointer"
           >
             <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
             Actualiser
@@ -343,7 +374,7 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
           <button
             onClick={handleExport}
             disabled={isExporting}
-            className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors disabled:opacity-50 cursor-pointer"
           >
             {isExporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
             Exporter CSV
@@ -354,35 +385,35 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
         {stats.map((stat) => (
-          <div key={stat.label} className="bg-white p-4 rounded-xl border border-slate-100 flex items-center gap-4">
+          <div key={stat.label} className="bg-white dark:bg-slate-900/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800/80 flex items-center gap-4 shadow-sm">
             <div className={`w-2 h-10 rounded-full ${stat.color}`}></div>
             <div>
-              <p className="text-2xl font-bold text-slate-900">{stat.value}</p>
-              <p className="text-xs text-slate-500">{stat.label}</p>
+              <p className="text-2xl font-bold text-slate-900 dark:text-white">{stat.value}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">{stat.label}</p>
             </div>
           </div>
         ))}
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl border border-slate-100 p-4">
+      <div className="bg-white dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800/50 p-4 shadow-sm">
         <div className="flex flex-col lg:flex-row gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-slate-500" />
             <input
               type="text"
               placeholder="Rechercher par nom ou email..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border-none rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all outline-none"
+              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-transparent dark:border-slate-800 rounded-lg text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:bg-white dark:focus:bg-slate-900 focus:border-slate-200 dark:focus:border-slate-700 transition-all outline-none"
             />
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <select
               value={statusFilter}
-              onChange={(e) => { setStatusFilter(e.target.value); startTransition(() => fetchUsers(1)) }}
-              className="px-4 py-2.5 bg-slate-50 border-none rounded-lg text-sm font-medium text-slate-700 focus:ring-2 focus:ring-[#013ff4]/20 outline-none cursor-pointer"
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-transparent dark:border-slate-800 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-[#013ff4]/20 outline-none cursor-pointer"
             >
               <option value="all">Tous les statuts</option>
               <option value="published">Publiés</option>
@@ -394,8 +425,8 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
             </select>
             <select
               value={countryFilter}
-              onChange={(e) => { setCountryFilter(e.target.value); startTransition(() => fetchUsers(1)) }}
-              className="px-4 py-2.5 bg-slate-50 border-none rounded-lg text-sm font-medium text-slate-700 focus:ring-2 focus:ring-[#013ff4]/20 outline-none cursor-pointer max-w-[180px]"
+              onChange={(e) => setCountryFilter(e.target.value)}
+              className="px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-transparent dark:border-slate-800 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-[#013ff4]/20 outline-none cursor-pointer max-w-[180px]"
             >
               <option value="all">Tous les pays</option>
               {countries.map((c) => (
@@ -404,11 +435,8 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
             </select>
             <select
               value={roleFilter}
-              onChange={(e) => {
-                setRoleFilter(e.target.value)
-                startTransition(() => fetchUsers(1))
-              }}
-              className="px-4 py-2.5 bg-slate-50 border-none rounded-lg text-sm font-medium text-slate-700 focus:ring-2 focus:ring-[#013ff4]/20 outline-none cursor-pointer"
+              onChange={(e) => setRoleFilter(e.target.value)}
+              className="px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-transparent dark:border-slate-800 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-[#013ff4]/20 outline-none cursor-pointer"
             >
               <option value="all">Toutes les categories</option>
               <option value="Entrepreneur">Entrepreneurs</option>
@@ -416,13 +444,6 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
               <option value="Expert">Experts</option>
               <option value="Partenaire">Partenaires</option>
             </select>
-            <button
-              onClick={handleSearch}
-              disabled={isPending}
-              className="px-4 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50"
-            >
-              {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Rechercher"}
-            </button>
           </div>
         </div>
       </div>
@@ -476,13 +497,13 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
         )}
 
         {/* Table Header */}
-        <div className="hidden lg:grid lg:grid-cols-12 gap-4 px-6 py-3 bg-slate-50 border-b border-slate-100 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+        <div className="hidden lg:grid lg:grid-cols-12 gap-4 px-6 py-3 bg-slate-50 dark:bg-slate-900/80 border-b border-slate-100 dark:border-slate-800 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
           <div className="col-span-1 flex items-center">
             <input
               type="checkbox"
               checked={selectedUsers.length === users.length && users.length > 0}
               onChange={toggleSelectAll}
-              className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+              className="w-4 h-4 rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500 dark:bg-slate-900"
             />
           </div>
           <div className="col-span-3">Utilisateur</div>
@@ -492,27 +513,27 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
           <div className="col-span-2 text-right">Actions</div>
         </div>
 
-        {/* Table Body */}
-        <div className="divide-y divide-slate-50 relative">
+        {/* Table Body (Responsive Bento Cards & Rows) */}
+        <div className="divide-y divide-slate-50 dark:divide-slate-850 relative">
           {users.length > 0 ? (
             users.map((user) => (
               <div
                 key={user.id}
-                className="grid grid-cols-1 lg:grid-cols-12 gap-4 px-6 py-4 hover:bg-slate-50/50 transition-colors items-center"
+                className="flex flex-col lg:grid lg:grid-cols-12 gap-3 lg:gap-4 px-6 py-5 lg:py-4 hover:bg-slate-50/50 dark:hover:bg-slate-900/10 transition-colors items-start lg:items-center bg-white dark:bg-slate-900/30 lg:bg-transparent"
               >
-                {/* Checkbox */}
+                {/* Checkbox (Desktop only) */}
                 <div className="hidden lg:flex col-span-1 items-center">
                   <input
                     type="checkbox"
                     checked={selectedUsers.includes(user.id)}
                     onChange={() => toggleSelectUser(user.id)}
-                    className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                    className="w-4 h-4 rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500 dark:bg-slate-900"
                   />
                 </div>
 
                 {/* User Info */}
-                <div className="col-span-3 flex items-center gap-3">
-                  <div className="relative">
+                <div className="col-span-3 flex items-center gap-3 w-full lg:w-auto">
+                  <div className="relative shrink-0">
                     {user.avatar_url ? (
                       <Image
                         src={user.avatar_url}
@@ -528,193 +549,154 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
                       </div>
                     )}
                   </div>
-                  <div>
-                    <div className="flex items-center gap-1.5">
-                      <p className="text-sm font-semibold text-slate-900 flex items-center gap-1.5">
-                        {user.first_name || ""} {user.last_name || ""}
-                        {user.is_verified && <BadgeCheck className="h-4 w-4 text-blue-500" />}
-                        {user.is_premium && <Crown className="h-4 w-4 text-amber-500" />}
-                        {user.is_admin && <span title="Administrateur"><UserCog className="h-4 w-4 text-[#013ff4]" /></span>}
-                        {user.is_locked && <span title="Compte verrouillé (PIN)"><ShieldX className="h-4 w-4 text-red-500" /></span>}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <p className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-1.5 flex-wrap min-w-0">
+                        <span className="truncate">{user.first_name || ""} {user.last_name || ""}</span>
+                        {user.is_verified && <BadgeCheck className="h-4 w-4 text-blue-500 shrink-0" />}
+                        {user.is_premium && <Crown className="h-4 w-4 text-amber-500 shrink-0" />}
+                        {user.is_admin && <span title="Administrateur"><UserCog className="h-4 w-4 text-[#013ff4] shrink-0" /></span>}
+                        {user.is_locked && <span title="Compte verrouillé (PIN)"><ShieldX className="h-4 w-4 text-red-500 shrink-0" /></span>}
                       </p>
-                      {user.has_profile && !user.is_verified && <BadgeCheck className="h-4 w-4 text-slate-300" />}
+                      {user.has_profile && !user.is_verified && <BadgeCheck className="h-4 w-4 text-slate-350 dark:text-slate-650 shrink-0" />}
                       {user.is_suspended && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-orange-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-orange-700">
-                          <Ban className="h-3 w-3" /> Suspendu
+                        <span className="inline-flex items-center gap-1 rounded bg-orange-100 dark:bg-orange-950/20 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-orange-700 dark:text-orange-500 shrink-0">
+                          <Ban className="h-2.5 w-2.5" /> Suspendu
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-slate-500">{user.email || "Pas d'email"}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{user.email || "Pas d'email"}</p>
                   </div>
                 </div>
 
-                {/* Category */}
-                <div className="col-span-2">
+                {/* Category (Responsive Badge row) */}
+                <div className="col-span-2 mt-1 lg:mt-0 w-full lg:w-auto flex items-center justify-between lg:block">
+                  <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase lg:hidden">Catégorie</span>
                   <span className={`text-xs px-2.5 py-1 rounded-lg font-semibold ${
                     user.category === "Investisseur" 
-                      ? "bg-emerald-50 text-emerald-600" 
+                      ? "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-500" 
                       : user.category === "Expert"
-                      ? "bg-violet-50 text-violet-600"
-                      : "bg-blue-50 text-blue-600"
+                      ? "bg-violet-50 dark:bg-violet-950/20 text-violet-600 dark:text-violet-500"
+                      : "bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-500"
                   }`}>
-                    {user.category || "Non defini"}
+                    {user.category || "Non défini"}
                   </span>
                 </div>
 
                 {/* Country */}
-                <div className="col-span-2 flex items-center gap-1.5 text-sm text-slate-500">
-                  <MapPin className="h-3.5 w-3.5" />
-                  <span className="truncate">{getCountryName(user.country_id)}</span>
+                <div className="col-span-2 mt-1 lg:mt-0 w-full lg:w-auto flex items-center justify-between lg:flex lg:items-center lg:gap-1.5 text-sm text-slate-500 dark:text-slate-400">
+                  <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase lg:hidden font-sans">Pays</span>
+                  <div className="flex items-center gap-1.5">
+                    <MapPin className="h-3.5 w-3.5 text-slate-400" />
+                    <span className="truncate">{getCountryName(user.country_id)}</span>
+                  </div>
                 </div>
 
                 {/* Status */}
-                <div className="col-span-2">
+                <div className="col-span-2 mt-1 lg:mt-0 w-full lg:w-auto flex items-center justify-between lg:block">
+                  <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase lg:hidden">Statut</span>
                   <span className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg font-semibold ${
                     user.is_published 
-                      ? "bg-emerald-50 text-emerald-600" 
-                      : "bg-amber-50 text-amber-600"
+                      ? "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-500" 
+                      : "bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-500"
                   }`}>
                     <span className={`w-1.5 h-1.5 rounded-full ${
                       user.is_published ? "bg-emerald-500" : "bg-amber-500"
                     }`}></span>
-                    {user.is_published ? "Publie" : "En attente"}
+                    {user.is_published ? "Publié" : "En attente"}
                   </span>
                 </div>
 
-                {/* Actions */}
-                <div className="col-span-2 flex items-center justify-end gap-2">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        onClick={() => openUserDetail(user)}
-                        className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
-                      >
-                        <Eye className="h-4 w-4 text-slate-400" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Voir détails</p>
-                    </TooltipContent>
-                  </Tooltip>
+                {/* Actions Dropdown */}
+                <div className="col-span-2 mt-3 lg:mt-0 w-full lg:w-auto flex items-center justify-end gap-2 border-t lg:border-t-0 pt-3 lg:pt-0 border-slate-100 dark:border-slate-800 shrink-0">
+                  <button
+                    onClick={() => openUserDetail(user)}
+                    className="px-3.5 py-2 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 border border-slate-200/30 dark:border-slate-700/50"
+                  >
+                    <Eye className="h-4 w-4" />
+                    <span>Détails</span>
+                  </button>
 
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button 
-                        onClick={() => handleToggleVerified(user.id, user.is_verified || false)}
-                        className="p-2 hover:bg-slate-100 rounded-lg transition-colors" 
-                      >
-                        {user.is_verified ? (
-                          <BadgeCheck className="h-4 w-4 text-blue-500" />
-                        ) : (
-                          <BadgeCheck className="h-4 w-4 text-slate-300" />
-                        )}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-all cursor-pointer text-slate-500 dark:text-slate-400 border border-transparent hover:border-slate-200/30 dark:hover:border-slate-700/30 active:scale-95">
+                        <MoreHorizontal className="h-4 w-4" />
                       </button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{user.is_verified ? "Révoquer la vérification" : "Vérifier l'identité"}</p>
-                    </TooltipContent>
-                  </Tooltip>
-
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button 
-                        onClick={() => handleTogglePremium(user.id, user.is_premium || false)}
-                        className="p-2 hover:bg-slate-100 rounded-lg transition-colors" 
-                      >
-                        {user.is_premium ? (
-                          <Crown className="h-4 w-4 text-amber-500" />
-                        ) : (
-                          <Crown className="h-4 w-4 text-slate-300" />
-                        )}
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{user.is_premium ? "Retirer statut Premium" : "Passer en Premium"}</p>
-                    </TooltipContent>
-                  </Tooltip>
-
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button 
-                        onClick={() => handleTogglePublished(user.id, user.is_published || false)}
-                        className="p-2 hover:bg-slate-100 rounded-lg transition-colors" 
-                      >
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-52 bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-2xl p-1.5 shadow-xl">
+                      <DropdownMenuLabel className="text-[9px] font-bold text-slate-400 dark:text-slate-500 px-2.5 py-1.5 uppercase tracking-wider">
+                        Visibilité & Badges
+                      </DropdownMenuLabel>
+                      
+                      <DropdownMenuItem onClick={() => handleTogglePublished(user.id, user.is_published || false)} className="flex items-center gap-2 text-xs font-semibold px-2.5 py-2 rounded-xl cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200">
                         {user.is_published ? (
-                          <ShieldX className="h-4 w-4 text-amber-500" />
+                          <>
+                            <ShieldX className="h-4 w-4 text-amber-500 shrink-0" />
+                            <span>Dépublier la fiche</span>
+                          </>
                         ) : (
-                          <ShieldCheck className="h-4 w-4 text-emerald-500" />
+                          <>
+                            <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
+                            <span>Publier la fiche</span>
+                          </>
                         )}
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{user.is_published ? "Dépublier" : "Publier"}</p>
-                    </TooltipContent>
-                  </Tooltip>
+                      </DropdownMenuItem>
 
-                  {user.is_suspended ? (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button
-                          onClick={() => handleReactivate(user.id)}
-                          className="p-2 hover:bg-emerald-50 rounded-lg transition-colors"
-                        >
-                          <RotateCcw className="h-4 w-4 text-emerald-500" />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Réactiver le compte</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  ) : (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button
-                          onClick={() => handleSuspend(user.id)}
-                          className="p-2 hover:bg-orange-50 rounded-lg transition-colors"
-                        >
-                          <Ban className="h-4 w-4 text-slate-400 hover:text-orange-500" />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Suspendre le compte</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  )}
+                      <DropdownMenuItem onClick={() => handleToggleVerified(user.id, user.is_verified || false)} className="flex items-center gap-2 text-xs font-semibold px-2.5 py-2 rounded-xl cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200">
+                        <BadgeCheck className="h-4 w-4 text-blue-500 shrink-0" />
+                        <span>{user.is_verified ? "Retirer badge bleu" : "Certifier (badge bleu)"}</span>
+                      </DropdownMenuItem>
 
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        onClick={() => handleToggleAdmin(user.id, user.is_admin || false)}
-                        className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
-                      >
-                        <UserCog className={`h-4 w-4 ${user.is_admin ? "text-[#013ff4]" : "text-slate-300"}`} />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{user.is_admin ? "Révoquer le rôle admin" : "Promouvoir administrateur"}</p>
-                    </TooltipContent>
-                  </Tooltip>
+                      <DropdownMenuItem onClick={() => handleTogglePremium(user.id, user.is_premium || false)} className="flex items-center gap-2 text-xs font-semibold px-2.5 py-2 rounded-xl cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200">
+                        <Crown className="h-4 w-4 text-amber-500 shrink-0" />
+                        <span>{user.is_premium ? "Retirer statut Premium" : "Passer Premium"}</span>
+                      </DropdownMenuItem>
 
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        onClick={() => handleDeleteUser(user.id)}
-                        className="p-2 hover:bg-rose-50 rounded-lg transition-colors"
-                      >
-                        <Trash2 className="h-4 w-4 text-slate-400 hover:text-rose-500" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Supprimer</p>
-                    </TooltipContent>
-                  </Tooltip>
+                      <DropdownMenuSeparator className="bg-slate-100 dark:bg-slate-800 my-1" />
+                      
+                      <DropdownMenuLabel className="text-[9px] font-bold text-slate-400 dark:text-slate-500 px-2.5 py-1.5 uppercase tracking-wider">
+                        Sécurité & Rôles
+                      </DropdownMenuLabel>
+
+                      <DropdownMenuItem onClick={() => handleToggleAdmin(user.id, user.is_admin || false)} className="flex items-center gap-2 text-xs font-semibold px-2.5 py-2 rounded-xl cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200">
+                        <UserCog className="h-4 w-4 text-slate-500 shrink-0" />
+                        <span>{user.is_admin ? "Révoquer l'accès Admin" : "Promouvoir Admin"}</span>
+                      </DropdownMenuItem>
+
+                      {user.is_locked && (
+                        <DropdownMenuItem onClick={() => handleUnlockUserPin(user.id)} className="flex items-center gap-2 text-xs font-semibold px-2.5 py-2 rounded-xl cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200">
+                          <Unlock className="h-4 w-4 text-green-500 shrink-0" />
+                          <span>Débloquer PIN</span>
+                        </DropdownMenuItem>
+                      )}
+
+                      {user.is_suspended ? (
+                        <DropdownMenuItem onClick={() => handleReactivate(user.id)} className="flex items-center gap-2 text-xs font-semibold px-2.5 py-2 rounded-xl cursor-pointer hover:bg-emerald-50 dark:hover:bg-emerald-950/20 text-emerald-600">
+                          <RotateCcw className="h-4 w-4 text-emerald-500 shrink-0" />
+                          <span>Réactiver le compte</span>
+                        </DropdownMenuItem>
+                      ) : (
+                        <DropdownMenuItem onClick={() => handleSuspend(user.id)} className="flex items-center gap-2 text-xs font-semibold px-2.5 py-2 rounded-xl cursor-pointer hover:bg-rose-50 dark:hover:bg-rose-950/20 text-rose-600">
+                          <Ban className="h-4 w-4 text-rose-500 shrink-0" />
+                          <span>Suspendre le compte</span>
+                        </DropdownMenuItem>
+                      )}
+
+                      <DropdownMenuSeparator className="bg-slate-100 dark:bg-slate-800 my-1" />
+
+                      <DropdownMenuItem onClick={() => handleDeleteUser(user.id)} className="flex items-center gap-2 text-xs font-bold px-2.5 py-2 rounded-xl cursor-pointer hover:bg-rose-50 dark:hover:bg-rose-950/20 text-rose-600">
+                        <Trash2 className="h-4 w-4 text-rose-600 shrink-0" />
+                        <span>Supprimer</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
             ))
           ) : (
             <div className="py-12 text-center text-slate-400">
               <Users className="h-12 w-12 mx-auto mb-3 opacity-50" />
-              <p className="text-sm">Aucun utilisateur trouve</p>
+              <p className="text-sm">Aucun utilisateur trouvé</p>
             </div>
           )}
         </div>
@@ -729,9 +711,9 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
             <button 
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1 || isPending}
-              className="p-2 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50"
+              className="p-2 border border-slate-200 dark:border-slate-850 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors disabled:opacity-50 cursor-pointer"
             >
-              <ChevronLeft className="h-4 w-4 text-slate-500" />
+              <ChevronLeft className="h-4 w-4 text-slate-500 dark:text-slate-400" />
             </button>
             {Array.from({ length: Math.min(3, totalPages) }, (_, i) => {
               const page = i + 1
@@ -740,10 +722,10 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
                   key={page}
                   onClick={() => handlePageChange(page)}
                   disabled={isPending}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
+                  className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors cursor-pointer ${
                     currentPage === page
                       ? "bg-blue-600 text-white"
-                      : "hover:bg-slate-50 text-slate-500"
+                      : "hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400"
                   }`}
                 >
                   {page}
@@ -753,9 +735,9 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
             <button 
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages || isPending}
-              className="p-2 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50"
+              className="p-2 border border-slate-200 dark:border-slate-850 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors disabled:opacity-50 cursor-pointer"
             >
-              <ChevronRight className="h-4 w-4 text-slate-500" />
+              <ChevronRight className="h-4 w-4 text-slate-500 dark:text-slate-400" />
             </button>
           </div>
         </div>

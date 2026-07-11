@@ -139,49 +139,6 @@ export function DashboardBentoHeader({ stats, statsLoading }: DashboardBentoHead
 
                 </div>
             </motion.div>
-
-            {/* ── STATS ROW ───────────────────────────────────────────── */}
-            <motion.div
-                variants={itemVariants}
-                className="grid grid-cols-2 md:grid-cols-5 gap-3"
-            >
-                {statsLoading || !stats ? (
-                    Array.from({ length: 5 }).map((_, i) => (
-                        <div key={i} className="rounded-2xl bg-white/5 animate-pulse border border-white/5 h-[76px]" />
-                    ))
-                ) : (
-                    statsItems.map((stat, i) => (
-                        <motion.div
-                            key={i}
-                            whileHover={{ y: -3, scale: 1.01 }}
-                            transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                            className={`relative overflow-hidden rounded-2xl bg-[url('/dashboard/background-2.svg')] bg-cover bg-center border border-white/8 px-5 py-4 flex items-center gap-4 shadow-lg cursor-default group ring-1 ${stat.ring}`}
-                        >
-                            {/* Overlay dégradé inspiré du Hero */}
-                            <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-900/75 to-slate-900/10 pointer-events-none" />
-                            <div className="absolute bottom-0 inset-x-0 h-1/2 bg-gradient-to-t from-slate-950/60 to-transparent pointer-events-none" />
-
-                            {/* Glow au survol */}
-                            <div className={`absolute inset-0 opacity-5 group-hover:opacity-100 transition-opacity duration-500 ${stat.bg} blur-2xl scale-150`} />
-
-                            {/* Icône colorée */}
-                            <div className={`relative shrink-0 p-2 rounded-xl ${stat.bg} ${stat.color} ring-1 ${stat.ring}`}>
-                                <stat.icon className="w-4 h-4" />
-                            </div>
-
-                            {/* Chiffre + label colorés */}
-                            <div className="relative flex flex-col min-w-0">
-                                <span className={`text-2xl font-black tracking-tighter leading-none ${stat.color}`}>
-                                    {stat.value.toLocaleString()}
-                                </span>
-                                <span className={`text-[10px] font-semibold uppercase tracking-widest mt-0.5 truncate ${stat.color} opacity-60`}>
-                                    {stat.label}
-                                </span>
-                            </div>
-                        </motion.div>
-                    ))
-                )}
-            </motion.div>
         </motion.div>
     )
 }

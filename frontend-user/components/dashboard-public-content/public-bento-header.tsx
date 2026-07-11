@@ -109,44 +109,6 @@ export function PublicBentoHeader({ stats, statsLoading }: PublicBentoHeaderProp
                     </div>
                 </div>
             </motion.div>
-
-            {/* ── GRILLE DE STATISTIQUES (BENTO PILLS) ─────────────────── */}
-            <motion.div
-                variants={itemVariants}
-                className="grid grid-cols-2 lg:grid-cols-5 gap-3 w-full"
-            >
-                {statsLoading ? (
-                    Array.from({ length: 5 }).map((_, i) => (
-                        <div
-                            key={i}
-                            className="h-20 rounded-2xl bg-slate-900/40 border border-white/5 animate-pulse"
-                        />
-                    ))
-                ) : statsItems.length > 0 ? (
-                    statsItems.map((item, i) => (
-                        <div
-                            key={i}
-                            className="flex items-center gap-4 p-4 rounded-2xl bg-slate-950/40 backdrop-blur-md border border-white/5 shadow-sm group hover:border-white/10 transition-all duration-300"
-                        >
-                            <div className={`p-3 rounded-xl ${item.bg} ${item.color} shrink-0`}>
-                                <item.icon className="size-5" />
-                            </div>
-                            <div className="overflow-hidden">
-                                <div className="text-xl md:text-2xl font-black text-white leading-none tracking-tight font-satoshi">
-                                    {item.value}
-                                </div>
-                                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1 truncate">
-                                    {item.label}
-                                </div>
-                            </div>
-                        </div>
-                    ))
-                ) : (
-                    <div className="col-span-4 py-4 text-center text-xs text-slate-500 bg-slate-900/20 border border-dashed border-white/5 rounded-2xl">
-                        Statistiques temporairement indisponibles
-                    </div>
-                )}
-            </motion.div>
         </motion.div>
     )
 }
