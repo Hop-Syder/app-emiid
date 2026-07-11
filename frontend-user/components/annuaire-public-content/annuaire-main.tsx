@@ -15,6 +15,7 @@ import { motion } from "framer-motion"
 import { AnnuaireHero } from "./annuaire-hero"
 import { AnnuaireGrid } from "./annuaire-grid"
 import { AnnuaireSpotlight } from "./annuaire-spotlight"
+import { AnnuaireFilters } from "./annuaire-filters"
 
 interface AnnuairePublicContentProps {
     initialCategory?: string
@@ -69,6 +70,13 @@ export function AnnuairePublicContent({
             }
             return next
         })
+    }
+
+    const resetFilters = () => {
+        setFilters({ search: "", category: "all", country: "all", city: "", tags: "", status: "all", activity_domain: "all" })
+        if (typeof window !== "undefined") {
+            window.history.replaceState({}, "", window.location.pathname)
+        }
     }
 
     return (
@@ -131,6 +139,9 @@ export function AnnuairePublicContent({
                             </p>
                         </div>
                     </div>
+
+                    {/* --- BARRE DE FILTRES FACETTÉS --- */}
+                    <AnnuaireFilters filters={filters} onFilterChange={handleFilterChange} onReset={resetFilters} />
 
                     <div className="pt-4">
                         <AnnuaireGrid filters={filters} initialProfiles={initialProfiles} theme="default" />
