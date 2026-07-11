@@ -15,6 +15,7 @@ import { InlineActivityFeed } from "./inline-activity-feed"
 import { ProximitySection } from "./proximity-section"
 import { HubContextualCta } from "./hub-contextual-cta"
 import { HubCommunities } from "./hub-communities"
+import { PersonalHero } from "./personal-hero"
 
 interface DashboardHubContentProps {
   initialPremiumProfiles: PublicProfile[]
@@ -54,6 +55,14 @@ export function DashboardHubContent({
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full -mt-10 z-20 space-y-12 relative">
+
+        {/* =========================================
+            SECTION 1.5 : COCKPIT PERSONNEL
+            (complétude + preuve sociale + upsell — conversion)
+            ========================================= */}
+        <div className="w-full">
+          <PersonalHero />
+        </div>
 
         {/* =========================================
             SECTION 2 : ACTIVITÉ RÉCENTE (INLINE)
