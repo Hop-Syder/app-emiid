@@ -33,6 +33,16 @@ export const allowedOrigins = (() => {
 export function createApp(): Application {
   const app: Application = express()
 
+  // SÉCURITÉ : derrière un proxy (Railway/Vercel), Express doit faire confiance au
+  // header X-Forwarded-For pour reconstruire l'IP réelle du client. Sans cela,
+  // `req.ip` vaut l'IP du proxy pour TOUS les clients : les rate limiters
+  // (PIN, OTP, auth) partagent alors un seul compteur et la protection
+  // anti-brute-force devient inopérante. On limite la confiance au nombre de
+  // sauts de proxy (1 par défaut) pour empêcher l'usurpation d'IP via un XFF forgé.
+  const trustProxyEnv = (process.env.TRUST_PROXY || '').trim()
+  const trustProxyHops = Number.parseInt(trustProxyEnv, 10)
+  app.set('trust proxy', Number.isFinite(trustProxyHops) && trustProxyHops >= 0 ? trustProxyHops : 1)
+
   app.use(helmet())
   app.use(cors({
     origin: (origin, callback) => {
