@@ -25,9 +25,19 @@ const defaultOrigins = [
 
 export const allowedOrigins = (() => {
   const configuredOrigins = process.env.CORS_ORIGINS || process.env.CORS_ORIGIN || ''
-  return configuredOrigins
+  const origins = configuredOrigins
     ? configuredOrigins.split(',').map((origin) => origin.trim()).filter(Boolean)
     : defaultOrigins
+
+  // SÉCURITÉ : le wildcard '*' combiné à credentials:true expose les sessions
+  // de tous les utilisateurs à n'importe quel site. Interdit en production —
+  // lister explicitement les origines dans CORS_ORIGINS.
+  if (process.env.NODE_ENV === 'production' && origins.includes('*')) {
+    logger.error("CORS : wildcard '*' ignoré en production. Listez les origines explicites dans CORS_ORIGINS.")
+    return origins.filter((origin) => origin !== '*')
+  }
+
+  return origins
 })()
 
 export function createApp(): Application {
@@ -56,7 +66,9 @@ export function createApp(): Application {
     },
     credentials: true,
   }))
-  app.use(express.json())
+  // Limite explicite du corps JSON (valeur par défaut d'Express, fixée ici
+  // pour rester robuste face aux changements de version).
+  app.use(express.json({ limit: '100kb' }))
 
   app.get('/', (_req: Request, res: Response) => {
     res.status(200).json({

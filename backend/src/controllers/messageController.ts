@@ -137,6 +137,31 @@ const isMember = async (conversationId: string, userId: string): Promise<boolean
   return !!data;
 };
 
+// ─── Validation du contenu réel des images (magic bytes) ─────────────────────
+// SÉCURITÉ : le mimetype multer vient du client et est falsifiable. On inspecte
+// les premiers octets du buffer pour confirmer le format réel, et on en dérive
+// l'extension (jamais depuis originalname, contrôlé par le client).
+const sniffImageType = (buffer: Buffer): { mime: string; ext: string } | null => {
+  if (buffer.length >= 3 && buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) {
+    return { mime: 'image/jpeg', ext: 'jpg' };
+  }
+  if (buffer.length >= 8 && buffer.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) {
+    return { mime: 'image/png', ext: 'png' };
+  }
+  const ascii6 = buffer.subarray(0, 6).toString('ascii');
+  if (ascii6 === 'GIF87a' || ascii6 === 'GIF89a') {
+    return { mime: 'image/gif', ext: 'gif' };
+  }
+  if (
+    buffer.length >= 12 &&
+    buffer.subarray(0, 4).toString('ascii') === 'RIFF' &&
+    buffer.subarray(8, 12).toString('ascii') === 'WEBP'
+  ) {
+    return { mime: 'image/webp', ext: 'webp' };
+  }
+  return null;
+};
+
 // ─── Stockage en mémoire pour multer (images) ────────────────────────────────
 export const upload = multer({
   storage: multer.memoryStorage(),
@@ -221,15 +246,21 @@ export const uploadMessageImage = async (req: Request, res: Response) => {
       return res.status(403).json({ error: 'Accès refusé à cette conversation' });
     }
 
-    // Générer un nom de fichier unique dans le dossier de l'utilisateur
-    const ext = req.file.originalname.split('.').pop();
-    const fileName = `${userId}/${conversationId}/${Date.now()}.${ext}`;
+    // Valider le contenu réel du fichier (le mimetype client est falsifiable)
+    const detected = sniffImageType(req.file.buffer);
+    if (!detected) {
+      return res.status(400).json({ error: 'Format non supporté. Utilisez JPG, PNG, GIF ou WEBP.' });
+    }
+
+    // Générer un nom de fichier unique dans le dossier de l'utilisateur,
+    // avec extension et content-type dérivés du format détecté.
+    const fileName = `${userId}/${conversationId}/${Date.now()}.${detected.ext}`;
 
     // Upload vers le bucket 'messages'
     const { error: uploadError } = await supabaseAdmin.storage
       .from('messages')
       .upload(fileName, req.file.buffer, {
-        contentType: req.file.mimetype,
+        contentType: detected.mime,
         upsert: false,
       });
 
