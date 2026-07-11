@@ -10,6 +10,7 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState } from "react"
+import Image from "next/image"
 import {
   Users, Pencil, Check, X, Loader2, LogOut, Trash2, UserPlus,
   MoreVertical, ShieldCheck, ShieldMinus, UserMinus, Crown, Search,
@@ -60,6 +61,11 @@ export function GroupInfoPanel({
   const [members, setMembers] = useState<GroupMember[]>([])
   const [loading, setLoading] = useState(false)
 
+  // Édition du titre
+  const [editingName, setEditingName] = useState(false)
+  const [nameDraft, setNameDraft] = useState(conversation.name || "")
+  const [savingName, setSavingName] = useState(false)
+
   // Édition de la description
   const [editingDesc, setEditingDesc] = useState(false)
   const [descDraft, setDescDraft] = useState(conversation.description || "")
@@ -99,6 +105,8 @@ export function GroupInfoPanel({
 
   useEffect(() => {
     if (open) {
+      setNameDraft(conversation.name || "")
+      setEditingName(false)
       setDescDraft(conversation.description || "")
       setEditingDesc(false)
       setAddOpen(false)
@@ -106,7 +114,7 @@ export function GroupInfoPanel({
       setResults([])
       load()
     }
-  }, [open, convId, conversation.description, load])
+  }, [open, convId, conversation.name, conversation.description, load])
 
   // Recherche de membres à ajouter (annuaire) — debounce léger
   useEffect(() => {
@@ -130,6 +138,26 @@ export function GroupInfoPanel({
     }, 300)
     return () => { active = false; clearTimeout(t) }
   }, [query, addOpen, members])
+
+  const saveName = async () => {
+    const value = nameDraft.trim()
+    if (value.length < 2) {
+      toast.error("Le titre doit contenir au moins 2 caractères")
+      return
+    }
+    if (value === (conversation.name || "")) { setEditingName(false); return }
+    setSavingName(true)
+    try {
+      await updateGroup(convId, { name: value })
+      onGroupUpdated({ name: value })
+      setEditingName(false)
+      toast.success("Titre mis à jour")
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Impossible de modifier le titre")
+    } finally {
+      setSavingName(false)
+    }
+  }
 
   const saveDescription = async () => {
     setSavingDesc(true)
@@ -229,7 +257,48 @@ export function GroupInfoPanel({
                 <Users className="h-10 w-10" />
               </AvatarFallback>
             </Avatar>
-            <SheetTitle className="text-xl">{conversation.name || "Groupe"}</SheetTitle>
+            {editingName ? (
+              <div className="w-full max-w-xs flex flex-col items-center gap-2">
+                <input
+                  value={nameDraft}
+                  onChange={(e) => setNameDraft(e.target.value)}
+                  maxLength={80}
+                  autoFocus
+                  onKeyDown={(e) => { if (e.key === "Enter") saveName(); if (e.key === "Escape") setEditingName(false) }}
+                  className="w-full text-center text-lg font-black text-slate-900 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#013ff4]/30"
+                />
+                <div className="flex items-center gap-2">
+                  <Button variant="ghost" size="sm" className="rounded-lg h-8" onClick={() => setEditingName(false)} disabled={savingName}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                  <Button size="sm" className="rounded-lg h-8 bg-[#013ff4] hover:bg-[#012fc0]" onClick={saveName} disabled={savingName}>
+                    {savingName ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <SheetTitle className="text-xl flex items-center justify-center gap-1.5">
+                <span>{conversation.name || "Groupe"}</span>
+                {conversation.is_verified && (
+                  <Image
+                    src="/badge/badge-blue-verifation.png"
+                    alt="Communauté vérifiée"
+                    width={18}
+                    height={18}
+                    className="inline-block shrink-0"
+                  />
+                )}
+                {isAdmin && (
+                  <button
+                    onClick={() => { setNameDraft(conversation.name || ""); setEditingName(true) }}
+                    className="ml-0.5 text-slate-400 hover:text-[#013ff4] transition-colors p-1 rounded-lg hover:bg-[#013ff4]/5"
+                    aria-label="Modifier le titre"
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </SheetTitle>
+            )}
             <SheetDescription className="font-semibold">
               {members.length || conversation.member_count || 0} membre{(members.length || conversation.member_count || 0) > 1 ? "s" : ""}
               {conversation.is_community && <span className="ml-2 text-[#013ff4]">· Communauté</span>}

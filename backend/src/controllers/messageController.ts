@@ -670,6 +670,7 @@ export const getConversations = async (req: Request, res: Response) => {
                     description: conv.description ?? null,
                     avatar_url: conv.avatar_url,
                     is_community: !!conv.is_community,
+                    is_verified: !!conv.is_verified,
                     created_by: conv.created_by ?? null,
                     member_count: conv.member_count ?? 0,
                     // Compat rendu : le frontend affiche other_participant (name/avatar).

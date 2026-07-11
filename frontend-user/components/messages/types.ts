@@ -46,6 +46,7 @@ export interface Conversation {
   description?: string | null
   avatar_url?: string | null
   is_community?: boolean
+  is_verified?: boolean
   created_by?: string | null
   member_count?: number
 }
