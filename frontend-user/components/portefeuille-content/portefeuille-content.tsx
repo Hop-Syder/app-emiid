@@ -15,13 +15,15 @@ import { Preloader } from "@/components/Preloader"
 import { RealisationsSection } from "./realisations-section"
 import { CompetencesSection } from "./competences-section"
 import { FollowedProfilesContent } from "./followed-profiles-content"
+import { CommunautesSection } from "./communautes-section"
 
-type TabId = "realisations" | "competences" | "reseau"
+type TabId = "realisations" | "competences" | "reseau" | "communautes"
 
 const TABS: { id: TabId; label: string; icon: React.ElementType }[] = [
   { id: "realisations", label: "Réalisations", icon: Briefcase },
   { id: "competences",  label: "Compétences",  icon: Tag },
   { id: "reseau",       label: "Réseau",        icon: Network },
+  { id: "communautes",  label: "Communautés",   icon: Users },
 ]
 
 interface PortefeuilleStats {
@@ -131,6 +133,7 @@ export function PortefeuilleContent() {
     realisations: <RealisationsSection userId={stats.userId} profileId={stats.profileId} />,
     competences:  <CompetencesSection  profileId={stats.profileId} />,
     reseau:       <FollowedProfilesContent />,
+    communautes:  <CommunautesSection />,
   }
 
   return (
