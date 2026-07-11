@@ -74,6 +74,9 @@ export interface DashboardStats {
   recentUsers: UserProfile[]
   weeklyActivity: { day: string; users: number }[]
   systemChecks: SystemCheck[]
+  pendingVerifications: number
+  activeReports: number
+  totalRevenue: number
 }
 
 export interface AdminSettings {
@@ -255,6 +258,9 @@ export async function getDashboardStats(days: number = 7): Promise<DashboardStat
   let totalMessages = 0
   let newUsersThisWeek = 0
   let newUsersPrevWeek = 0
+  let pendingVerifications = 0
+  let activeReports = 0
+  let totalRevenue = 0
   let usersByCountry: { country: string; count: number }[] = []
   let recentUsers: UserProfile[] = []
   const weeklyActivity: { day: string; users: number }[] = []
@@ -302,18 +308,23 @@ export async function getDashboardStats(days: number = 7): Promise<DashboardStat
       const startThisWeek = new Date(now - weekMs).toISOString()
       const startPrevWeek = new Date(now - 2 * weekMs).toISOString()
 
-      const [verifiedRes, premiumRes, suspendedRes, thisWeekRes, prevWeekRes] = await Promise.all([
+      const [verifiedRes, premiumRes, suspendedRes, thisWeekRes, prevWeekRes, pendingVerifyRes, reportsRes] = await Promise.all([
         supabase.from("user_profiles").select("*", { count: "exact", head: true }).eq("is_verified", true),
         supabase.from("user_profiles").select("*", { count: "exact", head: true }).eq("is_premium", true),
         supabase.from("user_profiles").select("*", { count: "exact", head: true }).eq("is_suspended", true),
         supabase.from("user_profiles").select("*", { count: "exact", head: true }).gte("created_at", startThisWeek),
         supabase.from("user_profiles").select("*", { count: "exact", head: true }).gte("created_at", startPrevWeek).lt("created_at", startThisWeek),
+        supabase.from("user_profiles").select("*", { count: "exact", head: true }).eq("is_published", true).eq("is_verified", false),
+        supabase.from("content_reports").select("*", { count: "exact", head: true }).eq("status", "open"),
       ])
       verifiedProfiles = verifiedRes.count || 0
       premiumProfiles = premiumRes.count || 0
       suspendedProfiles = suspendedRes.error ? 0 : (suspendedRes.count || 0)
       newUsersThisWeek = thisWeekRes.count || 0
       newUsersPrevWeek = prevWeekRes.count || 0
+      pendingVerifications = pendingVerifyRes.count || 0
+      activeReports = reportsRes.error ? 0 : (reportsRes.count || 0)
+      totalRevenue = premiumProfiles * 10000 // CA estimé à 10 000 XOF/mois par compte premium
     } catch (err) {
       console.error('[Dashboard] Exception in quality counters:', err)
     }
@@ -460,6 +471,9 @@ export async function getDashboardStats(days: number = 7): Promise<DashboardStat
     recentUsers,
     weeklyActivity,
     systemChecks,
+    pendingVerifications,
+    activeReports,
+    totalRevenue,
   }
 }
 
