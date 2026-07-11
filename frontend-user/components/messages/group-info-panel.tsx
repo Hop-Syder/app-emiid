@@ -10,7 +10,6 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState } from "react"
-import Image from "next/image"
 import {
   Users, Pencil, Check, X, Loader2, LogOut, Trash2, UserPlus,
   MoreVertical, ShieldCheck, ShieldMinus, UserMinus, Crown, Search,
@@ -19,6 +18,7 @@ import {
 import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription,
 } from "@/components/ui/sheet"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
@@ -223,13 +223,12 @@ export function GroupInfoPanel({
         <SheetContent side="right" className="p-0 gap-0">
           {/* En-tête */}
           <SheetHeader className="items-center text-center gap-3 border-b border-slate-100 bg-gradient-to-b from-[#013ff4]/5 to-transparent pt-10">
-            <div className="relative h-24 w-24 rounded-3xl overflow-hidden ring-4 ring-white shadow-lg bg-gradient-to-br from-[#013ff4] to-[#03b3f8] flex items-center justify-center">
-              {avatarUrl ? (
-                <Image src={avatarUrl} alt={conversation.name || "Groupe"} fill sizes="96px" className="object-cover" />
-              ) : (
-                <Users className="h-10 w-10 text-white" />
-              )}
-            </div>
+            <Avatar className="h-24 w-24 rounded-3xl ring-4 ring-white shadow-lg">
+              <AvatarImage src={avatarUrl || undefined} alt={conversation.name || "Groupe"} className="object-cover" />
+              <AvatarFallback className="rounded-3xl bg-gradient-to-br from-[#013ff4] to-[#03b3f8] text-white">
+                <Users className="h-10 w-10" />
+              </AvatarFallback>
+            </Avatar>
             <SheetTitle className="text-xl">{conversation.name || "Groupe"}</SheetTitle>
             <SheetDescription className="font-semibold">
               {members.length || conversation.member_count || 0} membre{(members.length || conversation.member_count || 0) > 1 ? "s" : ""}
@@ -308,9 +307,10 @@ export function GroupInfoPanel({
                     <div className="space-y-1.5 max-h-56 overflow-y-auto">
                       {results.map((u) => (
                         <div key={u.id} className="flex items-center gap-3 rounded-xl px-2 py-1.5 hover:bg-slate-50">
-                          <span className="relative h-8 w-8 rounded-full overflow-hidden bg-slate-200 shrink-0">
-                            {u.avatar && <Image src={u.avatar} alt={u.name} fill sizes="32px" className="object-cover" />}
-                          </span>
+                          <Avatar className="h-8 w-8 shrink-0">
+                            <AvatarImage src={u.avatar || undefined} alt={u.name} className="object-cover" />
+                            <AvatarFallback className="bg-slate-200 text-slate-500 text-xs font-bold">{u.name?.[0] || "?"}</AvatarFallback>
+                          </Avatar>
                           <div className="min-w-0 flex-1">
                             <p className="text-sm font-semibold text-slate-800 truncate">{u.name}</p>
                             {u.role && <p className="text-[11px] text-slate-400 truncate">{u.role}</p>}
@@ -344,9 +344,10 @@ export function GroupInfoPanel({
                       : null
                     return (
                       <li key={m.user_id} className="flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-slate-50 transition-colors">
-                        <span className="relative h-10 w-10 rounded-full overflow-hidden bg-slate-200 shrink-0 ring-1 ring-slate-100">
-                          {av && <Image src={av} alt={memberName(m)} fill sizes="40px" className="object-cover" />}
-                        </span>
+                        <Avatar className="h-10 w-10 shrink-0 ring-1 ring-slate-100">
+                          <AvatarImage src={av || undefined} alt={memberName(m)} className="object-cover" />
+                          <AvatarFallback className="bg-slate-200 text-slate-500 text-xs font-bold">{(m.profile?.first_name?.[0] || "?").toUpperCase()}</AvatarFallback>
+                        </Avatar>
                         <div className="min-w-0 flex-1">
                           <p className="text-sm font-bold text-slate-800 truncate">
                             {memberName(m)} {isMe && <span className="text-slate-400 font-medium">(vous)</span>}
