@@ -222,11 +222,13 @@ export function EmiIDProfileCard({
             onClick={(e) => { e.stopPropagation(); onAction?.('follow') }}
             className={cn(
               "flex-1 h-10 px-2 rounded-2xl font-bold text-[11px] transition-all border-none shadow-lg",
-              styles.btnPrimary
+              isFollowed 
+                ? "bg-slate-200/50 dark:bg-slate-800/80 border border-slate-300/30 dark:border-slate-700/50 text-slate-700 dark:text-slate-300 shadow-none hover:bg-slate-350/50 dark:hover:bg-slate-750" 
+                : styles.btnPrimary
             )}
           >
             {isFollowed ? (
-              <><Check className="h-3.5 w-3.5 mr-1 shrink-0" /> <span className="truncate">Suivi</span></>
+              <><Check className="h-3.5 w-3.5 mr-1 shrink-0 text-emerald-500" /> <span className="truncate">Suivi</span></>
             ) : (
               <><Plus className="h-3.5 w-3.5 mr-1 shrink-0" /> <span className="truncate">Suivre</span></>
             )}
