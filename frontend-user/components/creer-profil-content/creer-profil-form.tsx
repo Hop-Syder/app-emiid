@@ -285,6 +285,7 @@ export const CreerProfilForm = React.memo(function CreerProfilForm({
                                 addSuggestedTag={addSuggestedTag}
                                 removeTag={removeTag}
                                 inputClasses={inputClasses}
+                                activityDomain={formData.activity_domain}
                             />
                             {/* Résumé fin */}
                             <div className="mt-8 p-6 bg-gradient-to-br from-emerald-50 to-teal-50/30 border border-emerald-100/50 rounded-3xl flex items-start gap-4">

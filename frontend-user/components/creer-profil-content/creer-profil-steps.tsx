@@ -283,11 +283,41 @@ interface StepCompetencesProps {
     addSuggestedTag: (tag: string) => void
     removeTag: (tag: string) => void
     inputClasses: string
+    activityDomain?: string
 }
 
-const SUGGESTED_TAGS = ["React", "TypeScript", "UI/UX", "Marketing", "Photographie", "BTP", "Artisan", "Coiffeur", "Couturier", "Styliste", "Peintre", "Staffeur", "Jardinier", "Vente", "Gestion de Projet"]
+// Suggestions génériques (aucun secteur choisi ou secteur non couvert).
+const DEFAULT_TAGS = ["Marketing", "Vente", "Gestion de projet", "Communication", "Service client", "Négociation", "Bureautique", "Rédaction", "Réseautage", "Organisation"]
 
-export function StepCompetences({ tags, tagInput, setTagInput, addTag, addSuggestedTag, removeTag, inputClasses }: StepCompetencesProps) {
+// Suggestions contextuelles par secteur d'activité (aligné sur lib/profile-options).
+const SUGGESTED_TAGS_BY_DOMAIN: Record<string, string[]> = {
+    tech:         ["React", "TypeScript", "Node.js", "UI/UX", "Python", "Docker", "Next.js", "SEO", "Git", "DevOps"],
+    droit:        ["Conseil juridique", "Contrats", "Contentieux", "Droit des affaires", "Droit du travail", "Fiscalité", "Arbitrage", "Veille juridique", "Droit pénal"],
+    finance:      ["Comptabilité", "Audit", "Fiscalité", "Analyse financière", "Assurance", "Banque", "Gestion", "Excel", "Trésorerie"],
+    sante:        ["Médecine", "Soins", "Pharmacie", "Psychologie", "Nutrition", "Fitness", "Massage", "Bien-être", "Kinésithérapie"],
+    creatif:      ["Design", "Illustration", "Photographie", "Montage vidéo", "Graphisme", "Musique", "Peinture artistique", "Calligraphie"],
+    mode:         ["Couture", "Stylisme", "Modélisme", "Coiffure", "Maquillage", "Soins esthétiques", "Manucure", "Coiffure homme", "Stylisme photo"],
+    restauration: ["Cuisine", "Pâtisserie", "Traiteur", "Hygiène alimentaire", "Service en salle", "Sommellerie", "Barista", "Gastronomie"],
+    btp:          ["Maçonnerie", "Plomberie", "Électricité", "Architecture", "Menuiserie", "Peinture", "Staffeur", "Soudure", "Chantiers", "Métallerie"],
+    conseil:      ["Audit", "Coaching", "Consulting", "Recrutement", "Gestion des RH", "Management", "Organisation", "Stratégie", "RSE"],
+    immobilier:   ["Négociation", "Gestion locative", "Promotion", "Estimation", "Visites", "Syndic", "Courtage", "Droit immobilier"],
+    media:        ["Journalisme", "Relations presse", "Rédaction web", "Community management", "Publicité", "Photojournalisme", "Copywriting"],
+    industrie:    ["Mécanique", "Maintenance", "Soudure", "Automatisme", "Électronique", "Chaudronnerie", "Robotique", "Maintenance industrielle"],
+    securite:     ["Surveillance", "Sécurité incendie", "Gardiennage", "Télésurveillance", "Secourisme", "Intervention", "Ronde de nuit"],
+    services:     ["Nettoyage", "Électricité", "Plomberie", "Bricolage", "Aide à domicile", "Dépannage", "Repassage", "Conciergerie"],
+    sport:        ["Coaching sportif", "Entraînement", "Yoga", "Arbitrage", "Événementiel sportif", "Préparation physique", "Musculation"],
+    agro:         ["Agriculture", "Élevage", "Transformation alimentaire", "Maraîchage", "Agronomie", "Pisciculture", "Distribution", "Bio", "Conditionnement"],
+    education:    ["Enseignement", "Formation", "Coaching scolaire", "E-learning", "Pédagogie", "Langues", "Soutien scolaire", "Orientation", "Tutorat"],
+    commerce:     ["Vente", "Négociation", "Merchandising", "Import-Export", "E-commerce", "Relation client", "Grande distribution", "Achats", "Logistique"],
+    transport:    ["Conduite", "Logistique", "Livraison", "Transit", "Chaîne d'approvisionnement", "Fret", "Manutention", "Douane", "Coursier"],
+    tourisme:     ["Accueil", "Guide touristique", "Réception", "Réservation", "Restauration", "Événementiel", "Voyages", "Hébergement", "Animation"],
+    energie:      ["Énergie solaire", "Électricité", "Installation", "Maintenance", "Environnement", "Efficacité énergétique", "Éolien", "Recyclage", "Plomberie"],
+    b2b:          ["Consulting", "Prospection", "Gestion de projet", "Support technique", "Account management", "Achats", "Sous-traitance", "Partenariats"],
+    evenementiel: ["Organisation d'événements", "Décoration", "Sonorisation", "Traiteur", "Animation", "Coordination", "Régie", "Logistique événementielle"],
+}
+
+export function StepCompetences({ tags, tagInput, setTagInput, addTag, addSuggestedTag, removeTag, inputClasses, activityDomain }: StepCompetencesProps) {
+    const SUGGESTED_TAGS = activityDomain ? (SUGGESTED_TAGS_BY_DOMAIN[activityDomain] || DEFAULT_TAGS) : DEFAULT_TAGS
     return (
         <div className="space-y-6">
             <div className="space-y-4">
