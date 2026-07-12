@@ -22,6 +22,16 @@ export function isSmtpConfigured(): boolean {
   return !!(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS)
 }
 
+/** Teste la connexion + l'authentification SMTP (erreur descriptive si échec). */
+export async function verifyTransport(): Promise<{ ok: boolean; error?: string }> {
+  try {
+    await transporter.verify()
+    return { ok: true }
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : String(e) }
+  }
+}
+
 /** Remplace {first_name} / {last_name} dans un gabarit. */
 function personalize(tpl: string, r: { first_name?: string | null; last_name?: string | null }): string {
   return tpl
@@ -45,7 +55,7 @@ export async function sendBulkEmails(
   recipients: MailRecipient[],
   subject: string,
   html: string,
-): Promise<{ sent: number; failed: number }> {
+): Promise<{ sent: number; failed: number; firstError?: string }> {
   const from = process.env.EMAIL_FROM || '"EmiID" <no-reply@nexuspartners.xyz>'
   // Dédoublonnage par e-mail (insensible à la casse).
   const seen = new Set<string>()
@@ -58,6 +68,7 @@ export async function sendBulkEmails(
 
   let sent = 0
   let failed = 0
+  let firstError: string | undefined
   const BATCH = 20
   const PAUSE_MS = 1000
 
@@ -71,11 +82,12 @@ export async function sendBulkEmails(
         html: personalize(html, r),
       })
       sent++
-    } catch {
+    } catch (e) {
       failed++
+      if (!firstError) firstError = e instanceof Error ? e.message : String(e)
     }
     if ((i + 1) % BATCH === 0) await sleep(PAUSE_MS)
   }
 
-  return { sent, failed }
+  return { sent, failed, firstError }
 }

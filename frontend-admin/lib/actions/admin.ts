@@ -1,7 +1,7 @@
 "use server"
 
 import { createAdminClient, createServiceRoleClient, requireAdminSession, type AdminSessionProfile } from "@/lib/supabase/server"
-import { sendBulkEmails, isSmtpConfigured } from "@/lib/mailer"
+import { sendBulkEmails, isSmtpConfigured, verifyTransport } from "@/lib/mailer"
 
 export interface UserProfile {
   id: string
@@ -1894,8 +1894,14 @@ export async function sendCampaign(input: {
     return { success: false, sent: 0, total: recipients.length, error: "SMTP non configuré — ajoutez SMTP_HOST / SMTP_USER / SMTP_PASS (+ EMAIL_FROM) à l'environnement de frontend-admin." }
   }
 
+  // Vérifie connexion + authentification AVANT d'envoyer → erreur claire si config invalide.
+  const check = await verifyTransport()
+  if (!check.ok) {
+    return { success: false, sent: 0, total: recipients.length, error: `Connexion SMTP échouée : ${check.error}` }
+  }
+
   try {
-    const { sent, failed } = await sendBulkEmails(
+    const { sent, failed, firstError } = await sendBulkEmails(
       recipients.map((r) => ({ email: r.email, first_name: r.first_name, last_name: r.last_name })),
       subject,
       html,
@@ -1909,7 +1915,7 @@ export async function sendCampaign(input: {
     })
 
     if (sent === 0) {
-      return { success: false, sent: 0, total: recipients.length, failed, error: `Aucun e-mail envoyé (${failed} échec(s)) — vérifiez la configuration SMTP.` }
+      return { success: false, sent: 0, total: recipients.length, failed, error: `Aucun e-mail envoyé (${failed} échec(s)) : ${firstError || "vérifiez la configuration SMTP."}` }
     }
     return { success: true, sent, failed, total: recipients.length }
   } catch (e) {

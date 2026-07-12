@@ -62,8 +62,8 @@ function visualToHtml(text: string): string {
   return `<div style="font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;color:#0f172a;line-height:1.6">${out.join("")}</div>`
 }
 
-export function CampaignClient() {
-  const [channel, setChannel] = useState<Channel>("inapp")
+export function CampaignClient({ emailOnly = false }: { emailOnly?: boolean }) {
+  const [channel, setChannel] = useState<Channel>(emailOnly ? "email" : "inapp")
   const [subject, setSubject] = useState("")
   const [editorMode, setEditorMode] = useState<EditorMode>("visual")
   const [content, setContent] = useState("")
@@ -190,25 +190,27 @@ export function CampaignClient() {
           <Megaphone className="h-5 w-5 text-[#013ff4]" />
         </div>
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 tracking-tight">Annonces & Mailings</h1>
-          <p className="text-slate-500 text-sm mt-0.5">Diffusez une annonce in-app ou une campagne e-mail ciblée</p>
+          <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 tracking-tight">{emailOnly ? "Campagne Mailing" : "Annonces & Mailings"}</h1>
+          <p className="text-slate-500 text-sm mt-0.5">{emailOnly ? "Envoyez un e-mail ciblé aux utilisateurs" : "Diffusez une annonce in-app ou une campagne e-mail ciblée"}</p>
         </div>
       </header>
 
-      {/* Sélecteur de type de campagne */}
-      <div className="inline-flex rounded-xl border border-slate-200 p-1 bg-slate-50">
-        {([["inapp", "Annonce In-App", Megaphone], ["email", "Campagne Mailing", Mail]] as const).map(([id, label, Icon]) => (
-          <button
-            key={id}
-            onClick={() => setChannel(id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-colors ${
-              channel === id ? "bg-white text-[#013ff4] shadow-sm" : "text-slate-500 hover:text-slate-700"
-            }`}
-          >
-            <Icon className="h-4 w-4" /> {label}
-          </button>
-        ))}
-      </div>
+      {/* Sélecteur de type de campagne (masqué en mode e-mail dédié) */}
+      {!emailOnly && (
+        <div className="inline-flex rounded-xl border border-slate-200 p-1 bg-slate-50">
+          {([["inapp", "Annonce In-App", Megaphone], ["email", "Campagne Mailing", Mail]] as const).map(([id, label, Icon]) => (
+            <button
+              key={id}
+              onClick={() => setChannel(id)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-colors ${
+                channel === id ? "bg-white text-[#013ff4] shadow-sm" : "text-slate-500 hover:text-slate-700"
+              }`}
+            >
+              <Icon className="h-4 w-4" /> {label}
+            </button>
+          ))}
+        </div>
+      )}
 
       {lastResult && (
         <div className="flex items-center gap-2 rounded-xl bg-emerald-50 border border-emerald-200 px-4 py-3 text-sm font-semibold text-emerald-700">
