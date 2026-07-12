@@ -16,6 +16,7 @@ import { RealisationsSection } from "./realisations-section"
 import { CompetencesSection } from "./competences-section"
 import { FollowedProfilesContent } from "./followed-profiles-content"
 import { CommunautesSection } from "./communautes-section"
+import { useImpactStats } from "@/hooks/use-impact-stats"
 
 type TabId = "realisations" | "competences" | "reseau" | "communautes"
 
@@ -29,8 +30,6 @@ const TABS: { id: TabId; label: string; icon: React.ElementType }[] = [
 interface PortefeuilleStats {
   userId:       string
   profileId:    string | null
-  profileViews: number
-  followers:    number
   approvedItems: number
   isPublished:  boolean
 }
@@ -41,26 +40,21 @@ export function PortefeuilleContent() {
   const [loading, setLoading]     = useState(true)
   const supabase = useMemo(() => createClient(), [])
   const router   = useRouter()
+  // Source unique des vues/abonnés — partagée avec le Dashboard (évite deux chiffres divergents).
+  const { stats: impact, isLoading: impactLoading } = useImpactStats()
 
   useEffect(() => {
     const load = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push("/login"); return }
 
-      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
-
-      const [profileRes, viewsRes, galleryRes] = await Promise.all([
+      const [profileRes, galleryRes] = await Promise.all([
         // eslint-disable-next-line no-restricted-syntax -- accès authentifié à SA propre ligne (RLS OK)
         supabase
           .from("user_profiles")
-          .select("id, followers_count, is_published")
+          .select("id, is_published")
           .eq("user_id", user.id)
           .single(),
-        supabase
-          .from("profile_views")
-          .select("*", { count: "exact", head: true })
-          .eq("profile_id", user.id)
-          .gte("created_at", thirtyDaysAgo),
         supabase
           .from("project_gallery")
           .select("*", { count: "exact", head: true })
@@ -71,9 +65,7 @@ export function PortefeuilleContent() {
       setStats({
         userId:       user.id,
         profileId:    profileRes.data?.id ?? null,
-        followers:    profileRes.data?.followers_count ?? 0,
         isPublished:  profileRes.data?.is_published ?? false,
-        profileViews: viewsRes.count ?? 0,
         approvedItems: galleryRes.count ?? 0,
       })
       setLoading(false)
@@ -82,29 +74,29 @@ export function PortefeuilleContent() {
     void load()
   }, [supabase, router])
 
-  if (loading || !stats) {
+  if (loading || impactLoading || !stats) {
     return <Preloader text="Chargement de votre portefeuille" subtext="Un instant…" minHeight="min-h-[60vh]" />
   }
 
   const STAT_CARDS = [
     {
       label:    "Vues du profil",
-      sublabel: "30 derniers jours",
-      value:    stats.profileViews,
+      sublabel: "Au total",
+      value:    impact.totalViews,
       icon:     Eye,
-      color:    "text-blue-600",
-      bg:       "bg-blue-50",
-      border:   "border-blue-100",
+      color:    "text-[#013ff4]",
+      bg:       "bg-[#013ff4]/5",
+      border:   "border-[#013ff4]/15",
       cta:      false,
     },
     {
       label:    "Abonnés",
       sublabel: "Followers",
-      value:    stats.followers,
+      value:    impact.totalFollowers,
       icon:     Users,
-      color:    "text-violet-600",
-      bg:       "bg-violet-50",
-      border:   "border-violet-100",
+      color:    "text-[#03b3f8]",
+      bg:       "bg-[#03b3f8]/10",
+      border:   "border-[#03b3f8]/20",
       cta:      false,
     },
     {

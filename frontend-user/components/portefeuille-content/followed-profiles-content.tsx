@@ -229,7 +229,7 @@ export function FollowedProfilesContent() {
     }
 
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full space-y-10 pb-20 pt-8">
+        <div className="w-full space-y-10">
 
             <Tabs defaultValue="following" onValueChange={setActiveTab} className="w-full">
                 <div className="flex flex-col space-y-6">
