@@ -56,7 +56,12 @@ export async function sendBulkEmails(
   subject: string,
   html: string,
 ): Promise<{ sent: number; failed: number; firstError?: string }> {
-  const from = process.env.EMAIL_FROM || '"EmiID" <no-reply@nexuspartners.xyz>'
+  // Expéditeur : EMAIL_FROM s'il est propre, sinon on retombe sur SMTP_USER —
+  // beaucoup de serveurs (dont LWS) rejettent (553) un From non détenu par le
+  // compte authentifié. Utiliser la boîte authentifiée garantit l'acceptation.
+  const envFrom = process.env.EMAIL_FROM?.trim()
+  const validEnvFrom = envFrom && /@/.test(envFrom) && !/EMAIL_FROM=/i.test(envFrom) ? envFrom : ""
+  const from = validEnvFrom || (process.env.SMTP_USER ? `EmiID <${process.env.SMTP_USER}>` : "EmiID <no-reply@emiid.com>")
   // Dédoublonnage par e-mail (insensible à la casse).
   const seen = new Set<string>()
   const unique = recipients.filter((r) => {
