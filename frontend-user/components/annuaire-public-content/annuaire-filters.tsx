@@ -13,36 +13,17 @@
 import { useEffect, useState } from "react"
 import { SlidersHorizontal, BadgeCheck, Crown, X, ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { PROFILE_CATEGORIES, ACTIVITY_DOMAINS } from "@/lib/profile-options"
 
-// Alignés sur la création de profil / l'ancienne palette.
+// Source unique partagée avec la création / l'édition de profil (id = value).
 const PROFILE_TYPES: { id: string; label: string }[] = [
   { id: "all", label: "Tous les types" },
-  { id: "artisan", label: "Artisan" },
-  { id: "commerçante", label: "Commerçant(e)" },
-  { id: "freelance", label: "Freelance" },
-  { id: "entreprise", label: "Entreprise" },
-  { id: "agence", label: "Agence" },
-  { id: "startup", label: "Startup" },
-  { id: "ong", label: "ONG / Association" },
-  { id: "investisseur", label: "Investisseur" },
-  { id: "institution", label: "Institution publique" },
-  { id: "etudiant", label: "Étudiant / Junior" },
+  ...PROFILE_CATEGORIES.map((o) => ({ id: o.value, label: o.label })),
 ]
 
 const SECTORS: { id: string; label: string }[] = [
   { id: "all", label: "Tous les secteurs" },
-  { id: "tech", label: "Tech & Digital" },
-  { id: "agro", label: "Agroalimentaire" },
-  { id: "btp", label: "BTP & Construction" },
-  { id: "finance", label: "Finance & Assurance" },
-  { id: "sante", label: "Santé & Bien-être" },
-  { id: "education", label: "Éducation & Formation" },
-  { id: "creatif", label: "Arts & Créativité" },
-  { id: "commerce", label: "Commerce & Distribution" },
-  { id: "transport", label: "Transport & Logistique" },
-  { id: "tourisme", label: "Tourisme & Hôtellerie" },
-  { id: "energie", label: "Énergie & Environnement" },
-  { id: "b2b", label: "Services B2B" },
+  ...ACTIVITY_DOMAINS.map((o) => ({ id: o.value, label: o.label })),
 ]
 
 interface Country { iso_code: string; name: string }

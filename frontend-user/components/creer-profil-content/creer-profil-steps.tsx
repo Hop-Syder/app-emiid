@@ -10,6 +10,7 @@ import { LocationSelector } from "@/components/LocationSelector"
 import { motion } from "framer-motion"
 import { AvatarUpload } from "@/components/AvatarUpload"
 import { cn } from "@/lib/utils"
+import { PROFILE_CATEGORIES, ACTIVITY_DOMAINS } from "@/lib/profile-options"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type FormData = Record<string, any>
@@ -98,16 +99,9 @@ export function StepExpertise({ formData, handleInputChange, inputClasses }: Ste
                             <SelectValue placeholder="Catégorie..." />
                         </SelectTrigger>
                         <SelectContent className="rounded-2xl border-slate-200 shadow-2xl p-1 max-h-[300px]">
-                            <SelectItem value="artisan" className="rounded-xl py-3 cursor-pointer">🎨 Artisan</SelectItem>
-                            <SelectItem value="commerçante" className="rounded-xl py-3 cursor-pointer">🛒 Commerçant(e)</SelectItem>
-                            <SelectItem value="freelance" className="rounded-xl py-3 cursor-pointer">💻 Freelance</SelectItem>
-                            <SelectItem value="entreprise" className="rounded-xl py-3 cursor-pointer">🏢 Entreprise</SelectItem>
-                            <SelectItem value="agence" className="rounded-xl py-3 cursor-pointer">📣 Agence</SelectItem>
-                            <SelectItem value="startup" className="rounded-xl py-3 cursor-pointer">🚀 Startup</SelectItem>
-                            <SelectItem value="ong" className="rounded-xl py-3 cursor-pointer">🌍 ONG / Association</SelectItem>
-                            <SelectItem value="investisseur" className="rounded-xl py-3 cursor-pointer">📈 Entreprise / Investisseur</SelectItem>
-                            <SelectItem value="institution" className="rounded-xl py-3 cursor-pointer">🏛️ Institution Publique</SelectItem>
-                            <SelectItem value="etudiant" className="rounded-xl py-3 cursor-pointer">🎓 Étudiant / Junior</SelectItem>
+                            {PROFILE_CATEGORIES.map((opt) => (
+                                <SelectItem key={opt.value} value={opt.value} className="rounded-xl py-3 cursor-pointer">{opt.label}</SelectItem>
+                            ))}
                         </SelectContent>
                     </Select>
                 </div>
@@ -118,18 +112,9 @@ export function StepExpertise({ formData, handleInputChange, inputClasses }: Ste
                             <SelectValue placeholder="Secteur..." />
                         </SelectTrigger>
                         <SelectContent className="rounded-2xl border-slate-200 shadow-2xl p-1 max-h-[300px]">
-                            <SelectItem value="tech" className="rounded-xl py-3 cursor-pointer">💻 Tech &amp; Digital</SelectItem>
-                            <SelectItem value="agro" className="rounded-xl py-3 cursor-pointer">🌾 Agroalimentaire</SelectItem>
-                            <SelectItem value="btp" className="rounded-xl py-3 cursor-pointer">🏗️ BTP &amp; Construction</SelectItem>
-                            <SelectItem value="finance" className="rounded-xl py-3 cursor-pointer">💰 Finance &amp; Assurance</SelectItem>
-                            <SelectItem value="sante" className="rounded-xl py-3 cursor-pointer">🏥 Santé &amp; Bien-être</SelectItem>
-                            <SelectItem value="education" className="rounded-xl py-3 cursor-pointer">📚 Éducation &amp; Formation</SelectItem>
-                            <SelectItem value="creatif" className="rounded-xl py-3 cursor-pointer">🎨 Arts &amp; Créativité</SelectItem>
-                            <SelectItem value="commerce" className="rounded-xl py-3 cursor-pointer">🛍️ Commerce &amp; Distribution</SelectItem>
-                            <SelectItem value="transport" className="rounded-xl py-3 cursor-pointer">🚚 Transport &amp; Logistique</SelectItem>
-                            <SelectItem value="tourisme" className="rounded-xl py-3 cursor-pointer">✈️ Tourisme &amp; Hôtellerie</SelectItem>
-                            <SelectItem value="energie" className="rounded-xl py-3 cursor-pointer">⚡ Énergie &amp; Environnement</SelectItem>
-                            <SelectItem value="b2b" className="rounded-xl py-3 cursor-pointer">🤝 Services B2B</SelectItem>
+                            {ACTIVITY_DOMAINS.map((opt) => (
+                                <SelectItem key={opt.value} value={opt.value} className="rounded-xl py-3 cursor-pointer">{opt.label}</SelectItem>
+                            ))}
                         </SelectContent>
                     </Select>
                 </div>

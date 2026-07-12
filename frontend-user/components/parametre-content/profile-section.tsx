@@ -17,6 +17,7 @@ import { Switch } from "@/components/ui/switch"
 import { AvatarUpload } from "@/components/AvatarUpload"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { toast } from "sonner"
+import { PROFILE_CATEGORIES, ACTIVITY_DOMAINS } from "@/lib/profile-options"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -155,33 +156,18 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="Catégorie">
             <select id="category" value={profile.category || ""} onChange={e => up("category", e.target.value)} className={SELECT}>
-              <option value="artisan">🎨 Artisan</option>
-              <option value="commerçante">🛒 Commerçant(e)</option>
-              <option value="freelance">💻 Freelance</option>
-              <option value="entreprise">🏢 Entreprise</option>
-              <option value="agence">📣 Agence</option>
-              <option value="startup">🚀 Startup</option>
-              <option value="ong">🌍 ONG / Association</option>
-              <option value="investisseur">📈 Entreprise / Investisseur</option>
-              <option value="institution">🏛️ Institution Publique</option>
-              <option value="etudiant">🎓 Étudiant / Junior</option>
+              <option value="" disabled>Choisir un type...</option>
+              {PROFILE_CATEGORIES.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
             </select>
           </Field>
           <Field label="Secteur d'activité">
             <select id="activity_domain" value={profile.activity_domain || ""} onChange={e => up("activity_domain", e.target.value)} className={SELECT}>
               <option value="" disabled>Choisir un secteur...</option>
-              <option value="tech">💻 Tech & Digital</option>
-              <option value="agro">🌾 Agroalimentaire</option>
-              <option value="btp">🏗️ BTP & Construction</option>
-              <option value="finance">💰 Finance & Assurance</option>
-              <option value="sante">🏥 Santé & Bien-être</option>
-              <option value="education">📚 Éducation & Formation</option>
-              <option value="creatif">🎨 Arts & Créativité</option>
-              <option value="commerce">🛍️ Commerce & Distribution</option>
-              <option value="transport">🚚 Transport & Logistique</option>
-              <option value="tourisme">✈️ Tourisme & Hôtellerie</option>
-              <option value="energie">⚡ Énergie & Environnement</option>
-              <option value="b2b">🤝 Services B2B</option>
+              {ACTIVITY_DOMAINS.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
             </select>
           </Field>
           <Field label="Rôle / Entreprise">
