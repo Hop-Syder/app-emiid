@@ -35,10 +35,31 @@ interface EmailOptions {
 }
 
 /**
+ * Construit l'expéditeur. Les serveurs SMTP stricts rejettent en 553 tout From
+ * dont l'adresse n'est pas la boîte authentifiée (SMTP_USER) : EMAIL_FROM ne
+ * fournit donc que le nom d'affichage, l'adresse est toujours SMTP_USER.
+ */
+export const buildSender = (): string => {
+  const smtpUser = (process.env.SMTP_USER || '').trim();
+  const envFrom = (process.env.EMAIL_FROM || '').trim();
+
+  const displayName = envFrom
+    .replace(/<[^>]*>/g, '')
+    .replace(/[^\s<>"']+@[^\s<>"']+/g, '')
+    .replace(/["']/g, '')
+    .trim() || 'EmiID';
+
+  const envAddress = envFrom.match(/[^\s<>"']+@[^\s<>"']+/)?.[0] || '';
+  const address = smtpUser || envAddress || 'no-reply@emiid.com';
+
+  return `"${displayName}" <${address}>`;
+};
+
+/**
  * Envoie un email générique
  */
 export const sendEmail = async ({ to, subject, html, text }: EmailOptions) => {
-  const from = process.env.EMAIL_FROM || '"EmiID" <no-reply@nexuspartners.xyz>';
+  const from = buildSender();
 
   try {
     const info = await transporter.sendMail({
