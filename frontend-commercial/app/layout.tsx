@@ -8,7 +8,7 @@
  * 📧 daoudaabassichristian@gmail.com
  */
 
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import "./globals.css";
 import { Header } from "@/components/header";
@@ -21,12 +21,24 @@ const inter = Inter({
   variable: "--font-sans",
 });
 
+// Charte EmiID : fonds officiels (blanc en clair, slate-950 en sombre).
+// La couleur de marque #013ff4 reste l'accent/symbole, pas le fond du chrome mobile.
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#020617" },
+  ],
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://emiid.com"),
+  applicationName: "Emiid",
   title: "Emiid - Votre empreinte numérique professionnelle",
   description: "L'annuaire de référence pour les acteurs de l'écosystème africain.",
   keywords: ["Emiid", "réseau professionnel", "Afrique", "annuaire", "profil professionnel", "freelance", "entreprise", "FCFA"],
   alternates: { canonical: "/" },
+  appleWebApp: { capable: true, title: "Emiid", statusBarStyle: "default" },
+  other: { "msapplication-TileColor": "#013ff4" },
   openGraph: {
     title: "Emiid - L'annuaire de l'écosystème africain",
     description: "Rejoignez l'annuaire Emiid pour augmenter votre visibilité et développer votre réseau.",
@@ -103,7 +115,7 @@ export default function RootLayout({
               "@type": "Organization",
               name: "Emiid",
               url: "https://emiid.com",
-              logo: "https://emiid.com/logo/logo-emiid-dark.png",
+              logo: "https://emiid.com/logo/logo-emiid-light.png",
               description:
                 "Le réseau professionnel certifié pensé pour l'Afrique : profils vérifiés, annuaire et messagerie.",
             }).replace(/</g, "\\u003c"),

@@ -19,19 +19,24 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
+  // Charte EmiID : fond blanc en clair, slate-950 en sombre (la couleur de marque
+  // #013ff4 reste l'accent/symbole, pas le fond du chrome mobile).
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: 'white' },
-    { media: '(prefers-color-scheme: dark)', color: 'black' },
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#020617' },
   ],
 }
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://app.emiid.com'),
+  applicationName: 'EmiID',
   title: 'EmiID — Votre empreinte numérique professionnelle',
   description: "Crée ta carte de visite numérique et rejoins le réseau de professionnels qui construisent l'Afrique de demain.",
   generator: 'Next.js',
   keywords: ['networking', 'professionnel', 'Afrique', 'carte de visite', 'EmiID'],
   authors: [{ name: 'Nexus Partners' }],
+  appleWebApp: { capable: true, title: 'EmiID', statusBarStyle: 'black-translucent' },
+  other: { 'msapplication-TileColor': '#013ff4' },
   openGraph: {
     title: 'EmiID — Votre empreinte numérique professionnelle',
     description: "Crée ta carte de visite numérique et rejoins le réseau de professionnels qui construisent l'Afrique de demain.",
@@ -100,6 +105,35 @@ export default function RootLayout({
             gtag('config', 'G-KYGF0JWYZE');
           `}
         </Script>
+
+        {/* Données structurées — Organization (logo officiel clair, lisible sur les
+            surfaces Google) + WebSite. Aide le knowledge panel à associer la marque. */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'Organization',
+              name: 'EmiID',
+              url: 'https://app.emiid.com',
+              logo: 'https://app.emiid.com/logo/logo-emiid.png',
+              description:
+                "Le réseau professionnel certifié pensé pour l'Afrique : profils vérifiés, annuaire et messagerie.",
+            }).replace(/</g, '\\u003c'),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'WebSite',
+              name: 'EmiID',
+              url: 'https://app.emiid.com',
+            }).replace(/</g, '\\u003c'),
+          }}
+        />
+
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           {children}
           <Analytics />
