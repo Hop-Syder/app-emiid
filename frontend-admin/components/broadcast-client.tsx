@@ -8,9 +8,10 @@
 "use client"
 
 import { useState } from "react"
-import { Megaphone, Send, Loader2, Users, CheckCircle2, Globe, Crown, BadgeCheck, Ban } from "lucide-react"
+import { Megaphone, Send, Loader2, Users, CheckCircle2, Globe, Crown, BadgeCheck, Ban, Mail } from "lucide-react"
 import { toast } from "sonner"
 import { broadcastAnnouncement, type BroadcastSegment } from "@/lib/actions/admin"
+import { fetchWithAuth } from "@/lib/apiClient"
 
 const SEGMENTS: { id: BroadcastSegment; label: string; desc: string; icon: typeof Users }[] = [
   { id: "all",       label: "Tous les utilisateurs", desc: "Chaque compte de la plateforme", icon: Users },
@@ -25,6 +26,7 @@ export function BroadcastClient() {
   const [content, setContent] = useState("")
   const [link, setLink] = useState("")
   const [segment, setSegment] = useState<BroadcastSegment>("all")
+  const [alsoEmail, setAlsoEmail] = useState(false)
   const [sending, setSending] = useState(false)
   const [lastResult, setLastResult] = useState<number | null>(null)
 
@@ -41,6 +43,27 @@ export function BroadcastClient() {
       if (!res.success) { toast.error(res.error || "Échec de l'envoi"); return }
       setLastResult(res.count)
       toast.success(`Annonce envoyée à ${res.count} destinataire(s)`)
+
+      // Campagne email (opt-in newsletter) via le backend SMTP.
+      if (alsoEmail) {
+        try {
+          const emailRes = await fetchWithAuth("/api/admin/broadcast-email", {
+            method: "POST",
+            body: JSON.stringify({ title, content, segment, link: link || undefined }),
+          })
+          const emailData = await emailRes.json()
+          if (!emailRes.ok) {
+            toast.error(emailData?.error || "Échec de la campagne email")
+          } else if (emailData.sent === 0) {
+            toast.info(emailData.message || "Aucun abonné newsletter dans ce segment")
+          } else {
+            toast.success(`Campagne email : ${emailData.sent} envoyé(s)${emailData.failed ? `, ${emailData.failed} échec(s)` : ""}`)
+          }
+        } catch {
+          toast.error("Backend injoignable pour la campagne email")
+        }
+      }
+
       setTitle(""); setContent(""); setLink("")
     } catch {
       toast.error("Erreur de connexion")
@@ -128,6 +151,25 @@ export function BroadcastClient() {
             className="mt-2 w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#013ff4]/30"
           />
         </div>
+
+        {/* Envoi email (opt-in newsletter) */}
+        <label className="flex items-start gap-3 rounded-xl border border-slate-200 p-3 cursor-pointer hover:bg-slate-50 transition-colors">
+          <input
+            type="checkbox"
+            checked={alsoEmail}
+            onChange={(e) => setAlsoEmail(e.target.checked)}
+            className="mt-0.5 h-4 w-4 rounded border-slate-300 accent-[#013ff4]"
+          />
+          <span className="flex items-start gap-2">
+            <Mail className="h-4 w-4 shrink-0 mt-0.5 text-slate-400" />
+            <span>
+              <span className="block text-sm font-bold text-slate-800">Envoyer aussi par email</span>
+              <span className="block text-[11px] text-slate-400">
+                Uniquement aux membres du segment abonnés à la newsletter (opt-in). Limité à 5 campagnes par heure.
+              </span>
+            </span>
+          </span>
+        </label>
 
         <div className="flex justify-end pt-1">
           <button

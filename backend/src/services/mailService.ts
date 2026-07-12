@@ -165,3 +165,62 @@ export const sendWelcomeEmail = async (recipientEmail: string, firstName?: strin
 
   return sendEmail({ to: recipientEmail, subject, html, text });
 };
+
+/**
+ * Envoie un email de campagne (annonce admin) à un destinataire.
+ * Marketing : réservé aux utilisateurs ayant activé la newsletter (opt-in).
+ */
+export const sendCampaignEmail = async (
+  recipientEmail: string,
+  title: string,
+  content: string,
+  link?: string | null,
+) => {
+  const appUrl = process.env.APP_URL || 'https://app.emiid.com';
+  const year = new Date().getFullYear();
+  const ctaUrl = link ? (link.startsWith('http') ? link : `${appUrl}${link.startsWith('/') ? '' : '/'}${link}`) : null;
+
+  // Échappement HTML : le contenu vient de l'admin mais on neutralise toute balise.
+  const escapeHtml = (value: string) =>
+    value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+
+  const safeTitle = escapeHtml(title);
+  const safeContent = escapeHtml(content).replace(/\n/g, '<br />');
+
+  const html = `
+    <div style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f8fafc; padding: 24px 0;">
+      <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0;">
+        <div style="background: linear-gradient(135deg, #022753 0%, #4f46e5 100%); padding: 28px 32px; text-align: center;">
+          <p style="color: #ffffff; margin: 0; font-size: 20px; font-weight: 800;">EmiID</p>
+          <p style="color: #c7d2fe; margin: 6px 0 0; font-size: 12px; font-weight: 600;">Annonce officielle</p>
+        </div>
+        <div style="background-color: #ffffff; padding: 32px;">
+          <h2 style="color: #022753; margin: 0 0 16px; font-size: 20px; font-weight: 700;">${safeTitle}</h2>
+          <p style="color: #334155; font-size: 15px; line-height: 1.7; margin: 0 0 24px;">${safeContent}</p>
+          ${ctaUrl ? `
+          <div style="text-align: center; margin: 24px 0 8px;">
+            <a href="${ctaUrl}"
+               style="background: linear-gradient(135deg, #4f46e5 0%, #022753 100%); color: #ffffff; padding: 13px 30px; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 14px; display: inline-block;">
+              En savoir plus
+            </a>
+          </div>` : ''}
+        </div>
+        <div style="background-color: #f1f5f9; padding: 24px 32px; border-top: 1px solid #e2e8f0; text-align: center;">
+          <p style="margin: 0 0 10px; font-size: 11px; color: #94a3b8; line-height: 1.5;">
+            Vous recevez cet email car vous êtes abonné(e) à la newsletter EmiID.
+            Vous pouvez vous désabonner à tout moment dans vos <a href="${appUrl}/parametres" style="color: #4f46e5; text-decoration: none;">paramètres</a>.
+          </p>
+          <p style="margin: 0; font-size: 11px; color: #cbd5e1;">© ${year} EmiID — Tous droits réservés.</p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const text = `${title}\n\n${content}${ctaUrl ? `\n\nEn savoir plus : ${ctaUrl}` : ''}\n\nVous recevez cet email car vous êtes abonné(e) à la newsletter EmiID. Désabonnement : ${appUrl}/parametres`;
+
+  return sendEmail({ to: recipientEmail, subject: title, html, text });
+};

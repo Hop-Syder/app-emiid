@@ -27,6 +27,15 @@ export const phoneVerifyLimiter = rateLimit({
     legacyHeaders: false,
 });
 
+// Rate limiter pour les campagnes email admin - 5 envois/heure (anti-abus SMTP)
+export const campaignLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000,
+    max: 5,
+    message: { error: 'Trop de campagnes envoyées. Réessayez dans une heure.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
 // Rate limiter pour l'authentification - 10 tentatives/15min
 export const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
