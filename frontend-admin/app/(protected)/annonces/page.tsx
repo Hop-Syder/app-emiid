@@ -1,9 +1,9 @@
-import { BroadcastClient } from "@/components/broadcast-client"
+import { CampaignClient } from "@/components/campaign-client"
 
 export const metadata = {
-  title: "Annonces | EmiID Admin",
+  title: "Annonces & Mailings | EmiID Admin",
 }
 
 export default function AnnoncesPage() {
-  return <BroadcastClient />
+  return <CampaignClient />
 }

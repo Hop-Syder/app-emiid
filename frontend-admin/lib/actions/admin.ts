@@ -1,6 +1,6 @@
 "use server"
 
-import { createAdminClient, createServiceRoleClient, requireAdminSession, type AdminSessionProfile } from "@/lib/supabase/server"
+import { createAdminClient, createServiceRoleClient, createClient, requireAdminSession, type AdminSessionProfile } from "@/lib/supabase/server"
 
 export interface UserProfile {
   id: string
@@ -1726,6 +1726,203 @@ export async function processDueScheduledBroadcasts(): Promise<{ processed: numb
   }
 
   return { processed: rows.length, sent, failed }
+}
+
+// ============================================================
+// Campagnes ciblées — Annonce In-App & Mailing (multicritère)
+// ============================================================
+
+export interface AudienceCriteria {
+  verified?: boolean       // is_verified = true
+  premium?: boolean        // is_premium = true
+  standard?: boolean       // is_premium = false
+  newUsers?: boolean       // inscrits < 30 jours
+  inactive?: boolean       // updated_at > 60 jours (approx. faute de last_seen)
+  manualEmails?: string[]  // e-mails saisis à la main
+  userIds?: string[]       // sélection via autocomplete
+}
+
+export interface CampaignRecipient {
+  user_id: string | null
+  email: string
+  first_name: string | null
+  last_name: string | null
+}
+
+/** Remplace {first_name} / {last_name} dans un gabarit. */
+function personalizeTemplate(tpl: string, r: { first_name?: string | null; last_name?: string | null }): string {
+  return tpl
+    .replace(/\{\{?\s*first_name\s*\}?\}/gi, (r.first_name || "").trim())
+    .replace(/\{\{?\s*last_name\s*\}?\}/gi, (r.last_name || "").trim())
+}
+
+/** Résout la liste des destinataires (critères cumulatifs AND + e-mails/IDs ajoutés en union). */
+async function resolveAudience(supabase: ServiceClient, criteria: AudienceCriteria): Promise<CampaignRecipient[]> {
+  const byEmail = new Map<string, CampaignRecipient>()
+  const add = (r: CampaignRecipient) => {
+    const key = r.email.trim().toLowerCase()
+    if (!key) return
+    if (!byEmail.has(key)) byEmail.set(key, { ...r, email: r.email.trim() })
+  }
+
+  const hasDbCriteria = !!(criteria.verified || criteria.premium || criteria.standard || criteria.newUsers || criteria.inactive)
+  if (hasDbCriteria) {
+    let q = supabase.from("user_profiles").select("user_id, email, first_name, last_name")
+    if (criteria.verified) q = q.eq("is_verified", true)
+    if (criteria.premium) q = q.eq("is_premium", true)
+    if (criteria.standard) q = q.eq("is_premium", false)
+    if (criteria.newUsers) q = q.gte("created_at", new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
+    if (criteria.inactive) q = q.lt("updated_at", new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString())
+    const { data } = await q
+    for (const r of (data as CampaignRecipient[] | null) || []) {
+      if (r.email) add(r)
+    }
+  }
+
+  // Union : utilisateurs sélectionnés par ID (autocomplete)
+  if (criteria.userIds?.length) {
+    const { data } = await supabase
+      .from("user_profiles")
+      .select("user_id, email, first_name, last_name")
+      .in("user_id", criteria.userIds)
+    for (const r of (data as CampaignRecipient[] | null) || []) {
+      if (r.email) add(r)
+    }
+  }
+
+  // Union : e-mails saisis manuellement (hors base éventuellement)
+  for (const raw of criteria.manualEmails || []) {
+    const email = raw.trim()
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      add({ user_id: null, email, first_name: null, last_name: null })
+    }
+  }
+
+  return Array.from(byEmail.values())
+}
+
+/** Compteur d'audience en direct. */
+export async function countAudience(criteria: AudienceCriteria): Promise<{ count: number; withAccount: number; error?: string }> {
+  const supabase = await createAdminClient()
+  const admin = await requireAdminSession()
+  if (!admin) return { count: 0, withAccount: 0, error: "Non autorisé" }
+  const recipients = await resolveAudience(supabase, criteria)
+  return { count: recipients.length, withAccount: recipients.filter((r) => r.user_id).length }
+}
+
+/** Autocomplete : recherche d'utilisateurs par nom/email pour ciblage manuel. */
+export async function searchCampaignUsers(query: string): Promise<CampaignRecipient[]> {
+  const q = query.trim()
+  if (q.length < 2) return []
+  const supabase = await createAdminClient()
+  const admin = await requireAdminSession()
+  if (!admin) return []
+  const { data } = await supabase
+    .from("user_profiles")
+    .select("user_id, email, first_name, last_name")
+    .or(`first_name.ilike.%${q}%,last_name.ilike.%${q}%,email.ilike.%${q}%`)
+    .not("email", "is", null)
+    .limit(8)
+  return (data as CampaignRecipient[] | null) || []
+}
+
+export interface CampaignResult {
+  success: boolean
+  sent: number
+  total: number
+  failed?: number
+  error?: string
+}
+
+/** Envoi d'une campagne : In-App (notifications) ou Mailing (e-mail via backend SMTP). */
+export async function sendCampaign(input: {
+  type: "inapp" | "email"
+  subject: string
+  html: string
+  criteria: AudienceCriteria
+}): Promise<CampaignResult> {
+  const supabase = await createAdminClient()
+  const admin = await requireAdminSession()
+  if (!admin) return { success: false, sent: 0, total: 0, error: "Non autorisé" }
+
+  const subject = input.subject?.trim()
+  const html = input.html?.trim()
+  if (!subject || !html) return { success: false, sent: 0, total: 0, error: "Objet et contenu requis" }
+
+  const recipients = await resolveAudience(supabase, input.criteria)
+  if (!recipients.length) return { success: false, sent: 0, total: 0, error: "Aucun destinataire pour cette sélection" }
+
+  // ─── In-App : insertion de notifications personnalisées ───
+  if (input.type === "inapp") {
+    const accounts = recipients.filter((r) => r.user_id)
+    if (!accounts.length) return { success: false, sent: 0, total: recipients.length, error: "Aucun destinataire avec un compte (l'In-App requiert un compte)" }
+
+    const broadcastId = crypto.randomUUID()
+    // Contenu texte (on retire le HTML pour la notification in-app).
+    const baseText = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim()
+    const rows = accounts.map((r) => ({
+      user_id: r.user_id,
+      type: "admin",
+      title: personalizeTemplate(subject, r),
+      content: personalizeTemplate(baseText, r),
+      link: null,
+      broadcast_id: broadcastId,
+    }))
+
+    let sent = 0
+    let sendError: string | undefined
+    for (let i = 0; i < rows.length; i += 500) {
+      const { error } = await supabase.from("notifications").insert(rows.slice(i, i + 500))
+      if (error) { sendError = error.message; break }
+      sent += Math.min(500, rows.length - i)
+    }
+
+    await logAdminAction(supabase, admin, {
+      action: "campaign",
+      targetType: "audience",
+      targetLabel: `in-app · ${sent}/${accounts.length}`,
+      details: { channel: "inapp", subject, count: sent, total: accounts.length, broadcast_id: broadcastId, criteria: input.criteria },
+    })
+
+    if (sendError) return { success: false, sent, total: accounts.length, error: `Échec partiel : ${sendError}` }
+    return { success: true, sent, total: accounts.length }
+  }
+
+  // ─── Mailing : délégué au backend SMTP (throttlé) avec le token admin ───
+  const cookieClient = await createClient()
+  const { data: { session } } = await cookieClient.auth.getSession()
+  const token = session?.access_token
+  if (!token) return { success: false, sent: 0, total: recipients.length, error: "Session admin introuvable" }
+
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.API_URL
+  if (!apiUrl) return { success: false, sent: 0, total: recipients.length, error: "URL backend non configurée (NEXT_PUBLIC_API_URL)" }
+
+  try {
+    const res = await fetch(`${apiUrl}/api/admin/mailing`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({
+        subject,
+        html,
+        recipients: recipients.map((r) => ({ email: r.email, first_name: r.first_name, last_name: r.last_name })),
+      }),
+    })
+    const data = await res.json().catch(() => ({}))
+    if (!res.ok || !data.success) {
+      return { success: false, sent: data.sent ?? 0, total: recipients.length, error: data.error || "Échec de l'envoi du mailing" }
+    }
+
+    await logAdminAction(supabase, admin, {
+      action: "campaign",
+      targetType: "audience",
+      targetLabel: `email · ${data.sent}/${data.total}`,
+      details: { channel: "email", subject, count: data.sent, total: data.total, failed: data.failed, criteria: input.criteria },
+    })
+
+    return { success: true, sent: data.sent ?? 0, failed: data.failed ?? 0, total: data.total ?? recipients.length }
+  } catch (e) {
+    return { success: false, sent: 0, total: recipients.length, error: e instanceof Error ? e.message : "Erreur réseau backend" }
+  }
 }
 
 // ============================================================
