@@ -1,6 +1,7 @@
 "use server"
 
-import { createAdminClient, createServiceRoleClient, createClient, requireAdminSession, type AdminSessionProfile } from "@/lib/supabase/server"
+import { createAdminClient, createServiceRoleClient, requireAdminSession, type AdminSessionProfile } from "@/lib/supabase/server"
+import { sendBulkEmails, isSmtpConfigured } from "@/lib/mailer"
 
 export interface UserProfile {
   id: string
@@ -1888,52 +1889,31 @@ export async function sendCampaign(input: {
     return { success: true, sent, total: accounts.length }
   }
 
-  // ─── Mailing : délégué au backend SMTP (throttlé) avec le token admin ───
-  const cookieClient = await createClient()
-  const { data: { session } } = await cookieClient.auth.getSession()
-  const token = session?.access_token
-  if (!token) return { success: false, sent: 0, total: recipients.length, error: "Session admin introuvable" }
+  // ─── Mailing : envoi direct via SMTP (Nodemailer), sans dépendance au backend ───
+  if (!isSmtpConfigured()) {
+    return { success: false, sent: 0, total: recipients.length, error: "SMTP non configuré — ajoutez SMTP_HOST / SMTP_USER / SMTP_PASS (+ EMAIL_FROM) à l'environnement de frontend-admin." }
+  }
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.API_URL
-  if (!apiUrl) return { success: false, sent: 0, total: recipients.length, error: "URL backend non configurée (NEXT_PUBLIC_API_URL)" }
-
-  const endpoint = `${apiUrl}/api/admin/mailing`
   try {
-    const res = await fetch(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({
-        subject,
-        html,
-        recipients: recipients.map((r) => ({ email: r.email, first_name: r.first_name, last_name: r.last_name })),
-      }),
-    })
-    const raw = await res.text()
-    let data: { success?: boolean; sent?: number; total?: number; failed?: number; error?: string } = {}
-    try { data = raw ? JSON.parse(raw) : {} } catch { /* réponse non-JSON (404/HTML, proxy…) */ }
-
-    if (!res.ok || !data.success) {
-      // Diagnostic explicite : le message générique masquait la vraie cause.
-      let hint = data.error
-      if (!hint) {
-        if (res.status === 404) hint = `Route mailing introuvable (404) sur ${apiUrl} — le backend n'est pas (re)déployé avec /api/admin/mailing.`
-        else if (res.status === 401) hint = "Non authentifié (401) — token admin refusé par le backend."
-        else if (res.status === 403) hint = "Accès refusé (403) — droits admin non reconnus côté backend."
-        else hint = `Échec mailing (HTTP ${res.status}). ${raw.slice(0, 140)}`
-      }
-      return { success: false, sent: data.sent ?? 0, total: recipients.length, error: hint }
-    }
+    const { sent, failed } = await sendBulkEmails(
+      recipients.map((r) => ({ email: r.email, first_name: r.first_name, last_name: r.last_name })),
+      subject,
+      html,
+    )
 
     await logAdminAction(supabase, admin, {
       action: "campaign",
       targetType: "audience",
-      targetLabel: `email · ${data.sent}/${data.total}`,
-      details: { channel: "email", subject, count: data.sent, total: data.total, failed: data.failed, criteria: input.criteria },
+      targetLabel: `email · ${sent}/${recipients.length}`,
+      details: { channel: "email", subject, count: sent, total: recipients.length, failed, criteria: input.criteria },
     })
 
-    return { success: true, sent: data.sent ?? 0, failed: data.failed ?? 0, total: data.total ?? recipients.length }
+    if (sent === 0) {
+      return { success: false, sent: 0, total: recipients.length, failed, error: `Aucun e-mail envoyé (${failed} échec(s)) — vérifiez la configuration SMTP.` }
+    }
+    return { success: true, sent, failed, total: recipients.length }
   } catch (e) {
-    return { success: false, sent: 0, total: recipients.length, error: e instanceof Error ? e.message : "Erreur réseau backend" }
+    return { success: false, sent: 0, total: recipients.length, error: e instanceof Error ? e.message : "Erreur SMTP" }
   }
 }
 
