@@ -1,6 +1,7 @@
 "use client"
 
-import { Shield, Plus, Check, MessageSquare, Award } from "lucide-react"
+import { Plus, Check, MessageSquare, Award } from "lucide-react"
+import Image from "next/image"
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -169,14 +170,26 @@ export function EmiIDProfileCard({
         style={{ background: `radial-gradient(circle at 50% 0%, ${styles.glow}, transparent)` }}
       />
 
-      {/* Top Banner Area */}
-      <div className="pt-6 pb-2 px-6 flex justify-between items-start z-10">
+      {/* Top Banner Area — type de profil à gauche, badge de vérification à l'opposé */}
+      <div className="pt-6 pb-2 px-6 flex justify-between items-center z-10">
         <span className={cn("text-[10px] font-bold tracking-widest uppercase px-3 py-1 rounded-full border", styles.badge)}>
           {category}
         </span>
-        {variant === "elite" && (
-          <Award className="w-5 h-5 text-amber-500 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
-        )}
+        <div className="flex items-center gap-1.5 shrink-0">
+          {variant === "elite" && (
+            <Award className="w-5 h-5 text-amber-500 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
+          )}
+          {user.verified && (
+            <Image
+              src="/badge/badge-blue-verifation.png"
+              alt="Profil vérifié"
+              width={20}
+              height={20}
+              className="h-5 w-5 shrink-0"
+              title="Profil vérifié"
+            />
+          )}
+        </div>
       </div>
 
       {/* Avatar Section */}
@@ -186,11 +199,6 @@ export function EmiIDProfileCard({
             <AvatarImage src={getOptimizedImageUrl(user.avatar, { width: 200, height: 200 })} className="object-cover" />
             <AvatarFallback className="bg-slate-100 text-slate-900 font-bold text-2xl">{name[0]}</AvatarFallback>
           </Avatar>
-          {user.verified && (
-            <div className={cn("absolute bottom-0 right-0 rounded-full p-1 shadow-lg border-2", variant === "elite" ? "bg-stone-900 border-stone-800" : "bg-white border-slate-100")}>
-              <Shield className={cn("h-4 w-4", styles.accent)} />
-            </div>
-          )}
         </div>
       </div>
 

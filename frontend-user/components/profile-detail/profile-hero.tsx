@@ -8,7 +8,7 @@
  * 📧 daoudaabassichristian@gmail.com
  */
 
-import { Camera, Check, Loader2, MapPin, MessageCircle, Share2, Shield, Star, Users } from "lucide-react"
+import { Camera, Check, Loader2, MapPin, MessageCircle, Share2, Star, Users } from "lucide-react"
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -140,10 +140,14 @@ export function ProfileHero({
                             </h1>
                             <div className="flex gap-2 shrink-0">
                                 {profile.verified && (
-                                    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/60 backdrop-blur-sm border border-slate-200/50 px-2.5 py-1 text-[10px] font-semibold text-slate-700 shadow-[0_2px_10px_rgb(0,0,0,0.02)]">
-                                        <Shield className="h-3.5 w-3.5 text-blue-500" />
-                                        Vérifié
-                                    </span>
+                                    <Image
+                                        src="/badge/badge-blue-verifation.png"
+                                        alt="Profil vérifié"
+                                        width={24}
+                                        height={24}
+                                        className="h-6 w-6 shrink-0"
+                                        title="Profil vérifié"
+                                    />
                                 )}
                                 {profile.premium && (
                                     <span className="inline-flex items-center gap-1.5 rounded-full bg-white/60 backdrop-blur-sm border border-slate-200/50 px-2.5 py-1 text-[10px] font-semibold text-slate-700 shadow-[0_2px_10px_rgb(0,0,0,0.02)]">
