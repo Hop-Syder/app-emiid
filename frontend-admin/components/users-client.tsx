@@ -351,7 +351,9 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
 
   return (
     <TooltipProvider>
-      <div className="space-y-6">
+      {/* Layout scindé : tableau (gauche) + volet de détails (droite) */}
+      <div className="flex flex-col lg:flex-row gap-6 relative w-full overflow-hidden">
+      <div className={`space-y-6 min-w-0 transition-all duration-300 ${showUserModal && selectedUser ? "w-full lg:w-[65%]" : "w-full"}`}>
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
@@ -743,23 +745,18 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
         </div>
       </div>
 
-      {/* User Detail Modal */}
+      </div>
+      {/* User Detail — volet latéral coulissant (Sidebar) */}
       <AnimatePresence>
         {showUserModal && selectedUser && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-            onClick={() => setShowUserModal(false)}
+            initial={{ x: "100%", opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: "100%", opacity: 0 }}
+            transition={{ type: "spring", stiffness: 260, damping: 30 }}
+            className="w-full lg:w-[35%] shrink-0"
           >
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
-              onClick={(e) => e.stopPropagation()}
-            >
+            <div className="bg-white rounded-2xl border border-slate-100 lg:border-l shadow-2xl flex flex-col self-start max-h-[calc(100vh-3rem)] overflow-y-auto">
               {/* Modal Header */}
               <div className="p-6 border-b border-slate-100">
                 <div className="flex items-start justify-between">
@@ -1042,7 +1039,7 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
