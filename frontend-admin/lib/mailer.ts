@@ -51,17 +51,36 @@ export interface MailRecipient {
  * Envoi en masse personnalisé, par lots throttlés (respecte les limites SMTP).
  * Erreurs isolées par destinataire → on ne perd jamais toute la campagne.
  */
+/**
+ * Construit l'expéditeur. Contrainte : les serveurs stricts (dont LWS) rejettent
+ * en 553 tout From dont l'ADRESSE n'est pas la boîte authentifiée (SMTP_USER).
+ * EMAIL_FROM ne fournit donc que le nom d'affichage ; l'adresse est TOUJOURS
+ * SMTP_USER dès qu'il est défini, même si EMAIL_FROM contient une autre adresse.
+ */
+export function buildSender(): string {
+  const smtpUser = (process.env.SMTP_USER || "").trim()
+  const envFrom = (process.env.EMAIL_FROM || "").trim()
+
+  // Nom d'affichage : EMAIL_FROM sans son éventuelle partie <adresse> ni adresse nue.
+  const displayName = envFrom
+    .replace(/<[^>]*>/g, "")
+    .replace(/[^\s<>"']+@[^\s<>"']+/g, "")
+    .replace(/["']/g, "")
+    .trim() || "EmiID"
+
+  // Adresse : boîte authentifiée en priorité, sinon l'adresse extraite d'EMAIL_FROM.
+  const envAddress = envFrom.match(/[^\s<>"']+@[^\s<>"']+/)?.[0] || ""
+  const address = smtpUser || envAddress || "no-reply@emiid.com"
+
+  return `"${displayName}" <${address}>`
+}
+
 export async function sendBulkEmails(
   recipients: MailRecipient[],
   subject: string,
   html: string,
 ): Promise<{ sent: number; failed: number; firstError?: string }> {
-  // Expéditeur : EMAIL_FROM s'il est propre, sinon on retombe sur SMTP_USER —
-  // beaucoup de serveurs (dont LWS) rejettent (553) un From non détenu par le
-  // compte authentifié. Utiliser la boîte authentifiée garantit l'acceptation.
-  const envFrom = process.env.EMAIL_FROM?.trim()
-  const validEnvFrom = envFrom && /@/.test(envFrom) && !/EMAIL_FROM=/i.test(envFrom) ? envFrom : ""
-  const from = validEnvFrom || (process.env.SMTP_USER ? `EmiID <${process.env.SMTP_USER}>` : "EmiID <no-reply@emiid.com>")
+  const from = buildSender()
   // Dédoublonnage par e-mail (insensible à la casse).
   const seen = new Set<string>()
   const unique = recipients.filter((r) => {
