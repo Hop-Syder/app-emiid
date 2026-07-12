@@ -1897,8 +1897,9 @@ export async function sendCampaign(input: {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.API_URL
   if (!apiUrl) return { success: false, sent: 0, total: recipients.length, error: "URL backend non configurée (NEXT_PUBLIC_API_URL)" }
 
+  const endpoint = `${apiUrl}/api/admin/mailing`
   try {
-    const res = await fetch(`${apiUrl}/api/admin/mailing`, {
+    const res = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({
@@ -1907,9 +1908,20 @@ export async function sendCampaign(input: {
         recipients: recipients.map((r) => ({ email: r.email, first_name: r.first_name, last_name: r.last_name })),
       }),
     })
-    const data = await res.json().catch(() => ({}))
+    const raw = await res.text()
+    let data: { success?: boolean; sent?: number; total?: number; failed?: number; error?: string } = {}
+    try { data = raw ? JSON.parse(raw) : {} } catch { /* réponse non-JSON (404/HTML, proxy…) */ }
+
     if (!res.ok || !data.success) {
-      return { success: false, sent: data.sent ?? 0, total: recipients.length, error: data.error || "Échec de l'envoi du mailing" }
+      // Diagnostic explicite : le message générique masquait la vraie cause.
+      let hint = data.error
+      if (!hint) {
+        if (res.status === 404) hint = `Route mailing introuvable (404) sur ${apiUrl} — le backend n'est pas (re)déployé avec /api/admin/mailing.`
+        else if (res.status === 401) hint = "Non authentifié (401) — token admin refusé par le backend."
+        else if (res.status === 403) hint = "Accès refusé (403) — droits admin non reconnus côté backend."
+        else hint = `Échec mailing (HTTP ${res.status}). ${raw.slice(0, 140)}`
+      }
+      return { success: false, sent: data.sent ?? 0, total: recipients.length, error: hint }
     }
 
     await logAdminAction(supabase, admin, {
