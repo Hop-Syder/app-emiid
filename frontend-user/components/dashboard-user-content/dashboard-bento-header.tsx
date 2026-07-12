@@ -13,10 +13,9 @@
 import { motion, Variants } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
-import { BadgeCheck, Crown, Globe, Users, Search, ArrowRight, Award } from "lucide-react"
+import { BadgeCheck, Crown, Globe, Users, Briefcase, ArrowRight, Award } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useCurrentUserProfile } from "@/hooks/use-current-user-profile"
-import { useCommandPalette } from "@/components/command-palette-context"
 import Image from "next/image"
 
 interface DashboardBentoHeaderProps {
@@ -32,7 +31,6 @@ interface DashboardBentoHeaderProps {
 export function DashboardBentoHeader({ stats, statsLoading }: DashboardBentoHeaderProps) {
     const router = useRouter()
     const { session } = useCurrentUserProfile()
-    const { setOpen: setCommandPaletteOpen } = useCommandPalette()
     const [greeting, setGreeting] = useState("Bonjour")
 
     useEffect(() => {
@@ -126,13 +124,10 @@ export function DashboardBentoHeader({ stats, statsLoading }: DashboardBentoHead
                             <Button
                                 size="sm"
                                 className="rounded-xl bg-white text-slate-900 hover:bg-slate-50 font-bold px-5 h-10 shadow-xl transition-all hover:scale-[1.02] text-sm"
-                                onClick={() => setCommandPaletteOpen(true)}
+                                onClick={() => router.push("/portefeuille")}
                             >
-                                <Search className="w-3.5 h-3.5 mr-1.5" />
-                                Rechercher
-                                <kbd className="ml-2 pointer-events-none inline-flex h-5 select-none items-center rounded bg-slate-100 px-1.5 font-mono text-[10px] font-bold text-slate-400">
-                                    ⌘K
-                                </kbd>
+                                <Briefcase className="w-3.5 h-3.5 mr-1.5" />
+                                Mes réalisations
                             </Button>
                         </div>
                     </div>

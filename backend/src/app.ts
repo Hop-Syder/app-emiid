@@ -25,13 +25,33 @@ const defaultOrigins = [
 
 export const allowedOrigins = (() => {
   const configuredOrigins = process.env.CORS_ORIGINS || process.env.CORS_ORIGIN || ''
-  return configuredOrigins
+  const origins = configuredOrigins
     ? configuredOrigins.split(',').map((origin) => origin.trim()).filter(Boolean)
     : defaultOrigins
+
+  // SÉCURITÉ : le wildcard '*' combiné à credentials:true expose les sessions
+  // de tous les utilisateurs à n'importe quel site. Interdit en production —
+  // lister explicitement les origines dans CORS_ORIGINS.
+  if (process.env.NODE_ENV === 'production' && origins.includes('*')) {
+    logger.error("CORS : wildcard '*' ignoré en production. Listez les origines explicites dans CORS_ORIGINS.")
+    return origins.filter((origin) => origin !== '*')
+  }
+
+  return origins
 })()
 
 export function createApp(): Application {
   const app: Application = express()
+
+  // SÉCURITÉ : derrière un proxy (Railway/Vercel), Express doit faire confiance au
+  // header X-Forwarded-For pour reconstruire l'IP réelle du client. Sans cela,
+  // `req.ip` vaut l'IP du proxy pour TOUS les clients : les rate limiters
+  // (PIN, OTP, auth) partagent alors un seul compteur et la protection
+  // anti-brute-force devient inopérante. On limite la confiance au nombre de
+  // sauts de proxy (1 par défaut) pour empêcher l'usurpation d'IP via un XFF forgé.
+  const trustProxyEnv = (process.env.TRUST_PROXY || '').trim()
+  const trustProxyHops = Number.parseInt(trustProxyEnv, 10)
+  app.set('trust proxy', Number.isFinite(trustProxyHops) && trustProxyHops >= 0 ? trustProxyHops : 1)
 
   app.use(helmet())
   app.use(cors({
@@ -46,7 +66,9 @@ export function createApp(): Application {
     },
     credentials: true,
   }))
-  app.use(express.json())
+  // Limite explicite du corps JSON (valeur par défaut d'Express, fixée ici
+  // pour rester robuste face aux changements de version).
+  app.use(express.json({ limit: '100kb' }))
 
   app.get('/', (_req: Request, res: Response) => {
     res.status(200).json({
@@ -64,12 +86,14 @@ export function createApp(): Application {
         .select('id', { count: 'exact', head: true })
 
       if (error) {
+        // SÉCURITÉ : le détail de l'erreur BDD est loggué côté serveur uniquement,
+        // jamais renvoyé au client (risque de divulgation d'information).
+        logger.error('Health check database error', error)
         return res.status(503).json({
           status: 'degraded',
           checks: {
             database: {
               status: 'down',
-              message: error.message,
             },
           },
         })
@@ -87,12 +111,12 @@ export function createApp(): Application {
         },
       })
     } catch (error) {
+      logger.error('Health check failure', error)
       return res.status(503).json({
         status: 'degraded',
         checks: {
           database: {
             status: 'down',
-            message: error instanceof Error ? error.message : 'Erreur inconnue',
           },
         },
       })
