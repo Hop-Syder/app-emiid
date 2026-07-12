@@ -1832,7 +1832,36 @@ export interface CampaignResult {
   sent: number
   total: number
   failed?: number
+  /** Destinataires écartés du mailing car non abonnés à la newsletter (opt-in). */
+  skipped?: number
   error?: string
+}
+
+/**
+ * Filtre opt-in newsletter pour le canal e-mail : ne conserve que les comptes
+ * ayant activé les e-mails (notification_preferences.email_enabled = true).
+ * Les e-mails saisis manuellement (sans compte) passent — saisie explicite de l'admin.
+ */
+async function filterEmailOptIn(
+  supabase: ServiceClient,
+  recipients: CampaignRecipient[],
+): Promise<{ kept: CampaignRecipient[]; skipped: number }> {
+  const withAccount = recipients.filter((r) => r.user_id)
+  const manual = recipients.filter((r) => !r.user_id)
+
+  const optedIn = new Set<string>()
+  const ids = withAccount.map((r) => r.user_id as string)
+  for (let i = 0; i < ids.length; i += 500) {
+    const { data } = await supabase
+      .from("notification_preferences")
+      .select("user_id")
+      .eq("email_enabled", true)
+      .in("user_id", ids.slice(i, i + 500))
+    for (const row of (data as { user_id: string }[] | null) || []) optedIn.add(row.user_id)
+  }
+
+  const kept = [...withAccount.filter((r) => optedIn.has(r.user_id as string)), ...manual]
+  return { kept, skipped: recipients.length - kept.length }
 }
 
 /** Envoi d'une campagne : In-App (notifications) ou Mailing (e-mail via backend SMTP). */
@@ -1900,9 +1929,16 @@ export async function sendCampaign(input: {
     return { success: false, sent: 0, total: recipients.length, error: `Connexion SMTP échouée : ${check.error}` }
   }
 
+  // CONFORMITÉ : opt-in newsletter — on n'écrit qu'aux comptes ayant activé
+  // les e-mails ; les adresses saisies manuellement passent (choix explicite).
+  const { kept, skipped } = await filterEmailOptIn(supabase, recipients)
+  if (kept.length === 0) {
+    return { success: false, sent: 0, total: recipients.length, skipped, error: "Aucun destinataire abonné à la newsletter dans cette sélection (opt-in requis)." }
+  }
+
   try {
     const { sent, failed, firstError } = await sendBulkEmails(
-      recipients.map((r) => ({ email: r.email, first_name: r.first_name, last_name: r.last_name })),
+      kept.map((r) => ({ email: r.email, first_name: r.first_name, last_name: r.last_name })),
       subject,
       html,
     )
@@ -1910,16 +1946,16 @@ export async function sendCampaign(input: {
     await logAdminAction(supabase, admin, {
       action: "campaign",
       targetType: "audience",
-      targetLabel: `email · ${sent}/${recipients.length}`,
-      details: { channel: "email", subject, count: sent, total: recipients.length, failed, criteria: input.criteria },
+      targetLabel: `email · ${sent}/${kept.length}`,
+      details: { channel: "email", subject, count: sent, total: kept.length, failed, skipped_opt_out: skipped, criteria: input.criteria },
     })
 
     if (sent === 0) {
-      return { success: false, sent: 0, total: recipients.length, failed, error: `Aucun e-mail envoyé (${failed} échec(s)) : ${firstError || "vérifiez la configuration SMTP."}` }
+      return { success: false, sent: 0, total: kept.length, failed, skipped, error: `Aucun e-mail envoyé (${failed} échec(s)) : ${firstError || "vérifiez la configuration SMTP."}` }
     }
-    return { success: true, sent, failed, total: recipients.length }
+    return { success: true, sent, failed, skipped, total: kept.length }
   } catch (e) {
-    return { success: false, sent: 0, total: recipients.length, error: e instanceof Error ? e.message : "Erreur SMTP" }
+    return { success: false, sent: 0, total: kept.length, skipped, error: e instanceof Error ? e.message : "Erreur SMTP" }
   }
 }
 
