@@ -170,7 +170,7 @@ export function CampaignClient({ emailOnly = false }: { emailOnly?: boolean }) {
       if (!res.success) { toast.error(res.error || "Échec de l'envoi"); return }
       setLastResult(
         channel === "email"
-          ? `E-mail envoyé à ${fmt(res.sent)} destinataire(s)${res.failed ? ` (${res.failed} échec(s))` : ""}`
+          ? `E-mail envoyé à ${fmt(res.sent)} destinataire(s)${res.failed ? ` (${res.failed} échec(s))` : ""}${res.skipped ? ` — ${fmt(res.skipped)} non abonné(s) newsletter ignoré(s)` : ""}`
           : `Annonce in-app envoyée à ${fmt(res.sent)} destinataire(s)`
       )
       toast.success("Campagne envoyée")
