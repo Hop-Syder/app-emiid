@@ -286,34 +286,36 @@ interface StepCompetencesProps {
     activityDomain?: string
 }
 
-// Suggestions génériques (aucun secteur choisi ou secteur non couvert).
-const DEFAULT_TAGS = ["Marketing", "Vente", "Gestion de projet", "Communication", "Service client", "Négociation", "Bureautique", "Rédaction", "Réseautage", "Organisation"]
+// Suggestions génériques (aucun secteur choisi ou secteur non couvert) —
+// formulées en réalisations concrètes plutôt qu'en termes abstraits.
+const DEFAULT_TAGS = ["Vente & Commerce", "Gestion administrative", "Service client", "Communication", "Formation", "Livraison", "Conseil", "Organisation d'événements"]
 
-// Suggestions contextuelles par secteur d'activité (aligné sur lib/profile-options).
+// Suggestions contextuelles par secteur (aligné sur lib/profile-options) — libellées
+// en langage naturel / réalisations réelles, adaptées au marché africain.
 const SUGGESTED_TAGS_BY_DOMAIN: Record<string, string[]> = {
-    tech:         ["React", "TypeScript", "Node.js", "UI/UX", "Python", "Docker", "Next.js", "SEO", "Git", "DevOps"],
-    droit:        ["Conseil juridique", "Contrats", "Contentieux", "Droit des affaires", "Droit du travail", "Fiscalité", "Arbitrage", "Veille juridique", "Droit pénal"],
-    finance:      ["Comptabilité", "Audit", "Fiscalité", "Analyse financière", "Assurance", "Banque", "Gestion", "Excel", "Trésorerie"],
-    sante:        ["Médecine", "Soins", "Pharmacie", "Psychologie", "Nutrition", "Fitness", "Massage", "Bien-être", "Kinésithérapie"],
-    creatif:      ["Design", "Illustration", "Photographie", "Montage vidéo", "Graphisme", "Musique", "Peinture artistique", "Calligraphie"],
-    mode:         ["Couture", "Stylisme", "Modélisme", "Coiffure", "Maquillage", "Soins esthétiques", "Manucure", "Coiffure homme", "Stylisme photo"],
-    restauration: ["Cuisine", "Pâtisserie", "Traiteur", "Hygiène alimentaire", "Service en salle", "Sommellerie", "Barista", "Gastronomie"],
-    btp:          ["Maçonnerie", "Plomberie", "Électricité", "Architecture", "Menuiserie", "Peinture", "Staffeur", "Soudure", "Chantiers", "Métallerie"],
-    conseil:      ["Audit", "Coaching", "Consulting", "Recrutement", "Gestion des RH", "Management", "Organisation", "Stratégie", "RSE"],
-    immobilier:   ["Négociation", "Gestion locative", "Promotion", "Estimation", "Visites", "Syndic", "Courtage", "Droit immobilier"],
-    media:        ["Journalisme", "Relations presse", "Rédaction web", "Community management", "Publicité", "Photojournalisme", "Copywriting"],
-    industrie:    ["Mécanique", "Maintenance", "Soudure", "Automatisme", "Électronique", "Chaudronnerie", "Robotique", "Maintenance industrielle"],
-    securite:     ["Surveillance", "Sécurité incendie", "Gardiennage", "Télésurveillance", "Secourisme", "Intervention", "Ronde de nuit"],
-    services:     ["Nettoyage", "Électricité", "Plomberie", "Bricolage", "Aide à domicile", "Dépannage", "Repassage", "Conciergerie"],
-    sport:        ["Coaching sportif", "Entraînement", "Yoga", "Arbitrage", "Événementiel sportif", "Préparation physique", "Musculation"],
-    agro:         ["Agriculture", "Élevage", "Transformation alimentaire", "Maraîchage", "Agronomie", "Pisciculture", "Distribution", "Bio", "Conditionnement"],
-    education:    ["Enseignement", "Formation", "Coaching scolaire", "E-learning", "Pédagogie", "Langues", "Soutien scolaire", "Orientation", "Tutorat"],
-    commerce:     ["Vente", "Négociation", "Merchandising", "Import-Export", "E-commerce", "Relation client", "Grande distribution", "Achats", "Logistique"],
-    transport:    ["Conduite", "Logistique", "Livraison", "Transit", "Chaîne d'approvisionnement", "Fret", "Manutention", "Douane", "Coursier"],
-    tourisme:     ["Accueil", "Guide touristique", "Réception", "Réservation", "Restauration", "Événementiel", "Voyages", "Hébergement", "Animation"],
-    energie:      ["Énergie solaire", "Électricité", "Installation", "Maintenance", "Environnement", "Efficacité énergétique", "Éolien", "Recyclage", "Plomberie"],
-    b2b:          ["Consulting", "Prospection", "Gestion de projet", "Support technique", "Account management", "Achats", "Sous-traitance", "Partenariats"],
-    evenementiel: ["Organisation d'événements", "Décoration", "Sonorisation", "Traiteur", "Animation", "Coordination", "Régie", "Logistique événementielle"],
+    tech:         ["Créer un site web", "Créer une application mobile", "Logiciel de comptabilité", "Réparer un ordinateur / Maintenance", "Infographie & Création de logo", "Publicité Facebook & Instagram", "Création de visuels / Canva", "Montage vidéo pour réseaux sociaux"],
+    droit:        ["Rédiger un contrat de travail", "Conseil pour création d'entreprise", "Règlement de litiges", "Audit de conformité", "Défense au tribunal", "Démarches d'enregistrement foncier", "Conseil fiscal"],
+    finance:      ["Tenue de comptabilité", "Déclaration d'impôts", "Conseil en gestion d'argent", "Montage de dossier de crédit", "Assurance auto & habitation", "Transfert d'argent / Mobile Money", "Gestion de budget d'entreprise", "Établir un bilan comptable"],
+    sante:        ["Consultation médicale", "Soins infirmiers à domicile", "Massage & Kiné", "Conseil en nutrition", "Suivi de grossesse", "Vente de médicaments / Pharmacie", "Soutien psychologique", "Coach remise en forme"],
+    creatif:      ["Photographie d'événements (mariage, baptême)", "Montage vidéo & Clip", "Création de logo & Flyers", "Décoration & Peinture artistique", "Animation musicale (DJ)", "Sérigraphie & Impression T-shirt", "Illustration & Dessin", "Gestion de réseaux sociaux"],
+    mode:         ["Coudre un Bomba / Tenue traditionnelle", "Coudre un Corset", "Coudre une chemise / Pantalon", "Coudre une robe de mariée", "Coiffure homme / Barbe", "Tresses & Coiffure femme", "Manucure & Onglerie", "Maquillage professionnel / Make-up", "Stylisme et création de modèles"],
+    restauration: ["Traiteur pour événements (Mariage, Baptême)", "Cuisine de plats locaux (Jollof, Garba, Yassa)", "Pâtisserie & Gâteaux d'anniversaire", "Conception de menus de restaurant", "Gestion de cuisine & Service en salle", "Fabrication de jus locaux et cocktails"],
+    btp:          ["Poser du carrelage / Pavés", "Faire du staff / Plâtre décoratif", "Peindre des bâtiments", "Installation électrique de maison", "Plomberie & Réparation de fuites", "Soudure & Fabrication de portails", "Maçonnerie & Gros œuvre", "Plans de maison & Plan d'architecte"],
+    conseil:      ["Recrutement de personnel", "Coaching et développement d'affaires", "Formation en informatique", "Aide aux devoirs / Cours à domicile", "Soutien et conseil en ressources humaines", "Gestion administrative"],
+    immobilier:   ["Vente de terrain & Maison", "Location d'appartements", "Gestion locative (loyers)", "Estimation de bien", "Recherche de logement", "Gestion d'immeuble / Syndic", "Courtage immobilier", "Démarches foncières"],
+    media:        ["Rédaction d'articles", "Reportage & Journalisme", "Gestion de page Facebook / Instagram", "Relations presse & Communiqué", "Publicité & Affichage", "Animation radio / TV", "Rédaction web (référencement)", "Couverture photo/vidéo d'événement"],
+    industrie:    ["Réparation de moteur / Mécanique auto", "Soudure & Métallerie", "Maintenance de machines", "Fabrication métallique", "Électricité industrielle", "Froid & Climatisation", "Réparation d'engins", "Tôlerie & Peinture auto"],
+    securite:     ["Gardiennage de nuit", "Agent de sécurité événementiel", "Installation de caméras de surveillance", "Télésurveillance", "Secourisme & Premiers soins", "Protection rapprochée", "Rondes & Patrouilles", "Sécurité incendie"],
+    services:     ["Nettoyage de bureaux & Résidences", "Lavage et entretien de voiture", "Jardinage & Aménagement de cour", "Sécurité et gardiennage de nuit", "Installation d'antennes TV / Canal+", "Dépannage d'appareils électroménagers"],
+    sport:        ["Coach sportif personnel", "Cours de fitness / Musculation", "Cours de football", "Préparation physique", "Cours de danse", "Yoga & Relaxation", "Arbitrage sportif", "Organisation de tournois"],
+    agro:         ["Production maraîchère (légumes)", "Élevage (poulets, porcs)", "Transformation de produits (jus, farine)", "Vente de produits agricoles", "Conseil en agriculture", "Pisciculture / Élevage de poissons", "Production d'œufs / Aviculture", "Conditionnement & Emballage"],
+    education:    ["Cours à domicile / Répétiteur", "Aide aux devoirs", "Cours de langues (Anglais, Français)", "Formation en informatique", "Préparation aux examens (BAC, BEPC)", "Cours de musique", "Encadrement scolaire", "Formation professionnelle"],
+    commerce:     ["Vente en gros et détail", "Import-Export de marchandises", "Vente en ligne (WhatsApp / Facebook)", "Approvisionnement & Achats", "Distribution de produits", "Boutique & Magasin", "Vente de vêtements / Friperie", "Livraison de commandes"],
+    transport:    ["Transport de personnes (Taxi, VTC)", "Livraison de colis", "Déménagement", "Transport de marchandises", "Location de véhicules", "Coursier moto", "Logistique & Stockage", "Dédouanement"],
+    tourisme:     ["Guide touristique", "Réservation d'hôtel", "Organisation de voyages", "Location de vacances", "Accueil & Réception", "Restauration & Bar", "Animation touristique", "Transport de touristes"],
+    energie:      ["Installation de panneaux solaires", "Installation électrique", "Groupe électrogène (vente / entretien)", "Plomberie & Forage", "Gestion des déchets / Recyclage", "Maintenance énergétique", "Climatisation & Froid", "Éclairage solaire"],
+    b2b:          ["Fourniture aux entreprises", "Prestation de services aux sociétés", "Sous-traitance", "Consulting d'entreprise", "Approvisionnement en matériel", "Maintenance informatique entreprise", "Gestion de projet", "Prospection commerciale"],
+    evenementiel: ["Organisation de mariage", "Décoration de salle", "Sonorisation & Lumière (DJ)", "Traiteur événementiel", "Location de chaises / bâches", "Animation & Maître de cérémonie", "Location de matériel de fête", "Photographe / Vidéaste d'événement"],
 }
 
 export function StepCompetences({ tags, tagInput, setTagInput, addTag, addSuggestedTag, removeTag, inputClasses, activityDomain }: StepCompetencesProps) {
