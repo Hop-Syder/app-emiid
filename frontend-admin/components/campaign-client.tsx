@@ -410,9 +410,9 @@ export function CampaignClient() {
               {channel === "email" ? "Campagne e-mail" : "Annonce in-app"} à <strong className="text-slate-900">{reachLabel}</strong>. Action irréversible.
             </DialogDescription>
           </DialogHeader>
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-3.5">
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-3.5 max-h-[180px] overflow-y-auto">
             <p className="text-sm font-bold text-slate-900 break-words">{subject}</p>
-            <div className="text-xs text-slate-600 mt-1 line-clamp-4" dangerouslySetInnerHTML={{ __html: finalHtml() }} />
+            <div className="text-xs text-slate-600 mt-1" dangerouslySetInnerHTML={{ __html: finalHtml() }} />
           </div>
           <DialogFooter className="gap-2 sm:gap-2">
             <button onClick={() => setConfirmOpen(false)} disabled={sending} className="px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 disabled:opacity-50">Annuler</button>
