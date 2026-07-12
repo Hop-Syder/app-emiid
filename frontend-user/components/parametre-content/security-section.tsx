@@ -72,11 +72,20 @@ export function SecuritySection({ profile, setProfile, securitySettings, setSecu
     // ── PIN handlers ────────────────────────────────────────────────────────
 
     const handlePinToggle = (checked: boolean) => {
-        setPendingAction(checked ? "enable" : "disable")
         setReauthPassword("")
         setReauthPin("")
         setReauthError("")
-        setReauthDialogOpen(true)
+        if (checked) {
+            setPendingAction("enable")
+            setPinStep("enter")
+            setTempPin("")
+            setConfirmPin("")
+            setPinError("")
+            setPinDialogOpen(true)
+        } else {
+            setPendingAction("disable")
+            setReauthDialogOpen(true)
+        }
     }
 
     const processAfterReauth = () => {
