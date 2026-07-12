@@ -116,6 +116,16 @@ export function AnnuaireGrid({ filters, initialProfiles = [], onlyPremium = fals
     const [isFirstRender, setIsFirstRender] = useState(true)
     const [page, setPage] = useState(1)
     const [totalCount, setTotalCount] = useState(initialProfiles.length)
+    // Desktop → carrousels horizontaux de 10 ; mobile → liste verticale (scroll naturel).
+    const [isDesktop, setIsDesktop] = useState(false)
+
+    useEffect(() => {
+        const mq = window.matchMedia("(min-width: 768px)")
+        const update = () => setIsDesktop(mq.matches)
+        update()
+        mq.addEventListener("change", update)
+        return () => mq.removeEventListener("change", update)
+    }, [])
     // Multiple de ROW_SIZE : chaque page affiche des lignes complètes de 10 cartes.
     const limit = 30
 
@@ -246,14 +256,31 @@ export function AnnuaireGrid({ filters, initialProfiles = [], onlyPremium = fals
 
     return (
         <div className="space-y-8">
-            {/* Lignes horizontales défilantes : ROW_SIZE cartes par ligne, puis passage à la ligne suivante */}
-            {Array.from({ length: Math.ceil(profiles.length / ROW_SIZE) }, (_, rowIndex) => (
-                <ProfileRow
-                    key={`row-${rowIndex}-${profiles[rowIndex * ROW_SIZE]?.id ?? rowIndex}`}
-                    profiles={profiles.slice(rowIndex * ROW_SIZE, (rowIndex + 1) * ROW_SIZE)}
-                    theme={theme}
-                />
-            ))}
+            {isDesktop ? (
+                /* Desktop : lignes horizontales défilantes de ROW_SIZE cartes */
+                Array.from({ length: Math.ceil(profiles.length / ROW_SIZE) }, (_, rowIndex) => (
+                    <ProfileRow
+                        key={`row-${rowIndex}-${profiles[rowIndex * ROW_SIZE]?.id ?? rowIndex}`}
+                        profiles={profiles.slice(rowIndex * ROW_SIZE, (rowIndex + 1) * ROW_SIZE)}
+                        theme={theme}
+                    />
+                ))
+            ) : (
+                /* Mobile : liste verticale (scroll naturel, pas de carrousels imbriqués) */
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 place-items-center">
+                    {profiles.map((profile, index) => (
+                        <motion.div
+                            key={profile.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.4, delay: Math.min(index, 8) * 0.04 }}
+                            className="w-full max-w-[300px]"
+                        >
+                            <AnnuaireCard profile={profile} theme={theme} />
+                        </motion.div>
+                    ))}
+                </div>
+            )}
 
             {/* Pagination Controls */}
             {totalPages > 1 && (

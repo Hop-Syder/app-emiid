@@ -9,9 +9,13 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { Megaphone, Send, Loader2, Users, CheckCircle2, Globe, Crown, BadgeCheck, Ban, AlertTriangle, Link2, History, Sparkles, XCircle } from "lucide-react"
+import { Megaphone, Send, Loader2, Users, CheckCircle2, Globe, Crown, BadgeCheck, Ban, AlertTriangle, Link2, History, Sparkles, XCircle, CalendarClock, Clock, X } from "lucide-react"
 import { toast } from "sonner"
-import { broadcastAnnouncement, countSegment, getAuditLog, getBroadcastReadCounts, type BroadcastSegment, type AuditLogEntry } from "@/lib/actions/admin"
+import {
+  broadcastAnnouncement, countSegment, getAuditLog, getBroadcastReadCounts,
+  scheduleBroadcast, listScheduledBroadcasts, cancelScheduledBroadcast,
+  type BroadcastSegment, type AuditLogEntry, type ScheduledBroadcast,
+} from "@/lib/actions/admin"
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog"
@@ -65,6 +69,11 @@ export function BroadcastClient() {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [lastResult, setLastResult] = useState<number | null>(null)
 
+  // Programmation (P2 #11)
+  const [scheduleMode, setScheduleMode] = useState(false)
+  const [scheduledFor, setScheduledFor] = useState("")
+  const [scheduled, setScheduled] = useState<ScheduledBroadcast[]>([])
+
   // Portée par segment (nombre de destinataires) — chargée à l'ouverture.
   const [counts, setCounts] = useState<Partial<Record<BroadcastSegment, number>>>({})
   const [countsLoading, setCountsLoading] = useState(true)
@@ -101,11 +110,20 @@ export function BroadcastClient() {
     }
   }
 
-  useEffect(() => { loadCounts(); loadHistory() }, [])
+  const loadScheduled = async () => {
+    try {
+      setScheduled(await listScheduledBroadcasts())
+    } catch {
+      /* silencieux */
+    }
+  }
+
+  useEffect(() => { loadCounts(); loadHistory(); loadScheduled() }, [])
 
   const reach = counts[segment]
   const linkErr = useMemo(() => linkError(link), [link])
-  const canSend = title.trim().length > 0 && content.trim().length > 0 && !linkErr && !sending
+  const scheduleErr = scheduleMode && (!scheduledFor || new Date(scheduledFor).getTime() < Date.now() + 60_000)
+  const canSend = title.trim().length > 0 && content.trim().length > 0 && !linkErr && !scheduleErr && !sending
   const segLabel = SEGMENTS.find((s) => s.id === segment)?.label ?? segment
 
   const applyTemplate = (t: (typeof TEMPLATES)[number]) => {
@@ -116,6 +134,15 @@ export function BroadcastClient() {
     setSending(true)
     setLastResult(null)
     try {
+      if (scheduleMode) {
+        const res = await scheduleBroadcast({ title, content, segment, link: link || undefined, scheduledFor })
+        if (!res.success) { toast.error(res.error || "Échec de la programmation"); return }
+        toast.success("Annonce programmée")
+        setTitle(""); setContent(""); setLink(""); setScheduledFor(""); setScheduleMode(false)
+        setConfirmOpen(false)
+        loadScheduled()
+        return
+      }
       const res = await broadcastAnnouncement({ title, content, segment, link: link || undefined })
       if (!res.success) { toast.error(res.error || "Échec de l'envoi"); return }
       setLastResult(res.count)
@@ -128,6 +155,13 @@ export function BroadcastClient() {
     } finally {
       setSending(false)
     }
+  }
+
+  const doCancel = async (id: string) => {
+    const res = await cancelScheduledBroadcast(id)
+    if (!res.success) { toast.error(res.error || "Annulation impossible"); return }
+    toast.success("Programmation annulée")
+    loadScheduled()
   }
 
   return (
@@ -252,14 +286,47 @@ export function BroadcastClient() {
             )}
           </div>
 
+          {/* Timing : envoi immédiat ou programmé */}
+          <div>
+            <div className="inline-flex rounded-xl border border-slate-200 p-0.5 bg-slate-50">
+              <button
+                type="button"
+                onClick={() => setScheduleMode(false)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+                  !scheduleMode ? "bg-white text-[#013ff4] shadow-sm" : "text-slate-500"
+                }`}
+              >
+                <Send className="h-3.5 w-3.5" /> Immédiat
+              </button>
+              <button
+                type="button"
+                onClick={() => setScheduleMode(true)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+                  scheduleMode ? "bg-white text-[#013ff4] shadow-sm" : "text-slate-500"
+                }`}
+              >
+                <CalendarClock className="h-3.5 w-3.5" /> Programmer
+              </button>
+            </div>
+            {scheduleMode && (
+              <input
+                type="datetime-local"
+                value={scheduledFor}
+                min={new Date(Date.now() + 60_000).toISOString().slice(0, 16)}
+                onChange={(e) => setScheduledFor(e.target.value)}
+                className="mt-2 w-full sm:w-auto px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#013ff4]/30"
+              />
+            )}
+          </div>
+
           <div className="flex justify-end pt-1">
             <button
               onClick={() => setConfirmOpen(true)}
               disabled={!canSend}
               className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#013ff4] text-white rounded-xl text-sm font-semibold hover:bg-[#012fc0] transition-colors disabled:opacity-50"
             >
-              <Send className="h-4 w-4" />
-              Vérifier et envoyer
+              {scheduleMode ? <CalendarClock className="h-4 w-4" /> : <Send className="h-4 w-4" />}
+              {scheduleMode ? "Programmer l'envoi" : "Vérifier et envoyer"}
             </button>
           </div>
         </div>
@@ -292,6 +359,52 @@ export function BroadcastClient() {
           </p>
         </aside>
       </div>
+
+      {/* Annonces programmées (P2 #11) */}
+      {scheduled.length > 0 && (
+        <div>
+          <h2 className="flex items-center gap-2 text-sm font-bold text-slate-700 mb-3">
+            <CalendarClock className="h-4 w-4 text-slate-400" /> Programmées
+          </h2>
+          <ul className="divide-y divide-slate-100 rounded-2xl border border-slate-200 bg-white overflow-hidden">
+            {scheduled.map((s) => {
+              const when = new Date(s.scheduled_for).toLocaleString("fr-FR", { dateStyle: "medium", timeStyle: "short" })
+              const seg = SEGMENT_LABEL[s.segment] ?? s.segment
+              const statusStyle =
+                s.status === "pending" ? "text-[#013ff4] bg-[#013ff4]/10"
+                : s.status === "sent" ? "text-emerald-600 bg-emerald-50"
+                : s.status === "failed" ? "text-red-600 bg-red-50"
+                : "text-slate-400 bg-slate-100"
+              const statusLabel =
+                s.status === "pending" ? "en attente" : s.status === "sent" ? "envoyée" : s.status === "failed" ? "échouée" : "annulée"
+              return (
+                <li key={s.id} className="flex items-start gap-3 p-4">
+                  <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
+                    <Clock className="h-4 w-4 text-slate-400" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-bold text-slate-900 truncate">{s.title}</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">{when} · {seg}{s.created_by_email ? ` · ${s.created_by_email}` : ""}</p>
+                    {s.status === "failed" && s.error && (
+                      <p className="text-[11px] text-red-500 mt-0.5 truncate">{s.error}</p>
+                    )}
+                  </div>
+                  <span className={`shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full ${statusStyle}`}>{statusLabel}</span>
+                  {s.status === "pending" && (
+                    <button
+                      onClick={() => doCancel(s.id)}
+                      className="shrink-0 p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                      aria-label="Annuler la programmation"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
+                </li>
+              )
+            })}
+          </ul>
+        </div>
+      )}
 
       {/* Historique des annonces (P1 #2) */}
       <div>
@@ -348,14 +461,28 @@ export function BroadcastClient() {
         <DialogContent className="sm:max-w-md rounded-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-amber-500" /> Confirmer la diffusion
+              {scheduleMode
+                ? <><CalendarClock className="h-5 w-5 text-[#013ff4]" /> Confirmer la programmation</>
+                : <><AlertTriangle className="h-5 w-5 text-amber-500" /> Confirmer la diffusion</>}
             </DialogTitle>
             <DialogDescription>
-              Vous allez notifier{" "}
-              <strong className="text-slate-900">
-                {reach !== undefined ? `${fmt(reach)} destinataire(s)` : "les utilisateurs"}
-              </strong>{" "}
-              du segment «&nbsp;{segLabel}&nbsp;». Cette action est irréversible.
+              {scheduleMode ? (
+                <>
+                  Programmée pour le{" "}
+                  <strong className="text-slate-900">
+                    {scheduledFor ? new Date(scheduledFor).toLocaleString("fr-FR", { dateStyle: "long", timeStyle: "short" }) : "—"}
+                  </strong>
+                  {reach !== undefined ? <> · ~{fmt(reach)} destinataire(s)</> : null} du segment «&nbsp;{segLabel}&nbsp;».
+                </>
+              ) : (
+                <>
+                  Vous allez notifier{" "}
+                  <strong className="text-slate-900">
+                    {reach !== undefined ? `${fmt(reach)} destinataire(s)` : "les utilisateurs"}
+                  </strong>{" "}
+                  du segment «&nbsp;{segLabel}&nbsp;». Cette action est irréversible.
+                </>
+              )}
             </DialogDescription>
           </DialogHeader>
 
@@ -382,8 +509,8 @@ export function BroadcastClient() {
               disabled={sending}
               className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#013ff4] text-white rounded-xl text-sm font-semibold hover:bg-[#012fc0] transition-colors disabled:opacity-50"
             >
-              {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-              Envoyer maintenant
+              {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : (scheduleMode ? <CalendarClock className="h-4 w-4" /> : <Send className="h-4 w-4" />)}
+              {scheduleMode ? "Programmer" : "Envoyer maintenant"}
             </button>
           </DialogFooter>
         </DialogContent>

@@ -1,6 +1,6 @@
 "use server"
 
-import { createAdminClient, requireAdminSession, type AdminSessionProfile } from "@/lib/supabase/server"
+import { createAdminClient, createServiceRoleClient, requireAdminSession, type AdminSessionProfile } from "@/lib/supabase/server"
 
 export interface UserProfile {
   id: string
@@ -1464,39 +1464,19 @@ export interface BroadcastResult {
   error?: string
 }
 
-/** Envoie une notification (annonce) à tous les utilisateurs d'un segment. */
-export async function broadcastAnnouncement(input: {
-  title: string
-  content: string
-  segment: BroadcastSegment
-  link?: string
-}): Promise<BroadcastResult> {
-  const supabase = await createAdminClient()
-  const admin = await requireAdminSession()
-  if (!admin) return { success: false, count: 0, total: 0, error: "Non autorisé" }
-
+/**
+ * Cœur d'envoi (privé, sans session) : résolution du segment → insert notifications
+ * → audit. Utilisé par l'envoi immédiat (admin) ET par le processeur planifié (cron).
+ */
+async function executeBroadcastCore(
+  supabase: ServiceClient,
+  input: { title: string; content: string; segment: BroadcastSegment; link?: string | null },
+  actor: { userId: string | null; email: string | null },
+): Promise<BroadcastResult & { broadcastId?: string }> {
   const title = input.title?.trim()
   const content = input.content?.trim()
   if (!title || !content) return { success: false, count: 0, total: 0, error: "Titre et message requis" }
   if (title.length > 120) return { success: false, count: 0, total: 0, error: "Titre trop long (120 max)" }
-
-  // Anti-double-envoi : refuse une annonce identique (même titre + segment) par le même
-  // admin il y a moins de 2 minutes (protège contre le double-clic / retry).
-  const twoMinAgo = new Date(Date.now() - 2 * 60 * 1000).toISOString()
-  const { data: recent } = await supabase
-    .from("admin_audit_log")
-    .select("details, created_at")
-    .eq("action", "broadcast")
-    .eq("admin_id", admin.userId)
-    .gte("created_at", twoMinAgo)
-    .order("created_at", { ascending: false })
-    .limit(10)
-  const isDuplicate = (recent as { details: { title?: string; segment?: string } | null }[] | null)?.some(
-    (r) => r.details?.title === title && r.details?.segment === input.segment,
-  )
-  if (isDuplicate) {
-    return { success: false, count: 0, total: 0, error: "Annonce identique déjà envoyée il y a moins de 2 minutes." }
-  }
 
   // Résolution du segment → liste de user_id destinataires.
   let q = supabase.from("user_profiles").select("user_id")
@@ -1532,17 +1512,61 @@ export async function broadcastAnnouncement(input: {
   }
 
   // Journal d'audit : toujours tracé, avec le résultat réel (même partiel).
-  await logAdminAction(supabase, admin, {
-    action: "broadcast",
-    targetType: "segment",
-    targetLabel: `${input.segment} · ${sent}/${total} destinataire(s)`,
-    details: { title, segment: input.segment, count: sent, total, partial: sent < total, broadcast_id: broadcastId },
-  })
+  try {
+    await supabase.from("admin_audit_log").insert({
+      admin_id: actor.userId,
+      admin_email: actor.email,
+      action: "broadcast",
+      target_type: "segment",
+      target_label: `${input.segment} · ${sent}/${total} destinataire(s)`,
+      details: { title, segment: input.segment, count: sent, total, partial: sent < total, broadcast_id: broadcastId },
+    })
+  } catch (e) {
+    console.error("[audit] échec d'écriture: broadcast", e)
+  }
 
   if (sendError) {
-    return { success: false, count: sent, total, error: `Échec partiel : ${sent}/${total} notifiés. ${sendError}` }
+    return { success: false, count: sent, total, broadcastId, error: `Échec partiel : ${sent}/${total} notifiés. ${sendError}` }
   }
-  return { success: true, count: sent, total }
+  return { success: true, count: sent, total, broadcastId }
+}
+
+/** Envoie une notification (annonce) à tous les utilisateurs d'un segment. */
+export async function broadcastAnnouncement(input: {
+  title: string
+  content: string
+  segment: BroadcastSegment
+  link?: string
+}): Promise<BroadcastResult> {
+  const supabase = await createAdminClient()
+  const admin = await requireAdminSession()
+  if (!admin) return { success: false, count: 0, total: 0, error: "Non autorisé" }
+
+  const title = input.title?.trim()
+  if (!title || !input.content?.trim()) return { success: false, count: 0, total: 0, error: "Titre et message requis" }
+
+  // Anti-double-envoi : refuse une annonce identique (même titre + segment) par le même
+  // admin il y a moins de 2 minutes (protège contre le double-clic / retry).
+  const twoMinAgo = new Date(Date.now() - 2 * 60 * 1000).toISOString()
+  const { data: recent } = await supabase
+    .from("admin_audit_log")
+    .select("details, created_at")
+    .eq("action", "broadcast")
+    .eq("admin_id", admin.userId)
+    .gte("created_at", twoMinAgo)
+    .order("created_at", { ascending: false })
+    .limit(10)
+  const isDuplicate = (recent as { details: { title?: string; segment?: string } | null }[] | null)?.some(
+    (r) => r.details?.title === title && r.details?.segment === input.segment,
+  )
+  if (isDuplicate) {
+    return { success: false, count: 0, total: 0, error: "Annonce identique déjà envoyée il y a moins de 2 minutes." }
+  }
+
+  const { success, count, total, error } = await executeBroadcastCore(
+    supabase, input, { userId: admin.userId, email: admin.email },
+  )
+  return { success, count, total, error }
 }
 
 /** Nombre de notifications LUES par campagne (broadcast_id) → taux de lecture. */
@@ -1564,6 +1588,144 @@ export async function getBroadcastReadCounts(broadcastIds: string[]): Promise<Re
     }),
   )
   return Object.fromEntries(entries)
+}
+
+// ============================================================
+// P2 #11 — Programmation des annonces (scheduling)
+// ============================================================
+
+export interface ScheduledBroadcast {
+  id: string
+  title: string
+  content: string
+  segment: BroadcastSegment
+  link: string | null
+  scheduled_for: string
+  status: "pending" | "sent" | "failed" | "canceled"
+  created_by: string | null
+  created_by_email: string | null
+  created_at: string
+  sent_at: string | null
+  result_count: number | null
+  result_total: number | null
+  error: string | null
+}
+
+/** Programme une annonce pour un envoi futur. */
+export async function scheduleBroadcast(input: {
+  title: string
+  content: string
+  segment: BroadcastSegment
+  link?: string
+  scheduledFor: string
+}): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createAdminClient()
+  const admin = await requireAdminSession()
+  if (!admin) return { success: false, error: "Non autorisé" }
+
+  const title = input.title?.trim()
+  const content = input.content?.trim()
+  if (!title || !content) return { success: false, error: "Titre et message requis" }
+  if (title.length > 120) return { success: false, error: "Titre trop long (120 max)" }
+
+  const when = new Date(input.scheduledFor)
+  if (isNaN(when.getTime())) return { success: false, error: "Date de programmation invalide" }
+  if (when.getTime() < Date.now() + 60_000) return { success: false, error: "Choisissez une date au moins 1 minute dans le futur" }
+
+  const { error } = await supabase.from("scheduled_broadcasts").insert({
+    title, content, segment: input.segment, link: input.link?.trim() || null,
+    scheduled_for: when.toISOString(), status: "pending",
+    created_by: admin.userId, created_by_email: admin.email,
+  })
+  if (error) return { success: false, error: error.message }
+
+  await logAdminAction(supabase, admin, {
+    action: "broadcast_schedule",
+    targetType: "segment",
+    targetLabel: `${input.segment} · ${when.toISOString()}`,
+    details: { title, segment: input.segment, scheduled_for: when.toISOString() },
+  })
+  return { success: true }
+}
+
+/** Liste les annonces programmées (à venir d'abord, puis historique récent). */
+export async function listScheduledBroadcasts(): Promise<ScheduledBroadcast[]> {
+  const supabase = await createAdminClient()
+  const admin = await requireAdminSession()
+  if (!admin) return []
+  const { data } = await supabase
+    .from("scheduled_broadcasts")
+    .select("*")
+    .order("scheduled_for", { ascending: true })
+    .limit(50)
+  return (data as ScheduledBroadcast[]) || []
+}
+
+/** Annule une annonce programmée encore en attente. */
+export async function cancelScheduledBroadcast(id: string): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createAdminClient()
+  const admin = await requireAdminSession()
+  if (!admin) return { success: false, error: "Non autorisé" }
+  const { error } = await supabase
+    .from("scheduled_broadcasts")
+    .update({ status: "canceled" })
+    .eq("id", id)
+    .eq("status", "pending")
+  if (error) return { success: false, error: error.message }
+  return { success: true }
+}
+
+/**
+ * Processeur des annonces dues (status 'pending' ET scheduled_for <= now()).
+ * ⚠️ Sans session : appelé exclusivement par la route cron protégée par CRON_SECRET.
+ * Retourne le nombre de campagnes traitées.
+ */
+export async function processDueScheduledBroadcasts(): Promise<{ processed: number; sent: number; failed: number }> {
+  const supabase = createServiceRoleClient()
+
+  const { data: due } = await supabase
+    .from("scheduled_broadcasts")
+    .select("*")
+    .eq("status", "pending")
+    .lte("scheduled_for", new Date().toISOString())
+    .order("scheduled_for", { ascending: true })
+    .limit(20)
+
+  const rows = (due as ScheduledBroadcast[]) || []
+  let sent = 0
+  let failed = 0
+
+  for (const row of rows) {
+    // Verrou léger anti-double-traitement : on passe la ligne à 'sent' AVANT l'envoi,
+    // conditionné au fait qu'elle soit encore 'pending' (idempotent entre deux crons).
+    const { data: locked } = await supabase
+      .from("scheduled_broadcasts")
+      .update({ status: "sent", sent_at: new Date().toISOString() })
+      .eq("id", row.id)
+      .eq("status", "pending")
+      .select("id")
+    if (!locked || (locked as { id: string }[]).length === 0) continue // déjà pris par un autre run
+
+    const res = await executeBroadcastCore(
+      supabase,
+      { title: row.title, content: row.content, segment: row.segment, link: row.link },
+      { userId: row.created_by, email: row.created_by_email },
+    )
+
+    if (res.success) {
+      sent++
+      await supabase.from("scheduled_broadcasts")
+        .update({ result_count: res.count, result_total: res.total })
+        .eq("id", row.id)
+    } else {
+      failed++
+      await supabase.from("scheduled_broadcasts")
+        .update({ status: "failed", error: res.error ?? "Échec inconnu", result_count: res.count, result_total: res.total })
+        .eq("id", row.id)
+    }
+  }
+
+  return { processed: rows.length, sent, failed }
 }
 
 // ============================================================
