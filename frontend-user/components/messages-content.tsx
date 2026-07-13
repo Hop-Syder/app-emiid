@@ -1,22 +1,20 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Contenu principal de messagerie en temps réel
+ * @description Contenu principal de messagerie en temps réel, épuré de sa logique métier.
  * @created 2026-06-05
- * @updated 2026-06-22
+ * @updated 2026-07-13
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
 
 "use client"
 
-import { useState, useEffect, useCallback, useMemo, useRef } from "react"
-import { useSearchParams, useRouter } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { ArrowLeft, MoreHorizontal, Gavel, Trash2, MessageSquare, Search, X, UsersRound } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { createClient } from "@/lib/supabase/client"
-import { toast } from "sonner"
-import { captureError } from "@/lib/observability"
+import { useMessages } from "@/hooks/use-messages"
+import type { Conversation, Message } from "./messages/types"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ConfirmActionDialog } from "@/components/ui/confirm-action-dialog"
@@ -34,331 +32,52 @@ import { GroupInfoPanel } from "./messages/group-info-panel"
 import { MessageList } from "./messages/message-list"
 import { MessageInput } from "./messages/message-input"
 import { MediationDialog } from "./messages/mediation-dialog"
-import { Conversation, Message } from "./messages/types"
-
-import {
-  fetchConversations,
-  fetchConversationMessages,
-  requestMediation,
-  deleteConversation,
-} from "@/features/messages/messagesApi"
-import { useCurrentUserId } from "@/features/messages/useCurrentUserId"
-import { useMessagesRealtime } from "@/features/messages/useMessagesRealtime"
-import { useConversationActions } from "@/hooks/use-conversation-actions"
 
 export function MessagesContent() {
-  const searchParams = useSearchParams()
   const router = useRouter()
-  const contactId = searchParams.get("contact") || searchParams.get("user")
-
-  const supabase = useMemo(() => createClient(), [])
-  const currentUserId = useCurrentUserId()
-
-  const [conversations, setConversations] = useState<Conversation[]>([])
-  const [selectedConv, setSelectedConv] = useState<Conversation | null>(null)
-  const [showNewGroup, setShowNewGroup] = useState(false)
-  const [groupPanelOpen, setGroupPanelOpen] = useState(false)
-
-  // Synchro locale des méta du groupe (nom/description/nb membres) éditées dans le panneau.
-  const handleGroupUpdated = useCallback((patch: Partial<Conversation>) => {
-    setSelectedConv((prev) => (prev ? { ...prev, ...patch } : prev))
-    setConversations((prev) => prev.map((c) => {
-      if (!selectedConv || c.id !== selectedConv.id) return c
-      const next = { ...c, ...patch }
-      // Le groupe est rendu via other_participant (compat) : refléter le nom.
-      if (patch.name && next.other_participant) {
-        next.other_participant = { ...next.other_participant, first_name: patch.name }
-      }
-      return next
-    }))
-  }, [selectedConv])
-
-  // L'utilisateur a quitté / supprimé le groupe : on le retire de la liste et on ferme.
-  const handleGroupLeft = useCallback((conversationId: string) => {
-    setConversations((prev) => prev.filter((c) => c.id !== conversationId))
-    setSelectedConv((prev) => (prev?.id === conversationId ? null : prev))
-    setShowChatMobile(false)
-    router.push("/messages", { scroll: false })
-  }, [router])
-
-  const handleGroupCreated = async (groupId: string) => {
-    try {
-      const data = await fetchConversations()
-      setConversations(data)
-      const group = data.find((c) => c.id === groupId)
-      if (group) {
-        setSelectedConv(group)
-        setShowChatMobile(true)
-        router.push(`/messages?conv=${groupId}`, { scroll: false })
-      }
-    } catch {
-      // silencieux : le groupe est créé, la liste se rechargera au prochain fetch
-    }
-  }
-  const [messages, setMessages] = useState<Message[]>([])
-  const [loadingConv, setLoadingConv] = useState(true)
-  const [loadingMsgs, setLoadingMsgs] = useState(false)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [showChatMobile, setShowChatMobile] = useState(false)
-  const [isMediationOpen, setIsMediationOpen] = useState(false)
-  const [isMediationLoading, setIsMediationLoading] = useState(false)
-  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false)
-  const [onlineUserIds, setOnlineUserIds] = useState<Set<string>>(new Set())
-  const [inChatSearchOpen, setInChatSearchOpen] = useState(false)
-  const [inChatQuery, setInChatQuery] = useState("")
-  const [pinnedIds, setPinnedIds] = useState<string[]>([])
-  const [archivedIds, setArchivedIds] = useState<string[]>([])
-  const [editingMessage, setEditingMessage] = useState<Message | null>(null)
-  const [convIdToDelete, setConvIdToDelete] = useState<string | null>(null)
-
-  const displayedMessages = useMemo(() => {
-    const q = inChatQuery.trim().toLowerCase()
-    if (!inChatSearchOpen || !q) return messages
-    return messages.filter((m) => (m.content || "").toLowerCase().includes(q))
-  }, [messages, inChatSearchOpen, inChatQuery])
-
-  useEffect(() => {
-    setInChatSearchOpen(false)
-    setInChatQuery("")
-  }, [selectedConv?.id])
-
-  // Load pin/archive state from localStorage
-  useEffect(() => {
-    if (typeof window === "undefined") return
-    try {
-      const pinned = localStorage.getItem("local_pinned_conversations")
-      const archived = localStorage.getItem("local_archived_conversations")
-      if (pinned) setPinnedIds(JSON.parse(pinned))
-      if (archived) setArchivedIds(JSON.parse(archived))
-    } catch (e) {
-      console.error(e)
-    }
-  }, [])
-
-  const handleTogglePin = useCallback((conversationId: string) => {
-    setPinnedIds((prev) => {
-      const next = prev.includes(conversationId) ? prev.filter((id) => id !== conversationId) : [...prev, conversationId]
-      localStorage.setItem("local_pinned_conversations", JSON.stringify(next))
-      return next
-    })
-  }, [])
-
-  const handleToggleArchive = useCallback((conversationId: string) => {
-    setArchivedIds((prev) => {
-      const next = prev.includes(conversationId) ? prev.filter((id) => id !== conversationId) : [...prev, conversationId]
-      localStorage.setItem("local_archived_conversations", JSON.stringify(next))
-      return next
-    })
-    setSelectedConv((prev) => {
-      if (prev && prev.id === conversationId) {
-        setShowChatMobile(false)
-        router.push("/messages", { scroll: false })
-        return null
-      }
-      return prev
-    })
-  }, [router])
-
-  const markMessagesAsRead = useCallback(async (conversationId: string) => {
-    if (!currentUserId || conversationId.startsWith("new-")) return
-    try {
-      await supabase.from("messages").update({ is_read: true }).eq("conversation_id", conversationId).neq("sender_id", currentUserId)
-      setConversations((prev) => prev.map((c) => (c.id === conversationId ? { ...c, unread_count: 0 } : c)))
-    } catch (err) {
-      console.error("Error marking read", err)
-    }
-  }, [currentUserId, supabase])
-
-  // Conversation actions hook
-  const { handleSendMessage, handleEditMessage, handleDeleteMessage, handleResendMessage } =
-    useConversationActions({ currentUserId, supabase, selectedConv, setMessages, setConversations, setSelectedConv })
-
-  const onStartEdit = useCallback((message: Message) => {
-    setEditingMessage(message)
-  }, [])
-
-  // Load Conversations
-  useEffect(() => {
-    const load = async () => {
-      if (!currentUserId) return
-      setLoadingConv(true)
-      try {
-        const data = await fetchConversations()
-        setConversations(data)
-
-        if (contactId) {
-          const { data: profileData } = await supabase
-            .from("public_profiles")
-            .select("user_id, first_name, last_name, avatar_url")
-            .or(`id.eq.${contactId},user_id.eq.${contactId}`)
-            .maybeSingle()
-
-          const resolvedUserId = profileData?.user_id || contactId
-          const existing = data.find(
-            (c: Conversation) => c.other_participant.user_id === resolvedUserId || c.other_participant.id === contactId
-          )
-
-          if (existing) {
-            setSelectedConv(existing)
-            setShowChatMobile(true)
-          } else {
-            setSelectedConv({
-              id: `new-${resolvedUserId}`,
-              participant1_id: currentUserId,
-              participant2_id: resolvedUserId,
-              unread_count: 0,
-              updated_at: new Date().toISOString(),
-              other_participant: {
-                id: resolvedUserId,
-                user_id: resolvedUserId,
-                first_name: profileData?.first_name || "Nouveau",
-                last_name: profileData?.last_name || "Contact",
-                avatar_url: profileData?.avatar_url || "/profil/avatar.jpg",
-              },
-            })
-            setShowChatMobile(true)
-          }
-        }
-      } catch (err) {
-        captureError(err, { scope: "messages", action: "fetchConversations" })
-      } finally {
-        setLoadingConv(false)
-      }
-    }
-    load()
-  }, [currentUserId, contactId, supabase])
-
-  // Load Messages
-  useEffect(() => {
-    const convId = selectedConv?.id
-    if (!convId || convId.startsWith("new-")) { setMessages([]); return }
-    const load = async () => {
-      setLoadingMsgs(true)
-      try {
-        const data = await fetchConversationMessages(convId)
-        setMessages(data)
-        markMessagesAsRead(convId)
-      } catch (err) {
-        captureError(err, { scope: "messages", action: "fetchMessages" })
-      } finally {
-        setLoadingMsgs(false)
-      }
-    }
-    load()
-  }, [selectedConv?.id, markMessagesAsRead])
-
-  const realtime = useMessagesRealtime(currentUserId, {
-    onPresenceChange: (userIds) => setOnlineUserIds(userIds),
-    onNewMessage: (newMsg) => {
-      if (selectedConv && newMsg.conversation_id === selectedConv.id) {
-        setMessages((prev) => (prev.some((m) => m.id === newMsg.id) ? prev : [...prev, newMsg]))
-        markMessagesAsRead(selectedConv.id)
-      }
-      setConversations((prev) => {
-        const index = prev.findIndex((c) => c.id === newMsg.conversation_id)
-        if (index === -1) {
-          fetchConversations().then((data) => setConversations(data)).catch(console.error)
-          return prev
-        }
-        const next = [...prev]
-        const isCurrent = selectedConv?.id === newMsg.conversation_id
-        next[index] = {
-          ...next[index],
-          last_message: newMsg.content,
-          last_message_at: newMsg.created_at,
-          unread_count: isCurrent ? 0 : next[index].unread_count + 1,
-        }
-        return next
-      })
-    },
-    onUpdateMessage: (updatedMsg) => {
-      if (selectedConv && updatedMsg.conversation_id === selectedConv.id) {
-        setMessages((prev) => prev.map((m) => (m.id === updatedMsg.id ? updatedMsg : m)))
-      }
-    },
-    onDeleteMessage: (deletedMsgId) => {
-      setMessages((prev) => prev.filter((m) => m.id !== deletedMsgId))
-    },
-  })
-
-  // --- Rattrapage à la (re)connexion Realtime ---
-  // Le stream postgres_changes ne rejoue PAS les messages reçus pendant une coupure.
-  // Sur transition déconnecté → reconnecté, on resynchronise la liste + la conversation
-  // active pour ne rien perdre (chat "WhatsApp-like").
-  const selectedConvIdRef = useRef<string | null>(null)
-  useEffect(() => { selectedConvIdRef.current = selectedConv?.id ?? null }, [selectedConv?.id])
-
-  const hasConnectedRef = useRef(false)
-  useEffect(() => {
-    if (!realtime.realtimeConnected) return
-    if (!hasConnectedRef.current) {
-      hasConnectedRef.current = true // 1re connexion : rien à rattraper
-      return
-    }
-    // Reconnexion → resynchronisation.
-    fetchConversations().then((data) => setConversations(data)).catch(() => undefined)
-    const convId = selectedConvIdRef.current
-    if (convId && !convId.startsWith("new-")) {
-      fetchConversationMessages(convId)
-        .then((data) => { setMessages(data); markMessagesAsRead(convId) })
-        .catch(() => undefined)
-    }
-  }, [realtime.realtimeConnected, markMessagesAsRead])
-
-  const handleRequestMediation = async (reason: string) => {
-    if (!selectedConv) return
-    setIsMediationLoading(true)
-    try {
-      await requestMediation(selectedConv.id, reason)
-      toast.success("Demande de médiation envoyée")
-      setIsMediationOpen(false)
-    } catch {
-      toast.error("Erreur lors de la demande")
-    } finally {
-      setIsMediationLoading(false)
-    }
-  }
-
-  const handleDeleteConversation = useCallback((convId?: string) => {
-    setConvIdToDelete(convId || selectedConv?.id || null)
-    setIsDeleteConfirmOpen(true)
-  }, [selectedConv])
-
-  const confirmDeleteConversation = async () => {
-    const id = convIdToDelete || selectedConv?.id
-    if (!id) return
-    setIsDeleteConfirmOpen(false)
-    try {
-      await deleteConversation(id)
-      setConversations((prev) => prev.filter((c) => c.id !== id))
-      if (selectedConv?.id === id) {
-        setSelectedConv(null)
-        setShowChatMobile(false)
-        router.push("/messages", { scroll: false })
-      }
-      toast.success("Conversation supprimée")
-    } catch {
-      toast.error("Erreur lors de la suppression")
-    } finally {
-      setConvIdToDelete(null)
-    }
-  }
-
-  const enrichedConversations = useMemo(() =>
-    conversations.map((c) => ({
-      ...c,
-      isPinned: pinnedIds.includes(c.id),
-      isArchived: archivedIds.includes(c.id),
-    })),
-    [conversations, pinnedIds, archivedIds]
-  )
-
-  const filteredConversations = useMemo(() => {
-    if (!searchQuery) return enrichedConversations
-    return enrichedConversations.filter((c) =>
-      `${c.other_participant.first_name} ${c.other_participant.last_name}`.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-  }, [enrichedConversations, searchQuery])
+  const {
+    selectedConv,
+    setSelectedConv,
+    showNewGroup,
+    setShowNewGroup,
+    groupPanelOpen,
+    setGroupPanelOpen,
+    loadingConv,
+    loadingMsgs,
+    searchQuery,
+    setSearchQuery,
+    showChatMobile,
+    setShowChatMobile,
+    isMediationOpen,
+    setIsMediationOpen,
+    isMediationLoading,
+    isDeleteConfirmOpen,
+    setIsDeleteConfirmOpen,
+    onlineUserIds,
+    inChatSearchOpen,
+    setInChatSearchOpen,
+    inChatQuery,
+    setInChatQuery,
+    editingMessage,
+    setEditingMessage,
+    handleGroupUpdated,
+    handleGroupLeft,
+    handleGroupCreated,
+    displayedMessages,
+    handleTogglePin,
+    handleToggleArchive,
+    handleRequestMediation,
+    handleDeleteConversation,
+    confirmDeleteConversation,
+    handleSendMessage,
+    handleEditMessage,
+    handleDeleteMessage,
+    handleResendMessage,
+    onStartEdit,
+    realtimeConnected,
+    currentUserId,
+    filteredConversations,
+  } = useMessages()
 
   return (
     <div className="flex h-full w-full bg-gradient-to-br from-slate-50 via-white to-blue-50/30 overflow-hidden relative">
@@ -538,7 +257,7 @@ export function MessagesContent() {
 
             <MessageInput
               onSend={handleSendMessage}
-              isDisabled={!realtime.realtimeConnected}
+              isDisabled={!realtimeConnected}
               editingMessage={editingMessage}
               onCancelEdit={() => setEditingMessage(null)}
               onEditSubmit={handleEditMessage}

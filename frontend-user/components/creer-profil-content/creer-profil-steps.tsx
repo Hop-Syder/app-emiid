@@ -1,3 +1,13 @@
+/**
+ * @author @hopsyder
+ * @organization Nexus Partners
+ * @description Étapes individuelles du formulaire de création de profil EmiID avec typage strict.
+ * @created 2026-01-16
+ * @updated 2026-07-13
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+ */
+
 "use client"
 
 import { Input } from "@/components/ui/input"
@@ -11,15 +21,13 @@ import { motion } from "framer-motion"
 import { AvatarUpload } from "@/components/AvatarUpload"
 import { cn } from "@/lib/utils"
 import { PROFILE_CATEGORIES, ACTIVITY_DOMAINS } from "@/lib/profile-options"
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type FormData = Record<string, any>
+import type { CreateProfileFormData } from "@/hooks/use-creer-profil"
 
 // ── Étape 0 : Identité Visuelle ──────────────────────────────────────────────
 
 interface StepIdentiteProps {
-    formData: FormData
-    handleInputChange: (field: string, value: unknown) => void
+    formData: CreateProfileFormData
+    handleInputChange: (field: keyof CreateProfileFormData, value: string) => void
     handleAvatarUploadComplete: (url: string) => void
     inputClasses: string
 }
@@ -83,8 +91,8 @@ export function StepIdentite({ formData, handleInputChange, handleAvatarUploadCo
 // ── Étape 1 : Informations Pro ────────────────────────────────────────────────
 
 interface StepExpertiseProps {
-    formData: FormData
-    handleInputChange: (field: string, value: unknown) => void
+    formData: CreateProfileFormData
+    handleInputChange: (field: keyof CreateProfileFormData, value: string) => void
     inputClasses: string
 }
 
@@ -140,8 +148,8 @@ export function StepExpertise({ formData, handleInputChange, inputClasses }: Ste
 // ── Étape 2 : Histoire & Lien ─────────────────────────────────────────────────
 
 interface StepHistoireProps {
-    formData: FormData
-    handleInputChange: (field: string, value: unknown) => void
+    formData: CreateProfileFormData
+    handleInputChange: (field: keyof CreateProfileFormData, value: string) => void
     inputClasses: string
 }
 
@@ -197,9 +205,8 @@ export function StepHistoire({ formData, handleInputChange, inputClasses }: Step
 // ── Étape 3 : Contact & Localisation ─────────────────────────────────────────
 
 interface StepContactProps {
-    formData: FormData
-    handleInputChange: (field: string, value: unknown) => void
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    formData: CreateProfileFormData
+    handleInputChange: (field: keyof CreateProfileFormData, value: string) => void
     handleLocationSelect: (countryInfo: { name: string; isoCode: string }, cityName: string) => void
     inputClasses: string
 }
@@ -286,12 +293,10 @@ interface StepCompetencesProps {
     activityDomain?: string
 }
 
-// Suggestions génériques (aucun secteur choisi ou secteur non couvert) —
-// formulées en réalisations concrètes plutôt qu'en termes abstraits.
+// Suggestions génériques
 const DEFAULT_TAGS = ["Vente & Commerce", "Gestion administrative", "Service client", "Communication", "Formation", "Livraison", "Conseil", "Organisation d'événements"]
 
-// Suggestions contextuelles par secteur (aligné sur lib/profile-options) — libellées
-// en langage naturel / réalisations réelles, adaptées au marché africain.
+// Suggestions contextuelles par secteur
 const SUGGESTED_TAGS_BY_DOMAIN: Record<string, string[]> = {
     tech:         ["Créer un site web", "Créer une application mobile", "Logiciel de comptabilité", "Réparer un ordinateur / Maintenance", "Infographie & Création de logo", "Publicité Facebook & Instagram", "Création de visuels / Canva", "Montage vidéo pour réseaux sociaux"],
     droit:        ["Rédiger un contrat de travail", "Conseil pour création d'entreprise", "Règlement de litiges", "Audit de conformité", "Défense au tribunal", "Démarches d'enregistrement foncier", "Conseil fiscal"],
@@ -352,7 +357,7 @@ export function StepCompetences({ tags, tagInput, setTagInput, addTag, addSugges
                                         "text-xs px-3 py-1.5 rounded-xl transition-all border font-semibold",
                                         isAlreadyAdded
                                             ? "bg-slate-50 text-slate-300 border-slate-100 cursor-not-allowed"
-                                            : "bg-white text-slate-600 border-slate-200 hover:border-primary/30 hover:bg-primary/5 active:scale-95"
+                                             : "bg-white text-slate-600 border-slate-200 hover:border-primary/30 hover:bg-primary/5 active:scale-95"
                                     )}
                                 >
                                     + {suggestedTag}
@@ -371,7 +376,7 @@ export function StepCompetences({ tags, tagInput, setTagInput, addTag, addSugges
                             className="flex items-center gap-2 bg-slate-900 text-white pl-4 pr-2 py-2 rounded-xl text-xs font-bold shadow-md"
                         >
                             <span>{tag}</span>
-                            <button onClick={() => removeTag(tag)} className="p-1 hover:bg-white/20 rounded-lg transition-colors">
+                            <button type="button" onClick={() => removeTag(tag)} className="p-1 hover:bg-white/20 rounded-lg transition-colors">
                                 <X className="h-3 w-3" />
                             </button>
                         </motion.div>

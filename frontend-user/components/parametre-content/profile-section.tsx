@@ -1,10 +1,12 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Profile section — complete redesign
- * @updated 2026-06-13
-*/
+ * @description Section Profil de la page de paramètres. Entièrement typée et épurée.
+ * @created 2026-06-13
+ * @updated 2026-07-13
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+ */
 
 "use client"
 
@@ -18,23 +20,18 @@ import { AvatarUpload } from "@/components/AvatarUpload"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { toast } from "sonner"
 import { PROFILE_CATEGORIES, ACTIVITY_DOMAINS } from "@/lib/profile-options"
-
-// ─── Types ────────────────────────────────────────────────────────────────────
+import type { UserProfileData } from "@/hooks/use-settings"
 
 interface ProfileSectionProps {
-  profile:      any
-  setProfile:   any
-  saving:       boolean
-  handleSave:   () => void
+  profile: UserProfileData
+  setProfile: (profile: UserProfileData) => void
+  saving: boolean
+  handleSave: () => void
   handleCancel: () => void
 }
 
-// ─── Shared class tokens ──────────────────────────────────────────────────────
-
 const INPUT = "h-11 rounded-xl bg-slate-50 border-slate-200 text-sm font-medium text-slate-900 focus:ring-primary/20 transition-all placeholder:text-slate-400"
 const SELECT = "w-full h-11 px-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-
-// ─── Field helper ─────────────────────────────────────────────────────────────
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -45,8 +42,6 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   )
 }
 
-// ─── Section card helper ──────────────────────────────────────────────────────
-
 function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6">
@@ -56,14 +51,12 @@ function SectionCard({ title, children }: { title: string; children: React.React
   )
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
 export function ProfileSection({ profile, setProfile, saving, handleSave, handleCancel }: ProfileSectionProps) {
   const [verifyMethod, setVerifyMethod] = useState<"whatsapp" | "sms" | null>(null)
   const [otpCode,      setOtpCode]      = useState("")
   const [verifying,    setVerifying]    = useState(false)
 
-  const up = (key: string, value: string) => setProfile({ ...profile, [key]: value })
+  const up = (key: keyof UserProfileData, value: string | boolean) => setProfile({ ...profile, [key]: value })
 
   const handleVerifyRequest = async (method: "whatsapp" | "sms") => {
     if (!profile.phone) { toast.error("Saisissez votre numéro d'abord"); return }
@@ -348,7 +341,7 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
         </div>
       </SectionCard>
 
-      {/* ── Confidentialité du contact (R7) ──────────────────────────────────── */}
+      {/* ── Confidentialité du contact ──────────────────────────────────── */}
       <SectionCard title="Confidentialité">
         <div className="flex items-center justify-between gap-4">
           <div className="min-w-0 flex-1">
@@ -360,7 +353,7 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
           <Switch
             className="shrink-0"
             checked={profile.show_contact !== false}
-            onCheckedChange={(checked: boolean) => setProfile({ ...profile, show_contact: checked })}
+            onCheckedChange={(checked: boolean) => up("show_contact", checked)}
           />
         </div>
       </SectionCard>

@@ -10,9 +10,10 @@
 */
 
 import { EmiIDProfileCard, EmiIDCardVariant } from "@/components/carte-profil/emiid-profile-card"
+import type { CreateProfileFormData } from "@/hooks/use-creer-profil"
 
 interface CreerProfilPreviewProps {
-    formData: any
+    formData: CreateProfileFormData
 }
 
 export function CreerProfilPreview({ formData }: CreerProfilPreviewProps) {

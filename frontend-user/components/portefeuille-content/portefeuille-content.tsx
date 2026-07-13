@@ -1,24 +1,23 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Hub professionnel personnel — réalisations, compétences, réseau
- * @updated 2026-06-14
+ * @description Hub professionnel personnel (réalisations, compétences, réseau), épuré de sa logique d'état et d'effets.
+ * @created 2026-06-14
+ * @updated 2026-07-13
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
  */
 
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
-import { createClient } from "@/lib/supabase/client"
 import { Eye, Users, Images, Globe, Lock, Briefcase, Tag, Network } from "lucide-react"
 import { Preloader } from "@/components/Preloader"
 import { RealisationsSection } from "./realisations-section"
 import { CompetencesSection } from "./competences-section"
 import { FollowedProfilesContent } from "./followed-profiles-content"
 import { CommunautesSection } from "./communautes-section"
-import { useImpactStats } from "@/hooks/use-impact-stats"
-
-type TabId = "realisations" | "competences" | "reseau" | "communautes"
+import { usePortefeuille, TabId } from "@/hooks/use-portefeuille"
 
 const TABS: { id: TabId; label: string; icon: React.ElementType }[] = [
   { id: "realisations", label: "Réalisations", icon: Briefcase },
@@ -27,54 +26,11 @@ const TABS: { id: TabId; label: string; icon: React.ElementType }[] = [
   { id: "communautes",  label: "Communautés",   icon: Users },
 ]
 
-interface PortefeuilleStats {
-  userId:       string
-  profileId:    string | null
-  approvedItems: number
-  isPublished:  boolean
-}
-
 export function PortefeuilleContent() {
-  const [activeTab, setActiveTab] = useState<TabId>("realisations")
-  const [stats, setStats]         = useState<PortefeuilleStats | null>(null)
-  const [loading, setLoading]     = useState(true)
-  const supabase = useMemo(() => createClient(), [])
-  const router   = useRouter()
-  // Source unique des vues/abonnés — partagée avec le Dashboard (évite deux chiffres divergents).
-  const { stats: impact, isLoading: impactLoading } = useImpactStats()
+  const router = useRouter()
+  const { activeTab, setActiveTab, stats, loading, impact } = usePortefeuille()
 
-  useEffect(() => {
-    const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { router.push("/login"); return }
-
-      const [profileRes, galleryRes] = await Promise.all([
-        // eslint-disable-next-line no-restricted-syntax -- accès authentifié à SA propre ligne (RLS OK)
-        supabase
-          .from("user_profiles")
-          .select("id, is_published")
-          .eq("user_id", user.id)
-          .single(),
-        supabase
-          .from("project_gallery")
-          .select("*", { count: "exact", head: true })
-          .eq("user_id", user.id)
-          .eq("status", "approved"),
-      ])
-
-      setStats({
-        userId:       user.id,
-        profileId:    profileRes.data?.id ?? null,
-        isPublished:  profileRes.data?.is_published ?? false,
-        approvedItems: galleryRes.count ?? 0,
-      })
-      setLoading(false)
-    }
-
-    void load()
-  }, [supabase, router])
-
-  if (loading || impactLoading || !stats) {
+  if (loading || !stats) {
     return <Preloader text="Chargement de votre portefeuille" subtext="Un instant…" minHeight="min-h-[60vh]" />
   }
 
