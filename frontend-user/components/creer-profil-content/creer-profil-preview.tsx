@@ -1,13 +1,12 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * @author @hopsyder
  * @organization Nexus Partners
  * @description Aperçu dynamique du profil en cours de création
  * @created 2026-01-16
- * @updated 2026-01-16
+ * @updated 2026-07-13
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
-*/
+ */
 
 import { EmiIDProfileCard, EmiIDCardVariant } from "@/components/carte-profil/emiid-profile-card"
 import type { CreateProfileFormData } from "@/hooks/use-creer-profil"
@@ -21,13 +20,13 @@ export function CreerProfilPreview({ formData }: CreerProfilPreviewProps) {
         id: "preview",
         name: formData.name || "Votre Nom",
         role: formData.role || "Votre Rôle",
-        avatar: formData.avatar_url || formData.avatar || "/profil/avatar.jpg",
+        avatar: formData.avatar || "/profil/avatar.jpg",
         category: formData.category || "Catégorie",
         specialty: formData.specialty || "Spécialité",
         location: formData.city ? `${formData.city}, ${formData.country_name || ""}` : (formData.country_name || "Zone"),
         followers: 0,
         verified: false,
-        premium: formData.premium || false,
+        premium: false,
         tags: formData.tags || []
     }
 

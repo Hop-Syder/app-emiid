@@ -153,5 +153,6 @@
   - **Portefeuille & Paramètres (`portefeuille`, `parametres`)** : Création des hooks `usePortefeuille`, `useFollowedProfiles`, `useSettings` et `useSecuritySection`. Suppression complète du typage `any` (dette technique), fiabilisation du cycle de vie par `isMountedRef` et interfaçage direct avec Supabase MFA client.
   - **Navigation Mobile (`mobile-dock-auth`)** : Implémentation de la navigation minimaliste à 4 icônes principales (Hub, Annuaire, Messages, Espace) et déportation verticale du sous-menu flottant (Portefeuille, Modifier profil, Notifications, Paramètres, Déconnexion) sous forme de Bento vertical élégant.
   - **Sécurité Messagerie (`use-conversation-actions`)** : Remplacement de l'insertion Supabase directe côté client par un appel sécurisé à la route d'API Express `/api/messages/send`, appliquant ainsi les contrôles de sécurité et le rate-limiting centralisé du serveur backend.
+  - **Correction Compilation Vercel (`package.json`, `creer-profil-preview`)** : Résolution du manque de la dépendance `@marsidev/react-turnstile` dans le build Vercel. Correction de l'erreur de type TypeScript sur la propriété inexistante `avatar_url` et `premium` dans le composant d'aperçu dynamique du profil en cours de création.
 
 
