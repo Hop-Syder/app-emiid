@@ -35,6 +35,29 @@ function getSessionFallback(session: Session): CurrentUserProfile {
     }
 }
 
+// Cache du profil connecté (sessionStorage) → header/nav instantanés, sans flash.
+const ME_SS_KEY = "emiid_me_v1"
+
+function readMeCache(userId: string): CurrentUserProfile | null {
+    if (typeof window === "undefined") return null
+    try {
+        const raw = sessionStorage.getItem(ME_SS_KEY)
+        if (!raw) return null
+        const parsed = JSON.parse(raw) as { userId: string; profile: CurrentUserProfile }
+        return parsed.userId === userId ? parsed.profile : null
+    } catch { return null }
+}
+
+function writeMeCache(userId: string, profile: CurrentUserProfile) {
+    if (typeof window === "undefined") return
+    try { sessionStorage.setItem(ME_SS_KEY, JSON.stringify({ userId, profile })) } catch { /* ignore */ }
+}
+
+function clearMeCache() {
+    if (typeof window === "undefined") return
+    try { sessionStorage.removeItem(ME_SS_KEY) } catch { /* ignore */ }
+}
+
 export function useCurrentUserProfile() {
     const supabase = useMemo(() => createClient(), [])
     const [session, setSession] = useState<Session | null | undefined>(undefined)
@@ -52,15 +75,18 @@ export function useCurrentUserProfile() {
 
             if (!nextSession) {
                 setCurrentUser(null)
+                clearMeCache()
                 return
             }
 
             const fallbackProfile = getSessionFallback(nextSession)
-            setCurrentUser(fallbackProfile)
+            // Affichage instantané : cache complet s'il existe, sinon fallback session.
+            const cached = readMeCache(nextSession.user.id)
+            setCurrentUser(cached || fallbackProfile)
 
             try {
                 const response = await fetchWithAuth("/api/users/me")
-                
+
                 if (!response.ok) {
                     throw new Error(`HTTP error ${response.status}`)
                 }
@@ -72,11 +98,11 @@ export function useCurrentUserProfile() {
                 }
 
                 const dbAvatar = data?.avatar_url;
-                const finalAvatar = (dbAvatar && dbAvatar !== "/profil/avatar.jpg") 
-                    ? dbAvatar 
+                const finalAvatar = (dbAvatar && dbAvatar !== "/profil/avatar.jpg")
+                    ? dbAvatar
                     : fallbackProfile.avatar_url;
 
-                setCurrentUser({
+                const enriched: CurrentUserProfile = {
                     first_name: data?.first_name || fallbackProfile.first_name,
                     last_name: data?.last_name || fallbackProfile.last_name,
                     email: data?.email || fallbackProfile.email,
@@ -84,12 +110,14 @@ export function useCurrentUserProfile() {
                     slug: data?.slug,
                     is_published: data?.is_published,
                     has_profile: !!data?.has_profile,
-                })
+                }
+                setCurrentUser(enriched)
+                writeMeCache(nextSession.user.id, enriched)
             } catch (error) {
                 console.error("Erreur chargement profil connecté (Backend API):", error)
 
                 if (isMounted) {
-                    setCurrentUser(fallbackProfile)
+                    setCurrentUser(cached || fallbackProfile)
                 }
             }
         }

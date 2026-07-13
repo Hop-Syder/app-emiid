@@ -113,7 +113,7 @@ export function DashboardPublicContent({ initialStats = null, initialProfiles = 
             }
 
             try {
-                let nextWarning: string | null = null
+                const nextWarning: string | null = null
 
                 const { data: entData, error: entError } = await supabase
                     .from('public_profiles')
@@ -123,20 +123,15 @@ export function DashboardPublicContent({ initialStats = null, initialProfiles = 
                     .limit(6)
 
                 if (!entError && entData) {
-                    // Récupérer les follows côté client (mise à jour arrière-plan uniquement)
+                    // Récupérer les follows depuis le cache client (mémoire + sessionStorage,
+                    // lecture Supabase directe la 1re fois) — plus d'aller-retour Express par vue.
                     let userFollowsIds: string[] = []
                     try {
-                        const { fetchWithAuth } = await import("@/lib/apiClient")
-                        const followsRes = await fetchWithAuth("/api/users/follows")
-                        if (followsRes.ok) {
-                            const followsData = await followsRes.json()
-                            userFollowsIds = followsData.map((f: { user_id?: string; id?: string }) => f.user_id || f.id)
-                        } else if (followsRes.status !== 401 && followsRes.status !== 403) {
-                            nextWarning = "Le statut de vos abonnements n’a pas pu être synchronisé sur cette vue."
-                        }
+                        const { fetchFollowedIds } = await import("@/lib/follows")
+                        const ids = await fetchFollowedIds()
+                        if (ids) userFollowsIds = [...ids]
                     } catch (error) {
                         console.error("Failed to load follows for public dashboard", error)
-                        nextWarning = "Le statut de vos abonnements n’a pas pu être synchronisé sur cette vue."
                     }
 
                     // La vue public_profiles n'a pas de relation FK déclarée → l'inférence du
