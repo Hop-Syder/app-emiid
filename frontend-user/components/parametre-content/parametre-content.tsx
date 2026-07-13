@@ -1,7 +1,7 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Settings page shell — sidebar desktop / pill tabs mobile, épuré de sa logique d'état et d'effets.
+ * @description Settings page shell — design premium Luxury Bento, Glassmorphism et transitions animées.
  * @created 2026-06-22
  * @updated 2026-07-13
  * 🌐 ceo.nexuspartners.xyz
@@ -13,6 +13,7 @@
 import { User, Shield, Bell, Settings, Star, LogOut, X } from "lucide-react"
 import { Preloader } from "@/components/Preloader"
 import Image from "next/image"
+import { motion, AnimatePresence } from "framer-motion"
 import { ProfileSection } from "./profile-section"
 import { SecuritySection } from "./security-section"
 import { NotificationsSection } from "./notifications-section"
@@ -83,7 +84,7 @@ export function ParametresContent() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-slate-50">
+    <div className="min-h-[calc(100vh-4rem)] bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-50/20 via-slate-50 to-slate-50">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 lg:py-10">
 
         {/* Mobile page header */}
@@ -98,7 +99,7 @@ export function ParametresContent() {
           <aside className="hidden lg:flex flex-col gap-3 sticky top-24">
 
             {/* User identity card */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-5 text-center">
+            <div className="bg-white/80 backdrop-blur-md border border-slate-200/60 rounded-2xl p-5 text-center shadow-[0_8px_30px_rgb(0,0,0,0.02)]">
               <div className="relative inline-flex mb-3">
                 {profile.avatar_url ? (
                   <Image
@@ -130,19 +131,26 @@ export function ParametresContent() {
             </div>
 
             {/* Navigation */}
-            <nav className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+            <nav className="bg-white/80 backdrop-blur-md border border-slate-200/60 rounded-2xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.02)]">
               {TABS.map(({ id, label, icon: Icon }) => (
                 <button
                   key={id}
                   onClick={() => setActiveTab(id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3.5 text-sm font-semibold transition-all text-left border-l-[3px] ${
+                  className={`relative w-full flex items-center gap-3 px-4 py-3.5 text-sm font-semibold transition-all text-left ${
                     activeTab === id
-                      ? "border-l-primary text-primary bg-primary/5"
-                      : "border-l-transparent text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                      ? "text-primary font-bold"
+                      : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
-                  <Icon className={`h-4 w-4 shrink-0 ${activeTab === id ? "text-primary" : "text-slate-400"}`} />
-                  {label}
+                  {activeTab === id && (
+                    <motion.div
+                      layoutId="active-tab-desktop"
+                      className="absolute inset-0 bg-primary/5 border-l-[3px] border-primary"
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                  <Icon className={`relative z-10 h-4 w-4 shrink-0 transition-transform ${activeTab === id ? "text-primary scale-110" : "text-slate-400"}`} />
+                  <span className="relative z-10">{label}</span>
                 </button>
               ))}
             </nav>
@@ -150,7 +158,7 @@ export function ParametresContent() {
             {/* Logout */}
             <button
               onClick={handleLogout}
-              className="flex items-center gap-3 px-4 py-3.5 bg-white border border-slate-200 rounded-2xl text-sm font-semibold text-red-500 hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-all"
+              className="flex items-center gap-3 px-4 py-3.5 bg-white border border-slate-200 rounded-2xl text-sm font-semibold text-red-500 hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-all shadow-[0_8px_30px_rgb(0,0,0,0.02)]"
             >
               <LogOut className="h-4 w-4 shrink-0" />
               Se déconnecter
@@ -168,14 +176,21 @@ export function ParametresContent() {
                     <button
                       key={id}
                       onClick={() => setActiveTab(id)}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all border ${
+                      className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all border ${
                         activeTab === id
-                          ? "bg-primary text-white border-primary shadow-sm"
+                          ? "text-white border-primary"
                           : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
                       }`}
                     >
-                      <Icon className="h-4 w-4 shrink-0" />
-                      {label}
+                      {activeTab === id && (
+                        <motion.div
+                          layoutId="active-tab-mobile"
+                          className="absolute inset-0 bg-primary rounded-xl"
+                          transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                        />
+                      )}
+                      <Icon className={`relative z-10 h-4 w-4 shrink-0 transition-transform ${activeTab === id ? "text-white scale-110" : "text-slate-400"}`} />
+                      <span className="relative z-10">{label}</span>
                     </button>
                   ))}
                 </div>
@@ -192,7 +207,19 @@ export function ParametresContent() {
               </p>
             </div>
 
-            {activeSection[activeTab]}
+            {/* Section content with slide animation */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.2 }}
+                className="min-w-0"
+              >
+                {activeSection[activeTab]}
+              </motion.div>
+            </AnimatePresence>
           </div>
         </div>
       </div>
