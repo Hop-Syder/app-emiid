@@ -64,23 +64,23 @@ function ProfileRow({ profiles, theme }: { profiles: PublicProfile[]; theme: "de
 
     return (
         <div className="relative group">
-            {/* Flèche gauche */}
+            {/* Flèche gauche — desktop uniquement (mobile/tablette : scroll tactile) */}
             {canScrollLeft && (
                 <button
                     type="button"
                     aria-label="Faire défiler vers la gauche"
                     onClick={() => scrollByCards(-1)}
-                    className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 z-20 w-10 h-10 rounded-full bg-white shadow-lg border border-slate-200 flex items-center justify-center text-slate-600 hover:text-slate-900 hover:scale-105 transition-all"
+                    className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 z-20 w-10 h-10 rounded-full bg-white shadow-lg border border-slate-200 items-center justify-center text-slate-600 hover:text-slate-900 hover:scale-105 transition-all"
                 >
                     <ChevronLeft className="w-5 h-5" />
                 </button>
             )}
 
-            {/* Piste défilante */}
+            {/* Piste défilante — chaque ligne défile indépendamment des autres */}
             <div
                 ref={scrollRef}
                 onScroll={updateArrows}
-                className="flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                className="flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-2 -mx-4 px-4 md:mx-0 md:px-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
                 {profiles.map((profile, index) => (
                     <motion.div
@@ -88,20 +88,20 @@ function ProfileRow({ profiles, theme }: { profiles: PublicProfile[]; theme: "de
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.4, delay: Math.min(index, 8) * 0.04 }}
-                        className="w-[260px] sm:w-[280px] shrink-0 snap-start"
+                        className="min-w-[280px] max-w-[300px] w-[280px] shrink-0 snap-start"
                     >
                         <AnnuaireCard profile={profile} theme={theme} />
                     </motion.div>
                 ))}
             </div>
 
-            {/* Flèche droite */}
+            {/* Flèche droite — desktop uniquement */}
             {canScrollRight && (
                 <button
                     type="button"
                     aria-label="Faire défiler vers la droite"
                     onClick={() => scrollByCards(1)}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-20 w-10 h-10 rounded-full bg-white shadow-lg border border-slate-200 flex items-center justify-center text-slate-600 hover:text-slate-900 hover:scale-105 transition-all"
+                    className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-20 w-10 h-10 rounded-full bg-white shadow-lg border border-slate-200 items-center justify-center text-slate-600 hover:text-slate-900 hover:scale-105 transition-all"
                 >
                     <ChevronRight className="w-5 h-5" />
                 </button>
@@ -116,16 +116,6 @@ export function AnnuaireGrid({ filters, initialProfiles = [], onlyPremium = fals
     const [isFirstRender, setIsFirstRender] = useState(true)
     const [page, setPage] = useState(1)
     const [totalCount, setTotalCount] = useState(initialProfiles.length)
-    // Desktop → carrousels horizontaux de 10 ; mobile → liste verticale (scroll naturel).
-    const [isDesktop, setIsDesktop] = useState(false)
-
-    useEffect(() => {
-        const mq = window.matchMedia("(min-width: 768px)")
-        const update = () => setIsDesktop(mq.matches)
-        update()
-        mq.addEventListener("change", update)
-        return () => mq.removeEventListener("change", update)
-    }, [])
     // Multiple de ROW_SIZE : chaque page affiche des lignes complètes de 10 cartes.
     const limit = 30
 
@@ -256,31 +246,16 @@ export function AnnuaireGrid({ filters, initialProfiles = [], onlyPremium = fals
 
     return (
         <div className="space-y-8">
-            {isDesktop ? (
-                /* Desktop : lignes horizontales défilantes de ROW_SIZE cartes */
-                Array.from({ length: Math.ceil(profiles.length / ROW_SIZE) }, (_, rowIndex) => (
-                    <ProfileRow
-                        key={`row-${rowIndex}-${profiles[rowIndex * ROW_SIZE]?.id ?? rowIndex}`}
-                        profiles={profiles.slice(rowIndex * ROW_SIZE, (rowIndex + 1) * ROW_SIZE)}
-                        theme={theme}
-                    />
-                ))
-            ) : (
-                /* Mobile : liste verticale (scroll naturel, pas de carrousels imbriqués) */
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 place-items-center">
-                    {profiles.map((profile, index) => (
-                        <motion.div
-                            key={profile.id}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.4, delay: Math.min(index, 8) * 0.04 }}
-                            className="w-full max-w-[300px]"
-                        >
-                            <AnnuaireCard profile={profile} theme={theme} />
-                        </motion.div>
-                    ))}
-                </div>
-            )}
+            {/* Lignes de ROW_SIZE cartes max : la ligne N se remplit à 10 avant
+                d'ouvrir la ligne N+1. Carrousel horizontal sur tous les écrans
+                (tactile + snap sur mobile/tablette, flèches en plus sur desktop). */}
+            {Array.from({ length: Math.ceil(profiles.length / ROW_SIZE) }, (_, rowIndex) => (
+                <ProfileRow
+                    key={`row-${rowIndex}-${profiles[rowIndex * ROW_SIZE]?.id ?? rowIndex}`}
+                    profiles={profiles.slice(rowIndex * ROW_SIZE, (rowIndex + 1) * ROW_SIZE)}
+                    theme={theme}
+                />
+            ))}
 
             {/* Pagination Controls */}
             {totalPages > 1 && (
