@@ -2,8 +2,8 @@
  * @author @hopsyder
  * @organization Nexus Partners
  * @description PROJECT OVERVIEW - Vision, Architecture, Stratégie & Évolutions pour EmiID
- * @version 1.3.0
- * @updated 2026-06-11
+ * @version 1.4.0
+ * @updated 2026-07-13
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  * ──────────────────────────────────
@@ -97,4 +97,4 @@ sequenceDiagram
 
 1.  **Paiement Intégré** : Développement du portefeuille d'affaires (`portefeuille`) utilisant des intégrations API locales avec FedaPay et Stripe pour simplifier le paiement mobile money en Afrique de l'Ouest.
 2.  **Taxonomie Améliorée** : Évolution de la taxonomie des métiers en reliant dynamiquement les compétences (`tags`) aux secteurs professionnels prédéfinis.
-3.  **Audit Logs** : Suivi rigoureux de l'activité des administrateurs et modérateurs pour garantir la transparence des actions de signalement et de résolution de litiges.
+3.  **Audit Logs (Complété)** : Suivi rigoureux de l'activité des administrateurs et modérateurs dans la table `admin_audit_log` pour garantir la transparence des actions de signalement, de suspension de profils et de résolution de litiges.

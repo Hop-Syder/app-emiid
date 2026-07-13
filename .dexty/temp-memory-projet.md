@@ -6,7 +6,7 @@
 - **Nom** : EmiID
 - **Type** : SaaS (Web App + Backend API + Admin + Commercial)
 - **Initialisé le** : 2026-05-27
-- **Dernière mise à jour** : 2026-07-08
+- **Dernière mise à jour** : 2026-07-13
 
 ## 🛠️ Stack détectée
 - **Frontend** : Next.js, React 19, TailwindCSS, Radix UI
@@ -143,5 +143,13 @@
   - Implémentation côté serveur des actions d'administration (`suspendUser`, `reactivateUser`, `toggleAdmin`) dans `lib/actions/admin.ts`.
   - Intégration côté client dans `users-client.tsx` (badge d'état "Suspendu", boîte de dialogue de saisie de motif et de durée de suspension, appel des actions de réactivation/suspension).
   - Création du composant journal d'audit `audit-log-client.tsx` et sa route protégée `/audit` correspondante.
+- [2026-07-13] Refactoring modulaire de `frontend-user` :
+  - **Hub (`dashboard-user`)** : Création du hook `usePersonalHero` et dégroupage de `ProfileCompleteness` et `StatTile` pour dégraisser `PersonalHero`. Création de `useEntrepreneurActions` et `useRealisationsShowcase`.
+  - **Annuaire (`annuaire`)** : Création de `useAnnuaireProfiles` avec requêtage de suivi conditionnel à la session active (économise les requêtes de base de données pour les visiteurs anonymes). Isolation du carrousel de défilement horizontal dans `ProfileRow`.
+  - **Créer Profil (`creer-profil`)** : Création de `useCreerProfil` (hydratation pays, auto-sauvegarde du brouillon de profil, mutations de publication/modification) et typage strict complet de ses étapes et composants.
+  - **Connexion (`login`)** : Intégration du widget Cloudflare Turnstile anti-spam en façade pour bloquer la redirection OAuth tant que l'utilisateur n'est pas validé.
+  - **Messagerie (`messages`)** : Création du hook `useMessages` encapsulant les statuts de présence, la reconnexion et les actions de discussion. Implémentation d'une variable de garde `active = false` dans les effets de chargement pour éliminer les race conditions lors du zapping rapide entre discussions.
+  - **Notifications (`notifications`)** : Refactoring de la route `page.tsx` en Server Component (RSC) et création du hook `useNotificationsUI` pour piloter le Bento Grid d'alertes et l'infinite scroll.
+  - **Portefeuille & Paramètres (`portefeuille`, `parametres`)** : Création des hooks `usePortefeuille`, `useFollowedProfiles`, `useSettings` et `useSecuritySection`. Suppression complète du typage `any` (dette technique), fiabilisation du cycle de vie par `isMountedRef` et interfaçage direct avec Supabase MFA client.
 
 

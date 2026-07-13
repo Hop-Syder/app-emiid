@@ -2,8 +2,8 @@
  * @author @hopsyder
  * @organization Nexus Partners
  * @description API REFERENCE - Cartographie exhaustive des points d'entrée (endpoints) backend
- * @version 1.3.0
- * @updated 2026-06-11
+ * @version 1.4.0
+ * @updated 2026-07-13
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  * ──────────────────────────────────
@@ -80,6 +80,11 @@ Ce document recense de manière exhaustive les endpoints de l'API Express, leurs
 
 ## 🔗 Webhooks Supabase (`/api/webhooks`)
 - `POST /api/webhooks/supabase` : Point d'écoute pour les événements asynchrones de Supabase (ex: synchronisation après modification directe dans le Dashboard Supabase).
+
+---
+
+## 👑 Administration Globale (`/api/admin`)
+- `POST /api/admin/mailing` : Envoi d'un courriel (mailing) en masse à l'ensemble des utilisateurs (protégé par `requireAuth` + `requireAdmin`).
 
 ---
 
