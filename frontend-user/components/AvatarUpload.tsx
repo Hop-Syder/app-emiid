@@ -43,13 +43,36 @@ export const AvatarUpload = React.memo(function AvatarUpload({ currentAvatarUrl,
         }
     }
 
+    // Traduit les erreurs techniques Supabase Storage en messages compréhensibles.
+    const uploadErrorMessage = (error: unknown): string => {
+        const raw = error instanceof Error ? error.message : String(error ?? "")
+        const msg = raw.toLowerCase()
+        if (msg.includes("row-level security") || msg.includes("violates") || msg.includes("unauthorized") || msg.includes("403")) {
+            return "Le stockage a refusé l'envoi (droits insuffisants). Reconnectez-vous puis réessayez — si le problème persiste, contactez le support."
+        }
+        if (msg.includes("bucket") && msg.includes("not found")) {
+            return "Espace de stockage introuvable. Contactez le support."
+        }
+        if (msg.includes("payload too large") || msg.includes("entity too large") || msg.includes("413")) {
+            return "L'image dépasse la taille autorisée par le serveur (Max 2MB)."
+        }
+        if (msg.includes("network") || msg.includes("fetch") || msg.includes("failed to fetch")) {
+            return "Connexion instable : l'envoi a échoué. Vérifiez votre réseau puis réessayez."
+        }
+        if (msg.includes("jwt") || msg.includes("token") || msg.includes("expired")) {
+            return "Votre session a expiré. Reconnectez-vous pour changer votre photo."
+        }
+        return `Échec de l'envoi de la photo${raw ? ` : ${raw}` : ""}. Réessayez dans un instant.`
+    }
+
     const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const input = event.target
         try {
-            if (!event.target.files || event.target.files.length === 0) {
+            if (!input.files || input.files.length === 0) {
                 return
             }
 
-            const file = event.target.files[0]
+            const file = input.files[0]
 
             // Validation : image uniquement
             if (!file.type.startsWith("image/")) {
@@ -65,17 +88,24 @@ export const AvatarUpload = React.memo(function AvatarUpload({ currentAvatarUrl,
 
             setUploading(true)
 
-            // Récupération de la session pour créer un chemin unique par utilisateur
+            // Session requise : le chemin d'upload est scopé au dossier de l'utilisateur
             const { data: { session } } = await supabase.auth.getSession()
             if (!session) {
                 toast.error("Vous devez être connecté pour changer votre photo.")
                 return
             }
 
+            // Extension dérivée du type MIME (le nom de fichier n'est pas fiable)
+            const extByMime: Record<string, string> = {
+                "image/jpeg": "jpg", "image/png": "png", "image/gif": "gif", "image/webp": "webp",
+            }
+            const fileExt = extByMime[file.type]
+                || file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "")
+                || "jpg"
+
+            // RLS storage : le chemin DOIT commencer par l'UID de l'utilisateur
             const user = session.user
-            const fileExt = file.name.split(".").pop()
-            const fileName = `${Date.now()}.${fileExt}`
-            const filePath = `${user.id}/${fileName}`
+            const filePath = `${user.id}/${Date.now()}.${fileExt}`
 
             // Upload vers le bucket 'avatars'
             const { error: uploadError } = await supabase.storage
@@ -98,9 +128,11 @@ export const AvatarUpload = React.memo(function AvatarUpload({ currentAvatarUrl,
 
         } catch (error: unknown) {
             console.error("Erreur upload:", error)
-            toast.error("Erreur lors de l'upload : " + (error as Error).message)
+            toast.error(uploadErrorMessage(error))
         } finally {
             setUploading(false)
+            // Permet de re-sélectionner le même fichier après un échec
+            input.value = ""
         }
     }
 
