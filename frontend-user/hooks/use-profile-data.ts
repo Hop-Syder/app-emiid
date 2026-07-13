@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
-import { fetchWithAuth } from "@/lib/apiClient"
+import { isFollowingUser } from "@/lib/follows"
 
 export interface ProfileData {
     id: string
@@ -176,15 +176,10 @@ export function useProfileData(profileId: string) {
                             .eq("profile_id", data.id)
                             .order("order_index", { ascending: true }),
 
-                        fetchWithAuth("/api/users/follows")
-                            .then(async (r) => {
-                                if (r.ok) {
-                                    const follows = await r.json()
-                                    return follows.some((f: { user_id: string }) => f.user_id === resolvedUserId)
-                                }
-                                return false
-                            })
-                            .catch(() => false),
+                        // Statut de suivi : requête directe sur la table de liaison (RLS
+                        // "Follows Read" : le follower voit ses propres lignes). Fiabilise
+                        // l'état au F5 et évite un aller-retour HTTP vers le backend.
+                        isFollowingUser(resolvedUserId),
                     ])
 
                     const followingCountVal = !followsRes.error && followsRes.count !== null ? followsRes.count : 0

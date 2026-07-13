@@ -16,6 +16,7 @@ import { useEffect, useState, useRef } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { EmiIDProfileCard, EmiIDCardVariant } from "@/components/carte-profil/emiid-profile-card"
 import { fetchWithAuth } from "@/lib/apiClient"
+import { fetchFollowedIds } from "@/lib/follows"
 import { toast } from "sonner"
 import { useCurrentUserProfile } from "@/hooks/use-current-user-profile"
 import type { PublicProfile } from "@/types"
@@ -55,19 +56,15 @@ export function EntrepreneursSection({ entrepreneursList, loading, variant = "te
         return () => window.removeEventListener("emiid-follow-toggle", handler)
     }, [])
 
-    // [Étape 3] Hydrater les suivis réels du dashboard au chargement client.
+    // [Étape 3] Hydrater les suivis réels du dashboard au chargement client —
+    // même source de vérité que l'annuaire et la fiche profil (lib/follows).
     useEffect(() => {
         if (!session) return
         let active = true
         ;(async () => {
-            try {
-                const res = await fetchWithAuth("/api/users/follows")
-                if (!res.ok) return
-                const follows = await res.json()
-                const followedIds = new Set((follows || []).map((f: { user_id?: string; id?: string }) => f.user_id || f.id))
-                if (!active) return
-                setProfiles((prev) => prev.map((p) => (followedIds.has(p.id) ? { ...p, isFollowed: true } : p)))
-            } catch { /* silencieux */ }
+            const followedIds = await fetchFollowedIds()
+            if (!active || !followedIds) return
+            setProfiles((prev) => prev.map((p) => ({ ...p, isFollowed: followedIds.has(p.id) })))
         })()
         return () => { active = false }
     }, [session])
