@@ -5,89 +5,28 @@
  *              horizontal de cartes carrées + lightbox. Format volontairement distinct
  *              des cartes profils.
  * @created 2026-07-10
- * @updated 2026-07-11
+ * @updated 2026-07-13
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
 
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useRef } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Maximize2, ArrowRight, ImageOff, ChevronLeft, ChevronRight } from "lucide-react"
-import { createClient } from "@/lib/supabase/client"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { getOptimizedImageUrl } from "@/lib/image-optimization"
-
-interface ShowcaseItem {
-  id: string
-  title: string | null
-  description: string | null
-  imageUrl: string
-  authorName: string
-  authorAvatar: string | null
-  authorSlug: string | null
-}
+import { useRealisationsShowcase } from "@/hooks/use-realisations-showcase"
 
 export function RealisationsShowcase() {
-  const supabase = createClient()
-  const [items, setItems] = useState<ShowcaseItem[]>([])
-  const [loading, setLoading] = useState(true)
-  const [selected, setSelected] = useState<ShowcaseItem | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
+  const { items, loading, selected, setSelected } = useRealisationsShowcase()
 
   const scroll = (direction: "left" | "right") => {
     scrollRef.current?.scrollBy({ left: direction === "left" ? -320 : 320, behavior: "smooth" })
   }
-
-  useEffect(() => {
-    let active = true
-    ;(async () => {
-      // Réalisations approuvées, les plus récentes.
-      const { data: gallery } = await supabase
-        .from("project_gallery")
-        .select("id, title, description, image_url, profile_id")
-        .eq("status", "approved")
-        .order("created_at", { ascending: false })
-        .limit(12)
-
-      const rows = (gallery as { id: string; title: string | null; description: string | null; image_url: string; profile_id: string | null }[]) || []
-      const profileIds = Array.from(new Set(rows.map((r) => r.profile_id).filter(Boolean))) as string[]
-
-      // Auteurs (public_profiles anon-lisible)
-      const authorMap = new Map<string, { name: string; avatar: string | null; slug: string | null }>()
-      if (profileIds.length) {
-        const { data: profs } = await supabase
-          .from("public_profiles")
-          .select("id, first_name, last_name, avatar_url, slug")
-          .in("id", profileIds)
-        for (const p of (profs as { id: string; first_name: string | null; last_name: string | null; avatar_url: string | null; slug: string | null }[]) || []) {
-          authorMap.set(p.id, {
-            name: `${p.first_name || ""} ${p.last_name || ""}`.trim() || "Membre EmiID",
-            avatar: p.avatar_url,
-            slug: p.slug,
-          })
-        }
-      }
-
-      const mapped: ShowcaseItem[] = rows.map((r) => {
-        const a = r.profile_id ? authorMap.get(r.profile_id) : undefined
-        return {
-          id: r.id,
-          title: r.title,
-          description: r.description,
-          imageUrl: r.image_url,
-          authorName: a?.name || "Membre EmiID",
-          authorAvatar: a?.avatar || null,
-          authorSlug: a?.slug || null,
-        }
-      })
-
-      if (active) { setItems(mapped); setLoading(false) }
-    })()
-    return () => { active = false }
-  }, [supabase])
 
   if (loading) {
     return (
@@ -152,9 +91,9 @@ export function RealisationsShowcase() {
                   <p className="text-sm font-black text-white truncate drop-shadow">{item.title || "Réalisation"}</p>
                   <div className="flex items-center gap-1.5 mt-1.5">
                     <span className="w-5 h-5 rounded-full overflow-hidden bg-white/30 shrink-0 relative ring-1 ring-white/40">
-                      {item.authorAvatar ? (
+                      {item.authorAvatar && (
                         <Image src={item.authorAvatar} alt={item.authorName} fill sizes="20px" className="object-cover" />
-                      ) : null}
+                      )}
                     </span>
                     <span className="text-[11px] font-semibold text-white/85 truncate">{item.authorName}</span>
                   </div>

@@ -17,12 +17,13 @@ import { AnnuaireGrid } from "./annuaire-grid"
 import { AnnuaireSpotlight } from "./annuaire-spotlight"
 import { AnnuaireFilters } from "./annuaire-filters"
 
+import type { PublicProfile } from "@/types"
+
 interface AnnuairePublicContentProps {
     initialCategory?: string
     initialActivityDomain?: string
     initialCity?: string
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- profils déjà mappés côté serveur, forme validée par AnnuaireGrid en aval
-    initialProfiles?: any[]
+    initialProfiles?: PublicProfile[]
 }
 
 export function AnnuairePublicContent({
@@ -120,15 +121,7 @@ export function AnnuairePublicContent({
                                         <>
                                             Résultats de votre recherche filtrée.
                                             <button 
-                                                onClick={() => setFilters({
-                                                    search: "",
-                                                    category: "all",
-                                                    country: "all",
-                                                    city: "",
-                                                    tags: "",
-                                                    status: "all",
-                                                    activity_domain: "all"
-                                                })}
+                                                onClick={resetFilters}
                                                 className="text-xs font-bold text-blue-500 hover:text-blue-600 underline cursor-pointer"
                                             >
                                                 Réinitialiser

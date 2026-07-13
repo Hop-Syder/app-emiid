@@ -39,7 +39,7 @@ export function DashboardHubContent({
           ========================================= */}
       <div className="pb-16 pt-6 relative overflow-hidden z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 relative z-10">
-          <DashboardBentoHeader stats={stats} statsLoading={statsLoading} />
+          <DashboardBentoHeader />
           {statsError && (
             <p className="text-xs text-rose-400 flex items-center justify-center gap-2 px-1 pt-4 font-medium" data-testid="stats-sync-indicator">
               <span className="inline-block h-2 w-2 rounded-full bg-rose-500 animate-pulse" />
