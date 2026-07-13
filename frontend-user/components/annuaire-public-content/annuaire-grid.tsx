@@ -12,7 +12,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react"
 import { motion } from "framer-motion"
-import { fetchWithAuth } from "@/lib/apiClient"
+import { fetchFollowedIds } from "@/lib/follows"
 import { AnnuaireCard } from "./annuaire-card"
 import { EmptyState } from "@/components/EmptyState"
 import { Button } from "@/components/ui/button"
@@ -119,6 +119,21 @@ export function AnnuaireGrid({ filters, initialProfiles = [], onlyPremium = fals
     // Multiple de ROW_SIZE : chaque page affiche des lignes complètes de 10 cartes.
     const limit = 30
 
+    // Hydratation au montage : les profils rendus côté serveur (initialProfiles)
+    // arrivent sans état de suivi. Si l'utilisateur est connecté, on marque
+    // isFollowed en croisant les IDs avec ses abonnements — l'état de couleur
+    // des boutons Suivre/Abonné est ainsi correct dès le premier rendu.
+    useEffect(() => {
+        let cancelled = false
+        void (async () => {
+            const followedIds = await fetchFollowedIds()
+            if (cancelled || !followedIds) return
+            setProfiles((prev) => prev.map((p) => ({ ...p, isFollowed: followedIds.has(p.id) })))
+        })()
+        return () => { cancelled = true }
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- une seule fois au montage client
+    }, [])
+
     // Reset page on filter change
     useEffect(() => {
         setPage(1)
@@ -167,21 +182,13 @@ export function AnnuaireGrid({ filters, initialProfiles = [], onlyPremium = fals
                 const result = await res.json()
                 const fetchedProfiles = result.profiles || []
                 
-                // Get follows to mark isFollowed
-                let userFollowsIds: string[] = []
-                try {
-                    const followsRes = await fetchWithAuth("/api/users/follows")
-                    if (followsRes.ok) {
-                        const followsData = await followsRes.json()
-                        userFollowsIds = followsData.map((f: { user_id?: string; id?: string }) => f.user_id || f.id)
-                    }
-                } catch {
-                    console.warn("Failed to load follows in annuaire")
-                }
+                // Marquage isFollowed via la même source de vérité que l'hydratation
+                // initiale (requête directe user_follows, cf. fetchFollowedIds).
+                const followedIds = await fetchFollowedIds()
 
                 const updatedProfiles = fetchedProfiles.map((p: PublicProfile) => ({
                     ...p,
-                    isFollowed: userFollowsIds.includes(p.id)
+                    isFollowed: !!followedIds?.has(p.id)
                 }))
 
                 setProfiles(updatedProfiles)
