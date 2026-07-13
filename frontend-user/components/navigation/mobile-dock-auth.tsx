@@ -1,9 +1,9 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Barre de navigation mobile flottante (Auth / Connecté) avec icônes SVG Streamline
+ * @description Barre de navigation mobile flottante épurée à 4 icônes avec menu "Mon Espace" vertical.
  * @created 2026-06-13
- * @updated 2026-06-22
+ * @updated 2026-07-13
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -13,7 +13,7 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
-import { User, LogOut, LucideIcon } from "lucide-react"
+import { User, LogOut, LucideIcon, Wallet, FileText, Bell, Settings } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
@@ -30,10 +30,8 @@ interface NavItem {
 const privateNavItems: NavItem[] = [
   { name: "Hub", href: "/dashboard-user", svg: "/svg/Home.svg" },
   { name: "Annuaire", href: "/annuaire", svg: "/svg/Grid.svg" },
-  { name: "Créer mon profil", href: "/creer-profil", svg: "/svg/FileText.svg" },
   { name: "Messages", href: "/messages", svg: "/svg/MessageSquare.svg" },
-  { name: "Portefeuille", href: "/portefeuille", svg: "/svg/Wallet.svg" },
-  { name: "Profil", href: "/dashboard-user?view=profile", icon: User },
+  { name: "Espace", href: "/dashboard-user?view=profile", icon: User },
 ]
 
 export function MobileDockAuth() {
@@ -89,7 +87,7 @@ export function MobileDockAuth() {
         ref={dockRef}
         className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-sm flex flex-col gap-3"
       >
-        {/* SOUS-MENU INTERACTIF FLOTTANT AU-DESSUS */}
+        {/* SOUS-MENU INTERACTIF FLOTTANT AU-DESSUS (VERTICAL & ERGONOMIQUE) */}
         <AnimatePresence>
           {showUserMenu && (
             <motion.div
@@ -97,71 +95,86 @@ export function MobileDockAuth() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 15, scale: 0.95 }}
               transition={{ type: "spring", stiffness: 350, damping: 25 }}
-              className="flex items-center justify-around h-16 bg-slate-900/90 backdrop-blur-3xl border border-white/10 rounded-full px-4 shadow-[0_16px_32px_-8px_rgba(0,0,0,0.6)] w-full"
+              className="flex flex-col gap-1 p-2 bg-slate-900/95 backdrop-blur-3xl border border-white/10 rounded-[28px] shadow-[0_16px_32px_-8px_rgba(0,0,0,0.6)] w-full"
             >
-              {/* Lien Mon Profil Public */}
+              {/* Mon Portefeuille */}
               <Link 
-                href="/profil"
-                className="flex items-center gap-1.5 text-slate-300 hover:text-white px-2 py-1.5 rounded-xl hover:bg-white/5 transition-all outline-none"
+                href="/portefeuille"
+                className="flex items-center gap-3 text-slate-300 hover:text-white px-4 py-3 rounded-2xl hover:bg-white/5 transition-all outline-none"
               >
-                <User className="size-3.5 text-blue-400" />
-                <span className="text-[9px] font-black uppercase tracking-wider">Profil</span>
+                <div className="flex items-center justify-center size-8 rounded-xl bg-white/5 text-blue-400">
+                  <Wallet className="size-4" />
+                </div>
+                <span className="text-[11px] font-black uppercase tracking-wider">Mon Portefeuille</span>
               </Link>
 
-              {/* Séparateur minimaliste */}
-              <div className="h-5 w-px bg-white/10" />
+              {/* Modifier mon Profil */}
+              <Link 
+                href="/creer-profil"
+                className="flex items-center gap-3 text-slate-300 hover:text-white px-4 py-3 rounded-2xl hover:bg-white/5 transition-all outline-none"
+              >
+                <div className="flex items-center justify-center size-8 rounded-xl bg-white/5 text-emerald-400">
+                  <FileText className="size-4" />
+                </div>
+                <span className="text-[11px] font-black uppercase tracking-wider">Modifier mon profil</span>
+              </Link>
 
-              {/* Lien Notifications */}
+              {/* Notifications */}
               <Link 
                 href="/notifications"
-                className="relative flex items-center gap-1.5 text-slate-300 hover:text-white px-2 py-1.5 rounded-xl hover:bg-white/5 transition-all outline-none"
+                className="flex items-center justify-between text-slate-300 hover:text-white px-4 py-3 rounded-2xl hover:bg-white/5 transition-all outline-none"
               >
-                <div className="relative">
-                  <Image src="/svg/notification.svg" alt="Notifications" width={18} height={18} className="size-4.5 object-contain" />
-                  {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 size-1.5 bg-red-500 rounded-full shadow-[0_0_4px_rgba(239,68,68,0.5)]" />
-                  )}
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center size-8 rounded-xl bg-white/5 text-amber-400">
+                    <Bell className="size-4" />
+                  </div>
+                  <span className="text-[11px] font-black uppercase tracking-wider">Notifications</span>
                 </div>
-                <span className="text-[9px] font-black uppercase tracking-wider">Notifications</span>
+                {unreadCount > 0 && (
+                  <span className="px-2 py-0.5 text-[9px] font-black text-white bg-red-500 rounded-full">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
               </Link>
 
-              {/* Séparateur minimaliste */}
-              <div className="h-5 w-px bg-white/10" />
-
-              {/* Lien Paramètres */}
+              {/* Paramètres */}
               <Link 
                 href="/parametres"
-                className="flex items-center gap-1.5 text-slate-300 hover:text-white px-2 py-1.5 rounded-xl hover:bg-white/5 transition-all outline-none"
+                className="flex items-center gap-3 text-slate-300 hover:text-white px-4 py-3 rounded-2xl hover:bg-white/5 transition-all outline-none"
               >
-                <Image src="/svg/setting.svg" alt="Paramètres" width={14} height={14} className="size-3.5 object-contain" />
-                <span className="text-[9px] font-black uppercase tracking-wider">Paramètres</span>
+                <div className="flex items-center justify-center size-8 rounded-xl bg-white/5 text-slate-400">
+                  <Settings className="size-4" />
+                </div>
+                <span className="text-[11px] font-black uppercase tracking-wider">Paramètres</span>
               </Link>
 
               {/* Séparateur minimaliste */}
-              <div className="h-5 w-px bg-white/10" />
+              <div className="h-px bg-white/5 my-1 mx-2" />
 
               {/* Déconnexion */}
               <button 
                 onClick={handleLogout}
-                className="flex items-center gap-1.5 text-red-400 hover:text-red-300 px-2 py-1.5 rounded-xl hover:bg-white/5 transition-all outline-none cursor-pointer"
+                className="flex items-center gap-3 text-red-400 hover:text-red-300 px-4 py-3 rounded-2xl hover:bg-white/5 transition-all outline-none cursor-pointer"
               >
-                <LogOut className="size-3.5" />
-                <span className="text-[9px] font-black uppercase tracking-wider">Quitter</span>
+                <div className="flex items-center justify-center size-8 rounded-xl bg-red-500/10 text-red-400">
+                  <LogOut className="size-4" />
+                </div>
+                <span className="text-[11px] font-black uppercase tracking-wider">Se déconnecter</span>
               </button>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* DOCK PRINCIPAL DE NAVIGATION */}
+        {/* DOCK PRINCIPAL DE NAVIGATION (4 ICÔNES) */}
         <div className="relative flex items-center justify-around h-16 bg-slate-900/80 backdrop-blur-2xl border border-white/10 rounded-full px-2 shadow-[0_16px_32px_-8px_rgba(0,0,0,0.5)] w-full">
           {/* Lueur interne globale */}
           <div className="absolute inset-0 rounded-full border border-white/5 pointer-events-none" />
 
           {privateNavItems.map((item) => {
-            const isProfilButton = item.name === "Profil"
+            const isProfilButton = item.name === "Espace"
             const isActive = pathname === item.href && !isProfilButton
             
-            // Rendu du bouton d'action pour le Profil (connecté)
+            // Rendu du bouton d'action pour "Mon Espace"
             if (isProfilButton && item.icon) {
               const IconComponent = item.icon
               return (

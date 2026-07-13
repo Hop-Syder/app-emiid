@@ -151,5 +151,7 @@
   - **Messagerie (`messages`)** : Création du hook `useMessages` encapsulant les statuts de présence, la reconnexion et les actions de discussion. Implémentation d'une variable de garde `active = false` dans les effets de chargement pour éliminer les race conditions lors du zapping rapide entre discussions.
   - **Notifications (`notifications`)** : Refactoring de la route `page.tsx` en Server Component (RSC) et création du hook `useNotificationsUI` pour piloter le Bento Grid d'alertes et l'infinite scroll.
   - **Portefeuille & Paramètres (`portefeuille`, `parametres`)** : Création des hooks `usePortefeuille`, `useFollowedProfiles`, `useSettings` et `useSecuritySection`. Suppression complète du typage `any` (dette technique), fiabilisation du cycle de vie par `isMountedRef` et interfaçage direct avec Supabase MFA client.
+  - **Navigation Mobile (`mobile-dock-auth`)** : Implémentation de la navigation minimaliste à 4 icônes principales (Hub, Annuaire, Messages, Espace) et déportation verticale du sous-menu flottant (Portefeuille, Modifier profil, Notifications, Paramètres, Déconnexion) sous forme de Bento vertical élégant.
+  - **Sécurité Messagerie (`use-conversation-actions`)** : Remplacement de l'insertion Supabase directe côté client par un appel sécurisé à la route d'API Express `/api/messages/send`, appliquant ainsi les contrôles de sécurité et le rate-limiting centralisé du serveur backend.
 
 
