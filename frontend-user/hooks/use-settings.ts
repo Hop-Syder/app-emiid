@@ -55,7 +55,6 @@ export const defaultPreferences = {
   currency: "xof",
   timezone: "gmt",
   theme: "light",
-  density: "80",
   public_profile: false,
 }
 

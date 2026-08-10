@@ -194,7 +194,7 @@ export function MobileDockAuth() {
                   )}
                   
                   <IconComponent 
-                    className={`size-6 transition-colors duration-300 z-10 ${
+                    className={`size-5 transition-colors duration-300 z-10 ${
                       showUserMenu ? "text-blue-400" : "text-slate-400 group-hover:text-slate-200"
                     }`} 
                   />
@@ -237,13 +237,13 @@ export function MobileDockAuth() {
                 <Image
                   src={item.svg || ""}
                   alt={item.name}
-                  width={26}
-                  height={26}
+                  width={20}
+                  height={20}
                   className={cn(
-                    "size-[25px] transition-all duration-300 z-10",
+                    "size-5 transition-all duration-300 z-10",
                     isActive
                       ? "opacity-100 scale-110 saturate-100 filter drop-shadow-[0_0_8px_rgba(99,102,241,0.25)]"
-                      : "opacity-60 scale-100 saturate-75 dark:saturate-50 group-hover:opacity-95 group-hover:scale-105 group-hover:saturate-100"
+                      : "opacity-45 scale-100 saturate-50 dark:saturate-25 group-hover:opacity-85 group-hover:scale-105 group-hover:saturate-100"
                   )}
                 />
 
