@@ -82,6 +82,7 @@ export const metadata: Metadata = {
 import { Toaster } from 'sonner'
 import { CookieConsent } from '@/components/CookieConsent'
 import { ThemeProvider } from '@/components/theme-provider'
+import { DensityProvider } from '@/components/density-provider'
 
 export default function RootLayout({
   children,
@@ -135,10 +136,12 @@ export default function RootLayout({
         />
 
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          {children}
-          <Analytics />
-          <Toaster position="top-right" richColors closeButton />
-          <CookieConsent />
+          <DensityProvider>
+            {children}
+            <Analytics />
+            <Toaster position="top-right" richColors closeButton />
+            <CookieConsent />
+          </DensityProvider>
         </ThemeProvider>
       </body>
     </html>

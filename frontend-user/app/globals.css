@@ -63,7 +63,6 @@
 @layer base {
   :root {
     --font-sans: 'Inter', system-ui, sans-serif;
-    /* Titres : Satoshi (Mitsuha ne couvre pas les accents FR → réservée au wordmark) */
     --font-heading: 'Satoshi', sans-serif;
     --font-mono: ui-monospace, monospace;
 
@@ -72,7 +71,49 @@
     --brand-cyan: #03b3f8;   /* Bleu clair (secondaire) */
     --brand-navy: #000616;   /* Bleu nuit (sombre) */
 
-    /* ── CHARTE EmiID — fond blanc, texte bleu nuit #000616 ── */
+    /* ── SYSTEME DE DENSITÉ GLOBALE DE L'INTERFACE ── */
+    --ui-density: 1;
+  }
+}
+
+/* Attributs de densité globale (100% à 80%) */
+html[data-density="100"] { --ui-density: 1.00; }
+html[data-density="98"]  { --ui-density: 0.98; }
+html[data-density="95"]  { --ui-density: 0.95; }
+html[data-density="90"]  { --ui-density: 0.90; }
+html[data-density="85"]  { --ui-density: 0.85; }
+html[data-density="80"]  { --ui-density: 0.80; }
+
+html {
+  font-size: calc(16px * var(--ui-density));
+  transition: font-size 0.2s ease-in-out;
+}
+
+@media (max-width: 768px) {
+  html {
+    font-size: max(9.5px, calc(11px * var(--ui-density)));
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    overflow-x: hidden;
+    min-height: 100vh;
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
+
+  :root {
     --background: 0 0% 100%;
     --foreground: 224 100% 4%;
 
@@ -183,30 +224,5 @@
     --sidebar-accent-foreground: 0 0% 95%;
     --sidebar-border: 217 33% 20%;
     --sidebar-ring: 222 100% 66%;
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-
-  body {
-    @apply bg-background text-foreground;
-    overflow-x: hidden;
-    min-height: 100vh;
-    padding-bottom: env(safe-area-inset-bottom);
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-heading);
-  }
-}
-
-@media (max-width: 768px) {
-  html {
-    font-size: 11px; /* Réduction de -5px (16px -> 11px) sur mobile */
   }
 }
