@@ -19,14 +19,14 @@ interface DensityContextType {
 }
 
 const DensityContext = createContext<DensityContextType>({
-  density: "100",
+  density: "80",
   setDensity: () => {},
 })
 
 const STORAGE_KEY = "emiid_ui_density"
 
 export function DensityProvider({ children }: { children: React.ReactNode }) {
-  const [density, setDensityState] = useState<DensityLevel>("100")
+  const [density, setDensityState] = useState<DensityLevel>("80")
 
   useEffect(() => {
     try {
@@ -35,10 +35,12 @@ export function DensityProvider({ children }: { children: React.ReactNode }) {
         setDensityState(saved)
         document.documentElement.setAttribute("data-density", saved)
       } else {
-        document.documentElement.setAttribute("data-density", "100")
+        setDensityState("80")
+        document.documentElement.setAttribute("data-density", "80")
       }
     } catch {
-      document.documentElement.setAttribute("data-density", "100")
+      setDensityState("80")
+      document.documentElement.setAttribute("data-density", "80")
     }
   }, [])
 

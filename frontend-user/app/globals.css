@@ -72,7 +72,7 @@
     --brand-navy: #000616;   /* Bleu nuit (sombre) */
 
     /* ── SYSTEME DE DENSITÉ GLOBALE DE L'INTERFACE ── */
-    --ui-density: 1;
+    --ui-density: 0.80;
   }
 }
 
