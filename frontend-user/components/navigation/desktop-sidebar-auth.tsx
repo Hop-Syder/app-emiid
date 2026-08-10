@@ -107,13 +107,13 @@ export function DesktopSidebarAuth() {
                   <Image
                     src={item.svg}
                     alt={item.name}
-                    width={20}
-                    height={20}
+                    width={26}
+                    height={26}
                     className={cn(
-                      "size-5 transition-all duration-300",
+                      "size-[26px] transition-all duration-300",
                       isActive
                         ? "opacity-100 scale-110 saturate-100 filter drop-shadow-[0_0_8px_rgba(99,102,241,0.25)]"
-                        : "opacity-45 scale-100 saturate-50 dark:saturate-25 group-hover:opacity-85 group-hover:scale-105 group-hover:saturate-100"
+                        : "opacity-60 scale-100 saturate-75 dark:saturate-50 group-hover:opacity-95 group-hover:scale-105 group-hover:saturate-100"
                     )}
                   />
                 </div>
