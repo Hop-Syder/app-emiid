@@ -16,7 +16,7 @@ Ce backend est le moteur "Gendarme" de EmiID. Il assure le relais d'authentifica
 - **Framework**: Express (TypeScript)
 - **Base de données**: Supabase (PostgreSQL)
 - **Authentification**: Supabase Auth (JWT Verification)
-- **Déploiement**: Railway / Vercel
+- **Déploiement**: Render (production : https://app-emiid.onrender.com)
 
 ---
 
@@ -72,15 +72,24 @@ npm start
 
 ---
 
-## ☁️ Déploiement sur Railway
+## ☁️ Déploiement sur Render
 
-Pour déployer ce backend sur Railway :
+Le backend est déployé sur [Render](https://render.com) en tant que **Web Service**.
+Production : **https://app-emiid.onrender.com**
 
-1.  **Connecter le Repo** : Dans Railway, créez un nouveau projet et connectez votre dépôt GitHub.
-2.  **Configuration des Variables** : Allez dans l'onglet **Variables** et ajoutez toutes les variables du `.env` (SUPABASE_URL, SUPABASE_ANON_KEY, etc.).
-3.  **CORS_ORIGIN** : N'oubliez pas d'ajouter l'URL de votre frontend local ou déployé pour autoriser les requêtes.
-4.  **Build Command** : Railway détectera automatiquement le `package.json` et lancera `npm run build` puis `npm start`.
-5.  **Domaine** : Allez dans l'onglet **Settings** > **Public Networking** pour générer un domaine `up.railway.app`.
+Deux méthodes :
+
+- **Blueprint (recommandé)** : le fichier `render.yaml` décrit le service. Sur Render,
+  **New +** > **Blueprint**, connectez le repo, renseignez les secrets (`sync: false`),
+  puis **Apply**.
+- **Manuel** : **New +** > **Web Service**, avec **Root Directory** = `backend`,
+  **Build Command** = `pnpm install --no-frozen-lockfile && pnpm run build`,
+  **Start Command** = `pnpm start`, **Health Check Path** = `/health`.
+
+N'oubliez pas de renseigner `CORS_ORIGIN` avec les URLs de vos frontends autorisés.
+Render fournit automatiquement la variable `PORT` (ne pas la définir manuellement).
+
+📖 Guide détaillé : voir [`RENDER_DEPLOYMENT.md`](./RENDER_DEPLOYMENT.md).
 
 ---
 
