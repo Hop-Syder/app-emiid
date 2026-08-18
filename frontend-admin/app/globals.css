@@ -1,21 +1,93 @@
 @import "tailwindcss";
 
 :root {
+  /* ── Hex officiels de la charte EmiID (valeurs de référence) ── */
+  --brand-blue: #013ff4;   /* Bleu roi (primaire) */
+  --brand-cyan: #03b3f8;   /* Bleu clair (secondaire) */
+  --brand-navy: #000616;   /* Bleu nuit (sombre) */
+  --brand-white: #ffffff;  /* Blanc (secondaire) */
+
+  /* ── Rôles sémantiques — charte : fond blanc, texte bleu nuit ── */
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #000616;
+  --primary: #013ff4;
+  --primary-foreground: #ffffff;
+  --secondary: #03b3f8;
+  --secondary-foreground: #ffffff;
+  --accent: #eef4ff;
+  --accent-foreground: #000616;
+  --border: #e2e8f0;
+  --ring: #013ff4;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+
+  /* Couleurs de marque brutes → utilitaires bg-brand-blue, text-brand-navy, … */
+  --color-brand-blue: var(--brand-blue);
+  --color-brand-cyan: var(--brand-cyan);
+  --color-brand-navy: var(--brand-navy);
+  --color-brand-white: var(--brand-white);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* ── Reskin charte : la rampe `blue-*` est réalignée sur le Bleu roi #013ff4
+   * (ancré sur blue-600) → bleu nuit #000616 (blue-950). Toutes les classes
+   * bg-blue-*/text-blue-*/ring-blue-* existantes rendent donc les teintes de
+   * la charte, sans édition composant par composant. ── */
+  --color-blue-50: #eaf0ff;
+  --color-blue-100: #d5e0ff;
+  --color-blue-200: #aec2ff;
+  --color-blue-300: #7f9dff;
+  --color-blue-400: #4d72ff;
+  --color-blue-500: #1f52f8;
+  --color-blue-600: #013ff4;  /* Bleu roi — couleur primaire de marque */
+  --color-blue-700: #0132cc;
+  --color-blue-800: #01279e;
+  --color-blue-900: #041f78;
+  --color-blue-950: #000616;  /* Bleu nuit — charte */
+
+  /* ── Rampe `cyan-*` / `sky-*` réalignée sur le Cyan de marque #03b3f8. ── */
+  --color-cyan-50: #e5f7fe;
+  --color-cyan-100: #c3ecfd;
+  --color-cyan-200: #8fdcfb;
+  --color-cyan-300: #52c8f9;
+  --color-cyan-400: #22bcf9;
+  --color-cyan-500: #03b3f8;  /* Cyan de marque */
+  --color-cyan-600: #0490cf;
+  --color-cyan-700: #0672a3;
+  --color-sky-50: #e5f7fe;
+  --color-sky-500: #03b3f8;
+  --color-sky-600: #0490cf;
+
+  /* ── Fonds sombres profonds alignés sur le bleu nuit de la charte. ── */
+  --color-slate-900: #030a1c;
+  --color-slate-950: #000616;  /* Bleu nuit — charte */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    /* ── Charte sombre — fond bleu nuit #000616 ── */
+    --background: #000616;
     --foreground: #ededed;
+    --primary: #3a6bff;          /* bleu roi éclairci pour le sombre */
+    --primary-foreground: #000616;
+    --secondary: #03b3f8;
+    --secondary-foreground: #000616;
+    --accent: #0b1024;
+    --accent-foreground: #ededed;
+    --border: #1b2440;
+    --ring: #3a6bff;
   }
 }
 
@@ -23,6 +95,19 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), ui-sans-serif, system-ui;
+}
+
+@layer utilities {
+  /* ── Dégradé de marque EmiID (charte) : bleu roi → bleu nuit, 45° ── */
+  .bg-brand-gradient {
+    background-image: linear-gradient(45deg, #013ff4 0%, #000616 150%);
+  }
+  .text-brand-gradient {
+    background-image: linear-gradient(45deg, #013ff4, #03b3f8);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
 }
 
 /* Custom Scrollbar */
