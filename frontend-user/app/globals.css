@@ -204,9 +204,3 @@
     font-family: var(--font-heading);
   }
 }
-
-@media (max-width: 768px) {
-  html {
-    font-size: 11px; /* Réduction de -5px (16px -> 11px) sur mobile */
-  }
-}
