@@ -1,7 +1,7 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Script de validation des variables d'environnement compatible local et CI/CD (Railway)
+ * @description Script de validation des variables d'environnement compatible local et CI/CD (Render)
  * @updated 2026-05-07
  */
 

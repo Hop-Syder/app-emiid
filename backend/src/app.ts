@@ -44,7 +44,7 @@ export const allowedOrigins = (() => {
 export function createApp(): Application {
   const app: Application = express()
 
-  // SÉCURITÉ : derrière un proxy (Railway/Vercel), Express doit faire confiance au
+  // SÉCURITÉ : derrière un proxy (Render/Vercel), Express doit faire confiance au
   // header X-Forwarded-For pour reconstruire l'IP réelle du client. Sans cela,
   // `req.ip` vaut l'IP du proxy pour TOUS les clients : les rate limiters
   // (PIN, OTP, auth) partagent alors un seul compteur et la protection
