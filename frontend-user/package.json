@@ -99,6 +99,8 @@
   },
   "overrides": {
     "react": "19.2.0",
-    "react-dom": "19.2.0"
+    "react-dom": "19.2.0",
+    "motion-dom": "12.40.0",
+    "motion-utils": "12.39.0"
   }
 }
