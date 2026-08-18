@@ -40,6 +40,39 @@
 
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* ── Reskin charte : la rampe `blue-*` est réalignée sur le Bleu roi #013ff4
+   * (ancré sur blue-600) → bleu nuit #000616 (blue-950). Toutes les classes
+   * bg-blue-*/text-blue-*/ring-blue-* existantes rendent donc les teintes de
+   * la charte, sans édition composant par composant. ── */
+  --color-blue-50: #eaf0ff;
+  --color-blue-100: #d5e0ff;
+  --color-blue-200: #aec2ff;
+  --color-blue-300: #7f9dff;
+  --color-blue-400: #4d72ff;
+  --color-blue-500: #1f52f8;
+  --color-blue-600: #013ff4;  /* Bleu roi — couleur primaire de marque */
+  --color-blue-700: #0132cc;
+  --color-blue-800: #01279e;
+  --color-blue-900: #041f78;
+  --color-blue-950: #000616;  /* Bleu nuit — charte */
+
+  /* ── Rampe `cyan-*` / `sky-*` réalignée sur le Cyan de marque #03b3f8. ── */
+  --color-cyan-50: #e5f7fe;
+  --color-cyan-100: #c3ecfd;
+  --color-cyan-200: #8fdcfb;
+  --color-cyan-300: #52c8f9;
+  --color-cyan-400: #22bcf9;
+  --color-cyan-500: #03b3f8;  /* Cyan de marque */
+  --color-cyan-600: #0490cf;
+  --color-cyan-700: #0672a3;
+  --color-sky-50: #e5f7fe;
+  --color-sky-500: #03b3f8;
+  --color-sky-600: #0490cf;
+
+  /* ── Fonds sombres profonds alignés sur le bleu nuit de la charte. ── */
+  --color-slate-900: #030a1c;
+  --color-slate-950: #000616;  /* Bleu nuit — charte */
 }
 
 @media (prefers-color-scheme: dark) {
