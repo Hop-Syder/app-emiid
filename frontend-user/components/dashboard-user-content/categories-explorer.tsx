@@ -52,7 +52,7 @@ const CategoryCard = ({ cat, idx, categoryCounts }: { cat: CategoryItem, idx: nu
     <Link
       key={idx}
       href={`/annuaire?category=${cat.id}`}
-      className={`snap-start shrink-0 w-[70%] sm:w-[45%] md:w-[22%] lg:w-[19%] group relative flex flex-col p-5 rounded-2xl border ${cat.bg} hover:shadow-xl hover:-translate-y-1 transition-all duration-500 text-left overflow-hidden bg-white/40 backdrop-blur-md`}
+      className={`snap-start shrink-0 w-[70%] sm:w-[45%] md:w-[22%] lg:w-[19%] group relative flex flex-col p-5 rounded-2xl border ${cat.bg} hover:shadow-xl hover:-translate-y-1 transition-all duration-500 text-left overflow-hidden`}
     >
       {/* Décoration d'arrière-plan avec glow doux */}
       <div className={`absolute -right-6 -bottom-6 w-32 h-32 rounded-full blur-3xl opacity-20 group-hover:opacity-40 transition-opacity duration-500 ${cat.bg.replace('bg-', 'bg-gradient-to-br from-white to-')}`} />
@@ -62,7 +62,7 @@ const CategoryCard = ({ cat, idx, categoryCounts }: { cat: CategoryItem, idx: nu
         <Icon className="w-28 h-28" />
       </div>
 
-      <div className="p-3 bg-white/80 backdrop-blur-xl w-max rounded-xl mb-4 border border-white/60 shadow-sm group-hover:scale-110 transition-transform duration-300">
+      <div className="p-3 bg-white w-max rounded-xl mb-4 border border-slate-100 shadow-sm group-hover:scale-110 transition-transform duration-300">
         <Icon className={`w-6 h-6 ${cat.color}`} />
       </div>
       <h4 className="font-bold text-slate-800 text-base md:text-lg tracking-tight z-10 group-hover:text-slate-950 transition-colors leading-tight">{cat.label}</h4>
@@ -74,7 +74,7 @@ const CategoryCard = ({ cat, idx, categoryCounts }: { cat: CategoryItem, idx: nu
       
       {/* Petit indicateur interactif */}
       <div className="absolute top-4 right-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
-        <div className="w-6 h-6 rounded-full bg-white/50 backdrop-blur-sm flex items-center justify-center border border-white/50">
+        <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center border border-slate-200">
           <Icon className={`w-3 h-3 ${cat.color}`} />
         </div>
       </div>

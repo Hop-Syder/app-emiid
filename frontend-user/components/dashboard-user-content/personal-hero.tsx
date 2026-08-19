@@ -29,7 +29,7 @@ export function PersonalHero() {
   } = usePersonalHero()
 
   return (
-    <div className="rounded-3xl bg-gradient-to-br from-[#013ff4]/[0.04] via-white to-[#03b3f8]/[0.04] border border-slate-200/70 p-4 sm:p-5 shadow-sm">
+    <div className="rounded-3xl bg-white border border-slate-100 p-4 sm:p-5 shadow-[0_4px_24px_rgb(15,23,42,0.05)]">
       <div className="flex flex-col lg:flex-row gap-4">
         {/* Complétude */}
         <ProfileCompleteness completion={completion} loading={loading} nextAction={nextAction} />
@@ -54,7 +54,7 @@ export function PersonalHero() {
             value={stats.totalFollowers}
             label="Abonnés"
             growth={stats.followersGrowthPercent}
-            tone="bg-violet-500/10 text-violet-600"
+            tone="bg-[#013ff4]/10 text-[#013ff4]"
           />
         </div>
       </div>

@@ -70,7 +70,7 @@ export function RealisationsShowcase() {
               key={item.id}
               type="button"
               onClick={() => setSelected(item)}
-              className="group min-w-[240px] sm:min-w-[280px] flex-shrink-0 snap-start text-left rounded-2xl overflow-hidden bg-white border border-slate-200/60 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all relative focus:outline-none focus-visible:ring-2 focus-visible:ring-[#013ff4]/40"
+              className="group min-w-[240px] sm:min-w-[280px] flex-shrink-0 snap-start text-left rounded-2xl overflow-hidden bg-white border border-slate-100 shadow-[0_4px_24px_rgb(15,23,42,0.05)] hover:shadow-xl hover:-translate-y-1 transition-all relative focus:outline-none focus-visible:ring-2 focus-visible:ring-[#013ff4]/40"
             >
               {/* Cover carrée */}
               <div className="relative aspect-square w-full bg-slate-100 overflow-hidden">

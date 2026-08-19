@@ -22,7 +22,7 @@ interface StatTileProps {
 
 export function StatTile({ icon: Icon, value, label, growth, tone }: StatTileProps) {
   return (
-    <div className="flex-1 min-w-[92px] rounded-2xl bg-white/70 backdrop-blur-md border border-white/60 p-3.5 shadow-sm">
+    <div className="flex-1 min-w-[92px] rounded-2xl bg-white border border-slate-200 p-3.5 shadow-[0_2px_12px_rgb(15,23,42,0.04)]">
       <div className="flex items-center justify-between">
         <span className={cn("w-8 h-8 rounded-xl flex items-center justify-center", tone)}>
           <Icon className="h-4 w-4" />

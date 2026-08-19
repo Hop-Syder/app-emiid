@@ -32,7 +32,7 @@ export function ExplorerHub({ premiumProfiles, newProfiles, categoryCounts }: Ex
   const hasPremium = premiumProfiles.length > 0
 
   const tabs = [
-    { id: "new" as const, label: "Nouveaux", icon: Sparkles, color: "text-blue-500", chip: "bg-blue-100" },
+    { id: "new" as const, label: "Nouveaux", icon: Sparkles, color: "text-[#013ff4]", chip: "bg-[#013ff4]/10" },
     ...(hasPremium ? [{ id: "premium" as const, label: "Premium", icon: Crown, color: "text-amber-500", chip: "bg-amber-100" }] : []),
     { id: "realisations" as const, label: "Réalisations", icon: Images, color: "text-[#03b3f8]", chip: "bg-[#03b3f8]/10" },
     { id: "categories" as const, label: "Catégories", icon: LayoutGrid, color: "text-[#013ff4]", chip: "bg-[#013ff4]/10" },
@@ -43,7 +43,7 @@ export function ExplorerHub({ premiumProfiles, newProfiles, categoryCounts }: Ex
   const seeAllHref = active === "premium" ? "/annuaire?filter=premium" : active === "new" ? "/annuaire?filter=new" : "/annuaire"
 
   return (
-    <div className="space-y-6 pt-8 pb-10 px-4 sm:px-8 -mx-4 sm:-mx-8 bg-slate-50/80 rounded-[2.5rem] border border-slate-100/80 shadow-sm relative overflow-hidden">
+    <div className="space-y-6 pt-8 pb-10 px-4 sm:px-8 -mx-4 sm:-mx-8 bg-slate-50 rounded-3xl border border-slate-100 shadow-[0_4px_24px_rgb(15,23,42,0.04)] relative overflow-hidden">
       <div className="absolute top-0 right-0 w-64 h-64 bg-[#03b3f8]/5 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
 
       {/* En-tête : titre + onglets + « Voir tout » */}

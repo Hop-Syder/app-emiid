@@ -88,7 +88,7 @@ export function DashboardBentoHeader() {
                         {/* Titre plein écran */}
                         <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white tracking-tight leading-[1.05]">
                             {greeting}{" "}
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-sky-200 to-white">
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#03b3f8] via-sky-200 to-white">
                                 {userName || "Talent"}
                             </span>
                         </h1>

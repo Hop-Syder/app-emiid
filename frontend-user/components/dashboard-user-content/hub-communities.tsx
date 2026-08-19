@@ -91,11 +91,11 @@ export function HubCommunities() {
             href={c.href}
             target="_blank"
             rel="noopener noreferrer"
-            className={`group relative overflow-hidden bg-white/60 backdrop-blur-xl border ${c.border} ${c.hoverBorder} rounded-[2rem] p-6 flex flex-col gap-5 transition-all duration-300 hover:-translate-y-1 active:scale-[0.98]`}
+            className={`group relative overflow-hidden bg-white border ${c.border} ${c.hoverBorder} rounded-3xl p-6 flex flex-col gap-5 shadow-[0_4px_24px_rgb(15,23,42,0.05)] transition-all duration-300 hover:-translate-y-1 active:scale-[0.98]`}
           >
             {/* Background Glow */}
-            <div className={`absolute -inset-px rounded-[2rem] opacity-0 ${c.glow} transition-opacity duration-300 pointer-events-none`} />
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-white/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-tr-[2rem]" />
+            <div className={`absolute -inset-px rounded-3xl opacity-0 ${c.glow} transition-opacity duration-300 pointer-events-none`} />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-white/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-tr-3xl" />
 
             {/* Icon */}
             <div className={`relative w-14 h-14 rounded-2xl ${c.bg} border ${c.border} flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
