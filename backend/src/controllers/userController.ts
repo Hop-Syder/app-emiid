@@ -142,7 +142,11 @@ export const updateMyProfile = async (req: any, res: Response) => {
       country_id, country_code, country_name, city, district,
       job_title, industry, pin_enabled, pin_code,
       phone, website, is_published, tags, card_variant, slug,
-      show_contact
+      show_contact,
+      // Paramètres avancés (onglets À propos / Réseaux / Horaires & Services)
+      slogan, years_experience, facebook_url, instagram_url, tiktok_url,
+      linkedin_url, secondary_phone, public_email, address,
+      opening_hours, services, two_factor_enabled
     } = body;
 
     let finalCountryId = country_id;
@@ -216,6 +220,19 @@ export const updateMyProfile = async (req: any, res: Response) => {
         is_published,
         card_variant,
         has_profile: true,
+        // Paramètres avancés
+        slogan,
+        years_experience,
+        facebook_url,
+        instagram_url,
+        tiktok_url,
+        linkedin_url,
+        secondary_phone,
+        public_email,
+        address,
+        opening_hours,
+        services,
+        two_factor_enabled,
         updated_at: new Date().toISOString()
     };
     
@@ -744,3 +761,53 @@ export const verifyPhone = async (req: any, res: Response) => {
   }
 };
 
+
+// ---------------------------------------------------------------------------
+// VÉRIFICATION D'IDENTITÉ (KYC)
+// Les fichiers sont téléversés côté client dans le bucket privé "verification"
+// (chemin `${uid}/…`, RLS propriétaire). Ici on n'enregistre que la référence.
+// ---------------------------------------------------------------------------
+const VERIFICATION_DOC_TYPES = ['cni', 'cip', 'passeport', 'ifu', 'registre', 'atelier'] as const;
+
+export const getMyVerificationDocs = async (req: any, res: Response) => {
+  const userId = req.user.id;
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('verification_documents')
+      .select('id, doc_type, file_path, status, created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return res.json(data || []);
+  } catch (err) {
+    logger.error('Erreur getMyVerificationDocs', err);
+    return res.status(500).json({ error: 'Erreur lors de la récupération des documents' });
+  }
+};
+
+export const addMyVerificationDoc = async (req: any, res: Response) => {
+  const userId = req.user.id;
+  const { doc_type, file_path } = req.body || {};
+
+  if (!doc_type || !VERIFICATION_DOC_TYPES.includes(doc_type)) {
+    return res.status(400).json({ error: 'Type de document invalide' });
+  }
+  if (!file_path || typeof file_path !== 'string') {
+    return res.status(400).json({ error: 'Référence de fichier manquante' });
+  }
+
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('verification_documents')
+      .insert({ user_id: userId, doc_type, file_path, status: 'pending' })
+      .select('id, doc_type, file_path, status, created_at')
+      .single();
+
+    if (error) throw error;
+    return res.status(201).json(data);
+  } catch (err) {
+    logger.error('Erreur addMyVerificationDoc', err);
+    return res.status(500).json({ error: "Erreur lors de l'enregistrement du document" });
+  }
+};
