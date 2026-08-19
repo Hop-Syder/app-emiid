@@ -17,6 +17,14 @@
 
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
+-- ── 0. Garantie des colonnes référencées par le vecteur ────────────────────
+--     (auto-suffisant : fonctionne même si les migrations 20260819_* n'ont pas
+--      encore été jouées).
+ALTER TABLE public.user_profiles
+  ADD COLUMN IF NOT EXISTS business_name VARCHAR(150),
+  ADD COLUMN IF NOT EXISTS district      VARCHAR(120),
+  ADD COLUMN IF NOT EXISTS slogan        VARCHAR(160);
+
 -- ── 1. Vecteur plein-texte (français), généré et indexé (GIN) ──────────────
 ALTER TABLE public.user_profiles
   ADD COLUMN IF NOT EXISTS search_vector tsvector
