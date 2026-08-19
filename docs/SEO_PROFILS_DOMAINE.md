@@ -1,68 +1,55 @@
-# SEO des profils — servir `emiid.com/profil/slug` (multi-zones)
+# SEO des profils — domaine des pages publiques
 
-> Objectif : les profils publics sont indexés sous le **domaine officiel**
-> `emiid.com` (marque, SEO), tout en restant **rendus par l'application**
-> `app.emiid.com`. `app.emiid.com` reste l'application (espace connecté).
+> **Décision (Option A)** : les profils publics sont servis par l'**application**
+> `app.emiid.com`. Le site officiel `emiid.com` **redirige** les anciens liens
+> vers l'app. Un sous-domaine est parfaitement indexé par Google, et cela évite
+> la fragilité d'un proxy cross-domaine (assets `/_next`, images locales du type
+> `/badge/*`, `/api/proxy/*`, `/maintenance`, navigation client…).
 
-## Principe (Next.js Multi-Zones)
+## Architecture
 
 ```
-Visiteur / Googlebot
-        │
-        ▼
-emiid.com/profil/aicha-bello      (site officiel = frontend-commercial)
-        │  rewrite / reverse-proxy
-        ▼
-app.emiid.com/profil/aicha-bello  (rendu SSR = frontend-user)
+Nouveau lien de partage / canonical / OG / JSON-LD
+        └──►  https://app.emiid.com/profil/<slug>     (servi par frontend-user)
+
+Ancien lien déjà partagé
+   https://emiid.com/profil/<slug>
+        └──► (redirection 308, frontend-commercial) ──► https://app.emiid.com/profil/<slug>
 ```
 
-- Le **canonical**, l'**OpenGraph**, le **JSON-LD** et le **lien de partage**
-  pointent sur `emiid.com` → le SEO se consolide sur le domaine officiel.
-- Les **assets** `/_next/static` de l'app sont chargés en absolu depuis
-  `app.emiid.com` (via `ASSET_PREFIX`) → pas de collision avec les assets du
-  site officiel.
-
-## Variables d'environnement
+## Configuration requise
 
 ### Application — `frontend-user` (Vercel du projet app.emiid.com)
 
 | Variable | Valeur | Rôle |
 |----------|--------|------|
-| `NEXT_PUBLIC_PUBLIC_URL` | `https://www.emiid.com` | Domaine public pour canonical / OG / JSON-LD / lien de partage |
-| `ASSET_PREFIX` | `https://app.emiid.com` | Charge les assets `/_next/static` depuis le domaine app quand les pages sont proxifiées |
+| `NEXT_PUBLIC_SITE_URL` | `https://app.emiid.com` | Domaine de l'app (canonical / OG / partage) |
+| `NEXT_PUBLIC_PUBLIC_URL` | **⚠️ à SUPPRIMER** | Levier « domaine public » — laissé vide, tout retombe sur `app.emiid.com` |
+| `ASSET_PREFIX` | **⚠️ à SUPPRIMER** | Préfixe d'assets multi-zones — inutile sans proxy |
 
-> `NEXT_PUBLIC_SITE_URL` reste le domaine app (`https://app.emiid.com`) : il sert
-> encore d'origine pour l'endpoint image OG (`/api/og/...`).
+> Le code retombe automatiquement sur `app.emiid.com` quand
+> `NEXT_PUBLIC_PUBLIC_URL` n'est pas défini.
 
 ### Site officiel — `frontend-commercial` (Vercel du projet emiid.com)
 
 | Variable | Valeur | Rôle |
 |----------|--------|------|
-| `APP_ORIGIN` | `https://app.emiid.com` | Cible des rewrites `/profil/*` et `/api/og/*` |
+| `APP_ORIGIN` | `https://app.emiid.com` | Cible de la redirection `/profil/*` |
 
-Le rewrite est défini dans `frontend-commercial/next.config.mjs`.
+La redirection est définie dans `frontend-commercial/next.config.mjs`.
 
 ## Étapes de mise en production
 
-1. Déployer `frontend-user` avec `NEXT_PUBLIC_PUBLIC_URL` et `ASSET_PREFIX`.
-2. Déployer `frontend-commercial` (contient les rewrites) avec `APP_ORIGIN`.
-3. Vérifier que `https://emiid.com/profil/<slug>` affiche bien le profil
-   (HTML, styles, avatar, image OG).
-4. Contrôler la balise canonical : elle doit indiquer
-   `https://www.emiid.com/profil/<slug>` (View Source → `<link rel="canonical">`).
-5. Soumettre le sitemap `https://www.emiid.com/sitemap.xml` à Google Search Console.
+1. Sur `frontend-user` : **supprimer** `NEXT_PUBLIC_PUBLIC_URL` et `ASSET_PREFIX`, puis redéployer.
+2. Sur `frontend-commercial` : déployer (contient la redirection) avec `APP_ORIGIN`.
+3. Vérifier :
+   - `https://app.emiid.com/profil/<slug>` → profil complet (images, badge, actions).
+   - `https://emiid.com/profil/<slug>` → redirige (308) vers l'app.
+4. Soumettre `https://app.emiid.com/sitemap.xml` à Google Search Console.
 
-## Points de vigilance
+## Revenir plus tard à `emiid.com/profil` (si souhaité)
 
-- **Ne pas activer `NEXT_PUBLIC_PUBLIC_URL=emiid.com` avant** que le rewrite
-  `frontend-commercial` soit en ligne : un canonical vers une URL qui renvoie 404
-  déréférence la page (SEO cassé).
-- Les requêtes client des pages profil passent par `/api/proxy/*` (sonde de
-  santé, données publiques, follow…) : ce préfixe est **proxifié** vers l'app
-  dans `frontend-commercial/next.config.mjs`. Sans cela, la bannière
-  « Serveur backend temporairement inaccessible » s'affiche à tort sous emiid.com.
-- L'endpoint `/_next/image` des pages proxifiées est servi par `emiid.com` :
-  les domaines d'images (Supabase, etc.) sont donc déclarés dans
-  `frontend-commercial/next.config.mjs > images.remotePatterns`.
-- Tests à faire après déploiement (impossibles hors ligne) : navigation
-  client-side sur la page proxifiée, chargement des polices et des images.
+Ne pas re-proxifier via des rewrites de chemins (fragile). La bonne approche
+serait d'**ajouter `emiid.com` comme domaine du projet `frontend-user`** (l'app
+sert alors emiid.com directement) et de déplacer le site marketing sur un autre
+domaine/route. C'est un changement d'architecture à part entière.
