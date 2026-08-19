@@ -11,6 +11,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { PublicProfileJoined, ProfileTagJoin, countryName, errorMessage } from '@/types/supabase-rows'
+import { embedQuery } from '@/lib/embeddings'
 
 export async function GET(request: NextRequest) {
     try {
@@ -97,36 +98,79 @@ export async function GET(request: NextRequest) {
             }
         }
 
-        // 5. Recherche textuelle : plein-texte français + tolérance aux fautes
-        //    (trigram) + tags, via la fonction SQL classée search_profile_ids().
-        //    Gère naturellement les requêtes multi-mots (« couturier à Akpakpa »).
+        // 5. Recherche textuelle hybride :
+        //    ① FTS français + trigram + tags  → search_profile_ids()      (toujours)
+        //    ② sémantique (embeddings Gemini) → match_profiles_semantic()  (si dispo)
+        //    Les deux classements sont fusionnés par Reciprocal Rank Fusion
+        //    (RRF), robuste aux échelles de score différentes. Si l'embedding
+        //    est indisponible (pas de clé / quota / erreur), on retombe
+        //    proprement sur la seule Couche ① — la recherche marche toujours.
         let rankMap: Map<string, number> | null = null
         if (search) {
             const safe = search.replace(/[,()]/g, ' ').trim()
             if (safe) {
-                const { data: ranked, error: rankErr } = await supabase
-                    .rpc('search_profile_ids', { q: safe, max_results: 200 })
+                // ① et ② en parallèle. L'embedding échoue « en douceur » (null).
+                const [ftsRes, queryVec] = await Promise.all([
+                    supabase.rpc('search_profile_ids', { q: safe, max_results: 200 }),
+                    embedQuery(safe),
+                ])
 
-                if (rankErr) {
-                    console.error('search_profile_ids RPC error:', rankErr)
+                if (ftsRes.error) {
+                    console.error('search_profile_ids RPC error:', ftsRes.error)
+                }
+                const ftsRows =
+                    (ftsRes.data as { profile_id: string; rank: number }[] | null) || []
+
+                // ② Recherche sémantique (uniquement si la requête a pu être embarquée).
+                let semRows: { profile_id: string; similarity: number }[] = []
+                if (queryVec) {
+                    const { data: sem, error: semErr } = await supabase.rpc(
+                        'match_profiles_semantic',
+                        { query_embedding: queryVec, match_count: 100, min_similarity: 0.3 }
+                    )
+                    if (semErr) {
+                        console.error('match_profiles_semantic RPC error:', semErr)
+                    } else {
+                        semRows =
+                            (sem as { profile_id: string; similarity: number }[] | null) || []
+                    }
                 }
 
-                const rows = (ranked as { profile_id: string; rank: number }[] | null) || []
-                if (rows.length === 0) {
+                // ── Fusion RRF : score(id) = Σ  poids / (K + rang_dans_la_liste) ──
+                //    K amortit l'importance des tout premiers rangs ; on pondère
+                //    légèrement le FTS (précision lexicale) au-dessus du sémantique.
+                const K = 60
+                const W_FTS = 1.0
+                const W_SEM = 0.9
+                const fused = new Map<string, number>()
+                const addList = (
+                    rows: { profile_id: string }[],
+                    weight: number
+                ) => {
+                    rows.forEach((r, i) => {
+                        const inc = weight / (K + i + 1)
+                        fused.set(r.profile_id, (fused.get(r.profile_id) ?? 0) + inc)
+                    })
+                }
+                addList(ftsRows, W_FTS)
+                addList(semRows, W_SEM)
+
+                if (fused.size === 0) {
                     return NextResponse.json({ profiles: [], count: 0 })
                 }
 
-                rankMap = new Map(rows.map((r) => [r.profile_id, Number(r.rank)]))
-                query = query.in('id', rows.map((r) => r.profile_id))
+                rankMap = fused
+                query = query.in('id', Array.from(fused.keys()))
             }
         }
 
-        // 6. Pagination. En recherche, on récupère l'ensemble classé (≤ 200) puis
-        //    on trie par pertinence et on pagine côté serveur (voir plus bas).
+        // 6. Pagination. En recherche, on récupère l'ensemble fusionné classé
+        //    (FTS + sémantique) puis on trie par pertinence et on pagine côté
+        //    serveur (voir plus bas).
         const from = (page - 1) * limit
         const to = from + limit - 1
         if (rankMap) {
-            query = query.limit(200)
+            query = query.limit(rankMap.size)
         } else {
             query = query.range(from, to)
         }
