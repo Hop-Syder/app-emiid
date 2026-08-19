@@ -9,12 +9,12 @@ automatiquement sur la couche inférieure. **Elle fonctionne toujours.**
 |--------|------|--------|------|-------------|
 | ① Lexicale | multi-mots, radicalisation FR, fautes de frappe | Postgres FTS `french` + `pg_trgm` | gratuit | — |
 | ② Sémantique | comprendre le *sens* (« refaire mon élec » → électricien) | pgvector + embeddings Gemini | gratuit | `GEMINI_API_KEY` |
-| ③ Intention / reco | reformuler & recommander quand 0 résultat | Groq (Llama) | gratuit | `GROQ_API_KEY` *(à venir)* |
+| ③ Intention / reco | reformuler & recommander quand 0 résultat | Groq (Llama) | gratuit | `GROQ_API_KEY` |
 
 ```
 requête ──► ① FTS (toujours) ─┐
         └─► ② sémantique (si clé) ─┤──► fusion RRF ──► profils classés
-                                    └─(0 résultat)──► ③ assistant/reco (à venir)
+                                    └─(0 résultat)──► ③ assistant/reco (Groq)
 ```
 
 ---
@@ -85,12 +85,34 @@ Aucun de ces cas ne casse la recherche.
 
 ---
 
-## Couche ③ — Intention & recommandations  *(à venir — `GROQ_API_KEY`)*
+## Couche ③ — Intention & recommandations  *(actif si `GROQ_API_KEY`)*
 
-Prévu pour le cas **0 résultat** : reformuler la requête, suggérer des métiers
-proches, alimenter la carte « Assistant de recherche » de `/recherche`.
-Nécessitera une clé Groq (https://console.groq.com). Non bloquant : sans clé,
-la carte reste en mode « Bientôt ».
+Se déclenche sur le cas **0 résultat** dans l'annuaire : Groq (Llama) génère un
+message empathique + 3 à 5 **suggestions de recherche cliquables** (métier +
+ville réalistes au Bénin), qui relancent la recherche.
+
+- **Helper :** `frontend-user/lib/groq.ts` (`searchAssistant()`, modèle
+  `llama-3.3-70b-versatile`, JSON mode, timeout 6 s, renvoie `null` si indispo).
+- **Endpoint :** `frontend-user/app/api/search-assistant/route.ts` (`GET ?q=`).
+- **UI :** `frontend-user/components/annuaire-public-content/search-assistant.tsx`,
+  affiché sous l'état vide de `annuaire-grid.tsx` quand une recherche est active.
+
+### Mise en service
+
+| Où | Variable | Valeur |
+|----|----------|--------|
+| Vercel `frontend-user` | `GROQ_API_KEY` | clé Groq (https://console.groq.com) |
+| Vercel `frontend-user` | `GROQ_MODEL` *(optionnel)* | défaut `llama-3.3-70b-versatile` |
+
+La clé Groq se crée gratuitement (sans carte bancaire) dans la console Groq →
+*API Keys*. Free tier largement suffisant : l'assistant n'est appelé **que** sur
+une recherche à 0 résultat.
+
+### Dégradation
+
+Sans `GROQ_API_KEY`, en cas de quota ou d'erreur/timeout, l'endpoint renvoie une
+charge vide et **aucun bloc assistant ne s'affiche** — l'état vide standard
+(« Aucun résultat trouvé » + réinitialiser les filtres) reste inchangé.
 
 ---
 

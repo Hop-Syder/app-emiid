@@ -137,7 +137,12 @@ export function AnnuairePublicContent({
                     <AnnuaireFilters filters={filters} onFilterChange={handleFilterChange} onReset={resetFilters} />
 
                     <div className="pt-4">
-                        <AnnuaireGrid filters={filters} initialProfiles={initialProfiles} theme="default" />
+                        <AnnuaireGrid
+                            filters={filters}
+                            initialProfiles={initialProfiles}
+                            theme="default"
+                            onSearch={(q) => handleFilterChange("search", q)}
+                        />
                     </div>
                 </motion.div>
 

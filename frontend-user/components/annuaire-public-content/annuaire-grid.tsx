@@ -12,6 +12,7 @@
 
 import { motion } from "framer-motion"
 import { ProfileRow } from "./profile-row"
+import { SearchAssistant } from "./search-assistant"
 import { EmptyState } from "@/components/EmptyState"
 import { Button } from "@/components/ui/button"
 import { Search, ChevronLeft, ChevronRight } from "lucide-react"
@@ -31,6 +32,8 @@ interface AnnuaireGridProps {
   initialProfiles?: PublicProfile[]
   onlyPremium?: boolean
   theme?: "default" | "red" | "orange"
+  /** Relance une recherche (utilisé par l'assistant sur 0 résultat). */
+  onSearch?: (q: string) => void
 }
 
 // Nombre de cartes par ligne défilante
@@ -41,6 +44,7 @@ export function AnnuaireGrid({
   initialProfiles = [],
   onlyPremium = false,
   theme = "default",
+  onSearch,
 }: AnnuaireGridProps) {
   const {
     profiles,
@@ -86,6 +90,7 @@ export function AnnuaireGrid({
   }
 
   if (profiles.length === 0) {
+    const searchTerm = filters?.search?.trim() || ""
     return (
       <div className="max-w-md mx-auto py-10">
         <EmptyState
@@ -96,6 +101,10 @@ export function AnnuaireGrid({
           onAction={handleResetFilters}
           colorTheme={theme}
         />
+        {/* Assistant IA (Couche ③) : suggestions sur recherche infructueuse. */}
+        {searchTerm && onSearch && (
+          <SearchAssistant query={searchTerm} onPick={onSearch} />
+        )}
       </div>
     )
   }
