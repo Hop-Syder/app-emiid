@@ -13,7 +13,7 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
-import { User, LogOut, LucideIcon, Wallet, FileText, Bell, Settings } from "lucide-react"
+import { User, LogOut, LucideIcon, Wallet, FileText, Bell, Settings, Search } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
@@ -169,6 +169,17 @@ export function MobileDockAuth() {
         <div className="relative flex items-center justify-around h-16 bg-slate-900/80 backdrop-blur-2xl border border-white/10 rounded-full px-2 shadow-[0_16px_32px_-8px_rgba(0,0,0,0.5)] w-full">
           {/* Lueur interne globale */}
           <div className="absolute inset-0 rounded-full border border-white/5 pointer-events-none" />
+
+          {/* FAB central surélevé — point d'entrée universel de la recherche.
+              Accessible à quiconque, même sans maîtriser l'application. */}
+          <Link
+            href="/recherche"
+            aria-label="Lancer une recherche"
+            className="absolute left-1/2 -top-7 z-30 flex size-14 -translate-x-1/2 items-center justify-center rounded-full bg-[#013ff4] text-white ring-4 ring-slate-900 shadow-[0_10px_30px_-4px_rgba(1,80,253,0.7)] transition-all hover:bg-[#0150fd] hover:scale-105 active:scale-95"
+          >
+            <span className="pointer-events-none absolute -inset-1 rounded-full bg-[#03b3f8]/30 blur-md" />
+            <Search className="relative size-6" />
+          </Link>
 
           {privateNavItems.map((item) => {
             const isProfilButton = item.name === "Espace"
