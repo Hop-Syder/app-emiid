@@ -57,6 +57,10 @@ Le rewrite est défini dans `frontend-commercial/next.config.mjs`.
 - **Ne pas activer `NEXT_PUBLIC_PUBLIC_URL=emiid.com` avant** que le rewrite
   `frontend-commercial` soit en ligne : un canonical vers une URL qui renvoie 404
   déréférence la page (SEO cassé).
+- Les requêtes client des pages profil passent par `/api/proxy/*` (sonde de
+  santé, données publiques, follow…) : ce préfixe est **proxifié** vers l'app
+  dans `frontend-commercial/next.config.mjs`. Sans cela, la bannière
+  « Serveur backend temporairement inaccessible » s'affiche à tort sous emiid.com.
 - L'endpoint `/_next/image` des pages proxifiées est servi par `emiid.com` :
   les domaines d'images (Supabase, etc.) sont donc déclarés dans
   `frontend-commercial/next.config.mjs > images.remotePatterns`.
