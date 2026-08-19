@@ -20,6 +20,8 @@ import {
   requestPhoneVerification,
   verifyPhone,
   unlockUserPin,
+  getMyVerificationDocs,
+  addMyVerificationDoc,
 } from '../../controllers/userController';
 import { getFollowedProfiles, toggleFollowProfile, getFollowers, updateFollowNote } from '../../controllers/followController';
 import { requireAuth, requireAdmin } from '../../middlewares/authMiddleware';
@@ -92,6 +94,14 @@ router.post('/phone/request', phoneVerificationLimiter, requestPhoneVerification
 // @route   POST /api/users/phone/verify
 // @desc    Vérifier le code OTP
 router.post('/phone/verify', phoneVerifyLimiter, verifyPhone);
+
+// @route   GET /api/users/me/verification-docs
+// @desc    Lister mes documents de vérification (KYC)
+router.get('/me/verification-docs', getMyVerificationDocs);
+
+// @route   POST /api/users/me/verification-docs
+// @desc    Enregistrer la référence d'un document téléversé (bucket privé)
+router.post('/me/verification-docs', addMyVerificationDoc);
 
 // @route   POST /api/users/:id/unlock-pin
 // @desc    Débloquer le PIN d'un utilisateur (Admin seulement)

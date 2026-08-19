@@ -16,7 +16,29 @@ import { fetchWithAuth } from "@/lib/apiClient"
 import { getReferenceCountriesCached } from "@/lib/location-cache"
 import { toast } from "sonner"
 
-export type TabId = "profil" | "securite" | "notifications" | "preferences" | "plan"
+export type TabId =
+  | "profil"
+  | "apropos"
+  | "reseaux"
+  | "horaires"
+  | "verification"
+  | "securite"
+  | "notifications"
+  | "preferences"
+  | "plan"
+
+export interface OpeningHour {
+  day: number // 0 = dimanche … 6 = samedi
+  open: string // "08:00"
+  close: string // "18:00"
+  closed: boolean
+}
+
+export interface ServiceItem {
+  title: string
+  price: number | null // FCFA
+  description: string
+}
 
 export interface UserProfileData {
   id: string
@@ -41,6 +63,19 @@ export interface UserProfileData {
   show_contact: boolean
   phone_verified?: boolean
   has_password?: boolean
+  // ── Paramètres avancés ──
+  slogan: string
+  years_experience: number | null
+  website: string
+  facebook_url: string
+  instagram_url: string
+  tiktok_url: string
+  linkedin_url: string
+  secondary_phone: string
+  public_email: string
+  address: string
+  opening_hours: OpeningHour[]
+  services: ServiceItem[]
 }
 
 export const defaultNotificationSettings = {
@@ -96,6 +131,18 @@ export function useSettings() {
     show_contact: true,
     phone_verified: false,
     has_password: false,
+    slogan: "",
+    years_experience: null,
+    website: "",
+    facebook_url: "",
+    instagram_url: "",
+    tiktok_url: "",
+    linkedin_url: "",
+    secondary_phone: "",
+    public_email: "",
+    address: "",
+    opening_hours: [],
+    services: [],
   })
 
   const loadUserProfile = useCallback(async () => {
@@ -133,6 +180,18 @@ export function useSettings() {
           show_contact: data.show_contact ?? true,
           phone_verified: data.phone_verified || false,
           has_password: data.has_password || false,
+          slogan: data.slogan || "",
+          years_experience: typeof data.years_experience === "number" ? data.years_experience : null,
+          website: data.website || "",
+          facebook_url: data.facebook_url || "",
+          instagram_url: data.instagram_url || "",
+          tiktok_url: data.tiktok_url || "",
+          linkedin_url: data.linkedin_url || "",
+          secondary_phone: data.secondary_phone || "",
+          public_email: data.public_email || "",
+          address: data.address || "",
+          opening_hours: Array.isArray(data.opening_hours) ? data.opening_hours : [],
+          services: Array.isArray(data.services) ? data.services : [],
         })
         setNotificationSettings({ ...defaultNotificationSettings, ...(data.notification_preferences || {}) })
         setPreferences({
