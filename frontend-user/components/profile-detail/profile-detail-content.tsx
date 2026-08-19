@@ -144,7 +144,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                 className={cn(
                     "sticky top-0 z-50 transition-all duration-300",
                     scrolled
-                        ? "bg-white/70 backdrop-blur-xl border-b border-slate-200/50 shadow-sm shadow-slate-100/50"
+                        ? "bg-white border-b border-slate-200 shadow-sm"
                         : "bg-transparent border-b border-transparent",
                 )}
             >
@@ -164,7 +164,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                             variant="outline"
                             size="sm"
                             onClick={handleShare}
-                            className="rounded-xl gap-2 border-white/60 bg-white/60 backdrop-blur-md hover:bg-white active:scale-95 transition-all shadow-sm"
+                            className="rounded-xl gap-2 border-slate-200 bg-white hover:bg-slate-50 active:scale-95 transition-all shadow-sm"
                         >
                             <Share2 className="h-4 w-4 text-slate-600" />
                             Partager
@@ -181,7 +181,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                                     <MoreHorizontal className="h-5 w-5 text-slate-700" />
                                 </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="rounded-2xl shadow-xl border-slate-100/60 bg-white/95 backdrop-blur-md w-52 p-1.5 animate-in fade-in slide-in-from-top-2 duration-200">
+                            <DropdownMenuContent align="end" className="rounded-2xl shadow-xl border-slate-100 bg-white w-52 p-1.5 animate-in fade-in slide-in-from-top-2 duration-200">
                                 <DropdownMenuItem
                                     className="rounded-xl font-bold py-2.5 cursor-pointer hover:bg-slate-50 text-xs text-slate-700"
                                     onClick={() => setIsShareModalOpen(true)}
@@ -281,7 +281,7 @@ function ProfileSkeleton() {
             </div>
 
             <div className="container max-w-6xl mx-auto px-4">
-                <div className="bg-white border border-slate-200 rounded-[32px] overflow-hidden shadow-sm">
+                <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
                     <div className="h-48 sm:h-56 bg-slate-200" />
                     <div className="p-6 sm:p-8 flex flex-col md:flex-row gap-6 md:gap-8 items-center md:items-end">
                         <div className="h-24 w-24 bg-slate-200 rounded-full ring-4 ring-white" />
@@ -298,12 +298,12 @@ function ProfileSkeleton() {
 
                 <div className="mt-6 grid lg:grid-cols-12 gap-6">
                     <div className="lg:col-span-8 space-y-6">
-                        <div className="h-40 bg-white border border-slate-200 rounded-[32px]" />
-                        <div className="h-64 bg-white border border-slate-200 rounded-[32px]" />
+                        <div className="h-40 bg-white border border-slate-200 rounded-3xl" />
+                        <div className="h-64 bg-white border border-slate-200 rounded-3xl" />
                     </div>
                     <div className="lg:col-span-4 space-y-6">
-                        <div className="h-44 bg-white border border-slate-200 rounded-[32px]" />
-                        <div className="h-44 bg-white border border-slate-200 rounded-[32px]" />
+                        <div className="h-44 bg-white border border-slate-200 rounded-3xl" />
+                        <div className="h-44 bg-white border border-slate-200 rounded-3xl" />
                     </div>
                 </div>
             </div>

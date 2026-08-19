@@ -38,7 +38,7 @@ export function ProfileSidebar({
     return (
         <aside className="lg:col-span-4 min-w-0 space-y-6">
             {/* Coordinates card */}
-            <div className="bg-white/70 backdrop-blur-xl border border-white/50 rounded-[28px] sm:rounded-[32px] p-5 sm:p-6 shadow-xl shadow-slate-100/40 relative overflow-hidden">
+            <div className="bg-white border border-slate-100 rounded-3xl p-5 sm:p-6 shadow-[0_4px_24px_rgb(15,23,42,0.05)] relative overflow-hidden">
                 <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
                     <Globe className="h-4 w-4 text-[#013ff4]" />
                     Coordonnées
@@ -78,7 +78,7 @@ export function ProfileSidebar({
                     <Button
                         asChild
                         variant="outline"
-                        className="w-full mt-5 h-11 rounded-2xl text-xs font-black border-slate-200 bg-white/80 hover:bg-slate-50 gap-2 shadow-sm transition-all duration-300 hover:-translate-y-0.5"
+                        className="w-full mt-5 h-11 rounded-2xl text-xs font-black border-slate-200 bg-white hover:bg-slate-50 gap-2 shadow-sm transition-all duration-300 hover:-translate-y-0.5"
                     >
                         <a href={profile.website} target="_blank" rel="noopener noreferrer">
                             Visiter le site <ExternalLink className="h-4 w-4" />
@@ -88,7 +88,7 @@ export function ProfileSidebar({
             </div>
 
             {/* Share card */}
-            <div className="bg-white/70 backdrop-blur-xl border border-white/50 rounded-[28px] sm:rounded-[32px] p-5 sm:p-6 shadow-xl shadow-slate-100/40 overflow-hidden">
+            <div className="bg-white border border-slate-100 rounded-3xl p-5 sm:p-6 shadow-[0_4px_24px_rgb(15,23,42,0.05)] overflow-hidden">
                 <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
                     <Share2 className="h-4 w-4 text-[#013ff4] shrink-0" />
                     Partage
@@ -104,7 +104,7 @@ export function ProfileSidebar({
                         <Button
                             size="icon"
                             variant="outline"
-                            className="h-11 w-11 rounded-2xl shrink-0 border-slate-200 bg-white/80 hover:bg-slate-50 transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm"
+                            className="h-11 w-11 rounded-2xl shrink-0 border-slate-200 bg-white hover:bg-slate-50 transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm"
                             onClick={() => copyToClipboard(profileUrl)}
                         >
                             {copiedLink === profileUrl ? <Check className="h-4 w-4 text-green-600 animate-in zoom-in duration-200" /> : <Copy className="h-4 w-4 text-slate-700" />}
@@ -114,7 +114,7 @@ export function ProfileSidebar({
                     <div className="grid grid-cols-2 gap-2">
                         <Button
                             variant="outline"
-                            className="h-11 rounded-2xl border-slate-200 bg-white/80 hover:bg-slate-50 font-black text-xs gap-2 transition-all duration-300 hover:-translate-y-0.5 shadow-sm"
+                            className="h-11 rounded-2xl border-slate-200 bg-white hover:bg-slate-50 font-black text-xs gap-2 transition-all duration-300 hover:-translate-y-0.5 shadow-sm"
                             onClick={() => setIsShareModalOpen(true)}
                         >
                             <Share className="h-4 w-4 text-[#013ff4]" />
@@ -122,7 +122,7 @@ export function ProfileSidebar({
                         </Button>
                         <Button
                             variant="outline"
-                            className="h-11 rounded-2xl border-slate-200 bg-white/80 hover:bg-slate-50 font-black text-xs gap-2 transition-all duration-300 hover:-translate-y-0.5 shadow-sm"
+                            className="h-11 rounded-2xl border-slate-200 bg-white hover:bg-slate-50 font-black text-xs gap-2 transition-all duration-300 hover:-translate-y-0.5 shadow-sm"
                             onClick={downloadVCard}
                         >
                             <Download className="h-4 w-4 text-[#03b3f8]" />
