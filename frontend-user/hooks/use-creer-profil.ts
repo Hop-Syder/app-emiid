@@ -16,6 +16,7 @@ import { toast } from "sonner"
 
 export interface CreateProfileFormData {
     name: string
+    business_name: string
     role: string
     category: string
     activity_domain: string
@@ -24,6 +25,7 @@ export interface CreateProfileFormData {
     country_code: string
     country_name: string
     city: string
+    district: string
     specialty: string
     bio: string
     phone: string
@@ -60,6 +62,7 @@ export const buildProfilePayload = (formData: CreateProfileFormData, isPublished
     return {
         first_name: nameParts[0] || "",
         last_name: nameParts.slice(1).join(" ") || "",
+        business_name: formData.business_name.trim(),
         role: formData.role.trim(),
         category: formData.category,
         activity_domain: formData.activity_domain,
@@ -74,6 +77,7 @@ export const buildProfilePayload = (formData: CreateProfileFormData, isPublished
         country_code: formData.country_code || null,
         country_name: formData.country_name || null,
         city: formData.city.trim(),
+        district: formData.district.trim(),
         tags: formData.tags,
         slug: formData.slug || null,
         is_published: isPublished,
@@ -152,6 +156,7 @@ export function useCreerProfil() {
     const [unpublishing, setUnpublishing] = useState(false)
     const [formData, setFormData] = useState<CreateProfileFormData>({
         name: "",
+        business_name: "",
         role: "",
         category: "",
         activity_domain: "",
@@ -160,6 +165,7 @@ export function useCreerProfil() {
         country_code: "",
         country_name: "",
         city: "",
+        district: "",
         specialty: "",
         bio: "",
         phone: "",
@@ -212,6 +218,7 @@ export function useCreerProfil() {
                     // Hydratation complète avec valeurs de la base de données
                     setFormData({
                         name: fullName || "",
+                        business_name: data.business_name || "",
                         role: data.role || data.job_title || "",
                         category: data.category || "",
                         activity_domain: data.activity_domain || "",
@@ -225,6 +232,7 @@ export function useCreerProfil() {
                         country_code: resolvedCountryCode,
                         country_name: resolvedCountryName,
                         city: data.city || "",
+                        district: data.district || "",
                         avatar: data.avatar_url || "/profil/avatar.jpg",
                         tags: Array.isArray(data.tags) ? data.tags : [],
                         slug: data.slug || "",
