@@ -236,8 +236,13 @@ export const updateMyProfile = async (req: any, res: Response) => {
         updated_at: new Date().toISOString()
     };
     
-    // On autorise la suppression du slug si finalSlug est null
-    updates.slug = finalSlug;
+    // On ne touche au slug QUE s'il est explicitement fourni dans la requête.
+    // (Une sauvegarde partielle — ex. onglets Paramètres — n'envoie pas de slug
+    //  et ne doit donc pas écraser le lien personnalisé existant.)
+    // Une chaîne vide reste autorisée pour effacer volontairement le slug.
+    if (slug !== undefined) {
+      updates.slug = finalSlug;
+    }
 
     // Ajout conditionnel des champs PIN (seulement si présents)
     if (pin_enabled !== undefined) updates.pin_enabled = pin_enabled;

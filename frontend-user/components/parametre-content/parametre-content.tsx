@@ -10,11 +10,15 @@
 
 "use client"
 
-import { User, Shield, Bell, Settings, Star, LogOut, X } from "lucide-react"
+import { User, Shield, Bell, Settings, Star, LogOut, X, FileText, Share2, Clock, BadgeCheck } from "lucide-react"
 import { Preloader } from "@/components/Preloader"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { ProfileSection } from "./profile-section"
+import { BioSection } from "./bio-section"
+import { SocialLinksSection } from "./social-links-section"
+import { HoursPricingSection } from "./hours-pricing-section"
+import { VerificationSection } from "./verification-section"
 import { SecuritySection } from "./security-section"
 import { NotificationsSection } from "./notifications-section"
 import { PreferencesSection } from "./preferences-section"
@@ -22,11 +26,15 @@ import { PlanSection } from "./plan-section"
 import { useSettings, TabId } from "@/hooks/use-settings"
 
 const TABS: { id: TabId; label: string; icon: React.ElementType; desc: string }[] = [
-  { id: "profil",         label: "Profil",        icon: User,     desc: "Informations personnelles et professionnelles" },
-  { id: "securite",       label: "Sécurité",      icon: Shield,   desc: "Accès, PIN et authentification" },
-  { id: "notifications",  label: "Notifications", icon: Bell,     desc: "Alertes et préférences de messages" },
-  { id: "preferences",    label: "Préférences",   icon: Settings, desc: "Langue, thème et confidentialité" },
-  { id: "plan",           label: "Abonnement",    icon: Star,     desc: "Gérez votre offre EmiID Premium" },
+  { id: "profil",         label: "Profil",        icon: User,       desc: "Informations personnelles et professionnelles" },
+  { id: "apropos",        label: "À propos",      icon: FileText,   desc: "Bio, slogan et expérience" },
+  { id: "reseaux",        label: "Réseaux",       icon: Share2,     desc: "Liens sociaux et contacts publics" },
+  { id: "horaires",       label: "Horaires & Services", icon: Clock, desc: "Adresse, horaires et prestations" },
+  { id: "verification",   label: "Vérification",  icon: BadgeCheck, desc: "Badge vérifié et pièces justificatives" },
+  { id: "securite",       label: "Sécurité",      icon: Shield,     desc: "Accès, PIN et authentification" },
+  { id: "notifications",  label: "Notifications", icon: Bell,       desc: "Alertes et préférences de messages" },
+  { id: "preferences",    label: "Préférences",   icon: Settings,   desc: "Langue, thème et confidentialité" },
+  { id: "plan",           label: "Abonnement",    icon: Star,       desc: "Gérez votre offre EmiID Premium" },
 ]
 
 export function ParametresContent() {
@@ -77,6 +85,10 @@ export function ParametresContent() {
 
   const activeSection: Record<TabId, React.ReactNode> = {
     profil:        <ProfileSection profile={profile} setProfile={setProfile} saving={saving} handleSave={handleSave} handleCancel={handleCancel} />,
+    apropos:       <BioSection profile={profile} setProfile={setProfile} saving={saving} handleSave={handleSave} handleCancel={handleCancel} />,
+    reseaux:       <SocialLinksSection profile={profile} setProfile={setProfile} saving={saving} handleSave={handleSave} handleCancel={handleCancel} />,
+    horaires:      <HoursPricingSection profile={profile} setProfile={setProfile} saving={saving} handleSave={handleSave} handleCancel={handleCancel} />,
+    verification:  <VerificationSection profile={profile} />,
     securite:      <SecuritySection profile={profile} setProfile={setProfile} securitySettings={securitySettings} setSecuritySettings={setSecuritySettings} saveSettings={saveSettings} />,
     notifications: <NotificationsSection settings={notificationSettings} setSettings={setNotificationSettings} saving={saving} handleSave={() => saveSettings({ notification_preferences: notificationSettings }, "Notifications mises à jour")} handleCancel={handleCancel} />,
     preferences:   <PreferencesSection  settings={preferences}           setSettings={setPreferences}           saving={saving} handleSave={() => saveSettings({ app_preferences: preferences },              "Préférences mises à jour")}  handleCancel={handleCancel} />,
