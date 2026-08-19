@@ -182,7 +182,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     const { id } = await params
     const data = await getProfileForRequest(id)
 
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://app.emiid.com'
+    const baseUrl = process.env.NEXT_PUBLIC_PUBLIC_URL || process.env.NEXT_PUBLIC_SITE_URL || 'https://app.emiid.com'
     const fullName = data ? `${data.first_name || ''} ${data.last_name || ''}`.trim() : ''
     const skills: string[] = data?.profile_tags?.map((pt: ProfileTagJoin) => pt.tags?.name).filter((n): n is string => Boolean(n)) || []
 

@@ -45,7 +45,7 @@ export function AnnuaireTags({ filters, onFilterChange }: AnnuaireTagsProps) {
     return (
         <div className="w-full">
             <div className="flex items-center mb-4 px-1 gap-2">
-                <Hash className="w-5 h-5 text-indigo-500" />
+                <Hash className="w-5 h-5 text-[#0150fd]" />
                 <h3 className="text-lg font-bold text-slate-800 tracking-tight">Tags Populaires</h3>
             </div>
             
@@ -60,8 +60,8 @@ export function AnnuaireTags({ filters, onFilterChange }: AnnuaireTagsProps) {
                             className={cn(
                                 "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 border",
                                 isActive 
-                                    ? "bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-500/20" 
-                                    : "bg-white text-slate-600 border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
+                                    ? "bg-[#013ff4] text-white border-[#013ff4] shadow-md shadow-[#0150fd]/20" 
+                                    : "bg-white text-slate-600 border-slate-200 hover:border-[#7f9dff] hover:bg-[#eaf0ff] hover:text-[#0132cc]"
                             )}
                         >
                             <span className="opacity-60">#</span>

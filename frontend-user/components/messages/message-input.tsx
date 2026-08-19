@@ -113,7 +113,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
     <div className="px-4 py-3 bg-white/80 backdrop-blur-xl border-t border-slate-100/80 shrink-0">
       {/* Bannière de modification de message */}
       {editingMessage && (
-        <div className="flex items-center justify-between bg-indigo-50/80 border border-indigo-100 px-3 py-1.5 rounded-xl text-xs font-semibold text-indigo-700 mb-2 animate-in slide-in-from-bottom-1">
+        <div className="flex items-center justify-between bg-[#eaf0ff]/80 border border-[#d5e0ff] px-3 py-1.5 rounded-xl text-xs font-semibold text-[#0132cc] mb-2 animate-in slide-in-from-bottom-1">
           <div className="flex items-center gap-1.5 truncate">
             <span className="w-1.5 h-1.5 bg-primary rounded-full" />
             <span className="truncate">
@@ -123,7 +123,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
           <button
             type="button"
             onClick={onCancelEdit}
-            className="text-indigo-600 hover:text-red-500 font-bold ml-2 text-xs shrink-0"
+            className="text-[#0132cc] hover:text-red-500 font-bold ml-2 text-xs shrink-0"
           >
             Annuler
           </button>

@@ -28,8 +28,8 @@ function notifIcon(type: string) {
 
 function notifColors(type: string) {
   switch (type) {
-    case "follow": return { icon: "text-blue-500", bg: "bg-blue-50", ring: "ring-blue-100" }
-    case "message": return { icon: "text-indigo-500", bg: "bg-indigo-50", ring: "ring-indigo-100" }
+    case "follow": return { icon: "text-[#013ff4]", bg: "bg-[#013ff4]/10", ring: "ring-[#013ff4]/20" }
+    case "message": return { icon: "text-[#03b3f8]", bg: "bg-[#03b3f8]/10", ring: "ring-[#03b3f8]/20" }
     case "profile_view": return { icon: "text-emerald-500", bg: "bg-emerald-50", ring: "ring-emerald-100" }
     case "gallery_approved": return { icon: "text-amber-500", bg: "bg-amber-50", ring: "ring-amber-100" }
     default: return { icon: "text-slate-500", bg: "bg-slate-100", ring: "ring-slate-200" }
@@ -44,7 +44,7 @@ function NotifRow({ notif }: { notif: Notification }) {
     : null
 
   const inner = (
-    <div className={`flex items-center gap-4 px-5 py-4 rounded-2xl transition-colors hover:bg-slate-50 cursor-pointer ${!notif.is_read ? "bg-blue-50/50" : ""}`}>
+    <div className={`flex items-center gap-4 px-5 py-4 rounded-2xl transition-colors hover:bg-slate-50 cursor-pointer ${!notif.is_read ? "bg-[#013ff4]/[0.05]" : ""}`}>
       <div className="relative shrink-0">
         {notif.sender?.avatar_url ? (
           <>
@@ -65,7 +65,7 @@ function NotifRow({ notif }: { notif: Notification }) {
           </div>
         )}
         {!notif.is_read && (
-          <span className="absolute -top-0.5 -left-0.5 w-2.5 h-2.5 bg-blue-500 rounded-full ring-2 ring-white" />
+          <span className="absolute -top-0.5 -left-0.5 w-2.5 h-2.5 bg-[#013ff4] rounded-full ring-2 ring-white" />
         )}
       </div>
 
@@ -87,7 +87,7 @@ export function InlineActivityFeed() {
   const recent = notifications.slice(0, 3)
 
   return (
-    <div className="bg-white rounded-3xl border border-slate-200/60 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_4px_24px_rgb(15,23,42,0.05)] overflow-hidden">
       <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
         <div className="flex items-center gap-3 min-w-0 flex-1">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-sm shadow-emerald-500/20 shrink-0">
