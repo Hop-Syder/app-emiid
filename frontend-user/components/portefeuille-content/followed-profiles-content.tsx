@@ -95,7 +95,7 @@ export function FollowedProfilesContent() {
       <Tabs defaultValue="following" onValueChange={setActiveTab} className="w-full">
         <div className="flex flex-col space-y-6">
           <div className="flex flex-col md:flex-row gap-6 items-center justify-between">
-            <TabsList className="h-14 p-1.5 bg-slate-100/40 dark:bg-zinc-900/55 backdrop-blur-md rounded-2xl border border-slate-200/40 dark:border-zinc-800/80 w-full md:w-auto min-w-[320px]">
+            <TabsList className="h-14 p-1.5 bg-slate-100 dark:bg-zinc-900/55 rounded-2xl border border-slate-200/40 dark:border-zinc-800/80 w-full md:w-auto min-w-[320px]">
               <TabsTrigger 
                 value="following" 
                 className="flex-1 rounded-xl font-bold text-[10px] uppercase tracking-widest text-muted-foreground data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-850 data-[state=active]:text-foreground data-[state=active]:shadow-md transition-all duration-300"
@@ -182,7 +182,7 @@ export function FollowedProfilesContent() {
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex flex-col items-center justify-center py-32 bg-card/45 backdrop-blur-md rounded-[2.5rem] border-2 border-dashed border-border"
+                  className="flex flex-col items-center justify-center py-32 bg-card rounded-3xl border-2 border-dashed border-border"
                 >
                   <div className="p-6 rounded-full bg-muted mb-6">
                     <UserPlus className="h-12 w-12 text-muted-foreground/60" />
@@ -245,7 +245,7 @@ export function FollowedProfilesContent() {
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex flex-col items-center justify-center py-32 bg-card/45 backdrop-blur-md rounded-[2.5rem] border-2 border-dashed border-border"
+                  className="flex flex-col items-center justify-center py-32 bg-card rounded-3xl border-2 border-dashed border-border"
                 >
                   <div className="p-6 rounded-full bg-muted mb-6">
                     <Loader2 className="h-12 w-12 text-muted-foreground/60" />

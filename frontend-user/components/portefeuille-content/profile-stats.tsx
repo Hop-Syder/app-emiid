@@ -60,7 +60,7 @@ export function ProfileStats({ total, updates, activeToday }: ProfileStatsProps)
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: index * 0.08, duration: 0.4 }}
         >
-          <Card className="overflow-hidden border border-border bg-card/65 backdrop-blur-md relative group hover:border-foreground/20 transition-colors duration-300">
+          <Card className="overflow-hidden border border-border bg-card relative group hover:border-foreground/20 transition-colors duration-300">
             <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
             <CardContent className="p-6 relative z-10 flex items-center justify-between">
               <div className="space-y-1">

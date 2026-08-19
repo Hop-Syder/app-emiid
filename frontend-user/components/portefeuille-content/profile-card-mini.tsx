@@ -187,24 +187,24 @@ export function ProfileCardMini({ profile, onUnfollow, onViewProfile, onSaveNote
         "flex-1 p-5 rounded-2xl flex flex-col justify-between transition-all duration-300 relative overflow-hidden backdrop-blur-md border shadow-sm",
         isPremium
           ? "bg-slate-950/65 border-amber-500/15 text-white shadow-[0_0_25px_rgba(245,158,11,0.03)]"
-          : "bg-white/80 dark:bg-slate-900/60 border-slate-200/60 dark:border-slate-800/60 text-slate-800 dark:text-slate-100"
+          : "bg-white dark:bg-slate-900/60 border-slate-200 dark:border-slate-800/60 text-slate-800 dark:text-slate-100"
       )}>
         <div>
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <div className={cn("p-1.5 rounded-lg", isPremium ? "bg-amber-500/10" : "bg-indigo-50 dark:bg-indigo-950/50")}>
-                <StickyNote className={cn("h-4 w-4 opacity-90", isPremium ? "text-amber-500" : "text-indigo-500 dark:text-indigo-400")} />
+              <div className={cn("p-1.5 rounded-lg", isPremium ? "bg-amber-500/10" : "bg-[#eaf0ff] dark:bg-[#000616]/50")}>
+                <StickyNote className={cn("h-4 w-4 opacity-90", isPremium ? "text-amber-500" : "text-[#013ff4] dark:text-[#4d72ff]")} />
               </div>
               <span className={cn("text-[10px] font-bold uppercase tracking-wider", isPremium ? "text-slate-400" : "text-slate-700 dark:text-slate-350")}>Notes Privées</span>
             </div>
             {isSaving ? (
-              <Loader2 className={cn("h-3.5 w-3.5 animate-spin opacity-70", isPremium ? "text-amber-500" : "text-indigo-500")} />
+              <Loader2 className={cn("h-3.5 w-3.5 animate-spin opacity-70", isPremium ? "text-amber-500" : "text-[#013ff4]")} />
             ) : (
               <div
                 className={cn(
                   "h-1.5 w-1.5 rounded-full",
                   localNote !== (profile.notes || "")
-                    ? (isPremium ? "bg-amber-500 animate-pulse" : "bg-indigo-500 animate-pulse")
+                    ? (isPremium ? "bg-amber-500 animate-pulse" : "bg-[#013ff4] animate-pulse")
                     : "bg-emerald-500"
                 )}
               />
@@ -238,7 +238,7 @@ export function ProfileCardMini({ profile, onUnfollow, onViewProfile, onSaveNote
               localNote !== (profile.notes || "")
                 ? (isPremium 
                     ? "bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md shadow-amber-500/25" 
-                    : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-600/10")
+                    : "bg-[#013ff4] hover:bg-[#0132cc] text-white shadow-md shadow-[#013ff4]/10")
                 : (isPremium 
                     ? "bg-white/5 text-white/30 cursor-not-allowed border border-white/5" 
                     : "bg-slate-100 text-slate-400 dark:bg-slate-800/50 dark:text-slate-600 cursor-not-allowed")
