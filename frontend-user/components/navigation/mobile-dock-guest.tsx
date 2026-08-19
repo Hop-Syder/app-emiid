@@ -1,9 +1,10 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Barre de navigation mobile flottante (Guest / Non connecté) avec icônes SVG Streamline
+ * @description Barre de navigation mobile (Guest / non connecté) — design pro clair,
+ *              aligné sur le dock connecté. Accueil, Annuaire + CTA « Se connecter ».
  * @created 2026-06-13
- * @updated 2026-06-22
+ * @updated 2026-08-19
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -13,66 +14,60 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { motion } from "framer-motion"
+import { House, Compass, LogIn, type LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
-import Image from "next/image"
 
-const publicNavItems = [
-  { name: "Accueil", href: "/", svg: "/svg/Home.svg" },
-  { name: "Annuaire", href: "/annuaire", svg: "/svg/Grid.svg" },
-  { name: "Se connecter", href: "/login", svg: "/svg/Star-Badge--Streamline-Core-Gradient.svg" },
-]
+const BRAND = "#013ff4"
 
 export function MobileDockGuest() {
   const pathname = usePathname()
+  const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`))
 
   return (
-    <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-sm flex flex-col gap-3">
-      {/* DOCK PRINCIPAL DE NAVIGATION */}
-      <div className="relative flex items-center justify-around h-16 bg-slate-900/80 backdrop-blur-2xl border border-white/10 rounded-full px-2 shadow-[0_16px_32px_-8px_rgba(0,0,0,0.5)] w-full">
-        {/* Lueur interne globale */}
-        <div className="absolute inset-0 rounded-full border border-white/5 pointer-events-none" />
+    <div
+      className="lg:hidden fixed inset-x-0 bottom-0 z-50 flex justify-center px-4 pointer-events-none"
+      style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 0.75rem)" }}
+    >
+      <nav
+        aria-label="Navigation principale"
+        className="pointer-events-auto flex w-full max-w-sm items-center gap-1 rounded-[26px] border border-slate-200/80 bg-white/95 p-2 shadow-[0_12px_40px_-10px_rgba(15,23,42,0.28)] backdrop-blur-xl"
+      >
+        <GuestTab href="/" label="Accueil" icon={House} active={isActive("/")} />
+        <GuestTab href="/annuaire" label="Annuaire" icon={Compass} active={isActive("/annuaire")} />
 
-        {publicNavItems.map((item) => {
-          const isActive = pathname === item.href
-          
-          return (
-            <Link 
-              key={item.name} 
-              href={item.href}
-              className="relative flex flex-col items-center justify-center w-12 h-12 outline-none group animate-in fade-in duration-300"
-            >
-              {isActive && (
-                <motion.div
-                  layoutId="mobile-guest-active-indicator"
-                  className="absolute inset-0 bg-blue-600/20 rounded-full"
-                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                />
-              )}
-              
-              <Image
-                src={item.svg}
-                alt={item.name}
-                width={20}
-                height={20}
-                className={cn(
-                  "size-5 transition-all duration-300 z-10",
-                  isActive
-                    ? "opacity-100 scale-110 saturate-100 filter drop-shadow-[0_0_8px_rgba(99,102,241,0.25)]"
-                    : "opacity-45 scale-100 saturate-50 dark:saturate-25 group-hover:opacity-85 group-hover:scale-105 group-hover:saturate-100"
-                )}
-              />
-
-              {isActive && (
-                <motion.div
-                  layoutId="mobile-guest-active-dot"
-                  className="absolute -bottom-1 size-1 bg-blue-400 rounded-full shadow-[0_0_8px_rgba(96,165,250,0.8)]"
-                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                />
-              )}
-            </Link>
-          )
-        })}
-      </div>
+        <Link
+          href="/login"
+          className="ml-auto flex h-11 items-center gap-2 rounded-2xl bg-[#013ff4] px-5 text-sm font-bold text-white shadow-[0_8px_20px_-4px_rgba(1,63,244,0.5)] transition-transform active:scale-95"
+        >
+          <LogIn className="h-[18px] w-[18px]" />
+          Se connecter
+        </Link>
+      </nav>
     </div>
+  )
+}
+
+function GuestTab({ href, label, icon: Icon, active }: { href: string; label: string; icon: LucideIcon; active: boolean }) {
+  return (
+    <Link
+      href={href}
+      className="relative flex flex-1 flex-col items-center justify-center gap-1 py-2 outline-none"
+    >
+      {active && (
+        <motion.span
+          layoutId="guest-dock-active"
+          transition={{ type: "spring", stiffness: 420, damping: 32 }}
+          className="absolute inset-x-2 inset-y-1 -z-0 rounded-2xl bg-[#013ff4]/[0.08]"
+        />
+      )}
+      <Icon
+        className="relative h-[22px] w-[22px] transition-colors"
+        color={active ? BRAND : "#94a3b8"}
+        strokeWidth={active ? 2.4 : 2}
+      />
+      <span className={cn("relative text-[10px] font-semibold transition-colors", active ? "text-[#013ff4]" : "text-slate-400")}>
+        {label}
+      </span>
+    </Link>
   )
 }
