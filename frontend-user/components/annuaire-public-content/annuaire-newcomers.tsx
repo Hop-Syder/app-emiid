@@ -53,7 +53,7 @@ export function AnnuaireNewcomers() {
     return (
         <div className="w-full">
             <div className="flex items-center mb-4 px-1 gap-2">
-                <Sparkle className="w-5 h-5 text-indigo-500" />
+                <Sparkle className="w-5 h-5 text-[#0150fd]" />
                 <h3 className="text-lg font-bold text-slate-800 tracking-tight">Nouveaux arrivants</h3>
             </div>
             
@@ -77,12 +77,12 @@ export function AnnuaireNewcomers() {
                             <h4 className="font-bold text-sm text-slate-900 truncate">{profile.name}</h4>
                             <p className="text-xs text-slate-500 truncate">{profile.role}</p>
                             {profile.category && (
-                                <p className="text-[10px] uppercase font-bold tracking-wider text-indigo-500 mt-0.5 truncate">{profile.category}</p>
+                                <p className="text-[10px] uppercase font-bold tracking-wider text-[#0150fd] mt-0.5 truncate">{profile.category}</p>
                             )}
                         </div>
                         <a 
                             href={`/profil/${profile.slug || profile.id}`}
-                            className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 transition-colors shrink-0"
+                            className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-[#eaf0ff] hover:text-[#013ff4] transition-colors shrink-0"
                         >
                             <ArrowRight className="w-4 h-4" />
                         </a>

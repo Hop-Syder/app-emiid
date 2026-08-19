@@ -16,7 +16,7 @@ dotenv.config();
 
 // Injection globale pour les bibliothèques qui cherchent WebSocket nativement.
 // On force l'utilisation de 'ws' car l'implémentation native de Node.js 20+ 
-// peut être instable ou expérimentale dans certains environnements (comme Railway).
+// peut être instable ou expérimentale dans certains environnements (comme Render).
 (globalThis as any).WebSocket = ws;
 
 function requireEnv(name: string): string {

@@ -14,7 +14,7 @@
 
 ### Actions encore à faire côté ton infrastructure
 
-1. **Déployer la nouvelle `.env` backend** sur l'hébergeur de production (Railway, Vercel, VPS…).
+1. **Déployer la nouvelle `.env` backend** sur l'hébergeur de production (Render → onglet Environment).
 2. **Créer/mettre à jour le `.env` des frontends** avec la clé publique :
    ```bash
    # /app/frontend-user/.env.local
@@ -172,5 +172,5 @@ Après avoir tourné **tous** les secrets, vérifie :
 
 **Ne plus jamais** déposer un `.env` avec des secrets de production sur un environnement partagé (preview, CI temporaire). Utiliser :
 - **Doppler** / **Infisical** / **Vault** / **1Password Secrets Automation** → injection runtime uniquement.
-- Variables d'env de l'hébergeur (Railway → Variables, Vercel → Environment Variables, Render → Environment).
+- Variables d'env de l'hébergeur (Render → Environment, Vercel → Environment Variables).
 - Jamais dans le code, jamais dans un bucket S3, jamais par email/Slack.

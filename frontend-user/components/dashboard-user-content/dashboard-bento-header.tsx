@@ -13,22 +13,12 @@
 import { motion, Variants } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
-import { BadgeCheck, Crown, Globe, Users, Briefcase, ArrowRight, Award } from "lucide-react"
+import { ArrowRight, Briefcase } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useCurrentUserProfile } from "@/hooks/use-current-user-profile"
 import Image from "next/image"
 
-interface DashboardBentoHeaderProps {
-    stats: {
-        totalEntrepreneurs: number
-        verifiedMembers: number
-        countriesCovered: number
-        premiumMembers: number
-    } | null
-    statsLoading: boolean
-}
-
-export function DashboardBentoHeader({ stats, statsLoading }: DashboardBentoHeaderProps) {
+export function DashboardBentoHeader() {
     const router = useRouter()
     const { session } = useCurrentUserProfile()
     const [greeting, setGreeting] = useState("Bonjour")
@@ -41,14 +31,6 @@ export function DashboardBentoHeader({ stats, statsLoading }: DashboardBentoHead
     }, [])
 
     const userName = session?.user?.user_metadata?.first_name || session?.user?.user_metadata?.name || ""
-
-    const statsItems = stats ? [
-        { label: "Membres", value: stats.totalEntrepreneurs || 0, icon: Users, color: "text-emerald-400", bg: "bg-emerald-400/10", ring: "ring-emerald-400/20" },
-        { label: "Vérifiés", value: stats.verifiedMembers || 0, icon: BadgeCheck, color: "text-amber-400", bg: "bg-amber-400/10", ring: "ring-amber-400/20" },
-        { label: "Pays", value: stats.countriesCovered || 0, icon: Globe, color: "text-indigo-400", bg: "bg-indigo-400/10", ring: "ring-indigo-400/20" },
-        { label: "Premium", value: stats.premiumMembers || 0, icon: Crown, color: "text-rose-400", bg: "bg-rose-400/10", ring: "ring-rose-400/20" },
-        { label: "Fondateurs", value: 1, icon: Award, color: "text-fuchsia-400", bg: "bg-fuchsia-400/10", ring: "ring-fuchsia-400/20" },
-    ] : []
 
     const containerVariants: Variants = {
         hidden: { opacity: 0 },
@@ -106,7 +88,7 @@ export function DashboardBentoHeader({ stats, statsLoading }: DashboardBentoHead
                         {/* Titre plein écran */}
                         <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white tracking-tight leading-[1.05]">
                             {greeting}{" "}
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-sky-200 to-white">
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#03b3f8] via-sky-200 to-white">
                                 {userName || "Talent"}
                             </span>
                         </h1>

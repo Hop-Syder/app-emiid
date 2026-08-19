@@ -5,6 +5,7 @@ import type { SupabaseClient } from "@supabase/supabase-js"
 import { toast } from "sonner"
 import { fetchConversations } from "@/features/messages/messagesApi"
 import type { Conversation, Message } from "@/components/messages/types"
+import { fetchWithAuth } from "@/lib/apiClient"
 
 const MAX_CONTENT_LENGTH = 10 * 1024 * 1024
 
@@ -43,16 +44,19 @@ export function useConversationActions({
     const sendToDB = useCallback(async (content: string, convId: string): Promise<Message> => {
         if (!currentUserId) throw new Error("Non authentifié")
 
-        const { data: newMsg, error: msgError } = await supabase
-            .from("messages")
-            .insert({ conversation_id: convId, sender_id: currentUserId, content, is_read: false })
-            .select()
-            .single()
-
-        if (msgError) throw msgError
-        if (!newMsg) throw new Error("Erreur DB lors de la création du message")
-
-        await supabase.from("conversations").update({ last_message_at: new Date().toISOString() }).eq("id", convId)
+        const res = await fetchWithAuth("/api/messages/send", {
+            method: "POST",
+            body: JSON.stringify({
+                conversation_id: convId,
+                content,
+                message_type: "text"
+            })
+        })
+        if (!res.ok) {
+            const errData = await res.json()
+            throw new Error(errData.error || "Erreur serveur lors de l'envoi du message")
+        }
+        const newMsg = await res.json()
 
         return {
             id: newMsg.id,
@@ -63,7 +67,7 @@ export function useConversationActions({
             created_at: newMsg.created_at,
             is_mediation: false,
         }
-    }, [currentUserId, supabase])
+    }, [currentUserId])
 
     const handleFileUpload = useCallback(async (file: File, convId: string): Promise<Message | undefined> => {
         if (!selectedConv || !currentUserId) return

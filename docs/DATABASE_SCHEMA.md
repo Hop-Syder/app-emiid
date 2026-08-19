@@ -2,8 +2,8 @@
  * @author @hopsyder
  * @organization Nexus Partners
  * @description DATABASE DOCUMENTATION - Schema & Security (SSoT) pour EmiID
- * @version 1.3.0
- * @updated 2026-06-11
+ * @version 1.4.0
+ * @updated 2026-07-13
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  * ──────────────────────────────────
@@ -88,9 +88,11 @@ Stocke les métadonnées et paramètres professionnels liés au compte utilisate
 - `is_published` : BOOLEAN (Default: false) — Profil visible dans l'annuaire public
 - `is_verified` : BOOLEAN (Default: false) — Badge de confiance accordé par l'admin
 - `is_premium` : BOOLEAN (Default: false) — Statut d'abonnement payant
-- `card_variant` : VARCHAR(50) (Default: 'default') — Style d'affichage (ex: 'glass-blue')
 - `has_profile` : BOOLEAN (Default: false) — Indique si l'utilisateur a fini son onboarding
 - `followers_count` : INT (Default: 0) — Nombre d'abonnés
+- `is_suspended` : BOOLEAN (Default: false) — Indicateur de suspension de compte par l'admin
+- `suspension_reason` : TEXT — Motif légal/explicatif de la suspension
+- `suspended_until` : TIMESTAMPTZ — Date de fin de suspension (temporaire ou permanente)
 - `created_at` : TIMESTAMPTZ
 - `updated_at` : TIMESTAMPTZ
 
@@ -137,6 +139,15 @@ Contient les messages individuels des conversations.
 - `is_read` : BOOLEAN (Default: false) — État de lecture
 - `created_at` : TIMESTAMPTZ
 
+#### 📜 Logs d'Audit Administrateurs (`admin_audit_log`)
+Table de traçabilité interne pour enregistrer les actions d'administration sensible (suspensions, réactivations, privilèges).
+- `id` : UUID (Primary Key)
+- `admin_id` : UUID (Foreign Key -> `auth.users` / `user_profiles.id`) — L'administrateur ayant déclenché l'action
+- `target_user_id` : UUID — L'utilisateur cible de l'action
+- `action` : VARCHAR(100) — Type d'action (ex: 'SUSPEND', 'REACTIVATE', 'SET_ADMIN')
+- `details` : TEXT — Détails textuels ou motif explicatif
+- `created_at` : TIMESTAMPTZ (Default: now())
+
 ---
 
 ## 🛡️ Sécurité (Row Level Security - RLS)
@@ -144,12 +155,14 @@ Contient les messages individuels des conversations.
 Supabase RLS applique des restrictions d'accès directement dans PostgreSQL :
 
 - **Profils (`user_profiles`)** :
-  - **SELECT** : Accessible publiquement uniquement si `is_published = true`. Toujours accessible par le propriétaire.
+  - **SELECT** : Accessible publiquement uniquement si `is_published = true` et `is_suspended = false`. Toujours accessible par le propriétaire.
   - **INSERT/UPDATE** : Autorisé uniquement si `auth.uid() = user_id`.
 - **Galerie (`project_gallery`)** :
   - **SELECT** : Accessible publiquement si le statut est `'approved'`. Toujours accessible en lecture/écriture par le propriétaire.
 - **Messagerie (`conversations` et `messages`)** :
   - **ALL** : Accès restreint uniquement aux utilisateurs qui sont enregistrés comme `participant1_id` ou `participant2_id` de la conversation associée.
+- **Logs d'audit (`admin_audit_log`)** :
+  - **ALL** : Accès exclusif en lecture et écriture aux administrateurs vérifiés (rôle de service ou politique admin stricte).
 
 ---
 
@@ -163,7 +176,7 @@ Supabase RLS applique des restrictions d'accès directement dans PostgreSQL :
 ## 👁️ Vues de Base de Données
 
 #### `public_profiles`
-Vue publique sécurisée évitant l'exposition des données sensibles (comme le hachage du code PIN) et ne listant que les profils ayant activé l'option de publication (`is_published = true`).
+Vue publique sécurisée évitant l'exposition des données sensibles (comme le hachage du code PIN) et ne listant que les profils actifs, non suspendus, ayant activé l'option de publication (`is_published = true` AND `is_suspended = false`).
 
 ---
 

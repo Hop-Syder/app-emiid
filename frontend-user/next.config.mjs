@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Multi-zones : quand le site officiel (emiid.com) proxifie les pages profil,
+  // les assets /_next doivent être chargés depuis le domaine de l'app pour
+  // éviter toute collision avec les assets du site officiel. Défini en prod à
+  // https://app.emiid.com via ASSET_PREFIX ; non défini en dev → aucun impact.
+  assetPrefix: process.env.ASSET_PREFIX || undefined,
   typescript: {
     ignoreBuildErrors: false,
   },

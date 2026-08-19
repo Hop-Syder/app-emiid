@@ -1,0 +1,66 @@
+# Blueprint de deploiement Render pour le backend EmiID
+# Doc: https://render.com/docs/blueprint-spec
+#
+# @author @hopsyder
+# @organization Nexus Partners
+#
+# Render definit automatiquement la variable PORT ; le serveur ecoute deja
+# sur process.env.PORT et bind 0.0.0.0. Les variables marquees "sync: false"
+# doivent etre renseignees manuellement dans le dashboard Render (onglet
+# Environment) car elles contiennent des secrets.
+
+services:
+  - type: web
+    name: app-emiid-backend
+    runtime: node
+    plan: free
+    region: frankfurt
+    rootDir: backend
+    buildCommand: pnpm install --no-frozen-lockfile && pnpm run build
+    startCommand: pnpm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Nombre de sauts de proxy devant l'app (Render en place 1 devant le service).
+      - key: TRUST_PROXY
+        value: "1"
+      # --- Supabase (OBLIGATOIRE) ---
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_JWT_SECRET
+        sync: false
+      # --- CORS : URLs frontend autorisees (separees par des virgules) ---
+      - key: CORS_ORIGIN
+        sync: false
+      # --- URL publique de l'app (liens dans les emails transactionnels) ---
+      - key: APP_URL
+        sync: false
+      # --- Secret partage du webhook Supabase (header x-webhook-secret) ---
+      - key: WEBHOOK_SECRET
+        sync: false
+      # --- Email (SMTP) : optionnel ---
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_SECURE
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+      # --- Notifications push (VAPID) : optionnel ---
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+      - key: VAPID_SUBJECT
+        sync: false

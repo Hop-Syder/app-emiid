@@ -16,11 +16,11 @@ import { PortfolioGallery } from "./portfolio-gallery"
 
 const getSkillBadgeStyles = (idx: number) => {
     const presets = [
-        "from-blue-500/10 to-indigo-500/10 text-blue-700 border-blue-200/50 hover:bg-blue-100/20",
+        "from-[#013ff4]/10 to-[#0150fd]/10 text-[#013ff4] border-[#013ff4]/20 hover:bg-[#013ff4]/10",
         "from-[#03b3f8]/5 to-[#03b3f8]/10 text-[#03b3f8] border-[#03b3f8]/20 hover:bg-[#03b3f8]/15",
         "from-emerald-500/10 to-teal-500/10 text-emerald-700 border-emerald-200/50 hover:bg-emerald-100/20",
         "from-amber-500/10 to-orange-500/10 text-amber-700 border-amber-200/50 hover:bg-amber-100/20",
-        "from-purple-500/10 to-pink-500/10 text-purple-700 border-purple-200/50 hover:bg-purple-100/20",
+        "from-slate-500/10 to-slate-600/10 text-slate-700 border-slate-200 hover:bg-slate-100",
     ]
     return presets[idx % presets.length]
 }
@@ -55,7 +55,7 @@ export function ProfileMainContent({ profile, gallery, loadingGallery }: Profile
     return (
         <div className="lg:col-span-8 min-w-0 space-y-6">
             {/* About card */}
-            <div className="bg-white/70 backdrop-blur-xl border border-white/50 rounded-[28px] sm:rounded-[32px] p-5 sm:p-8 shadow-xl shadow-slate-100/40 relative overflow-hidden group">
+            <div className="bg-white border border-slate-100 rounded-3xl p-5 sm:p-8 shadow-[0_4px_24px_rgb(15,23,42,0.05)] relative overflow-hidden group">
                 {/* Decorative element */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-[#03b3f8]/5 to-transparent rounded-bl-full pointer-events-none" />
                 <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
@@ -68,9 +68,9 @@ export function ProfileMainContent({ profile, gallery, loadingGallery }: Profile
             </div>
 
             {/* Tabs content card */}
-            <div className="bg-white/70 backdrop-blur-xl border border-white/50 rounded-[28px] sm:rounded-[32px] p-5 sm:p-8 shadow-xl shadow-slate-100/40 min-w-0 overflow-hidden">
+            <div className="bg-white border border-slate-100 rounded-3xl p-5 sm:p-8 shadow-[0_4px_24px_rgb(15,23,42,0.05)] min-w-0 overflow-hidden">
                 <Tabs defaultValue="skills" className="w-full min-w-0">
-                    <TabsList className="bg-slate-100/50 border border-slate-200/50 w-full justify-start h-auto p-1.5 mb-6 gap-2 rounded-2xl backdrop-blur-sm flex overflow-x-auto no-scrollbar snap-x whitespace-nowrap">
+                    <TabsList className="bg-slate-100 border border-slate-200 w-full justify-start h-auto p-1.5 mb-6 gap-2 rounded-2xl flex overflow-x-auto no-scrollbar snap-x whitespace-nowrap">
                         <TabsTrigger
                             value="skills"
                             className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-[#013ff4] data-[state=active]:shadow-md data-[state=active]:border-white/80 bg-transparent px-5 py-2.5 text-xs sm:text-sm font-black text-slate-500 transition-all duration-300 snap-start shrink-0"

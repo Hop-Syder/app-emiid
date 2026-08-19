@@ -1,201 +1,61 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Settings page shell — sidebar desktop / pill tabs mobile
- * @updated 2026-06-22
-*/
+ * @description Settings page shell — design premium Luxury Bento, Glassmorphism et transitions animées.
+ * @created 2026-06-22
+ * @updated 2026-07-13
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+ */
 
 "use client"
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { User, Shield, Bell, Settings, Star, LogOut, X } from "lucide-react"
+import { User, Shield, Bell, Settings, Star, LogOut, X, FileText, Share2, Clock, BadgeCheck } from "lucide-react"
 import { Preloader } from "@/components/Preloader"
-import { fetchWithAuth } from "@/lib/apiClient"
-import { toast } from "sonner"
-import { createClient } from "@/lib/supabase/client"
-import { getReferenceCountriesCached } from "@/lib/location-cache"
 import Image from "next/image"
+import { motion, AnimatePresence } from "framer-motion"
 import { ProfileSection } from "./profile-section"
+import { BioSection } from "./bio-section"
+import { SocialLinksSection } from "./social-links-section"
+import { HoursPricingSection } from "./hours-pricing-section"
+import { VerificationSection } from "./verification-section"
 import { SecuritySection } from "./security-section"
 import { NotificationsSection } from "./notifications-section"
 import { PreferencesSection } from "./preferences-section"
 import { PlanSection } from "./plan-section"
-
-// ─── Defaults ────────────────────────────────────────────────────────────────
-
-const defaultNotificationSettings = { messages: true, network_activity: true, newsletter: false, push: true }
-const defaultPreferences           = { language: "fr", currency: "xof", timezone: "gmt", theme: "light", public_profile: false }
-const defaultSecuritySettings      = { two_factor_enabled: false }
-
-// ─── Tab config ───────────────────────────────────────────────────────────────
-
-type TabId = "profil" | "securite" | "notifications" | "preferences" | "plan"
+import { useSettings, TabId } from "@/hooks/use-settings"
 
 const TABS: { id: TabId; label: string; icon: React.ElementType; desc: string }[] = [
-  { id: "profil",         label: "Profil",        icon: User,     desc: "Informations personnelles et professionnelles" },
-  { id: "securite",       label: "Sécurité",      icon: Shield,   desc: "Accès, PIN et authentification" },
-  { id: "notifications",  label: "Notifications", icon: Bell,     desc: "Alertes et préférences de messages" },
-  { id: "preferences",    label: "Préférences",   icon: Settings, desc: "Langue, thème et confidentialité" },
-  { id: "plan",           label: "Abonnement",    icon: Star,     desc: "Gérez votre offre EmiID Premium" },
+  { id: "profil",         label: "Profil",        icon: User,       desc: "Informations personnelles et professionnelles" },
+  { id: "apropos",        label: "À propos",      icon: FileText,   desc: "Bio, slogan et expérience" },
+  { id: "reseaux",        label: "Réseaux",       icon: Share2,     desc: "Liens sociaux et contacts publics" },
+  { id: "horaires",       label: "Horaires & Services", icon: Clock, desc: "Adresse, horaires et prestations" },
+  { id: "verification",   label: "Vérification",  icon: BadgeCheck, desc: "Badge vérifié et pièces justificatives" },
+  { id: "securite",       label: "Sécurité",      icon: Shield,     desc: "Accès, PIN et authentification" },
+  { id: "notifications",  label: "Notifications", icon: Bell,       desc: "Alertes et préférences de messages" },
+  { id: "preferences",    label: "Préférences",   icon: Settings,   desc: "Langue, thème et confidentialité" },
+  { id: "plan",           label: "Abonnement",    icon: Star,       desc: "Gérez votre offre EmiID Premium" },
 ]
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
 export function ParametresContent() {
-  const [activeTab,             setActiveTab]             = useState<TabId>("profil")
-  const [loadingStatus,         setLoadingStatus]         = useState<"loading" | "success" | "error">("loading")
-  const [saving,                setSaving]                = useState(false)
-  const [notificationSettings,  setNotificationSettings]  = useState(defaultNotificationSettings)
-  const [preferences,           setPreferences]           = useState(defaultPreferences)
-  const [securitySettings,      setSecuritySettings]      = useState(defaultSecuritySettings)
-  const [profile, setProfile] = useState({
-    id: "", first_name: "", last_name: "", email: "", bio: "",
-    avatar_url: "", category: "Artisan", role: "", specialty: "",
-    activity_domain: "", country_id: "", country_code: "", country_name: "",
-    city: "", pin_enabled: false, phone: "", is_published: false,
-    is_verified: false, is_premium: false, show_contact: true,
-  })
-
-  const supabase = createClient()
-  const router   = useRouter()
-
-  // ── Data loading ──────────────────────────────────────────────────────────
-
-  const loadUserProfile = async () => {
-    try {
-      setLoadingStatus("loading")
-      const [response, { data: { user: authUser } }] = await Promise.all([
-        fetchWithAuth("/api/users/me"),
-        supabase.auth.getUser(),
-      ])
-
-      if (response.ok) {
-        const data = await response.json()
-        setProfile({
-          id:              data.id             || authUser?.id || "",
-          first_name:      data.first_name     || authUser?.user_metadata?.first_name  || authUser?.user_metadata?.given_name  || "",
-          last_name:       data.last_name      || authUser?.user_metadata?.last_name   || authUser?.user_metadata?.family_name || "",
-          email:           data.email          || authUser?.email || "",
-          bio:             data.bio            || "",
-          avatar_url:      data.avatar_url     || authUser?.user_metadata?.avatar_url  || "/profil/avatar.jpg",
-          category:        data.category       || "Artisan",
-          role:            data.role           || "",
-          specialty:       data.specialty      || "",
-          activity_domain: data.activity_domain|| "",
-          country_id:      data.country_id     || "",
-          country_code:    data.country_code   || "",
-          country_name:    data.country_name   || "",
-          city:            data.city           || "",
-          pin_enabled:     data.pin_enabled    || false,
-          phone:           data.phone          || authUser?.phone || "",
-          is_published:    data.is_published   || false,
-          is_verified:     data.is_verified    || false,
-          is_premium:      data.is_premium     || false,
-          show_contact:    data.show_contact ?? true,
-        })
-        setNotificationSettings({ ...defaultNotificationSettings, ...(data.notification_preferences || {}) })
-        setPreferences({
-          ...defaultPreferences,
-          ...(data.app_preferences || {}),
-          public_profile: typeof data.app_preferences?.public_profile === "boolean"
-            ? data.app_preferences.public_profile
-            : !!data.is_published,
-        })
-        setSecuritySettings({ ...defaultSecuritySettings, ...(data.security_preferences || {}) })
-        setLoadingStatus("success")
-      } else if (authUser) {
-        setProfile(prev => ({
-          ...prev,
-          first_name: authUser.user_metadata?.first_name || authUser.user_metadata?.given_name  || prev.first_name,
-          last_name:  authUser.user_metadata?.last_name  || authUser.user_metadata?.family_name || prev.last_name,
-          email:      authUser.email  || prev.email,
-          phone:      authUser.phone  || prev.phone,
-          avatar_url: authUser.user_metadata?.avatar_url || prev.avatar_url,
-        }))
-        setLoadingStatus("success")
-      } else {
-        setLoadingStatus("error")
-      }
-    } catch {
-      toast.error("Impossible de charger votre profil")
-      setLoadingStatus("error")
-    }
-  }
-
-  useEffect(() => {
-    const loadRefs = async () => {
-      try {
-        await Promise.all([
-          fetchWithAuth("/api/reference/sectors"),
-          fetchWithAuth("/api/reference/professions"),
-          getReferenceCountriesCached(),
-        ])
-      } catch { /* non-blocking */ }
-    }
-    loadUserProfile()
-    loadRefs()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  // ── Handlers ──────────────────────────────────────────────────────────────
-
-  const handleSave = async () => {
-    setSaving(true)
-    try {
-      const res = await fetchWithAuth("/api/users/me", { method: "PUT", body: JSON.stringify(profile) })
-      if (res.ok) toast.success("Profil mis à jour !")
-      else { const d = await res.json().catch(() => null); toast.error(d?.error || "Erreur lors de la mise à jour") }
-    } catch { toast.error("Erreur réseau") }
-    finally   { setSaving(false) }
-  }
-
-  const handleCancel = () => { loadUserProfile(); toast.info("Modifications annulées") }
-
-  const saveSettings = async (
-    payload: {
-      notification_preferences?: typeof defaultNotificationSettings
-      app_preferences?:          typeof defaultPreferences
-      security_preferences?:     typeof defaultSecuritySettings
-    },
-    successMessage: string,
-  ): Promise<boolean> => {
-    setSaving(true)
-    try {
-      const res  = await fetchWithAuth("/api/users/settings", { method: "PUT", body: JSON.stringify(payload) })
-      if (!res.ok) {
-        const d = await res.json().catch(() => null)
-        toast.error(d?.error || "Erreur lors de la sauvegarde")
-        return false
-      }
-      const data = await res.json()
-      if (data.notification_preferences) setNotificationSettings({ ...defaultNotificationSettings, ...data.notification_preferences })
-      if (data.app_preferences) {
-        setPreferences({ ...defaultPreferences, ...data.app_preferences })
-        setProfile(prev => ({ ...prev, is_published: !!data.app_preferences.public_profile }))
-      }
-      if (data.security_preferences) setSecuritySettings({ ...defaultSecuritySettings, ...data.security_preferences })
-      toast.success(successMessage)
-      return true
-    } catch {
-      toast.error("Erreur réseau")
-      return false
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  const handleLogout = async () => {
-    try {
-      await supabase.auth.signOut()
-      sessionStorage.removeItem("emiid_pin_verified")
-      toast.success("Déconnexion réussie")
-      router.push("/login")
-      router.refresh()
-    } catch { toast.error("Impossible de se déconnecter") }
-  }
-
-  // ── States ────────────────────────────────────────────────────────────────
+  const {
+    activeTab,
+    setActiveTab,
+    loadingStatus,
+    saving,
+    notificationSettings,
+    setNotificationSettings,
+    preferences,
+    setPreferences,
+    securitySettings,
+    setSecuritySettings,
+    profile,
+    setProfile,
+    handleSave,
+    handleCancel,
+    saveSettings,
+    handleLogout,
+  } = useSettings()
 
   if (loadingStatus === "loading") {
     return <Preloader text="Chargement de vos paramètres" subtext="Un instant..." minHeight="min-h-[60vh]" />
@@ -211,7 +71,7 @@ export function ParametresContent() {
           <h2 className="text-lg font-black text-slate-900 mb-2">Impossible de charger</h2>
           <p className="text-sm text-slate-500 mb-6">Vérifiez votre connexion et réessayez.</p>
           <button
-            onClick={loadUserProfile}
+            onClick={() => window.location.reload()}
             className="w-full h-11 bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-slate-800 transition-colors active:scale-[0.98]"
           >
             Réessayer
@@ -221,20 +81,22 @@ export function ParametresContent() {
     )
   }
 
-  // ── Render ────────────────────────────────────────────────────────────────
-
   const displayName = [profile.first_name, profile.last_name].filter(Boolean).join(" ") || "Mon Compte"
 
   const activeSection: Record<TabId, React.ReactNode> = {
     profil:        <ProfileSection profile={profile} setProfile={setProfile} saving={saving} handleSave={handleSave} handleCancel={handleCancel} />,
+    apropos:       <BioSection profile={profile} setProfile={setProfile} saving={saving} handleSave={handleSave} handleCancel={handleCancel} />,
+    reseaux:       <SocialLinksSection profile={profile} setProfile={setProfile} saving={saving} handleSave={handleSave} handleCancel={handleCancel} />,
+    horaires:      <HoursPricingSection profile={profile} setProfile={setProfile} saving={saving} handleSave={handleSave} handleCancel={handleCancel} />,
+    verification:  <VerificationSection profile={profile} />,
     securite:      <SecuritySection profile={profile} setProfile={setProfile} securitySettings={securitySettings} setSecuritySettings={setSecuritySettings} saveSettings={saveSettings} />,
-    notifications: <NotificationsSection settings={notificationSettings} setSettings={setNotificationSettings} saving={saving} handleSave={() => saveSettings({ notification_preferences: notificationSettings }, "Notifications mises à jour")} handleCancel={() => { loadUserProfile(); toast.info("Annulé") }} />,
-    preferences:   <PreferencesSection  settings={preferences}           setSettings={setPreferences}           saving={saving} handleSave={() => saveSettings({ app_preferences: preferences },              "Préférences mises à jour")}  handleCancel={() => { loadUserProfile(); toast.info("Annulé") }} />,
+    notifications: <NotificationsSection settings={notificationSettings} setSettings={setNotificationSettings} saving={saving} handleSave={() => saveSettings({ notification_preferences: notificationSettings }, "Notifications mises à jour")} handleCancel={handleCancel} />,
+    preferences:   <PreferencesSection  settings={preferences}           setSettings={setPreferences}           saving={saving} handleSave={() => saveSettings({ app_preferences: preferences },              "Préférences mises à jour")}  handleCancel={handleCancel} />,
     plan:          <PlanSection profile={profile} />,
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-slate-50">
+    <div className="min-h-[calc(100vh-4rem)] bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-50/20 via-slate-50 to-slate-50">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 lg:py-10">
 
         {/* Mobile page header */}
@@ -249,7 +111,7 @@ export function ParametresContent() {
           <aside className="hidden lg:flex flex-col gap-3 sticky top-24">
 
             {/* User identity card */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-5 text-center">
+            <div className="bg-white/80 backdrop-blur-md border border-slate-200/60 rounded-2xl p-5 text-center shadow-[0_8px_30px_rgb(0,0,0,0.02)]">
               <div className="relative inline-flex mb-3">
                 {profile.avatar_url ? (
                   <Image
@@ -281,19 +143,26 @@ export function ParametresContent() {
             </div>
 
             {/* Navigation */}
-            <nav className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+            <nav className="bg-white/80 backdrop-blur-md border border-slate-200/60 rounded-2xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.02)]">
               {TABS.map(({ id, label, icon: Icon }) => (
                 <button
                   key={id}
                   onClick={() => setActiveTab(id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3.5 text-sm font-semibold transition-all text-left border-l-[3px] ${
+                  className={`relative w-full flex items-center gap-3 px-4 py-3.5 text-sm font-semibold transition-all text-left ${
                     activeTab === id
-                      ? "border-l-primary text-primary bg-primary/5"
-                      : "border-l-transparent text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                      ? "text-primary font-bold"
+                      : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
-                  <Icon className={`h-4 w-4 shrink-0 ${activeTab === id ? "text-primary" : "text-slate-400"}`} />
-                  {label}
+                  {activeTab === id && (
+                    <motion.div
+                      layoutId="active-tab-desktop"
+                      className="absolute inset-0 bg-primary/5 border-l-[3px] border-primary"
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                  <Icon className={`relative z-10 h-4 w-4 shrink-0 transition-transform ${activeTab === id ? "text-primary scale-110" : "text-slate-400"}`} />
+                  <span className="relative z-10">{label}</span>
                 </button>
               ))}
             </nav>
@@ -301,7 +170,7 @@ export function ParametresContent() {
             {/* Logout */}
             <button
               onClick={handleLogout}
-              className="flex items-center gap-3 px-4 py-3.5 bg-white border border-slate-200 rounded-2xl text-sm font-semibold text-red-500 hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-all"
+              className="flex items-center gap-3 px-4 py-3.5 bg-white border border-slate-200 rounded-2xl text-sm font-semibold text-red-500 hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-all shadow-[0_8px_30px_rgb(0,0,0,0.02)]"
             >
               <LogOut className="h-4 w-4 shrink-0" />
               Se déconnecter
@@ -319,14 +188,21 @@ export function ParametresContent() {
                     <button
                       key={id}
                       onClick={() => setActiveTab(id)}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all border ${
+                      className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all border ${
                         activeTab === id
-                          ? "bg-primary text-white border-primary shadow-sm"
+                          ? "text-white border-primary"
                           : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
                       }`}
                     >
-                      <Icon className="h-4 w-4 shrink-0" />
-                      {label}
+                      {activeTab === id && (
+                        <motion.div
+                          layoutId="active-tab-mobile"
+                          className="absolute inset-0 bg-primary rounded-xl"
+                          transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                        />
+                      )}
+                      <Icon className={`relative z-10 h-4 w-4 shrink-0 transition-transform ${activeTab === id ? "text-white scale-110" : "text-slate-400"}`} />
+                      <span className="relative z-10">{label}</span>
                     </button>
                   ))}
                 </div>
@@ -343,7 +219,19 @@ export function ParametresContent() {
               </p>
             </div>
 
-            {activeSection[activeTab]}
+            {/* Section content with slide animation */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.2 }}
+                className="min-w-0"
+              >
+                {activeSection[activeTab]}
+              </motion.div>
+            </AnimatePresence>
           </div>
         </div>
       </div>

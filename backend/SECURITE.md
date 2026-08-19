@@ -123,7 +123,7 @@ const allowedOrigins = [
 1. **Immédiatement** révoquer dans Supabase Dashboard
 2. Générer nouvelle clé
 3. Mettre à jour `.env` local
-4. Mettre à jour Railway/production
+4. Mettre à jour Render/production
 5. Redémarrer les services
 6. Audit complet des logs
 
@@ -134,11 +134,12 @@ const allowedOrigins = [
 # 3. Update local
 nano .env
 
-# 4. Update production
-railway variables set SUPABASE_SERVICE_ROLE_KEY=nouvelle_cle
+# 4. Update production (Render Dashboard > service > onglet Environment)
+#    Modifier SUPABASE_SERVICE_ROLE_KEY puis sauvegarder.
+#    Render redéploie automatiquement à la sauvegarde des variables.
 
-# 5. Redémarrage
-railway restart
+# 5. Redémarrage manuel si besoin :
+#    Render Dashboard > service > Manual Deploy > "Clear build cache & deploy"
 ```
 
 ### Fuite de Données

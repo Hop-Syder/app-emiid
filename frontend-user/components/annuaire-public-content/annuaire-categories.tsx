@@ -85,7 +85,7 @@ export function AnnuaireCategories({ filters, onFilterChange }: AnnuaireCategori
                                 "relative flex flex-col items-center justify-center min-w-[100px] sm:min-w-[110px] h-[100px] sm:h-[110px] rounded-2xl border transition-all duration-300 snap-start shrink-0 overflow-hidden group",
                                 isActive 
                                     ? `bg-white shadow-[0_8px_30px_rgba(0,0,0,0.12)] border-transparent scale-105` 
-                                    : `bg-white/60 border-slate-200/60 shadow-sm hover:shadow-md hover:bg-white ${sector.border}`
+                                    : `bg-white border-slate-200 shadow-sm hover:shadow-md hover:bg-white ${sector.border}`
                             )}
                         >
                             {/* Fond coloré léger en cas d'activation */}

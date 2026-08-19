@@ -1,4 +1,13 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/**
+ * @author @hopsyder
+ * @organization Nexus Partners
+ * @description Formulaire de création de profil EmiID découpé en étapes progressives avec typage strict.
+ * @created 2026-01-16
+ * @updated 2026-07-13
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+ */
+
 "use client"
 
 import { Button } from "@/components/ui/button"
@@ -8,16 +17,18 @@ import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 import { StepIdentite, StepExpertise, StepHistoire, StepContact, StepCompetences } from "./creer-profil-steps"
+import type { CreateProfileFormData } from "@/hooks/use-creer-profil"
+import type { ReferenceCountry } from "@/lib/location-cache"
 
 interface CreerProfilFormProps {
-    formData: any
-    setFormData: any
-    handleInputChange: (field: string, value: any) => void
+    formData: CreateProfileFormData
+    setFormData: React.Dispatch<React.SetStateAction<CreateProfileFormData>>
+    handleInputChange: (field: keyof CreateProfileFormData, value: string | string[]) => void
     handleSave: () => void
     handlePublish: () => void
     handleUnpublish: () => void
     isPublished: boolean
-    countries: any[]
+    countries: ReferenceCountry[]
     tags: string[]
     validationErrors: string[]
     saving: boolean
@@ -118,7 +129,7 @@ export const CreerProfilForm = React.memo(function CreerProfilForm({
 
     const addTag = () => {
         if (tagInput.trim() && !tags.includes(tagInput.trim().toLowerCase())) {
-            handleInputChange("tags", [...tags, tagInput.trim().toLowerCase()] as any)
+            handleInputChange("tags", [...tags, tagInput.trim().toLowerCase()])
             setTagInput("")
         }
     }
@@ -126,12 +137,12 @@ export const CreerProfilForm = React.memo(function CreerProfilForm({
     const addSuggestedTag = (tag: string) => {
         const normalized = tag.trim().toLowerCase()
         if (!tags.includes(normalized)) {
-            handleInputChange("tags", [...tags, normalized] as any)
+            handleInputChange("tags", [...tags, normalized])
         }
     }
 
     const removeTag = (tagToRemove: string) => {
-        handleInputChange("tags", tags.filter((t) => t !== tagToRemove) as any)
+        handleInputChange("tags", tags.filter((t) => t !== tagToRemove))
     }
 
     const handleAvatarUploadComplete = useCallback((newUrl: string) => {
@@ -139,8 +150,8 @@ export const CreerProfilForm = React.memo(function CreerProfilForm({
     }, [handleInputChange])
 
     const handleLocationSelect = useCallback((countryInfo: { name: string; isoCode: string }, cityName: string) => {
-        const localCountry = countries.find((c: any) => c.iso_code === countryInfo.isoCode)
-        setFormData((prev: any) => ({
+        const localCountry = countries.find((c) => c.iso_code === countryInfo.isoCode)
+        setFormData((prev) => ({
             ...prev,
             country_id: localCountry?.id || "",
             country_code: countryInfo.isoCode,
@@ -237,7 +248,7 @@ export const CreerProfilForm = React.memo(function CreerProfilForm({
                         <StepWrapper key="step0" isActive={currentStep === 0} direction={direction}>
                             <StepIdentite
                                 formData={formData}
-                                handleInputChange={handleInputChange}
+                                handleInputChange={handleInputChange as (field: keyof CreateProfileFormData, value: string) => void}
                                 handleAvatarUploadComplete={handleAvatarUploadComplete}
                                 inputClasses={inputClasses}
                             />
@@ -248,7 +259,7 @@ export const CreerProfilForm = React.memo(function CreerProfilForm({
                         <StepWrapper key="step1" isActive={currentStep === 1} direction={direction}>
                             <StepExpertise
                                 formData={formData}
-                                handleInputChange={handleInputChange}
+                                handleInputChange={handleInputChange as (field: keyof CreateProfileFormData, value: string) => void}
                                 inputClasses={inputClasses}
                             />
                         </StepWrapper>
@@ -258,7 +269,7 @@ export const CreerProfilForm = React.memo(function CreerProfilForm({
                         <StepWrapper key="step2" isActive={currentStep === 2} direction={direction}>
                             <StepHistoire
                                 formData={formData}
-                                handleInputChange={handleInputChange}
+                                handleInputChange={handleInputChange as (field: keyof CreateProfileFormData, value: string) => void}
                                 inputClasses={inputClasses}
                             />
                         </StepWrapper>
@@ -268,7 +279,7 @@ export const CreerProfilForm = React.memo(function CreerProfilForm({
                         <StepWrapper key="step3" isActive={currentStep === 3} direction={direction}>
                             <StepContact
                                 formData={formData}
-                                handleInputChange={handleInputChange}
+                                handleInputChange={handleInputChange as (field: keyof CreateProfileFormData, value: string) => void}
                                 handleLocationSelect={handleLocationSelect}
                                 inputClasses={inputClasses}
                             />

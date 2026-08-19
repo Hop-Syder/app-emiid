@@ -57,3 +57,5 @@ design-system
 skills-lock.json
 .venv
 .dexty
+.vercel
+.env*

@@ -139,7 +139,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
         "max-w-[85%] md:max-w-[70%] p-3 shadow-sm relative group transition-all",
         borderRadiusClass,
         isOwn 
-          ? "bg-gradient-to-br from-primary to-indigo-600 text-white shadow-primary/10" 
+          ? "bg-gradient-to-br from-primary to-[#0132cc] text-white shadow-primary/10" 
           : "bg-white/90 backdrop-blur-sm border border-white/60 text-slate-800 shadow-slate-200/50"
       )}>
         {parsed.kind === "text" && (
@@ -170,8 +170,8 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
               isOwn ? "bg-white/10 border-white/20 hover:bg-white/20" : "bg-slate-50 border-slate-200 hover:bg-slate-100"
             )}
           >
-            <div className={cn("p-2 rounded-lg shrink-0", isOwn ? "bg-white/20" : "bg-indigo-50")}>
-              <FileText className={cn("h-5 w-5", isOwn ? "text-white" : "text-indigo-600")} />
+            <div className={cn("p-2 rounded-lg shrink-0", isOwn ? "bg-white/20" : "bg-[#eaf0ff]")}>
+              <FileText className={cn("h-5 w-5", isOwn ? "text-white" : "text-[#0132cc]")} />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs font-bold truncate">{parsed.name}</p>
@@ -182,7 +182,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
 
         <div className={cn(
           "flex items-center gap-1.5 mt-1 text-[10px] font-medium opacity-70 justify-end",
-          isOwn ? "text-indigo-100/90" : "text-slate-500"
+          isOwn ? "text-[#d5e0ff]/90" : "text-slate-500"
         )}>
           {message.is_edited && (
             <span className="text-[9px] italic opacity-80 shrink-0">(Modifié)</span>
@@ -210,7 +210,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
                   </span>
                 ) : (
                   <span title="Envoyé" className="inline-flex">
-                    <Check className="h-3.5 w-3.5 text-indigo-200/60" />
+                    <Check className="h-3.5 w-3.5 text-[#aec2ff]/60" />
                   </span>
                 )
               )}

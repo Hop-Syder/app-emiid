@@ -17,12 +17,13 @@ import { AnnuaireGrid } from "./annuaire-grid"
 import { AnnuaireSpotlight } from "./annuaire-spotlight"
 import { AnnuaireFilters } from "./annuaire-filters"
 
+import type { PublicProfile } from "@/types"
+
 interface AnnuairePublicContentProps {
     initialCategory?: string
     initialActivityDomain?: string
     initialCity?: string
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- profils déjà mappés côté serveur, forme validée par AnnuaireGrid en aval
-    initialProfiles?: any[]
+    initialProfiles?: PublicProfile[]
 }
 
 export function AnnuairePublicContent({
@@ -80,7 +81,7 @@ export function AnnuairePublicContent({
     }
 
     return (
-        <div className="w-full relative overflow-x-clip bg-slate-50/50 min-h-screen pb-20">
+        <div className="w-full relative overflow-x-clip bg-slate-50 min-h-screen pb-20">
             {/* Ambient Background Glow */}
             <div className="absolute top-[20%] left-0 w-96 h-96 bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
             <div className="absolute top-[60%] right-0 w-96 h-96 bg-secondary/10 rounded-full blur-[120px] pointer-events-none" />
@@ -109,10 +110,10 @@ export function AnnuairePublicContent({
                     transition={{ duration: 0.6, delay: 0.4 }}
                     className="space-y-6 pt-4"
                 >
-                    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-200/50 pb-4">
+                    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-200 pb-4">
                         <div>
                             <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
-                                Tous les <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-blue-600">Profils</span>
+                                Tous les <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0150fd] to-blue-600">Profils</span>
                             </h2>
                             <p className="text-slate-500 font-medium mt-1 flex items-center gap-2">
                                 {(filters.search || filters.activity_domain !== "all" || filters.country !== "all" || filters.tags || filters.status !== "all") 
@@ -120,15 +121,7 @@ export function AnnuairePublicContent({
                                         <>
                                             Résultats de votre recherche filtrée.
                                             <button 
-                                                onClick={() => setFilters({
-                                                    search: "",
-                                                    category: "all",
-                                                    country: "all",
-                                                    city: "",
-                                                    tags: "",
-                                                    status: "all",
-                                                    activity_domain: "all"
-                                                })}
+                                                onClick={resetFilters}
                                                 className="text-xs font-bold text-blue-500 hover:text-blue-600 underline cursor-pointer"
                                             >
                                                 Réinitialiser
@@ -144,7 +137,12 @@ export function AnnuairePublicContent({
                     <AnnuaireFilters filters={filters} onFilterChange={handleFilterChange} onReset={resetFilters} />
 
                     <div className="pt-4">
-                        <AnnuaireGrid filters={filters} initialProfiles={initialProfiles} theme="default" />
+                        <AnnuaireGrid
+                            filters={filters}
+                            initialProfiles={initialProfiles}
+                            theme="default"
+                            onSearch={(q) => handleFilterChange("search", q)}
+                        />
                     </div>
                 </motion.div>
 

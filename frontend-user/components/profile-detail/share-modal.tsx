@@ -220,7 +220,7 @@ export function ShareModal({ isOpen, onOpenChange, profile, profileUrl }: ShareM
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-[92vw] sm:max-w-xl md:max-w-2xl rounded-[32px] border border-slate-200/50 dark:border-white/10 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl shadow-2xl p-0 overflow-hidden">
+            <DialogContent className="max-w-[92vw] sm:max-w-xl md:max-w-2xl rounded-3xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/95 backdrop-blur-2xl shadow-2xl p-0 overflow-hidden">
                 <DialogHeader className="p-6 pb-4 border-b border-slate-100 dark:border-white/5 text-left">
                     <DialogTitle className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white">Partager le profil</DialogTitle>
                     <DialogDescription className="text-xs text-slate-500 dark:text-slate-400 font-bold mt-1">
@@ -327,7 +327,7 @@ export function ShareModal({ isOpen, onOpenChange, profile, profileUrl }: ShareM
                                         window.open(`mailto:?subject=${subject}&body=${body}`, "_self");
                                     }}
                                 >
-                                    <div className="h-11 w-11 sm:h-12 sm:w-12 rounded-2xl bg-indigo-50/50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-100/60 dark:border-indigo-500/10 flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:bg-indigo-600 group-hover:text-white group-active:scale-95">
+                                    <div className="h-11 w-11 sm:h-12 sm:w-12 rounded-2xl bg-[#eaf0ff]/50 dark:bg-[#0150fd]/10 text-[#013ff4] dark:text-[#4d72ff] border border-[#d5e0ff]/60 dark:border-[#0150fd]/10 flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:bg-[#013ff4] group-hover:text-white group-active:scale-95">
                                         <EmailIcon className="h-4.5 w-4.5 transition-transform group-hover:-translate-y-0.5" />
                                     </div>
                                     <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors truncate w-full text-center">Email</span>

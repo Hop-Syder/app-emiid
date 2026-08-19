@@ -18,7 +18,7 @@ dotenv.config()
 
 const PORT = Number(process.env.PORT || 5000)
 
-// Création explicite du serveur HTTP pour supporter les WebSockets sur le même port (requis pour Railway)
+// Création explicite du serveur HTTP pour supporter les WebSockets sur le même port (requis pour Render)
 const server = http.createServer(app)
 
 // Initialisation du serveur WebSocket
@@ -27,7 +27,7 @@ const wss = new ws.Server({ server })
 wss.on('connection', (socket) => {
   logger.info('Nouvelle connexion WebSocket établie')
   
-  // Heartbeat pour éviter le timeout de 60s de Railway
+  // Heartbeat pour éviter le timeout d'inactivité du proxy Render
   const pingInterval = setInterval(() => {
     if (socket.readyState === ws.OPEN) {
       socket.ping()

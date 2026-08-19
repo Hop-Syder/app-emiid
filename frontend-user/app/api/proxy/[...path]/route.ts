@@ -67,8 +67,11 @@ function buildForwardHeaders(request: NextRequest) {
 async function proxyRequest(request: NextRequest, context: { params: Promise<{ path: string[] }> }) {
     const { path } = await context.params
 
-    // Safety: proxy uniquement vers le backend API
-    if (!path || path.length === 0 || path[0] !== "api") {
+    // Safety: proxy uniquement vers le backend API (`/api/*`) ou son point de
+    // sante racine (`/health`, sonde par la banniere de statut et la page
+    // /maintenance). Tout autre chemin est interdit pour eviter le SSRF.
+    const allowedRoots = new Set(["api", "health"])
+    if (!path || path.length === 0 || !allowedRoots.has(path[0])) {
         return NextResponse.json({ error: "Proxy path interdit" }, { status: 400 })
     }
 

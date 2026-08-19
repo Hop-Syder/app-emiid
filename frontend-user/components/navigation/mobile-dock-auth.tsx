@@ -1,9 +1,10 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Barre de navigation mobile flottante (Auth / Connecté) avec icônes SVG Streamline
+ * @description Barre de navigation mobile (dock) — design pro clair, aligné charte.
+ *              4 destinations + bouton de recherche central (FAB) + feuille « Mon espace ».
  * @created 2026-06-13
- * @updated 2026-06-22
+ * @updated 2026-08-19
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -11,39 +12,47 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
-import { User, LogOut, LucideIcon } from "lucide-react"
+import {
+  House, Compass, MessageCircle, User, Search,
+  Wallet, SquarePen, Bell, Settings, LogOut, ChevronRight, type LucideIcon,
+} from "lucide-react"
 import { useState, useEffect, useRef } from "react"
-import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
 import { useUnreadNotifications } from "@/hooks/use-unread-notifications"
+import { useCurrentUserProfile } from "@/hooks/use-current-user-profile"
 import { cn } from "@/lib/utils"
 
-interface NavItem {
+const BRAND = "#013ff4"
+
+interface DockItem {
   name: string
   href: string
-  svg?: string
-  icon?: LucideIcon
+  icon: LucideIcon
 }
 
-const privateNavItems: NavItem[] = [
-  { name: "Hub", href: "/dashboard-user", svg: "/svg/Home.svg" },
-  { name: "Annuaire", href: "/annuaire", svg: "/svg/Grid.svg" },
-  { name: "Créer mon profil", href: "/creer-profil", svg: "/svg/FileText.svg" },
-  { name: "Messages", href: "/messages", svg: "/svg/MessageSquare.svg" },
-  { name: "Portefeuille", href: "/portefeuille", svg: "/svg/Wallet.svg" },
-  { name: "Profil", href: "/dashboard-user?view=profile", icon: User },
+const NAV_ITEMS: DockItem[] = [
+  { name: "Accueil", href: "/dashboard-user", icon: House },
+  { name: "Annuaire", href: "/annuaire", icon: Compass },
+  { name: "Messages", href: "/messages", icon: MessageCircle },
 ]
 
 export function MobileDockAuth() {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
-  const [showUserMenu, setShowUserMenu] = useState(false)
-  const dockRef = useRef<HTMLDivElement>(null)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const rootRef = useRef<HTMLDivElement>(null)
 
   const unreadCount = useUnreadNotifications()
+  const { session, currentUser } = useCurrentUserProfile()
+
+  const displayName = [currentUser?.first_name, currentUser?.last_name].filter(Boolean).join(" ") || "Mon compte"
+  const profileHref = session?.user?.id ? `/profil/${session.user.id}` : "/dashboard-user?view=profile"
+
+  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`)
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -51,201 +60,193 @@ export function MobileDockAuth() {
     router.push("/login")
   }
 
-  // Fermer le menu lors d'un clic en dehors
+  // Fermeture au clic extérieur
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dockRef.current && !dockRef.current.contains(event.target as Node)) {
-        setShowUserMenu(false)
-      }
+    function onClickOutside(e: MouseEvent) {
+      if (rootRef.current && !rootRef.current.contains(e.target as Node)) setMenuOpen(false)
     }
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
+    document.addEventListener("mousedown", onClickOutside)
+    return () => document.removeEventListener("mousedown", onClickOutside)
   }, [])
 
-  // Fermer le menu lors du changement de route
-  useEffect(() => {
-    setShowUserMenu(false)
-  }, [pathname])
+  // Fermeture au changement de route
+  useEffect(() => { setMenuOpen(false) }, [pathname])
 
   return (
-    <>
-      {/* Overlay de flou d'arrière-plan pour focaliser le menu */}
+    <div className="lg:hidden">
+      {/* Voile de fond */}
       <AnimatePresence>
-        {showUserMenu && (
+        {menuOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className="lg:hidden fixed inset-0 z-40 bg-slate-950/40 backdrop-blur-[4px]"
-            onClick={() => setShowUserMenu(false)}
+            transition={{ duration: 0.2 }}
+            onClick={() => setMenuOpen(false)}
+            className="fixed inset-0 z-40 bg-slate-950/30 backdrop-blur-[3px]"
           />
         )}
       </AnimatePresence>
 
-      <div 
-        ref={dockRef}
-        className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-sm flex flex-col gap-3"
+      <div
+        ref={rootRef}
+        className="fixed inset-x-0 bottom-0 z-50 flex flex-col items-center gap-3 px-4 pointer-events-none"
+        style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 0.75rem)" }}
       >
-        {/* SOUS-MENU INTERACTIF FLOTTANT AU-DESSUS */}
+        {/* ── Feuille « Mon espace » ─────────────────────────────────── */}
         <AnimatePresence>
-          {showUserMenu && (
+          {menuOpen && (
             <motion.div
-              initial={{ opacity: 0, y: 15, scale: 0.95 }}
+              initial={{ opacity: 0, y: 24, scale: 0.97 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 15, scale: 0.95 }}
-              transition={{ type: "spring", stiffness: 350, damping: 25 }}
-              className="flex items-center justify-around h-16 bg-slate-900/90 backdrop-blur-3xl border border-white/10 rounded-full px-4 shadow-[0_16px_32px_-8px_rgba(0,0,0,0.6)] w-full"
+              exit={{ opacity: 0, y: 24, scale: 0.97 }}
+              transition={{ type: "spring", stiffness: 380, damping: 30 }}
+              className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-[0_24px_60px_-15px_rgba(15,23,42,0.35)]"
             >
-              {/* Lien Mon Profil Public */}
-              <Link 
-                href="/profil"
-                className="flex items-center gap-1.5 text-slate-300 hover:text-white px-2 py-1.5 rounded-xl hover:bg-white/5 transition-all outline-none"
+              {/* En-tête profil */}
+              <Link
+                href={profileHref}
+                className="flex items-center gap-3 border-b border-slate-100 p-4 transition-colors hover:bg-slate-50"
               >
-                <User className="size-3.5 text-blue-400" />
-                <span className="text-[9px] font-black uppercase tracking-wider">Profil</span>
-              </Link>
-
-              {/* Séparateur minimaliste */}
-              <div className="h-5 w-px bg-white/10" />
-
-              {/* Lien Notifications */}
-              <Link 
-                href="/notifications"
-                className="relative flex items-center gap-1.5 text-slate-300 hover:text-white px-2 py-1.5 rounded-xl hover:bg-white/5 transition-all outline-none"
-              >
-                <div className="relative">
-                  <Image src="/svg/notification.svg" alt="Notifications" width={18} height={18} className="size-4.5 object-contain" />
-                  {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 size-1.5 bg-red-500 rounded-full shadow-[0_0_4px_rgba(239,68,68,0.5)]" />
-                  )}
+                {currentUser?.avatar_url ? (
+                  <Image
+                    src={currentUser.avatar_url}
+                    alt={displayName}
+                    width={48}
+                    height={48}
+                    className="h-12 w-12 shrink-0 rounded-full object-cover ring-2 ring-slate-100"
+                  />
+                ) : (
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#013ff4]/10 ring-2 ring-slate-100">
+                    <User className="h-6 w-6 text-[#013ff4]" />
+                  </div>
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-bold text-slate-900">{displayName}</p>
+                  <p className="truncate text-xs text-slate-500">Voir mon profil public</p>
                 </div>
-                <span className="text-[9px] font-black uppercase tracking-wider">Notifications</span>
+                <ChevronRight className="h-4 w-4 shrink-0 text-slate-300" />
               </Link>
 
-              {/* Séparateur minimaliste */}
-              <div className="h-5 w-px bg-white/10" />
+              {/* Actions */}
+              <nav className="p-2">
+                <MenuRow href="/portefeuille" icon={Wallet} label="Mon portefeuille" />
+                <MenuRow href="/creer-profil" icon={SquarePen} label="Modifier mon profil" />
+                <MenuRow href="/notifications" icon={Bell} label="Notifications" badge={unreadCount} />
+                <MenuRow href="/parametres" icon={Settings} label="Paramètres" />
 
-              {/* Lien Paramètres */}
-              <Link 
-                href="/parametres"
-                className="flex items-center gap-1.5 text-slate-300 hover:text-white px-2 py-1.5 rounded-xl hover:bg-white/5 transition-all outline-none"
-              >
-                <Image src="/svg/setting.svg" alt="Paramètres" width={14} height={14} className="size-3.5 object-contain" />
-                <span className="text-[9px] font-black uppercase tracking-wider">Paramètres</span>
-              </Link>
+                <div className="my-1.5 h-px bg-slate-100" />
 
-              {/* Séparateur minimaliste */}
-              <div className="h-5 w-px bg-white/10" />
-
-              {/* Déconnexion */}
-              <button 
-                onClick={handleLogout}
-                className="flex items-center gap-1.5 text-red-400 hover:text-red-300 px-2 py-1.5 rounded-xl hover:bg-white/5 transition-all outline-none cursor-pointer"
-              >
-                <LogOut className="size-3.5" />
-                <span className="text-[9px] font-black uppercase tracking-wider">Quitter</span>
-              </button>
+                <button
+                  onClick={handleLogout}
+                  className="flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left transition-colors hover:bg-rose-50"
+                >
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-rose-50 text-rose-500">
+                    <LogOut className="h-[18px] w-[18px]" />
+                  </span>
+                  <span className="text-sm font-semibold text-rose-600">Se déconnecter</span>
+                </button>
+              </nav>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* DOCK PRINCIPAL DE NAVIGATION */}
-        <div className="relative flex items-center justify-around h-16 bg-slate-900/80 backdrop-blur-2xl border border-white/10 rounded-full px-2 shadow-[0_16px_32px_-8px_rgba(0,0,0,0.5)] w-full">
-          {/* Lueur interne globale */}
-          <div className="absolute inset-0 rounded-full border border-white/5 pointer-events-none" />
+        {/* ── Dock ───────────────────────────────────────────────────── */}
+        <nav
+          aria-label="Navigation principale"
+          className="pointer-events-auto flex w-full max-w-sm items-stretch justify-between rounded-[26px] border border-slate-200/80 bg-white/95 px-2 shadow-[0_12px_40px_-10px_rgba(15,23,42,0.28)] backdrop-blur-xl"
+        >
+          {/* 2 items à gauche */}
+          {NAV_ITEMS.slice(0, 2).map((item) => (
+            <DockTab key={item.href} item={item} active={isActive(item.href)} />
+          ))}
 
-          {privateNavItems.map((item) => {
-            const isProfilButton = item.name === "Profil"
-            const isActive = pathname === item.href && !isProfilButton
-            
-            // Rendu du bouton d'action pour le Profil (connecté)
-            if (isProfilButton && item.icon) {
-              const IconComponent = item.icon
-              return (
-                <button 
-                  key={item.name} 
-                  onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="relative flex flex-col items-center justify-center w-12 h-12 outline-none group"
-                  aria-expanded={showUserMenu}
-                  aria-label="Menu profil et paramètres"
-                >
-                  {showUserMenu && (
-                    <motion.div
-                      layoutId="mobile-auth-active-indicator"
-                      className="absolute inset-0 bg-blue-600/20 rounded-full"
-                      transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                    />
-                  )}
-                  
-                  <IconComponent 
-                    className={`size-5 transition-colors duration-300 z-10 ${
-                      showUserMenu ? "text-blue-400" : "text-slate-400 group-hover:text-slate-200"
-                    }`} 
-                  />
-                  
-                  {unreadCount > 0 && (
-                    <span
-                      aria-label={`${unreadCount} notification${unreadCount > 1 ? "s" : ""} non lue${unreadCount > 1 ? "s" : ""}`}
-                      className="absolute top-1.5 right-1.5 z-20 min-w-[16px] h-4 px-1 flex items-center justify-center text-[9px] font-black text-white bg-red-500 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.7)] ring-2 ring-slate-900"
-                    >
-                      {unreadCount > 9 ? "9+" : unreadCount}
-                    </span>
-                  )}
-                  
-                  {showUserMenu && (
-                    <motion.div
-                      layoutId="mobile-auth-active-dot"
-                      className="absolute -bottom-1 size-1 bg-blue-400 rounded-full shadow-[0_0_8px_rgba(96,165,250,0.8)]"
-                      transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                    />
-                  )}
-                </button>
-              )
-            }
+          {/* FAB recherche (centre) */}
+          <div className="relative flex w-16 shrink-0 items-start justify-center">
+            <Link
+              href="/recherche"
+              aria-label="Rechercher"
+              className="group absolute -top-5 flex h-14 w-14 items-center justify-center rounded-full bg-[#013ff4] text-white shadow-[0_10px_24px_-4px_rgba(1,63,244,0.6)] ring-[5px] ring-white transition-transform active:scale-95"
+            >
+              <span className="pointer-events-none absolute -inset-1 rounded-full bg-[#03b3f8]/30 blur-md" />
+              <Search className="relative h-6 w-6" />
+            </Link>
+          </div>
 
-            // Rendu des liens de navigation classiques
-            return (
-              <Link 
-                key={item.name} 
-                href={item.href}
-                className="relative flex flex-col items-center justify-center w-12 h-12 outline-none group animate-in fade-in duration-300"
-              >
-                {isActive && (
-                  <motion.div
-                    layoutId="mobile-auth-active-indicator"
-                    className="absolute inset-0 bg-blue-600/20 rounded-full"
-                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                  />
-                )}
-                
-                <Image
-                  src={item.svg || ""}
-                  alt={item.name}
-                  width={20}
-                  height={20}
-                  className={cn(
-                    "size-5 transition-all duration-300 z-10",
-                    isActive
-                      ? "opacity-100 scale-110 saturate-100 filter drop-shadow-[0_0_8px_rgba(99,102,241,0.25)]"
-                      : "opacity-45 scale-100 saturate-50 dark:saturate-25 group-hover:opacity-85 group-hover:scale-105 group-hover:saturate-100"
-                  )}
-                />
+          {/* Messages + Espace à droite */}
+          <DockTab item={NAV_ITEMS[2]} active={isActive(NAV_ITEMS[2].href)} />
 
-                {isActive && (
-                  <motion.div
-                    layoutId="mobile-auth-active-dot"
-                    className="absolute -bottom-1 size-1 bg-blue-400 rounded-full shadow-[0_0_8px_rgba(96,165,250,0.8)]"
-                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                  />
-                )}
-              </Link>
-            )
-          })}
-        </div>
+          <button
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-label="Mon espace"
+            aria-expanded={menuOpen}
+            className="relative flex flex-1 flex-col items-center justify-center gap-1 py-2.5 outline-none"
+          >
+            <span className="relative flex h-6 w-6 items-center justify-center">
+              <User
+                className="h-[22px] w-[22px] transition-colors"
+                color={menuOpen ? BRAND : "#94a3b8"}
+              />
+              {unreadCount > 0 && (
+                <span className="absolute -right-1.5 -top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-rose-500 px-1 text-[9px] font-black text-white ring-2 ring-white">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
+            </span>
+            <span className={cn("text-[10px] font-semibold transition-colors", menuOpen ? "text-[#013ff4]" : "text-slate-400")}>
+              Espace
+            </span>
+          </button>
+        </nav>
       </div>
-    </>
+    </div>
+  )
+}
+
+// ── Onglet du dock ────────────────────────────────────────────────────
+function DockTab({ item, active }: { item: DockItem; active: boolean }) {
+  const Icon = item.icon
+  return (
+    <Link
+      href={item.href}
+      className="relative flex flex-1 flex-col items-center justify-center gap-1 py-2.5 outline-none"
+    >
+      {active && (
+        <motion.span
+          layoutId="dock-active"
+          transition={{ type: "spring", stiffness: 420, damping: 32 }}
+          className="absolute inset-x-2 inset-y-1.5 -z-0 rounded-2xl bg-[#013ff4]/[0.08]"
+        />
+      )}
+      <Icon
+        className="relative h-[22px] w-[22px] transition-colors"
+        color={active ? BRAND : "#94a3b8"}
+        strokeWidth={active ? 2.4 : 2}
+      />
+      <span className={cn("relative text-[10px] font-semibold transition-colors", active ? "text-[#013ff4]" : "text-slate-400")}>
+        {item.name}
+      </span>
+    </Link>
+  )
+}
+
+// ── Ligne du menu « Mon espace » ──────────────────────────────────────
+function MenuRow({ href, icon: Icon, label, badge = 0 }: { href: string; icon: LucideIcon; label: string; badge?: number }) {
+  return (
+    <Link
+      href={href}
+      className="flex items-center gap-3 rounded-2xl px-3 py-2.5 transition-colors hover:bg-slate-50"
+    >
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+        <Icon className="h-[18px] w-[18px]" />
+      </span>
+      <span className="flex-1 text-sm font-semibold text-slate-800">{label}</span>
+      {badge > 0 && (
+        <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-rose-500 px-1.5 text-[10px] font-black text-white">
+          {badge > 9 ? "9+" : badge}
+        </span>
+      )}
+      <ChevronRight className="h-4 w-4 shrink-0 text-slate-300" />
+    </Link>
   )
 }

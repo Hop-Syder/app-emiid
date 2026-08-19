@@ -730,6 +730,16 @@ export interface Database {
         Args: { identifier: string }
         Returns: Json
       }
+      // Recherche annuaire classée (FTS français + trigram + tags). Cf. migration 20260820.
+      search_profile_ids: {
+        Args: { q: string; max_results?: number }
+        Returns: { profile_id: string; rank: number }[]
+      }
+      // Recherche sémantique par similarité vectorielle (pgvector). Cf. migration 20260821.
+      match_profiles_semantic: {
+        Args: { query_embedding: number[]; match_count?: number; min_similarity?: number }
+        Returns: { profile_id: string; similarity: number }[]
+      }
     }
     Enums: { [_ in never]: never }
   }

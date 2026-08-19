@@ -59,7 +59,7 @@ export function PortfolioGallery({ gallery, loadingGallery }: PortfolioGalleryPr
                         type="button"
                         onClick={() => setSelected(item)}
                         aria-label={`Voir la réalisation : ${item.title || "sans titre"}`}
-                        className="group text-left bg-white/50 backdrop-blur-md border border-slate-200/50 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 relative cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#013ff4]/40"
+                        className="group text-left bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 relative cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#013ff4]/40"
                     >
                         <div className="aspect-video w-full overflow-hidden bg-slate-100 relative">
                             <Image

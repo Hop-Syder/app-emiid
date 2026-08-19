@@ -17,6 +17,7 @@ import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Loader2, ShieldCheck, Check } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { Turnstile } from "@marsidev/react-turnstile"
 
 type Provider = "google" | "linkedin_oidc" | "apple"
 
@@ -33,8 +34,10 @@ export default function LoginPage() {
   const [loading, setLoading] = useState<Provider | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [accepted, setAccepted] = useState(false)
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null)
 
   const handleLogin = async (provider: Provider) => {
+    if (!accepted || !captchaToken) return
     setError(null)
     setLoading(provider)
     try {
@@ -142,6 +145,17 @@ export default function LoginPage() {
             </p>
           </motion.button>
 
+          {/* Cloudflare Turnstile */}
+          <div className="flex justify-center mb-5">
+            <Turnstile
+              siteKey="0x4AAAAAAD1DSmbgkt4JX8uv"
+              options={{ theme: "dark" }}
+              onSuccess={(token) => setCaptchaToken(token)}
+              onError={() => setCaptchaToken(null)}
+              onExpire={() => setCaptchaToken(null)}
+            />
+          </div>
+
           {/* Boutons providers */}
           <div className="flex flex-col gap-3">
             {providers.map((p, i) => (
@@ -159,7 +173,7 @@ export default function LoginPage() {
                 )}
                 <Button
                   variant="outline"
-                  disabled={loading !== null || !accepted || p.soon}
+                  disabled={loading !== null || !accepted || !captchaToken || p.soon}
                   onClick={() => !p.soon && handleLogin(p.id)}
                   aria-disabled={p.soon}
                   title={p.soon ? "Indisponible pour l'instant" : undefined}

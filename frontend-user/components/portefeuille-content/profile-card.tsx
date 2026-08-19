@@ -59,9 +59,9 @@ export function ProfileCard({ profile, onUnfollow, onViewProfile, onSaveNote, on
     }
 
     // Glassmorphism subtle variations based on premium status
-    const cardBg = profile.premium ? "bg-slate-950/80 text-white border-white/10" : "bg-white/80 text-slate-900 border-slate-200/50"
-    const accentColor = profile.premium ? "text-amber-500" : "text-blue-500"
-    const bgAccent = profile.premium ? "bg-amber-500" : "bg-blue-500"
+    const cardBg = profile.premium ? "bg-slate-950/80 text-white border-white/10" : "bg-white text-slate-900 border-slate-200"
+    const accentColor = profile.premium ? "text-amber-500" : "text-[#013ff4]"
+    const bgAccent = profile.premium ? "bg-amber-500" : "bg-[#013ff4]"
 
     return (
         <motion.div 
@@ -74,7 +74,7 @@ export function ProfileCard({ profile, onUnfollow, onViewProfile, onSaveNote, on
             {/* Bloc Identité (Minimaliste) */}
             <Card 
                 className={cn(
-                    "relative w-full lg:w-[320px] rounded-3xl p-6 cursor-pointer overflow-hidden transition-all duration-300 backdrop-blur-xl shadow-lg hover:shadow-xl flex flex-col justify-between group/id",
+                    "relative w-full lg:w-[320px] rounded-3xl p-6 cursor-pointer overflow-hidden transition-all duration-300 shadow-lg hover:shadow-xl flex flex-col justify-between group/id",
                     cardBg
                 )}
                 onClick={() => onViewProfile?.(profile.slug || profile.id)}
@@ -124,7 +124,7 @@ export function ProfileCard({ profile, onUnfollow, onViewProfile, onSaveNote, on
                         onClick={(e) => { e.stopPropagation(); onMessage?.(profile.id) }}
                         className={cn(
                             "flex-1 h-10 rounded-xl font-bold text-xs transition-all shadow-md px-2",
-                            profile.premium ? "bg-amber-500 text-black hover:bg-amber-400" : "bg-blue-600 text-white hover:bg-blue-500"
+                            profile.premium ? "bg-amber-500 text-black hover:bg-amber-400" : "bg-[#013ff4] text-white hover:bg-[#0150fd]"
                         )}
                     >
                         <Mail className="h-4 w-4 mr-1 shrink-0" /> <span className="truncate">Message</span>
@@ -145,7 +145,7 @@ export function ProfileCard({ profile, onUnfollow, onViewProfile, onSaveNote, on
 
             {/* Bloc CRM Notes (Style Apple Notes) */}
             <Card className={cn(
-                "flex-1 min-h-[250px] lg:min-h-0 p-6 rounded-3xl shadow-lg flex flex-col transition-all duration-300 relative overflow-hidden backdrop-blur-xl border",
+                "flex-1 min-h-[250px] lg:min-h-0 p-6 rounded-3xl shadow-lg flex flex-col transition-all duration-300 relative overflow-hidden border",
                 profile.premium ? "bg-slate-900/50 border-white/5 text-white" : "bg-[#a6abb3]/10 border-[#a6abb3]/30 text-slate-900"
             )}>
                 <div className={cn("flex items-center justify-between mb-4 border-b pb-4", profile.premium ? "border-white/10" : "border-[#a6abb3]/30")}>

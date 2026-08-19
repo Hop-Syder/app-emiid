@@ -76,7 +76,18 @@ export const fetchWithAuth = async (endpoint: string, options: RequestInit = {})
     },
   };
 
-  return fetch(url, finalOptions);
+  try {
+    const response = await fetch(url, finalOptions);
+    if (response.status === 502 && typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent("emiid:backend-down"));
+    }
+    return response;
+  } catch (err) {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent("emiid:backend-down"));
+    }
+    throw err;
+  }
 };
 
 /**
@@ -101,7 +112,18 @@ export const fetchPublic = async (endpoint: string, options: RequestInit = {}) =
     },
   };
 
-  return fetch(url, finalOptions);
+  try {
+    const response = await fetch(url, finalOptions);
+    if (response.status === 502 && typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent("emiid:backend-down"));
+    }
+    return response;
+  } catch (err) {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent("emiid:backend-down"));
+    }
+    throw err;
+  }
 };
 
 export const readApiError = async (response: Response, fallbackMessage: string) => {
