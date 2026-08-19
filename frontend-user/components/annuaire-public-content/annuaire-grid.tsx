@@ -64,7 +64,7 @@ export function AnnuaireGrid({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05, duration: 0.3 }}
-            className="w-full aspect-[1/1.4] bg-white rounded-[2rem] border border-slate-100/50 shadow-sm overflow-hidden flex flex-col"
+            className="w-full aspect-[1/1.4] bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden flex flex-col"
           >
             <div className="h-[100px] w-full bg-slate-200/50 animate-pulse" />
             <div className="flex-1 p-5 relative">
@@ -113,7 +113,7 @@ export function AnnuaireGrid({
 
       {/* Pagination Controls */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-4 pt-6 border-t border-slate-200/60">
+        <div className="flex items-center justify-center gap-4 pt-6 border-t border-slate-200">
           <Button
             variant="outline"
             onClick={() => setPage((p) => Math.max(1, p - 1))}
