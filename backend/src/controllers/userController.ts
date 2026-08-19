@@ -136,10 +136,10 @@ export const updateMyProfile = async (req: any, res: Response) => {
 
   try {
     const { body } = updateProfileSchema.parse(req) as { body: any };
-    const { 
-      first_name, last_name, bio, avatar_url,
+    const {
+      first_name, last_name, business_name, bio, avatar_url,
       role, specialty, category, activity_domain,
-      country_id, country_code, country_name, city,
+      country_id, country_code, country_name, city, district,
       job_title, industry, pin_enabled, pin_code,
       phone, website, is_published, tags, card_variant, slug,
       show_contact
@@ -197,11 +197,12 @@ export const updateMyProfile = async (req: any, res: Response) => {
     }
 
     // --- PIN SECURITY LOGIC ---
-    const updates: any = { 
+    const updates: any = {
         user_id: userId,
-        first_name, 
-        last_name, 
-        bio, 
+        first_name,
+        last_name,
+        business_name,
+        bio,
         avatar_url,
         role: finalRole,
         specialty,
@@ -209,6 +210,7 @@ export const updateMyProfile = async (req: any, res: Response) => {
         activity_domain: finalDomain,
         country_id: finalCountryId,
         city,
+        district,
         phone,
         website,
         is_published,
