@@ -49,7 +49,7 @@ export const MediationDialog: React.FC<MediationDialogProps> = ({
         <div className="py-4">
           <Textarea
             placeholder="Détails du litige (ex: non-respect des termes, comportement inapproprié...)"
-            className="min-h-[120px] bg-slate-50 border-slate-200 focus:ring-indigo-500 rounded-xl"
+            className="min-h-[120px] bg-slate-50 border-slate-200 focus:ring-[#013ff4] rounded-xl"
             value={reason}
             onChange={(e) => setReason(e.target.value)}
           />
