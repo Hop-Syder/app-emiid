@@ -29,6 +29,10 @@ const nextConfig = {
       { source: '/profil/:path*', destination: `${APP_ORIGIN}/profil/:path*` },
       // Image OpenGraph dynamique de la carte profil
       { source: '/api/og/:path*', destination: `${APP_ORIGIN}/api/og/:path*` },
+      // Proxy applicatif : requêtes client des pages profil proxifiées
+      // (sonde de santé, données publiques, follow, partage…). Sans cela, la
+      // bannière « backend inaccessible » s'affiche à tort sous emiid.com.
+      { source: '/api/proxy/:path*', destination: `${APP_ORIGIN}/api/proxy/:path*` },
     ]
   },
   images: {
