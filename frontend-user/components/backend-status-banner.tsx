@@ -28,15 +28,21 @@ export function BackendStatusBanner() {
 
     window.addEventListener("emiid:backend-down", handleBackendError)
 
-    // Détection passive rapide au montage
+    // Détection passive au montage. On n'alarme QUE sur une preuve réelle de
+    // dégradation backend :
+    //   • 502 : la route proxy de l'app ne joint pas le backend ;
+    //   • 503 : le backend répond mais /health est dégradé (ex. BDD down).
+    // Un 404/HTML (ex. page servie via un proxy qui n'expose pas /api/proxy),
+    // une réponse OK, ou une erreur réseau indéterminée → on n'affiche RIEN,
+    // pour éviter les faux positifs (notamment sous emiid.com).
     const checkHealth = async () => {
       try {
         const res = await fetch("/api/proxy/health", { method: "GET", cache: "no-store" })
-        if (!res.ok) {
+        if (res.status === 502 || res.status === 503) {
           setIsBackendDown(true)
         }
       } catch {
-        setIsBackendDown(true)
+        /* réseau indéterminé : ne pas alarmer */
       }
     }
 
