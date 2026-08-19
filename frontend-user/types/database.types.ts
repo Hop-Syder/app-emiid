@@ -730,6 +730,11 @@ export interface Database {
         Args: { identifier: string }
         Returns: Json
       }
+      // Recherche annuaire classée (FTS français + trigram + tags). Cf. migration 20260820.
+      search_profile_ids: {
+        Args: { q: string; max_results?: number }
+        Returns: { profile_id: string; rank: number }[]
+      }
     }
     Enums: { [_ in never]: never }
   }
