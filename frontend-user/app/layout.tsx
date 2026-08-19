@@ -28,7 +28,10 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://app.emiid.com'),
+  // Domaine public pour le SEO (canonical/OG). On privilégie le site officiel
+  // (emiid.com) via NEXT_PUBLIC_PUBLIC_URL ; défaut = domaine app pour ne rien
+  // casser tant que le site officiel ne sert pas encore les pages profil.
+  metadataBase: new URL(process.env.NEXT_PUBLIC_PUBLIC_URL || process.env.NEXT_PUBLIC_SITE_URL || 'https://app.emiid.com'),
   applicationName: 'EmiID',
   title: 'EmiID — Votre empreinte numérique professionnelle',
   description: "Crée ta carte de visite numérique et rejoins le réseau de professionnels qui construisent l'Afrique de demain.",

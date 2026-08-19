@@ -53,9 +53,11 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
         currentUserId,
     } = useProfileData(profileId)
 
+    // Lien de partage : domaine public officiel si défini (SEO/branding),
+    // sinon l'origine courante (app.emiid.com).
     const profileUrl =
         typeof window !== "undefined"
-            ? `${window.location.origin}/profil/${profile?.slug || profile?.id}`
+            ? `${process.env.NEXT_PUBLIC_PUBLIC_URL || window.location.origin}/profil/${profile?.slug || profile?.id}`
             : ""
 
     const {
