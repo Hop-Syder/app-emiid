@@ -97,48 +97,39 @@ export async function GET(request: NextRequest) {
             }
         }
 
-        // 5. Recherche textuelle libre & universelle : nom, bio/description, rôle,
-        //    spécialité, métier, catégorie, secteur, ville ET tags/compétences.
+        // 5. Recherche textuelle : plein-texte français + tolérance aux fautes
+        //    (trigram) + tags, via la fonction SQL classée search_profile_ids().
+        //    Gère naturellement les requêtes multi-mots (« couturier à Akpakpa »).
+        let rankMap: Map<string, number> | null = null
         if (search) {
-            // Nettoyage : les virgules/parenthèses casseraient la syntaxe PostgREST .or()
             const safe = search.replace(/[,()]/g, ' ').trim()
-            const like = `%${safe}%`
+            if (safe) {
+                const { data: ranked, error: rankErr } = await supabase
+                    .rpc('search_profile_ids', { q: safe, max_results: 200 })
 
-            const orParts = [
-                `first_name.ilike.${like}`,
-                `last_name.ilike.${like}`,
-                `bio.ilike.${like}`,
-                `role.ilike.${like}`,
-                `specialty.ilike.${like}`,
-                `job_title.ilike.${like}`,
-                `category.ilike.${like}`,
-                `activity_domain.ilike.${like}`,
-                `city.ilike.${like}`,
-            ]
+                if (rankErr) {
+                    console.error('search_profile_ids RPC error:', rankErr)
+                }
 
-            // Inclure aussi les profils dont un TAG / une COMPÉTENCE correspond au terme
-            const { data: tagMatch } = await supabase
-                .from('profile_tags')
-                .select('profile_id, tags!inner(name)')
-                .ilike('tags.name', like)
+                const rows = (ranked as { profile_id: string; rank: number }[] | null) || []
+                if (rows.length === 0) {
+                    return NextResponse.json({ profiles: [], count: 0 })
+                }
 
-            const tagProfileIds = [...new Set(
-                (tagMatch as { profile_id: string }[] | null)
-                    ?.map((t) => t.profile_id)
-                    .filter(Boolean) || []
-            )].slice(0, 200)
-
-            if (tagProfileIds.length > 0) {
-                orParts.push(`id.in.(${tagProfileIds.join(',')})`)
+                rankMap = new Map(rows.map((r) => [r.profile_id, Number(r.rank)]))
+                query = query.in('id', rows.map((r) => r.profile_id))
             }
-
-            query = query.or(orParts.join(','))
         }
 
-        // 6. Pagination (Range)
+        // 6. Pagination. En recherche, on récupère l'ensemble classé (≤ 200) puis
+        //    on trie par pertinence et on pagine côté serveur (voir plus bas).
         const from = (page - 1) * limit
         const to = from + limit - 1
-        query = query.range(from, to)
+        if (rankMap) {
+            query = query.limit(200)
+        } else {
+            query = query.range(from, to)
+        }
 
         // Execution de la requête
         const { data, count, error } = await query
@@ -148,8 +139,17 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: error.message }, { status: 500 })
         }
 
+        // En recherche : tri par pertinence (clé = id user_profiles renvoyé par la RPC)
+        let rows = ((data || []) as unknown as PublicProfileJoined[])
+        if (rankMap) {
+            rows = [...rows].sort(
+                (a, b) => (rankMap!.get((b as unknown as { id: string }).id) ?? 0)
+                        - (rankMap!.get((a as unknown as { id: string }).id) ?? 0)
+            )
+        }
+
         // Transformation format retourné pour le frontend
-        const formattedProfiles = ((data || []) as unknown as PublicProfileJoined[]).map((e) => {
+        const formattedProfiles = rows.map((e) => {
             const profileId = e.user_id || e.id || "0"
             const country = countryName(e.countries)
             return {
@@ -175,8 +175,8 @@ export async function GET(request: NextRequest) {
         })
 
         return NextResponse.json({
-            profiles: formattedProfiles,
-            count: count || 0
+            profiles: rankMap ? formattedProfiles.slice(from, to + 1) : formattedProfiles,
+            count: rankMap ? formattedProfiles.length : (count || 0),
         })
 
     } catch (error) {
