@@ -110,10 +110,15 @@ export function MobileDockAuth() {
               transition={{ type: "spring", stiffness: 420, damping: 32 }}
               className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-[32px] border border-slate-200/90 bg-white/95 p-1 shadow-[0_24px_60px_-12px_rgba(15,23,42,0.3)] backdrop-blur-2xl"
             >
+              {/* Poignée d'entraînement (Drag handle) */}
+              <div className="flex justify-center pt-2 pb-0.5">
+                <span className="h-1 w-9 rounded-full bg-slate-200/80" />
+              </div>
+
               {/* En-tête profil */}
               <Link
                 href={profileHref}
-                className="flex items-center gap-3 rounded.2xl border-b border-slate-100 p-3.5 transition-colors hover:bg-slate-50/80"
+                className="flex items-center gap-3 rounded-2xl border-b border-slate-100 p-3.5 transition-colors hover:bg-slate-50/80"
               >
                 {currentUser?.avatar_url ? (
                   <Image
