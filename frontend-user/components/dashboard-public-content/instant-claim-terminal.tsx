@@ -31,20 +31,20 @@ export function InstantClaimTerminal() {
   }
 
   return (
-    <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 p-8 sm:p-12 md:p-16 text-white border border-white/10 shadow-2xl">
+    <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-slate-950 via-slate-900 to-[#000616] p-8 sm:p-12 md:p-16 text-white border border-white/10 shadow-2xl">
       {/* Décoration et lueurs */}
-      <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-blue-500/20 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-purple-500/20 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-[#013ff4]/20 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-[#03b3f8]/20 rounded-full blur-[100px] pointer-events-none" />
 
       <div className="relative z-10 max-w-3xl mx-auto text-center space-y-6">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-400/30 text-blue-400 text-xs font-bold">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#013ff4]/10 border border-[#03b3f8]/30 text-[#03b3f8] text-xs font-bold">
           <CreditCard className="h-4 w-4" />
           <span>Générateur de Carte EmiID</span>
         </div>
 
-        <h2 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight font-satoshi">
+        <h2 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight font-heading">
           Prêt à créer votre <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-sky-300 to-white">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#013ff4] via-[#03b3f8] to-white">
             empreinte numérique ?
           </span>
         </h2>

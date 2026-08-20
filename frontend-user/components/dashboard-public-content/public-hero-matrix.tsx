@@ -74,24 +74,24 @@ export function PublicHeroMatrix({ stats }: PublicHeroMatrixProps) {
     <div className="relative overflow-hidden rounded-[2.5rem] border border-white/10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] bg-slate-950 p-6 md:p-12 text-white">
       {/* Arrière-plan dynamique avec halos lumineux */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(1,63,244,0.25),transparent_60%)] pointer-events-none" />
-      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-purple-600/20 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-[#0396d0]/20 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[url('/dashboard/background.jpg')] bg-cover bg-center opacity-15 mix-blend-overlay pointer-events-none" />
 
       <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
         {/* Col Gauche : Message d'Impact + Terminal d'Acquisition */}
         <div className="lg:col-span-7 space-y-6">
           {/* Badge de statut */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-400/30 backdrop-blur-md">
-            <Sparkles className="h-4 w-4 text-blue-400 animate-pulse" />
-            <span className="text-xs font-bold text-blue-300 tracking-wide">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-[#013ff4]/10 to-[#03b3f8]/10 border border-[#03b3f8]/30 backdrop-blur-md">
+            <Sparkles className="h-4 w-4 text-[#03b3f8] animate-pulse" />
+            <span className="text-xs font-bold text-[#03b3f8] tracking-wide">
               L'empreinte numérique professionnelle d'Afrique & Diaspora
             </span>
           </div>
 
           {/* Titre Principal */}
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[1.06] font-satoshi">
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[1.06] font-heading">
             Exposez votre talent. <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-sky-300 to-indigo-200">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#013ff4] via-[#03b3f8] to-[#7f9dff]">
               Inspirez le monde.
             </span>
           </h1>
@@ -142,7 +142,7 @@ export function PublicHeroMatrix({ stats }: PublicHeroMatrixProps) {
               <div className="space-y-0.5">
                 <p className="text-lg md:text-xl font-black text-white">{stats.countriesCovered || 0}</p>
                 <p className="text-[10px] font-bold text-slate-400 flex items-center gap-1">
-                  <Globe className="h-3 w-3 text-indigo-400" /> Pays
+                  <Globe className="h-3 w-3 text-[#03b3f8]" /> Pays
                 </p>
               </div>
               <div className="space-y-0.5">
@@ -156,7 +156,7 @@ export function PublicHeroMatrix({ stats }: PublicHeroMatrixProps) {
         </div>
 
         {/* Col Droite : Showcase Carte EmiID 3D Interactive (Tilt Showcase) */}
-        <div className="lg:col-span-5 flex justify-center items-center perspective-1000">
+        <div className="lg:col-span-5 flex justify-center items-center" style={{ perspective: 1000 }}>
           <motion.div
             ref={cardRef}
             onMouseMove={handleMouseMove}
@@ -169,7 +169,7 @@ export function PublicHeroMatrix({ stats }: PublicHeroMatrixProps) {
             className="relative w-full max-w-sm cursor-pointer transition-transform duration-200 ease-out"
           >
             {/* Halo lumineux holographique sous la carte */}
-            <div className="absolute -inset-4 rounded-[2.5rem] bg-gradient-to-tr from-[#013ff4]/40 to-purple-500/40 blur-2xl opacity-75 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute -inset-4 rounded-[2.5rem] bg-gradient-to-tr from-[#013ff4]/40 to-[#03b3f8]/40 blur-2xl opacity-75 group-hover:opacity-100 transition-opacity" />
 
             {/* Carte DÉMO EmiID */}
             <div className="relative z-10 transform-gpu transition-all">
