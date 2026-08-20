@@ -81,10 +81,10 @@ export function NavigationShell({ children, isPublic = false }: NavigationShellP
 
       {/* 
         Conteneur principal: 
-        - padding-left de 88px sur lg pour ne pas passer sous la sidebar (w-[88px])
+        - Floating Island Navbar en haut sur lg → lg:pt-20 et lg:pl-0 (libère 100% de la largeur)
         - padding-bottom sur mobile pour ne pas être caché par le dock flottant (sauf si chat actif ou page messages)
       */}
-      <main className={`flex-1 w-full min-w-0 transition-all duration-300 lg:pl-[120px] lg:pb-0 ${isMessagePage ? "pb-0 h-full max-h-full overflow-hidden flex flex-col" : "pb-24"}`}>
+      <main className={`flex-1 w-full min-w-0 transition-all duration-300 lg:pl-0 lg:pt-20 lg:pb-0 ${isMessagePage ? "pb-0 h-full max-h-full overflow-hidden flex flex-col" : "pb-24"}`}>
         {children}
       </main>
 
