@@ -227,11 +227,11 @@ export function DashboardPublicContent({ initialStats = null, initialProfiles = 
 
                 {/* Explorer par Type de Profil (Catégories) */}
                 <div className="space-y-6 pt-8 pb-10 px-4 sm:px-8 -mx-4 sm:-mx-8 bg-white rounded-[2.5rem] border border-slate-200/80 shadow-xs relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/5 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-[#03b3f8]/5 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
 
                     <div className="relative z-10 flex flex-row items-center justify-between px-1 sm:px-2 gap-2">
-                        <h3 className="text-lg sm:text-2xl font-black text-slate-900 flex items-center gap-2 sm:gap-3 tracking-tight font-satoshi">
-                            <div className="p-2 bg-purple-100/80 text-purple-600 rounded-2xl shrink-0 shadow-xs">
+                        <h3 className="text-lg sm:text-2xl font-black text-slate-900 flex items-center gap-2 sm:gap-3 tracking-tight font-heading">
+                            <div className="p-2 bg-[#cdeefb]/80 text-[#0396d0] rounded-2xl shrink-0 shadow-xs">
                                 <LayoutGrid className="w-5 h-5" />
                             </div>
                             <span className="truncate">Explorer par Type de Profil</span>
