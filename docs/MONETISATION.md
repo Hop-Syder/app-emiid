@@ -64,15 +64,28 @@
 > Webhook à déclarer côté FedaPay : `https://<backend>/api/payments/webhook`.
 > Tester d'abord en **sandbox**. Aucune clé n'est commitée.
 
-### b. UI Dashboard
-- `/dashboard/subscription` : forfait actuel, échéance, bouton « Passer Pro »
-  (Mobile Money), badge « Pro Vérifié ».
-- `/dashboard/analytics` : vues, clics WhatsApp, appels (lecture `profile_analytics`).
-- Carte annuaire : liseré bleu `#013ff4` + badge Pro (déjà géré via `is_premium`).
+### b. UI — ✅ livré
+Intégrée dans **Paramètres → onglet « Abonnement »** (`components/parametre-content/plan-section.tsx`),
+pas dans une route parallèle : l'onglet existait déjà.
+- Offre active réelle (tier + échéance) via `hooks/use-subscription.ts`.
+- Deux forfaits (mensuel / annuel, « 2 mois offerts ») → `POST /api/payments/checkout`
+  puis redirection FedaPay. L'ancien faux paiement (`setTimeout` + URL fictive
+  `checkout.emiid.com`) est supprimé.
+- Bloc « Performance du profil » : vues, clics WhatsApp, appels, partages.
 
-### c. Tracking
-- Sur la vitrine profil : appeler `increment_profile_metric` à l'affichage (vue)
-  et sur clic WhatsApp/Appel/Partage.
+### c. Tracking — partiel
+| Métrique | Source | État |
+|----------|--------|------|
+| **Vues** | table `profile_views` (append-only, anti-auto-vue, alimentée par `use-profile-data`) | ✅ existant, réutilisé |
+| **Partages** | `trackProfileMetric` dans `share-modal` (WhatsApp / LinkedIn / X) | ✅ livré |
+| **Clics WhatsApp** | — | ⏳ **aucun bouton WhatsApp sur la vitrine** : reste à 0 |
+| **Clics Appel** | — | ⏳ **téléphone affiché en texte, pas de lien `tel:`** : reste à 0 |
+
+> Les deux dernières métriques n'ont pas de source tant que les **boutons d'action
+> 1-clic** de la spec (§2.A : WhatsApp vert / Appel direct) ne sont pas ajoutés à la
+> vitrine profil. Helper prêt : `lib/track-profile.ts` (`trackProfileMetric(id, 'whatsapp' | 'call')`).
+> Les vues NE passent PAS par `profile_analytics.views_count` (colonne laissée
+> inutilisée) pour éviter un compteur en double avec `profile_views`.
 
 ---
 

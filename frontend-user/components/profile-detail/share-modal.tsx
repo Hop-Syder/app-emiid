@@ -15,6 +15,7 @@ import { Check, Copy, Download, Share2, QrCode, ExternalLink, Mail, FolderOpen, 
 import { toast } from "sonner"
 import { motion } from "framer-motion"
 import Image from "next/image"
+import { trackProfileMetric } from "@/lib/track-profile"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -182,15 +183,18 @@ export function ShareModal({ isOpen, onOpenChange, profile, profileUrl }: ShareM
 
     const shareToWhatsApp = (url: string) => {
         const text = `Découvrez le profil de ${profile.name} sur EmiID :`
+        trackProfileMetric(profile.id, "share")
         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text + " " + url)}`, "_blank")
     }
 
     const shareToLinkedIn = (url: string) => {
+        trackProfileMetric(profile.id, "share")
         window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, "_blank")
     }
 
     const shareToTwitter = (url: string) => {
         const text = `Découvrez le profil de ${profile.name} sur EmiID :`
+        trackProfileMetric(profile.id, "share")
         window.open(
             `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
             "_blank",
