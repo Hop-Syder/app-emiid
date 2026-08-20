@@ -14,7 +14,9 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { motion } from "framer-motion"
-import { House, Compass, LogIn, type LucideIcon } from "lucide-react"
+import { LogIn } from "lucide-react"
+import { HouseIcon, CompassIcon, type AnimatedIconHandle } from "@/components/icons/animated"
+import { useEffect, useRef } from "react"
 import { cn } from "@/lib/utils"
 
 const BRAND = "#013ff4"
@@ -32,8 +34,8 @@ export function MobileDockGuest() {
         aria-label="Navigation principale"
         className="pointer-events-auto flex w-full max-w-sm items-center gap-1 rounded-[26px] border border-slate-200/80 bg-white/95 p-2 shadow-[0_12px_40px_-10px_rgba(15,23,42,0.28)] backdrop-blur-xl"
       >
-        <GuestTab href="/" label="Accueil" icon={House} active={isActive("/")} />
-        <GuestTab href="/annuaire" label="Annuaire" icon={Compass} active={isActive("/annuaire")} />
+        <GuestTab href="/" label="Accueil" icon={HouseIcon} active={isActive("/")} />
+        <GuestTab href="/annuaire" label="Annuaire" icon={CompassIcon} active={isActive("/annuaire")} />
 
         <Link
           href="/login"
@@ -47,10 +49,18 @@ export function MobileDockGuest() {
   )
 }
 
-function GuestTab({ href, label, icon: Icon, active }: { href: string; label: string; icon: LucideIcon; active: boolean }) {
+function GuestTab({ href, label, icon: Icon, active }: { href: string; label: string; icon: typeof HouseIcon; active: boolean }) {
+  const iconRef = useRef<AnimatedIconHandle>(null)
+
+  useEffect(() => {
+    if (active) iconRef.current?.startAnimation()
+  }, [active])
+
   return (
     <Link
       href={href}
+      onMouseEnter={() => iconRef.current?.startAnimation()}
+      onClick={() => iconRef.current?.startAnimation()}
       className="relative flex flex-1 flex-col items-center justify-center gap-1 py-2 outline-none"
     >
       {active && (
@@ -61,9 +71,11 @@ function GuestTab({ href, label, icon: Icon, active }: { href: string; label: st
         />
       )}
       <Icon
-        className="relative h-[22px] w-[22px] transition-colors"
+        ref={iconRef}
+        size={22}
         color={active ? BRAND : "#94a3b8"}
         strokeWidth={active ? 2.4 : 2}
+        className="relative"
       />
       <span className={cn("relative text-[10px] font-semibold transition-colors", active ? "text-[#013ff4]" : "text-slate-400")}>
         {label}

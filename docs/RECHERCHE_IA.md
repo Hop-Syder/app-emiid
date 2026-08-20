@@ -85,6 +85,28 @@ Aucun de ces cas ne casse la recherche.
 
 ---
 
+## Classement des résultats — hiérarchisation  *(actif)*
+
+Décision : **pertinence d'abord + bonus statut**, avec **cascade pondérée** des
+champs.
+
+- **Migration :** `sql/migrations/20260822_search_ranking.sql`.
+- **Priorité des champs** (encodée dans l'index via `setweight`) :
+  `métier/catégorie (A)` > `ville (B)` > `secteur (C)` > `contexte (D : nom,
+  slogan, bio)`. Coefficients `ts_rank` natifs `{A=1.0, B=0.4, C=0.2, D=0.1}`.
+- **`search_profile_ids`** réécrite : les correspondances réelles (FTS pondéré
+  et/ou tag) reçoivent un socle `1.0 + rangs` et passent **toujours** devant les
+  rattrapages « faute de frappe » (trigram, `< 1.0`) → hiérarchie préservée.
+- **Bonus statut** (côté route `app/api/annuaire/route.ts`, multiplicatif) :
+  `score_final = pertinence × (1 + 0,30·premium + 0,15·vérifié)`. Un premium
+  hors-sujet reste en bas. Départages : premium → vérifié → abonnés → récence.
+- **Navigation sans recherche :** premium → vérifié → plus récents.
+
+Curseurs ajustables : bonus premium `0,30` et vérifié `0,15` (route) ; poids des
+champs A/B/C/D (migration).
+
+---
+
 ## Couche ③ — Intention & recommandations  *(actif si `GROQ_API_KEY`)*
 
 Se déclenche sur le cas **0 résultat** dans l'annuaire : Groq (Llama) génère un

@@ -16,9 +16,13 @@ import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import {
-  House, Compass, MessageCircle, User, Search,
+  User,
   Wallet, SquarePen, Bell, Settings, LogOut, ChevronRight, type LucideIcon,
 } from "lucide-react"
+import {
+  HouseIcon, CompassIcon, MessageIcon, UserIcon, SearchIcon,
+  type AnimatedIconHandle,
+} from "@/components/icons/animated"
 import { useState, useEffect, useRef } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useUnreadNotifications } from "@/hooks/use-unread-notifications"
@@ -30,13 +34,13 @@ const BRAND = "#013ff4"
 interface DockItem {
   name: string
   href: string
-  icon: LucideIcon
+  icon: typeof HouseIcon
 }
 
 const NAV_ITEMS: DockItem[] = [
-  { name: "Accueil", href: "/dashboard-user", icon: House },
-  { name: "Annuaire", href: "/annuaire", icon: Compass },
-  { name: "Messages", href: "/messages", icon: MessageCircle },
+  { name: "Accueil", href: "/dashboard-user", icon: HouseIcon },
+  { name: "Annuaire", href: "/annuaire", icon: CompassIcon },
+  { name: "Messages", href: "/messages", icon: MessageIcon },
 ]
 
 export function MobileDockAuth() {
@@ -48,6 +52,10 @@ export function MobileDockAuth() {
 
   const unreadCount = useUnreadNotifications()
   const { session, currentUser } = useCurrentUserProfile()
+
+  // Refs d'animation pour le FAB recherche et le bouton « Espace ».
+  const searchRef = useRef<AnimatedIconHandle>(null)
+  const userRef = useRef<AnimatedIconHandle>(null)
 
   const displayName = [currentUser?.first_name, currentUser?.last_name].filter(Boolean).join(" ") || "Mon compte"
   const profileHref = session?.user?.id ? `/profil/${session.user.id}` : "/dashboard-user?view=profile"
@@ -166,10 +174,12 @@ export function MobileDockAuth() {
             <Link
               href="/recherche"
               aria-label="Rechercher"
+              onMouseEnter={() => searchRef.current?.startAnimation()}
+              onClick={() => searchRef.current?.startAnimation()}
               className="group absolute -top-5 flex h-14 w-14 items-center justify-center rounded-full bg-[#013ff4] text-white shadow-[0_10px_24px_-4px_rgba(1,63,244,0.6)] ring-[5px] ring-white transition-transform active:scale-95"
             >
               <span className="pointer-events-none absolute -inset-1 rounded-full bg-[#03b3f8]/30 blur-md" />
-              <Search className="relative h-6 w-6" />
+              <SearchIcon ref={searchRef} size={24} color="#ffffff" className="relative" />
             </Link>
           </div>
 
@@ -177,14 +187,16 @@ export function MobileDockAuth() {
           <DockTab item={NAV_ITEMS[2]} active={isActive(NAV_ITEMS[2].href)} />
 
           <button
-            onClick={() => setMenuOpen((v) => !v)}
+            onClick={() => { setMenuOpen((v) => !v); userRef.current?.startAnimation() }}
+            onMouseEnter={() => userRef.current?.startAnimation()}
             aria-label="Mon espace"
             aria-expanded={menuOpen}
             className="relative flex flex-1 flex-col items-center justify-center gap-1 py-2.5 outline-none"
           >
             <span className="relative flex h-6 w-6 items-center justify-center">
-              <User
-                className="h-[22px] w-[22px] transition-colors"
+              <UserIcon
+                ref={userRef}
+                size={22}
                 color={menuOpen ? BRAND : "#94a3b8"}
               />
               {unreadCount > 0 && (
@@ -206,9 +218,18 @@ export function MobileDockAuth() {
 // ── Onglet du dock ────────────────────────────────────────────────────
 function DockTab({ item, active }: { item: DockItem; active: boolean }) {
   const Icon = item.icon
+  const iconRef = useRef<AnimatedIconHandle>(null)
+
+  // Anime l'icône quand l'onglet devient actif (après navigation).
+  useEffect(() => {
+    if (active) iconRef.current?.startAnimation()
+  }, [active])
+
   return (
     <Link
       href={item.href}
+      onMouseEnter={() => iconRef.current?.startAnimation()}
+      onClick={() => iconRef.current?.startAnimation()}
       className="relative flex flex-1 flex-col items-center justify-center gap-1 py-2.5 outline-none"
     >
       {active && (
@@ -219,9 +240,11 @@ function DockTab({ item, active }: { item: DockItem; active: boolean }) {
         />
       )}
       <Icon
-        className="relative h-[22px] w-[22px] transition-colors"
+        ref={iconRef}
+        size={22}
         color={active ? BRAND : "#94a3b8"}
         strokeWidth={active ? 2.4 : 2}
+        className="relative"
       />
       <span className={cn("relative text-[10px] font-semibold transition-colors", active ? "text-[#013ff4]" : "text-slate-400")}>
         {item.name}
