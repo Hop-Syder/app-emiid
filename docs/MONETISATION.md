@@ -40,15 +40,29 @@
 
 ## Reste à faire (Phase 1)
 
-### a. Paiement — webhook + checkout
-- **Décision requise** : fournisseur **FedaPay** ou **KKiaPay** (ou les deux).
-- Backend :
-  - `POST /api/payments/checkout` → crée une `payment_transaction` `PENDING`,
-    initialise le paiement, renvoie l'URL/token.
-  - `POST /api/payments/webhook` → **vérifie la signature**, retrouve la transaction
-    par `provider_ref`, passe en `SUCCESS` **de façon idempotente**, puis **active
-    l'abonnement** (upsert `subscriptions` : tier + `end_date = now()+1 mois/an`).
-- Clés API en **variables d'environnement** (jamais commitées).
+### a. Paiement FedaPay — ✅ livré (backend)
+- Fournisseur retenu : **FedaPay**. Forfaits : **PRO_MONTHLY (1 000 F / 1 mois)**,
+  **PRO_ANNUAL (10 000 F / 12 mois)**.
+- `backend/src/services/fedapay.ts` : création de transaction, token de paiement,
+  **vérification de signature** du webhook (HMAC-SHA256, comparaison constante).
+- `backend/src/controllers/paymentController.ts` :
+  - `POST /api/payments/checkout` (authentifié) → `payment_transaction` `PENDING`
+    → transaction FedaPay → renvoie `{ transactionId, token, url }`.
+  - `POST /api/payments/webhook` (raw body) → signature vérifiée → `SUCCESS`
+    **idempotent** (via `provider_ref`) → **active/prolonge** l'abonnement.
+- Câblé dans `app.ts` (webhook monté **avant** le parser JSON pour le corps brut).
+
+**Variables d'environnement backend (Render)** — cf. `render.yaml` :
+
+| Variable | Rôle |
+|----------|------|
+| `FEDAPAY_SECRET_KEY` | Clé secrète FedaPay (`sk_sandbox_…` puis `sk_live_…`) |
+| `FEDAPAY_WEBHOOK_SECRET` | Secret de signature des webhooks |
+| `FEDAPAY_BASE_URL` | déf. `https://sandbox-api.fedapay.com/v1` → live en prod |
+| `APP_PUBLIC_URL` (ou `APP_URL`) | URL de retour après paiement |
+
+> Webhook à déclarer côté FedaPay : `https://<backend>/api/payments/webhook`.
+> Tester d'abord en **sandbox**. Aucune clé n'est commitée.
 
 ### b. UI Dashboard
 - `/dashboard/subscription` : forfait actuel, échéance, bouton « Passer Pro »

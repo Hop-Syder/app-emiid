@@ -64,3 +64,13 @@ services:
         sync: false
       - key: VAPID_SUBJECT
         sync: false
+
+      # --- Paiement Mobile Money FedaPay (abonnement Pro) ---
+      - key: FEDAPAY_SECRET_KEY
+        sync: false
+      - key: FEDAPAY_WEBHOOK_SECRET
+        sync: false
+      # Défaut sandbox : https://sandbox-api.fedapay.com/v1 — passer en
+      # https://api.fedapay.com/v1 en production.
+      - key: FEDAPAY_BASE_URL
+        sync: false
