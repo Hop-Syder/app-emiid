@@ -7,7 +7,7 @@
 
 | Phase | Périmètre | État |
 |-------|-----------|------|
-| **1** | Abonnement **Pro** + priorité recherche + **paiement** + analytics profil | 🟡 DB prête |
+| **1** | Abonnement **Pro** + priorité recherche + **paiement** + analytics profil | ✅ livré |
 | 2 | **Boosts** géolocalisés (communal d'abord) + table `communes` | ⏳ à venir |
 | 3 | **B2B Teams / NFC / ONG** | ⏳ sur demande/contrats |
 
@@ -73,21 +73,33 @@ pas dans une route parallèle : l'onglet existait déjà.
   `checkout.emiid.com`) est supprimé.
 - Bloc « Performance du profil » : vues, clics WhatsApp, appels, partages.
 
-### c. Tracking — partiel
+### c. Tracking — ✅ complet
 | Métrique | Source | État |
 |----------|--------|------|
-| **Vues** | table `profile_views` (append-only, anti-auto-vue, alimentée par `use-profile-data`) | ✅ existant, réutilisé |
-| **Partages** | `trackProfileMetric` dans `share-modal` (WhatsApp / LinkedIn / X) | ✅ livré |
-| **Clics WhatsApp** | — | ⏳ **aucun bouton WhatsApp sur la vitrine** : reste à 0 |
-| **Clics Appel** | — | ⏳ **téléphone affiché en texte, pas de lien `tel:`** : reste à 0 |
+| **Vues** | table `profile_views` (append-only, anti-auto-vue, alimentée par `use-profile-data`) | ✅ |
+| **Clics WhatsApp** | bouton vert de la vitrine → `trackProfileMetric(id, 'whatsapp')` | ✅ |
+| **Clics Appel** | bouton `tel:` de la vitrine → `trackProfileMetric(id, 'call')` | ✅ |
+| **Partages** | `share-modal` (WhatsApp / LinkedIn / X) | ✅ |
 
-> Les deux dernières métriques n'ont pas de source tant que les **boutons d'action
-> 1-clic** de la spec (§2.A : WhatsApp vert / Appel direct) ne sont pas ajoutés à la
-> vitrine profil. Helper prêt : `lib/track-profile.ts` (`trackProfileMetric(id, 'whatsapp' | 'call')`).
+Les **actions 1-clic** de la spec (§2.A) sont en place dans la carte Coordonnées :
+WhatsApp (vert `#059669`, message pré-rempli) et Appel direct (`#0F172A`).
+Les numéros sont normalisés au format international (indicatif Bénin `229`
+appliqué par défaut ; un numéro déjà préfixé `+` est conservé tel quel).
+
 > Les vues NE passent PAS par `profile_analytics.views_count` (colonne laissée
 > inutilisée) pour éviter un compteur en double avec `profile_views`.
 
----
+## Administration (back-office)
+
+`user_profiles.is_premium` étant **dérivé** de `subscriptions` via le trigger
+`sync_is_premium`, le back-office ne l'écrit jamais directement :
+
+- **Accorder Pro** → upsert d'un abonnement `PRO_MONTHLY` sans échéance
+  (`end_date = null`) ; **Révoquer** → statut `CANCELLED`. Le trigger recalcule
+  `is_premium`. Les deux actions sont tracées dans `admin_audit_log`
+  (`subscription.grant_pro` / `subscription.revoke_pro`).
+- La fiche utilisateur affiche l'**abonnement courant** (tier, statut, échéance)
+  et les **5 dernières transactions** avec leur statut.
 
 ## Priorité recherche (déjà en place)
 Le classement `Score 4→1` du cadrage se branche sur l'existant :
