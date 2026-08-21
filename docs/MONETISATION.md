@@ -135,9 +135,15 @@ Phase 2 via une table `profile_boosts` + un signal au-dessus du premium.
 - RLS : chacun lit ses propres boosts ; l'exposition publique passe uniquement
   par la fonction `SECURITY DEFINER`. Référentiel lisible par tous.
 
-### Classement (Score 4 du cadrage)
+### Classement (Scores 4 et 3 du cadrage)
 Dans `app/api/annuaire/route.ts`, quand la recherche cible une ville :
-`score = pertinence × (1 + 1,20·boost + 0,30·premium + 0,15·vérifié)`.
+`score = pertinence × (1 + geo + 0,30·premium + 0,15·vérifié)`, avec
+`geo = 1,20` (boost **communal**, Score 4) ou `0,70` (boost **départemental**,
+Score 3) — jamais cumulés : le ciblage le plus fin l'emporte.
+
+`active_boosted_profile_ids(commune_id)` (migration `20260825`) renvoie la
+**portée** en plus de l'identifiant : une recherche dans une commune remonte donc
+aussi les profils boostés sur **son département**, un cran en dessous.
 
 Le boost reste **multiplicatif** : un profil boosté hors-sujet (pertinence nulle)
 n'est pas remonté — on n'affiche pas un couturier quand on cherche un électricien.
@@ -145,11 +151,17 @@ Départage : boost → premium → vérifié → abonnés → récence. Hors rec
 profils boostés de la commune passent en tête.
 
 ### Tarifs et paiement
-| Forfait | Durée | Prix |
-|---------|-------|------|
-| `COMMUNE_48H` | 48 h | 500 FCFA |
-| `COMMUNE_7D` | 7 jours | 1 200 FCFA |
-| `COMMUNE_30D` | 30 jours | 4 000 FCFA |
+| Forfait | Portée | Durée | Prix |
+|---------|--------|-------|------|
+| `COMMUNE_48H` | commune | 48 h | 500 FCFA |
+| `COMMUNE_7D` | commune | 7 jours | 1 200 FCFA |
+| `COMMUNE_30D` | commune | 30 jours | 4 000 FCFA |
+| `DEPARTMENT_48H` | département | 48 h | 1 200 FCFA |
+| `DEPARTMENT_7D` | département | 7 jours | 3 000 FCFA |
+| `DEPARTMENT_30D` | département | 30 jours | 10 000 FCFA |
+
+Le checkout attend `communeId` **ou** `departmentId` selon la portée du forfait ;
+la cible est vérifiée au référentiel avant tout paiement.
 
 `POST /api/payments/boost/checkout` (authentifié) crée la transaction **et** un
 boost `PENDING` ; le webhook l'active à la confirmation. **La durée achetée court
@@ -169,6 +181,8 @@ le forfait. Activation idempotente ; échec/annulation ⇒ boost `CANCELLED`.
 l'étiquette « En vedette » (spec §2.A). La carte est enveloppée plutôt que ses
 variantes modifiées. L'API expose le drapeau `boosted` par profil.
 
-### Reste à faire
-- Boost **départemental** (Score 3) : structure déjà prête (`scope`,
-  `department_id`), il manque la grille tarifaire et l'entrée d'UI.
+### Portées
+L'onglet Boost propose le choix **Communale** (artisan à atelier fixe) ou
+**Départementale** (professionnel mobile / PME), avec la cible et les trois
+durées correspondantes. Les départements sont déduits du référentiel déjà
+chargé — aucune requête supplémentaire.

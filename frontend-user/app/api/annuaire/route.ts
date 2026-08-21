@@ -102,17 +102,23 @@ export async function GET(request: NextRequest) {
         // 4 bis. Boosts communaux (Score 4 du cadrage) : si la recherche cible une
         //    ville, on récupère les profils dont le boost est actif dans cette
         //    commune. Résolution tolérante aux accents/casse via resolve_commune_id.
-        let boostedIds: Set<string> = new Set()
+        //    Deux portées : boost sur la commune exacte (Score 4) et boost sur son
+        //    département (Score 3), pondérés différemment.
+        const boostedCommune: Set<string> = new Set()
+        const boostedDepartment: Set<string> = new Set()
         if (city) {
             const { data: communeId } = await supabase.rpc('resolve_commune_id', { p_label: city })
             if (communeId) {
                 const { data: boosted } = await supabase
                     .rpc('active_boosted_profile_ids', { p_commune_id: communeId as string })
-                boostedIds = new Set(
-                    ((boosted as { profile_id: string }[] | null) || []).map((b) => b.profile_id)
-                )
+                for (const b of (boosted as { profile_id: string; scope: string }[] | null) || []) {
+                    if (b.scope === 'COMMUNE') boostedCommune.add(b.profile_id)
+                    else boostedDepartment.add(b.profile_id)
+                }
             }
         }
+        // Un profil boosté au niveau communal l'emporte : on ne cumule pas.
+        const isBoosted = (id: string) => boostedCommune.has(id) || boostedDepartment.has(id)
 
         // 5. Recherche textuelle hybride :
         //    ① FTS français + trigram + tags  → search_profile_ids()      (toujours)
@@ -206,24 +212,29 @@ export async function GET(request: NextRequest) {
         //   Départages à score égal : premium → vérifié → abonnés → récence.
         let rows = ((data || []) as unknown as PublicProfileJoined[])
         // Hors recherche : les profils boostés de la commune passent en tête.
-        if (!rankMap && boostedIds.size > 0) {
-            rows = [...rows].sort(
-                (a, b) =>
-                    (boostedIds.has(b.id ?? '') ? 1 : 0) - (boostedIds.has(a.id ?? '') ? 1 : 0)
-            )
+        if (!rankMap && (boostedCommune.size > 0 || boostedDepartment.size > 0)) {
+            const geoRank = (id: string) =>
+                boostedCommune.has(id) ? 2 : boostedDepartment.has(id) ? 1 : 0
+            rows = [...rows].sort((a, b) => geoRank(b.id ?? '') - geoRank(a.id ?? ''))
         }
         if (rankMap) {
             // Boost payant : bonus nettement supérieur au statut, pour placer le
             // profil en tête de sa commune. Multiplicatif comme les autres : un
             // profil boosté hors-sujet (pertinence nulle) n'est pas remonté —
             // on ne montre pas un couturier quand on cherche un électricien.
-            const GEO_BOOST = 1.20
+            const COMMUNE_BOOST = 1.20   // Score 4 : ciblage le plus fin
+            const DEPARTMENT_BOOST = 0.70 // Score 3 : au-dessus du premium, sous le communal
             const PREMIUM_BOOST = 0.30
             const VERIFIED_BOOST = 0.15
             const finalScore = (p: PublicProfileJoined) => {
-                const relevance = rankMap!.get(p.id ?? '') ?? 0
-                const boost = 1
-                    + (boostedIds.has(p.id ?? '') ? GEO_BOOST : 0)
+                const id = p.id ?? ''
+                const relevance = rankMap!.get(id) ?? 0
+                const geo = boostedCommune.has(id)
+                    ? COMMUNE_BOOST
+                    : boostedDepartment.has(id)
+                        ? DEPARTMENT_BOOST
+                        : 0
+                const boost = 1 + geo
                     + (p.is_premium ? PREMIUM_BOOST : 0)
                     + (p.is_verified ? VERIFIED_BOOST : 0)
                 return relevance * boost
@@ -231,10 +242,13 @@ export async function GET(request: NextRequest) {
             rows = [...rows].sort((a, b) => {
                 const diff = finalScore(b) - finalScore(a)
                 if (Math.abs(diff) > 1e-9) return diff
-                // Départages : boost géographique, puis statut
-                const boostDiff =
-                    (boostedIds.has(b.id ?? '') ? 1 : 0) - (boostedIds.has(a.id ?? '') ? 1 : 0)
-                if (boostDiff !== 0) return boostDiff
+                // Départages : boost communal, puis départemental, puis statut
+                const communeDiff =
+                    (boostedCommune.has(b.id ?? '') ? 1 : 0) - (boostedCommune.has(a.id ?? '') ? 1 : 0)
+                if (communeDiff !== 0) return communeDiff
+                const deptDiff =
+                    (boostedDepartment.has(b.id ?? '') ? 1 : 0) - (boostedDepartment.has(a.id ?? '') ? 1 : 0)
+                if (deptDiff !== 0) return deptDiff
                 const premiumDiff = (b.is_premium ? 1 : 0) - (a.is_premium ? 1 : 0)
                 if (premiumDiff !== 0) return premiumDiff
                 const verifiedDiff = (b.is_verified ? 1 : 0) - (a.is_verified ? 1 : 0)
@@ -266,7 +280,7 @@ export async function GET(request: NextRequest) {
                 verified: !!e.is_verified,
                 premium: !!e.is_premium,
                 // Mise en vedette payante dans la commune recherchée (spec §2.A).
-                boosted: boostedIds.has(e.id ?? ''),
+                boosted: isBoosted(e.id ?? ''),
                 followers: e.followers_count || 0,
                 isFollowed: false, // Sera résolu côté client si l'utilisateur est connecté
                 tags: e.profile_tags?.map((pt: ProfileTagJoin) => pt.tags?.name).filter(Boolean) || [],
