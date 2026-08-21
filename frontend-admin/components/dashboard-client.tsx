@@ -167,7 +167,7 @@ export function DashboardClient({ initialStats }: DashboardClientProps) {
     { title: "Vérifiés", value: stats.verifiedProfiles, icon: BadgeCheck, lightColor: "bg-cyan-50", textColor: "text-cyan-600", sub: `${pct(stats.verifiedProfiles)}% du total` },
     { title: "Premium", value: stats.premiumProfiles, icon: Crown, lightColor: "bg-amber-50", textColor: "text-amber-600", sub: `${pct(stats.premiumProfiles)}% du total` },
     { title: "Messages", value: stats.totalMessages, icon: MessageSquare, lightColor: "bg-violet-50", textColor: "text-violet-600", sub: null },
-    { title: "Revenus (est.)", value: `${stats.totalRevenue.toLocaleString()} F`, icon: TrendingUp, lightColor: "bg-emerald-50", textColor: "text-emerald-600", sub: "10k F/premium" },
+    { title: "Encaissé (total)", value: `${stats.totalRevenue.toLocaleString("fr-FR")} F`, icon: TrendingUp, lightColor: "bg-emerald-50", textColor: "text-emerald-600", sub: "paiements confirmés" },
     { title: "Signalements", value: stats.activeReports, icon: AlertTriangle, lightColor: "bg-rose-50", textColor: "text-rose-600", sub: `${stats.activeReports} actif${stats.activeReports !== 1 ? "s" : ""}` },
   ]
 
@@ -178,6 +178,8 @@ export function DashboardClient({ initialStats }: DashboardClientProps) {
     { label: "Vérifiés", value: stats.verifiedProfiles, color: "bg-cyan-500" },
     { label: "Premium", value: stats.premiumProfiles, color: "bg-amber-500" },
   ]
+
+  const rev = stats.revenue
 
   const maxWeeklyUsers = Math.max(...stats.weeklyActivity.map(d => d.users), 1)
   const systemIcons = [Server, Database, HardDrive]
@@ -287,6 +289,60 @@ export function DashboardClient({ initialStats }: DashboardClientProps) {
             )}
           </motion.div>
         ))}
+      </div>
+
+      {/* Monétisation — chiffres réels, lus dans payment_transactions,
+          subscriptions et profile_boosts (aucune estimation). */}
+      <div className="rounded-3xl border border-slate-200 bg-white p-5 sm:p-6 dark:border-slate-800 dark:bg-slate-900">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h3 className="text-sm font-black text-slate-900 dark:text-slate-100">Monétisation</h3>
+          <span className="text-[11px] font-semibold text-slate-400">Mois en cours</span>
+        </div>
+
+        <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <RevenueTile
+            label="Encaissé ce mois"
+            value={`${rev.monthRevenue.toLocaleString("fr-FR")} F`}
+            sub={`${rev.monthCount} paiement${rev.monthCount !== 1 ? "s" : ""}`}
+          />
+          <RevenueTile
+            label="Abonnements actifs"
+            value={rev.activeSubscriptions}
+            sub={rev.subscriptionsByTier.map((t) => `${t.count} ${TIER_LABELS[t.tier] ?? t.tier}`).join(" · ") || "aucun"}
+          />
+          <RevenueTile
+            label="Boosts en cours"
+            value={rev.activeBoosts}
+            sub={rev.boostsByScope.map((b) => `${b.count} ${SCOPE_LABELS[b.scope] ?? b.scope}`).join(" · ") || "aucun"}
+          />
+          <RevenueTile
+            label="Paiements en attente"
+            value={rev.pendingCount}
+            sub={rev.pendingCount > 0 ? "initiés, non confirmés" : "rien en suspens"}
+            warn={rev.pendingCount > 0}
+          />
+        </div>
+
+        {rev.lastPayments.length > 0 ? (
+          <div className="mt-5 space-y-1.5">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Derniers paiements</p>
+            {rev.lastPayments.map((t) => (
+              <div key={t.id} className="flex items-center justify-between gap-2 text-xs">
+                <span className="truncate text-slate-600 dark:text-slate-300">
+                  {new Date(t.created_at).toLocaleDateString("fr-FR")} ·{" "}
+                  {t.type === "PROFILE_BOOST" ? "Boost" : "Abonnement Pro"}
+                </span>
+                <span className="shrink-0 font-bold text-emerald-600">
+                  +{t.amount.toLocaleString("fr-FR")} F
+                </span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="mt-5 text-xs font-medium text-slate-400">
+            Aucun paiement confirmé pour l&apos;instant.
+          </p>
+        )}
       </div>
 
       {/* Funnel de conversion */}
@@ -709,4 +765,39 @@ function getInitials(firstName: string | null, lastName: string | null): string 
   const first = firstName?.[0] || ""
   const last = lastName?.[0] || ""
   return (first + last).toUpperCase() || "?"
+}
+
+// Libellés lisibles des formules et portées stockées en base.
+const TIER_LABELS: Record<string, string> = {
+  PRO_MONTHLY: "mensuel",
+  PRO_ANNUAL: "annuel",
+  B2B: "B2B",
+}
+
+const SCOPE_LABELS: Record<string, string> = {
+  COMMUNE: "communal",
+  DEPARTMENT: "départemental",
+}
+
+/** Tuile de chiffre pour le bloc Monétisation. */
+function RevenueTile({
+  label,
+  value,
+  sub,
+  warn = false,
+}: {
+  label: string
+  value: string | number
+  sub?: string
+  warn?: boolean
+}) {
+  return (
+    <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-3.5 dark:border-slate-800 dark:bg-slate-800/40">
+      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{label}</p>
+      <p className={`mt-1 text-xl font-black ${warn ? "text-amber-600" : "text-slate-900 dark:text-slate-100"}`}>
+        {value}
+      </p>
+      {sub && <p className="mt-0.5 truncate text-[11px] font-medium text-slate-400">{sub}</p>}
+    </div>
+  )
 }
