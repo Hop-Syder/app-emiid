@@ -716,6 +716,7 @@ export async function toggleUserVerified(userId: string, isVerified: boolean) {
  */
 export async function toggleUserPremium(userId: string, isPremium: boolean) {
   const admin = await requireAdminSession()
+  if (!admin) return { success: false, error: "Non autorisé" }
   const supabase = await createAdminClient()
   const now = new Date().toISOString()
 

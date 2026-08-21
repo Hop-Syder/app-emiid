@@ -102,6 +102,10 @@ export interface Database {
           followers_count: number
           created_at: string
           updated_at: string
+          is_suspended: boolean | null
+          suspended_at: string | null
+          suspended_until: string | null
+          suspended_reason: string | null
         }
         Insert: {
           id?: string
