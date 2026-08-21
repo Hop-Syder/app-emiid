@@ -21,8 +21,6 @@
 -- Idempotent. Jouer après 20260823_monetization_phase1.sql.
 -- ============================================================================
 
-CREATE EXTENSION IF NOT EXISTS unaccent;
-
 -- ── 1. Référentiel territorial ─────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS public.departments (
   id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -40,12 +38,28 @@ CREATE TABLE IF NOT EXISTS public.communes (
 
 CREATE INDEX IF NOT EXISTS idx_communes_department ON public.communes (department_id);
 
--- Clé de rapprochement : nom sans accents, en minuscules, tirets/espaces unifiés.
+-- Clé de rapprochement : nom sans accents, en minuscules, séparateurs retirés.
+--
+-- On N'UTILISE PAS unaccent() : sur Supabase l'extension vit dans le schéma
+-- `extensions`, hors du search_path appliqué lors de l'inlining d'une fonction
+-- SQL — d'où « function unaccent(text) does not exist ». translate() couvre le
+-- français et reste IMMUTABLE sans aucune dépendance d'extension.
+--
+-- L'index dépend de cette fonction : on le retire avant toute redéfinition.
+DROP INDEX IF EXISTS public.idx_communes_normalized;
+
 CREATE OR REPLACE FUNCTION public.normalize_place(txt text)
 RETURNS text
 LANGUAGE sql IMMUTABLE
+SET search_path = pg_catalog, public
 AS $$
-  SELECT regexp_replace(lower(unaccent(coalesce(txt, ''))), '[^a-z0-9]+', '', 'g');
+  SELECT regexp_replace(
+           translate(
+             lower(coalesce(txt, '')),
+             'àáâãäåçèéêëìíîïñòóôõöùúûüýÿœæ',
+             'aaaaaaceeeeiiiinooooouuuuyyoa'
+           ),
+           '[^a-z0-9]+', '', 'g');
 $$;
 
 CREATE INDEX IF NOT EXISTS idx_communes_normalized
