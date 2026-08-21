@@ -23,6 +23,10 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      # Version Node epinglee : Render prenait la derniere disponible (26.x),
+      # trop recente pour les dependances. 22.x = LTS.
+      - key: NODE_VERSION
+        value: "22"
       # Nombre de sauts de proxy devant l'app (Render en place 1 devant le service).
       - key: TRUST_PROXY
         value: "1"
