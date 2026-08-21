@@ -215,3 +215,54 @@ En cas de probleme :
 1. Verifiez les logs dans Render (onglet **Logs** du service)
 2. Testez localement avec `pnpm run dev`
 3. Contactez @hopsyder ou support@nexuspartners.xyz
+
+---
+
+## Dépannage : « Cannot find module dist/server.js »
+
+Symptôme au démarrage :
+
+```
+Error: Cannot find module '/opt/render/project/src/backend/dist/server.js'
+ELIFECYCLE  Command failed with exit code 1.
+```
+
+**Cause.** Le `buildCommand` du service ne compile pas TypeScript. Dans les logs,
+la ligne de build affiche seulement :
+
+```
+==> Running build command 'pnpm install --no-frozen-lockfile'...
+```
+
+alors que ce blueprint prévoit `pnpm install --no-frozen-lockfile && pnpm run build`.
+Autrement dit, **le service a été créé manuellement et n'utilise pas `render.yaml`** :
+les valeurs du dashboard priment. Sans `pnpm run build`, `tsc` ne tourne jamais et
+`dist/` n'existe pas.
+
+**Correctifs.**
+
+1. **Dashboard Render → Settings → Build Command** :
+   ```
+   pnpm install --no-frozen-lockfile && pnpm run build
+   ```
+   (ou reconnecter le service au Blueprint pour que `render.yaml` fasse foi).
+
+2. **Filet de sécurité côté code** (déjà en place) : `npm start` exécute
+   `scripts/ensure-build.js`, qui compile automatiquement si `dist/` est absent.
+   Le service démarre donc même avec un `buildCommand` incomplet — mais le
+   correctif 1 reste préférable (démarrage plus rapide, échec détecté au build).
+
+## Dépannage : version de Node inattendue
+
+Les logs affichaient `Using Node.js version 26.7.0` car `engines.node` valait
+`>=20.0.0` — Render prenait alors la version la plus récente. La version est
+désormais **épinglée sur la LTS 22** (`engines.node: "22.x"` et `NODE_VERSION=22`
+dans `render.yaml`). Si le service n'utilise pas le blueprint, définir
+`NODE_VERSION=22` manuellement dans l'onglet Environment.
+
+## Branche déployée
+
+Vérifier la branche suivie par le service (Settings → Branch) : les logs
+indiquaient `Checking out commit … in branch main`. Si le développement se fait
+sur une autre branche (`main-2`), le service déploie du code obsolète — aligner
+la branche du service, ou reporter les commits sur la branche déployée.
