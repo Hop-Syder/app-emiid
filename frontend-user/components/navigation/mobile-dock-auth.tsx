@@ -34,19 +34,22 @@ const BRAND = "#013ff4"
 /**
  * Encoche du bord inférieur de la feuille « Mon espace ».
  *
- * Ce n'est pas un cercle : on reprend EXACTEMENT la courbe de l'encoche du dock
- * (path SVG ci-dessous, viewBox 360×68, creux de x=130 à x=230 sur 36 de
- * profondeur), simplement retournée verticalement — le dock se creuse vers le
- * bas, la feuille vers le haut. Les deux éléments partagent la même largeur
- * (max-w-sm), donc les deux courbes se superposent au pixel près.
+ * Reprise de l'encoche du dock, mais ÉLARGIE et APLATIE : la courbe du dock
+ * (100 de large pour 36 de creux) formait ici un pic trop marqué, la feuille
+ * la présentant en bosse et non en creux. On passe à 160 de large pour 32 de
+ * haut — même famille de courbe, pente deux fois plus douce.
  *
- * Le masque se compose de deux couches : le SVG occupe la bande basse de 36 px,
- * un aplat couvre tout le reste de la feuille quelle que soit sa hauteur.
+ * Les tangentes sont horizontales aux trois points remarquables (les deux
+ * raccords avec le bord bas et le sommet), ce qui supprime toute cassure
+ * visible : les points de contrôle voisins partagent l'ordonnée du point.
+ *
+ * Le masque se compose de deux couches : le SVG occupe la bande basse, un aplat
+ * couvre le reste de la feuille quelle que soit sa hauteur.
  */
-const NOTCH_HEIGHT = 36
+const NOTCH_HEIGHT = 32
 
 const NOTCH_SVG =
-  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 36' preserveAspectRatio='none'%3E%3Cpath d='M0,0 L360,0 L360,36 L230,36 C218,36 210,28 206,20 C200,8 190,0 180,0 C170,0 160,8 154,20 C150,28 142,36 130,36 L0,36 Z' fill='%23fff'/%3E%3C/svg%3E\")"
+  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 32' preserveAspectRatio='none'%3E%3Cpath d='M0,0 L360,0 L360,32 L260,32 C234,32 222,26 212,17 C202,8 193,0 180,0 C167,0 158,8 148,17 C138,26 126,32 100,32 L0,32 Z' fill='%23fff'/%3E%3C/svg%3E\")"
 
 const SHEET_NOTCH_STYLE = {
   WebkitMaskImage: `${NOTCH_SVG}, linear-gradient(#000, #000)`,
