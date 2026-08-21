@@ -77,7 +77,29 @@ export interface DashboardStats {
   systemChecks: SystemCheck[]
   pendingVerifications: number
   activeReports: number
+  /** Chiffre d'affaires encaissé, toutes transactions réussies (FCFA). */
   totalRevenue: number
+  revenue: RevenueStats
+}
+
+/** Revenus réels, lus dans payment_transactions / subscriptions / profile_boosts. */
+export interface RevenueStats {
+  /** Encaissé sur le mois calendaire en cours (FCFA). */
+  monthRevenue: number
+  /** Nombre de transactions réussies ce mois-ci. */
+  monthCount: number
+  /** Abonnements Pro actifs et non échus. */
+  activeSubscriptions: number
+  /** Détail par formule : PRO_MONTHLY, PRO_ANNUAL, B2B. */
+  subscriptionsByTier: { tier: string; count: number }[]
+  /** Boosts en cours (statut ACTIF et fenêtre non expirée). */
+  activeBoosts: number
+  /** Répartition des boosts en cours par portée. */
+  boostsByScope: { scope: string; count: number }[]
+  /** Transactions initiées mais jamais confirmées (indicateur d'abandon). */
+  pendingCount: number
+  /** Dernières transactions réussies, pour vérification rapide. */
+  lastPayments: { id: string; amount: number; type: string; created_at: string }[]
 }
 
 export interface AdminSettings {
@@ -262,6 +284,10 @@ export async function getDashboardStats(days: number = 7): Promise<DashboardStat
   let pendingVerifications = 0
   let activeReports = 0
   let totalRevenue = 0
+  let revenue: RevenueStats = {
+    monthRevenue: 0, monthCount: 0, activeSubscriptions: 0, subscriptionsByTier: [],
+    activeBoosts: 0, boostsByScope: [], pendingCount: 0, lastPayments: [],
+  }
   let usersByCountry: { country: string; count: number }[] = []
   let recentUsers: UserProfile[] = []
   const weeklyActivity: { day: string; users: number }[] = []
@@ -325,9 +351,50 @@ export async function getDashboardStats(days: number = 7): Promise<DashboardStat
       newUsersPrevWeek = prevWeekRes.count || 0
       pendingVerifications = pendingVerifyRes.count || 0
       activeReports = reportsRes.error ? 0 : (reportsRes.count || 0)
-      totalRevenue = premiumProfiles * 10000 // CA estimé à 10 000 XOF/mois par compte premium
     } catch (err) {
       console.error('[Dashboard] Exception in quality counters:', err)
+    }
+
+    // ── Revenus réels ────────────────────────────────────────────────────
+    // Remplace l'ancienne estimation « premiumProfiles × 10 000 », qui inventait
+    // un chiffre d'affaires et se trompait de tarif (le Pro est à 1 000 F/mois).
+    try {
+      const now = new Date()
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+      const nowIso = now.toISOString()
+
+      const [allPaid, monthPaid, pendingRes, subsRes, boostsRes, lastRes] = await Promise.all([
+        supabase.from("payment_transactions").select("amount").eq("status", "SUCCESS"),
+        supabase.from("payment_transactions").select("amount").eq("status", "SUCCESS").gte("created_at", startOfMonth),
+        supabase.from("payment_transactions").select("id", { count: "exact", head: true }).eq("status", "PENDING"),
+        supabase.from("subscriptions").select("tier").eq("status", "ACTIVE").or(`end_date.is.null,end_date.gt.${nowIso}`),
+        supabase.from("profile_boosts").select("scope").eq("status", "ACTIVE").gt("expires_at", nowIso),
+        supabase.from("payment_transactions").select("id, amount, type, created_at").eq("status", "SUCCESS").order("created_at", { ascending: false }).limit(5),
+      ])
+
+      const sum = (rows: { amount: number }[] | null) =>
+        (rows || []).reduce((acc, r) => acc + (r.amount || 0), 0)
+      const groupBy = (rows: Record<string, string>[] | null, key: string) => {
+        const counts = new Map<string, number>()
+        for (const r of rows || []) counts.set(r[key], (counts.get(r[key]) || 0) + 1)
+        return [...counts.entries()].map(([k, count]) => ({ [key]: k, count })) as never[]
+      }
+
+      totalRevenue = sum(allPaid.data as { amount: number }[] | null)
+      revenue = {
+        monthRevenue: sum(monthPaid.data as { amount: number }[] | null),
+        monthCount: (monthPaid.data || []).length,
+        activeSubscriptions: (subsRes.data || []).length,
+        subscriptionsByTier: groupBy(subsRes.data as Record<string, string>[] | null, "tier"),
+        activeBoosts: (boostsRes.data || []).length,
+        boostsByScope: groupBy(boostsRes.data as Record<string, string>[] | null, "scope"),
+        pendingCount: pendingRes.error ? 0 : (pendingRes.count || 0),
+        lastPayments: (lastRes.data || []) as RevenueStats["lastPayments"],
+      }
+    } catch (err) {
+      // Tables de monétisation absentes (migration non jouée) : on reste à zéro
+      // plutôt que d'afficher un chiffre inventé.
+      console.error('[Dashboard] Exception in revenue counters:', err)
     }
 
     // Get users by country
@@ -475,6 +542,7 @@ export async function getDashboardStats(days: number = 7): Promise<DashboardStat
     pendingVerifications,
     activeReports,
     totalRevenue,
+    revenue,
   }
 }
 

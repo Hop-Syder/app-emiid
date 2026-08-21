@@ -17,11 +17,14 @@
 | **Annonces** | ✅ fonctionnel | diffusion in-app + campagnes e-mail |
 | **Messages** | ✅ fonctionnel | litiges via le backend (`/api/messages/admin/*`) |
 | **Paramètres** | ✅ fonctionnel | |
-| **Tableau de bord** | 🟡 à enrichir | compteurs présents, **aucune vue des revenus** |
+| **Tableau de bord** | ✅ solide | compteurs, entonnoir, **bloc Monétisation** (encaissé, abonnements, boosts, derniers paiements) |
 
-**Manque pour le MVP :** une vue **revenus** (abonnements actifs, boosts vendus,
-transactions du mois). Les données existent déjà (`subscriptions`,
-`payment_transactions`) — il n'y a pas d'écran pour les lire globalement.
+**Corrigé depuis l'audit :** le tableau de bord affichait un chiffre d'affaires
+**inventé** — `premiumProfiles × 10 000`, soit une estimation au mauvais tarif
+(le Pro est à 1 000 F/mois, pas 10 000). Il lit désormais les vrais encaissements
+dans `payment_transactions`, et un bloc **Monétisation** détaille l'encaissé du
+mois, les abonnements actifs par formule, les boosts en cours par portée, les
+paiements en attente et les cinq derniers règlements.
 
 ---
 
@@ -67,7 +70,7 @@ SQL, et toutes les tables référencées sont déclarées dans les types.
 |---|---------|--------|--------|
 | 1 | **Clés FedaPay absentes** | toute la monétisation est invisible : le checkout répond 502 | 15 min (ops) |
 | 2 | **`NEXT_PUBLIC_GA_ID` non défini** | plus aucune mesure d'audience | 2 min (ops) |
-| 3 | Pas de vue revenus côté admin | rien à montrer sur le modèle économique | ~2 h (dev) |
+| 3 | ~~Pas de vue revenus côté admin~~ | ✅ **livré** | — |
 | 4 | Données décoratives du hub | crédibilité entamée si un visiteur creuse | ~1 h (dev) |
 
 ---
@@ -82,10 +85,10 @@ SQL, et toutes les tables référencées sont déclarées dans les types.
 3. Vérifier en base : `subscriptions`, `profile_boosts`, `communes` (77),
    et le nombre de profils rattachés à une commune.
 
-### Étape 2 — Rendre la monétisation démontrable (~2 h)
-- **Vue revenus** dans le tableau de bord admin : abonnements actifs, boosts en
-  cours, transactions du mois, chiffre d'affaires cumulé.
-- Un paiement sandbox de bout en bout, capturé pour la démonstration.
+### Étape 2 — Rendre la monétisation démontrable
+- ✅ **Vue revenus livrée** dans le tableau de bord admin.
+- Reste : un paiement sandbox de bout en bout, à capturer pour la démonstration
+  (dépend de l'étape 1).
 
 ### Étape 3 — Crédibilité du hub public (~1 h)
 - Brancher le ticker sur de vraies inscriptions récentes, **ou** retirer la
