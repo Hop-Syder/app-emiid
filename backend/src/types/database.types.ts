@@ -626,6 +626,116 @@ export interface Database {
           }
         ]
       }
+      // Monetisation (migration 20260823). Ecritures via service role uniquement.
+      subscriptions: {
+        Row: {
+          id: string
+          user_id: string
+          tier: string
+          status: string
+          start_date: string
+          end_date: string | null
+          auto_renew: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          user_id: string
+          tier?: string
+          status?: string
+          start_date?: string
+          end_date?: string | null
+          auto_renew?: boolean
+          updated_at?: string
+        }
+        Update: {
+          tier?: string
+          status?: string
+          end_date?: string | null
+          auto_renew?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      payment_transactions: {
+        Row: {
+          id: string
+          user_id: string
+          amount: number
+          currency: string
+          provider: string
+          provider_ref: string | null
+          type: string
+          status: string
+          metadata: Json | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          user_id: string
+          amount: number
+          currency?: string
+          provider: string
+          provider_ref?: string | null
+          type: string
+          status?: string
+          metadata?: Json | null
+        }
+        Update: {
+          provider_ref?: string | null
+          status?: string
+          metadata?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profile_analytics: {
+        Row: {
+          profile_id: string
+          views_count: number
+          whatsapp_clicks: number
+          call_clicks: number
+          shares_count: number
+          updated_at: string
+        }
+        Insert: { profile_id: string }
+        Update: {
+          views_count?: number
+          whatsapp_clicks?: number
+          call_clicks?: number
+          shares_count?: number
+        }
+        Relationships: []
+      }
+      // Pieces justificatives de verification (migration 20260819).
+      // Ecriture reservee au service role cote backend ; RLS proprietaire sinon.
+      verification_documents: {
+        Row: {
+          id: string
+          user_id: string
+          doc_type: string
+          file_path: string
+          status: string
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          doc_type: string
+          file_path: string
+          status?: string
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          doc_type?: string
+          file_path?: string
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       phone_verifications: {
         Row: {
           id: string
