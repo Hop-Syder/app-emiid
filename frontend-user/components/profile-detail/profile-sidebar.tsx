@@ -10,6 +10,7 @@
 
 import { Calendar, Check, Copy, Download, ExternalLink, Globe, Mail, MessageCircle, Phone, Share, Share2 } from "lucide-react"
 import { trackProfileMetric } from "@/lib/track-profile"
+import { trackProfileContact } from "@/lib/analytics"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
@@ -99,7 +100,7 @@ export function ProfileSidebar({
                             )}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            onClick={() => trackProfileMetric(profile.id, "whatsapp")}
+                            onClick={() => { trackProfileMetric(profile.id, "whatsapp"); trackProfileContact(profile.id || "", "whatsapp") }}
                             className="flex h-11 items-center justify-center gap-2 rounded-2xl bg-[#059669] text-xs font-black text-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#047857]"
                         >
                             <MessageCircle className="h-4 w-4" />
@@ -107,7 +108,7 @@ export function ProfileSidebar({
                         </a>
                         <a
                             href={`tel:+${toInternational(profile.phone)}`}
-                            onClick={() => trackProfileMetric(profile.id, "call")}
+                            onClick={() => { trackProfileMetric(profile.id, "call"); trackProfileContact(profile.id || "", "call") }}
                             className="flex h-11 items-center justify-center gap-2 rounded-2xl bg-[#0F172A] text-xs font-black text-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-slate-800"
                         >
                             <Phone className="h-4 w-4" />
