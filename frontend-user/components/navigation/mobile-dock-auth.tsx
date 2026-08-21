@@ -31,6 +31,17 @@ import { cn } from "@/lib/utils"
 
 const BRAND = "#013ff4"
 
+/**
+ * Encoche concave du bord inférieur de la feuille « Mon espace », alignée sur
+ * celle du dock : la feuille épouse la courbe du bouton de recherche central.
+ *
+ * Un cercle dont le centre est posé SOUS la feuille n'y découpe qu'un arc.
+ * Rayon 64 / décalage 34 ⇒ ~108 px de large sur 30 de profondeur, soit les
+ * proportions de l'encoche SVG du dock (100/360 de large, 36/68 de creux).
+ */
+const SHEET_NOTCH =
+  "radial-gradient(circle 64px at 50% calc(100% + 34px), transparent 0 64px, #000 64px)"
+
 interface DockItem {
   name: string
   href: string
@@ -108,7 +119,8 @@ export function MobileDockAuth() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 20, scale: 0.95 }}
               transition={{ type: "spring", stiffness: 420, damping: 32 }}
-              className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-[32px] border border-slate-200/90 bg-white/95 p-1 shadow-[0_24px_60px_-12px_rgba(15,23,42,0.3)] backdrop-blur-2xl"
+              className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-[32px] border border-slate-200/90 bg-white/95 p-1 pb-7 shadow-[0_24px_60px_-12px_rgba(15,23,42,0.3)] backdrop-blur-2xl"
+              style={{ WebkitMaskImage: SHEET_NOTCH, maskImage: SHEET_NOTCH }}
             >
               {/* Poignée d'entraînement (Drag handle) */}
               <div className="flex justify-center pt-2 pb-0.5">
