@@ -23,11 +23,15 @@ const PLANS: Record<string, { amount: number; months: number; label: string }> =
     PRO_ANNUAL: { amount: 10000, months: 12, label: 'Abonnement Pro EmiID (annuel)' },
 }
 
-// Grille des boosts communaux (Phase 2). Le boost départemental viendra ensuite.
-const BOOST_PLANS: Record<string, { amount: number; hours: number; label: string }> = {
-    COMMUNE_48H: { amount: 500, hours: 48, label: 'Boost communal EmiID — 48 heures' },
-    COMMUNE_7D: { amount: 1200, hours: 24 * 7, label: 'Boost communal EmiID — 7 jours' },
-    COMMUNE_30D: { amount: 4000, hours: 24 * 30, label: 'Boost communal EmiID — 30 jours' },
+// Grille des boosts de visibilité. La portée est portée par le forfait lui-même.
+type BoostScope = 'COMMUNE' | 'DEPARTMENT'
+const BOOST_PLANS: Record<string, { amount: number; hours: number; scope: BoostScope; label: string }> = {
+    COMMUNE_48H:    { amount: 500,   hours: 48,       scope: 'COMMUNE',    label: 'Boost communal EmiID — 48 heures' },
+    COMMUNE_7D:     { amount: 1200,  hours: 24 * 7,   scope: 'COMMUNE',    label: 'Boost communal EmiID — 7 jours' },
+    COMMUNE_30D:    { amount: 4000,  hours: 24 * 30,  scope: 'COMMUNE',    label: 'Boost communal EmiID — 30 jours' },
+    DEPARTMENT_48H: { amount: 1200,  hours: 48,       scope: 'DEPARTMENT', label: 'Boost départemental EmiID — 48 heures' },
+    DEPARTMENT_7D:  { amount: 3000,  hours: 24 * 7,   scope: 'DEPARTMENT', label: 'Boost départemental EmiID — 7 jours' },
+    DEPARTMENT_30D: { amount: 10000, hours: 24 * 30,  scope: 'DEPARTMENT', label: 'Boost départemental EmiID — 30 jours' },
 }
 
 // Le client typé ne connaît pas encore les tables de monétisation → cast souple.
@@ -118,23 +122,32 @@ export async function createBoostCheckout(req: Request, res: Response) {
 
         const plan = String(req.body?.plan || '')
         const communeId = String(req.body?.communeId || '')
+        const departmentId = String(req.body?.departmentId || '')
         const config = BOOST_PLANS[plan]
 
         if (!config) {
             return res.status(400).json({
                 error: 'Forfait invalide',
-                message: 'plan doit être COMMUNE_48H, COMMUNE_7D ou COMMUNE_30D.',
+                message: `plan doit être l'un de : ${Object.keys(BOOST_PLANS).join(', ')}.`,
             })
         }
-        if (!communeId) {
-            return res.status(400).json({ error: 'Commune requise' })
+
+        // La cible dépend de la portée du forfait et doit exister au référentiel.
+        const isCommune = config.scope === 'COMMUNE'
+        const targetId = isCommune ? communeId : departmentId
+        if (!targetId) {
+            return res.status(400).json({
+                error: isCommune ? 'Commune requise' : 'Département requis',
+            })
         }
 
-        // La commune doit exister dans le référentiel.
-        const { data: commune } = await db
-            .from('communes').select('id').eq('id', communeId).maybeSingle()
-        if (!commune) {
-            return res.status(400).json({ error: 'Commune inconnue' })
+        const { data: target } = await db
+            .from(isCommune ? 'communes' : 'departments')
+            .select('id').eq('id', targetId).maybeSingle()
+        if (!target) {
+            return res.status(400).json({
+                error: isCommune ? 'Commune inconnue' : 'Département inconnu',
+            })
         }
 
         // 1. Transaction locale PENDING.
@@ -147,7 +160,7 @@ export async function createBoostCheckout(req: Request, res: Response) {
                 provider: 'FEDAPAY',
                 type: 'PROFILE_BOOST',
                 status: 'PENDING',
-                metadata: { plan, communeId },
+                metadata: { plan, scope: config.scope, targetId },
             })
             .select('id')
             .single()
@@ -161,8 +174,9 @@ export async function createBoostCheckout(req: Request, res: Response) {
         const expiresAt = new Date(Date.now() + config.hours * 3600 * 1000)
         await db.from('profile_boosts').insert({
             profile_id: user.id,
-            scope: 'COMMUNE',
-            commune_id: communeId,
+            scope: config.scope,
+            commune_id: isCommune ? targetId : null,
+            department_id: isCommune ? null : targetId,
             expires_at: expiresAt.toISOString(),
             status: 'PENDING',
             price_paid: config.amount,

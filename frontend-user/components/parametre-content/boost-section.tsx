@@ -12,8 +12,8 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { motion } from "framer-motion"
-import { MapPin, Rocket, AlertCircle, Loader2, Check, Clock, Search } from "lucide-react"
-import { useBoost, BOOST_PLANS, type BoostPlanId } from "@/hooks/use-boost"
+import { MapPin, Rocket, AlertCircle, Loader2, Check, Clock, Search, Globe2 } from "lucide-react"
+import { useBoost, BOOST_PLANS, plansForScope, type BoostScope } from "@/hooks/use-boost"
 import { formatFcfa } from "@/hooks/use-subscription"
 
 /** Reste à courir avant expiration, en langage courant. */
@@ -26,8 +26,10 @@ function remaining(iso: string): string {
 }
 
 export function BoostSection() {
-    const { communes, profileCommuneId, activeBoost, loading, checkoutLoading, error, startBoostCheckout } = useBoost()
+    const { communes, departments, profileCommuneId, activeBoost, loading, checkoutLoading, error, startBoostCheckout } = useBoost()
+    const [scope, setScope] = useState<BoostScope>("COMMUNE")
     const [selected, setSelected] = useState<string>("")
+    const [selectedDept, setSelectedDept] = useState<string>("")
     const [filter, setFilter] = useState("")
 
     // Présélection : la commune du profil, quand elle est connue.
@@ -44,6 +46,7 @@ export function BoostSection() {
     }, [communes, filter])
 
     const busy = checkoutLoading !== null
+    const target = scope === "COMMUNE" ? selected : selectedDept
 
     return (
         <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 space-y-8">
@@ -64,7 +67,7 @@ export function BoostSection() {
                             </span>
                             <div>
                                 <p className="text-sm font-black text-slate-900">
-                                    En vedette à {activeBoost.communeName}
+                                    En vedette {activeBoost.scope === "COMMUNE" ? "à" : "dans le"} {activeBoost.targetName}
                                 </p>
                                 <p className="text-xs font-medium text-slate-600 flex items-center gap-1.5">
                                     <Clock className="h-3.5 w-3.5" />
@@ -91,16 +94,46 @@ export function BoostSection() {
                 </div>
             )}
 
-            {/* ── Choix de la commune ───────────────────────────────────────── */}
+            {/* ── Portée et cible ──────────────────────────────────────────── */}
             <div className="space-y-3">
-                <h5 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                <h5 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Portée du boost</h5>
+
+                <div className="grid grid-cols-2 gap-2">
+                    {([
+                        { id: "COMMUNE" as BoostScope, icon: MapPin, title: "Communale", desc: "Atelier fixe" },
+                        { id: "DEPARTMENT" as BoostScope, icon: Globe2, title: "Départementale", desc: "Pro mobile / PME" },
+                    ]).map((opt) => {
+                        const active = scope === opt.id
+                        return (
+                            <button
+                                key={opt.id}
+                                onClick={() => setScope(opt.id)}
+                                className={`flex items-start gap-2.5 rounded-2xl border p-3.5 text-left transition-colors ${
+                                    active
+                                        ? "border-[#013ff4] bg-[#013ff4]/[0.05]"
+                                        : "border-slate-200 hover:bg-slate-50"
+                                }`}
+                            >
+                                <opt.icon className={`mt-0.5 h-4 w-4 shrink-0 ${active ? "text-[#013ff4]" : "text-slate-400"}`} />
+                                <span className="min-w-0">
+                                    <span className={`block text-xs font-black ${active ? "text-[#013ff4]" : "text-slate-800"}`}>
+                                        {opt.title}
+                                    </span>
+                                    <span className="block text-[11px] font-medium text-slate-500">{opt.desc}</span>
+                                </span>
+                            </button>
+                        )
+                    })}
+                </div>
+
+                <h5 className="pt-2 text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
                     <MapPin className="h-3.5 w-3.5 text-[#013ff4]" />
-                    Commune ciblée
+                    {scope === "COMMUNE" ? "Commune ciblée" : "Département ciblé"}
                 </h5>
 
                 {loading ? (
                     <div className="h-11 w-full animate-pulse rounded-xl bg-slate-100" />
-                ) : (
+                ) : scope === "COMMUNE" ? (
                     <>
                         <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3">
                             <Search className="h-4 w-4 shrink-0 text-slate-400" />
@@ -134,6 +167,18 @@ export function BoostSection() {
                             </p>
                         )}
                     </>
+                ) : (
+                    <select
+                        value={selectedDept}
+                        onChange={(e) => setSelectedDept(e.target.value)}
+                        aria-label="Département à cibler"
+                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 focus:border-[#013ff4]/40 focus:outline-none"
+                    >
+                        <option value="">— Choisir un département —</option>
+                        {departments.map((d) => (
+                            <option key={d.id} value={d.id}>{d.name}</option>
+                        ))}
+                    </select>
                 )}
             </div>
 
@@ -141,9 +186,9 @@ export function BoostSection() {
             <div className="space-y-4">
                 <h5 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Durée du boost</h5>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    {(Object.keys(BOOST_PLANS) as BoostPlanId[]).map((planId) => {
+                    {plansForScope(scope).map((planId) => {
                         const plan = BOOST_PLANS[planId]
-                        const best = planId === "COMMUNE_30D"
+                        const best = planId.endsWith("_30D")
                         return (
                             <motion.div
                                 key={planId}
@@ -164,8 +209,8 @@ export function BoostSection() {
                                     <p className="text-[11px] font-medium text-slate-400">{plan.duration}</p>
                                 </div>
                                 <button
-                                    onClick={() => startBoostCheckout(planId, selected)}
-                                    disabled={busy || !selected || loading}
+                                    onClick={() => startBoostCheckout(planId, target)}
+                                    disabled={busy || !target || loading}
                                     className={`w-full rounded-xl px-4 py-3 text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${
                                         best
                                             ? "bg-[#013ff4] text-white shadow-lg shadow-[#013ff4]/25 hover:bg-[#0135d0]"
@@ -191,7 +236,7 @@ export function BoostSection() {
 
                 <p className="text-[11px] text-slate-400 font-medium">
                     Paiement MTN MoMo, Moov ou Celtiis. La durée court à partir de la confirmation du paiement.
-                    Un boost met votre profil en tête des recherches de la commune ciblée, à pertinence comparable.
+                    Un boost communal place votre profil en tête des recherches de la commune ; un boost départemental le remonte sur tout le département, juste en dessous des boosts communaux.
                 </p>
             </div>
         </div>
