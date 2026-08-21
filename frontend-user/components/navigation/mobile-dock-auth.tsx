@@ -32,15 +32,32 @@ import { cn } from "@/lib/utils"
 const BRAND = "#013ff4"
 
 /**
- * Encoche concave du bord inférieur de la feuille « Mon espace », alignée sur
- * celle du dock : la feuille épouse la courbe du bouton de recherche central.
+ * Encoche du bord inférieur de la feuille « Mon espace ».
  *
- * Un cercle dont le centre est posé SOUS la feuille n'y découpe qu'un arc.
- * Rayon 64 / décalage 34 ⇒ ~108 px de large sur 30 de profondeur, soit les
- * proportions de l'encoche SVG du dock (100/360 de large, 36/68 de creux).
+ * Ce n'est pas un cercle : on reprend EXACTEMENT la courbe de l'encoche du dock
+ * (path SVG ci-dessous, viewBox 360×68, creux de x=130 à x=230 sur 36 de
+ * profondeur), simplement retournée verticalement — le dock se creuse vers le
+ * bas, la feuille vers le haut. Les deux éléments partagent la même largeur
+ * (max-w-sm), donc les deux courbes se superposent au pixel près.
+ *
+ * Le masque se compose de deux couches : le SVG occupe la bande basse de 36 px,
+ * un aplat couvre tout le reste de la feuille quelle que soit sa hauteur.
  */
-const SHEET_NOTCH =
-  "radial-gradient(circle 64px at 50% calc(100% + 34px), transparent 0 64px, #000 64px)"
+const NOTCH_HEIGHT = 36
+
+const NOTCH_SVG =
+  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 36' preserveAspectRatio='none'%3E%3Cpath d='M0,0 L360,0 L360,36 L230,36 C218,36 210,28 206,20 C200,8 190,0 180,0 C170,0 160,8 154,20 C150,28 142,36 130,36 L0,36 Z' fill='%23fff'/%3E%3C/svg%3E\")"
+
+const SHEET_NOTCH_STYLE = {
+  WebkitMaskImage: `${NOTCH_SVG}, linear-gradient(#000, #000)`,
+  maskImage: `${NOTCH_SVG}, linear-gradient(#000, #000)`,
+  WebkitMaskSize: `100% ${NOTCH_HEIGHT}px, 100% calc(100% - ${NOTCH_HEIGHT}px)`,
+  maskSize: `100% ${NOTCH_HEIGHT}px, 100% calc(100% - ${NOTCH_HEIGHT}px)`,
+  WebkitMaskPosition: "bottom, top",
+  maskPosition: "bottom, top",
+  WebkitMaskRepeat: "no-repeat, no-repeat",
+  maskRepeat: "no-repeat, no-repeat",
+} as const
 
 interface DockItem {
   name: string
@@ -119,8 +136,8 @@ export function MobileDockAuth() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 20, scale: 0.95 }}
               transition={{ type: "spring", stiffness: 420, damping: 32 }}
-              className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-[32px] border border-slate-200/90 bg-white/95 p-1 pb-7 shadow-[0_24px_60px_-12px_rgba(15,23,42,0.3)] backdrop-blur-2xl"
-              style={{ WebkitMaskImage: SHEET_NOTCH, maskImage: SHEET_NOTCH }}
+              className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-[32px] border border-slate-200/90 bg-white/95 p-1 pb-10 shadow-[0_24px_60px_-12px_rgba(15,23,42,0.3)] backdrop-blur-2xl"
+              style={SHEET_NOTCH_STYLE}
             >
               {/* Poignée d'entraînement (Drag handle) */}
               <div className="flex justify-center pt-2 pb-0.5">
