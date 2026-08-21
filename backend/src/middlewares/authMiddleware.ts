@@ -58,6 +58,29 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
       });
     }
 
+    // Suspension prononcée par un administrateur.
+    // Elle est stockée dans user_profiles (is_suspended / suspended_until), pas
+    // dans les métadonnées d'auth : sans ce contrôle, un compte suspendu resterait
+    // bloqué par le middleware Next côté client mais garderait l'accès à l'API.
+    // L'échéance est évaluée ici, pour qu'une suspension temporaire expire d'elle-même.
+    const { data: profile } = await supabase
+      .from('user_profiles')
+      .select('is_suspended, suspended_until')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    if (profile?.is_suspended) {
+      const until = profile.suspended_until ? new Date(profile.suspended_until) : null;
+      if (!until || until.getTime() > Date.now()) {
+        return res.status(403).json({
+          error: 'Compte suspendu',
+          message: until
+            ? `Votre compte est suspendu jusqu'au ${until.toLocaleDateString('fr-FR')}.`
+            : 'Votre compte est suspendu. Contactez le support.',
+        });
+      }
+    }
+
     // Injection de l'utilisateur dans l'objet Request pour les controllers suivants
     (req as any).user = user;
     
