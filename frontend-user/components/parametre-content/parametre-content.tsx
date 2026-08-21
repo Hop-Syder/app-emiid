@@ -10,7 +10,7 @@
 
 "use client"
 
-import { User, Shield, Bell, Settings, Star, LogOut, X, FileText, Share2, Clock, BadgeCheck } from "lucide-react"
+import { User, Shield, Bell, Settings, Star, LogOut, X, FileText, Share2, Clock, BadgeCheck, Rocket } from "lucide-react"
 import { Preloader } from "@/components/Preloader"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
@@ -23,6 +23,7 @@ import { SecuritySection } from "./security-section"
 import { NotificationsSection } from "./notifications-section"
 import { PreferencesSection } from "./preferences-section"
 import { PlanSection } from "./plan-section"
+import { BoostSection } from "./boost-section"
 import { useSettings, TabId } from "@/hooks/use-settings"
 
 const TABS: { id: TabId; label: string; icon: React.ElementType; desc: string }[] = [
@@ -35,6 +36,7 @@ const TABS: { id: TabId; label: string; icon: React.ElementType; desc: string }[
   { id: "notifications",  label: "Notifications", icon: Bell,       desc: "Alertes et préférences de messages" },
   { id: "preferences",    label: "Préférences",   icon: Settings,   desc: "Langue, thème et confidentialité" },
   { id: "plan",           label: "Abonnement",    icon: Star,       desc: "Gérez votre offre EmiID Premium" },
+  { id: "boost",          label: "Boost",         icon: Rocket,     desc: "Mise en avant dans votre commune" },
 ]
 
 export function ParametresContent() {
@@ -93,6 +95,7 @@ export function ParametresContent() {
     notifications: <NotificationsSection settings={notificationSettings} setSettings={setNotificationSettings} saving={saving} handleSave={() => saveSettings({ notification_preferences: notificationSettings }, "Notifications mises à jour")} handleCancel={handleCancel} />,
     preferences:   <PreferencesSection  settings={preferences}           setSettings={setPreferences}           saving={saving} handleSave={() => saveSettings({ app_preferences: preferences },              "Préférences mises à jour")}  handleCancel={handleCancel} />,
     plan:          <PlanSection profile={profile} />,
+    boost:         <BoostSection />,
   }
 
   return (

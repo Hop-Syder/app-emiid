@@ -265,6 +265,8 @@ export async function GET(request: NextRequest) {
                 category: e.category || "",
                 verified: !!e.is_verified,
                 premium: !!e.is_premium,
+                // Mise en vedette payante dans la commune recherchée (spec §2.A).
+                boosted: boostedIds.has(e.id ?? ''),
                 followers: e.followers_count || 0,
                 isFollowed: false, // Sera résolu côté client si l'utilisateur est connecté
                 tags: e.profile_tags?.map((pt: ProfileTagJoin) => pt.tags?.name).filter(Boolean) || [],

@@ -459,6 +459,45 @@ export interface Database {
         }
         Relationships: []
       }
+      // Référentiel territorial + boosts (migration 20260824).
+      departments: {
+        Row: { id: string; name: string; created_at: string }
+        Insert: { name: string }
+        Update: { name?: string }
+        Relationships: []
+      }
+      communes: {
+        Row: { id: string; name: string; department_id: string; created_at: string }
+        Insert: { name: string; department_id: string }
+        Update: { name?: string; department_id?: string }
+        Relationships: []
+      }
+      profile_boosts: {
+        Row: {
+          id: string
+          profile_id: string
+          scope: 'COMMUNE' | 'DEPARTMENT'
+          commune_id: string | null
+          department_id: string | null
+          starts_at: string
+          expires_at: string
+          status: 'PENDING' | 'ACTIVE' | 'EXPIRED' | 'CANCELLED'
+          price_paid: number
+          transaction_id: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          profile_id: string
+          scope?: string
+          commune_id?: string | null
+          expires_at: string
+          price_paid: number
+          transaction_id?: string | null
+        }
+        Update: { status?: string; starts_at?: string; expires_at?: string }
+        Relationships: []
+      }
       // Monétisation (migration 20260823). Lecture seule côté client (RLS).
       subscriptions: {
         Row: {
