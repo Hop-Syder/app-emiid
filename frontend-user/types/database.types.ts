@@ -770,6 +770,15 @@ export interface Database {
         Args: { query_embedding: number[]; match_count?: number; min_similarity?: number }
         Returns: { profile_id: string; similarity: number }[]
       }
+      // Boosts communaux et référentiel territorial. Cf. migration 20260824.
+      resolve_commune_id: {
+        Args: { p_label: string }
+        Returns: string | null
+      }
+      active_boosted_profile_ids: {
+        Args: { p_commune_id: string }
+        Returns: { profile_id: string }[]
+      }
       // Tracking des métriques profil (vues / clics). Cf. migration 20260823.
       increment_profile_metric: {
         Args: { p_profile_id: string; p_metric: string }
