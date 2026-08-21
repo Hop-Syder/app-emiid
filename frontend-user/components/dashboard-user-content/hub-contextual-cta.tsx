@@ -1,12 +1,13 @@
 "use client"
 
 import Link from "next/link"
-import { toast } from "sonner"
+import { useRouter } from "next/navigation"
 import { ArrowRight, Crown, Sparkles, UserCircle } from "lucide-react"
 import { useCurrentUserProfile } from "@/hooks/use-current-user-profile"
 import { Button } from "@/components/ui/button"
 
 export function HubContextualCta() {
+  const router = useRouter()
   const { currentUser, session } = useCurrentUserProfile()
 
   // Wait for the backend data to load (has_profile becomes defined)
@@ -94,11 +95,7 @@ export function HubContextualCta() {
           Passe Premium pour apparaître en tête des résultats, accéder aux statistiques avancées et débloquer toutes les fonctionnalités.
         </p>
         <Button
-          onClick={() =>
-            toast("Premium arrive bientôt ✨", {
-              description: "La mise en avant et les statistiques avancées seront disponibles prochainement.",
-            })
-          }
+          onClick={() => router.push("/parametres?tab=plan")}
           className="group/btn relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 text-slate-900 font-bold px-10 h-14 shadow-[0_0_40px_-10px_rgba(245,158,11,0.4)] hover:shadow-[0_0_40px_-5px_rgba(245,158,11,0.6)] transition-all duration-300 hover:scale-105 border-0"
         >
           <div className="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300" />

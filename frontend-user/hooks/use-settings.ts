@@ -104,6 +104,21 @@ export function useSettings() {
   const isMountedRef = useRef(true)
 
   const [activeTab, setActiveTab] = useState<TabId>("profil")
+
+  // Ouverture directe d'un onglet via ?tab= (liens internes, retour de paiement
+  // FedaPay…). Lu depuis window plutôt que useSearchParams : pas de contrainte
+  // de Suspense, et la valeur est validée contre la liste des onglets connus.
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    const requested = new URLSearchParams(window.location.search).get("tab")
+    const known: TabId[] = [
+      "profil", "apropos", "reseaux", "horaires", "verification",
+      "securite", "notifications", "preferences", "plan", "boost",
+    ]
+    if (requested && (known as string[]).includes(requested)) {
+      setActiveTab(requested as TabId)
+    }
+  }, [])
   const [loadingStatus, setLoadingStatus] = useState<"loading" | "success" | "error">("loading")
   const [saving, setSaving] = useState(false)
   const [notificationSettings, setNotificationSettings] = useState(defaultNotificationSettings)

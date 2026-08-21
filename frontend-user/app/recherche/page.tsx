@@ -207,7 +207,7 @@ export default function RecherchePage() {
                             </div>
                             <div className="min-w-0">
                                 <p className="text-sm font-bold">Assistant de recherche</p>
-                                <p className="text-xs text-white/80">Bientôt : des recommandations de profils adaptées à votre besoin.</p>
+                                <p className="text-xs text-white/80">Sans résultat, il vous suggère des pistes adaptées à votre besoin.</p>
                             </div>
                         </div>
                     </div>

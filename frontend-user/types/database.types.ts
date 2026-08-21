@@ -809,6 +809,15 @@ export interface Database {
         Args: { query_embedding: number[]; match_count?: number; min_similarity?: number }
         Returns: { profile_id: string; similarity: number }[]
       }
+      // Statistiques de l'annuaire (pays / tags). Cf. migration 20260826.
+      get_top_countries: {
+        Args: Record<string, never>
+        Returns: { id: string; iso_code: string; name: string; count: number }[]
+      }
+      get_popular_tags: {
+        Args: { max_results?: number }
+        Returns: { id: string; name: string; count: number }[]
+      }
       // Boosts communaux et référentiel territorial. Cf. migration 20260824.
       resolve_commune_id: {
         Args: { p_label: string }
