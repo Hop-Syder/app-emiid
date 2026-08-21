@@ -85,6 +85,32 @@ Aucun de ces cas ne casse la recherche.
 
 ---
 
+## Langage parlé — correctif (migration `20260828`)
+
+« je recherche un artisan » ne renvoyait **aucun** résultat, alors que des
+artisans existent.
+
+**Cause :** `websearch_to_tsquery` applique un **ET implicite**. Le dictionnaire
+français écarte « je » et « un » (mots vides) mais **pas « recherche »** : la
+requête devenait `recherch & artisan`, et aucun profil ne contient ce mot. La
+dictée vocale produisant systématiquement ce type de phrase, le problème était
+structurel, pas marginal.
+
+**Réponse en deux temps :**
+1. les **formulations de requête** sont retirées avant analyse (« je cherche »,
+   « il me faut », « svp »…) ; si le nettoyage vide la saisie, on repart de
+   l'originale ;
+2. si le ET ne donne rien, on retombe sur un **OU** entre les termes restants —
+   une correspondance partielle vaut mieux qu'une page vide.
+
+Le classement distingue les deux cas : correspondance complète d'abord
+(socle 0,60), partielle ensuite (socle 0,25). Les **catégories** restent
+couvertes par le poids A du `search_vector` : « artisan » atteint donc
+`category = 'Artisan'` sans qu'aucun filtre ne soit posé.
+
+**Dictée vocale :** la fin de la dictée vaut validation — la recherche part
+automatiquement (`VOICE_SUBMIT_DELAY_MS`, page `/recherche`).
+
 ## Classement des résultats — hiérarchisation  *(actif)*
 
 Décision : **pertinence d'abord + bonus statut**, avec **cascade pondérée** des
