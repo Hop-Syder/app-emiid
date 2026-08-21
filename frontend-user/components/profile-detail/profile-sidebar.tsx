@@ -8,12 +8,15 @@
  * 📧 daoudaabassichristian@gmail.com
  */
 
-import { Calendar, Check, Copy, Download, ExternalLink, Globe, Mail, Phone, Share, Share2 } from "lucide-react"
+import { Calendar, Check, Copy, Download, ExternalLink, Globe, Mail, MessageCircle, Phone, Share, Share2 } from "lucide-react"
+import { trackProfileMetric } from "@/lib/track-profile"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
 interface ProfileSidebarProps {
     profile: {
+        id?: string | null
+        name?: string | null
         email?: string | null
         phone?: string | null
         website?: string | null
@@ -24,6 +27,19 @@ interface ProfileSidebarProps {
     copyToClipboard: (url: string) => void
     setIsShareModalOpen: (open: boolean) => void
     downloadVCard: () => void
+}
+
+/**
+ * Normalise un numero pour wa.me / tel:.
+ * Regle : un numero deja international (prefixe « + ») est conserve tel quel ;
+ * sinon on applique l'indicatif Benin (229) s'il est absent.
+ */
+function toInternational(raw: string): string {
+    const digits = raw.replace(/\D/g, "")
+    if (!digits) return ""
+    if (raw.trim().startsWith("+")) return digits
+    if (digits.startsWith("229")) return digits
+    return `229${digits}`
 }
 
 export function ProfileSidebar({
@@ -73,6 +89,32 @@ export function ProfileSidebar({
                         </div>
                     )}
                 </div>
+
+                {/* Actions 1-clic : WhatsApp et appel direct */}
+                {profile.phone && (
+                    <div className="mt-5 grid grid-cols-2 gap-2">
+                        <a
+                            href={`https://wa.me/${toInternational(profile.phone)}?text=${encodeURIComponent(
+                                `Bonjour ${profile.name || ""}, je vous ai trouve sur EmiID.`.replace(/\s+/g, " ").trim()
+                            )}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={() => trackProfileMetric(profile.id, "whatsapp")}
+                            className="flex h-11 items-center justify-center gap-2 rounded-2xl bg-[#059669] text-xs font-black text-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#047857]"
+                        >
+                            <MessageCircle className="h-4 w-4" />
+                            WhatsApp
+                        </a>
+                        <a
+                            href={`tel:+${toInternational(profile.phone)}`}
+                            onClick={() => trackProfileMetric(profile.id, "call")}
+                            className="flex h-11 items-center justify-center gap-2 rounded-2xl bg-[#0F172A] text-xs font-black text-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-slate-800"
+                        >
+                            <Phone className="h-4 w-4" />
+                            Appeler
+                        </a>
+                    </div>
+                )}
 
                 {profile.website && (
                     <Button

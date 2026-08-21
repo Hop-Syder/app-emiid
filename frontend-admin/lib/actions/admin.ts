@@ -631,8 +631,95 @@ export async function toggleUserVerified(userId: string, isVerified: boolean) {
   return updateUserProfile(userId, { is_verified: isVerified })
 }
 
+/**
+ * Accorde ou révoque le statut Pro d'un utilisateur.
+ *
+ * IMPORTANT : n'écrit PAS `user_profiles.is_premium` directement. Depuis la
+ * migration 20260823, cette colonne est DÉRIVÉE de la table `subscriptions`
+ * par le trigger `sync_is_premium` — une écriture manuelle serait écrasée au
+ * prochain changement d'abonnement et créerait un état incohérent
+ * (is_premium = true sans abonnement correspondant).
+ *
+ * L'octroi administratif crée un abonnement PRO_MONTHLY sans échéance
+ * (`end_date = null` = actif tant qu'il n'est pas révoqué). La révocation passe
+ * l'abonnement en CANCELLED. Dans les deux cas, le trigger met `is_premium` à
+ * jour automatiquement. Les paiements réels restent tracés dans
+ * `payment_transactions`.
+ */
 export async function toggleUserPremium(userId: string, isPremium: boolean) {
-  return updateUserProfile(userId, { is_premium: isPremium })
+  const admin = await requireAdminSession()
+  const supabase = await createAdminClient()
+  const now = new Date().toISOString()
+
+  const { error } = isPremium
+    ? await supabase.from("subscriptions").upsert(
+        {
+          user_id: userId,
+          tier: "PRO_MONTHLY",
+          status: "ACTIVE",
+          start_date: now,
+          end_date: null,      // octroi administratif : pas d'échéance
+          auto_renew: false,
+          updated_at: now,
+        },
+        { onConflict: "user_id" },
+      )
+    : await supabase
+        .from("subscriptions")
+        .update({ status: "CANCELLED", updated_at: now })
+        .eq("user_id", userId)
+
+  if (error) {
+    return { success: false, error: error.message }
+  }
+
+  await logAdminAction(supabase, admin, {
+    action: isPremium ? "subscription.grant_pro" : "subscription.revoke_pro",
+    targetType: "user",
+    targetId: userId,
+    details: { tier: isPremium ? "PRO_MONTHLY" : null, source: "admin" },
+  })
+
+  return { success: true }
+}
+
+/** Abonnement courant d'un utilisateur (lecture seule, pour la fiche admin). */
+export async function getUserSubscription(userId: string): Promise<{
+  tier: string
+  status: string
+  start_date: string | null
+  end_date: string | null
+  auto_renew: boolean
+} | null> {
+  const supabase = await createAdminClient()
+  const { data, error } = await supabase
+    .from("subscriptions")
+    .select("tier, status, start_date, end_date, auto_renew")
+    .eq("user_id", userId)
+    .maybeSingle()
+
+  if (error || !data) return null
+  return data as {
+    tier: string
+    status: string
+    start_date: string | null
+    end_date: string | null
+    auto_renew: boolean
+  }
+}
+
+/** Dernières transactions de paiement d'un utilisateur (traçabilité support). */
+export async function getUserPayments(userId: string, limit = 10) {
+  const supabase = await createAdminClient()
+  const { data, error } = await supabase
+    .from("payment_transactions")
+    .select("id, amount, currency, provider, provider_ref, type, status, created_at")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(limit)
+
+  if (error || !data) return []
+  return data
 }
 
 export async function unlockUserPin(userId: string): Promise<{ success: boolean; error?: string }> {
@@ -1963,11 +2050,34 @@ export async function sendCampaign(input: {
 // P2 #10 — Fiche utilisateur détaillée
 // ============================================================
 
+export interface SubscriptionInfo {
+  tier: string
+  status: string
+  start_date: string | null
+  end_date: string | null
+  auto_renew: boolean
+}
+
+export interface PaymentInfo {
+  id: string
+  amount: number
+  currency: string
+  provider: string
+  provider_ref: string | null
+  type: string
+  status: string
+  created_at: string
+}
+
 export interface UserDetail {
   reportsAbout: { id: string; reason: string; status: string; created_at: string }[]
   reportsFiledCount: number
   galleryCount: number
   auditTrail: AuditLogEntry[]
+  /** Abonnement courant (null = offre gratuite). Source de verite de is_premium. */
+  subscription: SubscriptionInfo | null
+  /** Dernieres transactions de paiement (tracabilite support). */
+  payments: PaymentInfo[]
 }
 
 /** Enrichissement d'un utilisateur pour la fiche détaillée (signalements, activité, historique admin). */
@@ -1984,10 +2094,22 @@ export async function getUserDetail(profileId: string, userId: string): Promise<
     supabase.from("admin_audit_log").select("*").eq("target_id", userId).order("created_at", { ascending: false }).limit(10),
   ])
 
+  // Monetisation : abonnement courant + dernieres transactions.
+  const [subRes, payRes] = await Promise.all([
+    supabase.from("subscriptions")
+      .select("tier, status, start_date, end_date, auto_renew")
+      .eq("user_id", userId).maybeSingle(),
+    supabase.from("payment_transactions")
+      .select("id, amount, currency, provider, provider_ref, type, status, created_at")
+      .eq("user_id", userId).order("created_at", { ascending: false }).limit(5),
+  ])
+
   return {
     reportsAbout: (aboutRes.data as UserDetail["reportsAbout"]) || [],
     reportsFiledCount: filedRes.error ? 0 : (filedRes.count || 0),
     galleryCount: galleryRes.error ? 0 : (galleryRes.count || 0),
     auditTrail: (auditRes.data as AuditLogEntry[]) || [],
+    subscription: (subRes.error ? null : (subRes.data as SubscriptionInfo | null)) ?? null,
+    payments: (payRes.error ? [] : (payRes.data as PaymentInfo[])) || [],
   }
 }
