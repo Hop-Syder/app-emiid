@@ -8,7 +8,7 @@
 | Phase | Périmètre | État |
 |-------|-----------|------|
 | **1** | Abonnement **Pro** + priorité recherche + **paiement** + analytics profil | ✅ livré |
-| 2 | **Boosts** communaux + référentiel territorial | 🟡 DB + paiement livrés, UI à venir |
+| 2 | **Boosts** communaux + référentiel territorial | ✅ livré |
 | 3 | **B2B Teams / NFC / ONG** | ⏳ sur demande/contrats |
 
 ---
@@ -156,7 +156,19 @@ boost `PENDING` ; le webhook l'active à la confirmation. **La durée achetée c
 à partir du paiement**, pas de la création — un paiement tardif ne consomme pas
 le forfait. Activation idempotente ; échec/annulation ⇒ boost `CANCELLED`.
 
+### UI — ✅ livrée
+**Paramètres → onglet « Boost »** (`components/parametre-content/boost-section.tsx`) :
+- sélecteur de commune alimenté par le référentiel, avec filtre texte et
+  **présélection de la commune du profil** quand elle est connue (message
+  explicite sinon, renvoyant vers l'onglet Profil) ;
+- trois forfaits (500 / 1 200 / 4 000 FCFA), états de chargement et d'erreur ;
+- bandeau **« En vedette à <commune> »** avec le temps restant quand un boost
+  est actif.
+
+**Carte annuaire** : un profil boosté reçoit un **liseré doré** (`#F59E0B`) et
+l'étiquette « En vedette » (spec §2.A). La carte est enveloppée plutôt que ses
+variantes modifiées. L'API expose le drapeau `boosted` par profil.
+
 ### Reste à faire
-- **UI** : sélecteur de commune + achat de boost (onglet Paramètres), et
-  affichage du liseré doré « En vedette » sur la carte annuaire (spec §2.A).
-- Boost **départemental** (Score 3) : structure déjà prête.
+- Boost **départemental** (Score 3) : structure déjà prête (`scope`,
+  `department_id`), il manque la grille tarifaire et l'entrée d'UI.

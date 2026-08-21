@@ -26,6 +26,7 @@ export type TabId =
   | "notifications"
   | "preferences"
   | "plan"
+  | "boost"
 
 export interface OpeningHour {
   day: number // 0 = dimanche … 6 = samedi

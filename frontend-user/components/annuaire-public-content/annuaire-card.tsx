@@ -1,5 +1,7 @@
 "use client"
 
+import { MapPin } from "lucide-react"
+
 import { EmiIDProfileCard } from "@/components/carte-profil/emiid-profile-card"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
@@ -17,6 +19,8 @@ export interface Profile {
     followers: number
     projects?: number
     premium?: boolean
+    /** Mise en avant payante dans la commune recherchée (boost actif). */
+    boosted?: boolean
     id?: string
     slug?: string
     card_variant?: string
@@ -115,7 +119,7 @@ export function AnnuaireCard({ profile, theme = 'default' }: AnnuaireCardProps) 
 
     const activeVariant = profile.premium ? "elite" : (theme === 'red' ? "glass-red" : theme === 'orange' ? "glass-orange" : "glass-orange")
 
-    return (
+    const card = (
         <EmiIDProfileCard 
             user={userData}
             variant={activeVariant}
@@ -124,4 +128,20 @@ export function AnnuaireCard({ profile, theme = 'default' }: AnnuaireCardProps) 
             isLoggedIn={!!session}
         />
     )
+
+    // Profil boosté : liseré doré + étiquette « En vedette » (spec §2.A).
+    // On enveloppe la carte plutôt que d'en modifier les variantes.
+    if (profile.boosted) {
+        return (
+            <div className="relative rounded-[1.6rem] p-[2px] bg-[linear-gradient(135deg,#F59E0B,#FBBF24)] shadow-[0_12px_32px_-10px_rgba(245,158,11,0.55)]">
+                <span className="absolute -top-2.5 left-4 z-10 inline-flex items-center gap-1 rounded-full bg-[#F59E0B] px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-white shadow-sm">
+                    <MapPin className="h-3 w-3" />
+                    En vedette
+                </span>
+                <div className="overflow-hidden rounded-[1.5rem] bg-white">{card}</div>
+            </div>
+        )
+    }
+
+    return card
 }
