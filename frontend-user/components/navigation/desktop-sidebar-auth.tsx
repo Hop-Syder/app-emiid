@@ -1,9 +1,10 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Barre de navigation latérale pour ordinateur (Auth / Connecté) avec icônes SVG Streamline
+ * @description Barre de navigation latérale pour ordinateur — Concept Floating Island Navbar.
+ *              Capsule flottante supérieure centrée avec effet verre dépoli, onglets fluides et menu profil.
  * @created 2026-06-13
- * @updated 2026-06-22
+ * @updated 2026-08-20
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -13,10 +14,11 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { motion } from "framer-motion"
-import { LogOut, User } from "lucide-react"
+import { LogOut, User, Sparkles, Plus, Wallet, Bell, Settings, LayoutGrid, Home, MessageSquare } from "lucide-react"
 import Image from "next/image"
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
+import { useUnreadNotifications } from "@/hooks/use-unread-notifications"
 import { cn } from "@/lib/utils"
 import {
   DropdownMenu,
@@ -28,20 +30,20 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 const privateNavItems = [
-  { name: "Hub", href: "/dashboard-user", svg: "/svg/Home.svg" },
-  { name: "Annuaire", href: "/annuaire", svg: "/svg/Grid.svg" },
-  { name: "Créer mon profil", href: "/creer-profil", svg: "/svg/FileText.svg" },
-  { name: "Messages", href: "/messages", svg: "/svg/MessageSquare.svg" },
-  { name: "Notifications", href: "/notifications", svg: "/svg/notification.svg" },
-  { name: "Portefeuille", href: "/portefeuille", svg: "/svg/Wallet.svg" },
-  { name: "Paramètres", href: "/parametres", svg: "/svg/setting.svg" },
+  { name: "Hub", href: "/dashboard-user", icon: Home },
+  { name: "Annuaire", href: "/annuaire", icon: LayoutGrid },
+  { name: "Messages", href: "/messages", icon: MessageSquare },
+  { name: "Notifications", href: "/notifications", icon: Bell },
+  { name: "Portefeuille", href: "/portefeuille", icon: Wallet },
+  { name: "Paramètres", href: "/parametres", icon: Settings },
 ]
 
 export function DesktopSidebarAuth() {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
-  
+  const unreadCount = useUnreadNotifications()
+
   const [profile, setProfile] = useState<{ avatar_url?: string | null; full_name?: string | null } | null>(null)
 
   useEffect(() => {
@@ -55,7 +57,7 @@ export function DesktopSidebarAuth() {
         })
       }
     }
-    loadProfile()
+    void loadProfile()
   }, [supabase.auth])
 
   const handleLogout = async () => {
@@ -64,98 +66,99 @@ export function DesktopSidebarAuth() {
     router.push("/login")
   }
 
+  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`)
+
   return (
-    <div className="hidden lg:flex fixed left-0 top-0 h-screen w-[88px] hover:w-[240px] transition-all duration-300 z-50 flex-col bg-white/80 dark:bg-white/10 backdrop-blur-2xl border-r border-slate-200 dark:border-white/10 group shadow-2xl">
-      {/* Logo */}
-      <div className="h-24 flex items-center px-4 pt-4">
-        <div className="relative w-14 h-14 min-w-[56px] flex items-center justify-center bg-slate-50 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/10 group-hover:bg-transparent group-hover:border-transparent transition-all">
+    <div className="hidden lg:flex fixed top-4 left-1/2 -translate-x-1/2 z-50 items-center justify-between w-[calc(100%-2rem)] max-w-6xl px-3 py-2 rounded-full border border-slate-200/90 dark:border-white/15 bg-white/90 dark:bg-slate-950/90 backdrop-blur-2xl shadow-[0_16px_40px_rgba(15,23,42,0.18)] pointer-events-auto">
+      {/* ── GAUCHE : Logo & Identité Brand ────────────────────────────── */}
+      <Link href="/dashboard-user" className="flex items-center gap-2.5 pl-2 pr-3 group outline-none shrink-0">
+        <div className="relative flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#013ff4] to-[#1e61ff] shadow-md shadow-blue-500/25 transition-transform group-hover:scale-105">
           <Image
             src="/logo/icon.svg"
             alt="EmiID"
-            width={48}
-            height={48}
-            className="object-contain"
+            width={24}
+            height={24}
+            className="object-contain brightness-0 invert"
           />
         </div>
-        <span className="font-wordmark ml-4 font-black text-xl text-blue-500 dark:text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap tracking-tight">
-          EmiID
+        <span className="font-wordmark text-lg font-black tracking-tight text-slate-900 dark:text-white">
+          Emi<span className="text-[#013ff4]">ID</span>
         </span>
-      </div>
+      </Link>
 
-      {/* Nav Links */}
-      <div className="flex-1 flex flex-col gap-2 px-4 py-8">
+      {/* ── CENTRE : Navigation principale par onglets fluides ─────────── */}
+      <nav aria-label="Navigation Desktop" className="flex items-center gap-1">
         {privateNavItems.map((item) => {
-          const isActive = pathname === item.href
-          
+          const active = isActive(item.href)
+          const Icon = item.icon
+          const hasBadge = item.href === "/notifications" && unreadCount > 0
+
           return (
-            <Link key={item.name} href={item.href} className="relative outline-none">
-              <div
-                className={`flex items-center h-12 rounded-2xl transition-all duration-200 ${
-                  isActive
-                    ? "bg-blue-600/20 text-blue-400"
-                    : "text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-white"
-                }`}
-              >
-                {isActive && (
-                  <motion.div
-                    layoutId="desktop-active-indicator"
-                    className="absolute left-0 w-1 h-8 bg-blue-500 rounded-r-full"
-                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                  />
+            <Link
+              key={item.name}
+              href={item.href}
+              className="relative flex items-center gap-2 px-3.5 py-2 rounded-full text-xs font-bold transition-all outline-none group"
+            >
+              {active && (
+                <motion.span
+                  layoutId="desktop-island-active"
+                  transition={{ type: "spring", stiffness: 450, damping: 35 }}
+                  className="absolute inset-0 rounded-full bg-[#013ff4]/10 dark:bg-[#013ff4]/20 border border-[#013ff4]/20"
+                />
+              )}
+              <span className="relative flex items-center justify-center">
+                <Icon className={cn("h-4 w-4 transition-colors", active ? "text-[#013ff4]" : "text-slate-500 group-hover:text-slate-900 dark:text-slate-400 dark:group-hover:text-white")} />
+                {hasBadge && (
+                  <span className="absolute -top-1 -right-1 flex h-2 w-2 rounded-full bg-rose-500 ring-2 ring-white" />
                 )}
-                <div className="w-14 flex items-center justify-center shrink-0">
-                  <Image
-                    src={item.svg}
-                    alt={item.name}
-                    width={20}
-                    height={20}
-                    className={cn(
-                      "size-5 transition-all duration-300",
-                      isActive
-                        ? "opacity-100 scale-110 saturate-100 filter drop-shadow-[0_0_8px_rgba(99,102,241,0.25)]"
-                        : "opacity-45 scale-100 saturate-50 dark:saturate-25 group-hover:opacity-85 group-hover:scale-105 group-hover:saturate-100"
-                    )}
-                  />
-                </div>
-                <span className="font-semibold text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  {item.name}
-                </span>
-              </div>
+              </span>
+              <span className={cn("relative transition-colors", active ? "text-[#013ff4] font-black" : "text-slate-600 group-hover:text-slate-900 dark:text-slate-300 dark:group-hover:text-white")}>
+                {item.name}
+              </span>
             </Link>
           )
         })}
-      </div>
+      </nav>
 
-      {/* User Profile / Logout Dropdown */}
-      <div className="p-4 mb-4">
+      {/* ── DROITE : Call-to-Action & Profil Utilisateur ──────────────── */}
+      <div className="flex items-center gap-2 pr-1 shrink-0">
+        <Link
+          href="/creer-profil"
+          className="flex h-9 items-center gap-1.5 px-4 rounded-full bg-[#013ff4] hover:bg-[#0135d0] text-white text-xs font-bold shadow-md shadow-blue-500/20 transition-all active:scale-95"
+        >
+          <Plus className="h-3.5 w-3.5" />
+          <span>Créer mon profil</span>
+        </Link>
+
         <DropdownMenu>
-          <DropdownMenuTrigger className="w-full outline-none">
-            <div className="flex items-center h-14 rounded-2xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors cursor-pointer border border-transparent hover:border-slate-200 dark:hover:border-white/10 px-2">
-              <Avatar className="size-10 rounded-xl border border-slate-200 dark:border-white/20 shrink-0">
+          <DropdownMenuTrigger className="outline-none">
+            <div className="flex items-center gap-2 p-1 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer">
+              <Avatar className="h-9 w-9 rounded-full ring-2 ring-slate-200 dark:ring-white/20">
                 <AvatarImage src={profile?.avatar_url || "/profil/avatar.jpg"} />
-                <AvatarFallback className="bg-slate-800 text-white rounded-xl">
-                  {profile?.full_name?.substring(0, 2).toUpperCase() || <User className="size-5" />}
+                <AvatarFallback className="bg-slate-900 text-white rounded-full text-xs font-bold">
+                  {profile?.full_name?.substring(0, 2).toUpperCase() || <User className="h-4 w-4" />}
                 </AvatarFallback>
               </Avatar>
-              <div className="ml-3 flex-1 text-left overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <p className="text-sm font-bold text-slate-900 dark:text-white truncate">
-                  {profile?.full_name || "Profil"}
-                </p>
-                <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold">
-                  Compte Élite
-                </p>
-              </div>
             </div>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" side="right" sideOffset={10} className="w-56 bg-slate-900 border-slate-800 text-slate-200 rounded-2xl p-2 shadow-2xl">
-            <DropdownMenuItem asChild className="rounded-xl cursor-pointer hover:bg-slate-800 focus:bg-slate-800">
-              <Link href="/profil" className="flex items-center">
-                <User className="mr-2 size-4" /> Mon Profil Public
+          <DropdownMenuContent align="end" sideOffset={12} className="w-60 bg-slate-950/95 border-slate-800 backdrop-blur-2xl text-slate-100 rounded-3xl p-2 shadow-2xl z-50">
+            <div className="px-3 py-2 border-b border-slate-800 mb-1">
+              <p className="text-sm font-bold text-white truncate">{profile?.full_name || "Mon compte"}</p>
+              <p className="text-[10px] text-blue-400 font-bold uppercase tracking-wider">Membre Certifié EmiID</p>
+            </div>
+            <DropdownMenuItem asChild className="rounded-xl cursor-pointer hover:bg-slate-900 focus:bg-slate-900 text-xs font-semibold">
+              <Link href="/profil" className="flex items-center gap-2 py-2">
+                <User className="h-4 w-4 text-blue-400" /> Voir mon profil public
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuSeparator className="bg-slate-800 my-2" />
-            <DropdownMenuItem onClick={handleLogout} className="rounded-xl cursor-pointer text-red-400 hover:text-red-300 hover:bg-red-500/10 focus:text-red-300 focus:bg-red-500/10">
-              <LogOut className="mr-2 size-4" /> Déconnexion
+            <DropdownMenuItem asChild className="rounded-xl cursor-pointer hover:bg-slate-900 focus:bg-slate-900 text-xs font-semibold">
+              <Link href="/parametres" className="flex items-center gap-2 py-2">
+                <Settings className="h-4 w-4 text-slate-400" /> Réglages du compte
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator className="bg-slate-800/80 my-1" />
+            <DropdownMenuItem onClick={handleLogout} className="rounded-xl cursor-pointer text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 focus:bg-rose-500/10 text-xs font-bold py-2">
+              <LogOut className="h-4 w-4 mr-2" /> Se déconnecter
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -163,3 +166,4 @@ export function DesktopSidebarAuth() {
     </div>
   )
 }
+

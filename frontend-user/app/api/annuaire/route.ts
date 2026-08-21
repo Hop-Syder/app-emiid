@@ -39,8 +39,9 @@ export async function GET(request: NextRequest) {
                 profile_tags(tags(name))
             `, { count: 'exact' })
             
-        // Tri : D'abord les Premium, puis les plus récents
+        // Tri (navigation sans recherche) : Premium → Vérifié → plus récents
         query = query.order('is_premium', { ascending: false })
+                     .order('is_verified', { ascending: false })
                      .order('created_at', { ascending: false })
 
         // 2. Filtres simples
@@ -183,13 +184,34 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: error.message }, { status: 500 })
         }
 
-        // En recherche : tri par pertinence (clé = id user_profiles renvoyé par la RPC)
+        // En recherche : classement « pertinence d'abord + bonus statut ».
+        //   score_final = pertinence × (1 + 0,30·premium + 0,15·vérifié)
+        //   → un premium/vérifié pertinent remonte, mais un statut hors-sujet
+        //     (pertinence ~0) reste en bas : pas de pollution des résultats.
+        //   Départages à score égal : premium → vérifié → abonnés → récence.
         let rows = ((data || []) as unknown as PublicProfileJoined[])
         if (rankMap) {
-            rows = [...rows].sort(
-                (a, b) => (rankMap!.get((b as unknown as { id: string }).id) ?? 0)
-                        - (rankMap!.get((a as unknown as { id: string }).id) ?? 0)
-            )
+            const PREMIUM_BOOST = 0.30
+            const VERIFIED_BOOST = 0.15
+            const finalScore = (p: PublicProfileJoined) => {
+                const relevance = rankMap!.get(p.id ?? '') ?? 0
+                const boost = 1
+                    + (p.is_premium ? PREMIUM_BOOST : 0)
+                    + (p.is_verified ? VERIFIED_BOOST : 0)
+                return relevance * boost
+            }
+            rows = [...rows].sort((a, b) => {
+                const diff = finalScore(b) - finalScore(a)
+                if (Math.abs(diff) > 1e-9) return diff
+                // Départages
+                const premiumDiff = (b.is_premium ? 1 : 0) - (a.is_premium ? 1 : 0)
+                if (premiumDiff !== 0) return premiumDiff
+                const verifiedDiff = (b.is_verified ? 1 : 0) - (a.is_verified ? 1 : 0)
+                if (verifiedDiff !== 0) return verifiedDiff
+                const followersDiff = (b.followers_count ?? 0) - (a.followers_count ?? 0)
+                if (followersDiff !== 0) return followersDiff
+                return String(b.created_at ?? '').localeCompare(String(a.created_at ?? ''))
+            })
         }
 
         // Transformation format retourné pour le frontend

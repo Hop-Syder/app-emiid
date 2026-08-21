@@ -10,6 +10,8 @@ import publicRoutes from './api/routes/publicRoutes'
 import webhookRoutes from './api/routes/webhookRoutes'
 import referenceRoutes from './api/routes/referenceRoutes'
 import adminMailRoutes from './api/routes/adminMailRoutes'
+import paymentRoutes from './api/routes/paymentRoutes'
+import { handleWebhook } from './controllers/paymentController'
 import { errorHandler } from './middlewares/errorMiddleware'
 import { logger } from './utils/logger'
 import { supabaseAdmin } from './config/supabase'
@@ -67,6 +69,10 @@ export function createApp(): Application {
     },
     credentials: true,
   }))
+  // Webhook FedaPay : la vérification de signature exige le CORPS BRUT, donc
+  // cette route est montée AVANT le parser JSON global (qui consommerait le flux).
+  app.post('/api/payments/webhook', express.raw({ type: '*/*' }), handleWebhook)
+
   // Limite explicite du corps JSON (valeur par défaut d'Express, fixée ici
   // pour rester robuste face aux changements de version).
   app.use(express.json({ limit: '100kb' }))
@@ -132,6 +138,7 @@ export function createApp(): Application {
   app.use('/api/webhooks', webhookRoutes)
   app.use('/api/reference', referenceRoutes)
   app.use('/api/admin', adminMailRoutes)
+  app.use('/api/payments', paymentRoutes)
 
   app.use(errorHandler)
 

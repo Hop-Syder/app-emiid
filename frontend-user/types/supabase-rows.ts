@@ -24,6 +24,7 @@ export interface PublicProfileJoined {
     is_premium?: boolean | null
     card_variant?: string | null
     followers_count?: number | null
+    created_at?: string | null
     country_id?: string | null
     countries?: CountryJoin | CountryJoin[] | null
     profile_tags?: ProfileTagJoin[] | null

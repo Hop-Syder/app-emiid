@@ -459,6 +459,36 @@ export interface Database {
         }
         Relationships: []
       }
+      // Monétisation (migration 20260823). Lecture seule côté client (RLS).
+      subscriptions: {
+        Row: {
+          id: string
+          user_id: string
+          tier: 'FREE' | 'PRO_MONTHLY' | 'PRO_ANNUAL' | 'B2B'
+          status: 'ACTIVE' | 'EXPIRED' | 'CANCELLED' | 'PENDING'
+          start_date: string
+          end_date: string | null
+          auto_renew: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: { user_id: string; tier?: string; status?: string; end_date?: string | null }
+        Update: { tier?: string; status?: string; end_date?: string | null; auto_renew?: boolean }
+        Relationships: []
+      }
+      profile_analytics: {
+        Row: {
+          profile_id: string
+          views_count: number
+          whatsapp_clicks: number
+          call_clicks: number
+          shares_count: number
+          updated_at: string
+        }
+        Insert: { profile_id: string }
+        Update: { views_count?: number; whatsapp_clicks?: number; call_clicks?: number; shares_count?: number }
+        Relationships: []
+      }
       push_subscriptions: {
         Row: {
           id: string
@@ -739,6 +769,11 @@ export interface Database {
       match_profiles_semantic: {
         Args: { query_embedding: number[]; match_count?: number; min_similarity?: number }
         Returns: { profile_id: string; similarity: number }[]
+      }
+      // Tracking des métriques profil (vues / clics). Cf. migration 20260823.
+      increment_profile_metric: {
+        Args: { p_profile_id: string; p_metric: string }
+        Returns: void
       }
     }
     Enums: { [_ in never]: never }

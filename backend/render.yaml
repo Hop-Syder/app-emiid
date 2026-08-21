@@ -23,6 +23,10 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      # Version Node epinglee : Render prenait la derniere disponible (26.x),
+      # trop recente pour les dependances. 22.x = LTS.
+      - key: NODE_VERSION
+        value: "22"
       # Nombre de sauts de proxy devant l'app (Render en place 1 devant le service).
       - key: TRUST_PROXY
         value: "1"
@@ -63,4 +67,14 @@ services:
       - key: VAPID_PRIVATE_KEY
         sync: false
       - key: VAPID_SUBJECT
+        sync: false
+
+      # --- Paiement Mobile Money FedaPay (abonnement Pro) ---
+      - key: FEDAPAY_SECRET_KEY
+        sync: false
+      - key: FEDAPAY_WEBHOOK_SECRET
+        sync: false
+      # Défaut sandbox : https://sandbox-api.fedapay.com/v1 — passer en
+      # https://api.fedapay.com/v1 en production.
+      - key: FEDAPAY_BASE_URL
         sync: false

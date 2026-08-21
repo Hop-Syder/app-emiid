@@ -1,10 +1,10 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Barre de navigation mobile (dock) — design pro clair, aligné charte.
- *              4 destinations + bouton de recherche central (FAB) + feuille « Mon espace ».
+ * @description Barre de navigation mobile (dock) — Design Luxury Glass avec encoche concave SVG.
+ *              Courbures fluides, bouton de recherche central encastré et feuille « Mon espace ».
  * @created 2026-06-13
- * @updated 2026-08-19
+ * @updated 2026-08-20
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -16,9 +16,13 @@ import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import {
-  House, Compass, MessageCircle, User, Search,
+  User,
   Wallet, SquarePen, Bell, Settings, LogOut, ChevronRight, type LucideIcon,
 } from "lucide-react"
+import {
+  HouseIcon, CompassIcon, MessageIcon, UserIcon, SearchIcon,
+  type AnimatedIconHandle,
+} from "@/components/icons/animated"
 import { useState, useEffect, useRef } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useUnreadNotifications } from "@/hooks/use-unread-notifications"
@@ -30,13 +34,13 @@ const BRAND = "#013ff4"
 interface DockItem {
   name: string
   href: string
-  icon: LucideIcon
+  icon: typeof HouseIcon
 }
 
 const NAV_ITEMS: DockItem[] = [
-  { name: "Accueil", href: "/dashboard-user", icon: House },
-  { name: "Annuaire", href: "/annuaire", icon: Compass },
-  { name: "Messages", href: "/messages", icon: MessageCircle },
+  { name: "Accueil", href: "/dashboard-user", icon: HouseIcon },
+  { name: "Annuaire", href: "/annuaire", icon: CompassIcon },
+  { name: "Messages", href: "/messages", icon: MessageIcon },
 ]
 
 export function MobileDockAuth() {
@@ -48,6 +52,9 @@ export function MobileDockAuth() {
 
   const unreadCount = useUnreadNotifications()
   const { session, currentUser } = useCurrentUserProfile()
+
+  const searchRef = useRef<AnimatedIconHandle>(null)
+  const userRef = useRef<AnimatedIconHandle>(null)
 
   const displayName = [currentUser?.first_name, currentUser?.last_name].filter(Boolean).join(" ") || "Mon compte"
   const profileHref = session?.user?.id ? `/profil/${session.user.id}` : "/dashboard-user?view=profile"
@@ -83,7 +90,7 @@ export function MobileDockAuth() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={() => setMenuOpen(false)}
-            className="fixed inset-0 z-40 bg-slate-950/30 backdrop-blur-[3px]"
+            className="fixed inset-0 z-40 bg-slate-950/30 backdrop-blur-[4px]"
           />
         )}
       </AnimatePresence>
@@ -91,22 +98,27 @@ export function MobileDockAuth() {
       <div
         ref={rootRef}
         className="fixed inset-x-0 bottom-0 z-50 flex flex-col items-center gap-3 px-4 pointer-events-none"
-        style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 0.75rem)" }}
+        style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 0.65rem)" }}
       >
-        {/* ── Feuille « Mon espace » ─────────────────────────────────── */}
+        {/* ── Feuille « Mon espace » avec courbures ultra-douces (squircles) ── */}
         <AnimatePresence>
           {menuOpen && (
             <motion.div
-              initial={{ opacity: 0, y: 24, scale: 0.97 }}
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 24, scale: 0.97 }}
-              transition={{ type: "spring", stiffness: 380, damping: 30 }}
-              className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-[0_24px_60px_-15px_rgba(15,23,42,0.35)]"
+              exit={{ opacity: 0, y: 20, scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 420, damping: 32 }}
+              className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-[32px] border border-slate-200/90 bg-white/95 p-1 shadow-[0_24px_60px_-12px_rgba(15,23,42,0.3)] backdrop-blur-2xl"
             >
+              {/* Poignée d'entraînement (Drag handle) */}
+              <div className="flex justify-center pt-2 pb-0.5">
+                <span className="h-1 w-9 rounded-full bg-slate-200/80" />
+              </div>
+
               {/* En-tête profil */}
               <Link
                 href={profileHref}
-                className="flex items-center gap-3 border-b border-slate-100 p-4 transition-colors hover:bg-slate-50"
+                className="flex items-center gap-3 rounded-2xl border-b border-slate-100 p-3.5 transition-colors hover:bg-slate-50/80"
               >
                 {currentUser?.avatar_url ? (
                   <Image
@@ -114,90 +126,126 @@ export function MobileDockAuth() {
                     alt={displayName}
                     width={48}
                     height={48}
-                    className="h-12 w-12 shrink-0 rounded-full object-cover ring-2 ring-slate-100"
+                    className="h-12 w-12 shrink-0 rounded-full object-cover ring-2 ring-[#013ff4]/20 shadow-sm"
                   />
                 ) : (
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#013ff4]/10 ring-2 ring-slate-100">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#013ff4]/10 ring-2 ring-[#013ff4]/20">
                     <User className="h-6 w-6 text-[#013ff4]" />
                   </div>
                 )}
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-bold text-slate-900">{displayName}</p>
-                  <p className="truncate text-xs text-slate-500">Voir mon profil public</p>
+                  <p className="truncate text-xs text-slate-500 font-medium">Voir mon profil public</p>
                 </div>
                 <ChevronRight className="h-4 w-4 shrink-0 text-slate-300" />
               </Link>
 
               {/* Actions */}
-              <nav className="p-2">
+              <nav className="p-1.5 space-y-0.5">
                 <MenuRow href="/portefeuille" icon={Wallet} label="Mon portefeuille" />
                 <MenuRow href="/creer-profil" icon={SquarePen} label="Modifier mon profil" />
                 <MenuRow href="/notifications" icon={Bell} label="Notifications" badge={unreadCount} />
                 <MenuRow href="/parametres" icon={Settings} label="Paramètres" />
 
-                <div className="my-1.5 h-px bg-slate-100" />
+                <div className="my-1.5 h-px bg-slate-100/80" />
 
                 <button
                   onClick={handleLogout}
-                  className="flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left transition-colors hover:bg-rose-50"
+                  className="flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left transition-all hover:bg-rose-50/80 active:scale-[0.99]"
                 >
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-rose-50 text-rose-500">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-rose-50 text-rose-500 shadow-sm">
                     <LogOut className="h-[18px] w-[18px]" />
                   </span>
-                  <span className="text-sm font-semibold text-rose-600">Se déconnecter</span>
+                  <span className="text-sm font-bold text-rose-600">Se déconnecter</span>
                 </button>
               </nav>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* ── Dock ───────────────────────────────────────────────────── */}
-        <nav
-          aria-label="Navigation principale"
-          className="pointer-events-auto flex w-full max-w-sm items-stretch justify-between rounded-[26px] border border-slate-200/80 bg-white/95 px-2 shadow-[0_12px_40px_-10px_rgba(15,23,42,0.28)] backdrop-blur-xl"
-        >
-          {/* 2 items à gauche */}
-          {NAV_ITEMS.slice(0, 2).map((item) => (
-            <DockTab key={item.href} item={item} active={isActive(item.href)} />
-          ))}
+        {/* ── Dock avec découpe concave fluide (Notched SVG Curve) ──────── */}
+        <div className="pointer-events-auto relative w-full max-w-sm h-[68px] filter drop-shadow-[0_16px_36px_rgba(15,23,42,0.22)]">
+          {/* Arrière-plan SVG à courbure concave organique */}
+          <svg
+            viewBox="0 0 360 68"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className="absolute inset-0 h-full w-full pointer-events-none"
+            preserveAspectRatio="none"
+          >
+            <path
+              d="M 28,0 L 130,0 C 142,0 150,8 154,16 C 160,28 170,36 180,36 C 190,36 200,28 206,16 C 210,8 218,0 230,0 L 332,0 C 347.5,0 360,12.5 360,28 L 360,40 C 360,55.5 347.5,68 332,68 L 28,68 C 12.5,68 0,55.5 0,40 L 0,28 C 0,12.5 12.5,0 28,0 Z"
+              className="fill-white/95 backdrop-blur-2xl"
+            />
+            <path
+              d="M 28,0.5 L 130,0.5 C 142,0.5 150,8.5 154,16.5 C 160,28.5 170,36.5 180,36.5 C 190,36.5 200,28.5 206,16.5 C 210,8.5 218,0.5 230,0.5 L 332,0.5 C 347.2,0.5 359.5,12.8 359.5,28 L 359.5,40 C 359.5,55.2 347.2,67.5 332,67.5 L 28,67.5 C 12.8,67.5 0.5,55.2 0.5,40 L 0.5,28 C 0.5,12.8 12.8,0.5 28,0.5 Z"
+              stroke="rgba(226, 232, 240, 0.85)"
+              strokeWidth="1"
+              fill="none"
+            />
+          </svg>
 
-          {/* FAB recherche (centre) */}
-          <div className="relative flex w-16 shrink-0 items-start justify-center">
+          {/* Bouton de recherche encastré dans la courbure concave (FAB) */}
+          <div className="absolute left-1/2 -top-4 -translate-x-1/2 z-20 flex items-center justify-center pointer-events-auto">
             <Link
               href="/recherche"
               aria-label="Rechercher"
-              className="group absolute -top-5 flex h-14 w-14 items-center justify-center rounded-full bg-[#013ff4] text-white shadow-[0_10px_24px_-4px_rgba(1,63,244,0.6)] ring-[5px] ring-white transition-transform active:scale-95"
+              onMouseEnter={() => searchRef.current?.startAnimation()}
+              onClick={() => searchRef.current?.startAnimation()}
+              className="group relative flex h-13 w-13 h-[52px] w-[52px] items-center justify-center rounded-full bg-gradient-to-tr from-[#013ff4] to-[#1e61ff] text-white shadow-[0_8px_24px_-2px_rgba(1,63,244,0.65)] ring-[3.5px] ring-white transition-all active:scale-95 hover:scale-105"
             >
-              <span className="pointer-events-none absolute -inset-1 rounded-full bg-[#03b3f8]/30 blur-md" />
-              <Search className="relative h-6 w-6" />
+              <span className="pointer-events-none absolute -inset-1 rounded-full bg-[#03b3f8]/30 blur-md opacity-80 group-hover:opacity-100 transition-opacity" />
+              <SearchIcon ref={searchRef} size={22} color="#ffffff" className="relative" />
             </Link>
           </div>
 
-          {/* Messages + Espace à droite */}
-          <DockTab item={NAV_ITEMS[2]} active={isActive(NAV_ITEMS[2].href)} />
-
-          <button
-            onClick={() => setMenuOpen((v) => !v)}
-            aria-label="Mon espace"
-            aria-expanded={menuOpen}
-            className="relative flex flex-1 flex-col items-center justify-center gap-1 py-2.5 outline-none"
+          {/* Navigation Items (4 items répartis autour de l'encoche centrale) */}
+          <nav
+            aria-label="Navigation principale"
+            className="relative z-10 flex h-full w-full items-center justify-between px-2 pt-1"
           >
-            <span className="relative flex h-6 w-6 items-center justify-center">
-              <User
-                className="h-[22px] w-[22px] transition-colors"
-                color={menuOpen ? BRAND : "#94a3b8"}
-              />
-              {unreadCount > 0 && (
-                <span className="absolute -right-1.5 -top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-rose-500 px-1 text-[9px] font-black text-white ring-2 ring-white">
-                  {unreadCount > 9 ? "9+" : unreadCount}
-                </span>
+            {/* 2 items à gauche */}
+            <DockTab item={NAV_ITEMS[0]} active={isActive(NAV_ITEMS[0].href)} />
+            <DockTab item={NAV_ITEMS[1]} active={isActive(NAV_ITEMS[1].href)} />
+
+            {/* Spacer central pour le FAB encastré */}
+            <div className="w-14 shrink-0 pointer-events-none" />
+
+            {/* Messages + Espace à droite */}
+            <DockTab item={NAV_ITEMS[2]} active={isActive(NAV_ITEMS[2].href)} />
+
+            <button
+              onClick={() => { setMenuOpen((v) => !v); userRef.current?.startAnimation() }}
+              onMouseEnter={() => userRef.current?.startAnimation()}
+              aria-label="Mon espace"
+              aria-expanded={menuOpen}
+              className="relative flex flex-1 flex-col items-center justify-center gap-0.5 py-2 outline-none group"
+            >
+              {menuOpen && (
+                <motion.span
+                  layoutId="dock-active-user"
+                  transition={{ type: "spring", stiffness: 450, damping: 35 }}
+                  className="absolute inset-x-1.5 inset-y-1 -z-0 rounded-2xl bg-[#013ff4]/[0.09]"
+                />
               )}
-            </span>
-            <span className={cn("text-[10px] font-semibold transition-colors", menuOpen ? "text-[#013ff4]" : "text-slate-400")}>
-              Espace
-            </span>
-          </button>
-        </nav>
+              <span className="relative flex h-6 w-6 items-center justify-center">
+                <UserIcon
+                  ref={userRef}
+                  size={21}
+                  color={menuOpen ? BRAND : "#94a3b8"}
+                />
+                {unreadCount > 0 && (
+                  <span className="absolute -right-1.5 -top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-rose-500 px-1 text-[9px] font-black text-white ring-2 ring-white shadow-sm">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
+              </span>
+              <span className={cn("relative text-[10px] font-bold transition-colors", menuOpen ? "text-[#013ff4]" : "text-slate-500 group-hover:text-slate-800")}>
+                Espace
+              </span>
+            </button>
+          </nav>
+        </div>
       </div>
     </div>
   )
@@ -206,24 +254,34 @@ export function MobileDockAuth() {
 // ── Onglet du dock ────────────────────────────────────────────────────
 function DockTab({ item, active }: { item: DockItem; active: boolean }) {
   const Icon = item.icon
+  const iconRef = useRef<AnimatedIconHandle>(null)
+
+  useEffect(() => {
+    if (active) iconRef.current?.startAnimation()
+  }, [active])
+
   return (
     <Link
       href={item.href}
-      className="relative flex flex-1 flex-col items-center justify-center gap-1 py-2.5 outline-none"
+      onMouseEnter={() => iconRef.current?.startAnimation()}
+      onClick={() => iconRef.current?.startAnimation()}
+      className="relative flex flex-1 flex-col items-center justify-center gap-0.5 py-2 outline-none group"
     >
       {active && (
         <motion.span
           layoutId="dock-active"
-          transition={{ type: "spring", stiffness: 420, damping: 32 }}
-          className="absolute inset-x-2 inset-y-1.5 -z-0 rounded-2xl bg-[#013ff4]/[0.08]"
+          transition={{ type: "spring", stiffness: 450, damping: 35 }}
+          className="absolute inset-x-1.5 inset-y-1 -z-0 rounded-2xl bg-[#013ff4]/[0.09]"
         />
       )}
       <Icon
-        className="relative h-[22px] w-[22px] transition-colors"
+        ref={iconRef}
+        size={21}
         color={active ? BRAND : "#94a3b8"}
         strokeWidth={active ? 2.4 : 2}
+        className="relative transition-transform group-hover:scale-105"
       />
-      <span className={cn("relative text-[10px] font-semibold transition-colors", active ? "text-[#013ff4]" : "text-slate-400")}>
+      <span className={cn("relative text-[10px] font-bold transition-colors", active ? "text-[#013ff4]" : "text-slate-500 group-hover:text-slate-800")}>
         {item.name}
       </span>
     </Link>
@@ -235,14 +293,14 @@ function MenuRow({ href, icon: Icon, label, badge = 0 }: { href: string; icon: L
   return (
     <Link
       href={href}
-      className="flex items-center gap-3 rounded-2xl px-3 py-2.5 transition-colors hover:bg-slate-50"
+      className="flex items-center gap-3 rounded-2xl px-3 py-2.5 transition-all hover:bg-slate-50 active:scale-[0.99]"
     >
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100/80 text-slate-700 shadow-xs">
         <Icon className="h-[18px] w-[18px]" />
       </span>
       <span className="flex-1 text-sm font-semibold text-slate-800">{label}</span>
       {badge > 0 && (
-        <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-rose-500 px-1.5 text-[10px] font-black text-white">
+        <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-rose-500 px-1.5 text-[10px] font-black text-white shadow-xs">
           {badge > 9 ? "9+" : badge}
         </span>
       )}
@@ -250,3 +308,4 @@ function MenuRow({ href, icon: Icon, label, badge = 0 }: { href: string; icon: L
     </Link>
   )
 }
+
