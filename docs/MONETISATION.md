@@ -8,7 +8,7 @@
 | Phase | Périmètre | État |
 |-------|-----------|------|
 | **1** | Abonnement **Pro** + priorité recherche + **paiement** + analytics profil | ✅ livré |
-| 2 | **Boosts** géolocalisés (communal d'abord) + table `communes` | ⏳ à venir |
+| 2 | **Boosts** communaux + référentiel territorial | 🟡 DB + paiement livrés, UI à venir |
 | 3 | **B2B Teams / NFC / ONG** | ⏳ sur demande/contrats |
 
 ---
@@ -106,3 +106,57 @@ Le classement `Score 4→1` du cadrage se branche sur l'existant :
 `Score 2 (Pro Vérifié)` et `Score 1 (Standard)` **fonctionnent déjà** (bonus
 `is_premium`/`is_verified` + FTS pondéré). Les `Score 4/3` (boosts) arrivent en
 Phase 2 via une table `profile_boosts` + un signal au-dessus du premium.
+
+---
+
+## Phase 2 — Boosts communaux (`sql/migrations/20260824_boosts_phase2.sql`)
+
+### Référentiel territorial (prérequis)
+`user_profiles` ne portait que `city` / `district` en **texte libre** : « Cotonou »,
+« cotonou » et « COTONOU » ne se rapprochaient pas, rendant tout ciblage impossible.
+
+- **`departments`** (12) et **`communes`** (77) du Bénin, seedées par la migration.
+- **`normalize_place(text)`** : clé de rapprochement (sans accents, minuscules,
+  séparateurs retirés). Indexée sur `communes`.
+- **`user_profiles.commune_id`** + **rattachement automatique** des profils
+  existants par nom normalisé. Les villes non reconnues restent `NULL` : le profil
+  reste visible, simplement non ciblable tant que sa commune n'est pas choisie.
+- **`resolve_commune_id(label)`** : résout le filtre ville de l'annuaire
+  (« porto novo » → Porto-Novo).
+
+### Boosts
+- **`profile_boosts`** : portée `COMMUNE` (colonne `DEPARTMENT` prévue, non
+  exploitée), fenêtre `starts_at` / `expires_at`, `status`, `price_paid`,
+  `transaction_id` unique. Contrainte : la cible doit correspondre à la portée.
+- **`active_boosted_profile_ids(commune_id)`** : profils boostés actifs d'une
+  commune. **L'expiration est évaluée à la lecture** — aucun cron indispensable.
+- **`expire_boosts()`** : clôture des boosts échus (à planifier, comme
+  `expire_subscriptions()`).
+- RLS : chacun lit ses propres boosts ; l'exposition publique passe uniquement
+  par la fonction `SECURITY DEFINER`. Référentiel lisible par tous.
+
+### Classement (Score 4 du cadrage)
+Dans `app/api/annuaire/route.ts`, quand la recherche cible une ville :
+`score = pertinence × (1 + 1,20·boost + 0,30·premium + 0,15·vérifié)`.
+
+Le boost reste **multiplicatif** : un profil boosté hors-sujet (pertinence nulle)
+n'est pas remonté — on n'affiche pas un couturier quand on cherche un électricien.
+Départage : boost → premium → vérifié → abonnés → récence. Hors recherche, les
+profils boostés de la commune passent en tête.
+
+### Tarifs et paiement
+| Forfait | Durée | Prix |
+|---------|-------|------|
+| `COMMUNE_48H` | 48 h | 500 FCFA |
+| `COMMUNE_7D` | 7 jours | 1 200 FCFA |
+| `COMMUNE_30D` | 30 jours | 4 000 FCFA |
+
+`POST /api/payments/boost/checkout` (authentifié) crée la transaction **et** un
+boost `PENDING` ; le webhook l'active à la confirmation. **La durée achetée court
+à partir du paiement**, pas de la création — un paiement tardif ne consomme pas
+le forfait. Activation idempotente ; échec/annulation ⇒ boost `CANCELLED`.
+
+### Reste à faire
+- **UI** : sélecteur de commune + achat de boost (onglet Paramètres), et
+  affichage du liseré doré « En vedette » sur la carte annuaire (spec §2.A).
+- Boost **départemental** (Score 3) : structure déjà prête.

@@ -23,6 +23,13 @@ const PLANS: Record<string, { amount: number; months: number; label: string }> =
     PRO_ANNUAL: { amount: 10000, months: 12, label: 'Abonnement Pro EmiID (annuel)' },
 }
 
+// Grille des boosts communaux (Phase 2). Le boost départemental viendra ensuite.
+const BOOST_PLANS: Record<string, { amount: number; hours: number; label: string }> = {
+    COMMUNE_48H: { amount: 500, hours: 48, label: 'Boost communal EmiID — 48 heures' },
+    COMMUNE_7D: { amount: 1200, hours: 24 * 7, label: 'Boost communal EmiID — 7 jours' },
+    COMMUNE_30D: { amount: 4000, hours: 24 * 30, label: 'Boost communal EmiID — 30 jours' },
+}
+
 // Le client typé ne connaît pas encore les tables de monétisation → cast souple.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabaseAdmin as any
@@ -102,6 +109,102 @@ export async function createCheckout(req: Request, res: Response) {
     }
 }
 
+// ── POST /api/payments/boost/checkout ─────────────────────────────────────
+export async function createBoostCheckout(req: Request, res: Response) {
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const user = (req as any).user
+        if (!user?.id) return res.status(401).json({ error: 'Authentification requise' })
+
+        const plan = String(req.body?.plan || '')
+        const communeId = String(req.body?.communeId || '')
+        const config = BOOST_PLANS[plan]
+
+        if (!config) {
+            return res.status(400).json({
+                error: 'Forfait invalide',
+                message: 'plan doit être COMMUNE_48H, COMMUNE_7D ou COMMUNE_30D.',
+            })
+        }
+        if (!communeId) {
+            return res.status(400).json({ error: 'Commune requise' })
+        }
+
+        // La commune doit exister dans le référentiel.
+        const { data: commune } = await db
+            .from('communes').select('id').eq('id', communeId).maybeSingle()
+        if (!commune) {
+            return res.status(400).json({ error: 'Commune inconnue' })
+        }
+
+        // 1. Transaction locale PENDING.
+        const { data: tx, error: txErr } = await db
+            .from('payment_transactions')
+            .insert({
+                user_id: user.id,
+                amount: config.amount,
+                currency: 'XOF',
+                provider: 'FEDAPAY',
+                type: 'PROFILE_BOOST',
+                status: 'PENDING',
+                metadata: { plan, communeId },
+            })
+            .select('id')
+            .single()
+
+        if (txErr || !tx) {
+            logger.error('boost checkout: insertion transaction échouée', txErr)
+            return res.status(500).json({ error: 'Impossible de créer la transaction.' })
+        }
+
+        // 2. Boost PENDING, activé seulement au paiement confirmé.
+        const expiresAt = new Date(Date.now() + config.hours * 3600 * 1000)
+        await db.from('profile_boosts').insert({
+            profile_id: user.id,
+            scope: 'COMMUNE',
+            commune_id: communeId,
+            expires_at: expiresAt.toISOString(),
+            status: 'PENDING',
+            price_paid: config.amount,
+            transaction_id: tx.id,
+        })
+
+        // 3. Paiement FedaPay.
+        try {
+            const fp = await createTransaction({
+                amount: config.amount,
+                description: config.label,
+                callbackUrl: `${appUrl()}/parametres?tab=boost&status=callback`,
+                customer: {
+                    firstname: user.user_metadata?.first_name,
+                    lastname: user.user_metadata?.last_name,
+                    email: user.email,
+                    phone: user.phone || user.user_metadata?.phone,
+                },
+            })
+
+            await db.from('payment_transactions')
+                .update({ provider_ref: fp.id, updated_at: new Date().toISOString() })
+                .eq('id', tx.id)
+
+            const { token, url } = await generatePaymentToken(fp.id)
+            return res.json({ transactionId: tx.id, token, url })
+        } catch (fpErr) {
+            logger.error('boost checkout: FedaPay a échoué', fpErr)
+            await db.from('payment_transactions')
+                .update({ status: 'FAILED', updated_at: new Date().toISOString() })
+                .eq('id', tx.id)
+            await db.from('profile_boosts')
+                .update({ status: 'CANCELLED', updated_at: new Date().toISOString() })
+                .eq('transaction_id', tx.id)
+            return res.status(502).json({ error: 'Le service de paiement est indisponible.' })
+        }
+    } catch (err) {
+        logger.error('boost checkout: erreur critique', err)
+        return res.status(500).json({ error: 'Erreur interne.' })
+    }
+}
+
 // ── POST /api/payments/webhook (raw body) ─────────────────────────────────
 export async function handleWebhook(req: Request, res: Response) {
     // req.body = Buffer brut (monté avec express.raw avant le parser JSON).
@@ -135,7 +238,7 @@ export async function handleWebhook(req: Request, res: Response) {
     try {
         const { data: tx } = await db
             .from('payment_transactions')
-            .select('id, user_id, status, metadata')
+            .select('id, user_id, status, type, metadata')
             .eq('provider_ref', providerRef)
             .single()
 
@@ -152,11 +255,18 @@ export async function handleWebhook(req: Request, res: Response) {
                 .update({ status: 'SUCCESS', updated_at: new Date().toISOString() })
                 .eq('id', tx.id)
 
-            await activateSubscription(tx.user_id, String(tx.metadata?.plan || 'PRO_MONTHLY'))
+            if (tx.type === 'PROFILE_BOOST') {
+                await activateBoost(tx.id)
+            } else {
+                await activateSubscription(tx.user_id, String(tx.metadata?.plan || 'PRO_MONTHLY'))
+            }
         } else if (failed) {
             await db.from('payment_transactions')
                 .update({ status: 'FAILED', updated_at: new Date().toISOString() })
                 .eq('id', tx.id)
+            await db.from('profile_boosts')
+                .update({ status: 'CANCELLED', updated_at: new Date().toISOString() })
+                .eq('transaction_id', tx.id)
         }
 
         return res.status(200).json({ received: true })
@@ -204,4 +314,41 @@ async function activateSubscription(userId: string, plan: string) {
         throw new Error(error.message)
     }
     // Le trigger sync_is_premium met user_profiles.is_premium à jour automatiquement.
+}
+
+/** Active le boost associé à une transaction payée. La fenêtre part du paiement. */
+async function activateBoost(transactionId: string) {
+    const { data: boost } = await db
+        .from('profile_boosts')
+        .select('id, expires_at, starts_at, status')
+        .eq('transaction_id', transactionId)
+        .maybeSingle()
+
+    if (!boost) {
+        logger.warn(`activateBoost: aucun boost pour la transaction ${transactionId}`)
+        return
+    }
+    if (boost.status === 'ACTIVE') return // idempotent
+
+    // La durée achetée court à partir de la confirmation, pas de la création.
+    const createdExpiry = new Date(boost.expires_at).getTime()
+    const createdStart = new Date(boost.starts_at).getTime()
+    const durationMs = Math.max(createdExpiry - createdStart, 0)
+    const now = new Date()
+    const expiresAt = new Date(now.getTime() + durationMs)
+
+    const { error } = await db
+        .from('profile_boosts')
+        .update({
+            status: 'ACTIVE',
+            starts_at: now.toISOString(),
+            expires_at: expiresAt.toISOString(),
+            updated_at: now.toISOString(),
+        })
+        .eq('id', boost.id)
+
+    if (error) {
+        logger.error('activateBoost: mise à jour échouée', error)
+        throw new Error(error.message)
+    }
 }

@@ -99,6 +99,21 @@ export async function GET(request: NextRequest) {
             }
         }
 
+        // 4 bis. Boosts communaux (Score 4 du cadrage) : si la recherche cible une
+        //    ville, on récupère les profils dont le boost est actif dans cette
+        //    commune. Résolution tolérante aux accents/casse via resolve_commune_id.
+        let boostedIds: Set<string> = new Set()
+        if (city) {
+            const { data: communeId } = await supabase.rpc('resolve_commune_id', { p_label: city })
+            if (communeId) {
+                const { data: boosted } = await supabase
+                    .rpc('active_boosted_profile_ids', { p_commune_id: communeId as string })
+                boostedIds = new Set(
+                    ((boosted as { profile_id: string }[] | null) || []).map((b) => b.profile_id)
+                )
+            }
+        }
+
         // 5. Recherche textuelle hybride :
         //    ① FTS français + trigram + tags  → search_profile_ids()      (toujours)
         //    ② sémantique (embeddings Gemini) → match_profiles_semantic()  (si dispo)
@@ -190,12 +205,25 @@ export async function GET(request: NextRequest) {
         //     (pertinence ~0) reste en bas : pas de pollution des résultats.
         //   Départages à score égal : premium → vérifié → abonnés → récence.
         let rows = ((data || []) as unknown as PublicProfileJoined[])
+        // Hors recherche : les profils boostés de la commune passent en tête.
+        if (!rankMap && boostedIds.size > 0) {
+            rows = [...rows].sort(
+                (a, b) =>
+                    (boostedIds.has(b.id ?? '') ? 1 : 0) - (boostedIds.has(a.id ?? '') ? 1 : 0)
+            )
+        }
         if (rankMap) {
+            // Boost payant : bonus nettement supérieur au statut, pour placer le
+            // profil en tête de sa commune. Multiplicatif comme les autres : un
+            // profil boosté hors-sujet (pertinence nulle) n'est pas remonté —
+            // on ne montre pas un couturier quand on cherche un électricien.
+            const GEO_BOOST = 1.20
             const PREMIUM_BOOST = 0.30
             const VERIFIED_BOOST = 0.15
             const finalScore = (p: PublicProfileJoined) => {
                 const relevance = rankMap!.get(p.id ?? '') ?? 0
                 const boost = 1
+                    + (boostedIds.has(p.id ?? '') ? GEO_BOOST : 0)
                     + (p.is_premium ? PREMIUM_BOOST : 0)
                     + (p.is_verified ? VERIFIED_BOOST : 0)
                 return relevance * boost
@@ -203,7 +231,10 @@ export async function GET(request: NextRequest) {
             rows = [...rows].sort((a, b) => {
                 const diff = finalScore(b) - finalScore(a)
                 if (Math.abs(diff) > 1e-9) return diff
-                // Départages
+                // Départages : boost géographique, puis statut
+                const boostDiff =
+                    (boostedIds.has(b.id ?? '') ? 1 : 0) - (boostedIds.has(a.id ?? '') ? 1 : 0)
+                if (boostDiff !== 0) return boostDiff
                 const premiumDiff = (b.is_premium ? 1 : 0) - (a.is_premium ? 1 : 0)
                 if (premiumDiff !== 0) return premiumDiff
                 const verifiedDiff = (b.is_verified ? 1 : 0) - (a.is_verified ? 1 : 0)
