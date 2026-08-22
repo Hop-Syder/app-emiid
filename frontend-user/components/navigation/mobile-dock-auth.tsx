@@ -32,6 +32,39 @@ import { cn } from "@/lib/utils"
 const BRAND = "#013ff4"
 
 /**
+ * Silhouette du dock : coins très arrondis et encoche centrale.
+ *
+ * L'encoche est décrite par DEUX cubiques symétriques, et non quatre : chaque
+ * jonction supplémentaire est une occasion de cassure visible, et c'est ce qui
+ * donnait à la courbe précédente son aspect tracé à la main.
+ *
+ * Les quatre tangentes sont horizontales — aux deux raccords avec le bord haut
+ * et de part et d'autre du fond — si bien que la barre s'ouvre et se referme
+ * sans angle. Le fond, large de 96 pour 33 de creux, épouse le bouton central
+ * (≈ 49 de diamètre, halo compris) : celui-ci paraît sortir de la barre plutôt
+ * que posé dessus.
+ *
+ * Symétrie exacte autour de x = 180 : 132↔228, 152↔208, 154↔206.
+ */
+const DOCK_PATH =
+  "M 28,0 L 132,0 C 152,0 154,33 180,33 C 206,33 208,0 228,0 L 332,0 " +
+  "C 347.5,0 360,12.5 360,28 L 360,40 C 360,55.5 347.5,68 332,68 L 28,68 " +
+  "C 12.5,68 0,55.5 0,40 L 0,28 C 0,12.5 12.5,0 28,0 Z"
+
+/**
+ * Masque de la couche de verre.
+ *
+ * `backdrop-filter` ne s'applique pas à un élément SVG : le `backdrop-blur`
+ * posé sur le <path> n'avait donc aucun effet et le dock restait un aplat
+ * opaque. Le flou est désormais porté par une div, découpée à la silhouette
+ * ci-dessus — le verre devient réel.
+ */
+const DOCK_MASK =
+  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 68' preserveAspectRatio='none'%3E%3Cpath d='" +
+  encodeURIComponent(DOCK_PATH) +
+  "' fill='%23fff'/%3E%3C/svg%3E\")"
+
+/**
  * Encoche du bord inférieur de la feuille « Mon espace ».
  *
  * Reprise de l'encoche du dock, mais ÉLARGIE et APLATIE : la courbe du dock
@@ -197,7 +230,21 @@ export function MobileDockAuth() {
 
         {/* ── Dock avec découpe concave fluide (Notched SVG Curve) ──────── */}
         <div className="pointer-events-auto relative w-full max-w-sm h-[68px] filter drop-shadow-[0_16px_36px_rgba(15,23,42,0.22)]">
-          {/* Arrière-plan SVG à courbure concave organique */}
+          {/* Couche de verre : flou réel, découpée à la silhouette du dock. */}
+          <div
+            className="absolute inset-0 bg-white/80 backdrop-blur-2xl"
+            style={{
+              WebkitMaskImage: DOCK_MASK,
+              maskImage: DOCK_MASK,
+              WebkitMaskSize: "100% 100%",
+              maskSize: "100% 100%",
+              WebkitMaskRepeat: "no-repeat",
+              maskRepeat: "no-repeat",
+            }}
+          />
+
+          {/* Contour net par-dessus le verre. vectorEffect évite que le trait
+              soit étiré par preserveAspectRatio="none". */}
           <svg
             viewBox="0 0 360 68"
             fill="none"
@@ -206,14 +253,11 @@ export function MobileDockAuth() {
             preserveAspectRatio="none"
           >
             <path
-              d="M 28,0 L 130,0 C 142,0 150,8 154,16 C 160,28 170,36 180,36 C 190,36 200,28 206,16 C 210,8 218,0 230,0 L 332,0 C 347.5,0 360,12.5 360,28 L 360,40 C 360,55.5 347.5,68 332,68 L 28,68 C 12.5,68 0,55.5 0,40 L 0,28 C 0,12.5 12.5,0 28,0 Z"
-              className="fill-white/95 backdrop-blur-2xl"
-            />
-            <path
-              d="M 28,0.5 L 130,0.5 C 142,0.5 150,8.5 154,16.5 C 160,28.5 170,36.5 180,36.5 C 190,36.5 200,28.5 206,16.5 C 210,8.5 218,0.5 230,0.5 L 332,0.5 C 347.2,0.5 359.5,12.8 359.5,28 L 359.5,40 C 359.5,55.2 347.2,67.5 332,67.5 L 28,67.5 C 12.8,67.5 0.5,55.2 0.5,40 L 0.5,28 C 0.5,12.8 12.8,0.5 28,0.5 Z"
-              stroke="rgba(226, 232, 240, 0.85)"
-              strokeWidth="1"
+              d={DOCK_PATH}
               fill="none"
+              stroke="rgba(226, 232, 240, 0.9)"
+              strokeWidth="1"
+              vectorEffect="non-scaling-stroke"
             />
           </svg>
 
