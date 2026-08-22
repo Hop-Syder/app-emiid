@@ -31,6 +31,37 @@ import { cn } from "@/lib/utils"
 
 const BRAND = "#013ff4"
 
+/**
+ * Encoche du bord inférieur de la feuille « Mon espace ».
+ *
+ * Reprise de l'encoche du dock, mais ÉLARGIE et APLATIE : la courbe du dock
+ * (100 de large pour 36 de creux) formait ici un pic trop marqué, la feuille
+ * la présentant en bosse et non en creux. On passe à 160 de large pour 32 de
+ * haut — même famille de courbe, pente deux fois plus douce.
+ *
+ * Les tangentes sont horizontales aux trois points remarquables (les deux
+ * raccords avec le bord bas et le sommet), ce qui supprime toute cassure
+ * visible : les points de contrôle voisins partagent l'ordonnée du point.
+ *
+ * Le masque se compose de deux couches : le SVG occupe la bande basse, un aplat
+ * couvre le reste de la feuille quelle que soit sa hauteur.
+ */
+const NOTCH_HEIGHT = 32
+
+const NOTCH_SVG =
+  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 32' preserveAspectRatio='none'%3E%3Cpath d='M0,0 L360,0 L360,32 L260,32 C234,32 222,26 212,17 C202,8 193,0 180,0 C167,0 158,8 148,17 C138,26 126,32 100,32 L0,32 Z' fill='%23fff'/%3E%3C/svg%3E\")"
+
+const SHEET_NOTCH_STYLE = {
+  WebkitMaskImage: `${NOTCH_SVG}, linear-gradient(#000, #000)`,
+  maskImage: `${NOTCH_SVG}, linear-gradient(#000, #000)`,
+  WebkitMaskSize: `100% ${NOTCH_HEIGHT}px, 100% calc(100% - ${NOTCH_HEIGHT}px)`,
+  maskSize: `100% ${NOTCH_HEIGHT}px, 100% calc(100% - ${NOTCH_HEIGHT}px)`,
+  WebkitMaskPosition: "bottom, top",
+  maskPosition: "bottom, top",
+  WebkitMaskRepeat: "no-repeat, no-repeat",
+  maskRepeat: "no-repeat, no-repeat",
+} as const
+
 interface DockItem {
   name: string
   href: string
@@ -108,7 +139,8 @@ export function MobileDockAuth() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 20, scale: 0.95 }}
               transition={{ type: "spring", stiffness: 420, damping: 32 }}
-              className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-[32px] border border-slate-200/90 bg-white/95 p-1 shadow-[0_24px_60px_-12px_rgba(15,23,42,0.3)] backdrop-blur-2xl"
+              className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-[32px] border border-slate-200/90 bg-white/95 p-1 pb-10 shadow-[0_24px_60px_-12px_rgba(15,23,42,0.3)] backdrop-blur-2xl"
+              style={SHEET_NOTCH_STYLE}
             >
               {/* Poignée d'entraînement (Drag handle) */}
               <div className="flex justify-center pt-2 pb-0.5">

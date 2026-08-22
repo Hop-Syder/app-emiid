@@ -904,6 +904,52 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
                     </div>
                   </div>
 
+                  {/* Abonnement & paiements (source de vérité de is_premium) */}
+                  {!detailLoading && (
+                    <div className="p-4">
+                      <p className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1.5 mb-2">
+                        <Crown className="h-3.5 w-3.5 text-amber-500" /> Abonnement
+                      </p>
+                      {detail?.subscription ? (
+                        <div className="flex flex-wrap items-center gap-2 text-xs">
+                          <span className="px-2 py-0.5 rounded-full font-bold bg-[#013ff4]/10 text-[#013ff4]">
+                            {detail.subscription.tier}
+                          </span>
+                          <span className={`px-2 py-0.5 rounded-full font-semibold ${
+                            detail.subscription.status === "ACTIVE"
+                              ? "bg-emerald-100 text-emerald-700"
+                              : "bg-slate-100 text-slate-500"
+                          }`}>{detail.subscription.status}</span>
+                          <span className="text-slate-500">
+                            {detail.subscription.end_date
+                              ? `jusqu'au ${new Date(detail.subscription.end_date).toLocaleDateString("fr-FR")}`
+                              : "sans échéance"}
+                          </span>
+                        </div>
+                      ) : (
+                        <p className="text-xs text-slate-400">Offre gratuite — aucun abonnement.</p>
+                      )}
+
+                      {(detail?.payments?.length ?? 0) > 0 && (
+                        <div className="mt-3 space-y-1.5 max-h-32 overflow-y-auto">
+                          {detail!.payments.map((t) => (
+                            <div key={t.id} className="flex items-center justify-between gap-2 text-xs">
+                              <span className="text-slate-600 truncate">
+                                {new Date(t.created_at).toLocaleDateString("fr-FR")} · {t.provider} ·{" "}
+                                {t.amount.toLocaleString("fr-FR")} {t.currency}
+                              </span>
+                              <span className={`shrink-0 px-2 py-0.5 rounded-full font-semibold ${
+                                t.status === "SUCCESS" ? "bg-emerald-100 text-emerald-700"
+                                  : t.status === "PENDING" ? "bg-amber-100 text-amber-700"
+                                  : "bg-rose-100 text-rose-700"
+                              }`}>{t.status}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   {/* Signalements reçus */}
                   {(detail?.reportsAbout?.length ?? 0) > 0 && (
                     <div className="p-4">

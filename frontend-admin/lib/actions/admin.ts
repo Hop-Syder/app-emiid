@@ -77,7 +77,29 @@ export interface DashboardStats {
   systemChecks: SystemCheck[]
   pendingVerifications: number
   activeReports: number
+  /** Chiffre d'affaires encaissé, toutes transactions réussies (FCFA). */
   totalRevenue: number
+  revenue: RevenueStats
+}
+
+/** Revenus réels, lus dans payment_transactions / subscriptions / profile_boosts. */
+export interface RevenueStats {
+  /** Encaissé sur le mois calendaire en cours (FCFA). */
+  monthRevenue: number
+  /** Nombre de transactions réussies ce mois-ci. */
+  monthCount: number
+  /** Abonnements Pro actifs et non échus. */
+  activeSubscriptions: number
+  /** Détail par formule : PRO_MONTHLY, PRO_ANNUAL, B2B. */
+  subscriptionsByTier: { tier: string; count: number }[]
+  /** Boosts en cours (statut ACTIF et fenêtre non expirée). */
+  activeBoosts: number
+  /** Répartition des boosts en cours par portée. */
+  boostsByScope: { scope: string; count: number }[]
+  /** Transactions initiées mais jamais confirmées (indicateur d'abandon). */
+  pendingCount: number
+  /** Dernières transactions réussies, pour vérification rapide. */
+  lastPayments: { id: string; amount: number; type: string; created_at: string }[]
 }
 
 export interface AdminSettings {
@@ -262,6 +284,10 @@ export async function getDashboardStats(days: number = 7): Promise<DashboardStat
   let pendingVerifications = 0
   let activeReports = 0
   let totalRevenue = 0
+  let revenue: RevenueStats = {
+    monthRevenue: 0, monthCount: 0, activeSubscriptions: 0, subscriptionsByTier: [],
+    activeBoosts: 0, boostsByScope: [], pendingCount: 0, lastPayments: [],
+  }
   let usersByCountry: { country: string; count: number }[] = []
   let recentUsers: UserProfile[] = []
   const weeklyActivity: { day: string; users: number }[] = []
@@ -325,9 +351,50 @@ export async function getDashboardStats(days: number = 7): Promise<DashboardStat
       newUsersPrevWeek = prevWeekRes.count || 0
       pendingVerifications = pendingVerifyRes.count || 0
       activeReports = reportsRes.error ? 0 : (reportsRes.count || 0)
-      totalRevenue = premiumProfiles * 10000 // CA estimé à 10 000 XOF/mois par compte premium
     } catch (err) {
       console.error('[Dashboard] Exception in quality counters:', err)
+    }
+
+    // ── Revenus réels ────────────────────────────────────────────────────
+    // Remplace l'ancienne estimation « premiumProfiles × 10 000 », qui inventait
+    // un chiffre d'affaires et se trompait de tarif (le Pro est à 1 000 F/mois).
+    try {
+      const now = new Date()
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+      const nowIso = now.toISOString()
+
+      const [allPaid, monthPaid, pendingRes, subsRes, boostsRes, lastRes] = await Promise.all([
+        supabase.from("payment_transactions").select("amount").eq("status", "SUCCESS"),
+        supabase.from("payment_transactions").select("amount").eq("status", "SUCCESS").gte("created_at", startOfMonth),
+        supabase.from("payment_transactions").select("id", { count: "exact", head: true }).eq("status", "PENDING"),
+        supabase.from("subscriptions").select("tier").eq("status", "ACTIVE").or(`end_date.is.null,end_date.gt.${nowIso}`),
+        supabase.from("profile_boosts").select("scope").eq("status", "ACTIVE").gt("expires_at", nowIso),
+        supabase.from("payment_transactions").select("id, amount, type, created_at").eq("status", "SUCCESS").order("created_at", { ascending: false }).limit(5),
+      ])
+
+      const sum = (rows: { amount: number }[] | null) =>
+        (rows || []).reduce((acc, r) => acc + (r.amount || 0), 0)
+      const groupBy = (rows: Record<string, string>[] | null, key: string) => {
+        const counts = new Map<string, number>()
+        for (const r of rows || []) counts.set(r[key], (counts.get(r[key]) || 0) + 1)
+        return [...counts.entries()].map(([k, count]) => ({ [key]: k, count })) as never[]
+      }
+
+      totalRevenue = sum(allPaid.data as { amount: number }[] | null)
+      revenue = {
+        monthRevenue: sum(monthPaid.data as { amount: number }[] | null),
+        monthCount: (monthPaid.data || []).length,
+        activeSubscriptions: (subsRes.data || []).length,
+        subscriptionsByTier: groupBy(subsRes.data as Record<string, string>[] | null, "tier"),
+        activeBoosts: (boostsRes.data || []).length,
+        boostsByScope: groupBy(boostsRes.data as Record<string, string>[] | null, "scope"),
+        pendingCount: pendingRes.error ? 0 : (pendingRes.count || 0),
+        lastPayments: (lastRes.data || []) as RevenueStats["lastPayments"],
+      }
+    } catch (err) {
+      // Tables de monétisation absentes (migration non jouée) : on reste à zéro
+      // plutôt que d'afficher un chiffre inventé.
+      console.error('[Dashboard] Exception in revenue counters:', err)
     }
 
     // Get users by country
@@ -475,6 +542,7 @@ export async function getDashboardStats(days: number = 7): Promise<DashboardStat
     pendingVerifications,
     activeReports,
     totalRevenue,
+    revenue,
   }
 }
 
@@ -631,8 +699,96 @@ export async function toggleUserVerified(userId: string, isVerified: boolean) {
   return updateUserProfile(userId, { is_verified: isVerified })
 }
 
+/**
+ * Accorde ou révoque le statut Pro d'un utilisateur.
+ *
+ * IMPORTANT : n'écrit PAS `user_profiles.is_premium` directement. Depuis la
+ * migration 20260823, cette colonne est DÉRIVÉE de la table `subscriptions`
+ * par le trigger `sync_is_premium` — une écriture manuelle serait écrasée au
+ * prochain changement d'abonnement et créerait un état incohérent
+ * (is_premium = true sans abonnement correspondant).
+ *
+ * L'octroi administratif crée un abonnement PRO_MONTHLY sans échéance
+ * (`end_date = null` = actif tant qu'il n'est pas révoqué). La révocation passe
+ * l'abonnement en CANCELLED. Dans les deux cas, le trigger met `is_premium` à
+ * jour automatiquement. Les paiements réels restent tracés dans
+ * `payment_transactions`.
+ */
 export async function toggleUserPremium(userId: string, isPremium: boolean) {
-  return updateUserProfile(userId, { is_premium: isPremium })
+  const admin = await requireAdminSession()
+  if (!admin) return { success: false, error: "Non autorisé" }
+  const supabase = await createAdminClient()
+  const now = new Date().toISOString()
+
+  const { error } = isPremium
+    ? await supabase.from("subscriptions").upsert(
+        {
+          user_id: userId,
+          tier: "PRO_MONTHLY",
+          status: "ACTIVE",
+          start_date: now,
+          end_date: null,      // octroi administratif : pas d'échéance
+          auto_renew: false,
+          updated_at: now,
+        },
+        { onConflict: "user_id" },
+      )
+    : await supabase
+        .from("subscriptions")
+        .update({ status: "CANCELLED", updated_at: now })
+        .eq("user_id", userId)
+
+  if (error) {
+    return { success: false, error: error.message }
+  }
+
+  await logAdminAction(supabase, admin, {
+    action: isPremium ? "subscription.grant_pro" : "subscription.revoke_pro",
+    targetType: "user",
+    targetId: userId,
+    details: { tier: isPremium ? "PRO_MONTHLY" : null, source: "admin" },
+  })
+
+  return { success: true }
+}
+
+/** Abonnement courant d'un utilisateur (lecture seule, pour la fiche admin). */
+export async function getUserSubscription(userId: string): Promise<{
+  tier: string
+  status: string
+  start_date: string | null
+  end_date: string | null
+  auto_renew: boolean
+} | null> {
+  const supabase = await createAdminClient()
+  const { data, error } = await supabase
+    .from("subscriptions")
+    .select("tier, status, start_date, end_date, auto_renew")
+    .eq("user_id", userId)
+    .maybeSingle()
+
+  if (error || !data) return null
+  return data as {
+    tier: string
+    status: string
+    start_date: string | null
+    end_date: string | null
+    auto_renew: boolean
+  }
+}
+
+/** Dernières transactions de paiement d'un utilisateur (traçabilité support). */
+export async function getUserPayments(userId: string, limit = 10) {
+  const supabase = await createAdminClient()
+  const { data, error } = await supabase
+    .from("payment_transactions")
+    .select("id, amount, currency, provider, provider_ref, type, status, created_at")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(limit)
+
+  if (error || !data) return []
+  return data
 }
 
 export async function unlockUserPin(userId: string): Promise<{ success: boolean; error?: string }> {
@@ -1963,11 +2119,34 @@ export async function sendCampaign(input: {
 // P2 #10 — Fiche utilisateur détaillée
 // ============================================================
 
+export interface SubscriptionInfo {
+  tier: string
+  status: string
+  start_date: string | null
+  end_date: string | null
+  auto_renew: boolean
+}
+
+export interface PaymentInfo {
+  id: string
+  amount: number
+  currency: string
+  provider: string
+  provider_ref: string | null
+  type: string
+  status: string
+  created_at: string
+}
+
 export interface UserDetail {
   reportsAbout: { id: string; reason: string; status: string; created_at: string }[]
   reportsFiledCount: number
   galleryCount: number
   auditTrail: AuditLogEntry[]
+  /** Abonnement courant (null = offre gratuite). Source de verite de is_premium. */
+  subscription: SubscriptionInfo | null
+  /** Dernieres transactions de paiement (tracabilite support). */
+  payments: PaymentInfo[]
 }
 
 /** Enrichissement d'un utilisateur pour la fiche détaillée (signalements, activité, historique admin). */
@@ -1984,10 +2163,22 @@ export async function getUserDetail(profileId: string, userId: string): Promise<
     supabase.from("admin_audit_log").select("*").eq("target_id", userId).order("created_at", { ascending: false }).limit(10),
   ])
 
+  // Monetisation : abonnement courant + dernieres transactions.
+  const [subRes, payRes] = await Promise.all([
+    supabase.from("subscriptions")
+      .select("tier, status, start_date, end_date, auto_renew")
+      .eq("user_id", userId).maybeSingle(),
+    supabase.from("payment_transactions")
+      .select("id, amount, currency, provider, provider_ref, type, status, created_at")
+      .eq("user_id", userId).order("created_at", { ascending: false }).limit(5),
+  ])
+
   return {
     reportsAbout: (aboutRes.data as UserDetail["reportsAbout"]) || [],
     reportsFiledCount: filedRes.error ? 0 : (filedRes.count || 0),
     galleryCount: galleryRes.error ? 0 : (galleryRes.count || 0),
     auditTrail: (auditRes.data as AuditLogEntry[]) || [],
+    subscription: (subRes.error ? null : (subRes.data as SubscriptionInfo | null)) ?? null,
+    payments: (payRes.error ? [] : (payRes.data as PaymentInfo[])) || [],
   }
 }

@@ -44,6 +44,8 @@ export const getCachedPublicProfile = unstable_cache(
             role,
             bio,
             city,
+            slug,
+            avatar_url,
             profile_tags(tags(name))
         `
         
@@ -90,6 +92,8 @@ export const getProfileForRequest = cache(async (idOrSlug: string) => {
                 role,
                 bio,
                 city,
+                slug,
+                avatar_url,
                 profile_tags(tags(name))
             `)
 
@@ -186,6 +190,9 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     const fullName = data ? `${data.first_name || ''} ${data.last_name || ''}`.trim() : ''
     const skills: string[] = data?.profile_tags?.map((pt: ProfileTagJoin) => pt.tags?.name).filter((n): n is string => Boolean(n)) || []
 
+    // Person enrichi : Google n'affiche une vignette et un rich result complet que
+    // si l'image, l'URL canonique et la zone desservie sont présentes. Les champs
+    // avatar_url et slug doivent donc figurer dans le select ci-dessus.
     const jsonLd = data ? {
         '@context': 'https://schema.org',
         '@type': 'Person',
@@ -195,9 +202,16 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
         image: data.avatar_url || undefined,
         url: `${baseUrl}/profil/${data.slug || id}`,
         ...(skills.length ? { knowsAbout: skills } : {}),
+        ...(data.city ? { areaServed: { '@type': 'City', name: data.city } } : {}),
         address: {
             '@type': 'PostalAddress',
-            addressLocality: data.city || 'Afrique'
+            addressLocality: data.city || 'Afrique',
+            addressCountry: 'BJ'
+        },
+        memberOf: {
+            '@type': 'Organization',
+            name: 'EmiID',
+            url: baseUrl
         }
     } : null
 

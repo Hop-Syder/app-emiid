@@ -327,11 +327,11 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-slate-900">Identité professionnelle</p>
-                <p className="text-xs text-slate-400">KYC — Bientôt disponible</p>
+                <p className="text-xs text-slate-400">Pièces justificatives (CNI, IFU, registre…)</p>
               </div>
             </div>
             <button
-              onClick={() => toast.info("Bientôt disponible", { description: "La vérification KYC sera activée prochainement." })}
+              onClick={() => { window.location.href = "/parametres?tab=verification" }}
               className="ml-3 shrink-0 text-xs font-bold text-slate-600 border border-slate-200 rounded-lg px-3 py-1.5 hover:bg-slate-50 transition-colors"
             >
               Vérifier

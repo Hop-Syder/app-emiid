@@ -41,6 +41,8 @@ export interface PublicProfile {
     category?: string;
     verified: boolean;
     premium: boolean;
+    /** Mise en avant payante dans la commune recherchée (boost actif). */
+    boosted?: boolean;
     followers: number;
     isFollowed?: boolean;
     tags?: string[];

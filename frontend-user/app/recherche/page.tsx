@@ -16,6 +16,11 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, Bell, Search, ArrowRight, Mic, Sparkles } from "lucide-react"
 
+// Délai entre la fin de la dictée et le lancement de la recherche. Assez court
+// pour paraître immédiat, assez long pour que la phrase reconnue s'affiche —
+// l'utilisateur voit ce qui a été compris avant de changer d'écran.
+const VOICE_SUBMIT_DELAY_MS = 30
+
 // Exemples de requêtes en langage naturel (guident l'utilisateur non expert).
 const SUGGESTIONS = [
     "un couturier à Akpakpa",
@@ -29,6 +34,9 @@ export default function RecherchePage() {
     const [query, setQuery] = useState("")
     const [micAvailable, setMicAvailable] = useState(false)
     const [listening, setListening] = useState(false)
+    // Phrase dictée en attente d'envoi : passer par un état évite de capturer
+    // une version périmée de la navigation dans le gestionnaire de l'API vocale.
+    const [dictated, setDictated] = useState<string | null>(null)
     const inputRef = useRef<HTMLInputElement>(null)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const recognitionRef = useRef<any>(null)
@@ -54,6 +62,7 @@ export default function RecherchePage() {
             const transcript = event?.results?.[0]?.[0]?.transcript || ""
             setQuery(transcript)
             setListening(false)
+            if (transcript.trim()) setDictated(transcript.trim())
         }
         recognition.onend = () => setListening(false)
         recognition.onerror = () => setListening(false)
@@ -66,6 +75,17 @@ export default function RecherchePage() {
             }
         }
     }, [])
+
+    // Une dictée vaut validation : l'utilisateur a parlé, il n'a pas à appuyer
+    // sur un bouton en plus.
+    useEffect(() => {
+        if (!dictated) return
+        const timer = setTimeout(() => {
+            router.push(`/annuaire?search=${encodeURIComponent(dictated)}`)
+            setDictated(null)
+        }, VOICE_SUBMIT_DELAY_MS)
+        return () => clearTimeout(timer)
+    }, [dictated, router])
 
     const submit = useCallback(() => {
         const q = query.trim()
@@ -207,7 +227,7 @@ export default function RecherchePage() {
                             </div>
                             <div className="min-w-0">
                                 <p className="text-sm font-bold">Assistant de recherche</p>
-                                <p className="text-xs text-white/80">Bientôt : des recommandations de profils adaptées à votre besoin.</p>
+                                <p className="text-xs text-white/80">Sans résultat, il vous suggère des pistes adaptées à votre besoin.</p>
                             </div>
                         </div>
                     </div>

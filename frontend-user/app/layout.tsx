@@ -11,7 +11,7 @@
 
 import type { Metadata, Viewport } from 'next'
 import { Analytics } from '@vercel/analytics/next'
-import Script from 'next/script'
+import { GoogleAnalytics } from '@/components/analytics/google-analytics'
 import './globals.css'
 
 export const viewport: Viewport = {
@@ -40,6 +40,12 @@ export const metadata: Metadata = {
   authors: [{ name: 'Nexus Partners' }],
   appleWebApp: { capable: true, title: 'EmiID', statusBarStyle: 'black-translucent' },
   other: { 'msapplication-TileColor': '#013ff4' },
+  // Propriété Search Console : requise pour soumettre le sitemap et suivre
+  // l'indexation. Renseigner NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION avec le jeton
+  // fourni par Google (méthode « balise HTML »).
+  ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+    ? { verification: { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION } }
+    : {}),
   openGraph: {
     title: 'EmiID — Votre empreinte numérique professionnelle',
     description: "Crée ta carte de visite numérique et rejoins le réseau de professionnels qui construisent l'Afrique de demain.",
@@ -95,20 +101,10 @@ export default function RootLayout({
   return (
     <html lang="fr" suppressHydrationWarning>
       <body className="font-sans antialiased">
-        {/* Google Analytics 4 — via next/script (afterInteractive), sans <head> manuel
-            afin de laisser la Metadata API de Next gérer entièrement le <head> (SEO). */}
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-KYGF0JWYZE"
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-KYGF0JWYZE');
-          `}
-        </Script>
+        {/* Mesure d'audience. L'identifiant vient de NEXT_PUBLIC_GA_ID et le
+            composant suit les navigations de l'App Router, que gtag ne voit pas
+            seul (aucun rechargement de document entre les pages). */}
+        <GoogleAnalytics />
 
         {/* Données structurées — Organization (logo officiel clair, lisible sur les
             surfaces Google) + WebSite. Aide le knowledge panel à associer la marque. */}
