@@ -32,68 +32,39 @@ import { cn } from "@/lib/utils"
 const BRAND = "#013ff4"
 
 /**
- * Silhouette du dock : coins très arrondis et encoche centrale.
+ * Silhouette du dock : coins arrondis et encoche centrale continue en courbes de Bézier C1.
  *
- * L'encoche est décrite par DEUX cubiques symétriques, et non quatre : chaque
- * jonction supplémentaire est une occasion de cassure visible, et c'est ce qui
- * donnait à la courbe précédente son aspect tracé à la main.
+ * L'encoche est calculée selon des transitions Bézier fluides et symétriques
+ * avec raccords horizontaux tangents aux bords (dx=0 aux sommets et au fond).
+ * Le berceau épouse harmonieusement le bouton de recherche central (FAB)
+ * pour donner l'impression qu'il émerge naturellement de la barre de navigation.
  *
- * Les quatre tangentes sont horizontales — aux deux raccords avec le bord haut
- * et de part et d'autre du fond — si bien que la barre s'ouvre et se referme
- * sans angle. Le fond, large de 96 pour 33 de creux, épouse le bouton central
- * (≈ 49 de diamètre, halo compris) : celui-ci paraît sortir de la barre plutôt
- * que posé dessus.
- *
- * Symétrie exacte autour de x = 180 : 132↔228, 152↔208, 154↔206.
+ * Symétrie axiale autour de x = 180.
  */
 const DOCK_PATH =
-  "M 28,0 L 132,0 C 152,0 154,33 180,33 C 206,33 208,0 228,0 L 332,0 " +
-  "C 347.5,0 360,12.5 360,28 L 360,40 C 360,55.5 347.5,68 332,68 L 28,68 " +
-  "C 12.5,68 0,55.5 0,40 L 0,28 C 0,12.5 12.5,0 28,0 Z"
+  "M 28,0 " +
+  "L 134,0 " +
+  "C 140,0 145,2.5 149,7 " +
+  "C 154,12.5 164,35 180,35 " +
+  "C 196,35 206,12.5 211,7 " +
+  "C 215,2.5 220,0 226,0 " +
+  "L 332,0 " +
+  "C 347.5,0 360,12.5 360,28 " +
+  "L 360,40 " +
+  "C 360,55.5 347.5,68 332,68 " +
+  "L 28,68 " +
+  "C 12.5,68 0,55.5 0,40 " +
+  "L 0,28 " +
+  "C 0,12.5 12.5,0 28,0 " +
+  "Z"
 
 /**
- * Masque de la couche de verre.
- *
- * `backdrop-filter` ne s'applique pas à un élément SVG : le `backdrop-blur`
- * posé sur le <path> n'avait donc aucun effet et le dock restait un aplat
- * opaque. Le flou est désormais porté par une div, découpée à la silhouette
- * ci-dessus — le verre devient réel.
+ * Masque SVG de la couche de verre.
  */
 const DOCK_MASK =
   "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 68' preserveAspectRatio='none'%3E%3Cpath d='" +
   encodeURIComponent(DOCK_PATH) +
   "' fill='%23fff'/%3E%3C/svg%3E\")"
-
-/**
- * Encoche du bord inférieur de la feuille « Mon espace ».
- *
- * Reprise de l'encoche du dock, mais ÉLARGIE et APLATIE : la courbe du dock
- * (100 de large pour 36 de creux) formait ici un pic trop marqué, la feuille
- * la présentant en bosse et non en creux. On passe à 160 de large pour 32 de
- * haut — même famille de courbe, pente deux fois plus douce.
- *
- * Les tangentes sont horizontales aux trois points remarquables (les deux
- * raccords avec le bord bas et le sommet), ce qui supprime toute cassure
- * visible : les points de contrôle voisins partagent l'ordonnée du point.
- *
- * Le masque se compose de deux couches : le SVG occupe la bande basse, un aplat
- * couvre le reste de la feuille quelle que soit sa hauteur.
- */
-const NOTCH_HEIGHT = 32
-
-const NOTCH_SVG =
-  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 32' preserveAspectRatio='none'%3E%3Cpath d='M0,0 L360,0 L360,32 L260,32 C234,32 222,26 212,17 C202,8 193,0 180,0 C167,0 158,8 148,17 C138,26 126,32 100,32 L0,32 Z' fill='%23fff'/%3E%3C/svg%3E\")"
-
-const SHEET_NOTCH_STYLE = {
-  WebkitMaskImage: `${NOTCH_SVG}, linear-gradient(#000, #000)`,
-  maskImage: `${NOTCH_SVG}, linear-gradient(#000, #000)`,
-  WebkitMaskSize: `100% ${NOTCH_HEIGHT}px, 100% calc(100% - ${NOTCH_HEIGHT}px)`,
-  maskSize: `100% ${NOTCH_HEIGHT}px, 100% calc(100% - ${NOTCH_HEIGHT}px)`,
-  WebkitMaskPosition: "bottom, top",
-  maskPosition: "bottom, top",
-  WebkitMaskRepeat: "no-repeat, no-repeat",
-  maskRepeat: "no-repeat, no-repeat",
-} as const
 
 interface DockItem {
   name: string
@@ -172,8 +143,7 @@ export function MobileDockAuth() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 20, scale: 0.95 }}
               transition={{ type: "spring", stiffness: 420, damping: 32 }}
-              className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-[32px] border border-slate-200/90 bg-white/95 p-1 pb-10 shadow-[0_24px_60px_-12px_rgba(15,23,42,0.3)] backdrop-blur-2xl"
-              style={SHEET_NOTCH_STYLE}
+              className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-[32px] border border-slate-200/90 bg-white/95 p-1 pb-3 shadow-[0_24px_60px_-12px_rgba(15,23,42,0.28)] backdrop-blur-2xl"
             >
               {/* Poignée d'entraînement (Drag handle) */}
               <div className="flex justify-center pt-2 pb-0.5">
