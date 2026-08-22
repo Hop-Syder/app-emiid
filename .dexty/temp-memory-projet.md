@@ -6,14 +6,16 @@
 - **Nom** : EmiID
 - **Type** : SaaS (Web App + Backend API + Admin + Commercial)
 - **Initialisé le** : 2026-05-27
-- **Dernière mise à jour** : 2026-07-13
+- **Dernière mise à jour** : 2026-08-22
 
 ## 🛠️ Stack détectée
-- **Frontend** : Next.js, React 19, TailwindCSS, Radix UI
+- **Frontend** : Next.js (App Router), React 19, TailwindCSS, Radix UI, Framer Motion
 - **Backend** : Node.js, Express, TypeScript, WebSockets
-- **Base de données** : Supabase (PostgreSQL)
-- **DevOps** : Concurrently (structure monorepo-like)
-- **Authentification** : Supabase Auth, bcrypt
+- **Base de données** : Supabase (PostgreSQL, RLS, Realtime, Storage, pgvector)
+- **IA / Recherche** : Groq API (LLaMA), Google Gemini / Embeddings, FTS PostgreSQL avec ranking
+- **Paiements** : FedaPay (Mobile Money MTN/Moov/Orange en XOF), Stripe
+- **DevOps** : Concurrently (structure monorepo-like), Render (Backend), Vercel (Frontends)
+- **Authentification** : Supabase Auth, SSR Cookies, bcrypt, PIN protection
 
 ## 🎯 Skills actifs pour ce projet
 > Skills pré-sélectionnés à charger selon la tâche demandée
@@ -154,5 +156,20 @@
   - **Navigation Mobile (`mobile-dock-auth`)** : Implémentation de la navigation minimaliste à 4 icônes principales (Hub, Annuaire, Messages, Espace) et déportation verticale du sous-menu flottant (Portefeuille, Modifier profil, Notifications, Paramètres, Déconnexion) sous forme de Bento vertical élégant.
   - **Sécurité Messagerie (`use-conversation-actions`)** : Remplacement de l'insertion Supabase directe côté client par un appel sécurisé à la route d'API Express `/api/messages/send`, appliquant ainsi les contrôles de sécurité et le rate-limiting centralisé du serveur backend.
   - **Correction Compilation Vercel (`package.json`, `creer-profil-preview`)** : Résolution du manque de la dépendance `@marsidev/react-turnstile` dans le build Vercel. Correction de l'erreur de type TypeScript sur la propriété inexistante `avatar_url` et `premium` dans le composant d'aperçu dynamique du profil en cours de création.
+- [2026-08-19 - 2026-08-23] Monétisation Phase 1 & 2 :
+  - Intégration complète de la passerelle de paiement **FedaPay** (Mobile Money MTN/Moov/Orange en XOF) dans `backend/src/services/fedapay.ts` avec signature webhook et validation idempotente.
+  - Implémentation des abonnements Pro mensuels (1 000 FCFA) et annuels (10 000 FCFA), et des boosts de profil communaux (Score +2) et départementaux (Score +3).
+  - Migration SQL pour référentiel territorial (77 communes du Bénin) et gestion RLS des abonnements / transactions.
+- [2026-08-20 - 2026-08-22] Moteur de Recherche IA & Sémantique :
+  - Recherche FTS PostgreSQL multi-critères avec ranking pondéré (`search_ranking.sql`, `fts_search.sql`).
+  - Intégration des embeddings sémantiques (Gemini / pgvector) et assistant de recherche conversationnel Groq (LLaMA) dans `frontend-user/app/api/search-assistant/route.ts`.
+  - Intégration de la recherche vocale / dictée validante tolérante au langage parlé.
+- [2026-08-22] Cockpit Admin & Données de Démo :
+  - Refonte du tableau de bord admin pour l'affichage des revenus réels encaissés (`payment_transactions`) et suppression de l'estimation de CA fictive.
+  - Ajout des actions 1-clic d'appel et WhatsApp pour la modération et gestion des abonnés.
+  - Création du jeu de données de démonstration réversible et documenté (`docs/JEU_DEMO.md`).
+- [2026-08-22] Navigation Mobile & Luxury Glass :
+  - Refonte de la barre de navigation mobile avec courbes Bézier continues C1 et berceau concave élégant épousant le bouton de recherche central.
+  - Amélioration de l'effet verre réel `backdrop-blur-2xl` via masque SVG de précision `DOCK_MASK`.
 
 

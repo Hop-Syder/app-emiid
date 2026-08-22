@@ -2,8 +2,8 @@
  * @author @hopsyder
  * @organization Nexus Partners
  * @description API REFERENCE - Cartographie exhaustive des points d'entrée (endpoints) backend
- * @version 1.4.0
- * @updated 2026-07-13
+ * @version 1.5.0
+ * @updated 2026-08-22
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  * ──────────────────────────────────
@@ -12,6 +12,14 @@
 # 📡 Points d'Entrée API (Backend) - EmiID Cockpit
 
 Ce document recense de manière exhaustive les endpoints de l'API Express, leurs méthodes HTTP et leurs contrôleurs associés. Toutes les routes privées nécessitent un jeton d'authentification JWT Supabase valide.
+
+---
+
+## 💳 Paiements & Monétisation (`/api/payments`)
+- `POST /api/payments/checkout` : Initialise une session de paiement FedaPay (Abonnement Pro ou Boost de profil) et retourne l'URL de paiement sécurisée.
+- `GET /api/payments/status/:transactionId` : Vérifie et synchronise le statut d'une transaction de paiement.
+- `POST /api/payments/webhook` : Point d'écoute webhook signé pour les notifications asynchrones de FedaPay (idempotent).
+- `GET /api/payments/history` : Récupérer l'historique des transactions et factures de l'utilisateur connecté.
 
 ---
 
