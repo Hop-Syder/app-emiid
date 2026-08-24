@@ -12,6 +12,8 @@
 import type { Metadata, Viewport } from 'next'
 import { Analytics } from '@vercel/analytics/next'
 import { GoogleAnalytics } from '@/components/analytics/google-analytics'
+import { RegisterServiceWorker } from '@/components/pwa/register-sw'
+import { PwaInstallPrompt } from '@/components/pwa/install-prompt'
 import './globals.css'
 
 export const viewport: Viewport = {
@@ -140,6 +142,10 @@ export default function RootLayout({
           <Toaster position="top-right" richColors closeButton />
           <BackendStatusBanner />
           <CookieConsent />
+          {/* PWA : service worker au démarrage (requis pour que Chrome
+              propose l'installation), puis invitation à installer. */}
+          <RegisterServiceWorker />
+          <PwaInstallPrompt />
         </ThemeProvider>
       </body>
     </html>

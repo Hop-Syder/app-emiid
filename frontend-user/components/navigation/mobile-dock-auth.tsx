@@ -32,35 +32,39 @@ import { cn } from "@/lib/utils"
 const BRAND = "#013ff4"
 
 /**
- * Encoche du bord inférieur de la feuille « Mon espace ».
+ * Silhouette du dock : coins arrondis et encoche centrale continue en courbes de Bézier C1.
  *
- * Reprise de l'encoche du dock, mais ÉLARGIE et APLATIE : la courbe du dock
- * (100 de large pour 36 de creux) formait ici un pic trop marqué, la feuille
- * la présentant en bosse et non en creux. On passe à 160 de large pour 32 de
- * haut — même famille de courbe, pente deux fois plus douce.
+ * L'encoche est calculée selon des transitions Bézier fluides et symétriques
+ * avec raccords horizontaux tangents aux bords (dx=0 aux sommets et au fond).
+ * Le berceau épouse harmonieusement le bouton de recherche central (FAB)
+ * pour donner l'impression qu'il émerge naturellement de la barre de navigation.
  *
- * Les tangentes sont horizontales aux trois points remarquables (les deux
- * raccords avec le bord bas et le sommet), ce qui supprime toute cassure
- * visible : les points de contrôle voisins partagent l'ordonnée du point.
- *
- * Le masque se compose de deux couches : le SVG occupe la bande basse, un aplat
- * couvre le reste de la feuille quelle que soit sa hauteur.
+ * Symétrie axiale autour de x = 180.
  */
-const NOTCH_HEIGHT = 32
+const DOCK_PATH =
+  "M 28,0 " +
+  "L 134,0 " +
+  "C 140,0 145,2.5 149,7 " +
+  "C 154,12.5 164,35 180,35 " +
+  "C 196,35 206,12.5 211,7 " +
+  "C 215,2.5 220,0 226,0 " +
+  "L 332,0 " +
+  "C 347.5,0 360,12.5 360,28 " +
+  "L 360,40 " +
+  "C 360,55.5 347.5,68 332,68 " +
+  "L 28,68 " +
+  "C 12.5,68 0,55.5 0,40 " +
+  "L 0,28 " +
+  "C 0,12.5 12.5,0 28,0 " +
+  "Z"
 
-const NOTCH_SVG =
-  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 32' preserveAspectRatio='none'%3E%3Cpath d='M0,0 L360,0 L360,32 L260,32 C234,32 222,26 212,17 C202,8 193,0 180,0 C167,0 158,8 148,17 C138,26 126,32 100,32 L0,32 Z' fill='%23fff'/%3E%3C/svg%3E\")"
-
-const SHEET_NOTCH_STYLE = {
-  WebkitMaskImage: `${NOTCH_SVG}, linear-gradient(#000, #000)`,
-  maskImage: `${NOTCH_SVG}, linear-gradient(#000, #000)`,
-  WebkitMaskSize: `100% ${NOTCH_HEIGHT}px, 100% calc(100% - ${NOTCH_HEIGHT}px)`,
-  maskSize: `100% ${NOTCH_HEIGHT}px, 100% calc(100% - ${NOTCH_HEIGHT}px)`,
-  WebkitMaskPosition: "bottom, top",
-  maskPosition: "bottom, top",
-  WebkitMaskRepeat: "no-repeat, no-repeat",
-  maskRepeat: "no-repeat, no-repeat",
-} as const
+/**
+ * Masque SVG de la couche de verre.
+ */
+const DOCK_MASK =
+  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 68' preserveAspectRatio='none'%3E%3Cpath d='" +
+  encodeURIComponent(DOCK_PATH) +
+  "' fill='%23fff'/%3E%3C/svg%3E\")"
 
 interface DockItem {
   name: string
@@ -139,8 +143,7 @@ export function MobileDockAuth() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 20, scale: 0.95 }}
               transition={{ type: "spring", stiffness: 420, damping: 32 }}
-              className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-[32px] border border-slate-200/90 bg-white/95 p-1 pb-10 shadow-[0_24px_60px_-12px_rgba(15,23,42,0.3)] backdrop-blur-2xl"
-              style={SHEET_NOTCH_STYLE}
+              className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-[32px] border border-slate-200/90 bg-white/95 p-1 pb-3 shadow-[0_24px_60px_-12px_rgba(15,23,42,0.28)] backdrop-blur-2xl"
             >
               {/* Poignée d'entraînement (Drag handle) */}
               <div className="flex justify-center pt-2 pb-0.5">
@@ -197,7 +200,21 @@ export function MobileDockAuth() {
 
         {/* ── Dock avec découpe concave fluide (Notched SVG Curve) ──────── */}
         <div className="pointer-events-auto relative w-full max-w-sm h-[68px] filter drop-shadow-[0_16px_36px_rgba(15,23,42,0.22)]">
-          {/* Arrière-plan SVG à courbure concave organique */}
+          {/* Couche de verre : flou réel, découpée à la silhouette du dock. */}
+          <div
+            className="absolute inset-0 bg-white/80 backdrop-blur-2xl"
+            style={{
+              WebkitMaskImage: DOCK_MASK,
+              maskImage: DOCK_MASK,
+              WebkitMaskSize: "100% 100%",
+              maskSize: "100% 100%",
+              WebkitMaskRepeat: "no-repeat",
+              maskRepeat: "no-repeat",
+            }}
+          />
+
+          {/* Contour net par-dessus le verre. vectorEffect évite que le trait
+              soit étiré par preserveAspectRatio="none". */}
           <svg
             viewBox="0 0 360 68"
             fill="none"
@@ -206,14 +223,11 @@ export function MobileDockAuth() {
             preserveAspectRatio="none"
           >
             <path
-              d="M 28,0 L 130,0 C 142,0 150,8 154,16 C 160,28 170,36 180,36 C 190,36 200,28 206,16 C 210,8 218,0 230,0 L 332,0 C 347.5,0 360,12.5 360,28 L 360,40 C 360,55.5 347.5,68 332,68 L 28,68 C 12.5,68 0,55.5 0,40 L 0,28 C 0,12.5 12.5,0 28,0 Z"
-              className="fill-white/95 backdrop-blur-2xl"
-            />
-            <path
-              d="M 28,0.5 L 130,0.5 C 142,0.5 150,8.5 154,16.5 C 160,28.5 170,36.5 180,36.5 C 190,36.5 200,28.5 206,16.5 C 210,8.5 218,0.5 230,0.5 L 332,0.5 C 347.2,0.5 359.5,12.8 359.5,28 L 359.5,40 C 359.5,55.2 347.2,67.5 332,67.5 L 28,67.5 C 12.8,67.5 0.5,55.2 0.5,40 L 0.5,28 C 0.5,12.8 12.8,0.5 28,0.5 Z"
-              stroke="rgba(226, 232, 240, 0.85)"
-              strokeWidth="1"
+              d={DOCK_PATH}
               fill="none"
+              stroke="rgba(226, 232, 240, 0.9)"
+              strokeWidth="1"
+              vectorEffect="non-scaling-stroke"
             />
           </svg>
 
