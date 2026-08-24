@@ -1,5 +1,6 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { isDevAuthBypass } from '@/lib/dev-auth-bypass'
 
 export async function middleware(request: NextRequest) {
   // 1. Initialisation de la réponse
@@ -122,7 +123,8 @@ export async function middleware(request: NextRequest) {
   // CAS 2 : L'utilisateur N'EST PAS CONNECTÉ (Inconnu)
   // S'il essaie d'aller sur une page privée (ex: /dashboard-user, /messages, /parametres...)
   // -> On le force à aller sur l'Onboarding (/) ou le Login
-  if (!user && (isProtected || !isExplicitPublic)) {
+  // Bypass local : NEXT_PUBLIC_DEV_AUTH_BYPASS=true (dev uniquement) laisse passer sans session.
+  if (!user && !isDevAuthBypass && (isProtected || !isExplicitPublic)) {
     url.pathname = '/login'
     url.searchParams.set('next', `${path}${url.search}`)
     return NextResponse.redirect(url)
