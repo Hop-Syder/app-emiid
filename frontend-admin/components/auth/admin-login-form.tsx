@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button"
  * L'application utilisateur envoyait déjà ce jeton, pas le back-office.
  */
 const TURNSTILE_SITE_KEY =
-  process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "0x4AAAAAAD1DSmbgkt4JX8uv"
+  process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "0x4AAAAAAEalZMK_1GPBD0mo"
 
 export function AdminLoginForm() {
   const [email, setEmail] = useState("")

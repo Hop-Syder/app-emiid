@@ -29,6 +29,17 @@ const providers = [
   { id: "apple" as const,         name: "Apple",    icon: "/login/apple.svg",        soon: true  },
 ]
 
+/**
+ * Clé publique du widget Cloudflare Turnstile.
+ *
+ * Publique par nature : elle identifie le widget côté navigateur. C'est la
+ * SECRET key qui vérifie les jetons, et elle n'appartient pas à ce dépôt —
+ * elle est renseignée dans le tableau de bord Supabase, qui valide chaque
+ * jeton au moment de l'authentification.
+ */
+const TURNSTILE_SITE_KEY =
+  process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "0x4AAAAAAEalZMK_1GPBD0mo"
+
 export default function LoginPage() {
   const supabase = createClient()
   const [loading, setLoading] = useState<Provider | null>(null)
@@ -148,7 +159,7 @@ export default function LoginPage() {
           {/* Cloudflare Turnstile */}
           <div className="flex justify-center mb-5">
             <Turnstile
-              siteKey="0x4AAAAAAD1DSmbgkt4JX8uv"
+              siteKey={TURNSTILE_SITE_KEY}
               options={{ theme: "dark" }}
               onSuccess={(token) => setCaptchaToken(token)}
               onError={() => setCaptchaToken(null)}
