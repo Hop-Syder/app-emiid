@@ -1,4 +1,5 @@
 import { createServerClient } from '@supabase/ssr'
+import { supabaseUrl, supabaseAnonKey, supabaseServiceRoleKey } from './env';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 import { verifyAdminAccess } from '@/lib/admin-auth'
@@ -38,8 +39,8 @@ export async function createClient() {
   const cookieStore = await cookies()
 
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl(),
+    supabaseAnonKey(),
     {
       cookies: {
         getAll() {
@@ -105,8 +106,8 @@ export async function createAdminClient() {
   console.log(`[ADMIN ACCESS] User ${adminSession.userId} (${adminSession.email}) accessing admin panel at ${new Date().toISOString()}`)
 
   return createSupabaseClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    supabaseUrl(),
+    supabaseServiceRoleKey(),
     {
       auth: {
         persistSession: false,
@@ -123,8 +124,8 @@ export async function createAdminClient() {
  */
 export function createServiceRoleClient() {
   return createSupabaseClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    supabaseUrl(),
+    supabaseServiceRoleKey(),
     { auth: { persistSession: false, autoRefreshToken: false } },
   )
 }
