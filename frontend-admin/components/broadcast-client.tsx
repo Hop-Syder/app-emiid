@@ -11,6 +11,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { Megaphone, Send, Loader2, Users, CheckCircle2, Globe, Crown, BadgeCheck, Ban, AlertTriangle, Link2, History, Sparkles, XCircle, CalendarClock, Clock, X } from "lucide-react"
 import { toast } from "sonner"
+import { TemplatePanel } from "@/components/annonces/template-panel"
 import {
   broadcastAnnouncement, countSegment, getAuditLog, getBroadcastReadCounts,
   scheduleBroadcast, listScheduledBroadcasts, cancelScheduledBroadcast,
@@ -405,6 +406,19 @@ export function BroadcastClient() {
           </ul>
         </div>
       )}
+
+      {/* Modèles réutilisables : enregistrer l'annonce courante, ou en
+          recharger une déjà envoyée avec son ciblage. */}
+      <TemplatePanel
+        channel="inapp"
+        current={{ subject: title, content, segment, link: link || null }}
+        onApply={(tpl) => {
+          setTitle(tpl.subject)
+          setContent(tpl.content)
+          if (tpl.segment) setSegment(tpl.segment as BroadcastSegment)
+          setLink(tpl.link || "")
+        }}
+      />
 
       {/* Historique des annonces (P1 #2) */}
       <div>

@@ -2182,3 +2182,127 @@ export async function getUserDetail(profileId: string, userId: string): Promise<
     payments: (payRes.error ? [] : (payRes.data as PaymentInfo[])) || [],
   }
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Modèles d'annonces réutilisables
+//
+// Une annonce envoyée ne laissait qu'une ligne dans admin_audit_log : illisible
+// et impossible à rejouer. Un modèle conserve le texte ET le ciblage, pour que
+// « renvoyer la même chose » ne demande pas de tout retaper.
+// ═══════════════════════════════════════════════════════════════════════════
+
+export interface MessageTemplate {
+  id: string
+  name: string
+  channel: "inapp" | "email"
+  subject: string
+  content: string
+  segment: string | null
+  criteria: Record<string, unknown> | null
+  link: string | null
+  use_count: number
+  last_used_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+/** Modèles enregistrés, les plus récemment modifiés d'abord. */
+export async function listTemplates(channel?: "inapp" | "email"): Promise<MessageTemplate[]> {
+  const supabase = await createAdminClient()
+  let query = supabase
+    .from("message_templates")
+    .select("*")
+    .order("updated_at", { ascending: false })
+    .limit(50)
+  if (channel) query = query.eq("channel", channel)
+
+  const { data, error } = await query
+  if (error) {
+    console.error("[templates] lecture échouée:", error.message)
+    return []
+  }
+  return (data as MessageTemplate[]) || []
+}
+
+/** Enregistre une annonce comme modèle réutilisable. */
+export async function saveTemplate(input: {
+  name: string
+  channel: "inapp" | "email"
+  subject: string
+  content: string
+  segment?: string | null
+  criteria?: Record<string, unknown> | null
+  link?: string | null
+}): Promise<{ success: boolean; id?: string; error?: string }> {
+  const admin = await requireAdminSession()
+  if (!admin) return { success: false, error: "Non autorisé" }
+
+  const name = input.name?.trim()
+  const subject = input.subject?.trim()
+  const content = input.content?.trim()
+  if (!name || !subject || !content) {
+    return { success: false, error: "Nom, objet et contenu sont requis" }
+  }
+
+  const supabase = await createAdminClient()
+  const { data, error } = await supabase
+    .from("message_templates")
+    .insert({
+      name,
+      channel: input.channel,
+      subject,
+      content,
+      segment: input.segment ?? null,
+      criteria: input.criteria ?? null,
+      link: input.link ?? null,
+      created_by: admin.userId,
+    })
+    .select("id")
+    .single()
+
+  if (error) return { success: false, error: error.message }
+
+  await logAdminAction(supabase, admin, {
+    action: "template.save",
+    targetType: "template",
+    targetId: (data as { id: string }).id,
+    targetLabel: name,
+    details: { channel: input.channel },
+  })
+
+  return { success: true, id: (data as { id: string }).id }
+}
+
+/** Signale qu'un modèle vient d'être réutilisé (pour remonter les plus utiles). */
+export async function markTemplateUsed(templateId: string): Promise<void> {
+  try {
+    const supabase = await createAdminClient()
+    const { data } = await supabase
+      .from("message_templates").select("use_count").eq("id", templateId).maybeSingle()
+    await supabase
+      .from("message_templates")
+      .update({
+        use_count: ((data as { use_count: number } | null)?.use_count ?? 0) + 1,
+        last_used_at: new Date().toISOString(),
+      })
+      .eq("id", templateId)
+  } catch (e) {
+    // Un compteur manqué ne doit pas empêcher l'envoi.
+    console.error("[templates] compteur non mis à jour:", e)
+  }
+}
+
+/** Supprime un modèle. L'historique des envois n'est pas touché. */
+export async function deleteTemplate(templateId: string): Promise<{ success: boolean; error?: string }> {
+  const admin = await requireAdminSession()
+  if (!admin) return { success: false, error: "Non autorisé" }
+
+  const supabase = await createAdminClient()
+  const { error } = await supabase.from("message_templates").delete().eq("id", templateId)
+  if (error) return { success: false, error: error.message }
+
+  await logAdminAction(supabase, admin, {
+    action: "template.delete", targetType: "template", targetId: templateId,
+  })
+  return { success: true }
+}

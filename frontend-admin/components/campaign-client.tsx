@@ -14,6 +14,7 @@ import {
   Bold, Italic, List, Code2, Eye, X, Search, BadgeCheck, Crown, UserPlus, UserX,
 } from "lucide-react"
 import { toast } from "sonner"
+import { TemplatePanel } from "@/components/annonces/template-panel"
 import {
   sendCampaign, countAudience, searchCampaignUsers, getAuditLog,
   type AudienceCriteria, type CampaignRecipient, type AuditLogEntry,
@@ -365,6 +366,30 @@ export function CampaignClient({ emailOnly = false }: { emailOnly?: boolean }) {
           </button>
         </aside>
       </div>
+
+      {/* Modèles réutilisables. On enregistre `content` (la source éditée) et
+          non le HTML produit : recharger un modèle doit rendre le message de
+          nouveau modifiable, pas figé dans son rendu. */}
+      <TemplatePanel
+        channel={channel === "email" ? "email" : "inapp"}
+        current={{ subject, content, criteria: buildCriteria as unknown as Record<string, unknown> }}
+        onApply={(tpl) => {
+          setSubject(tpl.subject)
+          setContent(tpl.content)
+          // buildCriteria est un objet plat : on ne restitue que les cases à
+          // cocher. Les destinataires nommés (manualEmails, userIds) ne sont
+          // pas rejoués — un modèle décrit une audience, pas une liste figée
+          // de personnes.
+          if (tpl.criteria && typeof tpl.criteria === "object") {
+            const saved = tpl.criteria as Record<string, unknown>
+            const flags: Record<string, boolean> = {}
+            for (const key of ["verified", "premium", "standard", "newUsers", "inactive"]) {
+              if (saved[key] === true) flags[key] = true
+            }
+            setCriteria(flags)
+          }
+        }}
+      />
 
       {/* Historique */}
       <div>
