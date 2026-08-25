@@ -2,8 +2,8 @@
  * @author @hopsyder
  * @organization Nexus Partners
  * @description PROJECT OVERVIEW - Vision, Architecture, Stratégie & Évolutions pour EmiID
- * @version 1.4.0
- * @updated 2026-07-13
+ * @version 1.5.0
+ * @updated 2026-08-22
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  * ──────────────────────────────────
@@ -24,7 +24,7 @@ EmiID répond au besoin de structuration et de visibilité de l'écosystème pro
 - **Indépendants / Artisans** : En quête de clients et d'une vitrine numérique crédible.
 - **Professionnels / Experts** : Réseautage stratégique et gestion de carrière.
 - **Entreprises / Organisations** : Recrutement local, vérification de conformité, et visibilité institutionnelle.
-- **Administrateurs** : Modération des contenus, gestion des litiges, et suivi des statistiques économiques de la plateforme.
+- **Administrateurs** : Modération des contenus, gestion des litiges, suivi des revenus réels et de la monétisation.
 
 ---
 
@@ -37,7 +37,7 @@ timeline
     title EmiID Product Roadmap
     Phase 1 : Fondations : Authentification multi-méthodes : Profils extensibles : Annuaire intelligent : Messagerie temps réel
     Phase 2 : Confiance & Engagement : Badges de vérification admin : Portefeuille & Galerie de réalisations : Code PIN de sécurité : Notification push / mail
-    Phase 3 : Écosystème & Expansion : Marketplace de services : Intégrations de paiement (FedaPay) : Module d'avis et recommandations : Application Mobile (Flutter)
+    Phase 3 : Écosystème & Monétisation : Abonnements Pro : Boosts communaux/départementaux : Paiement FedaPay (Mobile Money) : Recherche sémantique IA (Groq/Gemini) : Jeu de démo réversible
 ```
 
 #### Phase 1 : Fondations (Complété)
@@ -46,16 +46,21 @@ timeline
 - [x] Annuaire intelligent avec filtres géographiques et par mots-clés.
 - [x] Messagerie temps réel avec indicateurs de lecture.
 
-#### Phase 2 : Confiance & Engagement (En cours)
-- [x] Modération admin pour les réalisations du portfolio.
+#### Phase 2 : Confiance & Engagement (Complété)
+- [x] Modération admin pour les réalisations du portfolio et signalements.
 - [x] Intégration de la galerie Bento dans le profil public.
 - [x] Sécurisation par code PIN et double authentification OTP.
-- [ ] Notifications transactionnelles (finalisation SMTP).
+- [x] Barre mobile Luxury Glass avec courbes Bézier continues et icônes animées.
+- [x] SEO dynamique enrichi (JSON-LD Schema.org, Google Analytics 4, Search Console).
 
-#### Phase 3 : Écosystème & Expansion (Futur)
-- [ ] Intégration de passerelles de paiement locales en Afrique de l'Ouest (**FedaPay** MTN/Moov/Orange Money en XOF, Stripe à l'international).
-- [ ] Système d'avis et de recommandations entre membres pour consolider la confiance.
-- [ ] Application mobile multiplateforme (**Flutter**) reposant sur les API existantes.
+#### Phase 3 : Écosystème & Monétisation (Livré)
+- [x] Intégration de passerelles de paiement locales en Afrique de l'Ouest (**FedaPay** MTN/Moov/Orange Money en XOF, Stripe à l'international).
+- [x] Abonnements Pro mensuels/annuels et boosts de visibilité communaux/départementaux.
+- [x] Moteur de recherche IA sémantique avec embeddings, FTS multi-critères et ranking pondéré.
+- [x] Assistant vocal / recherche tolérante au langage parlé et dictée validante.
+- [x] Cockpit Admin enrichi : suivi des revenus réels, gestion abonnements et actions 1-clic WhatsApp/Appel.
+- [x] Jeu de données de démonstration réversible et documenté (`docs/JEU_DEMO.md`).
+- [ ] Application mobile native (**Flutter**) reposant sur les API existantes.
 
 ---
 

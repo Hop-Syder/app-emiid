@@ -66,18 +66,26 @@ async function purge() {
   const { data: rows, error } = await supabase
     .from('user_profiles').select('user_id').eq('is_demo', true);
   if (error) { console.error('❌ Lecture échouée :', error.message); process.exit(2); }
-  if (!rows?.length) { console.log('Aucun profil de démonstration à supprimer.'); return; }
 
-  console.log(`▶ Suppression de ${rows.length} compte(s) de démonstration…`);
+  // Inclure également les utilisateurs auth ayant le domaine de démonstration
+  const { data: authData } = await supabase.auth.admin.listUsers();
+  const demoAuthUsers = (authData?.users || []).filter((u) => u.email?.endsWith(`@${DEMO_DOMAIN}`));
+
+  const userIds = Array.from(new Set([
+    ...(rows || []).map((r) => r.user_id),
+    ...demoAuthUsers.map((u) => u.id),
+  ]));
+
+  if (!userIds.length) { console.log('Aucun profil de démonstration à supprimer.'); return; }
+
+  console.log(`▶ Suppression de ${userIds.length} compte(s) de démonstration…`);
   let removed = 0;
-  for (const r of rows) {
-    // La suppression du compte auth entraîne en cascade profil, tags, vues,
-    // messages, abonnements et boosts : rien ne subsiste.
-    const { error: delErr } = await supabase.auth.admin.deleteUser(r.user_id);
-    if (delErr) console.error(`  ⚠️  ${r.user_id} : ${delErr.message}`);
-    else { removed += 1; process.stdout.write(`  ✅ ${r.user_id}\n`); }
+  for (const userId of userIds) {
+    const { error: delErr } = await supabase.auth.admin.deleteUser(userId);
+    if (delErr) console.error(`  ⚠️  ${userId} : ${delErr.message}`);
+    else { removed += 1; process.stdout.write(`  ✅ ${userId}\n`); }
   }
-  console.log(`\n✔ ${removed}/${rows.length} compte(s) supprimé(s).`);
+  console.log(`\n✔ ${removed}/${userIds.length} compte(s) supprimé(s).`);
 }
 
 async function seed() {
@@ -98,6 +106,8 @@ async function seed() {
     const slug = slugify(`${p.first}-${p.last}`);
     const email = `${slug}@${DEMO_DOMAIN}`;
 
+    let userId = null;
+
     const { data: authUser, error: authErr } = await supabase.auth.admin.createUser({
       email,
       email_confirm: true,
@@ -106,15 +116,27 @@ async function seed() {
     });
 
     if (authErr) {
-      if (/already/i.test(authErr.message)) { console.log(`  → ${email} existe déjà, ignoré`); continue; }
-      console.error(`  ⚠️  ${email} : ${authErr.message}`);
-      continue;
+      if (/already/i.test(authErr.message)) {
+        const { data: listData } = await supabase.auth.admin.listUsers();
+        const existing = listData?.users?.find((u) => u.email === email);
+        if (existing) {
+          userId = existing.id;
+        } else {
+          console.error(`  ⚠️  ${email} : ${authErr.message}`);
+          continue;
+        }
+      } else {
+        console.error(`  ⚠️  ${email} : ${authErr.message}`);
+        continue;
+      }
+    } else {
+      userId = authUser.user.id;
     }
 
     const { data: profile, error: profErr } = await supabase
       .from('user_profiles')
-      .insert({
-        user_id: authUser.user.id,
+      .upsert({
+        user_id: userId,
         first_name: p.first,
         last_name: p.last,
         email,
@@ -131,7 +153,7 @@ async function seed() {
         is_premium: p.pro,
         has_profile: true,
         is_demo: true,
-      })
+      }, { onConflict: 'user_id' })
       .select('id, user_id')
       .single();
 
@@ -150,14 +172,14 @@ async function seed() {
     // Abonnement Pro : le trigger sync_is_premium tient is_premium à jour.
     if (p.pro) {
       await supabase.from('subscriptions').upsert({
-        user_id: authUser.user.id,
+        user_id: userId,
         tier: 'PRO_MONTHLY',
         status: 'ACTIVE',
         end_date: new Date(Date.now() + 30 * 86400000).toISOString(),
       }, { onConflict: 'user_id' });
     }
 
-    created.push({ ...p, userId: authUser.user.id, profileId: profile.id });
+    created.push({ ...p, userId, profileId: profile.id });
     process.stdout.write(`  ✅ ${p.first} ${p.last} — ${p.role} (${p.city})\n`);
   }
 
