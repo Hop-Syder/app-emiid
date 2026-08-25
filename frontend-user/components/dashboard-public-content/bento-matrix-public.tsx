@@ -4,7 +4,8 @@
  * @description BentoMatrixPublic — Galerie visuelle des Métiers & Artisans d'Excellence EmiID.
  *              Les métiers sont présentés en mosaïque d'images : la photo dit le
  *              métier plus vite qu'un paragraphe, et laisse la section respirer.
- *              La recherche et les filtres par secteur pilotent toujours la grille.
+ *              La galerie est fixe et sans filtre : le tri fin est le rôle de
+ *              l'annuaire, vers lequel chaque tuile mène.
  *
  *              Trois mouvements se superposent, et c'est leur cumul qui donne
  *              l'impression de vie : l'apparition décalée d'une tuile à l'autre,
@@ -12,22 +13,17 @@
  *              paraître figée, et le rapprochement au survol — seul mouvement
  *              réellement déclenché par la personne.
  * @created 2026-08-24
- * @updated 2026-08-24
+ * @updated 2026-08-29
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
 
 "use client"
 
-import { useState, useMemo } from "react"
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
+import { motion, useReducedMotion } from "framer-motion"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
-import {
-  Search, Sparkles, ArrowRight, Users,
-  Wrench, Scissors, Utensils,
-  Hammer, Paintbrush, ShieldCheck
-} from "lucide-react"
+import { Sparkles, ArrowRight, ShieldCheck } from "lucide-react"
 
 export interface ArtisanCategoryItem {
   id: string
@@ -163,14 +159,21 @@ const ARTISAN_CATEGORIES: ArtisanCategoryItem[] = [
   }
 ]
 
-const SECTORS = [
-  "Tous les secteurs",
-  "Artisanat BTP",
-  "Mode & Beauté",
-  "Services Techniques",
-  "Alimentation",
-  "Créatifs & Tech"
-] as const
+/**
+ * Emprise de chaque tuile. Huit métiers sur trois colonnes : un grand bloc
+ * 2×2, une colonne simple, une rangée de trois, puis un bandeau large. Le
+ * remplissage dense de la grille rebouche les cellules laissées libres.
+ */
+const TILE_SPANS = [
+  "col-span-2 row-span-2",          // grand bloc d'ouverture
+  "",
+  "",
+  "",
+  "",
+  "",
+  "col-span-2",                     // bandeau large
+  "",
+]
 
 /**
  * Apparition d'une tuile. Le décalage vient du rang (`custom`) : la grille se
@@ -197,20 +200,9 @@ export function BentoMatrixPublic() {
   // Respecte le réglage système : un mouvement continu peut incommoder les
   // personnes sensibles aux animations.
   const reduceMotion = useReducedMotion()
-  const [selectedSector, setSelectedSector] = useState<string>("Tous les secteurs")
-  const [searchQuery, setSearchQuery] = useState<string>("")
-
-  const filteredCategories = useMemo(() => {
-    return ARTISAN_CATEGORIES.filter((cat) => {
-      const matchSector = selectedSector === "Tous les secteurs" || cat.sector === selectedSector
-      const matchQuery =
-        searchQuery.trim() === "" ||
-        cat.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        cat.subtitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        cat.tags.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase()))
-      return matchSector && matchQuery
-    })
-  }, [selectedSector, searchQuery])
+  // La galerie est fixe : chaque métier occupe une place déterminée dans la
+  // mosaïque. Il n'y a donc plus ni recherche ni filtre ici — le tri fin est
+  // le rôle de l'annuaire, vers lequel chaque tuile mène.
 
   return (
     <section className="space-y-8 py-4">
@@ -231,139 +223,72 @@ export function BentoMatrixPublic() {
           </p>
         </div>
 
-        {/* BARRE DE RECHERCHE DYNAMIQUE DANS LA SECTION */}
-        <div className="relative z-10 w-full lg:w-80">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Chercher un métier, tag (ex: électricité)..."
-              className="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs sm:text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#013ff4]/30 focus:border-[#013ff4] transition-all shadow-xs"
-            />
-          </div>
-        </div>
       </div>
 
-      {/* ── FILTRES PAR SECTEUR (BOUTONS PILLS) ────────────────────────── */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-        {SECTORS.map((sector) => {
-          const isActive = selectedSector === sector
+      {/* ── GALERIE EN MOSAÏQUE ────────────────────────────────────────
+          Découpe asymétrique : un grand bloc, une colonne, une rangée, un
+          bandeau. C'est l'irrégularité qui distingue une mosaïque d'un damier.
+          Les proportions ne s'appliquent qu'à partir de `lg` ; en dessous, deux
+          colonnes suffisent à garder du rythme sans écraser les photos. */}
+      <div className="grid grid-cols-2 lg:grid-cols-3 auto-rows-[150px] sm:auto-rows-[190px] gap-2.5 grid-flow-dense">
+        {ARTISAN_CATEGORIES.map((cat, i) => {
+          const span = TILE_SPANS[i % TILE_SPANS.length]
           return (
-            <button
-              key={sector}
-              onClick={() => setSelectedSector(sector)}
-              className={`px-4 py-2.5 rounded-2xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 ${
-                isActive
-                  ? "bg-[#013ff4] text-white shadow-md shadow-[#013ff4]/20 scale-105"
-                  : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200/80"
-              }`}
+            <motion.button
+              key={cat.id}
+              type="button"
+              custom={i}
+              variants={tileVariants}
+              initial="hidden"
+              whileInView="show"
+              // La galerie se compose à la première apparition ; la rejouer à
+              // chaque passage deviendrait vite agaçant au défilement.
+              viewport={{ once: true, amount: 0.2 }}
+              onClick={() => router.push(`/annuaire?query=${encodeURIComponent(cat.title)}`)}
+              aria-label={`${cat.title} — ${cat.count} professionnels certifiés`}
+              className={`group relative overflow-hidden rounded-2xl bg-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#013ff4] focus-visible:ring-offset-2 ${span}`}
             >
-              {sector === "Tous les secteurs" && <Users className="h-3.5 w-3.5" />}
-              {sector === "Artisanat BTP" && <Hammer className="h-3.5 w-3.5" />}
-              {sector === "Mode & Beauté" && <Scissors className="h-3.5 w-3.5" />}
-              {sector === "Services Techniques" && <Wrench className="h-3.5 w-3.5" />}
-              {sector === "Alimentation" && <Utensils className="h-3.5 w-3.5" />}
-              {sector === "Créatifs & Tech" && <Paintbrush className="h-3.5 w-3.5" />}
-              <span>{sector}</span>
-            </button>
+              <motion.div
+                className="absolute inset-0"
+                animate={reduceMotion ? undefined : { scale: [1, 1.04, 1] }}
+                transition={
+                  reduceMotion
+                    ? undefined
+                    : {
+                        duration: 9,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                        // Décalage par tuile : synchronisées, elles
+                        // respireraient ensemble et le va-et-vient deviendrait
+                        // un battement visible.
+                        delay: (i % 5) * 1.4,
+                      }
+                }
+              >
+                <Image
+                  src={cat.image}
+                  alt={cat.title}
+                  fill
+                  sizes="(min-width: 1024px) 33vw, 50vw"
+                  className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.08]"
+                />
+              </motion.div>
+
+              {/* Le nom n'apparaît qu'au survol, comme dans la maquette. Le
+                  voile n'existe que pour le rendre lisible sur une photo
+                  claire, d'où son apparition simultanée. */}
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 p-4 translate-y-1.5 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+                <h3 className="text-sm font-black leading-tight text-white">{cat.title}</h3>
+                <span className="mt-0.5 flex items-center gap-1 text-[10px] font-bold text-white/75">
+                  <ShieldCheck className="h-3 w-3 text-emerald-400" />
+                  {cat.count} pros certifiés
+                </span>
+              </div>
+            </motion.button>
           )
         })}
       </div>
-
-      {/* ── GRILLE DE CARTES VISUELLES D'ARTISANS ──────────────────────── */}
-      {filteredCategories.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-[2.5rem] border border-slate-200 p-8 space-y-3">
-          <Search className="h-10 w-10 text-slate-300 mx-auto" />
-          <h3 className="text-lg font-bold text-slate-800">Aucun métier trouvé</h3>
-          <p className="text-xs text-slate-500 max-w-sm mx-auto">
-            Aucun secteur ne correspond à "{searchQuery}". Essayez une autre recherche ou réinitialisez les filtres.
-          </p>
-          <button
-            onClick={() => { setSearchQuery(""); setSelectedSector("Tous les secteurs"); }}
-            className="px-4 py-2 rounded-xl bg-[#013ff4] text-white text-xs font-bold mt-2"
-          >
-            Réinitialiser la recherche
-          </button>
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 auto-rows-[150px] sm:auto-rows-[170px] gap-2.5 grid-flow-row-dense">
-          <AnimatePresence mode="popLayout">
-            {filteredCategories.map((cat, i) => {
-              // Une tuile sur quatre occupe le double d'espace. C'est cette
-              // irrégularité qui distingue une mosaïque d'un damier ; le
-              // remplissage dense de la grille rebouche les trous laissés
-              // quand un filtre retire des tuiles.
-              const isLarge = i % 4 === 0
-              return (
-                <motion.button
-                  key={cat.id}
-                  layout
-                  type="button"
-                  custom={i}
-                  variants={tileVariants}
-                  initial="hidden"
-                  animate="show"
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  onClick={() => router.push(`/annuaire?query=${encodeURIComponent(cat.title)}`)}
-                  aria-label={`${cat.title} — ${cat.count} professionnels certifiés`}
-                  className={`group relative overflow-hidden rounded-2xl bg-slate-900 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#013ff4] focus-visible:ring-offset-2 ${
-                    isLarge ? "col-span-2 row-span-2" : ""
-                  }`}
-                >
-                  <motion.div
-                    className="absolute inset-0"
-                    animate={reduceMotion ? undefined : { scale: [1, 1.04, 1] }}
-                    transition={
-                      reduceMotion
-                        ? undefined
-                        : {
-                            duration: 9,
-                            repeat: Infinity,
-                            ease: "easeInOut",
-                            // Décalage par tuile : synchronisées, elles
-                            // respireraient ensemble et le va-et-vient
-                            // deviendrait un battement visible.
-                            delay: (i % 5) * 1.4,
-                          }
-                    }
-                  >
-                    <Image
-                      src={cat.image}
-                      alt={cat.title}
-                      fill
-                      sizes={isLarge ? "(min-width: 1024px) 50vw, 90vw" : "(min-width: 1024px) 25vw, 45vw"}
-                      className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.08]"
-                    />
-                  </motion.div>
-
-                  {/* Voile permanent : le nom du métier doit rester lisible sur
-                      une photo claire, y compris au toucher où il n'y a pas de
-                      survol pour le révéler. */}
-                  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-slate-950/85 via-slate-950/30 to-transparent" />
-
-                  <div className="pointer-events-none absolute inset-x-0 bottom-0 p-3 sm:p-4">
-                    <h3 className={`font-black leading-tight text-white ${isLarge ? "text-base sm:text-xl" : "text-xs sm:text-sm"}`}>
-                      {cat.title}
-                    </h3>
-                    <span className="mt-1 flex items-center gap-1 text-[10px] font-bold text-white/75">
-                      <ShieldCheck className="h-3 w-3 text-emerald-400" />
-                      {cat.count} pros certifiés
-                    </span>
-                  </div>
-
-                  {/* La flèche n'apparaît qu'au survol : sur une tuile déjà
-                      cliquable dans son ensemble, elle serait redondante au repos. */}
-                  <span className="pointer-events-none absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-xl bg-white/15 text-white opacity-0 backdrop-blur-md transition-opacity duration-300 group-hover:opacity-100">
-                    <ArrowRight className="h-4 w-4" />
-                  </span>
-                </motion.button>
-              )
-            })}
-          </AnimatePresence>
-        </div>
-      )}
 
       {/* ── BANNIÈRE BASSE D'ACCÈS RAPIDE À L'ANNUAIRE ──────────────────── */}
       <div className="p-6 sm:p-8 rounded-[2.5rem] bg-gradient-to-r from-slate-900 via-slate-800 to-[#013ff4] text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden">
