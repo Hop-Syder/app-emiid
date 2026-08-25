@@ -4,16 +4,28 @@ import { useEffect, useMemo, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { ShieldCheck, Loader2, LogOut } from "lucide-react"
 import { toast } from "sonner"
+import { Turnstile } from "@marsidev/react-turnstile"
 import { createClient } from "@/lib/supabase/client"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 
+/**
+ * Clé publique du widget Cloudflare Turnstile.
+ *
+ * La protection anti-robot est activée sur le projet Supabase : sans jeton,
+ * `signInWithPassword` est refusé — « captcha protection: request disallowed ».
+ * L'application utilisateur envoyait déjà ce jeton, pas le back-office.
+ */
+const TURNSTILE_SITE_KEY =
+  process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "0x4AAAAAAEalZMK_1GPBD0mo"
+
 export function AdminLoginForm() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null)
   const [checkingSession, setCheckingSession] = useState(true)
   const [hasSession, setHasSession] = useState(false)
   const [sessionError, setSessionError] = useState<string | null>(null)
@@ -70,10 +82,18 @@ export function AdminLoginForm() {
     setSessionError(null)
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      // Le jeton doit accompagner la requête : Supabase le vérifie côté serveur.
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+        options: { captchaToken: captchaToken ?? undefined },
+      })
 
       if (error) {
         toast.error(error.message)
+        // Un jeton Turnstile ne vaut qu'une fois : après un échec, il faut en
+        // obtenir un nouveau, sinon la tentative suivante serait refusée aussi.
+        setCaptchaToken(null)
         return
       }
 
@@ -166,8 +186,29 @@ export function AdminLoginForm() {
                 />
               </div>
 
-              <Button type="submit" className="w-full rounded-xl h-11" disabled={loading}>
-                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Se connecter"}
+              {/* Vérification anti-robot exigée par Supabase avant toute
+                  connexion par mot de passe. */}
+              <div className="flex justify-center">
+                <Turnstile
+                  siteKey={TURNSTILE_SITE_KEY}
+                  onSuccess={(token) => setCaptchaToken(token)}
+                  onError={() => setCaptchaToken(null)}
+                  onExpire={() => setCaptchaToken(null)}
+                />
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full rounded-xl h-11"
+                disabled={loading || !captchaToken}
+              >
+                {loading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : captchaToken ? (
+                  "Se connecter"
+                ) : (
+                  "Vérification en cours…"
+                )}
               </Button>
             </form>
           )}
