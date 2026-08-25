@@ -2,9 +2,15 @@
  * @author @hopsyder
  * @organization Nexus Partners
  * @description BentoMatrixPublic — Galerie visuelle des Métiers & Artisans d'Excellence EmiID.
- *              Remplace l'ancienne matrice abstraite par une section visuelle riche
- *              présentant les métiers, cartes d'artisans avec images, filtres par secteur
- *              et recherche dynamique pour s'orienter facilement dans l'annuaire.
+ *              Les métiers sont présentés en mosaïque d'images : la photo dit le
+ *              métier plus vite qu'un paragraphe, et laisse la section respirer.
+ *              La recherche et les filtres par secteur pilotent toujours la grille.
+ *
+ *              Trois mouvements se superposent, et c'est leur cumul qui donne
+ *              l'impression de vie : l'apparition décalée d'une tuile à l'autre,
+ *              un lent va-et-vient d'échelle désynchronisé qui empêche l'image de
+ *              paraître figée, et le rapprochement au survol — seul mouvement
+ *              réellement déclenché par la personne.
  * @created 2026-08-24
  * @updated 2026-08-24
  * 🌐 ceo.nexuspartners.xyz
@@ -14,12 +20,13 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 import {
-  Search, Sparkles, ArrowRight, MapPin, Users,
-  CheckCircle2, Wrench, Scissors, Car, Utensils,
-  Hammer, Paintbrush, Zap, ShieldCheck
+  Search, Sparkles, ArrowRight, Users,
+  Wrench, Scissors, Utensils,
+  Hammer, Paintbrush, ShieldCheck
 } from "lucide-react"
 
 export interface ArtisanCategoryItem {
@@ -165,8 +172,31 @@ const SECTORS = [
   "Créatifs & Tech"
 ] as const
 
+/**
+ * Apparition d'une tuile. Le décalage vient du rang (`custom`) : la grille se
+ * compose alors sous l'œil au lieu de surgir d'un bloc. Il est plafonné, sans
+ * quoi la dernière tuile d'une liste longue se ferait attendre.
+ */
+const tileVariants = {
+  hidden: { opacity: 0, scale: 0.94, y: 14 },
+  show: (i: number) => ({
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    transition: {
+      type: "spring" as const,
+      stiffness: 260,
+      damping: 26,
+      delay: Math.min(i, 7) * 0.07,
+    },
+  }),
+}
+
 export function BentoMatrixPublic() {
   const router = useRouter()
+  // Respecte le réglage système : un mouvement continu peut incommoder les
+  // personnes sensibles aux animations.
+  const reduceMotion = useReducedMotion()
   const [selectedSector, setSelectedSector] = useState<string>("Tous les secteurs")
   const [searchQuery, setSearchQuery] = useState<string>("")
 
@@ -258,88 +288,79 @@ export function BentoMatrixPublic() {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 auto-rows-[150px] sm:auto-rows-[170px] gap-2.5 grid-flow-row-dense">
           <AnimatePresence mode="popLayout">
-            {filteredCategories.map((cat) => (
-              <motion.div
-                key={cat.id}
-                layout
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.25 }}
-                onClick={() => router.push(`/annuaire?query=${encodeURIComponent(cat.title)}`)}
-                className="group relative overflow-hidden rounded-[2.2rem] bg-white border border-slate-200/90 shadow-[0_8px_24px_rgba(15,23,42,0.05)] hover:shadow-[0_16px_36px_rgba(1,63,244,0.12)] hover:border-[#013ff4]/40 transition-all cursor-pointer flex flex-col justify-between"
-              >
-                {/* Image d'En-tête avec Overlay et Badge */}
-                <div className="relative h-48 w-full overflow-hidden bg-slate-900">
-                  <img
-                    src={cat.image}
-                    alt={cat.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+            {filteredCategories.map((cat, i) => {
+              // Une tuile sur quatre occupe le double d'espace. C'est cette
+              // irrégularité qui distingue une mosaïque d'un damier ; le
+              // remplissage dense de la grille rebouche les trous laissés
+              // quand un filtre retire des tuiles.
+              const isLarge = i % 4 === 0
+              return (
+                <motion.button
+                  key={cat.id}
+                  layout
+                  type="button"
+                  custom={i}
+                  variants={tileVariants}
+                  initial="hidden"
+                  animate="show"
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  onClick={() => router.push(`/annuaire?query=${encodeURIComponent(cat.title)}`)}
+                  aria-label={`${cat.title} — ${cat.count} professionnels certifiés`}
+                  className={`group relative overflow-hidden rounded-2xl bg-slate-900 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#013ff4] focus-visible:ring-offset-2 ${
+                    isLarge ? "col-span-2 row-span-2" : ""
+                  }`}
+                >
+                  <motion.div
+                    className="absolute inset-0"
+                    animate={reduceMotion ? undefined : { scale: [1, 1.04, 1] }}
+                    transition={
+                      reduceMotion
+                        ? undefined
+                        : {
+                            duration: 9,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                            // Décalage par tuile : synchronisées, elles
+                            // respireraient ensemble et le va-et-vient
+                            // deviendrait un battement visible.
+                            delay: (i % 5) * 1.4,
+                          }
+                    }
+                  >
+                    <Image
+                      src={cat.image}
+                      alt={cat.title}
+                      fill
+                      sizes={isLarge ? "(min-width: 1024px) 50vw, 90vw" : "(min-width: 1024px) 25vw, 45vw"}
+                      className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.08]"
+                    />
+                  </motion.div>
 
-                  {/* Badge Haut-Droit */}
-                  <div className="absolute top-3 right-3">
-                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-md backdrop-blur-md ${cat.badgeColor}`}>
-                      {cat.badge}
-                    </span>
-                  </div>
+                  {/* Voile permanent : le nom du métier doit rester lisible sur
+                      une photo claire, y compris au toucher où il n'y a pas de
+                      survol pour le révéler. */}
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-slate-950/85 via-slate-950/30 to-transparent" />
 
-                  {/* Secteur Bas-Gauche */}
-                  <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white">
-                    <span className="text-[11px] font-bold text-white/90 bg-slate-900/80 px-2.5 py-1 rounded-xl backdrop-blur-md border border-white/10 flex items-center gap-1">
-                      <ShieldCheck className="h-3 w-3 text-emerald-400" />
-                      <span>{cat.count} Pros certifiés</span>
-                    </span>
-                  </div>
-                </div>
-
-                {/* Corps de la Carte */}
-                <div className="p-5 space-y-4 flex-1 flex flex-col justify-between">
-                  <div className="space-y-1.5">
-                    <h3 className="text-lg font-black text-slate-900 group-hover:text-[#013ff4] transition-colors leading-tight font-heading">
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 p-3 sm:p-4">
+                    <h3 className={`font-black leading-tight text-white ${isLarge ? "text-base sm:text-xl" : "text-xs sm:text-sm"}`}>
                       {cat.title}
                     </h3>
-                    <p className="text-xs text-slate-500 font-medium line-clamp-2 leading-relaxed">
-                      {cat.subtitle}
-                    </p>
+                    <span className="mt-1 flex items-center gap-1 text-[10px] font-bold text-white/75">
+                      <ShieldCheck className="h-3 w-3 text-emerald-400" />
+                      {cat.count} pros certifiés
+                    </span>
                   </div>
 
-                  {/* Tags clés */}
-                  <div className="flex flex-wrap gap-1.5">
-                    {cat.tags.map((t) => (
-                      <span key={t} className="px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-700 text-[10px] font-bold">
-                        #{t}
-                      </span>
-                    ))}
-                  </div>
-
-                  {/* Profils d'Exemple (Avatars + Localisation) */}
-                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                    <div className="flex items-center -space-x-2">
-                      {cat.samplePros.map((pro, idx) => (
-                        <img
-                          key={idx}
-                          src={pro.avatar}
-                          alt={pro.name}
-                          className="w-7 h-7 rounded-full border-2 border-white object-cover shadow-xs"
-                          title={`${pro.name} (${pro.location})`}
-                        />
-                      ))}
-                      <span className="text-[10px] font-bold text-slate-500 pl-3">
-                        {cat.samplePros.map(p => p.location).join(', ')}
-                      </span>
-                    </div>
-
-                    <div className="p-2 rounded-xl bg-slate-50 group-hover:bg-[#013ff4] text-slate-400 group-hover:text-white transition-all shadow-xs">
-                      <ArrowRight className="h-4 w-4" />
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+                  {/* La flèche n'apparaît qu'au survol : sur une tuile déjà
+                      cliquable dans son ensemble, elle serait redondante au repos. */}
+                  <span className="pointer-events-none absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-xl bg-white/15 text-white opacity-0 backdrop-blur-md transition-opacity duration-300 group-hover:opacity-100">
+                    <ArrowRight className="h-4 w-4" />
+                  </span>
+                </motion.button>
+              )
+            })}
           </AnimatePresence>
         </div>
       )}
