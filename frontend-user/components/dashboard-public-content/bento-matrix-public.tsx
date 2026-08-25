@@ -20,6 +20,7 @@
 
 "use client"
 
+import { useEffect, useState } from "react"
 import { motion, useReducedMotion } from "framer-motion"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
@@ -200,9 +201,31 @@ export function BentoMatrixPublic() {
   // Respecte le réglage système : un mouvement continu peut incommoder les
   // personnes sensibles aux animations.
   const reduceMotion = useReducedMotion()
-  // La galerie est fixe : chaque métier occupe une place déterminée dans la
-  // mosaïque. Il n'y a donc plus ni recherche ni filtre ici — le tri fin est
-  // le rôle de l'annuaire, vers lequel chaque tuile mène.
+  // Ordre d'occupation des emplacements. Ce sont les images qui tournent, pas
+  // la mosaïque : les emprises restent attachées à l'emplacement, si bien que
+  // la silhouette de la grille ne bouge jamais et que chaque métier passe à
+  // son tour dans le grand bloc.
+  const [order, setOrder] = useState<number[]>(() => ARTISAN_CATEGORIES.map((_, i) => i))
+  // Suspend la rotation pendant qu'on survole la galerie : une tuile qui se
+  // déplace à l'instant du clic fait manquer sa cible.
+  const [paused, setPaused] = useState(false)
+
+  useEffect(() => {
+    // Pas de mouvement automatique pour qui a demandé moins d'animations :
+    // du contenu qui bouge seul est précisément ce que ce réglage vise.
+    if (reduceMotion || paused) return
+
+    const id = setInterval(() => {
+      // Onglet en arrière-plan : inutile de faire tourner une grille que
+      // personne ne regarde.
+      if (document.visibilityState !== "visible") return
+      // Décalage d'un cran plutôt que brassage complet : tout se déplace, mais
+      // le mouvement reste lisible au lieu de partir dans tous les sens.
+      setOrder((prev) => [...prev.slice(1), prev[0]])
+    }, 5000)
+
+    return () => clearInterval(id)
+  }, [reduceMotion, paused])
 
   return (
     <section className="space-y-8 py-4">
@@ -230,13 +253,25 @@ export function BentoMatrixPublic() {
           bandeau. C'est l'irrégularité qui distingue une mosaïque d'un damier.
           Les proportions ne s'appliquent qu'à partir de `lg` ; en dessous, deux
           colonnes suffisent à garder du rythme sans écraser les photos. */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 auto-rows-[150px] sm:auto-rows-[190px] gap-2.5 grid-flow-dense">
-        {ARTISAN_CATEGORIES.map((cat, i) => {
+      <div
+        className="grid grid-cols-2 lg:grid-cols-3 auto-rows-[150px] sm:auto-rows-[190px] gap-2.5 grid-flow-dense"
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+        // Même suspension au clavier : la tuile ciblée doit rester en place.
+        onFocusCapture={() => setPaused(true)}
+        onBlurCapture={() => setPaused(false)}
+      >
+        {order.map((categoryIndex, i) => {
+          const cat = ARTISAN_CATEGORIES[categoryIndex]
           const span = TILE_SPANS[i % TILE_SPANS.length]
           return (
             <motion.button
               key={cat.id}
               type="button"
+              // `layout` fait glisser la tuile de son ancien emplacement vers
+              // le nouveau ; sans lui, les images sauteraient d'un coup.
+              layout
+              transition={{ type: "spring", stiffness: 210, damping: 27 }}
               custom={i}
               variants={tileVariants}
               initial="hidden"
@@ -258,10 +293,12 @@ export function BentoMatrixPublic() {
                         duration: 9,
                         repeat: Infinity,
                         ease: "easeInOut",
-                        // Décalage par tuile : synchronisées, elles
-                        // respireraient ensemble et le va-et-vient deviendrait
-                        // un battement visible.
-                        delay: (i % 5) * 1.4,
+                        // Décalage indexé sur le métier et non sur
+                        // l'emplacement : accroché à l'emplacement, il
+                        // changerait à chaque rotation et relancerait le
+                        // va-et-vient de toutes les tuiles d'un coup.
+                        // Désynchronisées, elles évitent le battement commun.
+                        delay: (categoryIndex % 5) * 1.4,
                       }
                 }
               >
