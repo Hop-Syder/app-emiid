@@ -200,9 +200,15 @@ export function MobileDockAuth() {
 
         {/* ── Dock avec découpe concave fluide (Notched SVG Curve) ──────── */}
         <div className="pointer-events-auto relative w-full max-w-sm h-[68px] filter drop-shadow-[0_16px_36px_rgba(15,23,42,0.22)]">
-          {/* Couche de verre : flou réel, découpée à la silhouette du dock. */}
+          {/* Couche de verre, découpée à la silhouette du dock.
+              L'opacité ne descend pas plus bas : à 80 %, le texte de la page
+              transparaissait et se mêlait aux libellés du dock, minuscules
+              (10 px) et gris. Le flou d'arrière-plan ne peut pas rattraper
+              cela, car `backdrop-filter` combiné à un masque n'est pas honoré
+              par tous les moteurs mobiles — la lisibilité ne doit donc pas en
+              dépendre. */}
           <div
-            className="absolute inset-0 bg-white/80 backdrop-blur-2xl"
+            className="absolute inset-0 bg-white/95 backdrop-blur-2xl"
             style={{
               WebkitMaskImage: DOCK_MASK,
               maskImage: DOCK_MASK,
@@ -286,7 +292,7 @@ export function MobileDockAuth() {
                   </span>
                 )}
               </span>
-              <span className={cn("relative text-[10px] font-bold transition-colors", menuOpen ? "text-[#013ff4]" : "text-slate-500 group-hover:text-slate-800")}>
+              <span className={cn("relative text-[10px] font-bold transition-colors", menuOpen ? "text-[#013ff4]" : "text-slate-600 group-hover:text-slate-900")}>
                 Espace
               </span>
             </button>
@@ -327,7 +333,7 @@ function DockTab({ item, active }: { item: DockItem; active: boolean }) {
         strokeWidth={active ? 2.4 : 2}
         className="relative transition-transform group-hover:scale-105"
       />
-      <span className={cn("relative text-[10px] font-bold transition-colors", active ? "text-[#013ff4]" : "text-slate-500 group-hover:text-slate-800")}>
+      <span className={cn("relative text-[10px] font-bold transition-colors", active ? "text-[#013ff4]" : "text-slate-600 group-hover:text-slate-900")}>
         {item.name}
       </span>
     </Link>

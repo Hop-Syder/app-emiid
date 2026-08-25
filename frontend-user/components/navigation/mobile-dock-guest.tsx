@@ -77,7 +77,7 @@ function GuestTab({ href, label, icon: Icon, active }: { href: string; label: st
         strokeWidth={active ? 2.4 : 2}
         className="relative transition-transform group-hover:scale-105"
       />
-      <span className={cn("relative text-[10px] font-bold transition-colors", active ? "text-[#013ff4]" : "text-slate-500 group-hover:text-slate-800")}>
+      <span className={cn("relative text-[10px] font-bold transition-colors", active ? "text-[#013ff4]" : "text-slate-600 group-hover:text-slate-900")}>
         {label}
       </span>
     </Link>
