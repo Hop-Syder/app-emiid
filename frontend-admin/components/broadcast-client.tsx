@@ -11,6 +11,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { Megaphone, Send, Loader2, Users, CheckCircle2, Globe, Crown, BadgeCheck, Ban, AlertTriangle, Link2, History, Sparkles, XCircle, CalendarClock, Clock, X } from "lucide-react"
 import { toast } from "sonner"
+import { TemplatePanel } from "@/components/annonces/template-panel"
 import {
   broadcastAnnouncement, countSegment, getAuditLog, getBroadcastReadCounts,
   scheduleBroadcast, listScheduledBroadcasts, cancelScheduledBroadcast,
@@ -406,6 +407,19 @@ export function BroadcastClient() {
         </div>
       )}
 
+      {/* Modèles réutilisables : enregistrer l'annonce courante, ou en
+          recharger une déjà envoyée avec son ciblage. */}
+      <TemplatePanel
+        channel="inapp"
+        current={{ subject: title, content, segment, link: link || null }}
+        onApply={(tpl) => {
+          setTitle(tpl.subject)
+          setContent(tpl.content)
+          if (tpl.segment) setSegment(tpl.segment as BroadcastSegment)
+          setLink(tpl.link || "")
+        }}
+      />
+
       {/* Historique des annonces (P1 #2) */}
       <div>
         <h2 className="flex items-center gap-2 text-sm font-bold text-slate-700 mb-3">
@@ -439,7 +453,10 @@ export function BroadcastClient() {
                         <div className="h-1.5 w-24 rounded-full bg-slate-100 overflow-hidden">
                           <div className="h-full rounded-full bg-[#013ff4]" style={{ width: `${rate}%` }} />
                         </div>
-                        <span className="text-[10px] font-bold text-slate-500">{rate}% lu ({fmt(read ?? 0)}/{fmt(sent)})</span>
+                        <span className="text-[10px] font-bold text-slate-500">
+                          {fmt(read ?? 0)} lue{(read ?? 0) > 1 ? "s" : ""}
+                          <span className="font-medium text-slate-400"> · {fmt(Math.max(0, sent - (read ?? 0)))} non lue{sent - (read ?? 0) > 1 ? "s" : ""} · {rate}%</span>
+                        </span>
                       </div>
                     )}
                   </div>

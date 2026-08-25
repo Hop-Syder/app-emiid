@@ -790,6 +790,13 @@ export interface Database {
       }
     }
     Functions: {
+      // Enregistre un clic de campagne et renvoie la destination stockée.
+      // Cf. migration 20260829. La destination vient de la base et jamais de
+      // l'URL appelante : voir app/api/t/[recipient]/[link]/route.ts.
+      record_email_click: {
+        Args: { p_recipient_id: string; p_link_id: string }
+        Returns: string | null
+      }
       get_network_stats: {
         Args: Record<string, never>
         Returns: Json

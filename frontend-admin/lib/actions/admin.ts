@@ -1,7 +1,7 @@
 "use server"
 
 import { createAdminClient, createServiceRoleClient, requireAdminSession, type AdminSessionProfile } from "@/lib/supabase/server"
-import { sendBulkEmails, isSmtpConfigured, verifyTransport } from "@/lib/mailer"
+import { sendBulkEmails, isSmtpConfigured, verifyTransport, dedupeRecipients } from "@/lib/mailer"
 
 export interface UserProfile {
   id: string
@@ -1747,6 +1747,48 @@ export async function getBroadcastReadCounts(broadcastIds: string[]): Promise<Re
   return Object.fromEntries(entries)
 }
 
+export interface CampaignClickStats {
+  total: number
+  clicked: number
+  not_clicked: number
+  click_rate: number
+}
+
+/**
+ * Clics par campagne e-mail.
+ *
+ * On mesure les clics, pas les ouvertures : le pixel de suivi est devenu
+ * ininterprétable — Apple Mail précharge toutes les images, gonflant les
+ * ouvertures de personnes qui n'ont rien lu, tandis que les clients qui
+ * bloquent les images n'en signalent aucune. Le clic reste un geste délibéré :
+ * le chiffre est plus bas, mais il est vrai.
+ */
+export async function getCampaignClickStats(
+  campaignIds: string[],
+): Promise<Record<string, CampaignClickStats>> {
+  const ids = Array.from(new Set(campaignIds.filter(Boolean)))
+  if (!ids.length) return {}
+  const supabase = await createAdminClient()
+  const admin = await requireAdminSession()
+  if (!admin) return {}
+
+  const entries = await Promise.all(
+    ids.map(async (id) => {
+      const { data } = await supabase.rpc("campaign_stats", { p_campaign_id: id })
+      const row = Array.isArray(data) ? data[0] : data
+      if (!row) return null
+      const stats = row as CampaignClickStats
+      return [id, {
+        total: Number(stats.total) || 0,
+        clicked: Number(stats.clicked) || 0,
+        not_clicked: Number(stats.not_clicked) || 0,
+        click_rate: Number(stats.click_rate) || 0,
+      }] as const
+    }),
+  )
+  return Object.fromEntries(entries.filter((e): e is NonNullable<typeof e> => e !== null))
+}
+
 // ============================================================
 // P2 #11 — Programmation des annonces (scheduling)
 // ============================================================
@@ -2020,6 +2062,66 @@ async function filterEmailOptIn(
   return { kept, skipped: recipients.length - kept.length }
 }
 
+
+// ============================================================
+// Suivi des clics de campagne
+// ============================================================
+
+/**
+ * Base publique des liens de suivi. Le lien est cliqué depuis une boîte mail,
+ * hors de tout contexte applicatif : il lui faut une URL absolue.
+ */
+function publicBaseUrl(): string {
+  return (
+    process.env.NEXT_PUBLIC_PUBLIC_URL ||
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    "https://app.emiid.com"
+  ).replace(/\/+$/, "")
+}
+
+/** Échappe une chaîne destinée à une expression régulière. */
+function escapeRegExp(v: string): string {
+  return v.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+}
+
+/**
+ * Remplace les liens du corps par des liens de suivi.
+ *
+ * Le gabarit renvoyé contient le marqueur __RID__ à la place de l'identifiant
+ * du destinataire : la substitution finale se fait à l'envoi, ce qui évite de
+ * réanalyser le HTML pour chacun.
+ *
+ * Les liens de désinscription sont laissés intacts : compter un désabonnement
+ * comme un signe d'intérêt fausserait la mesure, et allonger ce lien d'une
+ * redirection serait malvenu.
+ */
+function buildTrackedHtml(html: string, links: { id: string; url: string }[]): string {
+  const base = publicBaseUrl()
+  let out = html
+  for (const link of links) {
+    const target = `${base}/api/t/__RID__/${link.id}`
+    out = out.replace(
+      new RegExp(`(href\\s*=\\s*["'])${escapeRegExp(link.url)}(["'])`, "gi"),
+      `$1${target}$2`,
+    )
+  }
+  return out
+}
+
+/** URLs suivables présentes dans le corps, dédoublonnées. */
+function extractTrackableUrls(html: string): string[] {
+  const found = new Set<string>()
+  const re = /href\s*=\s*["']([^"']+)["']/gi
+  let m: RegExpExecArray | null
+  while ((m = re.exec(html))) {
+    const url = m[1].trim()
+    if (!/^https?:\/\//i.test(url)) continue
+    if (/unsubscribe|desabonn|desinscri|d%C3%A9sabonn/i.test(url)) continue
+    found.add(url)
+  }
+  return [...found]
+}
+
 /** Envoi d'une campagne : In-App (notifications) ou Mailing (e-mail via backend SMTP). */
 export async function sendCampaign(input: {
   type: "inapp" | "email"
@@ -2092,26 +2194,92 @@ export async function sendCampaign(input: {
     return { success: false, sent: 0, total: recipients.length, skipped, error: "Aucun destinataire abonné à la newsletter dans cette sélection (opt-in requis)." }
   }
 
+  // ─── Campagne enregistrée : sans elle, aucun clic ne pourrait être attribué ───
+  // Le suivi ne doit jamais empêcher un envoi : si l'enregistrement échoue, on
+  // expédie le message tel quel, sans mesure.
+  const unique = dedupeRecipients(kept)
+  let campaignId: string | null = null
+  let trackedHtml = html
+  const trackingByEmail = new Map<string, string>()
+
+  try {
+    const { data: campaignRow } = await supabase
+      .from("campaigns")
+      .insert({ subject, channel: "email", created_by: admin.userId })
+      .select("id")
+      .single()
+
+    campaignId = (campaignRow as { id: string } | null)?.id ?? null
+
+    if (campaignId) {
+      const urls = extractTrackableUrls(html)
+      if (urls.length) {
+        const { data: linkRows } = await supabase
+          .from("campaign_links")
+          .insert(urls.map((url) => ({ campaign_id: campaignId, url })))
+          .select("id, url")
+        const links = (linkRows as { id: string; url: string }[] | null) || []
+        if (links.length) trackedHtml = buildTrackedHtml(html, links)
+      }
+
+      for (let i = 0; i < unique.length; i += 500) {
+        const { data: recipientRows } = await supabase
+          .from("campaign_recipients")
+          .insert(
+            unique.slice(i, i + 500).map((r) => ({
+              campaign_id: campaignId,
+              user_id: r.user_id ?? null,
+              email: r.email,
+            })),
+          )
+          .select("id, email")
+        for (const row of (recipientRows as { id: string; email: string }[] | null) || []) {
+          trackingByEmail.set(row.email.trim().toLowerCase(), row.id)
+        }
+      }
+    }
+  } catch {
+    campaignId = null
+    trackedHtml = html
+    trackingByEmail.clear()
+  }
+
   try {
     const { sent, failed, firstError } = await sendBulkEmails(
-      kept.map((r) => ({ email: r.email, first_name: r.first_name, last_name: r.last_name })),
+      unique.map((r) => ({
+        email: r.email,
+        first_name: r.first_name,
+        last_name: r.last_name,
+        trackingId: trackingByEmail.get(r.email.trim().toLowerCase()) ?? null,
+      })),
       subject,
-      html,
+      trackedHtml,
+      // Un destinataire non enregistré reçoit le corps d'origine : mieux vaut un
+      // clic non compté qu'un lien mort.
+      (body, r) =>
+        r.trackingId ? body.replace(/__RID__/g, r.trackingId) : html,
     )
+
+    if (campaignId) {
+      await supabase
+        .from("campaigns")
+        .update({ sent_count: sent, failed_count: failed })
+        .eq("id", campaignId)
+    }
 
     await logAdminAction(supabase, admin, {
       action: "campaign",
       targetType: "audience",
-      targetLabel: `email · ${sent}/${kept.length}`,
-      details: { channel: "email", subject, count: sent, total: kept.length, failed, skipped_opt_out: skipped, criteria: input.criteria },
+      targetLabel: `email · ${sent}/${unique.length}`,
+      details: { channel: "email", subject, count: sent, total: unique.length, failed, skipped_opt_out: skipped, criteria: input.criteria, campaign_id: campaignId },
     })
 
     if (sent === 0) {
-      return { success: false, sent: 0, total: kept.length, failed, skipped, error: `Aucun e-mail envoyé (${failed} échec(s)) : ${firstError || "vérifiez la configuration SMTP."}` }
+      return { success: false, sent: 0, total: unique.length, failed, skipped, error: `Aucun e-mail envoyé (${failed} échec(s)) : ${firstError || "vérifiez la configuration SMTP."}` }
     }
-    return { success: true, sent, failed, skipped, total: kept.length }
+    return { success: true, sent, failed, skipped, total: unique.length }
   } catch (e) {
-    return { success: false, sent: 0, total: kept.length, skipped, error: e instanceof Error ? e.message : "Erreur SMTP" }
+    return { success: false, sent: 0, total: unique.length, skipped, error: e instanceof Error ? e.message : "Erreur SMTP" }
   }
 }
 
@@ -2181,4 +2349,128 @@ export async function getUserDetail(profileId: string, userId: string): Promise<
     subscription: (subRes.error ? null : (subRes.data as SubscriptionInfo | null)) ?? null,
     payments: (payRes.error ? [] : (payRes.data as PaymentInfo[])) || [],
   }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Modèles d'annonces réutilisables
+//
+// Une annonce envoyée ne laissait qu'une ligne dans admin_audit_log : illisible
+// et impossible à rejouer. Un modèle conserve le texte ET le ciblage, pour que
+// « renvoyer la même chose » ne demande pas de tout retaper.
+// ═══════════════════════════════════════════════════════════════════════════
+
+export interface MessageTemplate {
+  id: string
+  name: string
+  channel: "inapp" | "email"
+  subject: string
+  content: string
+  segment: string | null
+  criteria: Record<string, unknown> | null
+  link: string | null
+  use_count: number
+  last_used_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+/** Modèles enregistrés, les plus récemment modifiés d'abord. */
+export async function listTemplates(channel?: "inapp" | "email"): Promise<MessageTemplate[]> {
+  const supabase = await createAdminClient()
+  let query = supabase
+    .from("message_templates")
+    .select("*")
+    .order("updated_at", { ascending: false })
+    .limit(50)
+  if (channel) query = query.eq("channel", channel)
+
+  const { data, error } = await query
+  if (error) {
+    console.error("[templates] lecture échouée:", error.message)
+    return []
+  }
+  return (data as MessageTemplate[]) || []
+}
+
+/** Enregistre une annonce comme modèle réutilisable. */
+export async function saveTemplate(input: {
+  name: string
+  channel: "inapp" | "email"
+  subject: string
+  content: string
+  segment?: string | null
+  criteria?: Record<string, unknown> | null
+  link?: string | null
+}): Promise<{ success: boolean; id?: string; error?: string }> {
+  const admin = await requireAdminSession()
+  if (!admin) return { success: false, error: "Non autorisé" }
+
+  const name = input.name?.trim()
+  const subject = input.subject?.trim()
+  const content = input.content?.trim()
+  if (!name || !subject || !content) {
+    return { success: false, error: "Nom, objet et contenu sont requis" }
+  }
+
+  const supabase = await createAdminClient()
+  const { data, error } = await supabase
+    .from("message_templates")
+    .insert({
+      name,
+      channel: input.channel,
+      subject,
+      content,
+      segment: input.segment ?? null,
+      criteria: input.criteria ?? null,
+      link: input.link ?? null,
+      created_by: admin.userId,
+    })
+    .select("id")
+    .single()
+
+  if (error) return { success: false, error: error.message }
+
+  await logAdminAction(supabase, admin, {
+    action: "template.save",
+    targetType: "template",
+    targetId: (data as { id: string }).id,
+    targetLabel: name,
+    details: { channel: input.channel },
+  })
+
+  return { success: true, id: (data as { id: string }).id }
+}
+
+/** Signale qu'un modèle vient d'être réutilisé (pour remonter les plus utiles). */
+export async function markTemplateUsed(templateId: string): Promise<void> {
+  try {
+    const supabase = await createAdminClient()
+    const { data } = await supabase
+      .from("message_templates").select("use_count").eq("id", templateId).maybeSingle()
+    await supabase
+      .from("message_templates")
+      .update({
+        use_count: ((data as { use_count: number } | null)?.use_count ?? 0) + 1,
+        last_used_at: new Date().toISOString(),
+      })
+      .eq("id", templateId)
+  } catch (e) {
+    // Un compteur manqué ne doit pas empêcher l'envoi.
+    console.error("[templates] compteur non mis à jour:", e)
+  }
+}
+
+/** Supprime un modèle. L'historique des envois n'est pas touché. */
+export async function deleteTemplate(templateId: string): Promise<{ success: boolean; error?: string }> {
+  const admin = await requireAdminSession()
+  if (!admin) return { success: false, error: "Non autorisé" }
+
+  const supabase = await createAdminClient()
+  const { error } = await supabase.from("message_templates").delete().eq("id", templateId)
+  if (error) return { success: false, error: error.message }
+
+  await logAdminAction(supabase, admin, {
+    action: "template.delete", targetType: "template", targetId: templateId,
+  })
+  return { success: true }
 }
