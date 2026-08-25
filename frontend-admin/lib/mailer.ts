@@ -45,6 +45,23 @@ export interface MailRecipient {
   email: string
   first_name?: string | null
   last_name?: string | null
+  /**
+   * Identifiant de suivi propre à ce destinataire pour cette campagne. Sert à
+   * attribuer un clic à une personne ; absent, l'e-mail part simplement sans
+   * être tracé.
+   */
+  trackingId?: string | null
+}
+
+/** Dédoublonne une liste de destinataires par adresse, casse ignorée. */
+export function dedupeRecipients<T extends { email: string }>(list: T[]): T[] {
+  const seen = new Set<string>()
+  return list.filter((r) => {
+    const key = r.email.trim().toLowerCase()
+    if (!key || seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
 }
 
 /**
@@ -79,16 +96,14 @@ export async function sendBulkEmails(
   recipients: MailRecipient[],
   subject: string,
   html: string,
+  /**
+   * Dernière retouche du corps, destinataire par destinataire. Utilisée pour
+   * les liens de suivi, qui diffèrent pour chacun.
+   */
+  transform?: (html: string, recipient: MailRecipient) => string,
 ): Promise<{ sent: number; failed: number; firstError?: string }> {
   const from = buildSender()
-  // Dédoublonnage par e-mail (insensible à la casse).
-  const seen = new Set<string>()
-  const unique = recipients.filter((r) => {
-    const key = r.email.trim().toLowerCase()
-    if (!key || seen.has(key)) return false
-    seen.add(key)
-    return true
-  })
+  const unique = dedupeRecipients(recipients)
 
   let sent = 0
   let failed = 0
@@ -103,7 +118,7 @@ export async function sendBulkEmails(
         from,
         to: r.email,
         subject: personalize(subject, r),
-        html: personalize(html, r),
+        html: personalize(transform ? transform(html, r) : html, r),
       })
       sent++
     } catch (e) {

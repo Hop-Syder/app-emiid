@@ -453,7 +453,10 @@ export function BroadcastClient() {
                         <div className="h-1.5 w-24 rounded-full bg-slate-100 overflow-hidden">
                           <div className="h-full rounded-full bg-[#013ff4]" style={{ width: `${rate}%` }} />
                         </div>
-                        <span className="text-[10px] font-bold text-slate-500">{rate}% lu ({fmt(read ?? 0)}/{fmt(sent)})</span>
+                        <span className="text-[10px] font-bold text-slate-500">
+                          {fmt(read ?? 0)} lue{(read ?? 0) > 1 ? "s" : ""}
+                          <span className="font-medium text-slate-400"> · {fmt(Math.max(0, sent - (read ?? 0)))} non lue{sent - (read ?? 0) > 1 ? "s" : ""} · {rate}%</span>
+                        </span>
                       </div>
                     )}
                   </div>

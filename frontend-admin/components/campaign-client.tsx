@@ -12,12 +12,13 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import {
   Megaphone, Mail, Send, Loader2, Users, CheckCircle2, AlertTriangle, History,
   Bold, Italic, List, Code2, Eye, X, Search, BadgeCheck, Crown, UserPlus, UserX,
+  MousePointerClick,
 } from "lucide-react"
 import { toast } from "sonner"
 import { TemplatePanel } from "@/components/annonces/template-panel"
 import {
-  sendCampaign, countAudience, searchCampaignUsers, getAuditLog,
-  type AudienceCriteria, type CampaignRecipient, type AuditLogEntry,
+  sendCampaign, countAudience, searchCampaignUsers, getAuditLog, getCampaignClickStats,
+  type AudienceCriteria, type CampaignRecipient, type AuditLogEntry, type CampaignClickStats,
 } from "@/lib/actions/admin"
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
@@ -86,6 +87,7 @@ export function CampaignClient({ emailOnly = false }: { emailOnly?: boolean }) {
   const [preview, setPreview] = useState(false)
   const [lastResult, setLastResult] = useState<string | null>(null)
   const [history, setHistory] = useState<AuditLogEntry[]>([])
+  const [clickStats, setClickStats] = useState<Record<string, CampaignClickStats>>({})
 
   const buildCriteria = useMemo((): AudienceCriteria => ({
     verified: !!criteria.verified,
@@ -103,7 +105,17 @@ export function CampaignClient({ emailOnly = false }: { emailOnly?: boolean }) {
   }, [buildCriteria])
 
   const loadHistory = async () => {
-    try { setHistory(await getAuditLog({ action: "campaign", limit: 8 })) } catch { /* silencieux */ }
+    try {
+      const rows = await getAuditLog({ action: "campaign", limit: 8 })
+      setHistory(rows)
+      // Les clics ne concernent que les campagnes e-mail, et seulement celles
+      // envoyées depuis la mise en place du suivi : les plus anciennes n'ont
+      // pas d'identifiant de campagne.
+      const ids = rows
+        .map((r) => (r.details as { campaign_id?: string } | null)?.campaign_id)
+        .filter((v): v is string => !!v)
+      if (ids.length) setClickStats(await getCampaignClickStats(ids))
+    } catch { /* silencieux */ }
   }
   useEffect(() => { loadHistory() }, [])
 
@@ -399,7 +411,8 @@ export function CampaignClient({ emailOnly = false }: { emailOnly?: boolean }) {
         ) : (
           <ul className="divide-y divide-slate-100 rounded-2xl border border-slate-200 bg-white overflow-hidden">
             {history.map((h) => {
-              const d = h.details as { subject?: string; channel?: string; count?: number; total?: number }
+              const d = h.details as { subject?: string; channel?: string; count?: number; total?: number; campaign_id?: string }
+              const clicks = d.campaign_id ? clickStats[d.campaign_id] : undefined
               return (
                 <li key={h.id} className="flex items-center gap-3 p-4">
                   <div className="w-8 h-8 rounded-lg bg-[#013ff4]/10 flex items-center justify-center shrink-0">
@@ -408,6 +421,18 @@ export function CampaignClient({ emailOnly = false }: { emailOnly?: boolean }) {
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-bold text-slate-900 truncate">{d.subject || "(sans objet)"}</p>
                     <p className="text-[11px] text-slate-400 mt-0.5">{new Date(h.created_at).toLocaleString("fr-FR", { dateStyle: "medium", timeStyle: "short" })} · {d.channel === "email" ? "E-mail" : "In-App"}{h.admin_email ? ` · ${h.admin_email}` : ""}</p>
+                    {clicks && clicks.total > 0 && (
+                      <p
+                        className="mt-1 flex items-center gap-1.5 text-[11px] font-bold text-slate-500"
+                        title={`${fmt(clicks.clicked)} personne(s) ont cliqué, ${fmt(clicks.not_clicked)} ne l'ont pas fait`}
+                      >
+                        <MousePointerClick className="h-3 w-3 text-[#03b3f8]" />
+                        <span className="text-[#013ff4]">{fmt(clicks.clicked)} clic{clicks.clicked > 1 ? "s" : ""}</span>
+                        <span className="font-medium text-slate-400">
+                          · {fmt(clicks.not_clicked)} sans clic · {clicks.click_rate}%
+                        </span>
+                      </p>
+                    )}
                   </div>
                   <span className="text-xs font-bold text-emerald-600 shrink-0">{fmt(d.count ?? 0)}{d.total !== undefined && d.total !== d.count ? `/${fmt(d.total)}` : ""}</span>
                 </li>
