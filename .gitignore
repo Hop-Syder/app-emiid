@@ -50,6 +50,7 @@ Thumbs.db
 .skills/
 skills-lock.json
 .gemini/
+.herozionignore/
 
 # Project specific
 design-system

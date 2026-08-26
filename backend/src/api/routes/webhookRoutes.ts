@@ -25,7 +25,7 @@ const verifyWebhookSecret = (req: Request, res: Response, next: NextFunction) =>
   const expected = (process.env.WEBHOOK_SECRET || '').trim();
   if (!expected) {
     logger.error('WEBHOOK_SECRET non configuré : webhook bloqué par défaut.');
-    return res.status(503).json({ error: 'Webhook non configuré' });
+    return res.status(503).send('Webhook non configuré');
   }
 
   const provided = req.headers['x-webhook-secret'];
@@ -36,7 +36,7 @@ const verifyWebhookSecret = (req: Request, res: Response, next: NextFunction) =>
 
   if (providedBuf.length !== expectedBuf.length || !timingSafeEqual(providedBuf, expectedBuf)) {
     logger.warn('Webhook rejeté : secret invalide ou manquant.');
-    return res.status(401).json({ error: 'Unauthorized' });
+    return res.sendStatus(401);
   }
 
   next();
