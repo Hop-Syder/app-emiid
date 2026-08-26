@@ -1,9 +1,10 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Section d'affichage des entrepreneurs (carrousel horizontal fluide sur tous les écrans).
+ * @description Section d'affichage des entrepreneurs — carrousel horizontal sur
+ *              mobile/tablette, grille dense multi-colonnes sur desktop (≥ lg).
  * @created 2026-05-24
- * @updated 2026-07-13
+ * @updated 2026-08-26
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -39,9 +40,9 @@ export function EntrepreneursSection({ entrepreneursList, loading, variant = "te
   return (
     <section>
       {loading ? (
-        <div className="flex overflow-x-auto pb-6 gap-6 snap-x no-scrollbar w-full">
+        <div className="flex overflow-x-auto pb-6 gap-6 snap-x no-scrollbar w-full lg:grid lg:grid-cols-4 lg:overflow-visible">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="min-w-[280px] space-y-4 p-6 border rounded-xl bg-card snap-center">
+            <div key={i} className="min-w-[280px] lg:min-w-0 space-y-4 p-6 border rounded-xl bg-card snap-center">
               <div className="flex items-center gap-4">
                 <Skeleton className="h-16 w-16 rounded-full" />
                 <div className="space-y-2 flex-1">
@@ -59,17 +60,17 @@ export function EntrepreneursSection({ entrepreneursList, loading, variant = "te
         </div>
       ) : profiles.length > 0 ? (
         <div className="relative group/carousel">
-          {/* Flèche gauche */}
+          {/* Flèche gauche (masquée sur desktop : tout est visible dans la grille) */}
           <button
             onClick={() => scroll("left")}
-            className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 h-10 w-10 items-center justify-center rounded-full bg-slate-900/90 text-white/90 border border-white/10 shadow-xl opacity-0 group-hover/carousel:opacity-100 transition-all hover:bg-slate-800 hover:text-white backdrop-blur-md"
+            className="hidden md:flex lg:hidden absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 h-10 w-10 items-center justify-center rounded-full bg-slate-900/90 text-white/90 border border-white/10 shadow-xl opacity-0 group-hover/carousel:opacity-100 transition-all hover:bg-slate-800 hover:text-white backdrop-blur-md"
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
 
           <div
             ref={scrollRef}
-            className="flex overflow-x-auto pb-10 pt-4 px-4 -mx-4 gap-6 snap-x no-scrollbar w-full scroll-smooth"
+            className="flex overflow-x-auto pb-10 pt-4 px-4 -mx-4 gap-6 snap-x no-scrollbar w-full scroll-smooth lg:grid lg:grid-cols-4 lg:gap-5 xl:gap-6 lg:overflow-visible lg:p-0 lg:m-0"
           >
             {profiles.map((entrepreneur, index) => (
               <motion.div
@@ -78,7 +79,7 @@ export function EntrepreneursSection({ entrepreneursList, loading, variant = "te
                 animate={{ opacity: 1, scale: 1 }}
                 whileHover={{ scale: 1.03, y: -5, rotateY: 2 }}
                 transition={{ duration: 0.3, delay: index * 0.1 }}
-                className="min-w-[280px] snap-center relative group perspective-1000"
+                className="min-w-[280px] lg:min-w-0 snap-center relative group perspective-1000"
               >
                 {/* Magic glow for Elite (Premium) variant if applicable */}
                 {variant === "elite" && (
@@ -112,7 +113,7 @@ export function EntrepreneursSection({ entrepreneursList, loading, variant = "te
           {/* Flèche droite */}
           <button
             onClick={() => scroll("right")}
-            className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 h-10 w-10 items-center justify-center rounded-full bg-slate-900/90 text-white/90 border border-white/10 shadow-xl opacity-0 group-hover/carousel:opacity-100 transition-all hover:bg-slate-800 hover:text-white backdrop-blur-md"
+            className="hidden md:flex lg:hidden absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 h-10 w-10 items-center justify-center rounded-full bg-slate-900/90 text-white/90 border border-white/10 shadow-xl opacity-0 group-hover/carousel:opacity-100 transition-all hover:bg-slate-800 hover:text-white backdrop-blur-md"
           >
             <ChevronRight className="h-5 w-5" />
           </button>

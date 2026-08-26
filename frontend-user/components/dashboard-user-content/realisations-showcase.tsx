@@ -30,9 +30,9 @@ export function RealisationsShowcase() {
 
   if (loading) {
     return (
-      <div className="flex overflow-x-auto pb-6 pt-4 px-4 -mx-4 gap-6 no-scrollbar w-full">
+      <div className="flex overflow-x-auto pb-6 pt-4 px-4 -mx-4 gap-6 no-scrollbar w-full lg:grid lg:grid-cols-4 lg:overflow-visible lg:p-0 lg:m-0">
         {[0, 1, 2, 3].map((i) => (
-          <div key={i} className="min-w-[240px] sm:min-w-[280px] flex-shrink-0 aspect-square rounded-2xl bg-slate-100 animate-pulse" />
+          <div key={i} className="min-w-[240px] sm:min-w-[280px] lg:min-w-0 flex-shrink-0 aspect-square rounded-2xl bg-slate-100 animate-pulse" />
         ))}
       </div>
     )
@@ -56,21 +56,21 @@ export function RealisationsShowcase() {
           type="button"
           onClick={() => scroll("left")}
           aria-label="Défiler vers la gauche"
-          className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 z-20 h-10 w-10 items-center justify-center rounded-full bg-slate-900/90 text-white/90 border border-white/10 shadow-xl opacity-0 group-hover/carousel:opacity-100 transition-all hover:bg-slate-800 hover:text-white backdrop-blur-md"
+          className="hidden md:flex lg:hidden absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 z-20 h-10 w-10 items-center justify-center rounded-full bg-slate-900/90 text-white/90 border border-white/10 shadow-xl opacity-0 group-hover/carousel:opacity-100 transition-all hover:bg-slate-800 hover:text-white backdrop-blur-md"
         >
           <ChevronLeft className="h-5 w-5" />
         </button>
 
         <div
           ref={scrollRef}
-          className="flex overflow-x-auto pb-6 pt-4 px-4 -mx-4 gap-6 snap-x no-scrollbar w-full scroll-smooth"
+          className="flex overflow-x-auto pb-6 pt-4 px-4 -mx-4 gap-6 snap-x no-scrollbar w-full scroll-smooth lg:grid lg:grid-cols-4 lg:gap-5 xl:gap-6 lg:overflow-visible lg:p-0 lg:m-0"
         >
           {items.map((item) => (
             <button
               key={item.id}
               type="button"
               onClick={() => setSelected(item)}
-              className="group min-w-[240px] sm:min-w-[280px] flex-shrink-0 snap-start text-left rounded-2xl overflow-hidden bg-white border border-slate-100 shadow-[0_4px_24px_rgb(15,23,42,0.05)] hover:shadow-xl hover:-translate-y-1 transition-all relative focus:outline-none focus-visible:ring-2 focus-visible:ring-[#013ff4]/40"
+              className="group min-w-[240px] sm:min-w-[280px] lg:min-w-0 lg:shrink flex-shrink-0 snap-start text-left rounded-2xl overflow-hidden bg-white border border-slate-100 shadow-[0_4px_24px_rgb(15,23,42,0.05)] hover:shadow-xl hover:-translate-y-1 transition-all relative focus:outline-none focus-visible:ring-2 focus-visible:ring-[#013ff4]/40"
             >
               {/* Cover carrée */}
               <div className="relative aspect-square w-full bg-slate-100 overflow-hidden">
@@ -108,7 +108,7 @@ export function RealisationsShowcase() {
           type="button"
           onClick={() => scroll("right")}
           aria-label="Défiler vers la droite"
-          className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 z-20 h-10 w-10 items-center justify-center rounded-full bg-slate-900/90 text-white/90 border border-white/10 shadow-xl opacity-0 group-hover/carousel:opacity-100 transition-all hover:bg-slate-800 hover:text-white backdrop-blur-md"
+          className="hidden md:flex lg:hidden absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 z-20 h-10 w-10 items-center justify-center rounded-full bg-slate-900/90 text-white/90 border border-white/10 shadow-xl opacity-0 group-hover/carousel:opacity-100 transition-all hover:bg-slate-800 hover:text-white backdrop-blur-md"
         >
           <ChevronRight className="h-5 w-5" />
         </button>

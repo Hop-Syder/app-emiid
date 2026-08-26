@@ -25,7 +25,7 @@ export function DashboardHubContent({
   initialProximityProfiles = [],
   userLocation
 }: DashboardHubContentProps) {
-  const { stats, statsLoading, statsError } = useDashboardStats({
+  const { stats, statsError } = useDashboardStats({
     endpoint: "/api/dashboard-user/stats",
     fetcher: fetchWithAuth,
     refreshIntervalMs: 30000,
@@ -52,18 +52,16 @@ export function DashboardHubContent({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full -mt-10 z-20 space-y-12 relative">
 
         {/* =========================================
-            SECTION 1.5 : COCKPIT PERSONNEL
-            (complétude + preuve sociale + upsell — conversion)
+            SECTION 1.5 + 2 : COCKPIT PERSONNEL (bento desktop)
+            Complétude/stats + activité récente côte à côte sur ≥ lg.
             ========================================= */}
-        <div className="w-full">
-          <PersonalHero />
-        </div>
-
-        {/* =========================================
-            SECTION 2 : ACTIVITÉ RÉCENTE (INLINE)
-            ========================================= */}
-        <div className="w-full">
-          <InlineActivityFeed />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-6 xl:gap-8">
+          <div className="lg:col-span-7">
+            <PersonalHero />
+          </div>
+          <div className="lg:col-span-5">
+            <InlineActivityFeed />
+          </div>
         </div>
 
         {/* =========================================

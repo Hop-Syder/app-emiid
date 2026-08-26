@@ -52,7 +52,7 @@ const CategoryCard = ({ cat, idx, categoryCounts }: { cat: CategoryItem, idx: nu
     <Link
       key={idx}
       href={`/annuaire?category=${cat.id}`}
-      className={`snap-start shrink-0 w-[70%] sm:w-[45%] md:w-[22%] lg:w-[19%] group relative flex flex-col p-5 rounded-2xl border ${cat.bg} hover:shadow-xl hover:-translate-y-1 transition-all duration-500 text-left overflow-hidden`}
+      className={`snap-start shrink-0 w-[70%] sm:w-[45%] lg:w-auto lg:shrink group relative flex flex-col p-5 rounded-2xl border ${cat.bg} hover:shadow-xl hover:-translate-y-1 transition-all duration-500 text-left overflow-hidden`}
     >
       {/* Décoration d'arrière-plan avec glow doux */}
       <div className={`absolute -right-6 -bottom-6 w-32 h-32 rounded-full blur-3xl opacity-20 group-hover:opacity-40 transition-opacity duration-500 ${cat.bg.replace('bg-', 'bg-gradient-to-br from-white to-')}`} />
@@ -93,14 +93,14 @@ export function CategoriesExplorer({ categoryCounts }: CategoriesExplorerProps =
   return (
     <div className="flex flex-col gap-4">
       {/* LIGNE 1 */}
-      <div className="flex overflow-x-auto gap-4 pb-2 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <div className="flex overflow-x-auto gap-4 pb-2 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] lg:grid lg:grid-cols-5 lg:gap-5 xl:gap-6 lg:overflow-visible">
         {row1.map((cat, idx) => (
           <CategoryCard key={idx} cat={cat} idx={idx} categoryCounts={categoryCounts} />
         ))}
       </div>
       
       {/* LIGNE 2 */}
-      <div className="flex overflow-x-auto gap-4 pb-4 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <div className="flex overflow-x-auto gap-4 pb-4 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] lg:pb-0 lg:grid lg:grid-cols-5 lg:gap-5 xl:gap-6 lg:overflow-visible">
         {row2.map((cat, idx) => (
           <CategoryCard key={idx} cat={cat} idx={idx} categoryCounts={categoryCounts} />
         ))}
