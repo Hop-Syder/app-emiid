@@ -14,7 +14,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { motion } from "framer-motion"
 import {
     AlarmClock,
@@ -90,15 +90,12 @@ const STATE_COPY: Record<
 
 export function PaiementRetourContent() {
     const router = useRouter()
+    const searchParams = useSearchParams()
     const [state, setState] = useState<ViewState>("loading")
     const [tx, setTx] = useState<Transaction | null>(null)
 
     // La référence locale (tx.id) est lue une seule fois au premier rendu.
-    const initialTxIdRef = useRef<string | null>(null)
-    if (initialTxIdRef.current === null) {
-        const params = new URLSearchParams(window.location.search)
-        initialTxIdRef.current = params.get("t")
-    }
+    const initialTxIdRef = useRef<string | null>(searchParams.get("t"))
 
     const startRef = useRef<number>(0)
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
