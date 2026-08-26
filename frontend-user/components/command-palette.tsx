@@ -62,8 +62,18 @@ export function CommandPalette() {
     <CommandDialog 
       open={open} 
       onOpenChange={setOpen}
-      // Force premium dark aesthetic with glassmorphism
-      className="bg-slate-950/70 backdrop-blur-3xl border border-white/10 shadow-[0_0_80px_-20px_rgba(255,255,255,0.1)] text-slate-100 overflow-hidden sm:max-w-2xl"
+      /*
+       * Le composant Command interne peint `bg-popover`, soit du blanc opaque
+       * en thème clair, par-dessus ce panneau sombre : tous les textes clairs
+       * se retrouvaient sur du blanc, donc invisibles. On le rend transparent
+       * pour que le panneau reprenne la main.
+       *
+       * Le panneau lui-même passe de 70 % à 96 % d'opacité. Le flou
+       * d'arrière-plan ne peut pas garantir la lisibilité : `backdrop-filter`
+       * n'est pas honoré partout, et il ne faut pas qu'un texte dépende d'un
+       * effet qui peut ne pas s'appliquer.
+       */
+      className="bg-slate-950/95 backdrop-blur-3xl border border-white/10 shadow-[0_0_80px_-20px_rgba(255,255,255,0.1)] text-slate-100 overflow-hidden sm:max-w-2xl [&_[data-slot=command]]:bg-transparent [&_[data-slot=command]]:text-slate-100"
     >
       {/* Subtle Aurora Glow inside the dialog */}
       <div className="absolute top-0 left-1/4 w-96 h-24 bg-blue-500/20 rounded-full blur-[80px] pointer-events-none" />
@@ -87,7 +97,7 @@ export function CommandPalette() {
         </CommandEmpty>
         
         <div className="p-2 space-y-2">
-          <CommandGroup heading={<span className="text-xs font-bold uppercase tracking-wider text-slate-500 px-2">Navigation Rapide</span>}>
+          <CommandGroup heading={<span className="text-xs font-bold uppercase tracking-wider text-slate-400 px-2">Navigation Rapide</span>}>
             <CommandItem 
               onSelect={() => runCommand(() => router.push("/dashboard-user"))}
               className="data-[selected=true]:bg-white/10 data-[selected=true]:text-white text-slate-300 rounded-xl transition-all cursor-pointer py-3 my-1"
@@ -123,7 +133,7 @@ export function CommandPalette() {
         <CommandSeparator className="bg-white/5" />
 
         <div className="p-2 space-y-2">
-          <CommandGroup heading={<span className="text-xs font-bold uppercase tracking-wider text-slate-500 px-2">Gestion du Compte</span>}>
+          <CommandGroup heading={<span className="text-xs font-bold uppercase tracking-wider text-slate-400 px-2">Gestion du Compte</span>}>
             <CommandItem 
               onSelect={() => runCommand(() => router.push("/profil"))}
               className="data-[selected=true]:bg-white/10 data-[selected=true]:text-white text-slate-300 rounded-xl transition-all cursor-pointer py-3 my-1"
@@ -132,7 +142,7 @@ export function CommandPalette() {
                 <User className="h-4 w-4" />
               </div>
               <span className="font-medium">Mon Profil Public</span>
-              <CommandShortcut className="text-slate-500 border border-slate-700 bg-slate-800/50 px-2 py-0.5 rounded-md">⌘P</CommandShortcut>
+              <CommandShortcut className="text-slate-400 border border-slate-700 bg-slate-800/50 px-2 py-0.5 rounded-md">⌘P</CommandShortcut>
             </CommandItem>
 
             <CommandItem 
@@ -143,7 +153,7 @@ export function CommandPalette() {
                 <Wallet className="h-4 w-4" />
               </div>
               <span className="font-medium">Mon Portefeuille EmiID</span>
-              <CommandShortcut className="text-slate-500 border border-slate-700 bg-slate-800/50 px-2 py-0.5 rounded-md">⌘B</CommandShortcut>
+              <CommandShortcut className="text-slate-400 border border-slate-700 bg-slate-800/50 px-2 py-0.5 rounded-md">⌘B</CommandShortcut>
             </CommandItem>
 
             <CommandItem 
@@ -154,7 +164,7 @@ export function CommandPalette() {
                 <Settings className="h-4 w-4" />
               </div>
               <span className="font-medium">Paramètres & Sécurité</span>
-              <CommandShortcut className="text-slate-500 border border-slate-700 bg-slate-800/50 px-2 py-0.5 rounded-md">⌘S</CommandShortcut>
+              <CommandShortcut className="text-slate-400 border border-slate-700 bg-slate-800/50 px-2 py-0.5 rounded-md">⌘S</CommandShortcut>
             </CommandItem>
           </CommandGroup>
         </div>
