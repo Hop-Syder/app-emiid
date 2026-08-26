@@ -3,10 +3,11 @@
  * @organization Nexus Partners
  * @description Écran de recherche — point d'entrée universel de la recherche de profils.
  *              Design clair aligné charte (bleu roi #013ff4 / cyan #03b3f8).
- *              Conçu pour la recherche en langage naturel (IA à venir).
+ *              Assistant Groq : reformulations suggérées pendant la saisie,
+ *              dégradation silencieuse si le service est indisponible.
  *              Soumission → /annuaire?search=…
  * @created 2026-08-19
- * @updated 2026-08-19
+ * @updated 2026-08-26
  */
 
 "use client"
@@ -14,12 +15,15 @@
 import { useState, useRef, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Bell, Search, ArrowRight, Mic, Sparkles } from "lucide-react"
+import { ArrowLeft, Bell, Search, ArrowRight, Mic, Sparkles, Loader2 } from "lucide-react"
 
 // Délai entre la fin de la dictée et le lancement de la recherche. Assez court
 // pour paraître immédiat, assez long pour que la phrase reconnue s'affiche —
 // l'utilisateur voit ce qui a été compris avant de changer d'écran.
 const VOICE_SUBMIT_DELAY_MS = 30
+
+// Délai d'inactivité après la dernière frappe avant d'interroger l'assistant.
+const ASSISTANT_DEBOUNCE_MS = 600
 
 // Exemples de requêtes en langage naturel (guident l'utilisateur non expert).
 const SUGGESTIONS = [
@@ -37,6 +41,10 @@ export default function RecherchePage() {
     // Phrase dictée en attente d'envoi : passer par un état évite de capturer
     // une version périmée de la navigation dans le gestionnaire de l'API vocale.
     const [dictated, setDictated] = useState<string | null>(null)
+    // Reformulations de l'assistant Groq pendant la saisie (charge vide = masqué).
+    const [assistantMessage, setAssistantMessage] = useState<string | null>(null)
+    const [assistantSuggestions, setAssistantSuggestions] = useState<string[]>([])
+    const [assistantLoading, setAssistantLoading] = useState(false)
     const inputRef = useRef<HTMLInputElement>(null)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const recognitionRef = useRef<any>(null)
@@ -86,6 +94,38 @@ export default function RecherchePage() {
         }, VOICE_SUBMIT_DELAY_MS)
         return () => clearTimeout(timer)
     }, [dictated, router])
+
+    // Assistant de recherche (Groq) : reformulations en direct pendant la frappe.
+    // Non bloquant — réponse vide ou erreur = on masque simplement les pistes IA.
+    useEffect(() => {
+        const q = query.trim()
+        if (q.length < 2) {
+            setAssistantMessage(null)
+            setAssistantSuggestions([])
+            setAssistantLoading(false)
+            return
+        }
+        setAssistantLoading(true)
+        const controller = new AbortController()
+        const timer = setTimeout(async () => {
+            try {
+                const res = await fetch(`/api/search-assistant?q=${encodeURIComponent(q)}`, {
+                    signal: controller.signal,
+                })
+                const data = await res.json()
+                setAssistantMessage(typeof data?.message === "string" && data.message ? data.message : null)
+                setAssistantSuggestions(Array.isArray(data?.suggestions) ? data.suggestions.slice(0, 4) : [])
+            } catch {
+                /* requête annulée ou service indisponible : on reste silencieux */
+            } finally {
+                setAssistantLoading(false)
+            }
+        }, ASSISTANT_DEBOUNCE_MS)
+        return () => {
+            controller.abort()
+            clearTimeout(timer)
+        }
+    }, [query])
 
     const submit = useCallback(() => {
         const q = query.trim()
@@ -217,19 +257,41 @@ export default function RecherchePage() {
                     </div>
                 </div>
 
-                {/* ── Assistant (à venir) ────────────────────────────────────── */}
+                {/* ── Assistant de recherche (Groq, dégradation silencieuse) ── */}
                 <div className="mt-auto pt-10">
                     <div className="relative overflow-hidden rounded-3xl border border-slate-100 bg-[linear-gradient(135deg,#013ff4_0%,#03b3f8_100%)] p-5 text-white shadow-[0_18px_45px_-15px_rgba(1,63,244,0.5)]">
                         <div className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full bg-white/15 blur-2xl" />
                         <div className="relative flex items-center gap-3">
                             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/15">
-                                <Sparkles className="h-5 w-5" />
+                                {assistantLoading ? (
+                                    <Loader2 className="h-5 w-5 animate-spin" />
+                                ) : (
+                                    <Sparkles className="h-5 w-5" />
+                                )}
                             </div>
                             <div className="min-w-0">
                                 <p className="text-sm font-bold">Assistant de recherche</p>
-                                <p className="text-xs text-white/80">Sans résultat, il vous suggère des pistes adaptées à votre besoin.</p>
+                                <p className="text-xs text-white/80">
+                                    {assistantMessage ||
+                                        "Décrivez votre besoin : il vous suggère des pistes adaptées."}
+                                </p>
                             </div>
                         </div>
+                        {assistantSuggestions.length > 0 && (
+                            <div className="relative mt-4 flex flex-wrap gap-2">
+                                {assistantSuggestions.map((s) => (
+                                    <button
+                                        key={s}
+                                        onClick={() =>
+                                            router.push(`/annuaire?search=${encodeURIComponent(s)}`)
+                                        }
+                                        className="rounded-full bg-white/15 px-3.5 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-white/25"
+                                    >
+                                        {s}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
