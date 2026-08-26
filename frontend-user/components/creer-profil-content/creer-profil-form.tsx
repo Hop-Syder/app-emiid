@@ -317,7 +317,12 @@ export const CreerProfilForm = React.memo(function CreerProfilForm({
             </div>
 
             {/* NAVIGATION DOCK */}
-            <div className="fixed bottom-[96px] md:bottom-6 left-0 right-0 z-50 px-3 md:px-4 pointer-events-none flex flex-col items-center gap-3">
+            {/* `--sidebar-w` est posée par NavigationShell : sans elle, cette
+                barre — fixée au bord gauche de la fenêtre — passerait sous la
+                barre latérale sur ordinateur et se centrerait sur la fenêtre
+                plutôt que sur le contenu. La valeur de repli couvre les pages
+                rendues hors du shell. */}
+            <div className="fixed bottom-[96px] md:bottom-6 left-0 lg:left-[var(--sidebar-w,0px)] right-0 z-50 px-3 md:px-4 pointer-events-none flex flex-col items-center gap-3">
                 <motion.div
                     initial={{ y: 50, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
