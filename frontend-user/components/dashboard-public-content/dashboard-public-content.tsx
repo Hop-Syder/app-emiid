@@ -1,7 +1,18 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Dashboard public 2.0 — Live Network Matrix & Dynamic Card Showcase.
+ * @description Hub public — même ossature que le hub connecté.
+ *
+ *              Les rubriques et leur ordre sont ceux de /dashboard-user. Celles
+ *              qui n'ont de sens que pour un compte — cockpit personnel,
+ *              activité récente, talents à proximité — sont présentées
+ *              verrouillées plutôt qu'omises : le visiteur voit ce qu'il
+ *              gagnerait, au lieu de découvrir après inscription des rubriques
+ *              qu'il ne soupçonnait pas.
+ *
+ *              Les rubriques de découverte, elles, sont ouvertes et servent le
+ *              même composant que côté connecté : c'est la promesse du produit
+ *              qu'on montre, pas une maquette.
  * @created 2025-12-24
  * @updated 2026-08-20
  * 🌐 ceo.nexuspartners.xyz
@@ -11,7 +22,7 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
-import { AlertTriangle, LayoutGrid } from "lucide-react"
+import { AlertTriangle, Gauge, Bell } from "lucide-react"
 import { fetchPublic } from "@/lib/apiClient"
 import { createClient } from "@/lib/supabase/client"
 import { useDashboardStats } from "@/hooks/use-dashboard-stats"
@@ -21,8 +32,9 @@ import { LiveNetworkTicker } from "./live-network-ticker"
 import { BentoMatrixPublic } from "./bento-matrix-public"
 import { InstantClaimTerminal } from "./instant-claim-terminal"
 import { ProximityLockSection } from "./proximity-lock-section"
-import { EntrepreneursSection } from "./entrepreneurs-section"
-import { CategoriesExplorer } from "../dashboard-user-content/categories-explorer"
+import { PublicHubContextualCta } from "./public-hub-contextual-cta"
+import { LockedSection, CockpitPreview, ActivityPreview } from "./locked-section"
+import { ExplorerHub } from "../dashboard-user-content/explorer-hub"
 import { HubCommunities } from "../dashboard-user-content/hub-communities"
 
 export interface EntrepreneurProfile {
@@ -83,6 +95,14 @@ export function DashboardPublicContent({ initialStats = null, initialProfiles = 
     })
 
     const supabase = useMemo(() => createClient(), [])
+
+    // ExplorerHub attend deux listes distinctes. La requête ramène les profils
+    // les plus récents, d'où « nouveaux » = la liste entière ; l'onglet Premium
+    // ne s'affiche que s'il y a effectivement des profils premium dedans.
+    const premiumProfiles = useMemo(
+        () => entrepreneursList.filter((e) => e.premium),
+        [entrepreneursList],
+    )
 
     useEffect(() => {
         let isMounted = true
@@ -194,14 +214,14 @@ export function DashboardPublicContent({ initialStats = null, initialProfiles = 
             </div>
 
             {/* =========================================
-                SECTION 2 : LIVE NETWORK TICKER
+                BANDEAU RÉSEAU EN DIRECT — propre au public
                 ========================================= */}
             <div className="w-full my-4">
                 <LiveNetworkTicker />
             </div>
 
             {/* =========================================
-                SECTION 3 : DÉCOUVERTE & MATRICE BENTO 2.0
+                CORPS DU HUB — mêmes rubriques que /dashboard-user
                 ========================================= */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full space-y-12 relative z-20 pt-4">
                 {profilesWarning && (
@@ -216,32 +236,62 @@ export function DashboardPublicContent({ initialStats = null, initialProfiles = 
                     </div>
                 )}
 
-                {/* Grille Entrepreneurs du Réseau */}
-                <EntrepreneursSection entrepreneursList={entrepreneursList} loading={loading} />
+                {/* =========================================
+                    SECTION 1.5 : COCKPIT PERSONNEL — verrouillée
+                    ========================================= */}
+                <LockedSection
+                    title="Votre cockpit personnel"
+                    icon={Gauge}
+                    pitch="Vues de votre profil, abonnés, complétude de votre carte : votre tableau de bord se remplit dès la création du compte."
+                >
+                    <CockpitPreview />
+                </LockedSection>
 
-                {/* Matrice Bento 2.0 (Radar, Studio Thèmes, Certifications) */}
-                <BentoMatrixPublic />
+                {/* =========================================
+                    SECTION 2 : ACTIVITÉ RÉCENTE — verrouillée
+                    ========================================= */}
+                <LockedSection
+                    title="Votre activité récente"
+                    icon={Bell}
+                    iconClassName="bg-amber-100 text-amber-600"
+                    pitch="Qui a consulté votre profil, qui vous suit, qui vous écrit — suivez tout au même endroit."
+                >
+                    <ActivityPreview />
+                </LockedSection>
 
-                {/* Talents à proximité (Proximity Lock) */}
+                {/* =========================================
+                    SECTION 3 : TALENTS À PROXIMITÉ — verrouillée
+                    ========================================= */}
                 <ProximityLockSection />
 
-                {/* Explorer par Type de Profil (Catégories) */}
-                <div className="space-y-6 pt-8 pb-10 px-4 sm:px-8 -mx-4 sm:-mx-8 bg-white rounded-[2.5rem] border border-slate-200/80 shadow-xs relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-[#03b3f8]/5 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
+                {/* =========================================
+                    SECTION 4 : EXPLORER — ouverte
+                    Même composant que côté connecté : la découverte est
+                    précisément ce qu'on veut donner à voir avant l'inscription.
+                    ========================================= */}
+                <ExplorerHub
+                    premiumProfiles={premiumProfiles}
+                    newProfiles={entrepreneursList}
+                    categoryCounts={stats?.categoryCounts}
+                    loading={loading}
+                />
 
-                    <div className="relative z-10 flex flex-row items-center justify-between px-1 sm:px-2 gap-2">
-                        <h3 className="text-lg sm:text-2xl font-black text-slate-900 flex items-center gap-2 sm:gap-3 tracking-tight font-heading">
-                            <div className="p-2 bg-[#cdeefb]/80 text-[#0396d0] rounded-2xl shrink-0 shadow-xs">
-                                <LayoutGrid className="w-5 h-5" />
-                            </div>
-                            <span className="truncate">Explorer par Type de Profil</span>
-                        </h3>
-                    </div>
-                    <CategoriesExplorer categoryCounts={stats?.categoryCounts} />
+                {/* =========================================
+                    GALERIE DES MÉTIERS — propre au public
+                    ========================================= */}
+                <BentoMatrixPublic />
+
+                {/* =========================================
+                    SECTION 7 : CTA CONTEXTUEL
+                    ========================================= */}
+                <div className="pt-4 pb-4">
+                    <PublicHubContextualCta />
                 </div>
 
-                {/* Communautés & Groupes */}
-                <div className="pt-2">
+                {/* =========================================
+                    SECTION 8 : COMMUNAUTÉS
+                    ========================================= */}
+                <div className="pt-2 pb-8">
                     <HubCommunities />
                 </div>
 
