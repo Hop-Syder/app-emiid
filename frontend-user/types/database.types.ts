@@ -528,6 +528,26 @@ export interface Database {
         Update: { views_count?: number; whatsapp_clicks?: number; call_clicks?: number; shares_count?: number }
         Relationships: []
       }
+      // Traçabilité paiements (migration 20260823). Lecture seule côté client
+      // (RLS select_own) — écritures réservées au backend (service role).
+      payment_transactions: {
+        Row: {
+          id: string
+          user_id: string
+          amount: number
+          currency: string
+          provider: 'FEDAPAY' | 'KKIAPAY'
+          provider_ref: string | null
+          type: 'SUBSCRIPTION_PRO' | 'PROFILE_BOOST'
+          status: 'PENDING' | 'SUCCESS' | 'FAILED'
+          metadata: Json | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: { user_id: string; amount: number; type: string }
+        Update: never
+        Relationships: []
+      }
       push_subscriptions: {
         Row: {
           id: string

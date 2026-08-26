@@ -85,7 +85,7 @@ export async function createCheckout(req: Request, res: Response) {
             const fp = await createTransaction({
                 amount: config.amount,
                 description: config.label,
-                callbackUrl: `${appUrl()}/dashboard/subscription?status=callback`,
+                callbackUrl: `${appUrl()}/paiement/retour?t=${tx.id}`,
                 customer: {
                     firstname: user.user_metadata?.first_name,
                     lastname: user.user_metadata?.last_name,
@@ -188,7 +188,7 @@ export async function createBoostCheckout(req: Request, res: Response) {
             const fp = await createTransaction({
                 amount: config.amount,
                 description: config.label,
-                callbackUrl: `${appUrl()}/parametres?tab=boost&status=callback`,
+                callbackUrl: `${appUrl()}/paiement/retour?t=${tx.id}`,
                 customer: {
                     firstname: user.user_metadata?.first_name,
                     lastname: user.user_metadata?.last_name,
