@@ -13,13 +13,12 @@
 import { usePathname, useSearchParams } from "next/navigation"
 import { useState, useEffect, Suspense } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { DesktopSidebarGuest } from "./desktop-sidebar-guest"
-import { DesktopSidebarAuth } from "./desktop-sidebar-auth"
+import { DesktopTopbarGuest } from "./desktop-topbar-guest"
+import { DesktopTopbarAuth } from "./desktop-topbar-auth"
 import { MobileDockGuest } from "./mobile-dock-guest"
 import { MobileDockAuth } from "./mobile-dock-auth"
 import { CommandPalette } from "@/components/command-palette"
 import { CommandPaletteProvider } from "@/components/command-palette-context"
-import { isDevAuthBypass } from "@/lib/dev-auth-bypass"
 
 interface NavigationShellProps {
   children: React.ReactNode
@@ -52,10 +51,6 @@ export function NavigationShell({ children, isPublic = false }: NavigationShellP
     
     // Vérification initiale de la session
     async function checkAuth() {
-      if (isDevAuthBypass) {
-        setEffectiveIsPublic(false)
-        return
-      }
       const { data: { session } } = await supabase.auth.getSession()
       setEffectiveIsPublic(!session)
     }
@@ -64,10 +59,6 @@ export function NavigationShell({ children, isPublic = false }: NavigationShellP
 
     // Écouter les changements d'état d'authentification
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (isDevAuthBypass) {
-        setEffectiveIsPublic(false)
-        return
-      }
       setEffectiveIsPublic(!session)
     })
 
@@ -85,8 +76,8 @@ export function NavigationShell({ children, isPublic = false }: NavigationShellP
         <ChatActiveWatcher pathname={pathname} onChange={setIsMessageChatActive} />
       </Suspense>
 
-      {/* Sidebar pour Desktop (toujours visible sur grand écran) */}
-      {effectiveIsPublic ? <DesktopSidebarGuest /> : <DesktopSidebarAuth />}
+      {/* Topbar pour Desktop (toujours visible sur grand écran) */}
+      {effectiveIsPublic ? <DesktopTopbarGuest /> : <DesktopTopbarAuth />}
 
       {/* 
         Conteneur principal: 

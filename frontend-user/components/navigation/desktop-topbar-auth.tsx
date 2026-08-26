@@ -38,7 +38,7 @@ const privateNavItems = [
   { name: "Paramètres", href: "/parametres", icon: Settings },
 ]
 
-export function DesktopSidebarAuth() {
+export function DesktopTopbarAuth() {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
@@ -71,7 +71,7 @@ export function DesktopSidebarAuth() {
   return (
     <div className="hidden lg:flex fixed top-4 left-1/2 -translate-x-1/2 z-50 items-center justify-between w-[calc(100%-2rem)] max-w-6xl px-3 py-2 rounded-full border border-slate-200/90 dark:border-white/15 bg-white/90 dark:bg-slate-950/90 backdrop-blur-2xl shadow-[0_16px_40px_rgba(15,23,42,0.18)] pointer-events-auto">
       {/* ── GAUCHE : Logo & Identité Brand ────────────────────────────── */}
-      <Link href="/dashboard-user" className="flex items-center gap-2.5 pl-2 pr-3 group outline-none shrink-0">
+      <Link href="/dashboard-user" className="flex items-center gap-2.5 pl-2 pr-3 group focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none shrink-0">
         <div className="relative flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#013ff4] to-[#1e61ff] shadow-md shadow-blue-500/25 transition-transform group-hover:scale-105">
           <Image
             src="/logo/icon.svg"
@@ -97,7 +97,7 @@ export function DesktopSidebarAuth() {
             <Link
               key={item.name}
               href={item.href}
-              className="relative flex items-center gap-2 px-3.5 py-2 rounded-full text-xs font-bold transition-all outline-none group"
+              className="relative flex items-center gap-2 px-3.5 py-2 rounded-full text-xs font-bold transition-all focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none group"
             >
               {active && (
                 <motion.span
@@ -107,7 +107,7 @@ export function DesktopSidebarAuth() {
                 />
               )}
               <span className="relative flex items-center justify-center">
-                <Icon className={cn("h-4 w-4 transition-colors", active ? "text-[#013ff4]" : "text-slate-500 group-hover:text-slate-900 dark:text-slate-400 dark:group-hover:text-white")} />
+                <Icon className={cn("h-4 w-4 transition-colors", active ? "text-[#013ff4]" : "text-slate-600 group-hover:text-slate-900 dark:text-slate-400 dark:group-hover:text-white")} />
                 {hasBadge && (
                   <span className="absolute -top-1 -right-1 flex h-2 w-2 rounded-full bg-rose-500 ring-2 ring-white" />
                 )}
@@ -131,7 +131,7 @@ export function DesktopSidebarAuth() {
         </Link>
 
         <DropdownMenu>
-          <DropdownMenuTrigger className="outline-none">
+          <DropdownMenuTrigger className="focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none rounded-full">
             <div className="flex items-center gap-2 p-1 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer">
               <Avatar className="h-9 w-9 rounded-full ring-2 ring-slate-200 dark:ring-white/20">
                 <AvatarImage src={profile?.avatar_url || "/profil/avatar.jpg"} />
