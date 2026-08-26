@@ -28,6 +28,8 @@ interface ProfileSectionProps {
   saving: boolean
   handleSave: () => void
   handleCancel: () => void
+  /** Masque la barre d'actions quand une autre section enregistre déjà. */
+  hideActions?: boolean
 }
 
 const INPUT = "h-11 rounded-xl bg-slate-50 border-slate-200 text-sm font-medium text-slate-900 focus:ring-primary/20 transition-all placeholder:text-slate-400"
@@ -51,7 +53,7 @@ function SectionCard({ title, children }: { title: string; children: React.React
   )
 }
 
-export function ProfileSection({ profile, setProfile, saving, handleSave, handleCancel }: ProfileSectionProps) {
+export function ProfileSection({ profile, setProfile, saving, handleSave, handleCancel, hideActions = false }: ProfileSectionProps) {
   const [verifyMethod, setVerifyMethod] = useState<"whatsapp" | "sms" | null>(null)
   const [otpCode,      setOtpCode]      = useState("")
   const [verifying,    setVerifying]    = useState(false)
@@ -128,17 +130,6 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
               value={profile.last_name || ""}
               onChange={e => up("last_name", e.target.value)}
               className={INPUT} placeholder="Votre nom"
-            />
-          </Field>
-        </div>
-        <div className="mt-4">
-          <Field label="Bio">
-            <textarea
-              value={profile.bio || ""}
-              onChange={e => up("bio", e.target.value)}
-              rows={3}
-              className="w-full rounded-xl bg-slate-50 border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-y placeholder:text-slate-400"
-              placeholder="Racontez votre parcours et vos réalisations..."
             />
           </Field>
         </div>
@@ -358,15 +349,20 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
         </div>
       </SectionCard>
 
-      {/* ── Actions ──────────────────────────────────────────────────────────── */}
-      <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-1">
-        <Button variant="outline" onClick={handleCancel} className="w-full sm:w-auto h-11 rounded-xl border-slate-200 font-bold">
-          Annuler
-        </Button>
-        <Button onClick={handleSave} disabled={saving} className="w-full sm:w-auto h-11 rounded-xl font-bold shadow-sm">
-          {saving ? "Enregistrement..." : "Enregistrer les modifications"}
-        </Button>
-      </div>
+      {/* ── Actions ──────────────────────────────────────────────────────────
+          Masquées quand la section est empilée sous une autre qui enregistre le
+          même profil : deux barres laisseraient croire à deux enregistrements
+          distincts. */}
+      {!hideActions && (
+        <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-1">
+          <Button variant="outline" onClick={handleCancel} className="w-full sm:w-auto h-11 rounded-xl border-slate-200 font-bold">
+            Annuler
+          </Button>
+          <Button onClick={handleSave} disabled={saving} className="w-full sm:w-auto h-11 rounded-xl font-bold shadow-sm">
+            {saving ? "Enregistrement..." : "Enregistrer les modifications"}
+          </Button>
+        </div>
+      )}
 
     </div>
   )
