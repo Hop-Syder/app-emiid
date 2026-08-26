@@ -821,6 +821,15 @@ export interface Database {
         Args: Record<string, never>
         Returns: Json
       }
+      // Gestion self-service de l'abonnement. Cf. migration 20260826.
+      set_auto_renew: {
+        Args: { p_enabled: boolean }
+        Returns: undefined
+      }
+      cancel_my_subscription: {
+        Args: Record<string, never>
+        Returns: undefined
+      }
       // Profil public complet (contact inclus), un seul à la fois. Cf. migration H1.
       get_public_profile: {
         Args: { identifier: string }
