@@ -111,11 +111,16 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-white flex items-center justify-center p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen w-full bg-[#000616] flex items-center justify-center p-4 sm:p-6 lg:p-8">
       <div className="w-full max-w-6xl flex flex-col lg:flex-row items-center lg:items-stretch gap-8 lg:gap-8">
 
         {/* ── Illustration : bannière sur mobile, colonne droite sur desktop ── */}
-        <div className="w-full lg:w-1/2 lg:order-2">
+        <motion.div
+          initial={{ opacity: 0, y: 24, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
+          className="w-full lg:w-1/2 lg:order-2"
+        >
           <div className="relative w-full h-56 sm:h-72 lg:h-full lg:min-h-[640px] rounded-[24px] overflow-hidden bg-[#0C1421]">
             <Image
               src="/login/login.svg"
@@ -126,16 +131,16 @@ export default function LoginPage() {
               priority
             />
           </div>
-        </div>
+        </motion.div>
 
         {/* ── Bloc d'authentification (formulaire & actions) ────────────────── */}
-        <div className="w-full lg:w-1/2 lg:order-1 flex items-center justify-center">
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
-            className="w-full max-w-[388px] mx-auto"
-          >
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="w-full lg:w-1/2 lg:order-1 flex items-center justify-center"
+        >
+          <div className="w-full max-w-[388px] mx-auto">
             {/* Logo EmiID : masqué sur mobile (la bannière fait office de visuel), visible sur desktop */}
             <Link href="/" className="hidden lg:inline-flex items-center w-fit mb-10">
               <Image
@@ -150,7 +155,7 @@ export default function LoginPage() {
 
             {/* En-tête : Salutation & bouton d'inspiration interactif */}
             <div className="flex items-center justify-between">
-              <h1 className="text-[32px] sm:text-[36px] font-bold tracking-tight text-[#0C1421] leading-[1.15]">
+              <h1 className="text-[32px] sm:text-[36px] font-bold tracking-tight text-white leading-[1.15]">
                 Hello 👋
               </h1>
               <button
@@ -174,7 +179,7 @@ export default function LoginPage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -6 }}
                   transition={{ duration: 0.25, ease: "easeOut" }}
-                  className="text-base sm:text-lg text-[#313957] leading-relaxed"
+                  className="text-base sm:text-lg text-[#A8B0C7] leading-relaxed"
                 >
                   {MOTIVATIONAL_QUOTES[quoteIndex]}
                 </motion.p>
@@ -186,7 +191,7 @@ export default function LoginPage() {
               <motion.p
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-6 text-xs text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-center font-medium"
+                className="mt-6 text-xs text-red-400 bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3 text-center font-medium"
               >
                 {error}
               </motion.p>
@@ -198,16 +203,16 @@ export default function LoginPage() {
               onClick={() => setAccepted((v: boolean) => !v)}
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.05 }}
+              transition={{ delay: 0.1 }}
               className="flex items-start gap-3 w-full text-left mt-7 group"
             >
               <div className={`mt-0.5 shrink-0 w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-200 ${accepted
                 ? "bg-[#1E4AE9] border-[#1E4AE9]"
-                : "bg-white border-[#CFDFE2] group-hover:border-[#1E4AE9]"
+                : "bg-transparent border-white/20 group-hover:border-[#1E4AE9]"
                 }`}>
                 {accepted && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
               </div>
-              <p className="text-[13px] text-[#313957] leading-relaxed">
+              <p className="text-[13px] text-[#A8B0C7] leading-relaxed">
                 J&apos;accepte les{" "}
                 <Link
                   href="/conditions"
@@ -232,7 +237,7 @@ export default function LoginPage() {
             <div className="flex justify-center mt-6">
               <Turnstile
                 siteKey={TURNSTILE_SITE_KEY}
-                options={{ theme: "light" }}
+                options={{ theme: "dark" }}
                 onSuccess={(token: string) => setCaptchaToken(token)}
                 onError={() => setCaptchaToken(null)}
                 onExpire={() => setCaptchaToken(null)}
@@ -246,7 +251,7 @@ export default function LoginPage() {
                   key={p.id}
                   initial={{ opacity: 0, x: -16 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.1 + i * 0.08 }}
+                  transition={{ delay: 0.15 + i * 0.08 }}
                   className="relative"
                 >
                   {p.soon && (
@@ -283,20 +288,12 @@ export default function LoginPage() {
               ))}
             </div>
 
-            {/* Lien vers l'inscription */}
-            <p className="mt-8 text-center text-sm text-[#313957]">
-              Vous n&apos;avez pas de compte ?{" "}
-              <Link href="/login" className="text-[#1E4AE9] font-semibold hover:underline underline-offset-2">
-                Inscrivez-vous
-              </Link>
-            </p>
-
             {/* Mentions légales & copyright */}
             <p className="mt-10 text-center text-xs text-[#959CB6]">
               © 2023 TOUS DROITS RÉSERVÉS
             </p>
-          </motion.div>
-        </div>
+          </div>
+        </motion.div>
       </div>
     </div>
   )
