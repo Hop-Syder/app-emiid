@@ -23,6 +23,8 @@ interface FiltersState {
   tags: string
   status: string
   activity_domain: string
+  lat?: string
+  lng?: string
 }
 
 interface UseAnnuaireProfilesProps {
@@ -108,6 +110,10 @@ export function useAnnuaireProfiles({
         if (filters?.country && filters.country !== "all") params.append("country", filters.country)
         if (filters?.city) params.append("city", filters.city)
         if (filters?.tags) params.append("tags", filters.tags)
+        if (filters?.lat && filters?.lng) {
+          params.append("lat", filters.lat)
+          params.append("lng", filters.lng)
+        }
 
         if (filters?.status === "premium" || onlyPremium) {
           params.append("onlyPremium", "true")

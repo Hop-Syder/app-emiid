@@ -11,7 +11,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { SlidersHorizontal, BadgeCheck, Crown, X, ChevronDown } from "lucide-react"
+import { SlidersHorizontal, BadgeCheck, Crown, X, ChevronDown, MapPin, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { PROFILE_CATEGORIES, ACTIVITY_DOMAINS } from "@/lib/profile-options"
 
@@ -29,7 +29,7 @@ const SECTORS: { id: string; label: string }[] = [
 interface Country { iso_code: string; name: string }
 
 interface AnnuaireFiltersProps {
-  filters: { category: string; activity_domain: string; country: string; status: string }
+  filters: { category: string; activity_domain: string; country: string; status: string; lat?: string; lng?: string }
   onFilterChange: (key: string, value: string) => void
   onReset: () => void
 }
@@ -59,6 +59,7 @@ function Select({ value, onChange, options, placeholder }: {
 
 export function AnnuaireFilters({ filters, onFilterChange, onReset }: AnnuaireFiltersProps) {
   const [countries, setCountries] = useState<Country[]>([])
+  const [isLocating, setIsLocating] = useState(false)
 
   useEffect(() => {
     let active = true
@@ -75,9 +76,37 @@ export function AnnuaireFilters({ filters, onFilterChange, onReset }: AnnuaireFi
     (filters.category !== "all" ? 1 : 0) +
     (filters.activity_domain !== "all" ? 1 : 0) +
     (filters.country !== "all" ? 1 : 0) +
-    (filters.status !== "all" ? 1 : 0)
+    (filters.status !== "all" ? 1 : 0) +
+    (filters.lat ? 1 : 0)
 
   const setStatus = (s: string) => onFilterChange("status", filters.status === s ? "all" : s)
+
+  const toggleLocation = () => {
+    if (filters.lat) {
+      onFilterChange("lat", "")
+      onFilterChange("lng", "")
+      return
+    }
+
+    if ("geolocation" in navigator) {
+      setIsLocating(true)
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          onFilterChange("lat", position.coords.latitude.toString())
+          onFilterChange("lng", position.coords.longitude.toString())
+          setIsLocating(false)
+        },
+        (error) => {
+          console.error("Erreur de géolocalisation", error)
+          setIsLocating(false)
+          alert("Impossible d'obtenir votre position. Veuillez autoriser la géolocalisation.")
+        },
+        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+      )
+    } else {
+      alert("La géolocalisation n'est pas supportée par votre navigateur.")
+    }
+  }
 
   return (
     <div className="flex flex-wrap items-center gap-2.5">
@@ -91,6 +120,17 @@ export function AnnuaireFilters({ filters, onFilterChange, onReset }: AnnuaireFi
 
       {/* Statut : Vérifiés / Premium (exclusifs, mappés sur `status`) */}
       <div className="flex items-center gap-1.5">
+        <button
+          onClick={toggleLocation}
+          disabled={isLocating}
+          className={cn(
+            "inline-flex items-center gap-1.5 h-10 px-3 rounded-xl text-sm font-semibold border transition-colors",
+            filters.lat ? "bg-emerald-100 border-emerald-300 text-emerald-700" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50",
+            isLocating && "opacity-70 cursor-not-allowed"
+          )}
+        >
+          {isLocating ? <Loader2 className="h-4 w-4 animate-spin" /> : <MapPin className="h-4 w-4" />} Autour de moi
+        </button>
         <button
           onClick={() => setStatus("verified")}
           className={cn(

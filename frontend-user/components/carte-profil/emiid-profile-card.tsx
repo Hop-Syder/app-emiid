@@ -1,6 +1,6 @@
 "use client"
 
-import { Plus, Check, MessageSquare, Award } from "lucide-react"
+import { Plus, Check, MessageSquare, Award, Navigation } from "lucide-react"
 import Image from "next/image"
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -24,6 +24,7 @@ interface EmiIDProfileCardProps {
     verified?: boolean
     premium?: boolean
     tags?: string[]
+    is_nomad?: boolean
   }
   variant?: EmiIDCardVariant
   onAction?: (type: 'message' | 'follow' | 'view') => void
@@ -207,8 +208,14 @@ export function EmiIDProfileCard({
         <h3 className={cn("text-xl font-bold tracking-tight mb-1 line-clamp-1 w-full", styles.textPrimary)}>
           {name}
         </h3>
-        <p className={cn("text-xs font-medium uppercase tracking-widest line-clamp-1 w-full mb-4", styles.textSecondary)}>
+        <p className={cn("text-xs font-medium uppercase tracking-widest line-clamp-1 w-full mb-4 flex items-center justify-center gap-2", styles.textSecondary)}>
           {role}
+          {user.is_nomad && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 dark:bg-blue-900/30 px-2 py-0.5 text-[9px] font-bold text-blue-700 dark:text-blue-300 normal-case tracking-normal border border-blue-200 dark:border-blue-800/50">
+              <Navigation className="h-2.5 w-2.5" />
+              En déplacement
+            </span>
+          )}
         </p>
 
         {/* Minimal Stats */}

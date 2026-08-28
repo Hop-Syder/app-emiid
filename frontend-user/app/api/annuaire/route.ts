@@ -27,6 +27,10 @@ export async function GET(request: NextRequest) {
         const tags = searchParams.get('tags')?.trim()
         const onlyPremium = searchParams.get('onlyPremium') === 'true'
         const onlyVerified = searchParams.get('onlyVerified') === 'true'
+        
+        const lat = searchParams.get('lat')
+        const lng = searchParams.get('lng')
+        const radius = searchParams.get('radius')
 
         const supabase = await createClient()
 
@@ -186,13 +190,56 @@ export async function GET(request: NextRequest) {
             }
         }
 
+        // 5 bis. Proximité (Autour de moi)
+        let proximityMap: Map<string, number> | null = null
+        if (lat && lng) {
+            const radius_km = radius ? parseFloat(radius) : 50
+            const { data: prox, error: proxErr } = await supabase.rpc('search_profiles_by_proximity', {
+                p_lat: parseFloat(lat),
+                p_lng: parseFloat(lng),
+                p_radius_km: radius_km
+            })
+            if (proxErr) {
+                console.error('search_profiles_by_proximity RPC error:', proxErr)
+            } else {
+                proximityMap = new Map()
+                for (const row of (prox as { profile_id: string; distance_km: number }[] | null) || []) {
+                    proximityMap.set(row.profile_id, row.distance_km)
+                }
+                
+                if (proximityMap.size > 0) {
+                    // Si un filtre de texte est déjà actif, on réduit l'intersection
+                    if (rankMap) {
+                        const newFused = new Map<string, number>()
+                        for (const id of Array.from(proximityMap.keys())) {
+                            if (rankMap.has(id)) {
+                                newFused.set(id, rankMap.get(id)!)
+                            }
+                        }
+                        rankMap = newFused
+                        if (rankMap.size === 0) {
+                            return NextResponse.json({ profiles: [], count: 0 })
+                        }
+                        // La clause 'in' précédente avec les IDs fusionnés sera écrasée, 
+                        // il vaudrait mieux utiliser un filtre supplémentaire ou remplacer.
+                        // Supabase empile les eq/in. Donc un deuxième 'in' fonctionne comme un AND.
+                        query = query.in('id', Array.from(rankMap.keys()))
+                    } else {
+                        query = query.in('id', Array.from(proximityMap.keys()))
+                    }
+                } else {
+                    return NextResponse.json({ profiles: [], count: 0 })
+                }
+            }
+        }
+
         // 6. Pagination. En recherche, on récupère l'ensemble fusionné classé
-        //    (FTS + sémantique) puis on trie par pertinence et on pagine côté
+        //    (FTS + sémantique + proximité) puis on trie par pertinence et on pagine côté
         //    serveur (voir plus bas).
         const from = (page - 1) * limit
         const to = from + limit - 1
-        if (rankMap) {
-            query = query.limit(rankMap.size)
+        if (rankMap || proximityMap) {
+            query = query.limit(rankMap ? rankMap.size : (proximityMap ? proximityMap.size : 100))
         } else {
             query = query.range(from, to)
         }
@@ -212,12 +259,12 @@ export async function GET(request: NextRequest) {
         //   Départages à score égal : premium → vérifié → abonnés → récence.
         let rows = ((data || []) as unknown as PublicProfileJoined[])
         // Hors recherche : les profils boostés de la commune passent en tête.
-        if (!rankMap && (boostedCommune.size > 0 || boostedDepartment.size > 0)) {
+        if (!rankMap && !proximityMap && (boostedCommune.size > 0 || boostedDepartment.size > 0)) {
             const geoRank = (id: string) =>
                 boostedCommune.has(id) ? 2 : boostedDepartment.has(id) ? 1 : 0
             rows = [...rows].sort((a, b) => geoRank(b.id ?? '') - geoRank(a.id ?? ''))
         }
-        if (rankMap) {
+        if (rankMap || proximityMap) {
             // Boost payant : bonus nettement supérieur au statut, pour placer le
             // profil en tête de sa commune. Multiplicatif comme les autres : un
             // profil boosté hors-sujet (pertinence nulle) n'est pas remonté —
@@ -228,13 +275,18 @@ export async function GET(request: NextRequest) {
             const VERIFIED_BOOST = 0.15
             const finalScore = (p: PublicProfileJoined) => {
                 const id = p.id ?? ''
-                const relevance = rankMap!.get(id) ?? 0
+                const relevance = rankMap ? (rankMap.get(id) ?? 0) : 100 // Score de base arbitraire si pas de FTS
                 const geo = boostedCommune.has(id)
                     ? COMMUNE_BOOST
                     : boostedDepartment.has(id)
                         ? DEPARTMENT_BOOST
                         : 0
-                const boost = 1 + geo
+                        
+                const dist = proximityMap ? (proximityMap.get(id) ?? 50) : 50
+                // Bonus de distance (ex: 50km = 0, 0km = 1). Multiplié par 0.5 pour modérer l'impact global.
+                const distanceBonus = proximityMap ? Math.max(0, (50 - dist) / 50) * 0.5 : 0
+
+                const boost = 1 + geo + distanceBonus
                     + (p.is_premium ? PREMIUM_BOOST : 0)
                     + (p.is_verified ? VERIFIED_BOOST : 0)
                 return relevance * boost
@@ -279,6 +331,7 @@ export async function GET(request: NextRequest) {
                 category: e.category || "",
                 verified: !!e.is_verified,
                 premium: !!e.is_premium,
+                is_nomad: !!e.is_nomad,
                 // Mise en vedette payante dans la commune recherchée (spec §2.A).
                 boosted: isBoosted(e.id ?? ''),
                 followers: e.followers_count || 0,
@@ -288,8 +341,8 @@ export async function GET(request: NextRequest) {
         })
 
         return NextResponse.json({
-            profiles: rankMap ? formattedProfiles.slice(from, to + 1) : formattedProfiles,
-            count: rankMap ? formattedProfiles.length : (count || 0),
+            profiles: (rankMap || proximityMap) ? formattedProfiles.slice(from, to + 1) : formattedProfiles,
+            count: (rankMap || proximityMap) ? formattedProfiles.length : (count || 0),
         })
 
     } catch (error) {

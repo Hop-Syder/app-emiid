@@ -28,6 +28,8 @@ interface AnnuaireGridProps {
     tags: string
     status: string
     activity_domain: string
+    lat?: string
+    lng?: string
   }
   initialProfiles?: PublicProfile[]
   onlyPremium?: boolean

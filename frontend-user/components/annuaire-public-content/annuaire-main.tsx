@@ -39,7 +39,9 @@ export function AnnuairePublicContent({
         city: initialCity,
         tags: "",
         status: "all",
-        activity_domain: initialActivityDomain
+        activity_domain: initialActivityDomain,
+        lat: "",
+        lng: ""
     })
     useEffect(() => {
         if (typeof window !== "undefined") {
@@ -52,7 +54,9 @@ export function AnnuairePublicContent({
                 city: params.get("city") || prev.city,
                 tags: params.get("tags") || prev.tags,
                 status: params.get("status") || prev.status,
-                activity_domain: params.get("activity_domain") || prev.activity_domain
+                activity_domain: params.get("activity_domain") || prev.activity_domain,
+                lat: params.get("lat") || prev.lat,
+                lng: params.get("lng") || prev.lng
             }))
         }
     }, [])
@@ -67,6 +71,11 @@ export function AnnuairePublicContent({
                 } else {
                     url.searchParams.delete(key)
                 }
+                
+                // Si on désactive lat, on enlève aussi lng par précaution, et vice versa. 
+                // C'est géré par le onFilterChange ("lat", "") qui fera l'appel pour lng juste après, 
+                // mais c'est propre de nettoyer.
+                
                 window.history.replaceState({}, '', url.toString())
             }
             return next
@@ -74,7 +83,7 @@ export function AnnuairePublicContent({
     }
 
     const resetFilters = () => {
-        setFilters({ search: "", category: "all", country: "all", city: "", tags: "", status: "all", activity_domain: "all" })
+        setFilters({ search: "", category: "all", country: "all", city: "", tags: "", status: "all", activity_domain: "all", lat: "", lng: "" })
         if (typeof window !== "undefined") {
             window.history.replaceState({}, "", window.location.pathname)
         }

@@ -22,6 +22,7 @@ import Image from "next/image"
 interface ProfileHeroData {
     id: string
     name: string
+    business_name?: string
     avatar: string | null
     coverImage?: string | null
     specialty: string | null
@@ -158,6 +159,11 @@ export function ProfileHero({
                                 )}
                             </div>
                         </div>
+                        {profile.business_name && (
+                            <div className="text-base font-semibold text-slate-700">
+                                {profile.business_name}
+                            </div>
+                        )}
                         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-500 font-medium tracking-wide">
                             <span className="inline-flex items-center gap-2 min-w-0">
                                 <Users className="h-4 w-4 text-slate-400 shrink-0" />

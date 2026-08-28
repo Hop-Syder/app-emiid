@@ -12,7 +12,7 @@
 
 import { useState } from "react"
 import Image from "next/image"
-import { Mail, Smartphone, User, Shield, MessageSquare, CheckCircle2, AlertCircle, Loader2 } from "lucide-react"
+import { Mail, Smartphone, User, Shield, MessageSquare, CheckCircle2, AlertCircle, Loader2, MapPin } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
@@ -56,7 +56,28 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
   const [otpCode,      setOtpCode]      = useState("")
   const [verifying,    setVerifying]    = useState(false)
 
-  const up = (key: keyof UserProfileData, value: string | boolean) => setProfile({ ...profile, [key]: value })
+  const up = (key: keyof UserProfileData, value: string | boolean | number | null) => setProfile({ ...profile, [key]: value })
+
+  const handleGetLocation = () => {
+    if (!navigator.geolocation) {
+      toast.error("La géolocalisation n'est pas supportée par votre navigateur")
+      return
+    }
+    const loadingToast = toast.loading("Récupération de la position...")
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        up("latitude", position.coords.latitude)
+        up("longitude", position.coords.longitude)
+        toast.dismiss(loadingToast)
+        toast.success("Position récupérée avec succès")
+      },
+      (error) => {
+        toast.dismiss(loadingToast)
+        toast.error("Impossible de récupérer la position. Assurez-vous d'avoir autorisé l'accès.")
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    )
+  }
 
   const handleVerifyRequest = async (method: "whatsapp" | "sms") => {
     if (!profile.phone) { toast.error("Saisissez votre numéro d'abord"); return }
@@ -131,6 +152,24 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
             />
           </Field>
         </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+          <Field label="Nom commercial / Nom d'atelier">
+            <Input
+              id="business_name" name="business_name" autoComplete="organization"
+              value={profile.business_name || ""}
+              onChange={e => up("business_name", e.target.value)}
+              className={INPUT} placeholder="Ex: Menuiserie Dupont"
+            />
+          </Field>
+          <Field label="Arrondissement / quartier">
+            <Input
+              id="district" name="district"
+              value={profile.district || ""}
+              onChange={e => up("district", e.target.value)}
+              className={INPUT} placeholder="Ex: Akpakpa"
+            />
+          </Field>
+        </div>
         <div className="mt-4">
           <Field label="Bio">
             <textarea
@@ -141,6 +180,55 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
               placeholder="Racontez votre parcours et vos réalisations..."
             />
           </Field>
+        </div>
+      </SectionCard>
+
+      {/* ── GPS Location ──────────────────────────────────────────────────────── */}
+      <SectionCard title="Localisation GPS">
+        <div className="flex flex-col sm:flex-row items-end gap-4">
+          <div className="grid grid-cols-2 gap-4 flex-1 w-full">
+            <Field label="Latitude">
+              <Input
+                id="latitude" name="latitude" type="number" step="any"
+                value={profile.latitude ?? ""}
+                onChange={e => up("latitude", e.target.value ? parseFloat(e.target.value) : null)}
+                className={INPUT} placeholder="Ex: 6.36536"
+              />
+            </Field>
+            <Field label="Longitude">
+              <Input
+                id="longitude" name="longitude" type="number" step="any"
+                value={profile.longitude ?? ""}
+                onChange={e => up("longitude", e.target.value ? parseFloat(e.target.value) : null)}
+                className={INPUT} placeholder="Ex: 2.41833"
+              />
+            </Field>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleGetLocation}
+            className="h-11 rounded-xl border-slate-200 font-bold shrink-0 w-full sm:w-auto"
+          >
+            <MapPin className="w-4 h-4 mr-2 text-slate-500" />
+            Obtenir ma position
+          </Button>
+        </div>
+        
+        <div className="mt-6 p-4 rounded-xl border border-slate-200 bg-slate-50 flex items-start gap-4">
+          <Switch 
+            id="is_nomad" 
+            checked={!!profile.is_nomad} 
+            onCheckedChange={(checked) => up("is_nomad", checked)} 
+          />
+          <div>
+            <label htmlFor="is_nomad" className="font-semibold text-slate-900 block mb-1 cursor-pointer">
+              Je suis en déplacement
+            </label>
+            <p className="text-sm text-slate-500">
+              Activez ce mode si vous êtes un professionnel itinérant. Cela indique aux visiteurs que votre position peut varier.
+            </p>
+          </div>
         </div>
       </SectionCard>
 

@@ -10,6 +10,7 @@ export interface ProfileData {
     name: string
     role: string
     bio: string
+    business_name?: string
     location: string
     avatar: string
     coverImage?: string
@@ -36,6 +37,8 @@ interface ProfileQueryResult {
     first_name: string | null
     last_name: string | null
     bio: string | null
+    business_name: string | null
+    district: string | null
     city: string | null
     avatar_url: string | null
     cover_url?: string | null
@@ -107,7 +110,7 @@ export function useProfileData(profileId: string) {
                 // eslint-disable-next-line no-restricted-syntax -- tentative authentifiée (SON profil) ; fallback RPC get_public_profile pour l'anonyme/cross-user
                 let query = supabase
                     .from("user_profiles")
-                    .select("id, user_id, first_name, last_name, bio, city, avatar_url, cover_url, specialty, category, slug, is_published, is_verified, is_premium, followers_count, created_at, email, phone, website, role, countries(name), profile_tags(tags(name))")
+                    .select("id, user_id, first_name, last_name, bio, business_name, district, city, avatar_url, cover_url, specialty, category, slug, is_published, is_verified, is_premium, followers_count, created_at, email, phone, website, role, countries(name), profile_tags(tags(name))")
 
                 if (isUUID) {
                     query = query.or(`slug.eq.${cleanProfileId},user_id.eq.${cleanProfileId},id.eq.${cleanProfileId}`)
@@ -204,7 +207,8 @@ export function useProfileData(profileId: string) {
                         name: `${data.first_name || ""} ${data.last_name || ""}`.trim() || "Utilisateur EmiID",
                         role: data.role || "Membre EmiID",
                         bio: data.bio || "Ce membre n'a pas encore rédigé sa biographie professionnelle.",
-                        location: data.city ? `${data.city}, ${countryName || ""}` : countryName || "Afrique",
+                        business_name: data.business_name || undefined,
+                        location: [data.district, data.city, countryName].filter(Boolean).join(", ") || "Afrique",
                         avatar: data.avatar_url || "/profil/avatar.jpg",
                         coverImage: data.cover_url || undefined,
                         specialty: data.specialty || "Expertise",

@@ -47,9 +47,14 @@ export interface UserProfileData {
   last_name: string
   email: string
   bio: string
+  business_name: string
   avatar_url: string
+  district: string | null
+  latitude: number | null
+  longitude: number | null
+  is_nomad: boolean
   category: string
-  role: string
+  role: string | null
   specialty: string
   activity_domain: string
   country_id: string
@@ -130,15 +135,20 @@ export function useSettings() {
     last_name: "",
     email: "",
     bio: "",
+    business_name: "",
     avatar_url: "",
     category: "Artisan",
-    role: "",
+    role: null,
     specialty: "",
     activity_domain: "",
     country_id: "",
     country_code: "",
     country_name: "",
     city: "",
+    district: null,
+    latitude: null,
+    longitude: null,
+    is_nomad: false,
     pin_enabled: false,
     phone: "",
     is_published: false,
@@ -179,15 +189,20 @@ export function useSettings() {
           last_name: data.last_name || authUser?.user_metadata?.last_name || authUser?.user_metadata?.family_name || "",
           email: data.email || authUser?.email || "",
           bio: data.bio || "",
+          business_name: data.business_name || "",
           avatar_url: data.avatar_url || authUser?.user_metadata?.avatar_url || "/profil/avatar.jpg",
           category: data.category || "Artisan",
-          role: data.role || "",
+          role: data.role || null,
           specialty: data.specialty || "",
           activity_domain: data.activity_domain || "",
           country_id: data.country_id || "",
           country_code: data.country_code || "",
           country_name: data.country_name || "",
           city: data.city || "",
+          district: data.district ?? null,
+          latitude: data.latitude ?? null,
+          longitude: data.longitude ?? null,
+          is_nomad: data.is_nomad ?? false,
           pin_enabled: data.pin_enabled || false,
           phone: data.phone || authUser?.phone || "",
           is_published: data.is_published || false,
