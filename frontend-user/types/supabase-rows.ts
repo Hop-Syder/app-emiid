@@ -22,6 +22,7 @@ export interface PublicProfileJoined {
     slug?: string | null
     is_verified?: boolean | null
     is_premium?: boolean | null
+    is_nomad?: boolean | null
     card_variant?: string | null
     followers_count?: number | null
     created_at?: string | null
