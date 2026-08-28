@@ -2,10 +2,10 @@
  * @author @hopsyder
  * @organization Nexus Partners
  * @description Page de connexion de l'application utilisateur (EmiID).
- *              Split-screen sur desktop : panneau de branding à gauche,
- *              formulaire à droite. Carte centrée sur mobile.
+ *              Layout deux colonnes (formulaire / illustration) sur desktop,
+ *              empilé avec bannière image en tête sur mobile.
  * @created 2026-05-27
- * @updated 2026-08-26
+ * @updated 2026-08-28
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -17,7 +17,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { Loader2, ShieldCheck, Check, Fingerprint, SearchCheck, MapPinned } from "lucide-react"
+import { Loader2, Check } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { Turnstile } from "@marsidev/react-turnstile"
 
@@ -29,24 +29,6 @@ const providers = [
   // Apple désactivé tant que le provider n'est pas configuré (Apple Developer + Supabase).
   // Réactivation : passer `soon` à false.
   { id: "apple" as const,         name: "Apple",    icon: "/login/apple.svg",        soon: true  },
-]
-
-const BRANDING_POINTS = [
-  {
-    icon: Fingerprint,
-    title: "Votre empreinte numérique",
-    desc: "Un profil professionnel vérifié, partageable en un lien ou un QR code.",
-  },
-  {
-    icon: SearchCheck,
-    title: "Trouvez le bon pro",
-    desc: "Recherchez en langage courant, filtrez par métier et par commune.",
-  },
-  {
-    icon: MapPinned,
-    title: "Ancré au Bénin",
-    desc: "Les 77 communes référencées, de Cotonou à Malanville.",
-  },
 ]
 
 /**
@@ -85,217 +67,166 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen w-full flex bg-[#020617] relative overflow-hidden">
+    <div className="min-h-screen w-full bg-white flex items-center justify-center p-4 sm:p-6 lg:p-8">
+      <div className="w-full max-w-6xl flex flex-col lg:flex-row items-center lg:items-stretch gap-8 lg:gap-8">
 
-      {/* Fond décoratif minimal */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(30,58,138,0.25),transparent_70%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808010_1px,transparent_1px),linear-gradient(to_bottom,#80808010_1px,transparent_1px)] bg-[size:48px_48px]" />
-        <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-emerald-500/8 blur-[100px] rounded-full" />
-        <div className="absolute -top-24 -right-24 w-80 h-80 bg-blue-500/8 blur-[100px] rounded-full" />
-      </div>
-
-      {/* ── Panneau branding — desktop uniquement ─────────────────────── */}
-      <aside className="hidden lg:flex flex-col justify-between w-[44%] xl:w-[48%] relative z-10 border-r border-white/5 p-12 xl:p-16">
-        <Link href="/" className="inline-flex items-center gap-3 w-fit">
-          <Image
-            src="/logo/logo-emiid.png"
-            alt="EmiID"
-            width={320}
-            height={80}
-            className="h-11 w-auto object-contain brightness-0 invert"
-            priority
-          />
-        </Link>
-
-        <div className="max-w-md">
-          <h2 className="text-4xl xl:text-5xl font-black tracking-tight text-white leading-[1.08]">
-            Votre empreinte
-            <br />
-            <span className="text-transparent bg-clip-text bg-[linear-gradient(90deg,#03b3f8,#013ff4)]">
-              numérique professionnelle.
-            </span>
-          </h2>
-          <p className="mt-5 text-sm text-zinc-400 font-medium leading-relaxed">
-            Rejoignez le réseau des professionnels vérifiés d&apos;Afrique de l&apos;Ouest — artisans, freelances,
-            entreprises et institutions.
-          </p>
-
-          <ul className="mt-10 space-y-6">
-            {BRANDING_POINTS.map((point, i) => (
-              <motion.li
-                key={point.title}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 + i * 0.12, duration: 0.45 }}
-                className="flex items-start gap-4"
-              >
-                <span className="shrink-0 w-10 h-10 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-center">
-                  <point.icon className="w-4.5 h-4.5 text-[#03b3f8]" />
-                </span>
-                <span>
-                  <span className="block text-sm font-bold text-white">{point.title}</span>
-                  <span className="block text-xs text-zinc-500 mt-0.5 leading-relaxed">{point.desc}</span>
-                </span>
-              </motion.li>
-            ))}
-          </ul>
-        </div>
-
-        <p className="text-[10px] font-black uppercase tracking-[0.25em] text-zinc-700">
-          Connect &amp; Lead · Nexus Partners
-        </p>
-      </aside>
-
-      {/* ── Panneau formulaire ────────────────────────────────────────── */}
-      <main className="flex-1 flex items-center justify-center relative">
-      {/* Card */}
-      <motion.div
-        initial={{ opacity: 0, y: 24, scale: 0.97 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-        className="relative z-10 w-full max-w-sm mx-4 -mt-6 sm:-mt-12 lg:my-12"
-      >
-        {/* Glow border */}
-        <div className="absolute -inset-[1px] bg-gradient-to-b from-white/10 via-white/5 to-transparent rounded-[2rem] pointer-events-none" />
-
-        <div className="relative bg-white/[0.04] backdrop-blur-2xl border border-white/8 rounded-[2rem] px-8 py-10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.7)] overflow-hidden">
-          <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-
-          {/* Logo + titre */}
-          <div className="flex flex-col items-center gap-3 mb-8">
+        {/* ── Illustration — bannière sur mobile, colonne droite sur desktop ── */}
+        <div className="w-full lg:w-1/2 lg:order-2">
+          <div className="relative w-full h-56 sm:h-72 lg:h-full lg:min-h-[640px] rounded-[24px] overflow-hidden bg-[#0C1421]">
             <Image
-              src="/logo/logo-emiid.png"
-              alt="EmiID"
-              width={384}
-              height={96}
-              className="h-20 sm:h-24 w-auto object-contain brightness-0 invert drop-shadow-[0_4px_24px_rgba(255,255,255,0.15)]"
+              src="/login/background.avif"
+              alt=""
+              fill
+              sizes="(min-width: 1024px) 50vw, 100vw"
+              className="object-cover"
               priority
             />
-            <div className="text-center">
-              <h1 className="text-xl font-black tracking-tight text-white mt-1">
-                Bienvenue au Sommet
-              </h1>
-              <p className="text-zinc-500 text-xs font-medium mt-1">
-                Connect & Lead. L&apos;élite vous attend.
-              </p>
-            </div>
-          </div>
-
-          {/* Erreur */}
-          {error && (
-            <motion.p
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-4 text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 text-center font-medium"
-            >
-              {error}
-            </motion.p>
-          )}
-
-          {/* Case à cocher CGU — obligatoire */}
-          <motion.button
-            type="button"
-            onClick={() => setAccepted(v => !v)}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.05 }}
-            className="flex items-start gap-3 w-full text-left mb-5 group"
-          >
-            <div className={`mt-0.5 shrink-0 w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-200 ${
-              accepted
-                ? "bg-emerald-500 border-emerald-500 shadow-[0_0_10px_rgba(52,211,153,0.4)]"
-                : "bg-white/5 border-white/15 group-hover:border-white/30"
-            }`}>
-              {accepted && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
-            </div>
-            <p className="text-[11px] text-zinc-500 leading-relaxed group-hover:text-zinc-400 transition-colors">
-              J&apos;accepte les{" "}
-              <Link
-                href="/conditions"
-                onClick={e => e.stopPropagation()}
-                className="text-zinc-300 hover:text-white underline underline-offset-2 transition-colors"
-              >
-                conditions d&apos;utilisation
-              </Link>{" "}
-              et la{" "}
-              <Link
-                href="/confidentialite"
-                onClick={e => e.stopPropagation()}
-                className="text-zinc-300 hover:text-white underline underline-offset-2 transition-colors"
-              >
-                politique de confidentialité
-              </Link>{" "}
-              d&apos;EmiID.
-            </p>
-          </motion.button>
-
-          {/* Cloudflare Turnstile */}
-          <div className="flex justify-center mb-5">
-            <Turnstile
-              siteKey={TURNSTILE_SITE_KEY}
-              options={{ theme: "dark" }}
-              onSuccess={(token) => setCaptchaToken(token)}
-              onError={() => setCaptchaToken(null)}
-              onExpire={() => setCaptchaToken(null)}
-            />
-          </div>
-
-          {/* Boutons providers */}
-          <div className="flex flex-col gap-3">
-            {providers.map((p, i) => (
-              <motion.div
-                key={p.id}
-                initial={{ opacity: 0, x: -16 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1 + i * 0.08 }}
-                className="relative"
-              >
-                {p.soon && (
-                  <span className="absolute -top-2 right-3 z-20 rounded-full bg-amber-500/90 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-black shadow-lg">
-                    Bientôt
-                  </span>
-                )}
-                <Button
-                  variant="outline"
-                  disabled={loading !== null || !accepted || !captchaToken || p.soon}
-                  onClick={() => !p.soon && handleLogin(p.id)}
-                  aria-disabled={p.soon}
-                  title={p.soon ? "Indisponible pour l'instant" : undefined}
-                  className="relative w-full h-12 rounded-2xl bg-white/[0.05] border-white/10 hover:bg-white/[0.1] hover:border-white/20 text-white transition-all duration-200 overflow-hidden group disabled:opacity-35 disabled:cursor-not-allowed disabled:pointer-events-none"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-                  <span className="flex items-center gap-3">
-                    {loading === p.id ? (
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                    ) : (
-                      <Image
-                        src={p.icon}
-                        alt={p.name}
-                        width={20}
-                        height={20}
-                        className="object-contain brightness-0 invert opacity-80"
-                      />
-                    )}
-                    <span className="font-bold text-sm tracking-widest uppercase">
-                      Continuer avec {p.name}
-                    </span>
-                  </span>
-                </Button>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Signature sécurité */}
-          <div className="mt-7 flex justify-center">
-            <div className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.25em] text-zinc-600">
-              <ShieldCheck className="w-3 h-3 text-emerald-600" />
-              Sécurité Chiffrée · Nexus Partners
-            </div>
           </div>
         </div>
-        </motion.div>
-      </main>
+
+        {/* ── Bloc d'authentification ─────────────────────────────────── */}
+        <div className="w-full lg:w-1/2 lg:order-1 flex items-center justify-center">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className="w-full max-w-[388px] mx-auto"
+          >
+            <Link href="/" className="inline-flex items-center w-fit mb-10">
+              <Image
+                src="/logo/logo-emiid.png"
+                alt="EmiID"
+                width={160}
+                height={40}
+                className="h-9 w-auto object-contain"
+                priority
+              />
+            </Link>
+
+            <h1 className="text-[32px] sm:text-[36px] font-bold tracking-tight text-[#0C1421] leading-[1.15]">
+              Welcome Back 👋
+            </h1>
+            <p className="mt-3 text-base sm:text-lg text-[#313957] leading-relaxed">
+              Today is a new day. It&apos;s your day. You shape it. Sign in to start managing your projects.
+            </p>
+
+            {/* Erreur */}
+            {error && (
+              <motion.p
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-6 text-xs text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-center font-medium"
+              >
+                {error}
+              </motion.p>
+            )}
+
+            {/* Case à cocher CGU — obligatoire */}
+            <motion.button
+              type="button"
+              onClick={() => setAccepted(v => !v)}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05 }}
+              className="flex items-start gap-3 w-full text-left mt-7 group"
+            >
+              <div className={`mt-0.5 shrink-0 w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-200 ${
+                accepted
+                  ? "bg-[#1E4AE9] border-[#1E4AE9]"
+                  : "bg-white border-[#CFDFE2] group-hover:border-[#1E4AE9]"
+              }`}>
+                {accepted && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
+              </div>
+              <p className="text-[13px] text-[#313957] leading-relaxed">
+                J&apos;accepte les{" "}
+                <Link
+                  href="/conditions"
+                  onClick={e => e.stopPropagation()}
+                  className="text-[#1E4AE9] hover:underline underline-offset-2 transition-colors"
+                >
+                  conditions d&apos;utilisation
+                </Link>{" "}
+                et la{" "}
+                <Link
+                  href="/confidentialite"
+                  onClick={e => e.stopPropagation()}
+                  className="text-[#1E4AE9] hover:underline underline-offset-2 transition-colors"
+                >
+                  politique de confidentialité
+                </Link>{" "}
+                d&apos;EmiID.
+              </p>
+            </motion.button>
+
+            {/* Cloudflare Turnstile */}
+            <div className="flex justify-center mt-6">
+              <Turnstile
+                siteKey={TURNSTILE_SITE_KEY}
+                options={{ theme: "light" }}
+                onSuccess={(token) => setCaptchaToken(token)}
+                onError={() => setCaptchaToken(null)}
+                onExpire={() => setCaptchaToken(null)}
+              />
+            </div>
+
+            {/* Boutons providers */}
+            <div className="flex flex-col gap-4 mt-7">
+              {providers.map((p, i) => (
+                <motion.div
+                  key={p.id}
+                  initial={{ opacity: 0, x: -16 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 + i * 0.08 }}
+                  className="relative"
+                >
+                  {p.soon && (
+                    <span className="absolute -top-2 right-3 z-20 rounded-full bg-amber-400 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-[#0C1421] shadow-sm">
+                      Bientôt
+                    </span>
+                  )}
+                  <Button
+                    variant="outline"
+                    disabled={loading !== null || !accepted || !captchaToken || p.soon}
+                    onClick={() => !p.soon && handleLogin(p.id)}
+                    aria-disabled={p.soon}
+                    title={p.soon ? "Indisponible pour l'instant" : undefined}
+                    className="relative w-full h-[52px] rounded-xl bg-[#F3F9FA] border border-[#CFDFE2] hover:bg-[#E9F2F4] text-[#313957] transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none"
+                  >
+                    <span className="flex items-center justify-center gap-3">
+                      {loading === p.id ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      ) : (
+                        <Image
+                          src={p.icon}
+                          alt=""
+                          width={22}
+                          height={22}
+                          className="object-contain"
+                        />
+                      )}
+                      <span className="font-semibold text-[15px] text-[#313957]">
+                        Continue with {p.name}
+                      </span>
+                    </span>
+                  </Button>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Footer */}
+            <p className="mt-8 text-center text-sm text-[#313957]">
+              Don&apos;t you have an account?{" "}
+              <Link href="/login" className="text-[#1E4AE9] font-semibold hover:underline underline-offset-2">
+                Sign up
+              </Link>
+            </p>
+
+            <p className="mt-10 text-center text-xs text-[#959CB6]">
+              © 2023 ALL RIGHTS RESERVED
+            </p>
+          </motion.div>
+        </div>
+      </div>
     </div>
   )
 }
