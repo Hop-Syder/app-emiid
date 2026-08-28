@@ -104,10 +104,10 @@ export default function LoginPage() {
             </Link>
 
             <h1 className="text-[32px] sm:text-[36px] font-bold tracking-tight text-[#0C1421] leading-[1.15]">
-              Welcome Back 👋
+              Bon retour 👋
             </h1>
             <p className="mt-3 text-base sm:text-lg text-[#313957] leading-relaxed">
-              Today is a new day. It&apos;s your day. You shape it. Sign in to start managing your projects.
+              Aujourd&apos;hui est un nouveau jour. C&apos;est votre jour, à vous de le façonner. Connectez-vous pour continuer à gérer vos projets.
             </p>
 
             {/* Erreur */}
@@ -205,7 +205,7 @@ export default function LoginPage() {
                         />
                       )}
                       <span className="font-semibold text-[15px] text-[#313957]">
-                        Continue with {p.name}
+                        Continuer avec {p.name}
                       </span>
                     </span>
                   </Button>
@@ -215,14 +215,14 @@ export default function LoginPage() {
 
             {/* Footer */}
             <p className="mt-8 text-center text-sm text-[#313957]">
-              Don&apos;t you have an account?{" "}
+              Vous n&apos;avez pas de compte ?{" "}
               <Link href="/login" className="text-[#1E4AE9] font-semibold hover:underline underline-offset-2">
-                Sign up
+                Inscrivez-vous
               </Link>
             </p>
 
             <p className="mt-10 text-center text-xs text-[#959CB6]">
-              © 2023 ALL RIGHTS RESERVED
+              © 2023 TOUS DROITS RÉSERVÉS
             </p>
           </motion.div>
         </div>
