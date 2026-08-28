@@ -868,6 +868,11 @@ export interface Database {
         Args: { p_profile_id: string; p_metric: string }
         Returns: void
       }
+      // Recherche de proximité (Haversine). Cf. migration 20260828.
+      search_profiles_by_proximity: {
+        Args: { p_lat: number; p_lng: number; p_radius_km?: number }
+        Returns: { profile_id: string; distance_km: number }[]
+      }
     }
     Enums: { [_ in never]: never }
   }
