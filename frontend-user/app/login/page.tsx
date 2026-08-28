@@ -4,12 +4,14 @@
  * @description Page de connexion de l'application utilisateur (EmiID).
  *              Layout deux colonnes (formulaire / illustration) sur desktop,
  *              empilé avec bannière image en tête sur mobile.
+ *              Inclut une section d'accueil inspirante avec citations aléatoires,
+ *              vérification Cloudflare Turnstile, acceptation des CGU et authentification OAuth.
  * @created 2026-05-27
  * @updated 2026-08-28
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
-// ──────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
 "use client"
 
 import { useState, useEffect } from "react"
@@ -21,8 +23,15 @@ import { Loader2, Check, Sparkles } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { Turnstile } from "@marsidev/react-turnstile"
 
+// ── Types & Constantes ───────────────────────────────────────────────────────
+
+/** Fournisseurs OAuth pris en charge par l'infrastructure Supabase */
 type Provider = "google" | "linkedin_oidc" | "apple"
 
+/**
+ * Collection de citations motivantes affichées de manière aléatoire
+ * pour accueillir et dynamiser les utilisateurs lors de leur connexion.
+ */
 const MOTIVATIONAL_QUOTES = [
   "Aujourd'hui est un nouveau jour. C'est votre moment de briller et de propulser vos projets.",
   "Chaque grand projet commence par un premier pas. Faites de cette journée une étape décisive.",
@@ -36,6 +45,7 @@ const MOTIVATIONAL_QUOTES = [
   "L'excellence est une habitude quotidienne. Faites la différence aujourd'hui."
 ]
 
+/** Configuration des boutons de connexion sociale (OAuth) */
 const providers = [
   { id: "google" as const, name: "Google", icon: "/login/google-icon.svg", soon: false },
   { id: "linkedin_oidc" as const, name: "LinkedIn", icon: "/login/linkedin.svg", soon: false },
@@ -55,24 +65,34 @@ const providers = [
 const TURNSTILE_SITE_KEY =
   process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "0x4AAAAAAEalZMK_1GPBD0mo"
 
-export default function LoginPage() {
-  const supabase = createClient()
-  const [loading, setLoading] = useState<Provider | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [accepted, setAccepted] = useState(false)
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null)
-  const [quoteIndex, setQuoteIndex] = useState(0)
+// ── Composant Principal ─────────────────────────────────────────────────────
 
+export default function LoginPage() {
+  // Client Supabase pour les requêtes d'authentification côté navigateur
+  const supabase = createClient()
+
+  // ── États locaux du composant ──────────────────────────────────────────────
+  const [loading, setLoading] = useState<Provider | null>(null) // Provider en cours de chargement
+  const [error, setError] = useState<string | null>(null) // Message d'erreur éventuel
+  const [accepted, setAccepted] = useState(false) // Accord obligatoire CGU / Confidentialité
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null) // Jeton de sécurité Cloudflare Turnstile
+  const [quoteIndex, setQuoteIndex] = useState(0) // Index de la citation motivante affichée
+
+  // Tirage au sort d'une citation motivante lors du premier rendu client
   useEffect(() => {
-    // Sélection aléatoire d'une citation motivante au montage côté client
     const randomIndex = Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length)
     setQuoteIndex(randomIndex)
   }, [])
 
+  /** Passe à la citation motivante suivante avec transition animée */
   const nextQuote = () => {
-    setQuoteIndex((prev) => (prev + 1) % MOTIVATIONAL_QUOTES.length)
+    setQuoteIndex((prev: number) => (prev + 1) % MOTIVATIONAL_QUOTES.length)
   }
 
+  /**
+   * Déclenche la connexion OAuth auprès du fournisseur sélectionné
+   * après vérification du captcha et acceptation des CGU.
+   */
   const handleLogin = async (provider: Provider) => {
     if (!accepted || !captchaToken) return
     setError(null)
@@ -94,11 +114,11 @@ export default function LoginPage() {
     <div className="min-h-screen w-full bg-white flex items-center justify-center p-4 sm:p-6 lg:p-8">
       <div className="w-full max-w-6xl flex flex-col lg:flex-row items-center lg:items-stretch gap-8 lg:gap-8">
 
-        {/* ── Illustration — bannière sur mobile, colonne droite sur desktop ── */}
+        {/* ── Illustration : bannière sur mobile, colonne droite sur desktop ── */}
         <div className="w-full lg:w-1/2 lg:order-2">
           <div className="relative w-full h-56 sm:h-72 lg:h-full lg:min-h-[640px] rounded-[24px] overflow-hidden bg-[#0C1421]">
             <Image
-              src="/login/background.avif"
+              src="/login/login.svg"
               alt=""
               fill
               sizes="(min-width: 1024px) 50vw, 100vw"
@@ -108,7 +128,7 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* ── Bloc d'authentification ─────────────────────────────────── */}
+        {/* ── Bloc d'authentification (formulaire & actions) ────────────────── */}
         <div className="w-full lg:w-1/2 lg:order-1 flex items-center justify-center">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -116,7 +136,8 @@ export default function LoginPage() {
             transition={{ duration: 0.4, ease: "easeOut" }}
             className="w-full max-w-[388px] mx-auto"
           >
-            <Link href="/" className="inline-flex items-center w-fit mb-10">
+            {/* Logo EmiID : masqué sur mobile (la bannière fait office de visuel), visible sur desktop */}
+            <Link href="/" className="hidden lg:inline-flex items-center w-fit mb-10">
               <Image
                 src="/logo/logo-emiid.png"
                 alt="EmiID"
@@ -127,6 +148,7 @@ export default function LoginPage() {
               />
             </Link>
 
+            {/* En-tête : Salutation & bouton d'inspiration interactif */}
             <div className="flex items-center justify-between">
               <h1 className="text-[32px] sm:text-[36px] font-bold tracking-tight text-[#0C1421] leading-[1.15]">
                 Hello 👋
@@ -143,6 +165,7 @@ export default function LoginPage() {
               </button>
             </div>
 
+            {/* Phrase de motivation avec animation fluide de transition */}
             <div className="mt-3 min-h-[56px] relative">
               <AnimatePresence mode="wait">
                 <motion.p
@@ -158,7 +181,7 @@ export default function LoginPage() {
               </AnimatePresence>
             </div>
 
-            {/* Erreur */}
+            {/* Affichage des erreurs d'authentification */}
             {error && (
               <motion.p
                 initial={{ opacity: 0, y: -8 }}
@@ -169,7 +192,7 @@ export default function LoginPage() {
               </motion.p>
             )}
 
-            {/* Case à cocher CGU — obligatoire */}
+            {/* Case à cocher CGU / Confidentialité (prérequis obligatoire pour se connecter) */}
             <motion.button
               type="button"
               onClick={() => setAccepted(v => !v)}
@@ -179,8 +202,8 @@ export default function LoginPage() {
               className="flex items-start gap-3 w-full text-left mt-7 group"
             >
               <div className={`mt-0.5 shrink-0 w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-200 ${accepted
-                  ? "bg-[#1E4AE9] border-[#1E4AE9]"
-                  : "bg-white border-[#CFDFE2] group-hover:border-[#1E4AE9]"
+                ? "bg-[#1E4AE9] border-[#1E4AE9]"
+                : "bg-white border-[#CFDFE2] group-hover:border-[#1E4AE9]"
                 }`}>
                 {accepted && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
               </div>
@@ -205,7 +228,7 @@ export default function LoginPage() {
               </p>
             </motion.button>
 
-            {/* Cloudflare Turnstile */}
+            {/* Widget de sécurité Cloudflare Turnstile */}
             <div className="flex justify-center mt-6">
               <Turnstile
                 siteKey={TURNSTILE_SITE_KEY}
@@ -216,7 +239,7 @@ export default function LoginPage() {
               />
             </div>
 
-            {/* Boutons providers */}
+            {/* Boutons d'authentification OAuth (Google, LinkedIn, Apple) */}
             <div className="flex flex-col gap-4 mt-7">
               {providers.map((p, i) => (
                 <motion.div
@@ -260,7 +283,7 @@ export default function LoginPage() {
               ))}
             </div>
 
-            {/* Footer */}
+            {/* Lien vers l'inscription */}
             <p className="mt-8 text-center text-sm text-[#313957]">
               Vous n&apos;avez pas de compte ?{" "}
               <Link href="/login" className="text-[#1E4AE9] font-semibold hover:underline underline-offset-2">
@@ -268,6 +291,7 @@ export default function LoginPage() {
               </Link>
             </p>
 
+            {/* Mentions légales & copyright */}
             <p className="mt-10 text-center text-xs text-[#959CB6]">
               © 2023 TOUS DROITS RÉSERVÉS
             </p>
