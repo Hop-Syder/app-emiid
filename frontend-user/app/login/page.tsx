@@ -12,23 +12,36 @@
 // ──────────────────────────────────
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { Loader2, Check } from "lucide-react"
+import { Loader2, Check, Sparkles } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { Turnstile } from "@marsidev/react-turnstile"
 
 type Provider = "google" | "linkedin_oidc" | "apple"
 
+const MOTIVATIONAL_QUOTES = [
+  "Aujourd'hui est un nouveau jour. C'est votre moment de briller et de propulser vos projets.",
+  "Chaque grand projet commence par un premier pas. Faites de cette journée une étape décisive.",
+  "Votre réseau et vos compétences sont vos plus grands atouts. Continuez à bâtir votre succès.",
+  "Le succès appartient à ceux qui osent passer à l'action. Donnez vie à vos ambitions aujourd'hui.",
+  "Transformez vos idées en réussites concrètes. Chaque connexion crée de nouvelles opportunités.",
+  "La persévérance est la clé des grandes réalisations. Restez concentré sur vos objectifs.",
+  "Votre avenir professionnel s'écrit maintenant. Démarquez-vous avec passion et authenticité.",
+  "Le talent ouvre des portes, mais la régularité et la vision forgent les accomplissements durables.",
+  "Une nouvelle journée pour apprendre, grandir et atteindre vos sommets professionnels.",
+  "L'excellence est une habitude quotidienne. Faites la différence aujourd'hui."
+]
+
 const providers = [
-  { id: "google" as const,        name: "Google",   icon: "/login/google-icon.svg", soon: false },
-  { id: "linkedin_oidc" as const, name: "LinkedIn", icon: "/login/linkedin.svg",     soon: false },
+  { id: "google" as const, name: "Google", icon: "/login/google-icon.svg", soon: false },
+  { id: "linkedin_oidc" as const, name: "LinkedIn", icon: "/login/linkedin.svg", soon: false },
   // Apple désactivé tant que le provider n'est pas configuré (Apple Developer + Supabase).
   // Réactivation : passer `soon` à false.
-  { id: "apple" as const,         name: "Apple",    icon: "/login/apple.svg",        soon: true  },
+  { id: "apple" as const, name: "Apple", icon: "/login/apple.svg", soon: true },
 ]
 
 /**
@@ -48,6 +61,17 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const [accepted, setAccepted] = useState(false)
   const [captchaToken, setCaptchaToken] = useState<string | null>(null)
+  const [quoteIndex, setQuoteIndex] = useState(0)
+
+  useEffect(() => {
+    // Sélection aléatoire d'une citation motivante au montage côté client
+    const randomIndex = Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length)
+    setQuoteIndex(randomIndex)
+  }, [])
+
+  const nextQuote = () => {
+    setQuoteIndex((prev) => (prev + 1) % MOTIVATIONAL_QUOTES.length)
+  }
 
   const handleLogin = async (provider: Provider) => {
     if (!accepted || !captchaToken) return
@@ -103,12 +127,36 @@ export default function LoginPage() {
               />
             </Link>
 
-            <h1 className="text-[32px] sm:text-[36px] font-bold tracking-tight text-[#0C1421] leading-[1.15]">
-              Bon retour 👋
-            </h1>
-            <p className="mt-3 text-base sm:text-lg text-[#313957] leading-relaxed">
-              Aujourd&apos;hui est un nouveau jour. C&apos;est votre jour, à vous de le façonner. Connectez-vous pour continuer à gérer vos projets.
-            </p>
+            <div className="flex items-center justify-between">
+              <h1 className="text-[32px] sm:text-[36px] font-bold tracking-tight text-[#0C1421] leading-[1.15]">
+                Hello 👋
+              </h1>
+              <button
+                type="button"
+                onClick={nextQuote}
+                aria-label="Changer de citation de motivation"
+                title="Autre phrase de motivation"
+                className="group flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-[#1E4AE9] hover:text-[#1637B0] bg-[#1E4AE9]/5 hover:bg-[#1E4AE9]/10 rounded-full transition-all duration-200 border border-[#1E4AE9]/15 cursor-pointer"
+              >
+                <Sparkles className="w-3.5 h-3.5 transition-transform group-hover:scale-110 group-active:rotate-12 text-[#1E4AE9]" />
+                <span>Inspiration</span>
+              </button>
+            </div>
+
+            <div className="mt-3 min-h-[56px] relative">
+              <AnimatePresence mode="wait">
+                <motion.p
+                  key={quoteIndex}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.25, ease: "easeOut" }}
+                  className="text-base sm:text-lg text-[#313957] leading-relaxed"
+                >
+                  {MOTIVATIONAL_QUOTES[quoteIndex]}
+                </motion.p>
+              </AnimatePresence>
+            </div>
 
             {/* Erreur */}
             {error && (
@@ -130,11 +178,10 @@ export default function LoginPage() {
               transition={{ delay: 0.05 }}
               className="flex items-start gap-3 w-full text-left mt-7 group"
             >
-              <div className={`mt-0.5 shrink-0 w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-200 ${
-                accepted
+              <div className={`mt-0.5 shrink-0 w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-200 ${accepted
                   ? "bg-[#1E4AE9] border-[#1E4AE9]"
                   : "bg-white border-[#CFDFE2] group-hover:border-[#1E4AE9]"
-              }`}>
+                }`}>
                 {accepted && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
               </div>
               <p className="text-[13px] text-[#313957] leading-relaxed">
