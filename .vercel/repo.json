@@ -1,0 +1,11 @@
+{
+  "remoteName": "origin",
+  "projects": [
+    {
+      "id": "prj_zz4NG1erukmscD4gqNHT4lZsUsyd",
+      "name": "app-emiid",
+      "directory": "frontend-user",
+      "orgId": "team_ksokS2qKo6zCZplw8A71519h"
+    }
+  ]
+}

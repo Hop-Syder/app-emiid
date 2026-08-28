@@ -86,7 +86,7 @@ export function PortefeuilleContent() {
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-slate-50">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 lg:py-10 space-y-6">
+      <div className="max-w-5xl lg:max-w-6xl mx-auto px-4 sm:px-6 py-6 lg:py-10 space-y-6">
 
         {/* Page header */}
         <div>
@@ -124,37 +124,63 @@ export function PortefeuilleContent() {
           })}
         </div>
 
-        {/* ── Tab navigation ─────────────────────────────────────────── */}
-        <div className="overflow-x-auto scrollbar-hide">
-          <div className="flex gap-2 min-w-max">
+        {/* ── Navigation + contenu : rail vertical sur desktop ───────── */}
+        <div className="lg:grid lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-8 lg:items-start">
+
+          {/* Rail vertical — desktop */}
+          <nav className="hidden lg:flex flex-col gap-2 bg-white border border-slate-200 rounded-2xl p-2 sticky top-24 shadow-[0_8px_30px_rgb(0,0,0,0.02)]">
             {TABS.map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
                 onClick={() => setActiveTab(id)}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap border transition-all ${
+                className={`relative w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all text-left ${
                   activeTab === id
-                    ? "bg-slate-900 text-white border-slate-900 shadow-sm"
-                    : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-slate-900"
+                    ? "bg-slate-900 text-white"
+                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                 }`}
               >
-                <Icon className="h-4 w-4 shrink-0" />
+                <Icon className={`h-4 w-4 shrink-0 ${activeTab === id ? "text-[#03b3f8]" : "text-slate-400"}`} />
                 {label}
               </button>
             ))}
+          </nav>
+
+          {/* Colonne contenu */}
+          <div className="min-w-0 space-y-5">
+
+            {/* Tab navigation — mobile / tablette */}
+            <div className="overflow-x-auto scrollbar-hide lg:hidden">
+              <div className="flex gap-2 min-w-max">
+                {TABS.map(({ id, label, icon: Icon }) => (
+                  <button
+                    key={id}
+                    onClick={() => setActiveTab(id)}
+                    className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap border transition-all ${
+                      activeTab === id
+                        ? "bg-slate-900 text-white border-slate-900 shadow-sm"
+                        : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-slate-900"
+                    }`}
+                  >
+                    <Icon className="h-4 w-4 shrink-0" />
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Section title */}
+            {activeTab !== "reseau" && (
+              <div className="hidden lg:block">
+                <h2 className="text-lg font-black text-slate-900">
+                  {TABS.find(t => t.id === activeTab)?.label}
+                </h2>
+              </div>
+            )}
+
+            {/* Tab content */}
+            {activeContent[activeTab]}
           </div>
         </div>
-
-        {/* ── Section title ──────────────────────────────────────────── */}
-        {activeTab !== "reseau" && (
-          <div className="hidden lg:block">
-            <h2 className="text-lg font-black text-slate-900">
-              {TABS.find(t => t.id === activeTab)?.label}
-            </h2>
-          </div>
-        )}
-
-        {/* ── Tab content ────────────────────────────────────────────── */}
-        {activeContent[activeTab]}
 
       </div>
     </div>

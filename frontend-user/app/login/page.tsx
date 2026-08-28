@@ -1,9 +1,11 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Page de connexion de l'application utilisateur (EmiID)
+ * @description Page de connexion de l'application utilisateur (EmiID).
+ *              Split-screen sur desktop : panneau de branding à gauche,
+ *              formulaire à droite. Carte centrée sur mobile.
  * @created 2026-05-27
- * @updated 2026-06-21
+ * @updated 2026-08-26
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -15,7 +17,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { Loader2, ShieldCheck, Check } from "lucide-react"
+import { Loader2, ShieldCheck, Check, Fingerprint, SearchCheck, MapPinned } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { Turnstile } from "@marsidev/react-turnstile"
 
@@ -27,6 +29,24 @@ const providers = [
   // Apple désactivé tant que le provider n'est pas configuré (Apple Developer + Supabase).
   // Réactivation : passer `soon` à false.
   { id: "apple" as const,         name: "Apple",    icon: "/login/apple.svg",        soon: true  },
+]
+
+const BRANDING_POINTS = [
+  {
+    icon: Fingerprint,
+    title: "Votre empreinte numérique",
+    desc: "Un profil professionnel vérifié, partageable en un lien ou un QR code.",
+  },
+  {
+    icon: SearchCheck,
+    title: "Trouvez le bon pro",
+    desc: "Recherchez en langage courant, filtrez par métier et par commune.",
+  },
+  {
+    icon: MapPinned,
+    title: "Ancré au Bénin",
+    desc: "Les 77 communes référencées, de Cotonou à Malanville.",
+  },
 ]
 
 /**
@@ -65,7 +85,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-[#020617] relative overflow-hidden">
+    <div className="min-h-screen w-full flex bg-[#020617] relative overflow-hidden">
 
       {/* Fond décoratif minimal */}
       <div className="absolute inset-0 pointer-events-none">
@@ -75,12 +95,66 @@ export default function LoginPage() {
         <div className="absolute -top-24 -right-24 w-80 h-80 bg-blue-500/8 blur-[100px] rounded-full" />
       </div>
 
+      {/* ── Panneau branding — desktop uniquement ─────────────────────── */}
+      <aside className="hidden lg:flex flex-col justify-between w-[44%] xl:w-[48%] relative z-10 border-r border-white/5 p-12 xl:p-16">
+        <Link href="/" className="inline-flex items-center gap-3 w-fit">
+          <Image
+            src="/logo/logo-emiid.png"
+            alt="EmiID"
+            width={320}
+            height={80}
+            className="h-11 w-auto object-contain brightness-0 invert"
+            priority
+          />
+        </Link>
+
+        <div className="max-w-md">
+          <h2 className="text-4xl xl:text-5xl font-black tracking-tight text-white leading-[1.08]">
+            Votre empreinte
+            <br />
+            <span className="text-transparent bg-clip-text bg-[linear-gradient(90deg,#03b3f8,#013ff4)]">
+              numérique professionnelle.
+            </span>
+          </h2>
+          <p className="mt-5 text-sm text-zinc-400 font-medium leading-relaxed">
+            Rejoignez le réseau des professionnels vérifiés d&apos;Afrique de l&apos;Ouest — artisans, freelances,
+            entreprises et institutions.
+          </p>
+
+          <ul className="mt-10 space-y-6">
+            {BRANDING_POINTS.map((point, i) => (
+              <motion.li
+                key={point.title}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 + i * 0.12, duration: 0.45 }}
+                className="flex items-start gap-4"
+              >
+                <span className="shrink-0 w-10 h-10 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-center">
+                  <point.icon className="w-4.5 h-4.5 text-[#03b3f8]" />
+                </span>
+                <span>
+                  <span className="block text-sm font-bold text-white">{point.title}</span>
+                  <span className="block text-xs text-zinc-500 mt-0.5 leading-relaxed">{point.desc}</span>
+                </span>
+              </motion.li>
+            ))}
+          </ul>
+        </div>
+
+        <p className="text-[10px] font-black uppercase tracking-[0.25em] text-zinc-700">
+          Connect &amp; Lead · Nexus Partners
+        </p>
+      </aside>
+
+      {/* ── Panneau formulaire ────────────────────────────────────────── */}
+      <main className="flex-1 flex items-center justify-center relative">
       {/* Card */}
       <motion.div
         initial={{ opacity: 0, y: 24, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="relative z-10 w-full max-w-sm mx-4 -mt-6 sm:-mt-12"
+        className="relative z-10 w-full max-w-sm mx-4 -mt-6 sm:-mt-12 lg:my-12"
       >
         {/* Glow border */}
         <div className="absolute -inset-[1px] bg-gradient-to-b from-white/10 via-white/5 to-transparent rounded-[2rem] pointer-events-none" />
@@ -220,7 +294,8 @@ export default function LoginPage() {
             </div>
           </div>
         </div>
-      </motion.div>
+        </motion.div>
+      </main>
     </div>
   )
 }

@@ -1,3 +1,5 @@
 
 # TS build cache
 *.tsbuildinfo
+.next/
+.herozionignore/

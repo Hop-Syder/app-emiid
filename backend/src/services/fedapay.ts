@@ -64,10 +64,10 @@ export async function createTransaction(p: CreateTxParams): Promise<{ id: string
 /** Génère le token/URL de paiement pour rediriger l'utilisateur. */
 export async function generatePaymentToken(txId: string): Promise<{ token: string; url: string }> {
     const json = await fedapayFetch(`/transactions/${txId}/token`, { method: 'POST' })
-    const token = String(json['token'] || '')
-    const url = String(json['url'] || '')
-    if (!token || !url) throw new Error('FedaPay: token de paiement manquant')
-    return { token, url }
+    const paymentToken = String(json['token'] || '')
+    const paymentUrl = String(json['url'] || '')
+    if (!paymentToken || !paymentUrl) throw new Error('FedaPay: token de paiement manquant')
+    return { token: paymentToken, url: paymentUrl }
 }
 
 /**

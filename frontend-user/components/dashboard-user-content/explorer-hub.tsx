@@ -26,9 +26,15 @@ interface ExplorerHubProps {
   premiumProfiles: PublicProfile[]
   newProfiles: PublicProfile[]
   categoryCounts?: Record<string, number>
+  /**
+   * Profils encore en cours de chargement. Sans cela, une liste vide est
+   * indiscernable d'une absence de résultats et l'on affiche « aucun profil »
+   * à quelqu'un dont les données arrivent.
+   */
+  loading?: boolean
 }
 
-export function ExplorerHub({ premiumProfiles, newProfiles, categoryCounts }: ExplorerHubProps) {
+export function ExplorerHub({ premiumProfiles, newProfiles, categoryCounts, loading = false }: ExplorerHubProps) {
   const hasPremium = premiumProfiles.length > 0
 
   const tabs = [
@@ -83,10 +89,10 @@ export function ExplorerHub({ premiumProfiles, newProfiles, categoryCounts }: Ex
       {/* Contenu de l'onglet actif */}
       <div className="relative z-10">
         {active === "new" && (
-          <EntrepreneursSection entrepreneursList={newProfiles.slice(0, 8)} loading={false} variant="glass-blue" />
+          <EntrepreneursSection entrepreneursList={newProfiles.slice(0, 8)} loading={loading} variant="glass-blue" />
         )}
         {active === "premium" && hasPremium && (
-          <EntrepreneursSection entrepreneursList={premiumProfiles} loading={false} variant="elite" />
+          <EntrepreneursSection entrepreneursList={premiumProfiles} loading={loading} variant="elite" />
         )}
         {active === "realisations" && <RealisationsShowcase />}
         {active === "categories" && <CategoriesExplorer categoryCounts={categoryCounts} />}

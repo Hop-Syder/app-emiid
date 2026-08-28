@@ -75,7 +75,7 @@ export function AnnuaireSpotlight() {
                 {/* Flèche gauche */}
                 <button
                     onClick={() => scroll("left")}
-                    className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 h-10 w-10 items-center justify-center rounded-full bg-slate-900/90 text-white/90 border border-white/10 shadow-xl opacity-0 group-hover/carousel:opacity-100 transition-all hover:bg-slate-800 hover:text-white backdrop-blur-md cursor-pointer"
+                    className="hidden md:flex lg:hidden absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 h-10 w-10 items-center justify-center rounded-full bg-slate-900/90 text-white/90 border border-white/10 shadow-xl opacity-0 group-hover/carousel:opacity-100 transition-all hover:bg-slate-800 hover:text-white backdrop-blur-md cursor-pointer"
                     aria-label="Défiler vers la gauche"
                 >
                     <ChevronLeft className="h-5 w-5" />
@@ -84,7 +84,7 @@ export function AnnuaireSpotlight() {
                 {/* Flèche droite */}
                 <button
                     onClick={() => scroll("right")}
-                    className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 h-10 w-10 items-center justify-center rounded-full bg-slate-900/90 text-white/90 border border-white/10 shadow-xl opacity-0 group-hover/carousel:opacity-100 transition-all hover:bg-slate-800 hover:text-white backdrop-blur-md cursor-pointer"
+                    className="hidden md:flex lg:hidden absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 h-10 w-10 items-center justify-center rounded-full bg-slate-900/90 text-white/90 border border-white/10 shadow-xl opacity-0 group-hover/carousel:opacity-100 transition-all hover:bg-slate-800 hover:text-white backdrop-blur-md cursor-pointer"
                     aria-label="Défiler vers la droite"
                 >
                     <ChevronRight className="h-5 w-5" />
@@ -93,7 +93,7 @@ export function AnnuaireSpotlight() {
                 {/* Liste défilante */}
                 <div 
                     ref={scrollRef}
-                    className="flex overflow-x-auto pb-10 pt-4 px-4 -mx-4 gap-6 snap-x no-scrollbar w-full scroll-smooth"
+                    className="flex overflow-x-auto pb-10 pt-4 px-4 -mx-4 gap-6 snap-x no-scrollbar w-full scroll-smooth lg:grid lg:grid-cols-3 lg:gap-5 xl:gap-6 lg:overflow-visible lg:p-0 lg:m-0"
                 >
                     {profiles.map((profile, index) => (
                         <motion.div
@@ -101,7 +101,7 @@ export function AnnuaireSpotlight() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.1 }}
-                            className="min-w-[280px] sm:min-w-[320px] max-w-[320px] bg-white rounded-3xl p-6 shadow-xl shadow-slate-200/50 border border-amber-100 flex flex-col h-full relative overflow-hidden group snap-center shrink-0"
+                            className="min-w-[280px] sm:min-w-[320px] max-w-[320px] lg:min-w-0 lg:max-w-none bg-white rounded-3xl p-6 shadow-xl shadow-slate-200/50 border border-amber-100 flex flex-col h-full relative overflow-hidden group snap-center shrink-0"
                         >
                             {/* Glow effect */}
                             <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-amber-400/20 rounded-full blur-3xl transition-transform group-hover:scale-150 duration-500" />

@@ -27,6 +27,8 @@ interface PreferencesSectionProps {
   saving:       boolean
   handleSave:   () => void
   handleCancel: () => void
+  /** Masque la barre d'actions quand une autre section enregistre déjà. */
+  hideActions?: boolean
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
@@ -38,7 +40,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   )
 }
 
-export function PreferencesSection({ settings, setSettings, saving, handleSave, handleCancel }: PreferencesSectionProps) {
+export function PreferencesSection({ settings, setSettings, saving, handleSave, handleCancel, hideActions = false }: PreferencesSectionProps) {
   const { setTheme } = useTheme()
 
   useEffect(() => {
@@ -122,14 +124,18 @@ export function PreferencesSection({ settings, setSettings, saving, handleSave, 
         </div>
       </div>
 
-      <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-1">
-        <Button variant="outline" onClick={handleCancel} className="w-full sm:w-auto h-11 rounded-xl border-slate-200 font-bold">
-          Annuler
-        </Button>
-        <Button onClick={handleSave} disabled={saving} className="w-full sm:w-auto h-11 rounded-xl font-bold shadow-sm">
-          {saving ? "Enregistrement..." : "Enregistrer"}
-        </Button>
-      </div>
+      {/* Masquée quand la section est empilée : la barre suivante enregistre
+          déjà l'ensemble des réglages. */}
+      {!hideActions && (
+        <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-1">
+          <Button variant="outline" onClick={handleCancel} className="w-full sm:w-auto h-11 rounded-xl border-slate-200 font-bold">
+            Annuler
+          </Button>
+          <Button onClick={handleSave} disabled={saving} className="w-full sm:w-auto h-11 rounded-xl font-bold shadow-sm">
+            {saving ? "Enregistrement..." : "Enregistrer"}
+          </Button>
+        </div>
+      )}
 
     </div>
   )

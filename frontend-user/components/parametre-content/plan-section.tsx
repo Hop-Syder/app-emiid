@@ -10,12 +10,17 @@
 
 "use client"
 
+import { useState } from "react"
 import { motion } from "framer-motion"
+import { toast } from "sonner"
 import {
   Star, ShieldCheck, Zap, Globe, MessageSquare, CreditCard, Sparkles,
-  Eye, Phone, Share2, AlertCircle, Loader2, Check,
+  Eye, Phone, Share2, AlertCircle, Loader2, Check, ReceiptText,
 } from "lucide-react"
-import { useSubscription, PLANS, formatFcfa, type PlanId } from "@/hooks/use-subscription"
+import { useSubscription, PLANS, formatFcfa, type PlanId, type Invoice } from "@/hooks/use-subscription"
+import { Switch } from "@/components/ui/switch"
+import { Button } from "@/components/ui/button"
+import { ConfirmActionDialog } from "@/components/ui/confirm-action-dialog"
 
 interface PlanSectionProps {
   profile: {
@@ -38,11 +43,33 @@ function formatDate(iso: string | null): string {
 }
 
 export function PlanSection({ profile }: PlanSectionProps) {
-  const { subscription, stats, isPro, loading, checkoutLoading, error, startCheckout } = useSubscription()
+  const {
+    subscription, stats, invoices, isPro, loading, checkoutLoading, managing, error,
+    startCheckout, toggleAutoRenew, cancelSubscription,
+  } = useSubscription()
+  const [cancelOpen, setCancelOpen] = useState(false)
 
   // Repli sur la donnée du profil tant que l'abonnement n'est pas chargé.
   const pro = loading ? profile.is_premium : isPro
   const busy = checkoutLoading !== null
+
+  const handleToggleAutoRenew = async (enabled: boolean) => {
+    try {
+      await toggleAutoRenew(enabled)
+      toast.success(enabled ? "Renouvellement automatique activé" : "Renouvellement automatique désactivé")
+    } catch {
+      toast.error("Impossible de modifier le renouvellement automatique.")
+    }
+  }
+
+  const handleCancel = async () => {
+    try {
+      await cancelSubscription()
+      toast.success("Votre abonnement a été résilié.")
+    } catch {
+      toast.error("La résiliation a échoué. Réessayez dans un instant.")
+    }
+  }
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 space-y-8">
@@ -96,6 +123,71 @@ export function PlanSection({ profile }: PlanSectionProps) {
           <div>
             <p className="text-sm font-bold text-rose-900">Paiement impossible</p>
             <p className="text-xs text-rose-700">{error}</p>
+          </div>
+        </div>
+      )}
+
+      {/* ── Gestion de l'abonnement (si Pro) ─────────────────────────── */}
+      {pro && subscription && !loading && (
+        <div className="rounded-2xl border border-slate-200 p-5 space-y-4">
+          <div className="flex items-center justify-between gap-4">
+            <div className="min-w-0">
+              <p className="text-sm font-bold text-slate-900">Renouvellement automatique</p>
+              <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
+                {subscription.autoRenew
+                  ? `Votre forfait sera renouvelé automatiquement le ${formatDate(subscription.endDate)}.`
+                  : "Sans renouvellement, votre abonnement s'achève à son échéance — pensez à le relancer."}
+              </p>
+            </div>
+            <Switch
+              checked={subscription.autoRenew}
+              onCheckedChange={(value) => void handleToggleAutoRenew(value)}
+              disabled={managing}
+              aria-label="Renouvellement automatique"
+            />
+          </div>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-slate-100">
+            <div className="min-w-0">
+              <p className="text-sm font-bold text-slate-900">Résilier l&apos;abonnement</p>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Effet immédiat : le badge Pro et ses avantages sont retirés, sans remboursement au prorata.
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={managing}
+              onClick={() => setCancelOpen(true)}
+              className="shrink-0 rounded-xl text-rose-600 border-rose-200 hover:bg-rose-50 hover:text-rose-700"
+            >
+              {managing ? <Loader2 className="h-4 w-4 animate-spin" /> : "Résilier"}
+            </Button>
+          </div>
+
+          <ConfirmActionDialog
+            isOpen={cancelOpen}
+            onClose={() => setCancelOpen(false)}
+            onConfirm={() => {
+              setCancelOpen(false)
+              void handleCancel()
+            }}
+            title="Résilier l'abonnement Pro ?"
+            description="Vous perdez immédiatement le badge Pro, la priorité dans la recherche et l'accès à vos statistiques détaillées. Cette action est irréversible."
+            confirmText="Oui, résilier"
+            cancelText="Conserver mon offre"
+            variant="destructive"
+          />
+        </div>
+      )}
+
+      {/* ── Historique de paiements ──────────────────────────────────── */}
+      {!loading && invoices.length > 0 && (
+        <div className="space-y-4">
+          <h5 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Historique de paiements</h5>
+          <div className="divide-y divide-slate-100 overflow-hidden rounded-2xl border border-slate-100 bg-white">
+            {invoices.map((invoice) => (
+              <InvoiceRow key={invoice.id} invoice={invoice} />
+            ))}
           </div>
         </div>
       )}
@@ -194,6 +286,34 @@ export function PlanSection({ profile }: PlanSectionProps) {
           <StatTile icon={Share2} label="Partages" value={stats?.shares ?? 0} loading={loading} locked={!pro} />
         </div>
       </div>
+    </div>
+  )
+}
+
+// ── Ligne d'historique de paiement ──────────────────────────────────────
+function InvoiceRow({ invoice }: { invoice: Invoice }) {
+  const badge =
+    invoice.status === "SUCCESS"
+      ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+      : invoice.status === "FAILED"
+        ? "bg-rose-50 text-rose-700 border-rose-200"
+        : "bg-amber-50 text-amber-700 border-amber-200"
+  const label = invoice.status === "SUCCESS" ? "Payé" : invoice.status === "FAILED" ? "Échoué" : "En attente"
+
+  return (
+    <div className="flex items-center justify-between gap-3 px-4 py-3">
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="p-2 rounded-xl bg-slate-50 text-slate-400 shrink-0">
+          <ReceiptText className="h-4 w-4" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-xs font-bold text-slate-900">{formatFcfa(invoice.amount)}</p>
+          <p className="text-[11px] text-slate-400">{formatDate(invoice.createdAt)}</p>
+        </div>
+      </div>
+      <span className={`shrink-0 inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${badge}`}>
+        {label}
+      </span>
     </div>
   )
 }

@@ -49,8 +49,8 @@ Thumbs.db
 .cursorrules
 .skills/
 skills-lock.json
-.emergent/
 .gemini/
+.herozionignore/
 
 # Project specific
 design-system

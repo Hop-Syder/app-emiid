@@ -1,7 +1,17 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Settings page shell — design premium Luxury Bento, Glassmorphism et transitions animées.
+ * @description Coquille de la page Paramètres.
+ *
+ *              Dix onglets ramenés à sept. « À propos » rejoint « Profil » —
+ *              les deux éditaient le même champ bio, et l'on pouvait donc
+ *              écrire deux valeurs différentes selon l'onglet ouvert.
+ *              « Notifications » rejoint « Préférences », « Boost » rejoint
+ *              « Abonnement » : dans les deux cas, deux onglets pour un même
+ *              sujet.
+ *
+ *              Les anciens identifiants d'onglet restent acceptés en URL
+ *              (voir use-settings) : aucun lien existant ne casse.
  * @created 2026-06-22
  * @updated 2026-07-13
  * 🌐 ceo.nexuspartners.xyz
@@ -10,7 +20,7 @@
 
 "use client"
 
-import { User, Shield, Bell, Settings, Star, LogOut, X, FileText, Share2, Clock, BadgeCheck, Rocket } from "lucide-react"
+import { User, Shield, Settings, Star, LogOut, X, Share2, Clock, BadgeCheck } from "lucide-react"
 import { Preloader } from "@/components/Preloader"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
@@ -27,16 +37,13 @@ import { BoostSection } from "./boost-section"
 import { useSettings, TabId } from "@/hooks/use-settings"
 
 const TABS: { id: TabId; label: string; icon: React.ElementType; desc: string }[] = [
-  { id: "profil",         label: "Profil",        icon: User,       desc: "Informations personnelles et professionnelles" },
-  { id: "apropos",        label: "À propos",      icon: FileText,   desc: "Bio, slogan et expérience" },
-  { id: "reseaux",        label: "Réseaux",       icon: Share2,     desc: "Liens sociaux et contacts publics" },
-  { id: "horaires",       label: "Horaires & Services", icon: Clock, desc: "Adresse, horaires et prestations" },
-  { id: "verification",   label: "Vérification",  icon: BadgeCheck, desc: "Badge vérifié et pièces justificatives" },
-  { id: "securite",       label: "Sécurité",      icon: Shield,     desc: "Accès, PIN et authentification" },
-  { id: "notifications",  label: "Notifications", icon: Bell,       desc: "Alertes et préférences de messages" },
-  { id: "preferences",    label: "Préférences",   icon: Settings,   desc: "Langue, thème et confidentialité" },
-  { id: "plan",           label: "Abonnement",    icon: Star,       desc: "Gérez votre offre EmiID Premium" },
-  { id: "boost",          label: "Boost",         icon: Rocket,     desc: "Mise en avant dans votre commune" },
+  { id: "profil",       label: "Profil",              icon: User,      desc: "Identité, bio, slogan et expérience" },
+  { id: "reseaux",      label: "Réseaux",             icon: Share2,    desc: "Liens sociaux et contacts publics" },
+  { id: "horaires",     label: "Horaires & Services", icon: Clock,     desc: "Adresse, horaires et prestations" },
+  { id: "verification", label: "Vérification",        icon: BadgeCheck, desc: "Badge vérifié et pièces justificatives" },
+  { id: "securite",     label: "Sécurité",            icon: Shield,    desc: "Accès, PIN et authentification" },
+  { id: "preferences",  label: "Préférences",         icon: Settings,  desc: "Langue, thème, confidentialité et notifications" },
+  { id: "plan",         label: "Abonnement",          icon: Star,      desc: "Offre EmiID Premium et mise en avant" },
 ]
 
 export function ParametresContent() {
@@ -86,16 +93,43 @@ export function ParametresContent() {
   const displayName = [profile.first_name, profile.last_name].filter(Boolean).join(" ") || "Mon Compte"
 
   const activeSection: Record<TabId, React.ReactNode> = {
-    profil:        <ProfileSection profile={profile} setProfile={setProfile} saving={saving} handleSave={handleSave} handleCancel={handleCancel} />,
-    apropos:       <BioSection profile={profile} setProfile={setProfile} saving={saving} handleSave={handleSave} handleCancel={handleCancel} />,
-    reseaux:       <SocialLinksSection profile={profile} setProfile={setProfile} saving={saving} handleSave={handleSave} handleCancel={handleCancel} />,
-    horaires:      <HoursPricingSection profile={profile} setProfile={setProfile} saving={saving} handleSave={handleSave} handleCancel={handleCancel} />,
-    verification:  <VerificationSection profile={profile} />,
-    securite:      <SecuritySection profile={profile} setProfile={setProfile} securitySettings={securitySettings} setSecuritySettings={setSecuritySettings} saveSettings={saveSettings} />,
-    notifications: <NotificationsSection settings={notificationSettings} setSettings={setNotificationSettings} saving={saving} handleSave={() => saveSettings({ notification_preferences: notificationSettings }, "Notifications mises à jour")} handleCancel={handleCancel} />,
-    preferences:   <PreferencesSection  settings={preferences}           setSettings={setPreferences}           saving={saving} handleSave={() => saveSettings({ app_preferences: preferences },              "Préférences mises à jour")}  handleCancel={handleCancel} />,
-    plan:          <PlanSection profile={profile} />,
-    boost:         <BoostSection />,
+    // Identité puis bio : une seule barre d'enregistrement en bas, car les deux
+    // écrivent dans le même profil.
+    profil: (
+      <div className="space-y-4">
+        <ProfileSection profile={profile} setProfile={setProfile} saving={saving} handleSave={handleSave} handleCancel={handleCancel} hideActions />
+        <BioSection profile={profile} setProfile={setProfile} saving={saving} handleSave={handleSave} handleCancel={handleCancel} />
+      </div>
+    ),
+    reseaux:      <SocialLinksSection profile={profile} setProfile={setProfile} saving={saving} handleSave={handleSave} handleCancel={handleCancel} />,
+    horaires:     <HoursPricingSection profile={profile} setProfile={setProfile} saving={saving} handleSave={handleSave} handleCancel={handleCancel} />,
+    verification: <VerificationSection profile={profile} />,
+    securite:     <SecuritySection profile={profile} setProfile={setProfile} securitySettings={securitySettings} setSecuritySettings={setSecuritySettings} saveSettings={saveSettings} />,
+    // Réglages de l'application et notifications : la barre finale enregistre
+    // les deux jeux de préférences en une fois.
+    preferences: (
+      <div className="space-y-4">
+        <PreferencesSection settings={preferences} setSettings={setPreferences} saving={saving} handleSave={() => {}} handleCancel={handleCancel} hideActions />
+        <NotificationsSection
+          settings={notificationSettings}
+          setSettings={setNotificationSettings}
+          saving={saving}
+          handleSave={() => saveSettings(
+            { app_preferences: preferences, notification_preferences: notificationSettings },
+            "Préférences mises à jour",
+          )}
+          handleCancel={handleCancel}
+        />
+      </div>
+    ),
+    // Abonnement et mise en avant : deux volets d'un même sujet, aucun n'ayant
+    // de formulaire à enregistrer.
+    plan: (
+      <div className="space-y-4">
+        <PlanSection profile={profile} />
+        <BoostSection />
+      </div>
+    ),
   }
 
   return (

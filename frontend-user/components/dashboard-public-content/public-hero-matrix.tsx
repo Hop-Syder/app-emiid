@@ -84,7 +84,7 @@ export function PublicHeroMatrix({ stats }: PublicHeroMatrixProps) {
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-[#013ff4]/10 to-[#03b3f8]/10 border border-[#03b3f8]/30 backdrop-blur-md">
             <Sparkles className="h-4 w-4 text-[#03b3f8] animate-pulse" />
             <span className="text-xs font-bold text-[#03b3f8] tracking-wide">
-              L'empreinte numérique professionnelle d'Afrique & Diaspora
+              L&apos;empreinte numérique professionnelle d&apos;Afrique & Diaspora
             </span>
           </div>
 
@@ -97,7 +97,7 @@ export function PublicHeroMatrix({ stats }: PublicHeroMatrixProps) {
           </h1>
 
           <p className="text-sm md:text-base text-slate-300 font-medium leading-relaxed max-w-xl">
-            Créez votre carte de visite numérique EmiID, certifiez vos compétences et rejoignez l'annuaire d'élite des leaders et créateurs d'Afrique.
+            Créez votre carte de visite numérique EmiID, certifiez vos compétences et rejoignez l&apos;annuaire d&apos;élite des leaders et créateurs d&apos;Afrique.
           </p>
 
           {/* Terminal d'acquisition directe (Instant Claim) */}

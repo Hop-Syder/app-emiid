@@ -103,7 +103,7 @@ export function PersonalHero() {
       {/* Upsell Premium contextuel */}
       {!isPremium && !loading && (
         <Link
-          href="/parametres?tab=premium"
+          href="/parametres?tab=plan"
           className="mt-4 flex items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-amber-50 to-amber-100/50 border border-amber-200/60 px-4 py-3 hover:from-amber-100 transition-colors group"
         >
           <span className="flex items-center gap-2.5 min-w-0">

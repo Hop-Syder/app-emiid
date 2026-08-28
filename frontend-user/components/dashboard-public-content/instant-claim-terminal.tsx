@@ -50,7 +50,7 @@ export function InstantClaimTerminal() {
         </h2>
 
         <p className="text-sm sm:text-base text-slate-300 font-medium max-w-xl mx-auto leading-relaxed">
-          Rejoignez les milliers de professionnels qui développent leur réseau avec EmiID. C'est rapide, gratuit et certifié.
+          Rejoignez les milliers de professionnels qui développent leur réseau avec EmiID. C&apos;est rapide, gratuit et certifié.
         </p>
 
         <form onSubmit={handleSubmit} className="pt-4 max-w-md mx-auto">

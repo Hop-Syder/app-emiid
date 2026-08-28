@@ -1,14 +1,17 @@
 # DEXTY — Mémoire Projet
+
 > Généré automatiquement — Ne pas éditer manuellement
 > @author @hopsyder | Nexus Partners
 
 ## 📌 Méta-projet
+
 - **Nom** : EmiID
 - **Type** : SaaS (Web App + Backend API + Admin + Commercial)
 - **Initialisé le** : 2026-05-27
-- **Dernière mise à jour** : 2026-08-22
+- **Dernière mise à jour** : 2026-08-26
 
 ## 🛠️ Stack détectée
+
 - **Frontend** : Next.js (App Router), React 19, TailwindCSS, Radix UI, Framer Motion
 - **Backend** : Node.js, Express, TypeScript, WebSockets
 - **Base de données** : Supabase (PostgreSQL, RLS, Realtime, Storage, pgvector)
@@ -18,36 +21,49 @@
 - **Authentification** : Supabase Auth, SSR Cookies, bcrypt, PIN protection
 
 ## 🎯 Skills actifs pour ce projet
+
 > Skills pré-sélectionnés à charger selon la tâche demandée
 
 ### Toujours disponibles (core)
+
 - `senior-fullstack` — Architecture et fonctionnalités métier
 - `clean-code` — Standards et qualité de code
 - `api-design-principles` — Conception API
 
 ### Frontend / UI
+
 - `nextjs-best-practices` — Bonnes pratiques App Router et rendu Next.js
 - `react-best-practices` — Standards React 19 et composants
 - `tailwind-design-system` — Styling et utilitaires UI
+- `ui-ux-pro-max` — Intelligence et guidelines UX/UI complètes
+- `frontend-design` — Esthétique distinctive et design system
+- `mobile-design` — Guidelines pour interfaces tactiles et mobiles
+- `magic-animator` — Animations et micro-interactions magiques
+- `theme-factory` — Création de thèmes dynamiques et dark mode
 
 ### Backend
+
 - `nodejs-best-practices` — Standards de l'écosystème Node.js
 - `nodejs-backend-patterns` — Architecture Express et TypeScript
 
 ### Base de données / Auth
+
 - `supabase-automation` — Requêtes et intégration Supabase
 - `nextjs-supabase-auth` — Intégration Supabase SSR dans Next.js
 
 ### Sécurité
+
 - Zod — Validation stricte des schémas de données, type-safety TypeScript, et protection contre les failles d'injection.
 
 ## 📁 Contexte projet
+
 - **Description courte** : EmiID — "Votre empreinte numérique professionnelle". Plateforme SaaS segmentée en plusieurs parties : frontend utilisateur, portail admin, site commercial, et API backend Node.js.
 - **Origine & Conception** : Conçu au Bénin, à Cotonou (notamment `frontend-commercial`).
 - **Patterns architecturaux** : Monorepo logique avec exécution concurrente. Séparation de l'API Node/Express des clients Next.js.
 - **Dépendances critiques** : `@supabase/ssr`, `express`, `ws` pour les fonctionnalités en temps réel.
 
 ## ⚠️ Notes importantes
+
 - Le backend utilise des WebSockets (`ws`) pour le temps réel.
 - Trois applications Next.js distinctes (`frontend-user`, `frontend-admin` et `frontend-commercial`) accèdent aux mêmes bases de données / APIs.
 - [2026-06-02] Refonte complète de la page de détail de profil utilisateur (`profile-detail-content.tsx`) vers une esthétique Luxury Editorial & Glassmorphism.
@@ -80,8 +96,6 @@
 - [2026-06-03] Correction de l'erreur TypeScript dans `app/profil/page.tsx` liée à la possibilité que `session` soit `undefined` lors de la redirection.
 - [2026-06-03] Correction du bug de création de profil : ajout de la persistance d'`activity_domain` (Secteur d'activité) dans le frontend (`creer-profil-content.tsx`) pour qu'il soit correctement hydraté, sauvegardé et envoyé au backend.
 - [2026-06-03] Restauration complète de la version WhatsApp fonctionnelle de la messagerie : suppression du hook alternatif `use-chat.ts` et du composant `chat-window.tsx` pour réactiver le composant autonome `messages-content.tsx` et ses fichiers associés.
-
-
 - [2026-06-03] Correction de la sauvegarde de `activity_domain` : ajout du champ dans l'interface `CreateProfileFormData`, l'état initial, le chargeur d'hydratation et le payload envoyé à l'API backend dans `creer-profil-content.tsx`.
 - [2026-06-03] Stabilisation de la logique des tags dans `userController.ts` : remplacement du upsert de tags PostgREST par un flux SELECT -> INSERT -> SELECT de repli en cas de concurrence, et remplacement de l'upsert de liaison composite de `profile_tags` par un simple `insert` après nettoyage par `delete`.
 - [2026-06-03] Droit d'accès SQL pour les tags : ajout de privilèges `GRANT SELECT ON public.tags TO anon, authenticated;` et `GRANT SELECT ON public.profile_tags TO anon, authenticated;` dans la migration `20260603_update_public_profiles_view.sql` pour garantir l'hydratation fluide des tags après actualisation.
@@ -171,5 +185,5 @@
 - [2026-08-22] Navigation Mobile & Luxury Glass :
   - Refonte de la barre de navigation mobile avec courbes Bézier continues C1 et berceau concave élégant épousant le bouton de recherche central.
   - Amélioration de l'effet verre réel `backdrop-blur-2xl` via masque SVG de précision `DOCK_MASK`.
-
-
+- [2026-08-26] Résolution des dettes d'accessibilité (WCAG focus ring sur liens), amélioration du contraste (slate-500 -> slate-600) et renommage des composants Desktop (`sidebar` vers `topbar`) dans le système de navigation.
+- [2026-08-26] Résolution des warnings Next.js : renommage de `middleware.ts` en `proxy.ts` et suppression des fichiers `pnpm-lock.yaml` orphelins pour éviter les conflits de workspace avec npm.

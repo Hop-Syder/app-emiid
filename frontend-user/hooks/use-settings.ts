@@ -18,15 +18,12 @@ import { toast } from "sonner"
 
 export type TabId =
   | "profil"
-  | "apropos"
   | "reseaux"
   | "horaires"
   | "verification"
   | "securite"
-  | "notifications"
   | "preferences"
   | "plan"
-  | "boost"
 
 export interface OpeningHour {
   day: number // 0 = dimanche … 6 = samedi
@@ -117,11 +114,26 @@ export function useSettings() {
     if (typeof window === "undefined") return
     const requested = new URLSearchParams(window.location.search).get("tab")
     const known: TabId[] = [
-      "profil", "apropos", "reseaux", "horaires", "verification",
-      "securite", "notifications", "preferences", "plan", "boost",
+      "profil", "reseaux", "horaires", "verification",
+      "securite", "preferences", "plan",
     ]
-    if (requested && (known as string[]).includes(requested)) {
+
+    // Anciens identifiants, conservés pour ne casser aucun lien existant :
+    // « apropos », « notifications » et « boost » désignaient des onglets
+    // désormais fusionnés. « premium » n'a jamais existé — personal-hero
+    // pointait dessus, et le lien ne menait donc nulle part.
+    const ALIASES: Record<string, TabId> = {
+      apropos: "profil",
+      notifications: "preferences",
+      boost: "plan",
+      premium: "plan",
+    }
+
+    if (!requested) return
+    if ((known as string[]).includes(requested)) {
       setActiveTab(requested as TabId)
+    } else if (ALIASES[requested]) {
+      setActiveTab(ALIASES[requested])
     }
   }, [])
   const [loadingStatus, setLoadingStatus] = useState<"loading" | "success" | "error">("loading")

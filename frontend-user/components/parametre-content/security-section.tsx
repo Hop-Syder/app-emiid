@@ -18,6 +18,9 @@ import { PinDialog, MfaDialog, ReauthDialog } from "./security-dialogs"
 import { useSecuritySection } from "@/hooks/use-security-section"
 import type { UserProfileData } from "@/hooks/use-settings"
 
+// eslint-disable-next-line @typescript-eslint/no-empty-function -- setter requis par MfaDialog mais volontairement neutralisé ici
+const noop = () => {}
+
 interface SecuritySectionProps {
   profile: UserProfileData
   setProfile: (profile: UserProfileData) => void
@@ -206,7 +209,7 @@ export function SecuritySection({
         open={mfaDialogOpen}
         onOpenChange={setMfaDialogOpen}
         mfaStep={mfaStep}
-        setMfaStep={() => {}}
+        setMfaStep={noop}
         mfaPhoneNumber={mfaPhoneNumber}
         setMfaPhoneNumber={setMfaPhoneNumber}
         mfaChannel={mfaChannel}

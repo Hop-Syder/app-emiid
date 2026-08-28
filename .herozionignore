@@ -1,1 +1,3 @@
 .gemini/
+backend/src/api/routes/webhookRoutes.ts
+backend/src/services/fedapay.ts

@@ -36,7 +36,6 @@ export interface ArtisanCategoryItem {
   image: string
   sector: "Artisanat BTP" | "Mode & Beauté" | "Services Techniques" | "Alimentation" | "Créatifs & Tech"
   tags: string[]
-  samplePros: { name: string; avatar: string; location: string }[]
 }
 
 const ARTISAN_CATEGORIES: ArtisanCategoryItem[] = [
@@ -50,113 +49,6 @@ const ARTISAN_CATEGORIES: ArtisanCategoryItem[] = [
     image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=800&q=80",
     sector: "Artisanat BTP",
     tags: ["Électricité", "Dépannage 24/7", "Domotique"],
-    samplePros: [
-      { name: "Koffi Adjovi", avatar: "https://images.unsplash.com/photo-1540569014015-19a7be504e3a?auto=format&fit=crop&w=150&q=80", location: "Cotonou" },
-      { name: "Moussa G.", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80", location: "Calavi" },
-    ]
-  },
-  {
-    id: "couture",
-    title: "Couture, Mode & Sur-Mesure",
-    subtitle: "Stylisme, prêt-à-porter wax, broderie & tenues de cérémonie",
-    count: 52,
-    badge: "Top Tendances",
-    badgeColor: "bg-pink-600 text-white",
-    image: "https://images.unsplash.com/photo-1558769132-cb1aea458e5e?auto=format&fit=crop&w=800&q=80",
-    sector: "Mode & Beauté",
-    tags: ["Couture Wax", "Sur-Mesure", "Cérémonie"],
-    samplePros: [
-      { name: "Aïcha Seidou", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80", location: "Cotonou" },
-      { name: "Léonie Kpoton", avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80", location: "Porto-Novo" },
-    ]
-  },
-  {
-    id: "mecanique",
-    title: "Mécanique Auto & Diagnostic",
-    subtitle: "Entretien moteur, électronique automobile, freinage & pneu",
-    count: 29,
-    badge: "Vérifiés",
-    badgeColor: "bg-amber-600 text-white",
-    image: "https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=800&q=80",
-    sector: "Services Techniques",
-    tags: ["Mécanique", "Diagnostic", "Vulcanisation"],
-    samplePros: [
-      { name: "Rachid Bio", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80", location: "Parakou" },
-      { name: "Yacoubou I.", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&q=80", location: "Parakou" },
-    ]
-  },
-  {
-    id: "traiteur",
-    title: "Traiteur & Pâtisserie",
-    subtitle: "Buffets béninois, pâtisserie de réceptions & mariages",
-    count: 34,
-    badge: "Certifiés",
-    badgeColor: "bg-emerald-600 text-white",
-    image: "https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=800&q=80",
-    sector: "Alimentation",
-    tags: ["Traiteur", "Gâteaux", "Mariages"],
-    samplePros: [
-      { name: "Bernadette H.", avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=150&q=80", location: "Porto-Novo" },
-      { name: "Micheline T.", avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=150&q=80", location: "Cotonou" },
-    ]
-  },
-  {
-    id: "menuiserie",
-    title: "Menuiserie & Travaux du Bois",
-    subtitle: "Mobilier sur mesure, agencement d'intérieur & charpentes",
-    count: 26,
-    badge: "Artisan Pro",
-    badgeColor: "bg-orange-600 text-white",
-    image: "https://images.unsplash.com/photo-1538688525198-9b88f6f53126?auto=format&fit=crop&w=800&q=80",
-    sector: "Artisanat BTP",
-    tags: ["Menuiserie", "Mobilier", "Charpente"],
-    samplePros: [
-      { name: "Ibrahim Traoré", avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=150&q=80", location: "Bohicon" },
-      { name: "Prosper A.", avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=150&q=80", location: "Ouidah" },
-    ]
-  },
-  {
-    id: "coiffure",
-    title: "Coiffure & Soins Esthétiques",
-    subtitle: "Tresses afro, soins naturels, maquillage & salons de beauté",
-    count: 41,
-    badge: "Tendances",
-    badgeColor: "bg-purple-600 text-white",
-    image: "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=800&q=80",
-    sector: "Mode & Beauté",
-    tags: ["Tresses Afro", "Esthétique", "Soins"],
-    samplePros: [
-      { name: "Fatou Zinsou", avatar: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=150&q=80", location: "Abomey-Calavi" },
-    ]
-  },
-  {
-    id: "soudure",
-    title: "Soudure & Métallerie d'Art",
-    subtitle: "Portails sur mesure, grilles de protection & charpentes métalliques",
-    count: 22,
-    badge: "Sécurité",
-    badgeColor: "bg-slate-800 text-white",
-    image: "https://images.unsplash.com/photo-1504917599217-d4dc5ebe6122?auto=format&fit=crop&w=800&q=80",
-    sector: "Artisanat BTP",
-    tags: ["Métallerie", "Portails", "Soudure"],
-    samplePros: [
-      { name: "Anicet A.", avatar: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=150&q=80", location: "Abomey-Calavi" },
-    ]
-  },
-  {
-    id: "creatifs-tech",
-    title: "Développement & Design",
-    subtitle: "Création de sites web, graphisme, identité visuelle & logiciels",
-    count: 36,
-    badge: "Digital & Tech",
-    badgeColor: "bg-cyan-600 text-white",
-    image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80",
-    sector: "Créatifs & Tech",
-    tags: ["Web & Mobile", "Logos & Design", "Freelance"],
-    samplePros: [
-      { name: "Serge Dossou", avatar: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=150&q=80", location: "Cotonou" },
-      { name: "Sandrine Loko", avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80", location: "Cotonou" },
-    ]
   }
 ]
 
@@ -236,7 +128,7 @@ export function BentoMatrixPublic() {
         <div className="space-y-3 relative z-10 max-w-2xl">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#eaf1ff] text-[#013ff4] text-xs font-bold shadow-xs">
             <Sparkles className="h-4 w-4" />
-            <span>Portail des Artisans & Métiers d'Excellence</span>
+            <span>Portail des Artisans & Métiers d&apos;Excellence</span>
           </div>
           <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight font-heading">
             Découvrez nos Artisans & Spécialistes certifiés
@@ -334,7 +226,7 @@ export function BentoMatrixPublic() {
             Vous ne trouvez pas votre métier ?
           </h3>
           <p className="text-xs sm:text-sm text-slate-300 font-medium max-w-xl">
-            Explorez l'annuaire complet d'EmiID avec filtres avancés par commune, avis clients et prise de contact instantanée.
+            Explorez l&apos;annuaire complet d&apos;EmiID avec filtres avancés par commune, avis clients et prise de contact instantanée.
           </p>
         </div>
 
@@ -342,7 +234,7 @@ export function BentoMatrixPublic() {
           onClick={() => router.push('/annuaire')}
           className="z-10 shrink-0 px-6 py-3.5 rounded-2xl bg-white text-slate-900 hover:bg-slate-100 text-xs sm:text-sm font-bold shadow-lg transition-all active:scale-95 flex items-center gap-2"
         >
-          <span>Voir tout l'annuaire</span>
+          <span>Voir tout l&apos;annuaire</span>
           <ArrowRight className="h-4 w-4 text-[#013ff4]" />
         </button>
       </div>

@@ -152,7 +152,8 @@ export function CreerProfilWizard() {
     }
 
     return (
-        <div className="max-w-xl mx-auto w-full px-4 sm:px-6 pb-24">
+        <div className="max-w-xl lg:max-w-6xl mx-auto w-full px-4 sm:px-6 pb-24 lg:grid lg:grid-cols-12 lg:gap-10 lg:items-start">
+            <div className="lg:col-span-7 xl:col-span-8">
             <div className="bg-white border border-slate-100 shadow-[0_4px_24px_rgb(15,23,42,0.05)] rounded-3xl p-6 sm:p-8">
 
                 {step <= TOTAL_STEPS && (
@@ -233,6 +234,61 @@ export function CreerProfilWizard() {
                     )}
                 </div>
             </div>
+            </div>
+
+            {/* ── Panneau récap latéral — desktop uniquement ───────────────── */}
+            <aside className="hidden lg:block lg:col-span-5 xl:col-span-4 sticky top-20">
+                <WizardRecap formData={formData} profileUrl={profileUrl} />
+            </aside>
+        </div>
+    )
+}
+
+/** Panneau latéral du wizard — suivi live des informations saisies. */
+function WizardRecap({
+    formData,
+    profileUrl,
+}: {
+    formData: CreateProfileFormData
+    profileUrl: string
+}) {
+    const rows = [
+        { label: "Nom", value: formData.name },
+        { label: "Métier", value: formData.role },
+        { label: "Type de profil", value: formData.category },
+        { label: "Entreprise", value: formData.business_name },
+        { label: "Ville", value: formData.city },
+        { label: "Quartier", value: formData.district },
+    ].filter((row) => row.value && row.value.trim().length > 0)
+
+    return (
+        <div className="rounded-3xl bg-gradient-to-br from-[#013ff4]/[0.04] to-[#03b3f8]/[0.06] border border-[#013ff4]/10 p-7">
+            <p className="text-xs font-black uppercase tracking-widest text-[#013ff4]">Ton profil en direct</p>
+            <h3 className="text-lg font-bold text-slate-900 mt-1 tracking-tight">Récapitulatif</h3>
+
+            <dl className="mt-6 space-y-4">
+                {rows.length > 0 ? (
+                    rows.map((row) => (
+                        <div key={row.label} className="flex items-baseline justify-between gap-4 border-b border-slate-200/70 pb-3 last:border-0 last:pb-0">
+                            <dt className="text-[11px] font-bold uppercase tracking-wider text-slate-400 shrink-0">{row.label}</dt>
+                            <dd className="text-sm font-semibold text-slate-800 text-right truncate">{row.value}</dd>
+                        </div>
+                    ))
+                ) : (
+                    <p className="text-sm text-slate-400 leading-relaxed">
+                        Les informations que tu saisis apparaîtront ici en temps réel.
+                    </p>
+                )}
+            </dl>
+
+            <div className="mt-6 flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-3">
+                <Link2 className="h-4 w-4 text-[#013ff4] shrink-0" />
+                <span className="text-xs font-medium text-slate-600 truncate">{profileUrl}</span>
+            </div>
+
+            <p className="mt-5 text-[11px] text-slate-400 leading-relaxed">
+                Ton profil reste invisible publiquement tant qu&apos;il n&apos;est pas activé.
+            </p>
         </div>
     )
 }
