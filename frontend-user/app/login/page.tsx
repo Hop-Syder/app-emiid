@@ -14,7 +14,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 "use client"
 
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
@@ -195,7 +195,7 @@ export default function LoginPage() {
             {/* Case à cocher CGU / Confidentialité (prérequis obligatoire pour se connecter) */}
             <motion.button
               type="button"
-              onClick={() => setAccepted(v => !v)}
+              onClick={() => setAccepted((v: boolean) => !v)}
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.05 }}
@@ -211,7 +211,7 @@ export default function LoginPage() {
                 J&apos;accepte les{" "}
                 <Link
                   href="/conditions"
-                  onClick={e => e.stopPropagation()}
+                  onClick={(e: React.MouseEvent) => e.stopPropagation()}
                   className="text-[#1E4AE9] hover:underline underline-offset-2 transition-colors"
                 >
                   conditions d&apos;utilisation
@@ -219,7 +219,7 @@ export default function LoginPage() {
                 et la{" "}
                 <Link
                   href="/confidentialite"
-                  onClick={e => e.stopPropagation()}
+                  onClick={(e: React.MouseEvent) => e.stopPropagation()}
                   className="text-[#1E4AE9] hover:underline underline-offset-2 transition-colors"
                 >
                   politique de confidentialité
@@ -233,7 +233,7 @@ export default function LoginPage() {
               <Turnstile
                 siteKey={TURNSTILE_SITE_KEY}
                 options={{ theme: "light" }}
-                onSuccess={(token) => setCaptchaToken(token)}
+                onSuccess={(token: string) => setCaptchaToken(token)}
                 onError={() => setCaptchaToken(null)}
                 onExpire={() => setCaptchaToken(null)}
               />

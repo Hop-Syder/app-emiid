@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "preserve",
+    "strict": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./frontend-user/*"]
+    }
+  },
+  "references": [
+    { "path": "./frontend-user" },
+    { "path": "./frontend-admin" }
+  ]
+}
