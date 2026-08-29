@@ -77,8 +77,8 @@ export async function GET(request: Request) {
             }
         }
 
-        // 2. Niveau 2 : Même Pays (si Niveau 1 < 8)
-        if (proximityProfiles.length < 8 && actualCountryId) {
+        // 2. Niveau 2 : Même Pays (si Niveau 1 < 20)
+        if (proximityProfiles.length < 20 && actualCountryId) {
             const excludeUserIds = [user?.id, ...proximityProfiles.map(p => p.user_id)].filter(Boolean)
             let query = supabase
                 .from('public_profiles')
@@ -97,8 +97,8 @@ export async function GET(request: Request) {
             }
         }
 
-        // 3. Niveau 3 : Fallback Global (si < 8 ou pas de localisation)
-        if (proximityProfiles.length < 8) {
+        // 3. Niveau 3 : Fallback Global (si < 20 ou pas de localisation)
+        if (proximityProfiles.length < 20) {
             const excludeUserIds = [user?.id, ...proximityProfiles.map(p => p.user_id)].filter(Boolean)
             let fallbackQuery = supabase
                 .from('public_profiles')
@@ -115,7 +115,7 @@ export async function GET(request: Request) {
             if (fallbackData) proximityProfiles = [...proximityProfiles, ...(fallbackData as unknown as PublicProfileJoined[])]
         }
 
-        const finalProfiles = mapProfiles(shuffleArray(proximityProfiles).slice(0, 8))
+        const finalProfiles = mapProfiles(shuffleArray(proximityProfiles).slice(0, 20))
         
         return NextResponse.json({ profiles: finalProfiles })
         

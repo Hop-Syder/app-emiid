@@ -40,8 +40,8 @@ export function EntrepreneursSection({ entrepreneursList, loading, variant = "te
   return (
     <section>
       {loading ? (
-        <div className="flex overflow-x-auto pb-6 gap-6 snap-x no-scrollbar w-full lg:grid lg:grid-cols-4 lg:overflow-visible">
-          {Array.from({ length: 4 }).map((_, i) => (
+        <div className="flex overflow-x-auto pb-6 gap-6 snap-x no-scrollbar w-full lg:grid lg:grid-cols-5 lg:overflow-visible">
+          {Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className="min-w-[280px] lg:min-w-0 space-y-4 p-6 border rounded-xl bg-card snap-center">
               <div className="flex items-center gap-4">
                 <Skeleton className="h-16 w-16 rounded-full" />
@@ -70,7 +70,7 @@ export function EntrepreneursSection({ entrepreneursList, loading, variant = "te
 
           <div
             ref={scrollRef}
-            className="flex overflow-x-auto pb-10 pt-4 px-4 -mx-4 gap-6 snap-x no-scrollbar w-full scroll-smooth lg:grid lg:grid-cols-4 lg:gap-5 xl:gap-6 lg:overflow-visible lg:p-0 lg:m-0"
+            className="flex overflow-x-auto pb-10 pt-4 px-4 -mx-4 gap-6 snap-x no-scrollbar w-full scroll-smooth lg:grid lg:grid-cols-5 lg:gap-5 xl:gap-6 lg:overflow-visible lg:p-0 lg:m-0"
           >
             {profiles.map((entrepreneur, index) => (
               <motion.div
