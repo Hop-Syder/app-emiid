@@ -242,6 +242,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                         copyToClipboard={copyToClipboard}
                         setIsShareModalOpen={setIsShareModalOpen}
                         downloadVCard={downloadVCard}
+                        isLoggedIn={isLoggedIn}
                     />
                 </section>
             </main>

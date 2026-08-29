@@ -26,6 +26,10 @@ export interface ProfileData {
     joinedDate: string
     email?: string
     phone?: string
+    /** Vrai si le profil a un contact à montrer, même quand `email`/`phone` sont
+     *  vides côté visiteur anonyme (H2 — la RPC ne divulgue jamais la valeur,
+     *  seulement le fait qu'il y en a une). */
+    hasContact?: boolean
     website?: string
     skills: string[]
     experiences: { title: string; company: string; period: string; current: boolean }[]
@@ -52,6 +56,7 @@ interface ProfileQueryResult {
     created_at: string | null
     email: string | null
     phone: string | null
+    has_contact?: boolean | null
     website: string | null
     role: string | null
     countries: { name: string } | { name: string }[] | null
@@ -226,6 +231,7 @@ export function useProfileData(profileId: string) {
                         email: data.email || undefined,
                         website: data.website || undefined,
                         phone: data.phone || undefined,
+                        hasContact: data.has_contact ?? !!(data.email || data.phone),
                         skills:
                             data.profile_tags
                                 ?.map((pt) => pt.tags?.name)

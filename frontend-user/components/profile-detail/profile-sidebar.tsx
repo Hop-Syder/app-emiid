@@ -8,7 +8,8 @@
  * 📧 daoudaabassichristian@gmail.com
  */
 
-import { Calendar, Check, Copy, Download, ExternalLink, Globe, Mail, MessageCircle, Phone, Share, Share2 } from "lucide-react"
+import Link from "next/link"
+import { ArrowRight, Calendar, Check, Copy, Download, ExternalLink, Globe, Lock, Mail, MessageCircle, Phone, Share, Share2 } from "lucide-react"
 import { trackProfileMetric } from "@/lib/track-profile"
 import { trackProfileContact } from "@/lib/analytics"
 import { Button } from "@/components/ui/button"
@@ -21,6 +22,8 @@ interface ProfileSidebarProps {
         email?: string | null
         phone?: string | null
         website?: string | null
+        /** Un contact existe et serait visible une fois connecté (H2). */
+        hasContact?: boolean
     }
     joinedDate: string
     profileUrl: string
@@ -28,6 +31,52 @@ interface ProfileSidebarProps {
     copyToClipboard: (url: string) => void
     setIsShareModalOpen: (open: boolean) => void
     downloadVCard: () => void
+    isLoggedIn: boolean
+}
+
+/** Coordonnées réservées aux membres : aperçu inerte + invitation, tant que
+ *  le visiteur n'est pas connecté. Les lignes n'affichent aucune vraie donnée
+ *  (cf. locked-section.tsx) — un floutage de vraies infos resterait lisible
+ *  dans le HTML brut. */
+function LockedContact() {
+    return (
+        <div className="mt-5 space-y-4">
+            <div aria-hidden="true" className="pointer-events-none select-none space-y-3 opacity-40 blur-[3px]">
+                <div className="flex items-center gap-3">
+                    <div className="h-4 w-4 rounded bg-slate-300 shrink-0" />
+                    <div className="h-3.5 w-40 rounded bg-slate-300" />
+                </div>
+                <div className="flex items-center gap-3">
+                    <div className="h-4 w-4 rounded bg-slate-300 shrink-0" />
+                    <div className="h-3.5 w-32 rounded bg-slate-300" />
+                </div>
+            </div>
+
+            <div className="flex flex-col items-center gap-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 px-4 py-5 text-center">
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900">
+                    <Lock className="h-4 w-4 text-amber-400" />
+                </span>
+                <p className="text-xs font-semibold leading-relaxed text-slate-600">
+                    Créez votre compte pour voir l&apos;email et le téléphone de ce membre.
+                </p>
+                <div className="flex w-full flex-col gap-2 sm:flex-row">
+                    <Link
+                        href="/creer-profil"
+                        className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-[#013ff4] px-3 py-2.5 text-[11px] font-black uppercase tracking-wide text-white shadow-sm transition-all hover:bg-[#0135d0] active:scale-95"
+                    >
+                        Créer mon compte
+                        <ArrowRight className="h-3.5 w-3.5" />
+                    </Link>
+                    <Link
+                        href="/login"
+                        className="flex flex-1 items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-[11px] font-black uppercase tracking-wide text-slate-700 transition-colors hover:bg-slate-50"
+                    >
+                        Se connecter
+                    </Link>
+                </div>
+            </div>
+        </div>
+    )
 }
 
 /**
@@ -50,7 +99,8 @@ export function ProfileSidebar({
     copiedLink,
     copyToClipboard,
     setIsShareModalOpen,
-    downloadVCard
+    downloadVCard,
+    isLoggedIn
 }: ProfileSidebarProps) {
     return (
         <aside className="lg:col-span-4 min-w-0 space-y-6">
@@ -70,7 +120,7 @@ export function ProfileSidebar({
                         </div>
                     </div>
 
-                    {profile.email && (
+                    {isLoggedIn && profile.email && (
                         <div className="flex items-start gap-3.5 text-slate-700 hover:bg-slate-50/50 p-2 -mx-2 rounded-xl transition-colors duration-200">
                             <Mail className="h-4 w-4 text-slate-400 shrink-0 mt-0.5" />
                             <div className="min-w-0 flex-1">
@@ -80,7 +130,7 @@ export function ProfileSidebar({
                         </div>
                     )}
 
-                    {profile.phone && (
+                    {isLoggedIn && profile.phone && (
                         <div className="flex items-start gap-3.5 text-slate-700 hover:bg-slate-50/50 p-2 -mx-2 rounded-xl transition-colors duration-200">
                             <Phone className="h-4 w-4 text-slate-400 shrink-0 mt-0.5" />
                             <div className="min-w-0">
@@ -91,8 +141,11 @@ export function ProfileSidebar({
                     )}
                 </div>
 
+                {/* Coordonnées réservées aux membres tant que le visiteur n'est pas connecté */}
+                {!isLoggedIn && profile.hasContact && <LockedContact />}
+
                 {/* Actions 1-clic : WhatsApp et appel direct */}
-                {profile.phone && (
+                {isLoggedIn && profile.phone && (
                     <div className="mt-5 grid grid-cols-2 gap-2">
                         <a
                             href={`https://wa.me/${toInternational(profile.phone)}?text=${encodeURIComponent(

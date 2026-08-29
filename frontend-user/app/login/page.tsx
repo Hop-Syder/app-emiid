@@ -2,9 +2,14 @@
  * @author @hopsyder
  * @organization Nexus Partners
  * @description Page de connexion de l'application utilisateur (EmiID) - Design 2026 Ultra-Crafted.
- *              Disposition deux colonnes (formulaire glassmorphism / illustration avec badges flottants),
- *              fond enrichi #000616 avec orbes chromatiques et grille tech, salutation dynamique,
- *              citations interactives, boutons OAuth immersifs et vérification Cloudflare Turnstile.
+ *              Disposition deux colonnes asymétrique : à gauche, uniquement les
+ *              boutons de connexion (aucun formulaire email/mot de passe) ; à
+ *              droite, un grand panneau de citations motivantes qui tourne
+ *              automatiquement — inspiré de la page de connexion Supabase.
+ *              Fond enrichi #000616 avec orbes chromatiques et grille tech,
+ *              salutation dynamique, boutons OAuth immersifs, badge « Dernier
+ *              utilisé » persistant (localStorage) et vérification Cloudflare
+ *              Turnstile.
  * @created 2026-05-27
  * @updated 2026-08-29
  * 🌐 ceo.nexuspartners.xyz
@@ -21,13 +26,16 @@ import { Button } from "@/components/ui/button"
 import {
   Loader2,
   Check,
-  ShieldCheck,
   Lock,
   ArrowRight,
-  Shield
+  Shield,
+  Quote
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { Turnstile } from "@marsidev/react-turnstile"
+
+/** Provider mis en avant au dernier login réussi sur cet appareil. */
+const LAST_PROVIDER_KEY = "emiid_last_provider"
 
 // ── Types & Constantes ───────────────────────────────────────────────────────
 
@@ -97,8 +105,9 @@ export default function LoginPage() {
   const [captchaToken, setCaptchaToken] = useState<string | null>(null)
   const [quoteIndex, setQuoteIndex] = useState(0)
   const [greeting, setGreeting] = useState("Hello")
+  const [lastProvider, setLastProvider] = useState<Provider | null>(null)
 
-  // Salutation intelligente et tirage de citation lors du montage client
+  // Salutation intelligente, tirage de citation et provider mémorisé lors du montage client
   useEffect(() => {
     const randomIndex = Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length)
     setQuoteIndex(randomIndex)
@@ -107,6 +116,22 @@ export default function LoginPage() {
     if (hour >= 5 && hour < 12) setGreeting("Bonjour")
     else if (hour >= 12 && hour < 18) setGreeting("Bon après-midi")
     else setGreeting("Bonsoir")
+
+    try {
+      const stored = window.localStorage.getItem(LAST_PROVIDER_KEY) as Provider | null
+      if (stored && providers.some((p) => p.id === stored)) setLastProvider(stored)
+    } catch {
+      // localStorage indisponible (navigation privée stricte) : pas de badge, sans conséquence.
+    }
+  }, [])
+
+  // Rotation automatique des citations côté panneau de droite — un rythme
+  // lent, le temps de les lire, sans jamais couper la lecture en cours.
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setQuoteIndex((i) => (i + 1) % MOTIVATIONAL_QUOTES.length)
+    }, 7000)
+    return () => window.clearInterval(id)
   }, [])
 
   /** Déclenche la connexion OAuth auprès du fournisseur */
@@ -115,6 +140,11 @@ export default function LoginPage() {
     setError(null)
     setLoading(provider)
     try {
+      try {
+        window.localStorage.setItem(LAST_PROVIDER_KEY, provider)
+      } catch {
+        // localStorage indisponible : le badge « Dernier utilisé » restera simplement absent.
+      }
       const callbackUrl = `${location.origin}/auth/callback`
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
@@ -128,268 +158,247 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative min-h-screen w-full bg-[#000616] text-white flex items-center justify-center p-4 sm:p-6 lg:p-10 overflow-hidden selection:bg-[#013ff4] selection:text-white">
+    <div className="relative min-h-screen w-full bg-[#000616] text-white flex flex-col lg:flex-row overflow-hidden selection:bg-[#013ff4] selection:text-white">
 
-      {/* ── Conteneur Principal (Colonnes resserrées en desktop) ── */}
-      <div className="relative z-10 w-full max-w-5xl flex flex-col lg:flex-row items-center lg:items-stretch justify-center gap-6 lg:gap-8">
-
-        {/* ── Colonne Droite (Desktop) / Bannière Haut (Mobile) : Illustration & Badges ── */}
+      {/* ══════════════════════════════════════════════════════════════════
+          COLONNE GAUCHE — uniquement les fournisseurs de connexion.
+          Aucun champ email/mot de passe : EmiID est 100% OAuth.
+          ══════════════════════════════════════════════════════════════ */}
+      <div className="relative z-10 w-full lg:w-[440px] xl:w-[480px] shrink-0 flex items-center justify-center px-6 sm:px-10 py-12 lg:py-0">
         <motion.div
-          initial={{ opacity: 0, y: 24, scale: 0.98 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
-          className="w-full lg:w-1/2 lg:order-2 flex flex-col justify-center"
-        >
-          <div className="relative w-full h-64 sm:h-80 lg:h-full lg:min-h-[590px] rounded-2xl overflow-hidden p-[1px] bg-gradient-to-b from-white/10 to-transparent shadow-[0_20px_50px_rgba(0,0,0,0.8)] group">
-
-            {/* Conteneur intérieur de l'illustration (arrondi 15px pour épouser le cadre 16px) */}
-            <div className="relative w-full h-full rounded-[15px] overflow-hidden bg-[#000616]">
-              <Image
-                src="/login/login-image.jpg"
-                alt="EmiID Connexion"
-                fill
-                sizes="(min-width: 1024px) 50vw, 100vw"
-                className="object-cover object-top lg:object-center transition-transform duration-700 ease-out group-hover:scale-[1.02]"
-                priority
-              />
-
-              {/* Voile dégradé atmosphérique */}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#000616]/90 via-transparent to-black/20 pointer-events-none" />
-
-              {/* ── Badges flottants de réassurance (Desktop & Tablettes) ── */}
-              <div className="hidden sm:block">
-                {/* Badge 1 : Chiffrement & Sécurité */}
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0, y: [0, -4, 0] }}
-                  transition={{
-                    opacity: { duration: 0.6, delay: 0.3 },
-                    x: { duration: 0.6, delay: 0.3 },
-                    y: { duration: 5, repeat: Infinity, ease: "easeInOut" }
-                  }}
-                  className="absolute top-5 left-5 z-20 flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-[#000616]/85 backdrop-blur-xl border border-white/15 shadow-[0_8px_25px_rgba(0,0,0,0.5)]"
-                >
-                  <div className="flex items-center justify-center w-6 h-6 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
-                    <ShieldCheck className="w-3.5 h-3.5" />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-[11px] font-semibold text-white tracking-wide">Auth Sécurisée</span>
-                    <span className="text-[9px] text-emerald-400 font-medium flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-                      Chiffrement AES-256
-                    </span>
-                  </div>
-                </motion.div>
-
-                {/* Badge 2 : Empreinte Digitale */}
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0, y: [0, 4, 0] }}
-                  transition={{
-                    opacity: { duration: 0.6, delay: 0.4 },
-                    x: { duration: 0.6, delay: 0.4 },
-                    y: { duration: 6, repeat: Infinity, ease: "easeInOut", delay: 0.5 }
-                  }}
-                  className="absolute bottom-5 right-5 z-20 flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#000616]/90 backdrop-blur-xl border border-[#013ff4]/30 shadow-[0_10px_30px_rgba(1,63,244,0.25)]"
-                >
-                  <div className="flex flex-col">
-                    <span className="text-[11px] font-bold text-white tracking-wide">EmiID Pass</span>
-                    <span className="text-[9px] text-[#A8B0C7]">Votre empreinte pro</span>
-                  </div>
-                </motion.div>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* ── Colonne Gauche : Formulaire & Actions Authentification ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="w-full lg:w-1/2 lg:order-1 flex items-center justify-center"
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="w-full max-w-[360px]"
         >
-          <div className="w-full max-w-[420px] p-6 sm:p-7 rounded-2xl bg-[#000616] sm:bg-[#060D1E]/60 backdrop-blur-2xl border border-white/[0.08] shadow-[0_20px_60px_rgba(0,0,0,0.6)] relative">
+          {/* Logo EmiID */}
+          <Link href="/" className="inline-flex items-center group transition-transform hover:scale-[1.02] mb-10">
+            <Image
+              src="/login/login-back.png"
+              alt="EmiID"
+              width={110}
+              height={28}
+              className="h-6 w-auto object-contain drop-shadow-[0_2px_12px_rgba(1,63,244,0.3)]"
+              priority
+            />
+          </Link>
 
-            {/* Logo EmiID */}
-            <div className="flex items-center justify-between mb-4">
-              <Link href="/" className="inline-flex items-center group transition-transform hover:scale-[1.02]">
-                <Image
-                  src="/login/login-back.jpg"
-                  alt="EmiID"
-                  width={72}
-                  height={18}
-                  className="h-4 w-auto object-contain drop-shadow-[0_2px_12px_rgba(1,63,244,0.3)]"
-                  priority
-                />
-              </Link>
-            </div>
+          {/* En-tête */}
+          <h1 className="text-[28px] sm:text-3xl font-extrabold tracking-tight text-white flex items-center gap-2">
+            {greeting} <span className="inline-block animate-wave origin-bottom-right">👋</span>
+          </h1>
+          <p className="mt-2 text-sm text-[#8891AC] leading-relaxed">
+            Connectez-vous pour retrouver votre empreinte numérique professionnelle.
+          </p>
 
-            {/* En-tête : Salutation */}
-            <div className="flex items-center justify-between gap-2 mt-1">
-              <h1 className="text-2xl sm:text-[26px] font-extrabold tracking-tight text-white flex items-center gap-2">
-                {greeting} <span className="inline-block animate-wave origin-bottom-right">👋</span>
-              </h1>
-            </div>
-
-            {/* Phrase de motivation interactive */}
-            <div className="mt-3 min-h-[54px] relative flex items-center p-3 rounded-lg bg-white/[0.02] border border-white/[0.04]">
-              <AnimatePresence mode="wait">
-                <motion.p
-                  key={quoteIndex}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  transition={{ duration: 0.3, ease: "easeOut" }}
-                  className="text-xs sm:text-[13px] text-[#A8B0C7] leading-relaxed italic"
-                >
-                  &ldquo;{MOTIVATIONAL_QUOTES[quoteIndex]}&rdquo;
-                </motion.p>
-              </AnimatePresence>
-            </div>
-
-            {/* Message d'erreur éventuel */}
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="mt-4 text-xs text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-lg px-4 py-3 text-center font-medium flex items-center justify-center gap-2"
-              >
-                <Lock className="w-3.5 h-3.5 shrink-0 text-rose-400" />
-                <span>{error}</span>
-              </motion.div>
-            )}
-
-            {/* Case à cocher CGU / Confidentialité */}
-            <motion.button
-              type="button"
-              onClick={() => setAccepted((v: boolean) => !v)}
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="flex items-start gap-3 w-full text-left mt-4 p-1.5 rounded-lg hover:bg-white/[0.02] transition-colors group cursor-pointer"
+          {/* Message d'erreur éventuel */}
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="mt-5 text-xs text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-lg px-4 py-3 text-center font-medium flex items-center justify-center gap-2"
             >
-              <div
-                className={`mt-0.5 shrink-0 w-4.5 h-4.5 rounded-md border flex items-center justify-center transition-all duration-300 shadow-sm ${accepted
-                  ? "bg-gradient-to-tr from-[#013ff4] to-[#03b3f8] border-transparent shadow-[0_0_12px_rgba(1,63,244,0.5)] scale-105"
-                  : "bg-white/[0.04] border-white/20 group-hover:border-[#03b3f8]/60"
-                  }`}
-              >
-                {accepted && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
-              </div>
-              <p className="text-[12px] text-[#A8B0C7] leading-relaxed select-none">
-                J&apos;accepte les{" "}
-                <Link
-                  href="/conditions"
-                  onClick={(e: React.MouseEvent) => e.stopPropagation()}
-                  className="text-[#03b3f8] hover:text-white underline underline-offset-4 decoration-[#03b3f8]/40 hover:decoration-white transition-colors"
-                >
-                  conditions d&apos;utilisation
-                </Link>{" "}
-                et la{" "}
-                <Link
-                  href="/confidentialite"
-                  onClick={(e: React.MouseEvent) => e.stopPropagation()}
-                  className="text-[#03b3f8] hover:text-white underline underline-offset-4 decoration-[#03b3f8]/40 hover:decoration-white transition-colors"
-                >
-                  politique de confidentialité
-                </Link>{" "}
-                d&apos;EmiID.
-              </p>
-            </motion.button>
+              <Lock className="w-3.5 h-3.5 shrink-0 text-rose-400" />
+              <span>{error}</span>
+            </motion.div>
+          )}
 
-            {/* Widget Cloudflare Turnstile */}
-            <div className="flex flex-col items-center justify-center mt-4 pt-3 border-t border-white/[0.06]">
-              <div className="relative">
-                <Turnstile
-                  siteKey={TURNSTILE_SITE_KEY}
-                  options={{ theme: "dark", size: "normal" }}
-                  onSuccess={(token: string) => setCaptchaToken(token)}
-                  onError={() => setCaptchaToken(null)}
-                  onExpire={() => setCaptchaToken(null)}
-                />
-              </div>
-              <div className="flex items-center gap-1.5 mt-2 text-[10px] text-[#6A7596]">
-                <Shield className="w-3 h-3 text-[#03b3f8]/70" />
-                <span>Protection antibot sécurisée</span>
-              </div>
-            </div>
+          {/* Boutons d'authentification OAuth */}
+          <div className="flex flex-col gap-3 mt-7">
+            {providers.map((p, i) => {
+              const isLastUsed = !p.soon && lastProvider === p.id
+              return (
+                <motion.div
+                  key={p.id}
+                  initial={{ opacity: 0, x: -12 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 + i * 0.06 }}
+                  className="relative"
+                >
+                  {p.soon && (
+                    <span className="absolute -top-2 right-4 z-20 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-[#000616] shadow-[0_0_12px_rgba(245,158,11,0.4)]">
+                      Bientôt
+                    </span>
+                  )}
+                  {isLastUsed && (
+                    <span className="absolute -top-2 right-4 z-20 rounded-full bg-emerald-500/15 border border-emerald-500/40 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-emerald-400">
+                      Dernier utilisé
+                    </span>
+                  )}
 
-            {/* Boutons d'authentification OAuth 2026 */}
-            <div className="flex flex-col gap-3 mt-4">
-              {providers.map((p, i) => {
-                return (
-                  <motion.div
-                    key={p.id}
-                    initial={{ opacity: 0, x: -12 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.15 + i * 0.07 }}
-                    className="relative"
+                  <Button
+                    variant="outline"
+                    disabled={loading !== null || !accepted || !captchaToken || p.soon}
+                    onClick={() => !p.soon && handleLogin(p.id)}
+                    aria-disabled={p.soon}
+                    title={p.soon ? "Indisponible pour l'instant" : undefined}
+                    className={`relative w-full h-[50px] rounded-xl bg-white/[0.05] hover:bg-white/[0.09] border ${isLastUsed ? "border-emerald-500/40" : "border-white/[0.12]"} ${p.borderHover} text-white transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.3)] backdrop-blur-xl group overflow-hidden disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none active:scale-[0.99]`}
                   >
-                    {p.soon && (
-                      <span className="absolute -top-2 right-4 z-20 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-[#000616] shadow-[0_0_12px_rgba(245,158,11,0.4)]">
-                        Bientôt
-                      </span>
-                    )}
+                    {/* Halo réactif au survol */}
+                    <div
+                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                      style={{
+                        background: `radial-gradient(circle at center, ${p.accentGlow} 0%, transparent 70%)`
+                      }}
+                    />
 
-                    <Button
-                      variant="outline"
-                      disabled={loading !== null || !accepted || !captchaToken || p.soon}
-                      onClick={() => !p.soon && handleLogin(p.id)}
-                      aria-disabled={p.soon}
-                      title={p.soon ? "Indisponible pour l'instant" : undefined}
-                      className={`relative w-full h-[50px] rounded-xl bg-white/[0.05] hover:bg-white/[0.09] border border-white/[0.12] ${p.borderHover} text-white transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.3)] backdrop-blur-xl group overflow-hidden disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none active:scale-[0.99]`}
-                    >
-                      {/* Halo réactif au survol */}
-                      <div
-                        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-                        style={{
-                          background: `radial-gradient(circle at center, ${p.accentGlow} 0%, transparent 70%)`
-                        }}
-                      />
+                    <span className="relative z-10 flex items-center justify-between w-full px-2">
+                      <div className="flex items-center gap-3">
+                        {loading === p.id ? (
+                          <Loader2 className="w-4.5 h-4.5 animate-spin text-[#03b3f8]" />
+                        ) : (
+                          <div className="w-6.5 h-6.5 rounded-md flex items-center justify-center bg-white/10 p-1 group-hover:scale-110 transition-transform duration-300">
+                            <Image
+                              src={p.icon}
+                              alt={p.name}
+                              width={19}
+                              height={19}
+                              className="object-contain"
+                            />
+                          </div>
+                        )}
+                        <span className="font-semibold text-sm tracking-wide text-white group-hover:text-[#03b3f8] transition-colors">
+                          Continuer avec {p.name}
+                        </span>
+                      </div>
 
-                      <span className="relative z-10 flex items-center justify-between w-full px-2">
-                        <div className="flex items-center gap-3">
-                          {loading === p.id ? (
-                            <Loader2 className="w-4.5 h-4.5 animate-spin text-[#03b3f8]" />
-                          ) : (
-                            <div className="w-6.5 h-6.5 rounded-md flex items-center justify-center bg-white/10 p-1 group-hover:scale-110 transition-transform duration-300">
-                              <Image
-                                src={p.icon}
-                                alt={p.name}
-                                width={19}
-                                height={19}
-                                className="object-contain"
-                              />
-                            </div>
-                          )}
-                          <span className="font-semibold text-sm tracking-wide text-white group-hover:text-[#03b3f8] transition-colors">
-                            Continuer avec {p.name}
-                          </span>
-                        </div>
+                      <ArrowRight className="w-4 h-4 text-white/30 group-hover:text-white group-hover:translate-x-1 transition-all duration-300" />
+                    </span>
+                  </Button>
+                </motion.div>
+              )
+            })}
+          </div>
 
-                        <ArrowRight className="w-4 h-4 text-white/30 group-hover:text-white group-hover:translate-x-1 transition-all duration-300" />
-                      </span>
-                    </Button>
-                  </motion.div>
-                )
-              })}
+          {/* Case à cocher CGU / Confidentialité */}
+          <motion.button
+            type="button"
+            onClick={() => setAccepted((v: boolean) => !v)}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35 }}
+            className="flex items-start gap-3 w-full text-left mt-5 p-1.5 rounded-lg hover:bg-white/[0.02] transition-colors group cursor-pointer"
+          >
+            <div
+              className={`mt-0.5 shrink-0 w-4.5 h-4.5 rounded-md border flex items-center justify-center transition-all duration-300 shadow-sm ${accepted
+                ? "bg-gradient-to-tr from-[#013ff4] to-[#03b3f8] border-transparent shadow-[0_0_12px_rgba(1,63,244,0.5)] scale-105"
+                : "bg-white/[0.04] border-white/20 group-hover:border-[#03b3f8]/60"
+                }`}
+            >
+              {accepted && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
             </div>
+            <p className="text-[12px] text-[#A8B0C7] leading-relaxed select-none">
+              J&apos;accepte les{" "}
+              <Link
+                href="/conditions"
+                onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                className="text-[#03b3f8] hover:text-white underline underline-offset-4 decoration-[#03b3f8]/40 hover:decoration-white transition-colors"
+              >
+                conditions d&apos;utilisation
+              </Link>{" "}
+              et la{" "}
+              <Link
+                href="/confidentialite"
+                onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                className="text-[#03b3f8] hover:text-white underline underline-offset-4 decoration-[#03b3f8]/40 hover:decoration-white transition-colors"
+              >
+                politique de confidentialité
+              </Link>{" "}
+              d&apos;EmiID.
+            </p>
+          </motion.button>
 
-            {/* Pied de carte : Statut & Droits */}
-            <div className="mt-6 pt-3.5 border-t border-white/[0.06] flex items-center justify-between text-[11px] text-[#6A7596]">
-              <div className="flex items-center gap-1.5">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-                </span>
-                <span className="text-emerald-400/90 font-medium">Systèmes 100% opérationnels</span>
-              </div>
-              <span>© {new Date().getFullYear()} EmiID</span>
+          {/* Widget Cloudflare Turnstile */}
+          <div className="flex flex-col items-center justify-center mt-4 pt-4 border-t border-white/[0.06]">
+            <div className="relative">
+              <Turnstile
+                siteKey={TURNSTILE_SITE_KEY}
+                options={{ theme: "dark", size: "normal" }}
+                onSuccess={(token: string) => setCaptchaToken(token)}
+                onError={() => setCaptchaToken(null)}
+                onExpire={() => setCaptchaToken(null)}
+              />
+            </div>
+            <div className="flex items-center gap-1.5 mt-2 text-[10px] text-[#6A7596]">
+              <Shield className="w-3 h-3 text-[#03b3f8]/70" />
+              <span>Protection antibot sécurisée</span>
             </div>
           </div>
-        </motion.div>
 
+          {/* Pied de page : Statut & Droits */}
+          <div className="mt-6 pt-3.5 border-t border-white/[0.06] flex items-center justify-between text-[11px] text-[#6A7596]">
+            <div className="flex items-center gap-1.5">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+              </span>
+              <span className="text-emerald-400/90 font-medium">Systèmes 100% opérationnels</span>
+            </div>
+            <span>© {new Date().getFullYear()} EmiID</span>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* ══════════════════════════════════════════════════════════════════
+          COLONNE DROITE — citations motivantes, en rotation automatique.
+          Masquée en mobile : priorité aux boutons de connexion.
+          ══════════════════════════════════════════════════════════════ */}
+      <div className="hidden lg:flex relative flex-1 items-center justify-center px-16 xl:px-24 overflow-hidden bg-gradient-to-br from-[#00040f] via-[#000b24] to-[#000616]">
+        {/* Grille technique subtile */}
+        <div
+          className="absolute inset-0 opacity-[0.07] pointer-events-none"
+          style={{
+            backgroundImage:
+              "linear-gradient(to right, white 1px, transparent 1px), linear-gradient(to bottom, white 1px, transparent 1px)",
+            backgroundSize: "56px 56px",
+          }}
+        />
+        {/* Orbes chromatiques */}
+        <div className="absolute -top-32 -right-24 w-[26rem] h-[26rem] bg-[#013ff4]/20 rounded-full blur-[130px] pointer-events-none" />
+        <div className="absolute -bottom-40 -left-24 w-[26rem] h-[26rem] bg-[#03b3f8]/15 rounded-full blur-[130px] pointer-events-none" />
+
+        <div className="relative z-10 max-w-xl">
+          <Quote className="w-12 h-12 text-[#013ff4]/40" strokeWidth={2.5} />
+
+          <div className="mt-6 min-h-[190px] xl:min-h-[160px]">
+            <AnimatePresence mode="wait">
+              <motion.p
+                key={quoteIndex}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                className="text-2xl xl:text-[28px] font-bold leading-snug tracking-tight text-white"
+              >
+                {MOTIVATIONAL_QUOTES[quoteIndex]}
+              </motion.p>
+            </AnimatePresence>
+          </div>
+
+          <div className="mt-8 flex items-center gap-3">
+            <Image
+              src="/login/login-back.png"
+              alt="EmiID"
+              width={28}
+              height={28}
+              className="h-7 w-7 object-contain"
+            />
+            <div className="flex flex-col">
+              <span className="text-sm font-bold text-white">EmiID</span>
+              <span className="text-xs text-[#6A7596]">Votre empreinte numérique professionnelle</span>
+            </div>
+          </div>
+
+          {/* Puces de progression des citations */}
+          <div className="mt-8 flex items-center gap-1.5">
+            {MOTIVATIONAL_QUOTES.map((_, i) => (
+              <span
+                key={i}
+                className={`h-1 rounded-full transition-all duration-500 ${i === quoteIndex ? "w-6 bg-[#03b3f8]" : "w-1.5 bg-white/15"}`}
+              />
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   )

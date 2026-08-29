@@ -34,6 +34,8 @@ import { InstantClaimTerminal } from "./instant-claim-terminal"
 import { ProximityLockSection } from "./proximity-lock-section"
 import { PublicHubContextualCta } from "./public-hub-contextual-cta"
 import { LockedSection, CockpitPreview, ActivityPreview } from "./locked-section"
+import { HowItWorksSection } from "./how-it-works-section"
+import { TrustSecuritySection } from "./trust-security-section"
 import { ExplorerHub } from "../dashboard-user-content/explorer-hub"
 import { HubCommunities } from "../dashboard-user-content/hub-communities"
 
@@ -280,6 +282,17 @@ export function DashboardPublicContent({ initialStats = null, initialProfiles = 
                     GALERIE DES MÉTIERS — propre au public
                     ========================================= */}
                 <BentoMatrixPublic />
+
+                {/* =========================================
+                    SECTION 5.5 : COMMENT ÇA MARCHE — le parcours complet,
+                    montré avant de demander la conversion.
+                    ========================================= */}
+                <HowItWorksSection />
+
+                {/* =========================================
+                    SECTION 5.6 : CONFIANCE & SÉCURITÉ
+                    ========================================= */}
+                <TrustSecuritySection />
 
                 {/* =========================================
                     SECTION 7 : CTA CONTEXTUEL
