@@ -87,45 +87,43 @@ export function HubCommunities() {
         </div>
       </div>
 
-      {/* Cards grid — les communautés sans lien réel sont marquées « Bientôt »
-          (même pattern honnête que les providers OAuth de /login). */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      {/* Cards grid — 2 cartes par ligne sur mobile (grid-cols-2), 4 sur grand écran (lg:grid-cols-4) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
         {COMMUNITIES.map(c => {
           const card = (
             <>
               {/* Background Glow */}
-              <div className={`absolute -inset-px rounded-3xl opacity-0 ${c.glow} transition-opacity duration-300 pointer-events-none`} />
-              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-white/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-tr-3xl" />
+              <div className={`absolute -inset-px rounded-2xl sm:rounded-3xl opacity-0 ${c.glow} transition-opacity duration-300 pointer-events-none`} />
+              <div className="absolute top-0 right-0 w-24 sm:w-32 h-24 sm:h-32 bg-gradient-to-bl from-white/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-tr-2xl sm:rounded-tr-3xl" />
 
               {/* Icon */}
-              <div className={`relative w-14 h-14 rounded-2xl ${c.bg} border ${c.border} flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
+              <div className={`relative w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl ${c.bg} border ${c.border} flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
                 <Image
                   src={c.logo}
                   alt={c.name}
                   width={28}
                   height={28}
-                  className={`w-7 h-7 object-contain drop-shadow-md ${c.soon ? "opacity-50" : ""}`}
+                  className={`w-5 h-5 sm:w-7 sm:h-7 object-contain drop-shadow-md ${c.soon ? "opacity-50" : ""}`}
                 />
               </div>
 
               {/* Text */}
               <div className="min-w-0 flex-1 relative z-10">
-                <p className={`text-sm font-black tracking-wide uppercase ${c.color}`}>{c.name}</p>
-                <p className="text-base font-extrabold text-slate-900 mt-1 leading-tight">{c.role}</p>
-                <p className="text-sm text-slate-500 mt-2 leading-relaxed">{c.desc}</p>
+                <p className={`text-[11px] sm:text-sm font-black tracking-wide uppercase ${c.color}`}>{c.name}</p>
+                <p className="text-xs sm:text-base font-extrabold text-slate-900 mt-0.5 sm:mt-1 leading-snug">{c.role}</p>
               </div>
 
               {/* Join CTA */}
               {c.soon ? (
-                <div className="flex items-center gap-2 text-sm font-bold text-slate-400 mt-2 relative z-10">
-                  <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider">
+                <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-bold text-slate-400 mt-1 sm:mt-2 relative z-10">
+                  <span className="rounded-full bg-slate-100 px-2 sm:px-2.5 py-0.5 sm:py-1 text-[9px] sm:text-[10px] font-black uppercase tracking-wider">
                     Bientôt
                   </span>
                 </div>
               ) : (
-                <div className={`flex items-center gap-2 text-sm font-bold ${c.color} mt-2 relative z-10`}>
-                  Rejoindre
-                  <ExternalLink className="w-4 h-4 shrink-0 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300" />
+                <div className={`flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-bold ${c.color} mt-1 sm:mt-2 relative z-10`}>
+                  <span>Rejoindre</span>
+                  <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300" />
                 </div>
               )}
             </>
@@ -135,7 +133,7 @@ export function HubCommunities() {
             <div
               key={c.name}
               aria-disabled="true"
-              className={`group relative overflow-hidden bg-white border ${c.border} rounded-3xl p-6 flex flex-col gap-5 shadow-[0_4px_24px_rgb(15,23,42,0.05)] opacity-75 cursor-not-allowed select-none`}
+              className={`group relative overflow-hidden bg-white border ${c.border} rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 flex flex-col gap-3 sm:gap-5 shadow-[0_4px_24px_rgb(15,23,42,0.05)] opacity-75 cursor-not-allowed select-none`}
             >
               {card}
             </div>
@@ -145,7 +143,7 @@ export function HubCommunities() {
               href={c.href ?? "#"}
               target="_blank"
               rel="noopener noreferrer"
-              className={`group relative overflow-hidden bg-white border ${c.border} ${c.hoverBorder} rounded-3xl p-6 flex flex-col gap-5 shadow-[0_4px_24px_rgb(15,23,42,0.05)] transition-all duration-300 hover:-translate-y-1 active:scale-[0.98]`}
+              className={`group relative overflow-hidden bg-white border ${c.border} ${c.hoverBorder} rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 flex flex-col gap-3 sm:gap-5 shadow-[0_4px_24px_rgb(15,23,42,0.05)] transition-all duration-300 hover:-translate-y-1 active:scale-[0.98]`}
             >
               {card}
             </a>

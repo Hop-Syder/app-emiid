@@ -62,31 +62,31 @@ export function HowItWorksSection() {
         </Link>
       </div>
 
-      {/* Grille des 4 étapes connectées */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 relative">
+      {/* Grille des 4 étapes connectées — 2 cartes par ligne sur mobile (grid-cols-2), 4 sur grand écran (lg:grid-cols-4) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 relative">
         {STEPS.map((step, i) => {
           const Icon = step.icon
           const isNotLast = i < STEPS.length - 1
 
           return (
             <div key={step.title} className="relative group">
-              <div className="relative flex flex-col gap-3 rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-[0_8px_24px_rgba(15,23,42,0.03)] hover:shadow-xl hover:shadow-[#013ff4]/5 hover:border-[#013ff4]/40 hover:-translate-y-1 transition-all duration-300 h-full">
+              <div className="relative flex flex-col gap-2 sm:gap-3 rounded-2xl border border-slate-200/90 bg-white p-3.5 sm:p-5 lg:p-6 shadow-[0_8px_24px_rgba(15,23,42,0.03)] hover:shadow-xl hover:shadow-[#013ff4]/5 hover:border-[#013ff4]/40 hover:-translate-y-1 transition-all duration-300 h-full">
                 {/* En-tête de la carte : Icône avec dégradé + Badge étape */}
                 <div className="flex items-center justify-between">
-                  <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-[#013ff4]/10 via-[#013ff4]/5 to-[#03b3f8]/15 text-[#013ff4] group-hover:from-[#013ff4] group-hover:to-[#03b3f8] group-hover:text-white transition-all duration-300 shadow-sm group-hover:shadow-md group-hover:shadow-[#013ff4]/25 group-hover:scale-105">
-                    <Icon className="h-5 w-5 transition-transform duration-300" />
+                  <span className="flex h-9 w-9 sm:h-11 sm:w-11 items-center justify-center rounded-lg sm:rounded-xl bg-gradient-to-br from-[#013ff4]/10 via-[#013ff4]/5 to-[#03b3f8]/15 text-[#013ff4] group-hover:from-[#013ff4] group-hover:to-[#03b3f8] group-hover:text-white transition-all duration-300 shadow-sm group-hover:shadow-md group-hover:shadow-[#013ff4]/25 group-hover:scale-105">
+                    <Icon className="h-4 w-4 sm:h-5 sm:w-5 transition-transform duration-300" />
                   </span>
-                  <span className="flex items-center justify-center px-2 py-0.5 rounded-md text-xs font-black bg-slate-100 text-slate-400 group-hover:bg-[#013ff4]/10 group-hover:text-[#013ff4] transition-colors">
+                  <span className="flex items-center justify-center px-1.5 sm:px-2 py-0.5 rounded-md text-[10px] sm:text-xs font-black bg-slate-100 text-slate-400 group-hover:bg-[#013ff4]/10 group-hover:text-[#013ff4] transition-colors">
                     {`0${i + 1}`}
                   </span>
                 </div>
 
                 {/* Titre & Description */}
-                <div className="space-y-1 mt-1">
-                  <h3 className="text-base font-black tracking-tight text-slate-900 group-hover:text-[#013ff4] transition-colors">
+                <div className="space-y-0.5 sm:space-y-1 mt-0.5 sm:mt-1">
+                  <h3 className="text-xs sm:text-base font-black tracking-tight text-slate-900 group-hover:text-[#013ff4] transition-colors leading-snug">
                     {step.title}
                   </h3>
-                  <p className="text-xs sm:text-[13px] font-medium leading-relaxed text-slate-600">
+                  <p className="text-[11px] sm:text-xs lg:text-[13px] font-medium leading-snug sm:leading-relaxed text-slate-600 line-clamp-3 sm:line-clamp-none">
                     {step.text}
                   </p>
                 </div>
@@ -96,7 +96,7 @@ export function HowItWorksSection() {
               {isNotLast && (
                 <div
                   aria-hidden="true"
-                  className="hidden lg:flex absolute -right-3 top-1/2 -translate-y-1/2 z-10 h-6 w-6 items-center justify-center rounded-full bg-white border border-slate-200 text-slate-400 shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:border-[#013ff4]/40 group-hover:text-[#013ff4]"
+                  className="hidden lg:flex absolute -right-2.5 top-1/2 -translate-y-1/2 z-10 h-6 w-6 items-center justify-center rounded-full bg-white border border-slate-200 text-slate-400 shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:border-[#013ff4]/40 group-hover:text-[#013ff4]"
                 >
                   <ArrowRight className="h-3 w-3" />
                 </div>
