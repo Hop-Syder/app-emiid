@@ -242,9 +242,9 @@ export function DashboardPublicContent({ initialStats = null, initialProfiles = 
                 <ProximitySection initialProfiles={entrepreneursList} />
 
                 {/* =========================================
-                    GALERIE DES MÉTIERS — propre au public
+                    GALERIE DES CATÉGORIES — propre au public
                     ========================================= */}
-                <BentoMatrixPublic />
+                <BentoMatrixPublic categoryCounts={stats?.categoryCounts} />
 
                 {/* =========================================
                     SECTION 5.5 : COMMENT ÇA MARCHE — le parcours complet,

@@ -169,11 +169,11 @@ export default function LoginPage() {
         {/* Logo EmiID — en flux en haut de carte sur mobile ; ancré au coin
             haut-gauche du panneau (hors du bloc centré) en desktop. */}
         <Link
-          href="/"
+          href=""
           className="w-full max-w-[360px] mx-auto inline-flex items-center group transition-transform hover:scale-[1.02] mb-10 shrink-0 lg:absolute lg:top-8 lg:left-8 lg:mx-0 lg:mb-0 lg:w-auto lg:max-w-none lg:z-20"
         >
           <Image
-            src="/login/background.avif"
+            src="/login/logo-emiid-bleu-blanc.svg"
             alt="EmiID"
             width={110}
             height={28}
@@ -359,8 +359,8 @@ export default function LoginPage() {
         {/* Image de fond avec filtre de couleur #000616 */}
         <div className="absolute inset-0 z-0">
           <Image
-            src="/login/login-image.jpg"
-            alt="Ambiance EmiID"
+            src="/login/background.avif"
+            alt=" EmiID"
             fill
             sizes="60vw"
             className="object-cover object-center opacity-30 mix-blend-luminosity scale-105"
