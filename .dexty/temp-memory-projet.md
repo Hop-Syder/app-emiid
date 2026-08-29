@@ -187,3 +187,4 @@
   - Amélioration de l'effet verre réel `backdrop-blur-2xl` via masque SVG de précision `DOCK_MASK`.
 - [2026-08-26] Résolution des dettes d'accessibilité (WCAG focus ring sur liens), amélioration du contraste (slate-500 -> slate-600) et renommage des composants Desktop (`sidebar` vers `topbar`) dans le système de navigation.
 - [2026-08-26] Résolution des warnings Next.js : renommage de `middleware.ts` en `proxy.ts` et suppression des fichiers `pnpm-lock.yaml` orphelins pour éviter les conflits de workspace avec npm.
+- [2026-08-30] Intégration des 10 catégories officielles EmiID dans `BentoMatrixPublic` et connexion directe aux statistiques temps réel Supabase (`public_profiles`) sans aucun chiffre factice ni mock résiduel.

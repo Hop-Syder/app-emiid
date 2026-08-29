@@ -20,17 +20,17 @@
 
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { motion, useReducedMotion } from "framer-motion"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { Sparkles, ArrowRight, ShieldCheck } from "lucide-react"
+import { createClient } from "@/lib/supabase/client"
 
 export interface PublicCategoryItem {
   id: string
   title: string
   subtitle: string
-  count: number
   badge: string
   badgeColor: string
   image: string
@@ -42,7 +42,6 @@ const OFFICIAL_CATEGORIES: PublicCategoryItem[] = [
     id: "artisan",
     title: "Artisan",
     subtitle: "Création manuelle, métiers de l'artisanat & savoir-faire",
-    count: 38,
     badge: "Savoir-faire",
     badgeColor: "bg-amber-600 text-white",
     image: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80",
@@ -52,7 +51,6 @@ const OFFICIAL_CATEGORIES: PublicCategoryItem[] = [
     id: "commerçante",
     title: "Commerçant",
     subtitle: "Vente de biens, boutiquier, grossiste & distribution",
-    count: 52,
     badge: "Commerce",
     badgeColor: "bg-emerald-600 text-white",
     image: "https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?auto=format&fit=crop&w=800&q=80",
@@ -62,7 +60,6 @@ const OFFICIAL_CATEGORIES: PublicCategoryItem[] = [
     id: "freelance",
     title: "Freelance / Indépendant",
     subtitle: "Prestation de service en solo, consultant & expert",
-    count: 42,
     badge: "Indépendant",
     badgeColor: "bg-[#013ff4] text-white",
     image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80",
@@ -72,7 +69,6 @@ const OFFICIAL_CATEGORIES: PublicCategoryItem[] = [
     id: "entreprise",
     title: "Entreprise",
     subtitle: "PME, TPE & Grande entreprise classique",
-    count: 31,
     badge: "PME & TPE",
     badgeColor: "bg-slate-800 text-white",
     image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80",
@@ -82,7 +78,6 @@ const OFFICIAL_CATEGORIES: PublicCategoryItem[] = [
     id: "agence",
     title: "Agence",
     subtitle: "Communication, Marketing, Web & RH",
-    count: 27,
     badge: "Conseil & Créa",
     badgeColor: "bg-purple-600 text-white",
     image: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=800&q=80",
@@ -92,7 +87,6 @@ const OFFICIAL_CATEGORIES: PublicCategoryItem[] = [
     id: "startup",
     title: "Startup",
     subtitle: "Jeune entreprise innovante, Tech & Croissance",
-    count: 35,
     badge: "Innovation",
     badgeColor: "bg-rose-600 text-white",
     image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=80",
@@ -102,7 +96,6 @@ const OFFICIAL_CATEGORIES: PublicCategoryItem[] = [
     id: "ong",
     title: "ONG / Association",
     subtitle: "À but non lucratif, fondation & impact social",
-    count: 19,
     badge: "Impact Social",
     badgeColor: "bg-cyan-600 text-white",
     image: "https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=80",
@@ -112,7 +105,6 @@ const OFFICIAL_CATEGORIES: PublicCategoryItem[] = [
     id: "investisseur",
     title: "Entreprise / Investisseur",
     subtitle: "Fonds d'investissement & recherche d'opportunités",
-    count: 16,
     badge: "Investissement",
     badgeColor: "bg-indigo-600 text-white",
     image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80",
@@ -122,7 +114,6 @@ const OFFICIAL_CATEGORIES: PublicCategoryItem[] = [
     id: "institution",
     title: "Institution Publique",
     subtitle: "Ministère, agence d'État & chambre de commerce",
-    count: 14,
     badge: "Secteur Public",
     badgeColor: "bg-teal-700 text-white",
     image: "https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=800&q=80",
@@ -132,13 +123,53 @@ const OFFICIAL_CATEGORIES: PublicCategoryItem[] = [
     id: "etudiant",
     title: "Étudiant / Jeune Diplômé",
     subtitle: "Recherche de stage, premier emploi & opportunités",
-    count: 48,
     badge: "Jeunes Talents",
     badgeColor: "bg-orange-600 text-white",
     image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80",
     tags: ["Stage", "Premier emploi", "Diplômé"],
   },
 ]
+
+/**
+ * Normalisation robuste pour mapper les catégories de la BDD vers les 10 catégories EmiID.
+ */
+function getCategoryRealCount(catId: string, counts: Record<string, number> | null): number | null {
+  if (!counts) return null
+
+  // 1. Recherche directe exacte
+  if (typeof counts[catId] === "number") return counts[catId]
+
+  // 2. Alias et variantes d'orthographe/accents
+  if (catId === "commerçante" || catId === "commercant" || catId === "commerce") {
+    return counts["commerçante"] ?? counts["commerçant"] ?? counts["commercant"] ?? counts["commerce"] ?? 0
+  }
+  if (catId === "freelance" || catId === "independant") {
+    return counts["freelance"] ?? counts["indépendant"] ?? counts["independant"] ?? 0
+  }
+  if (catId === "etudiant") {
+    return counts["etudiant"] ?? counts["étudiant"] ?? 0
+  }
+  if (catId === "ong") {
+    return counts["ong"] ?? counts["association"] ?? 0
+  }
+  if (catId === "investisseur") {
+    return counts["investisseur"] ?? counts["entreprise / investisseur"] ?? 0
+  }
+  if (catId === "institution") {
+    return counts["institution"] ?? counts["institution publique"] ?? 0
+  }
+
+  // 3. Correspondance insensible aux accents et minuscules
+  const cleanId = catId.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim()
+  for (const [key, val] of Object.entries(counts)) {
+    const cleanKey = key.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim()
+    if (cleanKey === cleanId || cleanKey.includes(cleanId) || cleanId.includes(cleanKey)) {
+      return val
+    }
+  }
+
+  return 0
+}
 
 /**
  * Emprise de chaque tuile pour les 10 catégories sur 3 colonnes :
@@ -188,6 +219,47 @@ export function BentoMatrixPublic({ categoryCounts }: BentoMatrixPublicProps = {
   const reduceMotion = useReducedMotion()
   const [order, setOrder] = useState<number[]>(() => OFFICIAL_CATEGORIES.map((_, i) => i))
   const [paused, setPaused] = useState(false)
+  const [liveCounts, setLiveCounts] = useState<Record<string, number> | null>(categoryCounts ?? null)
+
+  const supabase = useMemo(() => createClient(), [])
+
+  // Synchronisation des stats réelles depuis Supabase
+  useEffect(() => {
+    if (categoryCounts && Object.keys(categoryCounts).length > 0) {
+      setLiveCounts(categoryCounts)
+      return
+    }
+
+    let isMounted = true
+
+    async function fetchRealCategoryCounts() {
+      try {
+        const { data, error } = await supabase
+          .from('public_profiles')
+          .select('category')
+          .eq('is_published', true)
+
+        if (!error && data && isMounted) {
+          const counts: Record<string, number> = {}
+          for (const row of data) {
+            if (row.category) {
+              const norm = row.category.toLowerCase().trim()
+              counts[norm] = (counts[norm] || 0) + 1
+            }
+          }
+          setLiveCounts(counts)
+        }
+      } catch (err) {
+        console.error("[BentoMatrixPublic] Erreur récupération statistiques réelles:", err)
+      }
+    }
+
+    fetchRealCategoryCounts()
+
+    return () => {
+      isMounted = false
+    }
+  }, [categoryCounts, supabase])
 
   useEffect(() => {
     if (reduceMotion || paused) return
@@ -233,7 +305,10 @@ export function BentoMatrixPublic({ categoryCounts }: BentoMatrixPublicProps = {
         {order.map((categoryIndex, i) => {
           const cat = OFFICIAL_CATEGORIES[categoryIndex]
           const span = TILE_SPANS[i % TILE_SPANS.length]
-          const displayCount = categoryCounts?.[cat.id] ?? cat.count
+          const realCount = getCategoryRealCount(cat.id, liveCounts)
+          const displayLabel = realCount !== null
+            ? `${realCount} ${realCount > 1 ? "profils" : "profil"}`
+            : "..."
 
           return (
             <motion.button
@@ -248,7 +323,7 @@ export function BentoMatrixPublic({ categoryCounts }: BentoMatrixPublicProps = {
               whileInView="show"
               viewport={{ once: true, amount: 0.2 }}
               onClick={() => router.push(`/annuaire?category=${encodeURIComponent(cat.id)}`)}
-              aria-label={`${cat.title} — ${displayCount} professionnels`}
+              aria-label={`${cat.title} — ${displayLabel}`}
               className={`group relative overflow-hidden rounded-2xl bg-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#013ff4] focus-visible:ring-offset-2 ${span}`}
             >
               <motion.div
@@ -296,7 +371,7 @@ export function BentoMatrixPublic({ categoryCounts }: BentoMatrixPublicProps = {
                 </h3>
                 <div className="mt-1 flex items-center gap-1.5 text-[11px] font-semibold text-slate-200">
                   <ShieldCheck className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-                  <span>{displayCount} {typeof displayCount === "number" || !isNaN(Number(displayCount)) ? "profils" : ""}</span>
+                  <span>{displayLabel}</span>
                 </div>
               </div>
             </motion.button>

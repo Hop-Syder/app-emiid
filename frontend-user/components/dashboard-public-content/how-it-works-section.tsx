@@ -62,23 +62,45 @@ export function HowItWorksSection() {
         </Link>
       </div>
 
-      {/* Grille des 4 étapes compactes */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Grille des 4 étapes connectées */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 relative">
         {STEPS.map((step, i) => {
           const Icon = step.icon
+          const isNotLast = i < STEPS.length - 1
+
           return (
-            <div
-              key={step.title}
-              className="relative flex flex-col gap-2.5 rounded-2xl border border-slate-200/90 bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.03)] hover:shadow-md transition-shadow"
-            >
-              <div className="flex items-center justify-between">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#013ff4]/10 text-[#013ff4]">
-                  <Icon className="h-5 w-5" />
-                </span>
-                <span className="text-xs font-black text-slate-300">{`0${i + 1}`}</span>
+            <div key={step.title} className="relative group">
+              <div className="relative flex flex-col gap-3 rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-[0_8px_24px_rgba(15,23,42,0.03)] hover:shadow-xl hover:shadow-[#013ff4]/5 hover:border-[#013ff4]/40 hover:-translate-y-1 transition-all duration-300 h-full">
+                {/* En-tête de la carte : Icône avec dégradé + Badge étape */}
+                <div className="flex items-center justify-between">
+                  <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-[#013ff4]/10 via-[#013ff4]/5 to-[#03b3f8]/15 text-[#013ff4] group-hover:from-[#013ff4] group-hover:to-[#03b3f8] group-hover:text-white transition-all duration-300 shadow-sm group-hover:shadow-md group-hover:shadow-[#013ff4]/25 group-hover:scale-105">
+                    <Icon className="h-5 w-5 transition-transform duration-300" />
+                  </span>
+                  <span className="flex items-center justify-center px-2 py-0.5 rounded-md text-xs font-black bg-slate-100 text-slate-400 group-hover:bg-[#013ff4]/10 group-hover:text-[#013ff4] transition-colors">
+                    {`0${i + 1}`}
+                  </span>
+                </div>
+
+                {/* Titre & Description */}
+                <div className="space-y-1 mt-1">
+                  <h3 className="text-base font-black tracking-tight text-slate-900 group-hover:text-[#013ff4] transition-colors">
+                    {step.title}
+                  </h3>
+                  <p className="text-xs sm:text-[13px] font-medium leading-relaxed text-slate-600">
+                    {step.text}
+                  </p>
+                </div>
               </div>
-              <h3 className="text-base font-black tracking-tight text-slate-900 mt-1">{step.title}</h3>
-              <p className="text-xs sm:text-[13px] font-medium leading-relaxed text-slate-600">{step.text}</p>
+
+              {/* Connecteur de progression subtil entre les étapes (Visible uniquement sur Desktop) */}
+              {isNotLast && (
+                <div
+                  aria-hidden="true"
+                  className="hidden lg:flex absolute -right-3 top-1/2 -translate-y-1/2 z-10 h-6 w-6 items-center justify-center rounded-full bg-white border border-slate-200 text-slate-400 shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:border-[#013ff4]/40 group-hover:text-[#013ff4]"
+                >
+                  <ArrowRight className="h-3 w-3" />
+                </div>
+              )}
             </div>
           )
         })}
