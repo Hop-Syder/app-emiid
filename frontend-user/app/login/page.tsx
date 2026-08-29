@@ -212,14 +212,14 @@ export default function LoginPage() {
           <div className="w-full max-w-[420px] p-6 sm:p-7 rounded-2xl bg-[#000616] sm:bg-[#060D1E]/60 backdrop-blur-2xl border border-white/[0.08] shadow-[0_20px_60px_rgba(0,0,0,0.6)] relative">
 
             {/* Logo EmiID */}
-            <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center justify-between mb-4">
               <Link href="/" className="inline-flex items-center group transition-transform hover:scale-[1.02]">
                 <Image
-                  src="/logo/logo-emiid.png"
+                  src="/login/login-back.jpg"
                   alt="EmiID"
-                  width={145}
-                  height={36}
-                  className="h-7.5 w-auto object-contain drop-shadow-[0_2px_12px_rgba(1,63,244,0.3)]"
+                  width={72}
+                  height={18}
+                  className="h-4 w-auto object-contain drop-shadow-[0_2px_12px_rgba(1,63,244,0.3)]"
                   priority
                 />
               </Link>
