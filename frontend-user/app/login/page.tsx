@@ -173,7 +173,7 @@ export default function LoginPage() {
           className="w-full max-w-[360px] mx-auto inline-flex items-center group transition-transform hover:scale-[1.02] mb-10 shrink-0 lg:absolute lg:top-8 lg:left-8 lg:mx-0 lg:mb-0 lg:w-auto lg:max-w-none lg:z-20"
         >
           <Image
-            src="/login/login-back.png"
+            src="/login/background.avif"
             alt="EmiID"
             width={110}
             height={28}
