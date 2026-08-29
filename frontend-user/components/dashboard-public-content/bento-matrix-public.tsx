@@ -351,7 +351,7 @@ export function BentoMatrixPublic({ categoryCounts }: BentoMatrixPublicProps = {
 
               {/* Voile de lisibilité permanent sur mobile, intensifié au survol sur desktop */}
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-85 sm:opacity-60 transition-opacity duration-300 group-hover:opacity-95" />
-              
+
               {/* Badge de catégorie discret en haut à gauche */}
               <div className="pointer-events-none absolute top-3 left-3 z-10">
                 <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold tracking-wide backdrop-blur-md border border-white/10 ${cat.badgeColor || "bg-[#013ff4] text-white"}`}>
@@ -383,11 +383,8 @@ export function BentoMatrixPublic({ categoryCounts }: BentoMatrixPublicProps = {
       <div className="p-4 sm:px-6 sm:py-4 rounded-2xl bg-gradient-to-r from-[#000616] via-slate-900 to-[#013ff4]/80 border border-white/10 text-white flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg relative overflow-hidden">
         <div className="space-y-0.5 text-center sm:text-left z-10">
           <h3 className="text-base sm:text-lg font-black text-white tracking-tight">
-            Besoin d&apos;un profil ou d&apos;un métier précis ?
+            Besoin d&apos;un profil <br /> ou d&apos;un métier précis ?
           </h3>
-          <p className="text-xs text-slate-300 font-medium">
-            Trouvez les talents vérifiés par commune et secteur d&apos;activité dans l&apos;annuaire.
-          </p>
         </div>
 
         <button

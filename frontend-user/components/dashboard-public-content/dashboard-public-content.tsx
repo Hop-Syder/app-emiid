@@ -258,23 +258,12 @@ export function DashboardPublicContent({ initialStats = null, initialProfiles = 
                 <TrustSecuritySection />
 
                 {/* =========================================
-                    SECTION 7 : CTA CONTEXTUEL
-                    ========================================= */}
-                <div className="pt-4 pb-4">
-                    <PublicHubContextualCta />
-                </div>
-
-                {/* =========================================
                     SECTION 8 : COMMUNAUTÉS
                     ========================================= */}
                 <div className="pt-2 pb-8">
                     <HubCommunities />
                 </div>
 
-                {/* Terminal de Conversion & Passeport Digital */}
-                <div className="pt-4">
-                    <InstantClaimTerminal />
-                </div>
             </div>
         </div>
     )
