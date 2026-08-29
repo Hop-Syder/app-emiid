@@ -88,9 +88,21 @@ export async function proxy(request: NextRequest) {
   }
 
   // --- ROUTING ---
-  // Public sans session: racine, login, callback auth, dashboard public (redirigé), annuaire et profils publics directs.
+  // Public sans session: racine, login, callback auth, dashboard public (redirigé), annuaire et profils publics directs, assets PWA/SEO.
   // /profil seul reste privé car il redirige vers le profil du compte connecté.
-  const publicRoutes = new Set(['/', '/login', '/auth/callback', '/dashboard-public', '/conditions', '/confidentialite'])
+  const publicRoutes = new Set([
+    '/',
+    '/login',
+    '/auth/callback',
+    '/dashboard-public',
+    '/conditions',
+    '/confidentialite',
+    '/manifest.webmanifest',
+    '/site.webmanifest',
+    '/sw.js',
+    '/robots.txt',
+    '/sitemap.xml',
+  ])
   const publicPrefixes = ['/auth/', '/annuaire']
   const isPublicProfileDetail = /^\/profil\/[^/]+\/?$/.test(path)
 
@@ -132,10 +144,10 @@ export async function proxy(request: NextRequest) {
   return response
 }
 
-// Configuration : On exclut les fichiers statiques (images, CSS, JS) du middleware
+// Configuration : On exclut les fichiers statiques (images, CSS, JS, manifest, Service Worker) du middleware
 export const config = {
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|sw.js|manifest.webmanifest|site.webmanifest|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|webmanifest|json|js)$).*)',
   ],
 }
 
