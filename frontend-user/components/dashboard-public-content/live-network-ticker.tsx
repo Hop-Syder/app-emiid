@@ -1,10 +1,10 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Network Ticker — Bandeau défilant illustratif de l'activité du
- *              réseau EmiID (contenu d'illustration assumé, pas un flux temps réel).
+ * @description Network Ticker — Bandeau d'actualités et garanties de la plateforme EmiID.
+ *              Design 2026 : sobre, ultra-lisible, fond #000616, défilement fluide avec masques de fondu.
  * @created 2026-08-20
- * @updated 2026-08-26
+ * @updated 2026-08-29
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -12,47 +12,48 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Sparkles, ShieldCheck, Zap, Globe2 } from "lucide-react"
+import { ShieldCheck, Zap, Globe2, CheckCircle2, Sparkles } from "lucide-react"
 
 const TICKER_ITEMS = [
-  { icon: Sparkles, text: "Créez votre empreinte numérique professionnelle", color: "text-[#03b3f8]" },
-  { icon: ShieldCheck, text: "Profils vérifiés — identité et compétences contrôlées", color: "text-emerald-400" },
-  { icon: Zap, text: "Connectez artisans, freelances et entreprises près de vous", color: "text-amber-400" },
-  { icon: Globe2, text: "Présent au Bénin et dans la diaspora", color: "text-[#03b3f8]" },
-  { icon: Sparkles, text: "Publiez votre portfolio en quelques minutes", color: "text-[#03b3f8]" },
+  { icon: CheckCircle2, text: "Empreinte numérique certifiée et vérifiée", accent: "text-[#03b3f8]" },
+  { icon: ShieldCheck, text: "Chiffrement et protection des données conformes", accent: "text-emerald-400" },
+  { icon: Zap, text: "Mise en relation directe avec les décideurs et talents", accent: "text-[#03b3f8]" },
+  { icon: Globe2, text: "Écosystème actif au Bénin et à l'international", accent: "text-emerald-400" },
+  { icon: Sparkles, text: "Carte de visite digitale déployable en 2 minutes", accent: "text-[#03b3f8]" },
 ]
 
 export function LiveNetworkTicker() {
   return (
-    <div className="w-full overflow-hidden border-y border-white/10 bg-slate-950/70 backdrop-blur-xl py-3 shadow-inner">
-      <div className="flex items-center gap-2 max-w-7xl mx-auto px-4">
-        {/* Badge réseau (illustration) */}
-        <div className="flex items-center gap-2 shrink-0 bg-[#013ff4]/10 border border-[#013ff4]/30 rounded-full px-3 py-1 mr-2 shadow-xs">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#03b3f8] opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#013ff4]" />
-          </span>
-          <span className="text-[10px] font-black uppercase tracking-wider text-[#03b3f8]">Réseau EmiID</span>
+    <div className="relative w-full overflow-hidden border-y border-white/[0.06] bg-[#000616] py-3 select-none">
+      {/* Masques de fondu progressif sur les côtés gauche et droit */}
+      <div className="absolute left-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-r from-[#000616] to-transparent z-10 pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-l from-[#000616] to-transparent z-10 pointer-events-none" />
+
+      <div className="flex items-center max-w-7xl mx-auto px-4">
+        {/* Badge indicateur sobre */}
+        <div className="hidden sm:flex items-center gap-2 shrink-0 bg-white/[0.04] border border-white/[0.08] rounded-md px-2.5 py-1 mr-4 z-20">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="text-[11px] font-medium tracking-wider uppercase text-[#A8B0C7]">EmiID Live</span>
         </div>
 
-        {/* Ticker Animation Container */}
+        {/* Défilement continu fluide */}
         <div className="relative flex-1 overflow-hidden">
           <motion.div
             animate={{ x: ["0%", "-50%"] }}
             transition={{
               repeat: Infinity,
               ease: "linear",
-              duration: 28,
+              duration: 35,
             }}
-            className="flex items-center gap-12 whitespace-nowrap"
+            className="flex items-center gap-10 whitespace-nowrap"
           >
             {[...TICKER_ITEMS, ...TICKER_ITEMS].map((item, idx) => {
               const Icon = item.icon
               return (
-                <div key={idx} className="flex items-center gap-2.5 text-xs font-semibold text-slate-300">
-                  <Icon className={`h-4 w-4 ${item.color}`} />
+                <div key={idx} className="flex items-center gap-2.5 text-xs sm:text-[13px] font-normal text-[#C8D1E6]">
+                  <Icon className={`h-3.5 w-3.5 shrink-0 ${item.accent}`} />
                   <span>{item.text}</span>
-                  <span className="text-slate-700 ml-4">•</span>
+                  <span className="w-1 h-1 rounded-full bg-white/20 ml-6 shrink-0" />
                 </div>
               )
             })}
