@@ -352,10 +352,24 @@ export default function LoginPage() {
       </div>
 
       {/* ══════════════════════════════════════════════════════════════════
-          COLONNE DROITE — citations motivantes, en rotation automatique.
-          Masquée en mobile : priorité aux boutons de connexion.
+          COLONNE DROITE — citations motivantes avec image de fond & filtre #000616
           ══════════════════════════════════════════════════════════════ */}
-      <div className="hidden lg:flex relative lg:w-[60%] shrink-0 items-center justify-center px-16 xl:px-24 overflow-hidden bg-gradient-to-br from-[#00040f] via-[#000b24] to-[#000616]">
+      <div className="hidden lg:flex relative lg:w-[60%] shrink-0 items-center justify-center px-16 xl:px-24 overflow-hidden bg-[#000616]">
+
+        {/* Image de fond avec filtre de couleur #000616 */}
+        <div className="absolute inset-0 z-0">
+          <Image
+            src="/login/login-image.jpg"
+            alt="Ambiance EmiID"
+            fill
+            sizes="60vw"
+            className="object-cover object-center opacity-30 mix-blend-luminosity scale-105"
+            priority
+          />
+          {/* Filtre teinté #000616 et dégradé pour sublimer les contrastes */}
+          <div className="absolute inset-0 bg-[#000616]/85 backdrop-blur-[1px]" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#000616] via-transparent to-[#000616]/60 pointer-events-none" />
+        </div>
 
         {/* Orbes chromatiques */}
         <div className="absolute -top-32 -right-24 w-[26rem] h-[26rem] bg-[#013ff4]/20 rounded-full blur-[130px] pointer-events-none" />
