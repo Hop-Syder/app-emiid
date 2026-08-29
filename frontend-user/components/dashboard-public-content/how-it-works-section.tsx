@@ -15,6 +15,8 @@
 
 import Link from "next/link"
 import { CreditCard, MessageCircle, Search, TrendingUp, ArrowRight } from "lucide-react"
+import { motion, useReducedMotion } from "framer-motion"
+import type { Variants } from "framer-motion"
 
 const STEPS = [
   {
@@ -39,7 +41,24 @@ const STEPS = [
   },
 ]
 
+/** Animation douce et progressive à l'entrée dans le viewport */
+const cardVariants: Variants = {
+  hidden: { opacity: 0, y: 28, scale: 0.97 },
+  show: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.75,
+      ease: [0.22, 1, 0.36, 1] as const, // Transition soyeuse et progressive
+      delay: i * 0.14,
+    },
+  }),
+}
+
 export function HowItWorksSection() {
+  const reduceMotion = useReducedMotion()
+
   return (
     <section className="space-y-6 py-4">
       {/* En-tête avec titre et CTA rapide */}
@@ -69,7 +88,15 @@ export function HowItWorksSection() {
           const isNotLast = i < STEPS.length - 1
 
           return (
-            <div key={step.title} className="relative group">
+            <motion.div
+              key={step.title}
+              custom={i}
+              variants={cardVariants}
+              initial={reduceMotion ? false : "hidden"}
+              whileInView={reduceMotion ? undefined : "show"}
+              viewport={{ once: true, amount: 0.15 }}
+              className="relative group"
+            >
               <div className="relative flex flex-col gap-2 sm:gap-3 rounded-2xl border border-slate-200/90 bg-white p-3.5 sm:p-5 lg:p-6 shadow-[0_8px_24px_rgba(15,23,42,0.03)] hover:shadow-xl hover:shadow-[#013ff4]/5 hover:border-[#013ff4]/40 hover:-translate-y-1 transition-all duration-300 h-full">
                 {/* En-tête de la carte : Icône avec dégradé + Badge étape */}
                 <div className="flex items-center justify-between">
@@ -101,7 +128,7 @@ export function HowItWorksSection() {
                   <ArrowRight className="h-3 w-3" />
                 </div>
               )}
-            </div>
+            </motion.div>
           )
         })}
       </div>
