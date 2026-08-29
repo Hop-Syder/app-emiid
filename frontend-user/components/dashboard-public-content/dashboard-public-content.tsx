@@ -23,6 +23,8 @@
 
 import { useState, useEffect, useMemo } from "react"
 import { AlertTriangle } from "lucide-react"
+import { motion, useReducedMotion } from "framer-motion"
+import type { Variants } from "framer-motion"
 import { fetchPublic } from "@/lib/apiClient"
 import { createClient } from "@/lib/supabase/client"
 import { useDashboardStats } from "@/hooks/use-dashboard-stats"
@@ -30,12 +32,23 @@ import type { DashboardStats } from "@/types"
 import { PublicHeroMatrix } from "./public-hero-matrix"
 import { LiveNetworkTicker } from "./live-network-ticker"
 import { BentoMatrixPublic } from "./bento-matrix-public"
-import { InstantClaimTerminal } from "./instant-claim-terminal"
 import { ProximitySection } from "@/components/dashboard-user-content/proximity-section"
-import { PublicHubContextualCta } from "./public-hub-contextual-cta"
 import { HowItWorksSection } from "./how-it-works-section"
 import { TrustSecuritySection } from "./trust-security-section"
 import { HubCommunities } from "../dashboard-user-content/hub-communities"
+
+/** Animation douce et progressive d'entrée de section au scroll */
+const sectionVariants: Variants = {
+    hidden: { opacity: 0, y: 32 },
+    show: {
+        opacity: 1,
+        y: 0,
+        transition: {
+            duration: 0.7,
+            ease: [0.22, 1, 0.36, 1] as const,
+        },
+    },
+}
 
 export interface EntrepreneurProfile {
     id: string;
@@ -84,6 +97,7 @@ interface DashboardPublicContentProps {
 }
 
 export function DashboardPublicContent({ initialStats = null, initialProfiles = [] }: DashboardPublicContentProps) {
+    const reduceMotion = useReducedMotion()
     const [loading, setLoading] = useState(initialProfiles.length === 0)
     const [entrepreneursList, setEntrepreneursList] = useState<EntrepreneurProfile[]>(initialProfiles)
     const [profilesWarning, setProfilesWarning] = useState<string | null>(null)
@@ -239,30 +253,63 @@ export function DashboardPublicContent({ initialStats = null, initialProfiles = 
                 {/* =========================================
                     SECTION 3 : TALENTS À PROXIMITÉ — ouverte au public
                     ========================================= */}
-                <ProximitySection initialProfiles={entrepreneursList} />
+                <motion.div
+                    variants={sectionVariants}
+                    initial={reduceMotion ? false : "hidden"}
+                    whileInView={reduceMotion ? undefined : "show"}
+                    viewport={{ once: true, amount: 0.08 }}
+                >
+                    <ProximitySection initialProfiles={entrepreneursList} />
+                </motion.div>
 
                 {/* =========================================
                     GALERIE DES CATÉGORIES — propre au public
                     ========================================= */}
-                <BentoMatrixPublic categoryCounts={stats?.categoryCounts} />
+                <motion.div
+                    variants={sectionVariants}
+                    initial={reduceMotion ? false : "hidden"}
+                    whileInView={reduceMotion ? undefined : "show"}
+                    viewport={{ once: true, amount: 0.08 }}
+                >
+                    <BentoMatrixPublic categoryCounts={stats?.categoryCounts} />
+                </motion.div>
 
                 {/* =========================================
-                    SECTION 5.5 : COMMENT ÇA MARCHE — le parcours complet,
-                    montré avant de demander la conversion.
+                    SECTION 5.5 : COMMENT ÇA MARCHE — le parcours complet
                     ========================================= */}
-                <HowItWorksSection />
+                <motion.div
+                    variants={sectionVariants}
+                    initial={reduceMotion ? false : "hidden"}
+                    whileInView={reduceMotion ? undefined : "show"}
+                    viewport={{ once: true, amount: 0.08 }}
+                >
+                    <HowItWorksSection />
+                </motion.div>
 
                 {/* =========================================
                     SECTION 5.6 : CONFIANCE & SÉCURITÉ
                     ========================================= */}
-                <TrustSecuritySection />
+                <motion.div
+                    variants={sectionVariants}
+                    initial={reduceMotion ? false : "hidden"}
+                    whileInView={reduceMotion ? undefined : "show"}
+                    viewport={{ once: true, amount: 0.08 }}
+                >
+                    <TrustSecuritySection />
+                </motion.div>
 
                 {/* =========================================
                     SECTION 8 : COMMUNAUTÉS
                     ========================================= */}
-                <div className="pt-2 pb-8">
+                <motion.div
+                    variants={sectionVariants}
+                    initial={reduceMotion ? false : "hidden"}
+                    whileInView={reduceMotion ? undefined : "show"}
+                    viewport={{ once: true, amount: 0.08 }}
+                    className="pt-2 pb-8"
+                >
                     <HubCommunities />
-                </div>
+                </motion.div>
 
             </div>
         </div>
