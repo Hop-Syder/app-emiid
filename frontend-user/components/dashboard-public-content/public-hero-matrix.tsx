@@ -71,10 +71,10 @@ export function PublicHeroMatrix({ stats }: PublicHeroMatrixProps) {
     }
 
     return (
-        <div className="relative overflow-hidden rounded-2xl border border-white/[0.08] shadow-[0_24px_60px_rgba(0,0,0,0.8)] bg-[#000616] p-6 sm:p-8 md:p-10 lg:p-12 text-white">
-            {/* Arrière-plan atmosphérique #000616 avec orbes subtils */}
-            <div className="absolute top-0 left-0 w-96 h-96 bg-[#013ff4]/15 rounded-full blur-[120px] pointer-events-none" />
-            <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-[#03b3f8]/10 rounded-full blur-[130px] pointer-events-none" />
+        <div className="relative overflow-hidden rounded-2xl border border-white/[0.08] shadow-[0_24px_60px_rgba(0,0,0,0.8)] bg-[#000616] pt-7 pb-6 px-6 sm:p-8 md:p-10 lg:p-12 text-white">
+            {/* Arrière-plan atmosphérique #000616 avec orbes subtils (descendus sur mobile) */}
+            <div className="absolute top-12 sm:top-0 left-0 w-80 sm:w-96 h-80 sm:h-96 bg-[#013ff4]/15 rounded-full blur-[120px] pointer-events-none" />
+            <div className="absolute -bottom-16 sm:-bottom-24 -right-16 sm:-right-24 w-80 sm:w-96 h-80 sm:h-96 bg-[#03b3f8]/10 rounded-full blur-[130px] pointer-events-none" />
 
             <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
                 {/* Col Gauche : Message d'Impact + Terminal d'Acquisition */}

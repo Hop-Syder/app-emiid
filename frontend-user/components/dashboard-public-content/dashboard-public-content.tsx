@@ -22,7 +22,7 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
-import { AlertTriangle, Gauge, Bell } from "lucide-react"
+import { AlertTriangle } from "lucide-react"
 import { fetchPublic } from "@/lib/apiClient"
 import { createClient } from "@/lib/supabase/client"
 import { useDashboardStats } from "@/hooks/use-dashboard-stats"
@@ -31,12 +31,10 @@ import { PublicHeroMatrix } from "./public-hero-matrix"
 import { LiveNetworkTicker } from "./live-network-ticker"
 import { BentoMatrixPublic } from "./bento-matrix-public"
 import { InstantClaimTerminal } from "./instant-claim-terminal"
-import { ProximityLockSection } from "./proximity-lock-section"
+import { ProximitySection } from "@/components/dashboard-user-content/proximity-section"
 import { PublicHubContextualCta } from "./public-hub-contextual-cta"
-import { LockedSection, CockpitPreview, ActivityPreview } from "./locked-section"
 import { HowItWorksSection } from "./how-it-works-section"
 import { TrustSecuritySection } from "./trust-security-section"
-import { ExplorerHub } from "../dashboard-user-content/explorer-hub"
 import { HubCommunities } from "../dashboard-user-content/hub-communities"
 
 export interface EntrepreneurProfile {
@@ -202,7 +200,7 @@ export function DashboardPublicContent({ initialStats = null, initialProfiles = 
             {/* =========================================
                 SECTION 1 : HERO MATRIX 3D & STATS DYNAMIQUES
                 ========================================= */}
-            <div className="pt-4 sm:pt-6 pb-6 relative z-10">
+            <div className="pt-6 sm:pt-6 pb-6 relative z-10">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full space-y-6">
                     <PublicHeroMatrix stats={stats} />
 
@@ -239,44 +237,9 @@ export function DashboardPublicContent({ initialStats = null, initialProfiles = 
                 )}
 
                 {/* =========================================
-                    SECTION 1.5 : COCKPIT PERSONNEL — verrouillée
+                    SECTION 3 : TALENTS À PROXIMITÉ — ouverte au public
                     ========================================= */}
-                <LockedSection
-                    title="Votre cockpit personnel"
-                    icon={Gauge}
-                    pitch="Vues de votre profil, abonnés, complétude de votre carte : votre tableau de bord se remplit dès la création du compte."
-                >
-                    <CockpitPreview />
-                </LockedSection>
-
-                {/* =========================================
-                    SECTION 2 : ACTIVITÉ RÉCENTE — verrouillée
-                    ========================================= */}
-                <LockedSection
-                    title="Votre activité récente"
-                    icon={Bell}
-                    iconClassName="bg-amber-100 text-amber-600"
-                    pitch="Qui a consulté votre profil, qui vous suit, qui vous écrit — suivez tout au même endroit."
-                >
-                    <ActivityPreview />
-                </LockedSection>
-
-                {/* =========================================
-                    SECTION 3 : TALENTS À PROXIMITÉ — verrouillée
-                    ========================================= */}
-                <ProximityLockSection />
-
-                {/* =========================================
-                    SECTION 4 : EXPLORER — ouverte
-                    Même composant que côté connecté : la découverte est
-                    précisément ce qu'on veut donner à voir avant l'inscription.
-                    ========================================= */}
-                <ExplorerHub
-                    premiumProfiles={premiumProfiles}
-                    newProfiles={entrepreneursList}
-                    categoryCounts={stats?.categoryCounts}
-                    loading={loading}
-                />
+                <ProximitySection initialProfiles={entrepreneursList} />
 
                 {/* =========================================
                     GALERIE DES MÉTIERS — propre au public
