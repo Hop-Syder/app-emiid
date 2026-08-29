@@ -169,15 +169,15 @@ export default function LoginPage() {
         {/* Logo EmiID — en flux en haut de carte sur mobile ; ancré au coin
             haut-gauche du panneau (hors du bloc centré) en desktop. */}
         <Link
-          href=""
+          href="/"
           className="w-full max-w-[360px] mx-auto inline-flex items-center group transition-transform hover:scale-[1.02] mb-10 shrink-0 lg:absolute lg:top-8 lg:left-8 lg:mx-0 lg:mb-0 lg:w-auto lg:max-w-none lg:z-20"
         >
           <Image
             src="/login/logo-emiid-bleu-blanc.svg"
             alt="EmiID"
-            width={110}
-            height={28}
-            className="h-6 w-auto object-contain drop-shadow-[0_2px_12px_rgba(1,63,244,0.3)]"
+            width={160}
+            height={44}
+            className="h-9 sm:h-10 lg:h-10 w-auto object-contain drop-shadow-[0_2px_14px_rgba(1,63,244,0.35)]"
             priority
           />
         </Link>
@@ -292,9 +292,9 @@ export default function LoginPage() {
             className="flex items-start gap-3 w-full text-left mt-5 p-1.5 rounded-lg hover:bg-white/[0.02] transition-colors group cursor-pointer"
           >
             <div
-              className={`mt-0.5 shrink-0 w-4.5 h-4.5 rounded-md border flex items-center justify-center transition-all duration-300 shadow-sm ${accepted
-                ? "bg-gradient-to-tr from-[#013ff4] to-[#03b3f8] border-transparent shadow-[0_0_12px_rgba(1,63,244,0.5)] scale-105"
-                : "bg-white/[0.04] border-white/20 group-hover:border-[#03b3f8]/60"
+              className={`mt-0.5 shrink-0 w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all duration-200 shadow-sm ${accepted
+                ? "bg-gradient-to-tr from-[#013ff4] to-[#03b3f8] border-white shadow-[0_0_12px_rgba(1,63,244,0.6)] scale-105"
+                : "bg-white/[0.06] border-white/80 group-hover:border-white group-hover:bg-white/15"
                 }`}
             >
               {accepted && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
