@@ -130,8 +130,8 @@ export default function LoginPage() {
   return (
     <div className="relative min-h-screen w-full bg-[#000616] text-white flex items-center justify-center p-4 sm:p-6 lg:p-10 overflow-hidden selection:bg-[#013ff4] selection:text-white">
 
-      {/* ── Conteneur Principal ── */}
-      <div className="relative z-10 w-full max-w-6xl flex flex-col lg:flex-row items-center lg:items-stretch gap-8 lg:gap-10">
+      {/* ── Conteneur Principal (Colonnes resserrées en desktop) ── */}
+      <div className="relative z-10 w-full max-w-5xl flex flex-col lg:flex-row items-center lg:items-stretch justify-center gap-6 lg:gap-8">
 
         {/* ── Colonne Droite (Desktop) / Bannière Haut (Mobile) : Illustration & Badges ── */}
         <motion.div
@@ -140,10 +140,10 @@ export default function LoginPage() {
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
           className="w-full lg:w-1/2 lg:order-2 flex flex-col justify-center"
         >
-          <div className="relative w-full h-64 sm:h-80 lg:h-full lg:min-h-[660px] rounded-[32px] overflow-hidden p-[1px] bg-gradient-to-b from-white/10 to-transparent shadow-[0_20px_50px_rgba(0,0,0,0.8)] group">
+          <div className="relative w-full h-64 sm:h-80 lg:h-full lg:min-h-[590px] rounded-2xl overflow-hidden p-[1px] bg-gradient-to-b from-white/10 to-transparent shadow-[0_20px_50px_rgba(0,0,0,0.8)] group">
 
-            {/* Conteneur intérieur de l'illustration */}
-            <div className="relative w-full h-full rounded-[31px] overflow-hidden bg-[#000616]">
+            {/* Conteneur intérieur de l'illustration (arrondi 15px pour épouser le cadre 16px) */}
+            <div className="relative w-full h-full rounded-[15px] overflow-hidden bg-[#000616]">
               <Image
                 src="/login/login-image.jpg"
                 alt="EmiID Connexion"
@@ -167,10 +167,10 @@ export default function LoginPage() {
                     x: { duration: 0.6, delay: 0.3 },
                     y: { duration: 5, repeat: Infinity, ease: "easeInOut" }
                   }}
-                  className="absolute top-6 left-6 z-20 flex items-center gap-2.5 px-3.5 py-2 rounded-2xl bg-[#000616]/80 backdrop-blur-xl border border-white/15 shadow-[0_8px_25px_rgba(0,0,0,0.5)]"
+                  className="absolute top-5 left-5 z-20 flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-[#000616]/85 backdrop-blur-xl border border-white/15 shadow-[0_8px_25px_rgba(0,0,0,0.5)]"
                 >
-                  <div className="flex items-center justify-center w-7 h-7 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
-                    <ShieldCheck className="w-4 h-4" />
+                  <div className="flex items-center justify-center w-6 h-6 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+                    <ShieldCheck className="w-3.5 h-3.5" />
                   </div>
                   <div className="flex flex-col">
                     <span className="text-[11px] font-semibold text-white tracking-wide">Auth Sécurisée</span>
@@ -190,7 +190,7 @@ export default function LoginPage() {
                     x: { duration: 0.6, delay: 0.4 },
                     y: { duration: 6, repeat: Infinity, ease: "easeInOut", delay: 0.5 }
                   }}
-                  className="absolute bottom-6 right-6 z-20 flex items-center gap-2.5 px-3.5 py-2 rounded-2xl bg-[#000616]/85 backdrop-blur-xl border border-[#013ff4]/30 shadow-[0_10px_30px_rgba(1,63,244,0.25)]"
+                  className="absolute bottom-5 right-5 z-20 flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#000616]/90 backdrop-blur-xl border border-[#013ff4]/30 shadow-[0_10px_30px_rgba(1,63,244,0.25)]"
                 >
                   <div className="flex flex-col">
                     <span className="text-[11px] font-bold text-white tracking-wide">EmiID Pass</span>
@@ -209,31 +209,31 @@ export default function LoginPage() {
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           className="w-full lg:w-1/2 lg:order-1 flex items-center justify-center"
         >
-          <div className="w-full max-w-[430px] p-6 sm:p-8 rounded-[32px] bg-[#000616] sm:bg-[#060D1E]/60 backdrop-blur-2xl border border-white/[0.08] shadow-[0_20px_60px_rgba(0,0,0,0.6)] relative">
+          <div className="w-full max-w-[420px] p-6 sm:p-7 rounded-2xl bg-[#000616] sm:bg-[#060D1E]/60 backdrop-blur-2xl border border-white/[0.08] shadow-[0_20px_60px_rgba(0,0,0,0.6)] relative">
 
             {/* Logo EmiID */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-5">
               <Link href="/" className="inline-flex items-center group transition-transform hover:scale-[1.02]">
                 <Image
                   src="/logo/logo-emiid.png"
                   alt="EmiID"
-                  width={150}
-                  height={38}
-                  className="h-8 w-auto object-contain drop-shadow-[0_2px_12px_rgba(1,63,244,0.3)]"
+                  width={145}
+                  height={36}
+                  className="h-7.5 w-auto object-contain drop-shadow-[0_2px_12px_rgba(1,63,244,0.3)]"
                   priority
                 />
               </Link>
             </div>
 
-            {/* En-tête : Salutation & Bouton Inspiration */}
-            <div className="flex items-center justify-between gap-2 mt-2">
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white flex items-center gap-2">
+            {/* En-tête : Salutation */}
+            <div className="flex items-center justify-between gap-2 mt-1">
+              <h1 className="text-2xl sm:text-[26px] font-extrabold tracking-tight text-white flex items-center gap-2">
                 {greeting} <span className="inline-block animate-wave origin-bottom-right">👋</span>
               </h1>
             </div>
 
             {/* Phrase de motivation interactive */}
-            <div className="mt-3.5 min-h-[58px] relative flex items-center p-3 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+            <div className="mt-3 min-h-[54px] relative flex items-center p-3 rounded-lg bg-white/[0.02] border border-white/[0.04]">
               <AnimatePresence mode="wait">
                 <motion.p
                   key={quoteIndex}
@@ -241,7 +241,7 @@ export default function LoginPage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -6 }}
                   transition={{ duration: 0.3, ease: "easeOut" }}
-                  className="text-xs sm:text-sm text-[#A8B0C7] leading-relaxed italic"
+                  className="text-xs sm:text-[13px] text-[#A8B0C7] leading-relaxed italic"
                 >
                   &ldquo;{MOTIVATIONAL_QUOTES[quoteIndex]}&rdquo;
                 </motion.p>
@@ -253,7 +253,7 @@ export default function LoginPage() {
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="mt-4 text-xs text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl px-4 py-3 text-center font-medium flex items-center justify-center gap-2"
+                className="mt-4 text-xs text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-lg px-4 py-3 text-center font-medium flex items-center justify-center gap-2"
               >
                 <Lock className="w-3.5 h-3.5 shrink-0 text-rose-400" />
                 <span>{error}</span>
@@ -267,17 +267,17 @@ export default function LoginPage() {
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="flex items-start gap-3 w-full text-left mt-5 p-2 rounded-xl hover:bg-white/[0.02] transition-colors group cursor-pointer"
+              className="flex items-start gap-3 w-full text-left mt-4 p-1.5 rounded-lg hover:bg-white/[0.02] transition-colors group cursor-pointer"
             >
               <div
-                className={`mt-0.5 shrink-0 w-5 h-5 rounded-lg border flex items-center justify-center transition-all duration-300 shadow-sm ${accepted
+                className={`mt-0.5 shrink-0 w-4.5 h-4.5 rounded-md border flex items-center justify-center transition-all duration-300 shadow-sm ${accepted
                   ? "bg-gradient-to-tr from-[#013ff4] to-[#03b3f8] border-transparent shadow-[0_0_12px_rgba(1,63,244,0.5)] scale-105"
                   : "bg-white/[0.04] border-white/20 group-hover:border-[#03b3f8]/60"
                   }`}
               >
-                {accepted && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
+                {accepted && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
               </div>
-              <p className="text-[12px] sm:text-[13px] text-[#A8B0C7] leading-relaxed select-none">
+              <p className="text-[12px] text-[#A8B0C7] leading-relaxed select-none">
                 J&apos;accepte les{" "}
                 <Link
                   href="/conditions"
@@ -299,7 +299,7 @@ export default function LoginPage() {
             </motion.button>
 
             {/* Widget Cloudflare Turnstile */}
-            <div className="flex flex-col items-center justify-center mt-5 pt-3 border-t border-white/[0.06]">
+            <div className="flex flex-col items-center justify-center mt-4 pt-3 border-t border-white/[0.06]">
               <div className="relative">
                 <Turnstile
                   siteKey={TURNSTILE_SITE_KEY}
@@ -316,7 +316,7 @@ export default function LoginPage() {
             </div>
 
             {/* Boutons d'authentification OAuth 2026 */}
-            <div className="flex flex-col gap-3.5 mt-5">
+            <div className="flex flex-col gap-3 mt-4">
               {providers.map((p, i) => {
                 return (
                   <motion.div
@@ -327,7 +327,7 @@ export default function LoginPage() {
                     className="relative"
                   >
                     {p.soon && (
-                      <span className="absolute -top-2 right-4 z-20 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-[#000616] shadow-[0_0_12px_rgba(245,158,11,0.4)]">
+                      <span className="absolute -top-2 right-4 z-20 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-[#000616] shadow-[0_0_12px_rgba(245,158,11,0.4)]">
                         Bientôt
                       </span>
                     )}
@@ -338,7 +338,7 @@ export default function LoginPage() {
                       onClick={() => !p.soon && handleLogin(p.id)}
                       aria-disabled={p.soon}
                       title={p.soon ? "Indisponible pour l'instant" : undefined}
-                      className={`relative w-full h-[52px] rounded-2xl bg-white/[0.05] hover:bg-white/[0.09] border border-white/[0.12] ${p.borderHover} text-white transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.3)] backdrop-blur-xl group overflow-hidden disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none active:scale-[0.99]`}
+                      className={`relative w-full h-[50px] rounded-xl bg-white/[0.05] hover:bg-white/[0.09] border border-white/[0.12] ${p.borderHover} text-white transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.3)] backdrop-blur-xl group overflow-hidden disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none active:scale-[0.99]`}
                     >
                       {/* Halo réactif au survol */}
                       <div
@@ -351,19 +351,19 @@ export default function LoginPage() {
                       <span className="relative z-10 flex items-center justify-between w-full px-2">
                         <div className="flex items-center gap-3">
                           {loading === p.id ? (
-                            <Loader2 className="w-5 h-5 animate-spin text-[#03b3f8]" />
+                            <Loader2 className="w-4.5 h-4.5 animate-spin text-[#03b3f8]" />
                           ) : (
-                            <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-white/10 p-1 group-hover:scale-110 transition-transform duration-300">
+                            <div className="w-6.5 h-6.5 rounded-md flex items-center justify-center bg-white/10 p-1 group-hover:scale-110 transition-transform duration-300">
                               <Image
                                 src={p.icon}
                                 alt={p.name}
-                                width={20}
-                                height={20}
+                                width={19}
+                                height={19}
                                 className="object-contain"
                               />
                             </div>
                           )}
-                          <span className="font-semibold text-sm sm:text-[15px] tracking-wide text-white group-hover:text-[#03b3f8] transition-colors">
+                          <span className="font-semibold text-sm tracking-wide text-white group-hover:text-[#03b3f8] transition-colors">
                             Continuer avec {p.name}
                           </span>
                         </div>
@@ -377,7 +377,7 @@ export default function LoginPage() {
             </div>
 
             {/* Pied de carte : Statut & Droits */}
-            <div className="mt-8 pt-4 border-t border-white/[0.06] flex items-center justify-between text-[11px] text-[#6A7596]">
+            <div className="mt-6 pt-3.5 border-t border-white/[0.06] flex items-center justify-between text-[11px] text-[#6A7596]">
               <div className="flex items-center gap-1.5">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
