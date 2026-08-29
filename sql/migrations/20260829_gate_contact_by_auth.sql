@@ -36,13 +36,34 @@
 -- 1. RLS : lecture directe de user_profiles réservée au propriétaire de la ligne.
 --    (Les autres profils publiés restent lisibles via public_profiles / get_public_profile.)
 DROP POLICY IF EXISTS "Profils publiés : lecture publique" ON public.user_profiles;
+DROP POLICY IF EXISTS "user_profiles_select_own" ON public.user_profiles;
 CREATE POLICY "user_profiles_select_own" ON public.user_profiles
   FOR SELECT TO authenticated
   USING (auth.uid() = user_id);
 
 REVOKE SELECT ON public.user_profiles FROM anon;
 
--- 2. RPC : contact conditionné en plus à l'authentification du visiteur.
+-- 2. Vue public_profiles (SECURITY DEFINER / security_invoker = false) :
+--    Permet à anon et authenticated de lister les profils publics en toute sécurité
+--    sans être bloqués par le verrouillage RLS direct de user_profiles.
+CREATE OR REPLACE VIEW public.public_profiles
+WITH (security_invoker = false)
+AS
+SELECT
+    id, user_id, first_name, last_name, avatar_url, cover_url, bio, category, job_title,
+    industry, role, specialty, activity_domain, country_id, city, website, slug,
+    is_published, is_verified, is_premium, card_variant, followers_count, created_at,
+    latitude, longitude, is_nomad
+FROM public.user_profiles
+WHERE is_published = TRUE
+  AND COALESCE(is_suspended, FALSE) = FALSE;
+
+GRANT SELECT ON public.public_profiles TO anon, authenticated;
+GRANT SELECT ON public.countries TO anon, authenticated;
+GRANT SELECT ON public.tags TO anon, authenticated;
+GRANT SELECT ON public.profile_tags TO anon, authenticated;
+
+-- 3. RPC : contact conditionné en plus à l'authentification du visiteur.
 CREATE OR REPLACE FUNCTION public.get_public_profile(identifier text)
 RETURNS jsonb
 LANGUAGE sql

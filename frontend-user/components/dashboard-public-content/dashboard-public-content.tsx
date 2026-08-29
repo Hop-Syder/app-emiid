@@ -157,24 +157,24 @@ export function DashboardPublicContent({ initialStats = null, initialProfiles = 
 
                     setEntrepreneursList(nextEntrepreneurs)
                     setProfilesWarning(nextWarning)
-                } else {
-                    console.error("Erreur API entrepreneurs (Supabase):", entError)
+                } else if (entError) {
+                    console.error("Erreur API entrepreneurs (Supabase):", entError.message || entError.details || entError.code || JSON.stringify(entError))
 
-                    if (showLoading && isMounted) {
+                    if (showLoading && isMounted && initialProfiles.length === 0) {
                         setEntrepreneursList([])
                     }
 
-                    if (isMounted) {
+                    if (isMounted && initialProfiles.length === 0) {
                         setProfilesWarning("Les profils en vedette n’ont pas pu être chargés pour le moment.")
                     }
                 }
             } catch (error) {
                 console.error("Erreur chargement profils publics:", error)
-                if (showLoading && isMounted) {
+                if (showLoading && isMounted && initialProfiles.length === 0) {
                     setEntrepreneursList([])
                 }
 
-                if (isMounted) {
+                if (isMounted && initialProfiles.length === 0) {
                     setProfilesWarning("Les profils en vedette n’ont pas pu être chargés pour le moment.")
                 }
             } finally {

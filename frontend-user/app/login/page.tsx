@@ -166,8 +166,12 @@ export default function LoginPage() {
           ══════════════════════════════════════════════════════════════ */}
       <div className="relative z-10 w-full lg:w-[40%] shrink-0 flex flex-col lg:items-center lg:justify-center px-6 sm:px-10 pt-10 pb-6 lg:py-0 min-h-[100dvh] lg:min-h-0">
 
-        {/* Logo EmiID — ancré en haut sur mobile, en tête de carte en desktop */}
-        <Link href="/" className="w-full max-w-[360px] mx-auto inline-flex items-center group transition-transform hover:scale-[1.02] mb-10 shrink-0">
+        {/* Logo EmiID — en flux en haut de carte sur mobile ; ancré au coin
+            haut-gauche du panneau (hors du bloc centré) en desktop. */}
+        <Link
+          href="/"
+          className="w-full max-w-[360px] mx-auto inline-flex items-center group transition-transform hover:scale-[1.02] mb-10 shrink-0 lg:absolute lg:top-8 lg:left-8 lg:mx-0 lg:mb-0 lg:w-auto lg:max-w-none lg:z-20"
+        >
           <Image
             src="/login/login-back.png"
             alt="EmiID"
@@ -352,23 +356,15 @@ export default function LoginPage() {
           Masquée en mobile : priorité aux boutons de connexion.
           ══════════════════════════════════════════════════════════════ */}
       <div className="hidden lg:flex relative lg:w-[60%] shrink-0 items-center justify-center px-16 xl:px-24 overflow-hidden bg-gradient-to-br from-[#00040f] via-[#000b24] to-[#000616]">
-        {/* Grille technique subtile */}
-        <div
-          className="absolute inset-0 opacity-[0.07] pointer-events-none"
-          style={{
-            backgroundImage:
-              "linear-gradient(to right, white 1px, transparent 1px), linear-gradient(to bottom, white 1px, transparent 1px)",
-            backgroundSize: "56px 56px",
-          }}
-        />
+
         {/* Orbes chromatiques */}
         <div className="absolute -top-32 -right-24 w-[26rem] h-[26rem] bg-[#013ff4]/20 rounded-full blur-[130px] pointer-events-none" />
         <div className="absolute -bottom-40 -left-24 w-[26rem] h-[26rem] bg-[#03b3f8]/15 rounded-full blur-[130px] pointer-events-none" />
 
-        <div className="relative z-10 max-w-xl">
-          <Quote className="w-12 h-12 text-[#013ff4]/40" strokeWidth={2.5} />
+        <div className="relative z-10 max-w-2xl">
+          <Quote className="w-14 h-14 text-[#013ff4]/50" strokeWidth={2.5} />
 
-          <div className="mt-6 min-h-[190px] xl:min-h-[160px]">
+          <div className="mt-7 min-h-[220px] xl:min-h-[190px]">
             <AnimatePresence mode="wait">
               <motion.p
                 key={quoteIndex}
@@ -376,33 +372,33 @@ export default function LoginPage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
-                className="text-2xl xl:text-[28px] font-bold leading-snug tracking-tight text-white"
+                className="text-3xl xl:text-4xl font-extrabold leading-[1.25] tracking-tight text-white"
               >
                 {MOTIVATIONAL_QUOTES[quoteIndex]}
               </motion.p>
             </AnimatePresence>
           </div>
 
-          <div className="mt-8 flex items-center gap-3">
+          <div className="mt-10 flex items-center gap-3.5">
             <Image
               src="/login/login-back.png"
               alt="EmiID"
-              width={28}
-              height={28}
-              className="h-7 w-7 object-contain"
+              width={36}
+              height={36}
+              className="h-9 w-9 object-contain"
             />
             <div className="flex flex-col">
-              <span className="text-sm font-bold text-white">EmiID</span>
-              <span className="text-xs text-[#6A7596]">Votre empreinte numérique professionnelle</span>
+              <span className="text-base font-bold text-white tracking-wide">EmiID</span>
+              <span className="text-sm text-[#8891AC]">Votre empreinte numérique professionnelle</span>
             </div>
           </div>
 
           {/* Puces de progression des citations */}
-          <div className="mt-8 flex items-center gap-1.5">
+          <div className="mt-8 flex items-center gap-2">
             {MOTIVATIONAL_QUOTES.map((_, i) => (
               <span
                 key={i}
-                className={`h-1 rounded-full transition-all duration-500 ${i === quoteIndex ? "w-6 bg-[#03b3f8]" : "w-1.5 bg-white/15"}`}
+                className={`h-1.5 rounded-full transition-all duration-500 ${i === quoteIndex ? "w-8 bg-[#03b3f8]" : "w-2 bg-white/20"}`}
               />
             ))}
           </div>
