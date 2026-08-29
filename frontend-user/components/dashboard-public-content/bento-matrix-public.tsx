@@ -304,22 +304,22 @@ export function BentoMatrixPublic({ categoryCounts }: BentoMatrixPublicProps = {
         })}
       </div>
 
-      {/* ── BANNIÈRE BASSE D'ACCÈS RAPIDE À L'ANNUAIRE ──────────────────── */}
-      <div className="p-6 sm:p-8 rounded-[2.5rem] bg-gradient-to-r from-slate-900 via-slate-800 to-[#013ff4] text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden">
-        <div className="space-y-1.5 text-center sm:text-left z-10">
-          <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-            Vous recherchez un profil ou une expertise précise ?
+      {/* ── BANNIÈRE BASSE COMPACTE D'ACCÈS RAPIDE ──────────────────── */}
+      <div className="p-4 sm:px-6 sm:py-4 rounded-2xl bg-gradient-to-r from-[#000616] via-slate-900 to-[#013ff4]/80 border border-white/10 text-white flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg relative overflow-hidden">
+        <div className="space-y-0.5 text-center sm:text-left z-10">
+          <h3 className="text-base sm:text-lg font-black text-white tracking-tight">
+            Besoin d&apos;un profil ou d&apos;un métier précis ?
           </h3>
-          <p className="text-xs sm:text-sm text-slate-300 font-medium max-w-xl">
-            Explorez l&apos;annuaire complet d&apos;EmiID avec filtres avancés par commune, catégorie, badges certifiés et prise de contact instantanée.
+          <p className="text-xs text-slate-300 font-medium">
+            Trouvez les talents vérifiés par commune et secteur d&apos;activité dans l&apos;annuaire.
           </p>
         </div>
 
         <button
           onClick={() => router.push('/annuaire')}
-          className="z-10 shrink-0 px-6 py-3.5 rounded-2xl bg-white text-slate-900 hover:bg-slate-100 text-xs sm:text-sm font-bold shadow-lg transition-all active:scale-95 flex items-center gap-2"
+          className="z-10 shrink-0 px-5 py-2.5 rounded-xl bg-white text-slate-900 hover:bg-slate-100 text-xs sm:text-sm font-bold shadow-md transition-all active:scale-95 flex items-center gap-2"
         >
-          <span>Explorer tout l&apos;annuaire</span>
+          <span>Voir l&apos;annuaire</span>
           <ArrowRight className="h-4 w-4 text-[#013ff4]" />
         </button>
       </div>
