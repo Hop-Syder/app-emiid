@@ -164,25 +164,29 @@ export default function LoginPage() {
           COLONNE GAUCHE — uniquement les fournisseurs de connexion.
           Aucun champ email/mot de passe : EmiID est 100% OAuth.
           ══════════════════════════════════════════════════════════════ */}
-      <div className="relative z-10 w-full lg:w-[440px] xl:w-[480px] shrink-0 flex items-center justify-center px-6 sm:px-10 py-12 lg:py-0">
+      <div className="relative z-10 w-full lg:w-[40%] shrink-0 flex flex-col lg:items-center lg:justify-center px-6 sm:px-10 pt-10 pb-6 lg:py-0 min-h-[100dvh] lg:min-h-0">
+
+        {/* Logo EmiID — ancré en haut sur mobile, en tête de carte en desktop */}
+        <Link href="/" className="w-full max-w-[360px] mx-auto inline-flex items-center group transition-transform hover:scale-[1.02] mb-10 shrink-0">
+          <Image
+            src="/login/login-back.png"
+            alt="EmiID"
+            width={110}
+            height={28}
+            className="h-6 w-auto object-contain drop-shadow-[0_2px_12px_rgba(1,63,244,0.3)]"
+            priority
+          />
+        </Link>
+
+        {/* Bloc central : salutation + boutons — centré verticalement sur
+            mobile (flex-1 absorbe l'espace entre logo et pied de page),
+            en flux normal dans la carte compacte en desktop. */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="w-full max-w-[360px]"
+          className="w-full max-w-[360px] mx-auto flex-1 lg:flex-none flex flex-col justify-center lg:block"
         >
-          {/* Logo EmiID */}
-          <Link href="/" className="inline-flex items-center group transition-transform hover:scale-[1.02] mb-10">
-            <Image
-              src="/login/login-back.png"
-              alt="EmiID"
-              width={110}
-              height={28}
-              className="h-6 w-auto object-contain drop-shadow-[0_2px_12px_rgba(1,63,244,0.3)]"
-              priority
-            />
-          </Link>
-
           {/* En-tête */}
           <h1 className="text-[28px] sm:text-3xl font-extrabold tracking-tight text-white flex items-center gap-2">
             {greeting} <span className="inline-block animate-wave origin-bottom-right">👋</span>
@@ -269,7 +273,11 @@ export default function LoginPage() {
               )
             })}
           </div>
+        </motion.div>
 
+        {/* Bas de page : CGU, Turnstile, statut — ancré en bas sur mobile,
+            en flux normal juste sous les boutons en desktop. */}
+        <div className="w-full max-w-[360px] mx-auto shrink-0">
           {/* Case à cocher CGU / Confidentialité */}
           <motion.button
             type="button"
@@ -336,14 +344,14 @@ export default function LoginPage() {
             </div>
             <span>© {new Date().getFullYear()} EmiID</span>
           </div>
-        </motion.div>
+        </div>
       </div>
 
       {/* ══════════════════════════════════════════════════════════════════
           COLONNE DROITE — citations motivantes, en rotation automatique.
           Masquée en mobile : priorité aux boutons de connexion.
           ══════════════════════════════════════════════════════════════ */}
-      <div className="hidden lg:flex relative flex-1 items-center justify-center px-16 xl:px-24 overflow-hidden bg-gradient-to-br from-[#00040f] via-[#000b24] to-[#000616]">
+      <div className="hidden lg:flex relative lg:w-[60%] shrink-0 items-center justify-center px-16 xl:px-24 overflow-hidden bg-gradient-to-br from-[#00040f] via-[#000b24] to-[#000616]">
         {/* Grille technique subtile */}
         <div
           className="absolute inset-0 opacity-[0.07] pointer-events-none"
