@@ -128,7 +128,7 @@ export function AnnuaireFilters({ filters, onFilterChange, onReset }: AnnuaireFi
           aria-label="Autour de moi"
           className={cn(
             "inline-flex items-center justify-center gap-1.5 h-10 px-2.5 sm:px-3 rounded-xl text-xs sm:text-sm font-semibold border transition-colors shrink-0",
-            filters.lat ? "bg-emerald-100 border-emerald-300 text-emerald-700" : "bg-card border-border text-muted-foreground hover:bg-muted",
+            filters.lat ? "bg-emerald-100 dark:bg-emerald-900/40 border-emerald-300 dark:border-emerald-700/50 text-emerald-700 dark:text-emerald-300" : "bg-card border-border text-muted-foreground hover:bg-muted",
             isLocating && "opacity-70 cursor-not-allowed"
           )}
         >
@@ -154,7 +154,7 @@ export function AnnuaireFilters({ filters, onFilterChange, onReset }: AnnuaireFi
           aria-label="Profils Premium"
           className={cn(
             "inline-flex items-center justify-center w-10 h-10 shrink-0 rounded-xl border transition-colors",
-            filters.status === "premium" ? "bg-amber-100 border-amber-300 text-amber-700" : "bg-card border-border text-muted-foreground hover:bg-muted",
+            filters.status === "premium" ? "bg-amber-100 dark:bg-amber-900/40 border-amber-300 dark:border-amber-700/50 text-amber-700 dark:text-amber-300" : "bg-card border-border text-muted-foreground hover:bg-muted",
           )}
         >
           <Crown className="h-5 w-5" />

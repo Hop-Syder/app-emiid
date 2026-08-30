@@ -63,7 +63,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
   if (parsed.kind === "mediation") {
     return (
       <div className="flex justify-center my-6 px-4">
-        <div className="bg-amber-50/90 border border-amber-200/60 text-amber-800 text-[11px] px-4 py-2 rounded-full shadow-sm flex items-center gap-2 font-bold uppercase tracking-wider backdrop-blur-md">
+        <div className="bg-amber-50/90 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/50 text-amber-800 dark:text-amber-300 text-[11px] px-4 py-2 rounded-full shadow-sm flex items-center gap-2 font-bold uppercase tracking-wider backdrop-blur-md">
           <span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
           {parsed.text}
         </div>
@@ -170,8 +170,8 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
               isOwn ? "bg-card/10 border-white/20 hover:bg-card/20" : "bg-muted border-border hover:bg-muted"
             )}
           >
-            <div className={cn("p-2 rounded-lg shrink-0", isOwn ? "bg-card/20" : "bg-[#eaf0ff]")}>
-              <FileText className={cn("h-5 w-5", isOwn ? "text-white" : "text-[#0132cc]")} />
+            <div className={cn("p-2 rounded-lg shrink-0", isOwn ? "bg-card/20" : "bg-[#eaf0ff] dark:bg-[#013ff4]/15")}>
+              <FileText className={cn("h-5 w-5", isOwn ? "text-white" : "text-[#0132cc] dark:text-[#8ab0ff]")} />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs font-bold truncate">{parsed.name}</p>

@@ -104,7 +104,7 @@ export function AnnuaireSpotlight() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.1 }}
-                            className="min-w-[280px] sm:min-w-[320px] max-w-[320px] lg:min-w-0 lg:max-w-none bg-card rounded-3xl p-6 shadow-xl shadow-slate-200/50 border border-amber-100 flex flex-col h-full relative overflow-hidden group snap-center shrink-0"
+                            className="min-w-[280px] sm:min-w-[320px] max-w-[320px] lg:min-w-0 lg:max-w-none bg-card rounded-3xl p-6 shadow-xl shadow-slate-200/50 border border-amber-100 dark:border-amber-900/40 flex flex-col h-full relative overflow-hidden group snap-center shrink-0"
                         >
                             {/* Glow effect */}
                             <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-amber-400/20 rounded-full blur-3xl transition-transform group-hover:scale-150 duration-500" />
@@ -143,7 +143,7 @@ export function AnnuaireSpotlight() {
                                 
                                 <a 
                                     href={`/profil/${profile.slug || profile.id}`}
-                                    className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 transition-colors border border-amber-200"
+                                    className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 transition-colors border border-amber-200 dark:border-amber-800/50"
                                 >
                                     Voir le profil
                                     <ArrowRight className="w-4 h-4" />

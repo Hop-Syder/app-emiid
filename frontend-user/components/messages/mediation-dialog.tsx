@@ -37,7 +37,7 @@ export const MediationDialog: React.FC<MediationDialogProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md rounded-2xl">
         <DialogHeader>
-          <div className="h-12 w-12 bg-amber-100 rounded-full flex items-center justify-center mb-4">
+          <div className="h-12 w-12 bg-amber-100 dark:bg-amber-900/40 rounded-full flex items-center justify-center mb-4">
             <Gavel className="h-6 w-6 text-amber-600" />
           </div>
           <DialogTitle className="text-xl font-bold text-foreground">Demander une Médiation</DialogTitle>
@@ -53,9 +53,9 @@ export const MediationDialog: React.FC<MediationDialogProps> = ({
             value={reason}
             onChange={(e) => setReason(e.target.value)}
           />
-          <div className="mt-4 p-3 bg-amber-50 rounded-lg flex items-start gap-3">
+          <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-950/40 rounded-lg flex items-start gap-3">
             <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
-            <p className="text-[11px] text-amber-700 leading-tight">
+            <p className="text-[11px] text-amber-700 dark:text-amber-300 leading-tight">
               La médiation est un processus sérieux. L&apos;historique des messages sera partagé avec le modérateur.
             </p>
           </div>

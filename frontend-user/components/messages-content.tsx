@@ -81,7 +81,7 @@ export function MessagesContent() {
 
   return (
     <div className="flex h-full w-full bg-gradient-to-br from-slate-50 via-white to-blue-50/30 dark:bg-none dark:bg-background overflow-hidden relative">
-      <div className="absolute top-0 right-0 -mr-20 -mt-20 w-72 h-72 rounded-full bg-blue-100/40 blur-3xl opacity-50 mix-blend-multiply pointer-events-none" />
+      <div className="absolute top-0 right-0 -mr-20 -mt-20 w-72 h-72 rounded-full bg-blue-100/40 dark:bg-blue-900/40 blur-3xl opacity-50 mix-blend-multiply pointer-events-none" />
       <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-[#d5e0ff]/40 blur-3xl opacity-50 mix-blend-multiply pointer-events-none" />
 
       {/* Left column: conversation list */}

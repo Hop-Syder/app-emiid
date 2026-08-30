@@ -53,21 +53,21 @@ export function NotificationItem({ notification, onMarkAsRead, onDelete }: Notif
         return {
           icon: Eye,
           color: "text-blue-500",
-          bg: "bg-blue-100/70 border-blue-200/50",
+          bg: "bg-blue-100/70 dark:bg-blue-900/40 border-blue-200/50 dark:border-blue-800/50",
           glow: "group-hover:shadow-blue-500/10",
         }
       case "follow":
         return {
           icon: UserPlus,
           color: "text-emerald-500",
-          bg: "bg-emerald-100/70 border-emerald-200/50",
+          bg: "bg-emerald-100/70 dark:bg-emerald-900/40 border-emerald-200/50 dark:border-emerald-800/50",
           glow: "group-hover:shadow-emerald-500/10",
         }
       case "message":
         return {
           icon: MessageSquare,
           color: "text-purple-500",
-          bg: "bg-purple-100/70 border-purple-200/50",
+          bg: "bg-purple-100/70 dark:bg-purple-900/40 border-purple-200/50 dark:border-purple-800/50",
           glow: "group-hover:shadow-purple-500/10",
         }
       case "security":
@@ -75,7 +75,7 @@ export function NotificationItem({ notification, onMarkAsRead, onDelete }: Notif
         return {
           icon: ShieldAlert,
           color: "text-rose-500",
-          bg: "bg-rose-100/70 border-rose-200/50",
+          bg: "bg-rose-100/70 dark:bg-rose-900/40 border-rose-200/50 dark:border-rose-800/50",
           glow: "group-hover:shadow-rose-500/10",
         }
       default:
