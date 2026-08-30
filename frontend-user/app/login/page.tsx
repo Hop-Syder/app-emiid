@@ -47,6 +47,7 @@ type Provider = "google" | "linkedin_oidc" | "apple"
  * pour dynamiser les utilisateurs lors de leur connexion.
  */
 const MOTIVATIONAL_QUOTES = [
+  "La vie est un choix et le choix se vit.",
   "Aujourd'hui est un nouveau jour. C'est votre moment de briller et de propulser vos projets.",
   "Chaque grand projet commence par un premier pas. Faites de cette journée une étape décisive.",
   "Votre réseau et vos compétences sont vos plus grands atouts. Continuez à bâtir votre succès.",
@@ -56,7 +57,17 @@ const MOTIVATIONAL_QUOTES = [
   "Votre avenir professionnel s'écrit maintenant. Démarquez-vous avec passion et authenticité.",
   "Le talent ouvre des portes, mais la régularité et la vision forgent les accomplissements durables.",
   "Une nouvelle journée pour apprendre, grandir et atteindre vos sommets professionnels.",
-  "L'excellence est une habitude quotidienne. Faites la différence aujourd'hui."
+  "L'excellence est une habitude quotidienne. Faites la différence aujourd'hui.",
+  "Croyez en votre potentiel : chaque défi surmonté renforce votre expertise et votre valeur.",
+  "L'audace de commencer est le secret de ceux qui transforment leur vision en réalité.",
+  "Bâtissez chaque jour l'empreinte que vous souhaitez laisser dans votre domaine.",
+  "Le travail continu et la constance finissent toujours par porter leurs plus beaux fruits.",
+  "Chaque rencontre professionnelle est une opportunité unique pour propulser vos ambitions.",
+  "Ne limitez pas vos défis, défiez vos limites et réinventez votre quotidien.",
+  "La clarté d'esprit et l'action ciblée transforment les simples idées en projets concrets.",
+  "Innover, c'est voir ce que tout le monde voit et penser ce que personne n'a pensé.",
+  "Votre crédibilité se forge dans la qualité et la sincérité de chacune de vos actions.",
+  "Le futur appartient à ceux qui préparent aujourd'hui leurs réussites de demain."
 ]
 
 /** Configuration des boutons de connexion sociale (OAuth) */
@@ -164,70 +175,72 @@ export default function LoginPage() {
           COLONNE GAUCHE — uniquement les fournisseurs de connexion.
           Aucun champ email/mot de passe : EmiID est 100% OAuth.
           ══════════════════════════════════════════════════════════════ */}
-      <div className="relative z-10 w-full lg:w-[40%] shrink-0 flex flex-col lg:items-center lg:justify-center px-5 sm:px-10 py-6 sm:py-8 lg:py-0 min-h-screen lg:min-h-0">
+      <div className="relative z-10 w-full lg:w-[40%] shrink-0 flex flex-col items-center justify-center px-5 sm:px-10 py-8 lg:py-12 min-h-screen">
 
-        {/* Logo EmiID — en flux en haut de carte sur mobile ; ancré au coin
-            haut-gauche du panneau (hors du bloc centré) en desktop. */}
-        <Link
-          href="/"
-          className="w-full max-w-[360px] mx-auto inline-flex items-center group transition-transform hover:scale-[1.02] mb-4 sm:mb-6 shrink-0 lg:absolute lg:top-8 lg:left-8 lg:mx-0 lg:mb-0 lg:w-auto lg:max-w-none lg:z-20"
-        >
-          <Image
-            src="/login/logo-emiid-bleu-blanc.svg"
-            alt="EmiID"
-            width={160}
-            height={44}
-            className="h-8 sm:h-10 lg:h-10 w-auto object-contain drop-shadow-[0_2px_14px_rgba(1,63,244,0.35)]"
-            priority
-          />
-        </Link>
+        {/* Conteneur centré de tout le bloc de connexion */}
+        <div className="w-full max-w-[370px] mx-auto flex flex-col items-stretch justify-center my-auto">
 
-        {/* ── BANNIÈRE CITATIONS MOTIVANTES SUR MOBILE (En haut de la colonne) ── */}
-        <div className="lg:hidden w-full max-w-[360px] mx-auto mb-5 rounded-2xl border border-white/10 bg-white/[0.03] p-4 relative overflow-hidden shadow-lg">
-          {/* Fond avec image et filtre #000616 */}
-          <div className="absolute inset-0 z-0 pointer-events-none">
+          {/* Logo EmiID — centré sur mobile, ancré en haut à gauche sur desktop */}
+          <Link
+            href="/"
+            className="w-full inline-flex items-center justify-center lg:justify-start group transition-transform hover:scale-[1.02] mb-5 sm:mb-6 shrink-0 lg:absolute lg:top-8 lg:left-8 lg:mb-0 lg:w-auto lg:z-20"
+          >
             <Image
-              src="/login/background.avif"
+              src="/login/logo-emiid-bleu-blanc.svg"
               alt="EmiID"
-              fill
-              sizes="100vw"
-              className="object-cover opacity-20 mix-blend-luminosity"
+              width={160}
+              height={44}
+              className="h-8 sm:h-9 lg:h-10 w-auto object-contain drop-shadow-[0_2px_14px_rgba(1,63,244,0.35)]"
               priority
             />
-            <div className="absolute inset-0 bg-[#000616]/90 backdrop-blur-[1px]" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#000616] via-transparent to-[#000616]/40" />
-          </div>
+          </Link>
 
-          <div className="relative z-10">
-            <div className="flex items-center justify-between">
-              <Quote className="w-6 h-6 text-[#013ff4]" strokeWidth={2.5} />
-              {/* Puces de progression compactes */}
-              <div className="flex items-center gap-1.5">
-                {MOTIVATIONAL_QUOTES.map((_, i) => (
-                  <span
-                    key={i}
-                    className={`h-1 rounded-full transition-all duration-500 ${i === quoteIndex ? "w-5 bg-[#03b3f8]" : "w-1.5 bg-white/20"}`}
-                  />
-                ))}
+          {/* ── BANNIÈRE CITATIONS MOTIVANTES SUR MOBILE (En haut de la colonne) ── */}
+          <div className="lg:hidden w-full mb-5 rounded-2xl border border-white/10 bg-white/[0.04] p-4 sm:p-5 relative overflow-hidden shadow-xl">
+            {/* Fond avec image et filtre #000616 */}
+            <div className="absolute inset-0 z-0 pointer-events-none">
+              <Image
+                src="/login/background.avif"
+                alt="EmiID"
+                fill
+                sizes="100vw"
+                className="object-cover opacity-20 mix-blend-luminosity scale-105"
+                priority
+              />
+              <div className="absolute inset-0 bg-[#000616]/90 backdrop-blur-[1px]" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#000616] via-transparent to-[#000616]/40" />
+            </div>
+
+            <div className="relative z-10">
+              <div className="flex items-center justify-between">
+                <Quote className="w-7 h-7 text-[#013ff4]" strokeWidth={2.5} />
+                {/* Puces de progression compactes */}
+                <div className="flex items-center gap-1.5">
+                  {MOTIVATIONAL_QUOTES.map((_, i) => (
+                    <span
+                      key={i}
+                      className={`h-1.5 rounded-full transition-all duration-500 ${i === quoteIndex ? "w-6 bg-[#03b3f8]" : "w-1.5 bg-white/20"}`}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-2.5 min-h-[64px] sm:min-h-[58px] flex items-center">
+                <AnimatePresence mode="wait">
+                  <motion.p
+                    key={quoteIndex}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="text-sm sm:text-base font-extrabold leading-snug tracking-tight text-white"
+                  >
+                    {MOTIVATIONAL_QUOTES[quoteIndex]}
+                  </motion.p>
+                </AnimatePresence>
               </div>
             </div>
-
-            <div className="mt-2 min-h-[54px] flex items-center">
-              <AnimatePresence mode="wait">
-                <motion.p
-                  key={quoteIndex}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  transition={{ duration: 0.35, ease: "easeOut" }}
-                  className="text-xs sm:text-sm font-bold leading-snug tracking-tight text-white/95"
-                >
-                  {MOTIVATIONAL_QUOTES[quoteIndex]}
-                </motion.p>
-              </AnimatePresence>
-            </div>
           </div>
-        </div>
 
         {/* Bloc central : salutation + boutons */}
         <motion.div
@@ -393,6 +406,7 @@ export default function LoginPage() {
             <span>© {new Date().getFullYear()} EmiID</span>
           </div>
         </div>
+      </div>
       </div>
 
       {/* ══════════════════════════════════════════════════════════════════
