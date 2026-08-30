@@ -135,7 +135,7 @@ export function NavigationShell({ children, isPublic = false }: NavigationShellP
           flottant, sauf sur une conversation ou la page Messages.
       */}
       <main
-        className={`flex-1 w-full min-w-0 transition-[padding] duration-300 ease-out lg:pl-[var(--sidebar-w)] lg:pt-16 lg:pb-0 ${isMessagePage ? "pb-0 h-full max-h-full overflow-hidden flex flex-col" : "pb-24"}`}
+        className={`flex-1 w-full min-w-0 transition-[padding] duration-300 ease-out lg:pl-[var(--sidebar-w)] ${effectiveIsPublic ? "lg:pt-20" : "lg:pt-16"} lg:pb-0 ${isMessagePage ? "pb-0 h-full max-h-full overflow-hidden flex flex-col" : "pb-24"}`}
       >
         {children}
       </main>
