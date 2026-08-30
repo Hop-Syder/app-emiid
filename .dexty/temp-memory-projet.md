@@ -194,3 +194,4 @@
 - [2026-08-30] Dashboard User : Masquage du bloc `InlineActivityFeed` sur mobile (`hidden lg:block`) pour supprimer la redondance et libérer l'espace au-dessus du pli.
 - [2026-08-30] Dashboard User : Suppression de l'onglet et du filtre `Premium` dans `ExplorerHub` (restent : Nouveaux, Réalisations, Catégories).
 - [2026-08-30] Dashboard User : Refonte épurée du CTA contextuel `HubContextualCta` avec des textes courts et percutants, format compact bento horizontal et style `#000616`.
+- [2026-08-30] Annuaire Public : Refonte et simplification du composant `AnnuaireHero` (thème `#000616`, typographie compacte, barre de recherche moderne et allégée).
