@@ -53,7 +53,7 @@ export function AnnuaireNewcomers() {
     return (
         <div className="w-full">
             <div className="flex items-center mb-4 px-1 gap-2">
-                <Sparkle className="w-5 h-5 text-[#0150fd]" />
+                <Sparkle className="w-5 h-5 text-[#0150fd] dark:text-[#8ab0ff]" />
                 <h3 className="text-lg font-bold text-foreground tracking-tight">Nouveaux arrivants</h3>
             </div>
             
@@ -77,7 +77,7 @@ export function AnnuaireNewcomers() {
                             <h4 className="font-bold text-sm text-foreground truncate">{profile.name}</h4>
                             <p className="text-xs text-muted-foreground truncate">{profile.role}</p>
                             {profile.category && (
-                                <p className="text-[10px] uppercase font-bold tracking-wider text-[#0150fd] mt-0.5 truncate">{profile.category}</p>
+                                <p className="text-[10px] uppercase font-bold tracking-wider text-[#0150fd] dark:text-[#8ab0ff] mt-0.5 truncate">{profile.category}</p>
                             )}
                         </div>
                         <a 

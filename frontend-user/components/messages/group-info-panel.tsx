@@ -426,7 +426,7 @@ export function GroupInfoPanel({
                         {label && (
                           <span className={cn(
                             "inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full shrink-0",
-                            m.role === "owner" ? "bg-amber-100 text-amber-700" : "bg-[#013ff4]/10 text-[#013ff4]"
+                            m.role === "owner" ? "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300" : "bg-[#013ff4]/10 text-[#013ff4]"
                           )}>
                             {m.role === "owner" && <Crown className="h-3 w-3" />} {label}
                           </span>

@@ -60,7 +60,7 @@ export function NotificationsContent() {
               <h1 className="text-xl md:text-3xl font-black text-foreground tracking-tight flex flex-wrap items-center gap-2 md:gap-3">
                 Centre d&apos;Alertes
                 {unreadCount > 0 && (
-                  <span className="text-[10px] md:text-xs font-bold px-2.5 py-1 rounded-full bg-blue-100 text-blue-600 border border-blue-200/50 whitespace-nowrap">
+                  <span className="text-[10px] md:text-xs font-bold px-2.5 py-1 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-600 border border-blue-200/50 dark:border-blue-800/50 whitespace-nowrap">
                     {unreadCount} non lue{unreadCount > 1 ? "s" : ""}
                   </span>
                 )}

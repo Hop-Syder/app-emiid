@@ -45,7 +45,7 @@ export function AnnuaireTags({ filters, onFilterChange }: AnnuaireTagsProps) {
     return (
         <div className="w-full">
             <div className="flex items-center mb-4 px-1 gap-2">
-                <Hash className="w-5 h-5 text-[#0150fd]" />
+                <Hash className="w-5 h-5 text-[#0150fd] dark:text-[#8ab0ff]" />
                 <h3 className="text-lg font-bold text-foreground tracking-tight">Tags Populaires</h3>
             </div>
             

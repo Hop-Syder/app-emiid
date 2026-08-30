@@ -61,8 +61,8 @@ export function PortefeuilleContent() {
       value:    stats.approvedItems,
       icon:     Images,
       color:    "text-emerald-600",
-      bg:       "bg-emerald-50",
-      border:   "border-emerald-100",
+      bg:       "bg-emerald-50 dark:bg-emerald-950/40",
+      border:   "border-emerald-100 dark:border-emerald-900/40",
       cta:      false,
     },
     {
@@ -71,8 +71,8 @@ export function PortefeuilleContent() {
       value:    null as number | null,
       icon:     stats.isPublished ? Globe : Lock,
       color:    stats.isPublished ? "text-emerald-600" : "text-muted-foreground",
-      bg:       stats.isPublished ? "bg-emerald-50" : "bg-muted",
-      border:   stats.isPublished ? "border-emerald-100" : "border-border",
+      bg:       stats.isPublished ? "bg-emerald-50 dark:bg-emerald-950/40" : "bg-muted",
+      border:   stats.isPublished ? "border-emerald-100 dark:border-emerald-900/40" : "border-border",
       cta:      true,
     },
   ]

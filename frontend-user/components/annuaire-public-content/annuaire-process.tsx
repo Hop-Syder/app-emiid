@@ -45,7 +45,7 @@ export function AnnuaireProcess() {
 
             <div className="container mx-auto px-4 max-w-6xl relative z-10">
                 <div className="text-center mb-20">
-                    <span className="text-xs font-black tracking-widest text-[#0150fd] uppercase mb-4 block bg-[#eaf0ff] w-max mx-auto px-3 py-1 rounded-full border border-[#d5e0ff]">Processus</span>
+                    <span className="text-xs font-black tracking-widest text-[#0150fd] dark:text-[#8ab0ff] uppercase mb-4 block bg-[#eaf0ff] dark:bg-[#013ff4]/15 w-max mx-auto px-3 py-1 rounded-full border border-[#d5e0ff] dark:border-[#013ff4]/30">Processus</span>
                     <h2 className="text-4xl md:text-5xl font-black text-foreground tracking-tight">
                         Comment ça <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-[#013ff4]">marche ?</span>
                     </h2>
