@@ -196,5 +196,4 @@
 - [2026-08-30] Dashboard User : Refonte épurée du CTA contextuel `HubContextualCta` avec des textes courts et percutants, format compact bento horizontal et style `#000616`.
 - [2026-08-30] Annuaire Public : Refonte et simplification du composant `AnnuaireHero` (thème `#000616`, typographie compacte, barre de recherche moderne et allégée).
 - [2026-08-30] Annuaire Public : Renommage du titre de la section `AnnuaireSpotlight` en « En vue cette semaine dans votre entourage » avec accent chaleureux ambré.
-- [2026-08-30] Annuaire Public : Affichage compact en icônes seules (`BadgeCheck` et `Crown`) pour les boutons de filtre Vérifiés et Premium dans `AnnuaireFilters`.
-- [2026-08-30] Annuaire Public : Disposition mono-ligne avec défilement horizontal fluide (`overflow-x-auto no-scrollbar`) pour l'ensemble des filtres facettés sur mobile.
+- [2026-08-30] Annuaire Public : Affichage compact en icônes seules (`BadgeCheck` et `Crown`) et regroupement sur la même ligne avec le filtre `Pays` et `Autour de moi` sur mobile dans `AnnuaireFilters`.

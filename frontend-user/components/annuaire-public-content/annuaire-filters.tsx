@@ -2,9 +2,8 @@
  * @author @hopsyder
  * @organization Nexus Partners
  * @description Barre de filtres facettés de l'Annuaire : Type de profil, Secteur, Pays,
- *              + statut (Vérifiés / Premium). Défilement horizontal sur mobile (même ligne).
+ *              + statut (Vérifiés / Premium). Complète la recherche universelle.
  * @created 2026-07-10
- * @updated 2026-08-30
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -39,12 +38,12 @@ function Select({ value, onChange, options, placeholder }: {
   value: string; onChange: (v: string) => void; options: { id: string; label: string }[]; placeholder: string
 }) {
   return (
-    <div className="relative shrink-0">
+    <div className="relative">
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className={cn(
-          "appearance-none h-10 pl-3.5 pr-8 sm:pr-9 rounded-xl border text-xs sm:text-sm font-semibold cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-[#013ff4]/25 whitespace-nowrap",
+          "appearance-none h-10 pl-3.5 pr-9 rounded-xl border text-sm font-semibold cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-[#013ff4]/25",
           value && value !== "all"
             ? "bg-[#013ff4]/[0.06] border-[#013ff4]/30 text-[#013ff4]"
             : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50",
@@ -53,7 +52,7 @@ function Select({ value, onChange, options, placeholder }: {
       >
         {options.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
       </select>
-      <ChevronDown className="absolute right-2.5 sm:right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-400 pointer-events-none" />
+      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
     </div>
   )
 }
@@ -80,10 +79,7 @@ export function AnnuaireFilters({ filters, onFilterChange, onReset }: AnnuaireFi
     (filters.status !== "all" ? 1 : 0) +
     (filters.lat ? 1 : 0)
 
-  const setStatus = (s: string) => {
-    // Clic sur le statut déjà actif → désactive (revient à "all")
-    onFilterChange("status", filters.status === s ? "all" : s)
-  }
+  const setStatus = (s: string) => onFilterChange("status", filters.status === s ? "all" : s)
 
   const toggleLocation = () => {
     if (filters.lat) {
@@ -113,28 +109,33 @@ export function AnnuaireFilters({ filters, onFilterChange, onReset }: AnnuaireFi
   }
 
   return (
-    <div className="flex items-center gap-2 sm:gap-2.5 overflow-x-auto no-scrollbar pb-1 sm:pb-0 sm:flex-wrap w-full">
-      <span className="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-400 mr-1 shrink-0">
+    <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
+      <span className="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-400 mr-1">
         <SlidersHorizontal className="h-3.5 w-3.5" /> Filtrer
       </span>
 
       <Select value={filters.category} onChange={(v) => onFilterChange("category", v)} options={PROFILE_TYPES} placeholder="Type de profil" />
       <Select value={filters.activity_domain} onChange={(v) => onFilterChange("activity_domain", v)} options={SECTORS} placeholder="Secteur" />
-      <Select value={filters.country} onChange={(v) => onFilterChange("country", v)} options={countryOptions} placeholder="Pays" />
 
-      {/* Statut : Vérifiés / Premium (exclusifs, mappés sur `status`) */}
-      <div className="flex items-center gap-1.5 shrink-0">
+      {/* Groupe Pays + Localisation + Statuts (reste sur la même ligne sur mobile) */}
+      <div className="flex items-center gap-1.5 sm:gap-2 flex-nowrap shrink-0">
+        <Select value={filters.country} onChange={(v) => onFilterChange("country", v)} options={countryOptions} placeholder="Pays" />
+
         <button
           onClick={toggleLocation}
           disabled={isLocating}
+          title="Autour de moi"
+          aria-label="Autour de moi"
           className={cn(
-            "inline-flex items-center gap-1.5 h-10 px-3 rounded-xl text-xs sm:text-sm font-semibold border transition-colors shrink-0 whitespace-nowrap",
+            "inline-flex items-center justify-center gap-1.5 h-10 px-2.5 sm:px-3 rounded-xl text-xs sm:text-sm font-semibold border transition-colors shrink-0",
             filters.lat ? "bg-emerald-100 border-emerald-300 text-emerald-700" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50",
             isLocating && "opacity-70 cursor-not-allowed"
           )}
         >
-          {isLocating ? <Loader2 className="h-4 w-4 animate-spin" /> : <MapPin className="h-4 w-4" />} Autour de moi
+          {isLocating ? <Loader2 className="h-4 w-4 animate-spin" /> : <MapPin className="h-4 w-4" />}
+          <span className="hidden sm:inline">Autour de moi</span>
         </button>
+
         <button
           onClick={() => setStatus("verified")}
           title="Profils vérifiés"
@@ -146,6 +147,7 @@ export function AnnuaireFilters({ filters, onFilterChange, onReset }: AnnuaireFi
         >
           <BadgeCheck className="h-5 w-5" />
         </button>
+
         <button
           onClick={() => setStatus("premium")}
           title="Profils Premium"
@@ -162,7 +164,7 @@ export function AnnuaireFilters({ filters, onFilterChange, onReset }: AnnuaireFi
       {activeCount > 0 && (
         <button
           onClick={onReset}
-          className="inline-flex items-center gap-1 h-10 px-3 rounded-xl text-xs sm:text-sm font-semibold text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-colors shrink-0 whitespace-nowrap"
+          className="inline-flex items-center gap-1 h-10 px-3 rounded-xl text-sm font-semibold text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-colors"
         >
           <X className="h-4 w-4" /> Réinitialiser ({activeCount})
         </button>
