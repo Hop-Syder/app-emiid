@@ -69,19 +69,19 @@ export function DesktopAppBarAuth({ offset }: DesktopAppBarAuthProps) {
         {title}
       </h1>
 
-      {/* Déclencheur de la palette de commandes. Un bouton et non un champ :
-          la saisie a lieu dans la palette, un vrai champ ici laisserait croire
-          qu'on peut taper sans qu'il se passe rien. */}
+      {/* Déclencheur de la palette de commandes (Cmd + K) */}
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="group ml-auto flex h-10 w-full max-w-md items-center gap-2.5 rounded-2xl border border-border bg-muted px-3.5 text-left outline-none transition-colors hover:border-slate-300 hover:bg-card focus-visible:ring-2 focus-visible:ring-[#013ff4] dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700"
+        className="group ml-auto relative flex h-10 w-full max-w-md items-center gap-2.5 rounded-2xl border border-border/80 bg-slate-100/70 hover:bg-card px-3.5 text-left outline-none transition-all duration-200 hover:border-[#013ff4]/50 hover:shadow-[0_0_20px_-5px_rgba(1,63,244,0.15)] focus-visible:ring-2 focus-visible:ring-[#013ff4] dark:border-slate-800 dark:bg-slate-900/90 dark:hover:bg-slate-900 dark:hover:border-[#03b3f8]/50 dark:hover:shadow-[0_0_20px_-5px_rgba(3,179,248,0.2)]"
       >
-        <Search className="h-4 w-4 shrink-0 text-slate-400" />
-        <span className="flex-1 truncate text-xs font-semibold text-slate-400">
-          Rechercher un métier, une personne, une ville…
+        <div className="flex items-center justify-center w-5 h-5 rounded-lg bg-slate-200/50 group-hover:bg-[#013ff4]/10 group-hover:text-[#013ff4] text-slate-400 transition-colors dark:bg-slate-800 dark:group-hover:bg-[#013ff4]/20 dark:group-hover:text-[#03b3f8]">
+          <Search className="h-3.5 w-3.5 shrink-0 transition-transform group-hover:scale-110" />
+        </div>
+        <span className="flex-1 truncate text-xs font-medium text-slate-500 group-hover:text-slate-700 transition-colors dark:text-slate-400 dark:group-hover:text-slate-200">
+          Rechercher un profil, un métier, une page…
         </span>
-        <kbd className="hidden shrink-0 items-center gap-0.5 rounded-lg border border-border bg-card px-1.5 py-0.5 text-[10px] font-bold text-slate-400 xl:flex dark:border-slate-700 dark:bg-slate-950">
+        <kbd className="hidden shrink-0 items-center gap-0.5 rounded-lg border border-border bg-card px-2 py-0.5 text-[10px] font-mono font-bold text-slate-500 shadow-xs transition-all group-hover:border-[#013ff4]/40 group-hover:text-[#013ff4] xl:flex dark:border-slate-700 dark:bg-slate-950 dark:text-slate-400 dark:group-hover:border-[#03b3f8]/40 dark:group-hover:text-[#03b3f8]">
           ⌘K
         </kbd>
       </button>

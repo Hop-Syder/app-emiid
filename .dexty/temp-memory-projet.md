@@ -8,7 +8,7 @@
 - **Nom** : EmiID
 - **Type** : SaaS (Web App + Backend API + Admin + Commercial)
 - **Initialisé le** : 2026-05-27
-- **Dernière mise à jour** : 2026-08-29
+- **Dernière mise à jour** : 2026-08-30
 
 ## 🛠️ Stack détectée
 
