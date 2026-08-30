@@ -115,7 +115,7 @@ export function useProfileData(profileId: string) {
                 // eslint-disable-next-line no-restricted-syntax -- tentative authentifiée (SON profil) ; fallback RPC get_public_profile pour l'anonyme/cross-user
                 let query = supabase
                     .from("user_profiles")
-                    .select("id, user_id, first_name, last_name, bio, business_name, district, city, avatar_url, cover_url, specialty, category, slug, is_published, is_verified, is_premium, followers_count, created_at, email, phone, website, role, countries(name), profile_tags(tags(name))")
+                    .select("id, user_id, first_name, last_name, bio, business_name, district, city, avatar_url, cover_url, specialty, category, slug, is_published, is_verified, is_premium, followers_count, created_at, website, role, countries(name), profile_tags(tags(name))")
 
                 if (isUUID) {
                     query = query.or(`slug.eq.${cleanProfileId},user_id.eq.${cleanProfileId},id.eq.${cleanProfileId}`)
@@ -151,6 +151,21 @@ export function useProfileData(profileId: string) {
                 }
 
                 if (data && !error) {
+                    // Contact (email / téléphone) : jamais lu en direct sur user_profiles
+                    // (le rôle authenticated n'a plus ces colonnes). Il est toujours servi
+                    // par la RPC get_public_profile, qui applique l'opt-in show_contact et
+                    // ne renvoie le contact qu'aux visiteurs authentifiés. Sur le chemin
+                    // « fallback RPC », data.has_contact est déjà défini → on ne rappelle pas.
+                    if (data.has_contact === undefined) {
+                        const contactRes = await supabase.rpc("get_public_profile", { identifier: cleanProfileId })
+                        const contact = contactRes.data as unknown as ProfileQueryResult | null
+                        if (contact && !contactRes.error) {
+                            data.email = contact.email
+                            data.phone = contact.phone
+                            data.has_contact = contact.has_contact
+                        }
+                    }
+
                     const countriesData = data.countries
                     const countryName = countriesData
                         ? (Array.isArray(countriesData) ? countriesData[0]?.name : countriesData.name)
