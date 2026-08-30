@@ -138,7 +138,6 @@ export function AnnuaireFilters({ filters, onFilterChange, onReset }: AnnuaireFi
             filters.status === "verified" ? "bg-[#03b3f8]/10 border-[#03b3f8]/40 text-[#03b3f8]" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50",
           )}
         >
-          <BadgeCheck className="h-4 w-4" /> Vérifiés
         </button>
         <button
           onClick={() => setStatus("premium")}
@@ -147,7 +146,6 @@ export function AnnuaireFilters({ filters, onFilterChange, onReset }: AnnuaireFi
             filters.status === "premium" ? "bg-amber-100 border-amber-300 text-amber-700" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50",
           )}
         >
-          <Crown className="h-4 w-4" /> Premium
         </button>
       </div>
 
