@@ -30,29 +30,26 @@ const SLIDES: Slide[] = [
   {
     image: "/onboarding/globe-terreste.png",
     alt: "Réseau mondial EmiID",
-    title: "Bienvenue sur",
-    highlight: "EmiID",
-    description:
-      "Le réseau qui connecte les professionnels d'Afrique au monde entier. Visibilité, opportunités et connexions de confiance.",
+    title: "Connectez-vous au",
+    highlight: "monde",
+    description: "L'écosystème qui propulse votre visibilité professionnelle.",
     cta: "Découvrir",
   },
   {
     image: "/onboarding/partage.png",
     alt: "Partage de profil EmiID",
-    title: "Votre identité,",
-    highlight: "partagée en un geste",
-    description:
-      "Une carte professionnelle digitale, un profil vérifié et un lien unique à partager partout — réunions, salons, réseaux sociaux.",
+    title: "Partagez votre",
+    highlight: "empreinte",
+    description: "Une carte digitale vérifiée, accessible en un geste.",
     cta: "Continuer",
   },
   {
     image: "/onboarding/bagbe.jpg",
     alt: "Réseau et opportunités EmiID",
-    title: "Développez votre",
-    highlight: "réseau & vos opportunités",
-    description:
-      "Annuaire intelligent, messagerie temps réel et visibilité locale. Trouvez les bons contacts et faites grandir votre activité.",
-    cta: "Accéder à mon Hub",
+    title: "Accélérez vos",
+    highlight: "opportunités",
+    description: "Trouvez les bons talents et développez vos projets.",
+    cta: "Créer mon profil",
   },
 ]
 
