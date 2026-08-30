@@ -64,10 +64,13 @@ export function AnnuaireSpotlight() {
 
     return (
         <div className="w-full">
-            <div className="flex items-center mb-6 px-1 gap-2">
-                <Sparkles className="w-6 h-6 text-amber-500" />
+            <div className="flex items-center mb-6 px-1 gap-2.5">
+                <Sparkles className="w-6 h-6 text-amber-500 shrink-0" />
                 <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
-                    En vue <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-orange-500">cette semaine</span>
+                    En vue cette semaine{" "}
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-orange-500">
+                        dans votre entourage
+                    </span>
                 </h2>
             </div>
             
