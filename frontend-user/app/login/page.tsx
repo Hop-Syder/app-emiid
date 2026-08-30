@@ -183,14 +183,14 @@ export default function LoginPage() {
           {/* Logo EmiID — centré sur mobile, ancré en haut à gauche sur desktop */}
           <Link
             href="/"
-            className="w-full inline-flex items-center justify-center lg:justify-start group transition-transform hover:scale-[1.02] mb-5 sm:mb-6 shrink-0 lg:absolute lg:top-8 lg:left-8 lg:mb-0 lg:w-auto lg:z-20"
+            className="w-full inline-flex items-center justify-center lg:justify-start group transition-transform hover:scale-[1.03] mb-6 sm:mb-7 shrink-0 lg:absolute lg:top-8 lg:left-8 lg:mb-0 lg:w-auto lg:z-20"
           >
             <Image
               src="/login/logo-emiid-bleu-blanc.svg"
               alt="EmiID"
-              width={160}
-              height={44}
-              className="h-8 sm:h-9 lg:h-10 w-auto object-contain drop-shadow-[0_2px_14px_rgba(1,63,244,0.35)]"
+              width={200}
+              height={55}
+              className="h-10 sm:h-12 lg:h-12 w-auto object-contain drop-shadow-[0_2px_18px_rgba(1,63,244,0.45)]"
               priority
             />
           </Link>
@@ -455,9 +455,9 @@ export default function LoginPage() {
             <Image
               src="/login/login-back.png"
               alt="EmiID"
-              width={36}
-              height={36}
-              className="h-9 w-9 object-contain"
+              width={44}
+              height={44}
+              className="h-11 w-11 object-contain drop-shadow-[0_2px_12px_rgba(1,63,244,0.3)]"
             />
             <div className="flex flex-col">
               <span className="text-base font-bold text-white tracking-wide">EmiID</span>
