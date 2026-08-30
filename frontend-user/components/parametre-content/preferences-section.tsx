@@ -1,46 +1,46 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Preferences section — redesign
- * @updated 2026-06-13
-*/
+ * @description Onglet Paramètres « Préférences » — Localisation, monnaie, thème et visibilité.
+ * @created 2026-06-13
+ * @updated 2026-08-30
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+ */
 
 "use client"
 
 import { useEffect } from "react"
 import { useTheme } from "next-themes"
+import { Globe, Moon, Eye } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
-import { Button } from "@/components/ui/button"
+import { SectionCard, SettingToggle, Field, SaveBar } from "./settings-primitives"
 
 interface PreferenceSettings {
-  language:       string
-  currency:       string
-  timezone:       string
-  theme:          string
+  language: string
+  currency: string
+  timezone: string
+  theme: string
   public_profile: boolean
 }
 
 interface PreferencesSectionProps {
-  settings:     PreferenceSettings
-  setSettings:  (s: PreferenceSettings) => void
-  saving:       boolean
-  handleSave:   () => void
+  settings: PreferenceSettings
+  setSettings: (s: PreferenceSettings) => void
+  saving: boolean
+  handleSave: () => void
   handleCancel: () => void
-  /** Masque la barre d'actions quand une autre section enregistre déjà. */
   hideActions?: boolean
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-1.5">
-      <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">{label}</p>
-      {children}
-    </div>
-  )
-}
-
-export function PreferencesSection({ settings, setSettings, saving, handleSave, handleCancel, hideActions = false }: PreferencesSectionProps) {
+export function PreferencesSection({
+  settings,
+  setSettings,
+  saving,
+  handleSave,
+  handleCancel,
+  hideActions = false,
+}: PreferencesSectionProps) {
   const { setTheme } = useTheme()
 
   useEffect(() => {
@@ -52,91 +52,85 @@ export function PreferencesSection({ settings, setSettings, saving, handleSave, 
 
   return (
     <div className="space-y-4">
-
-      {/* Localisation */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6">
-        <h2 className="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-5">Localisation</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Field label="Langue">
-            <Select value={settings.language} onValueChange={v => update("language", v)}>
-              <SelectTrigger className="h-11 rounded-xl bg-slate-50 border-slate-200 text-sm font-medium">
+      {/* ── Région & International ─────────────────────────────────────── */}
+      <SectionCard
+        title="Localisation & Monnaie"
+        icon={Globe}
+        description="Configurez votre langue d'affichage, votre devise de tarification et votre fuseau horaire."
+      >
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <Field label="Langue de l'interface">
+            <Select value={settings.language} onValueChange={(v) => update("language", v)}>
+              <SelectTrigger className="h-11 rounded-2xl bg-slate-50/80 border-slate-200 text-sm font-medium focus:bg-white focus:ring-2 focus:ring-[#013ff4]/15 focus:border-[#013ff4]">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="fr">🇫🇷 Français</SelectItem>
+              <SelectContent className="rounded-2xl">
+                <SelectItem value="fr">🇫🇷 Français (Bénin / Afrique)</SelectItem>
                 <SelectItem value="en">🇬🇧 English</SelectItem>
                 <SelectItem value="ar">🇸🇦 العربية</SelectItem>
               </SelectContent>
             </Select>
           </Field>
-          <Field label="Devise">
-            <Select value={settings.currency} onValueChange={v => update("currency", v)}>
-              <SelectTrigger className="h-11 rounded-xl bg-slate-50 border-slate-200 text-sm font-medium">
+
+          <Field label="Devise de facturation">
+            <Select value={settings.currency} onValueChange={(v) => update("currency", v)}>
+              <SelectTrigger className="h-11 rounded-2xl bg-slate-50/80 border-slate-200 text-sm font-medium focus:bg-white focus:ring-2 focus:ring-[#013ff4]/15 focus:border-[#013ff4]">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="xof">XOF — Franc CFA</SelectItem>
-                <SelectItem value="eur">EUR — Euro</SelectItem>
-                <SelectItem value="usd">USD — Dollar</SelectItem>
+              <SelectContent className="rounded-2xl">
+                <SelectItem value="xof">XOF — Franc CFA (Bénin / UEMOA)</SelectItem>
+                <SelectItem value="eur">EUR — Euro (€)</SelectItem>
+                <SelectItem value="usd">USD — Dollar ($)</SelectItem>
               </SelectContent>
             </Select>
           </Field>
+
           <Field label="Fuseau horaire">
-            <Select value={settings.timezone} onValueChange={v => update("timezone", v)}>
-              <SelectTrigger className="h-11 rounded-xl bg-slate-50 border-slate-200 text-sm font-medium">
+            <Select value={settings.timezone} onValueChange={(v) => update("timezone", v)}>
+              <SelectTrigger className="h-11 rounded-2xl bg-slate-50/80 border-slate-200 text-sm font-medium focus:bg-white focus:ring-2 focus:ring-[#013ff4]/15 focus:border-[#013ff4]">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="gmt">GMT — Accra, Dakar</SelectItem>
-                <SelectItem value="wat">WAT — Lagos, Douala</SelectItem>
+              <SelectContent className="rounded-2xl">
+                <SelectItem value="gmt">GMT+1 — Cotonou, Porto-Novo, Lagos</SelectItem>
+                <SelectItem value="wat">GMT+0 — Accra, Lomé, Dakar</SelectItem>
               </SelectContent>
             </Select>
           </Field>
         </div>
-      </div>
+      </SectionCard>
 
-      {/* Apparence & confidentialité */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6">
-        <h2 className="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-5">Apparence & confidentialité</h2>
+      {/* ── Apparence & Confidentialité ───────────────────────────────── */}
+      <SectionCard title="Apparence & Affichage" icon={Moon}>
         <div className="divide-y divide-slate-100">
-          <div className="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0">
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-slate-900">Mode sombre</p>
-              <p className="text-xs text-slate-500 mt-0.5">Basculer vers un thème sombre</p>
-            </div>
-            <Switch
-              className="shrink-0"
-              checked={settings.theme === "dark"}
-              onCheckedChange={checked => update("theme", checked ? "dark" : "light")}
-            />
-          </div>
-          <div className="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0">
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-slate-900">Profil public</p>
-              <p className="text-xs text-slate-500 mt-0.5">Votre profil apparaît dans l&apos;annuaire et les recherches</p>
-            </div>
-            <Switch
-              className="shrink-0"
-              checked={settings.public_profile}
-              onCheckedChange={checked => update("public_profile", checked)}
-            />
-          </div>
-        </div>
-      </div>
+          <SettingToggle
+            id="theme-dark-mode"
+            icon={Moon}
+            iconBg="bg-slate-100"
+            iconColor="text-slate-700"
+            title="Thème Sombre"
+            description="Activez le mode sombre pour reposer vos yeux dans les environnements sombres."
+            checked={settings.theme === "dark"}
+            onCheckedChange={(checked) => update("theme", checked ? "dark" : "light")}
+          />
 
-      {/* Masquée quand la section est empilée : la barre suivante enregistre
-          déjà l'ensemble des réglages. */}
+          <SettingToggle
+            id="public-profile-visibility"
+            icon={Eye}
+            iconBg="bg-[#013ff4]/10"
+            iconColor="text-[#013ff4]"
+            title="Visibilité dans l'Annuaire Public"
+            description="Votre profil et vos prestations apparaissent dans l'annuaire universel et dans les résultats de recherche EmiID."
+            checked={settings.public_profile}
+            onCheckedChange={(checked) => update("public_profile", checked)}
+          />
+        </div>
+      </SectionCard>
+
+      {/* Masquée si la barre suivante enregistre l'ensemble des préférences */}
       {!hideActions && (
-        <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-1">
-          <Button variant="outline" onClick={handleCancel} className="w-full sm:w-auto h-11 rounded-xl border-slate-200 font-bold">
-            Annuler
-          </Button>
-          <Button onClick={handleSave} disabled={saving} className="w-full sm:w-auto h-11 rounded-xl font-bold shadow-sm">
-            {saving ? "Enregistrement..." : "Enregistrer"}
-          </Button>
-        </div>
+        <SaveBar saving={saving} handleSave={handleSave} handleCancel={handleCancel} />
       )}
-
     </div>
   )
 }
+

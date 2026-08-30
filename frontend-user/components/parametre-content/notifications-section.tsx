@@ -1,58 +1,60 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Notifications section — preferences wired to push + email
- * @updated 2026-06-13
-*/
+ * @description Notifications section — alertes email, push et communication.
+ * @created 2026-06-13
+ * @updated 2026-08-30
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+ */
 
 "use client"
 
 import { useEffect, useRef } from "react"
-import { Switch } from "@/components/ui/switch"
-import { Button } from "@/components/ui/button"
+import { Bell, MessageSquare, Users, Mail, Smartphone } from "lucide-react"
 import {
   subscribeToPushNotifications,
   unsubscribeFromPushNotifications,
   getPushSubscriptionStatus,
 } from "@/lib/push-notifications"
+import { SectionCard, SettingToggle, SaveBar } from "./settings-primitives"
 
 interface NotificationSettings {
-  messages:         boolean
+  messages: boolean
   network_activity: boolean
-  newsletter:       boolean
-  push:             boolean
+  newsletter: boolean
+  push: boolean
 }
 
 interface NotificationsSectionProps {
-  settings:     NotificationSettings
-  setSettings:  (s: NotificationSettings) => void
-  saving:       boolean
-  handleSave:   () => void
+  settings: NotificationSettings
+  setSettings: (s: NotificationSettings) => void
+  saving: boolean
+  handleSave: () => void
   handleCancel: () => void
 }
 
-const ROWS: { key: keyof NotificationSettings; label: string; desc: string }[] = [
-  { key: "messages",         label: "Nouveaux messages",       desc: "Recevez une alerte email pour chaque nouveau message" },
-  { key: "network_activity", label: "Activité du réseau",      desc: "Nouveaux followers et vues de profil" },
-  { key: "newsletter",       label: "Newsletter hebdomadaire", desc: "Autorise l'envoi d'emails de la part d'EmiID" },
-  { key: "push",             label: "Notifications push",      desc: "Alertes en temps réel sur cet appareil (navigateur)" },
-]
-
-export function NotificationsSection({ settings, setSettings, saving, handleSave, handleCancel }: NotificationsSectionProps) {
+export function NotificationsSection({
+  settings,
+  setSettings,
+  saving,
+  handleSave,
+  handleCancel,
+}: NotificationsSectionProps) {
   const isMounted = useRef(true)
 
   // Sync push toggle with actual browser subscription state on mount
   useEffect(() => {
     isMounted.current = true
-    getPushSubscriptionStatus().then(isSubscribed => {
+    getPushSubscriptionStatus().then((isSubscribed) => {
       if (!isMounted.current) return
       if (settings.push !== isSubscribed) {
         setSettings({ ...settings, push: isSubscribed })
       }
     })
-    return () => { isMounted.current = false }
-    // Run once on mount — settings ref intentionally excluded
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => {
+      isMounted.current = false
+    }
   }, [])
 
   const toggle = async (key: keyof NotificationSettings, checked: boolean) => {
@@ -60,7 +62,6 @@ export function NotificationsSection({ settings, setSettings, saving, handleSave
       if (checked) {
         const sub = await subscribeToPushNotifications()
         if (!sub) {
-          // Permission denied or error — don't update state
           return
         }
       } else {
@@ -72,36 +73,60 @@ export function NotificationsSection({ settings, setSettings, saving, handleSave
 
   return (
     <div className="space-y-4">
-
-      <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6">
-        <h2 className="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-5">Préférences de notifications</h2>
-
+      <SectionCard
+        title="Canaux d'alertes & Notifications"
+        icon={Bell}
+        description="Choisissez comment et quand vous souhaitez être alerté de l'activité sur votre compte."
+      >
         <div className="divide-y divide-slate-100">
-          {ROWS.map(({ key, label, desc }) => (
-            <div key={key} className="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0">
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-slate-900">{label}</p>
-                <p className="text-xs text-slate-500 mt-0.5">{desc}</p>
-              </div>
-              <Switch
-                className="shrink-0"
-                checked={settings[key]}
-                onCheckedChange={checked => void toggle(key, checked)}
-              />
-            </div>
-          ))}
+          <SettingToggle
+            id="notif-push"
+            icon={Smartphone}
+            iconBg="bg-[#013ff4]/10"
+            iconColor="text-[#013ff4]"
+            title="Notifications Push (Appareil)"
+            description="Recevez des alertes instantanées sur cet appareil même quand l'application est fermée."
+            checked={settings.push}
+            onCheckedChange={(checked) => void toggle("push", checked)}
+          />
+
+          <SettingToggle
+            id="notif-messages"
+            icon={MessageSquare}
+            iconBg="bg-indigo-50"
+            iconColor="text-indigo-600"
+            title="Nouveaux Messages & Devis"
+            description="Recevez une alerte email et push pour chaque message entrant ou demande de devis."
+            checked={settings.messages}
+            onCheckedChange={(checked) => void toggle("messages", checked)}
+          />
+
+          <SettingToggle
+            id="notif-network"
+            icon={Users}
+            iconBg="bg-emerald-50"
+            iconColor="text-emerald-600"
+            title="Activité du Réseau & Profil"
+            description="Soyez averti des nouveaux abonnés, des recommandations et des vues sur votre profil public."
+            checked={settings.network_activity}
+            onCheckedChange={(checked) => void toggle("network_activity", checked)}
+          />
+
+          <SettingToggle
+            id="notif-newsletter"
+            icon={Mail}
+            iconBg="bg-amber-50"
+            iconColor="text-amber-600"
+            title="Actualités & Mises à jour EmiID"
+            description="Recevez notre récapitulatif mensuel d'opportunités, conseils de visibilité et nouveautés plateforme."
+            checked={settings.newsletter}
+            onCheckedChange={(checked) => void toggle("newsletter", checked)}
+          />
         </div>
-      </div>
+      </SectionCard>
 
-      <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-1">
-        <Button variant="outline" onClick={handleCancel} className="w-full sm:w-auto h-11 rounded-xl border-slate-200 font-bold">
-          Annuler
-        </Button>
-        <Button onClick={handleSave} disabled={saving} className="w-full sm:w-auto h-11 rounded-xl font-bold shadow-sm">
-          {saving ? "Enregistrement..." : "Enregistrer"}
-        </Button>
-      </div>
-
+      <SaveBar saving={saving} handleSave={handleSave} handleCancel={handleCancel} />
     </div>
   )
 }
+

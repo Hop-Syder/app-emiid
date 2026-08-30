@@ -16,7 +16,6 @@ import { Preloader } from "@/components/Preloader"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { ProfileSection } from "./profile-section"
-import { BioSection } from "./bio-section"
 import { SocialLinksSection } from "./social-links-section"
 import { HoursPricingSection } from "./hours-pricing-section"
 import { VerificationSection } from "./verification-section"
@@ -117,10 +116,13 @@ export function ParametresContent() {
 
   const activeSection: Record<TabId, React.ReactNode> = {
     profil: (
-      <div className="space-y-4">
-        <ProfileSection profile={profile} setProfile={setProfile} saving={saving} handleSave={handleSave} handleCancel={handleCancel} hideActions />
-        <BioSection profile={profile} setProfile={setProfile} saving={saving} handleSave={handleSave} handleCancel={handleCancel} />
-      </div>
+      <ProfileSection
+        profile={profile}
+        setProfile={setProfile}
+        saving={saving}
+        handleSave={handleSave}
+        handleCancel={handleCancel}
+      />
     ),
     reseaux:      <SocialLinksSection profile={profile} setProfile={setProfile} saving={saving} handleSave={handleSave} handleCancel={handleCancel} />,
     horaires:     <HoursPricingSection profile={profile} setProfile={setProfile} saving={saving} handleSave={handleSave} handleCancel={handleCancel} />,

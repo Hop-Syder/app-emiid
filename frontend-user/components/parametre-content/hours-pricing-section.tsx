@@ -1,167 +1,199 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Onglet Paramètres « Horaires & Services » : adresse, horaires par jour, catalogue de prestations.
+ * @description Onglet Paramètres « Horaires & Services » — Adresse physique, planning d'ouverture et catalogue de prestations.
+ * @created 2026-06-13
+ * @updated 2026-08-30
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
  */
 
 "use client"
 
-import { MapPin, Plus, Trash2 } from "lucide-react"
+import { MapPin, Plus, Trash2, Clock, Sparkles } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import type { UserProfileData, OpeningHour, ServiceItem } from "@/hooks/use-settings"
-import { SectionCard, Field, INPUT, SaveBar } from "./settings-primitives"
+import { SectionCard, Field, INPUT, TEXTAREA, SaveBar } from "./settings-primitives"
 
 interface SectionProps {
-    profile: UserProfileData
-    setProfile: (profile: UserProfileData) => void
-    saving: boolean
-    handleSave: () => void
-    handleCancel: () => void
+  profile: UserProfileData
+  setProfile: (profile: UserProfileData) => void
+  saving: boolean
+  handleSave: () => void
+  handleCancel: () => void
 }
 
 const DAYS: { day: number; label: string }[] = [
-    { day: 1, label: "Lundi" },
-    { day: 2, label: "Mardi" },
-    { day: 3, label: "Mercredi" },
-    { day: 4, label: "Jeudi" },
-    { day: 5, label: "Vendredi" },
-    { day: 6, label: "Samedi" },
-    { day: 0, label: "Dimanche" },
+  { day: 1, label: "Lundi" },
+  { day: 2, label: "Mardi" },
+  { day: 3, label: "Mercredi" },
+  { day: 4, label: "Jeudi" },
+  { day: 5, label: "Vendredi" },
+  { day: 6, label: "Samedi" },
+  { day: 0, label: "Dimanche" },
 ]
 
 export function HoursPricingSection({ profile, setProfile, saving, handleSave, handleCancel }: SectionProps) {
-    const hoursByDay = new Map<number, OpeningHour>((profile.opening_hours || []).map((h) => [h.day, h]))
+  const hoursByDay = new Map<number, OpeningHour>((profile.opening_hours || []).map((h) => [h.day, h]))
 
-    const getDay = (day: number): OpeningHour =>
-        hoursByDay.get(day) || { day, open: "08:00", close: "18:00", closed: false }
+  const getDay = (day: number): OpeningHour =>
+    hoursByDay.get(day) || { day, open: "08:00", close: "18:00", closed: false }
 
-    const updateHour = (day: number, patch: Partial<OpeningHour>) => {
-        const next: OpeningHour[] = DAYS.map(({ day: d }) => {
-            const current = getDay(d)
-            return d === day ? { ...current, ...patch } : current
-        })
-        setProfile({ ...profile, opening_hours: next })
-    }
+  const updateHour = (day: number, patch: Partial<OpeningHour>) => {
+    const next: OpeningHour[] = DAYS.map(({ day: d }) => {
+      const current = getDay(d)
+      return d === day ? { ...current, ...patch } : current
+    })
+    setProfile({ ...profile, opening_hours: next })
+  }
 
-    const services = profile.services || []
-    const setServices = (next: ServiceItem[]) => setProfile({ ...profile, services: next })
-    const addService = () => setServices([...services, { title: "", price: null, description: "" }])
-    const updateService = (index: number, patch: Partial<ServiceItem>) =>
-        setServices(services.map((s, i) => (i === index ? { ...s, ...patch } : s)))
-    const removeService = (index: number) => setServices(services.filter((_, i) => i !== index))
+  const services = profile.services || []
+  const setServices = (next: ServiceItem[]) => setProfile({ ...profile, services: next })
+  const addService = () => setServices([...services, { title: "", price: null, description: "" }])
+  const updateService = (index: number, patch: Partial<ServiceItem>) =>
+    setServices(services.map((s, i) => (i === index ? { ...s, ...patch } : s)))
+  const removeService = (index: number) => setServices(services.filter((_, i) => i !== index))
 
-    return (
-        <div className="space-y-4">
-            {/* Adresse */}
-            <SectionCard title="Adresse" description="Localisation physique / repère (facultatif).">
-                <Field label="Adresse précise / Repère">
-                    <div className="relative">
-                        <MapPin className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-                        <textarea
-                            value={profile.address || ""}
-                            onChange={(e) => setProfile({ ...profile, address: e.target.value })}
-                            rows={2}
-                            className="w-full rounded-xl bg-slate-50 border border-slate-200 pl-10 pr-3 py-2.5 text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-y placeholder:text-slate-400"
-                            placeholder="Ex : Rue 123, Akpakpa, non loin de la pharmacie..."
-                        />
-                    </div>
-                </Field>
-            </SectionCard>
+  return (
+    <div className="space-y-4">
+      {/* ── Adresse physique ──────────────────────────────────────────── */}
+      <SectionCard
+        title="Adresse physique & Repère"
+        icon={MapPin}
+        description="Indiquez l'emplacement de votre atelier, bureau ou point de vente pour guider vos clients."
+      >
+        <Field label="Adresse détaillée / Indication de repère">
+          <div className="relative">
+            <MapPin className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
+            <textarea
+              value={profile.address || ""}
+              onChange={(e) => setProfile({ ...profile, address: e.target.value })}
+              rows={2}
+              className={`${TEXTAREA} pl-10`}
+              placeholder="Ex : Immeuble Nexus, 2ème étage, Face Pharmacie du Port, Cotonou"
+            />
+          </div>
+        </Field>
+      </SectionCard>
 
-            {/* Horaires */}
-            <SectionCard title="Horaires d'ouverture" description="Définis tes horaires jour par jour.">
-                <div className="space-y-2">
-                    {DAYS.map(({ day, label }) => {
-                        const h = getDay(day)
-                        return (
-                            <div key={day} className="flex items-center gap-3 py-1.5">
-                                <span className="w-20 shrink-0 text-sm font-semibold text-slate-700">{label}</span>
-                                {h.closed ? (
-                                    <span className="flex-1 text-sm text-slate-400 font-medium">Fermé</span>
-                                ) : (
-                                    <div className="flex-1 flex items-center gap-2">
-                                        <Input
-                                            type="time"
-                                            value={h.open}
-                                            onChange={(e) => updateHour(day, { open: e.target.value })}
-                                            className={`${INPUT} h-10 w-32`}
-                                        />
-                                        <span className="text-slate-400 text-sm">→</span>
-                                        <Input
-                                            type="time"
-                                            value={h.close}
-                                            onChange={(e) => updateHour(day, { close: e.target.value })}
-                                            className={`${INPUT} h-10 w-32`}
-                                        />
-                                    </div>
-                                )}
-                                <div className="flex items-center gap-2 shrink-0">
-                                    <span className="text-xs text-slate-400">Ouvert</span>
-                                    <Switch
-                                        checked={!h.closed}
-                                        onCheckedChange={(checked: boolean) => updateHour(day, { closed: !checked })}
-                                    />
-                                </div>
-                            </div>
-                        )
-                    })}
+      {/* ── Horaires d'ouverture ──────────────────────────────────────── */}
+      <SectionCard
+        title="Horaires d'ouverture"
+        icon={Clock}
+        description="Définissez vos plages de disponibilité hebdomadaires affichées sur votre profil."
+      >
+        <div className="divide-y divide-slate-100">
+          {DAYS.map(({ day, label }) => {
+            const h = getDay(day)
+            return (
+              <div key={day} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
+                <span className="w-24 shrink-0 text-sm font-bold text-slate-800">{label}</span>
+                
+                {h.closed ? (
+                  <span className="flex-1 text-xs text-slate-400 font-semibold py-1">Fermé au public</span>
+                ) : (
+                  <div className="flex-1 flex items-center gap-2">
+                    <Input
+                      type="time"
+                      value={h.open}
+                      onChange={(e) => updateHour(day, { open: e.target.value })}
+                      className={`${INPUT} h-10 w-28 text-center text-xs font-bold`}
+                    />
+                    <span className="text-slate-400 text-xs font-semibold">à</span>
+                    <Input
+                      type="time"
+                      value={h.close}
+                      onChange={(e) => updateHour(day, { close: e.target.value })}
+                      className={`${INPUT} h-10 w-28 text-center text-xs font-bold`}
+                    />
+                  </div>
+                )}
+
+                <div className="flex items-center gap-2.5 shrink-0 self-end sm:self-auto">
+                  <span className="text-xs text-slate-400 font-semibold">{h.closed ? "Fermé" : "Ouvert"}</span>
+                  <Switch
+                    checked={!h.closed}
+                    onCheckedChange={(checked: boolean) => updateHour(day, { closed: !checked })}
+                  />
                 </div>
-            </SectionCard>
-
-            {/* Services */}
-            <SectionCard title="Catalogue de services" description="Prestations et tarifs indicatifs (FCFA).">
-                <div className="space-y-3">
-                    {services.length === 0 && (
-                        <p className="text-sm text-slate-400">Aucune prestation. Ajoute ton premier service.</p>
-                    )}
-                    {services.map((service, index) => (
-                        <div key={index} className="rounded-xl border border-slate-200 bg-slate-50/60 p-3.5 space-y-2.5">
-                            <div className="flex items-center gap-2">
-                                <Input
-                                    value={service.title}
-                                    onChange={(e) => updateService(index, { title: e.target.value })}
-                                    className={`${INPUT} bg-white flex-1`}
-                                    placeholder="Intitulé (ex : Costume sur mesure)"
-                                />
-                                <Input
-                                    type="number"
-                                    min={0}
-                                    value={service.price ?? ""}
-                                    onChange={(e) => updateService(index, { price: e.target.value === "" ? null : Number(e.target.value) })}
-                                    className={`${INPUT} bg-white w-32`}
-                                    placeholder="FCFA"
-                                />
-                                <Button
-                                    variant="ghost"
-                                    onClick={() => removeService(index)}
-                                    className="h-10 w-10 p-0 shrink-0 text-rose-500 hover:bg-rose-50"
-                                    aria-label="Supprimer"
-                                >
-                                    <Trash2 className="h-4 w-4" />
-                                </Button>
-                            </div>
-                            <Input
-                                value={service.description}
-                                onChange={(e) => updateService(index, { description: e.target.value })}
-                                className={`${INPUT} bg-white`}
-                                placeholder="Description courte (facultatif)"
-                            />
-                        </div>
-                    ))}
-                    <Button
-                        variant="outline"
-                        onClick={addService}
-                        className="rounded-xl h-11 gap-2 border-dashed border-slate-300 text-slate-600 w-full"
-                    >
-                        <Plus className="h-4 w-4" />
-                        Ajouter une prestation
-                    </Button>
-                </div>
-            </SectionCard>
-
-            <SaveBar saving={saving} handleSave={handleSave} handleCancel={handleCancel} />
+              </div>
+            )
+          })}
         </div>
-    )
+      </SectionCard>
+
+      {/* ── Catalogue de services ─────────────────────────────────────── */}
+      <SectionCard
+        title="Catalogue de prestations & Tarifs"
+        icon={Sparkles}
+        description="Présentez vos services phares avec leurs tarifs indicatifs en FCFA (XOF)."
+      >
+        <div className="space-y-3">
+          {services.length === 0 && (
+            <div className="p-6 text-center rounded-2xl bg-slate-50/60 border border-dashed border-slate-200">
+              <p className="text-xs text-slate-500 font-medium">Aucune prestation configurée pour le moment.</p>
+              <p className="text-[11px] text-slate-400 mt-1">Ajoutez vos offres pour valoriser votre profil dans l&apos;annuaire.</p>
+            </div>
+          )}
+
+          {services.map((service, index) => (
+            <div key={index} className="rounded-2xl border border-slate-200/80 bg-slate-50/50 p-4 space-y-3 shadow-xs">
+              <div className="flex items-center gap-2.5">
+                <Input
+                  value={service.title}
+                  onChange={(e) => updateService(index, { title: e.target.value })}
+                  className={`${INPUT} bg-white flex-1 font-bold text-sm`}
+                  placeholder="Intitulé de la prestation (ex : Création Logo & Charte)"
+                />
+                <div className="relative w-32 shrink-0">
+                  <Input
+                    type="number"
+                    min={0}
+                    value={service.price ?? ""}
+                    onChange={(e) => updateService(index, { price: e.target.value === "" ? null : Number(e.target.value) })}
+                    className={`${INPUT} bg-white pr-10 text-right font-bold text-sm`}
+                    placeholder="Prix"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400 uppercase pointer-events-none">
+                    XOF
+                  </span>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => removeService(index)}
+                  className="h-11 w-11 p-0 shrink-0 text-rose-500 hover:bg-rose-50 hover:text-rose-600 rounded-2xl"
+                  aria-label="Supprimer"
+                >
+                  <Trash2 className="h-4.5 w-4.5" />
+                </Button>
+              </div>
+
+              <Input
+                value={service.description}
+                onChange={(e) => updateService(index, { description: e.target.value })}
+                className={`${INPUT} bg-white text-xs`}
+                placeholder="Description sommaire, délai indicatif ou conditions (facultatif)"
+              />
+            </div>
+          ))}
+
+          <Button
+            type="button"
+            variant="outline"
+            onClick={addService}
+            className="rounded-2xl h-11 gap-2 border-dashed border-slate-300 text-slate-600 w-full font-bold hover:bg-slate-50 transition-all"
+          >
+            <Plus className="h-4 w-4 text-[#013ff4]" />
+            Ajouter une prestation
+          </Button>
+        </div>
+      </SectionCard>
+
+      <SaveBar saving={saving} handleSave={handleSave} handleCancel={handleCancel} />
+    </div>
+  )
 }
+
