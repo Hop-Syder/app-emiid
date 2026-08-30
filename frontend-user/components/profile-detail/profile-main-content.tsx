@@ -18,8 +18,8 @@ const getSkillBadgeStyles = (idx: number) => {
     const presets = [
         "from-[#013ff4]/10 to-[#0150fd]/10 text-[#013ff4] border-[#013ff4]/20 hover:bg-[#013ff4]/10",
         "from-[#03b3f8]/5 to-[#03b3f8]/10 text-[#03b3f8] border-[#03b3f8]/20 hover:bg-[#03b3f8]/15",
-        "from-emerald-500/10 to-teal-500/10 text-emerald-700 border-emerald-200/50 hover:bg-emerald-100/20",
-        "from-amber-500/10 to-orange-500/10 text-amber-700 border-amber-200/50 hover:bg-amber-100/20",
+        "from-emerald-500/10 to-teal-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-200/50 dark:border-emerald-800/50 hover:bg-emerald-100/20",
+        "from-amber-500/10 to-orange-500/10 text-amber-700 dark:text-amber-300 border-amber-200/50 dark:border-amber-800/50 hover:bg-amber-100/20",
         "from-slate-500/10 to-slate-600/10 text-foreground border-border hover:bg-muted",
     ]
     return presets[idx % presets.length]

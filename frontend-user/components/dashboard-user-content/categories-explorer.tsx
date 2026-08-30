@@ -25,17 +25,17 @@ interface CategoryItem {
 
 const categories: CategoryItem[] = [
   // Ligne 1
-  { id: "artisan", label: "Artisan", desc: "Création manuelle, métiers de l'artisanat, savoir-faire", icon: Hammer, color: "text-amber-600", bg: "bg-amber-50 border-amber-100", count: "1.2k+" },
-  { id: "commerçante", label: "Commerçant", desc: "Vente de biens, boutiquier, grossiste", icon: Store, color: "text-emerald-500", bg: "bg-emerald-50 border-emerald-100", count: "850+" },
-  { id: "freelance", label: "Freelance / Indépendant", desc: "Prestation de service en solo, consultant", icon: Laptop, color: "text-blue-500", bg: "bg-blue-50 border-blue-100", count: "420+" },
+  { id: "artisan", label: "Artisan", desc: "Création manuelle, métiers de l'artisanat, savoir-faire", icon: Hammer, color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-950/40 border-amber-100 dark:border-amber-900/40", count: "1.2k+" },
+  { id: "commerçante", label: "Commerçant", desc: "Vente de biens, boutiquier, grossiste", icon: Store, color: "text-emerald-500", bg: "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-100 dark:border-emerald-900/40", count: "850+" },
+  { id: "freelance", label: "Freelance / Indépendant", desc: "Prestation de service en solo, consultant", icon: Laptop, color: "text-blue-500", bg: "bg-blue-50 dark:bg-blue-950/40 border-blue-100 dark:border-blue-900/40", count: "420+" },
   { id: "entreprise", label: "Entreprise", desc: "PME, TPE, Grande entreprise classique", icon: Briefcase, color: "text-foreground", bg: "bg-muted border-border", count: "310+" },
-  { id: "agence", label: "Agence", desc: "Communication, Marketing, Web, RH", icon: Megaphone, color: "text-purple-500", bg: "bg-purple-50 border-purple-100", count: "540+" },
+  { id: "agence", label: "Agence", desc: "Communication, Marketing, Web, RH", icon: Megaphone, color: "text-purple-500", bg: "bg-purple-50 dark:bg-purple-950/40 border-purple-100 dark:border-purple-900/40", count: "540+" },
   // Ligne 2
-  { id: "startup", label: "Startup", desc: "Jeune entreprise innovante, Tech", icon: Rocket, color: "text-rose-500", bg: "bg-rose-50 border-rose-100", count: "210+" },
-  { id: "ong", label: "ONG / Association", desc: "À but non lucratif, fondation", icon: Globe, color: "text-cyan-500", bg: "bg-cyan-50 border-cyan-100", count: "150+" },
-  { id: "investisseur", label: "Entreprise / Investisseur", desc: "Fonds d'investissement, recherche d'opportunités", icon: TrendingUp, color: "text-indigo-500", bg: "bg-indigo-50 border-indigo-100", count: "85+" },
-  { id: "institution", label: "Institution Publique", desc: "Ministère, agence d'état, chambre de commerce", icon: Landmark, color: "text-teal-600", bg: "bg-teal-50 border-teal-100", count: "40+" },
-  { id: "etudiant", label: "Étudiant / Jeune Diplômé", desc: "Pour la recherche de stage/emploi", icon: GraduationCap, color: "text-orange-500", bg: "bg-orange-50 border-orange-100", count: "930+" },
+  { id: "startup", label: "Startup", desc: "Jeune entreprise innovante, Tech", icon: Rocket, color: "text-rose-500", bg: "bg-rose-50 dark:bg-rose-950/40 border-rose-100 dark:border-rose-900/40", count: "210+" },
+  { id: "ong", label: "ONG / Association", desc: "À but non lucratif, fondation", icon: Globe, color: "text-cyan-500", bg: "bg-cyan-50 dark:bg-cyan-950/40 border-cyan-100 dark:border-cyan-900/40", count: "150+" },
+  { id: "investisseur", label: "Entreprise / Investisseur", desc: "Fonds d'investissement, recherche d'opportunités", icon: TrendingUp, color: "text-indigo-500", bg: "bg-indigo-50 dark:bg-indigo-950/40 border-indigo-100 dark:border-indigo-900/40", count: "85+" },
+  { id: "institution", label: "Institution Publique", desc: "Ministère, agence d'état, chambre de commerce", icon: Landmark, color: "text-teal-600", bg: "bg-teal-50 dark:bg-teal-950/40 border-teal-100 dark:border-teal-900/40", count: "40+" },
+  { id: "etudiant", label: "Étudiant / Jeune Diplômé", desc: "Pour la recherche de stage/emploi", icon: GraduationCap, color: "text-orange-500", bg: "bg-orange-50 dark:bg-orange-950/40 border-orange-100 dark:border-orange-900/40", count: "930+" },
 ]
 
 const CategoryCard = ({ cat, idx, categoryCounts }: { cat: CategoryItem, idx: number, categoryCounts?: Record<string, number> }) => {
@@ -65,7 +65,7 @@ const CategoryCard = ({ cat, idx, categoryCounts }: { cat: CategoryItem, idx: nu
       <div className="p-3 bg-card w-max rounded-xl mb-4 border border-border shadow-sm group-hover:scale-110 transition-transform duration-300">
         <Icon className={`w-6 h-6 ${cat.color}`} />
       </div>
-      <h4 className="font-bold text-foreground text-base md:text-lg tracking-tight z-10 group-hover:text-slate-950 transition-colors leading-tight">{cat.label}</h4>
+      <h4 className="font-bold text-foreground text-base md:text-lg tracking-tight z-10 group-hover:text-slate-950 dark:group-hover:text-white transition-colors leading-tight">{cat.label}</h4>
       <p className="text-xs text-muted-foreground z-10 mt-2 mb-1 line-clamp-2 leading-relaxed">{cat.desc}</p>
       
       <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400 z-10 mt-auto pt-2">
