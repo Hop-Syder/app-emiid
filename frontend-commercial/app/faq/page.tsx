@@ -12,16 +12,35 @@ import { Metadata } from "next";
 import { FaqAccordion } from "@/components/home/faq-accordion";
 
 export const metadata: Metadata = {
-  title: "Questions Fréquentes | Emiid",
-  description: "Trouvez les réponses à toutes vos questions sur Emiid, le réseau professionnel conçu pour l'Afrique.",
+  title: "Questions Fréquentes (FAQ) | Emiid",
+  description:
+    "Trouvez les réponses à toutes vos questions sur Emiid : création de profil professionnel, abonnements FCFA, sécurité des données et messagerie.",
   alternates: { canonical: "/faq" },
   openGraph: {
-    title: "Questions Fréquentes | Emiid",
-    description: "Toutes les réponses sur Emiid : profils, abonnements FCFA, sécurité, messagerie.",
+    title: "Questions Fréquentes (FAQ) | Emiid",
+    description:
+      "Toutes les réponses sur Emiid : profils vérifiés, abonnements FCFA, sécurité, mise en relation et messagerie.",
     url: "https://emiid.com/faq",
     siteName: "Emiid",
     locale: "fr_FR",
     type: "website",
+    images: [
+      {
+        url: "/logo-emiid-bleu-blanc.png",
+        width: 500,
+        height: 500,
+        alt: "Questions Fréquentes - Emiid",
+        type: "image/png",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Questions Fréquentes (FAQ) | Emiid",
+    description:
+      "Toutes les réponses à vos questions sur la plateforme professionnelle Emiid.",
+    creator: "@hopsyder",
+    images: ["/logo-emiid-bleu-blanc.png"],
   },
 };
 

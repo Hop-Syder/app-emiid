@@ -35,11 +35,39 @@ export const metadata: Metadata = {
   // casser tant que le site officiel ne sert pas encore les pages profil.
   metadataBase: new URL(process.env.NEXT_PUBLIC_PUBLIC_URL || process.env.NEXT_PUBLIC_SITE_URL || 'https://app.emiid.com'),
   applicationName: 'EmiID',
-  title: 'EmiID — Votre empreinte numérique professionnelle',
-  description: "Crée ta carte de visite numérique et rejoins le réseau de professionnels qui construisent l'Afrique de demain.",
+  title: {
+    default: 'EmiID — Votre empreinte numérique professionnelle',
+    template: '%s | EmiID',
+  },
+  description: "Créez votre carte de visite numérique vérifiée et rejoignez le réseau de référence des professionnels, freelances et entreprises qui construisent l'Afrique de demain.",
   generator: 'Next.js',
-  keywords: ['networking', 'professionnel', 'Afrique', 'carte de visite', 'EmiID'],
-  authors: [{ name: 'Nexus Partners' }],
+  keywords: [
+    'EmiID',
+    'réseau professionnel Afrique',
+    'carte de visite numérique',
+    'annuaire professionnel',
+    'freelance Afrique',
+    'artisans certifiés',
+    'profil professionnel vérifié',
+    'Bénin',
+    'Côte d\'Ivoire',
+    'Sénégal',
+    'Togo',
+    'Afrique de l\'Ouest',
+    'FCFA',
+    'networking B2B'
+  ],
+  authors: [{ name: 'Nexus Partners', url: 'https://app.emiid.com' }],
+  creator: 'Nexus Partners',
+  publisher: 'Nexus Partners',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  alternates: {
+    canonical: '/',
+  },
   appleWebApp: { capable: true, title: 'EmiID', statusBarStyle: 'black-translucent' },
   other: { 'msapplication-TileColor': '#013ff4' },
   // Propriété Search Console : requise pour soumettre le sitemap et suivre
@@ -50,29 +78,34 @@ export const metadata: Metadata = {
     : {}),
   openGraph: {
     title: 'EmiID — Votre empreinte numérique professionnelle',
-    description: "Crée ta carte de visite numérique et rejoins le réseau de professionnels qui construisent l'Afrique de demain.",
+    description: "Rejoignez le réseau professionnel certifié pensé pour l'Afrique : carte de visite numérique, opportunités vérifiées et visibilité décuplée.",
     url: 'https://app.emiid.com',
     siteName: 'EmiID',
     locale: 'fr_FR',
     type: 'website',
     images: [
       {
-        url: 'https://app.emiid.com/logo/og-image.png',
-        width: 1200,
-        height: 630,
+        url: '/logo-emiid-bleu-blanc.png',
+        width: 500,
+        height: 500,
         alt: 'EmiID — Votre empreinte numérique professionnelle',
+        type: 'image/png',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'EmiID — Votre empreinte numérique professionnelle',
-    description: "Crée ta carte de visite numérique et rejoins le réseau de professionnels qui construisent l'Afrique de demain.",
+    description: "Rejoignez le réseau professionnel certifié pensé pour l'Afrique. Carte de visite numérique et opportunités vérifiées.",
     creator: '@hopsyder',
-    images: ['https://app.emiid.com/logo/og-image.png'],
+    images: ['/logo-emiid-bleu-blanc.png'],
   },
   icons: {
     icon: [
+      {
+        url: '/logo-emiid-bleu-blanc.png',
+        type: 'image/png',
+      },
       {
         url: '/icon-light-32x32.png',
         media: '(prefers-color-scheme: light)',
@@ -86,7 +119,7 @@ export const metadata: Metadata = {
         type: 'image/svg+xml',
       },
     ],
-    apple: '/apple-icon.png',
+    apple: '/logo-emiid-bleu-blanc.png',
   },
 }
 
@@ -118,9 +151,19 @@ export default function RootLayout({
               '@type': 'Organization',
               name: 'EmiID',
               url: 'https://app.emiid.com',
-              logo: 'https://app.emiid.com/logo/logo-emiid.png',
+              logo: 'https://app.emiid.com/logo-emiid-bleu-blanc.png',
+              image: 'https://app.emiid.com/logo-emiid-bleu-blanc.png',
               description:
                 "Le réseau professionnel certifié pensé pour l'Afrique : profils vérifiés, annuaire et messagerie.",
+              address: {
+                '@type': 'PostalAddress',
+                addressLocality: 'Cotonou',
+                addressCountry: 'BJ',
+              },
+              sameAs: [
+                'https://emiid.com',
+                'https://x.com/hopsyder',
+              ],
             }).replace(/</g, '\\u003c'),
           }}
         />
@@ -132,6 +175,11 @@ export default function RootLayout({
               '@type': 'WebSite',
               name: 'EmiID',
               url: 'https://app.emiid.com',
+              potentialAction: {
+                '@type': 'SearchAction',
+                target: 'https://app.emiid.com/annuaire?q={search_term_string}',
+                'query-input': 'required name=search_term_string',
+              },
             }).replace(/</g, '\\u003c'),
           }}
         />

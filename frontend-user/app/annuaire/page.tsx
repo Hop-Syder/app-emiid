@@ -13,16 +13,35 @@ import { AnnuairePublicContent } from "@/components/annuaire-public-content/annu
 import { createClient } from "@/lib/supabase/server"
 
 export const metadata: Metadata = {
-    title: "Annuaire des professionnels d'Afrique | EmiID",
+    title: "Annuaire des professionnels et entreprises d'Afrique | EmiID",
     description:
-        "Découvrez et contactez artisans, freelances, entreprises, startups et ONG vérifiés à travers l'Afrique. Filtrez par type de profil et secteur d'activité sur EmiID.",
+        "Découvrez et contactez artisans, freelances, consultants, entreprises et talents vérifiés à travers l'Afrique. Trouvez des prestataires qualifiés sur EmiID.",
     alternates: { canonical: "/annuaire" },
     openGraph: {
-        title: "Annuaire des professionnels d'Afrique | EmiID",
+        title: "Annuaire des professionnels et entreprises d'Afrique | EmiID",
         description:
-            "Artisans, freelances, entreprises, startups et ONG vérifiés. Trouvez le bon contact près de chez vous.",
+            "Artisans, freelances, consultants et entreprises certifiés. Trouvez le bon contact et développez votre réseau avec EmiID.",
+        url: "https://app.emiid.com/annuaire",
+        siteName: "EmiID",
+        locale: "fr_FR",
         type: "website",
+        images: [
+            {
+                url: "/logo-emiid-bleu-blanc.png",
+                width: 500,
+                height: 500,
+                alt: "Annuaire des professionnels EmiID",
+                type: "image/png",
+            }
+        ]
     },
+    twitter: {
+        card: "summary_large_image",
+        title: "Annuaire des professionnels d'Afrique | EmiID",
+        description: "Trouvez et contactez des professionnels et talents vérifiés en Afrique.",
+        creator: "@hopsyder",
+        images: ["/logo-emiid-bleu-blanc.png"]
+    }
 }
 
 export const revalidate = 60 // ISR 60s

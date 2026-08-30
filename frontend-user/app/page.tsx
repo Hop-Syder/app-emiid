@@ -28,9 +28,21 @@ export const revalidate = 60;
 export const metadata: Metadata = {
   title: "EmiID — Votre empreinte numérique professionnelle",
   description:
-    "Crée ta carte de visite numérique et rejoins le réseau de professionnels qui construisent l'Afrique de demain.",
-  keywords: ["networking", "professionnel", "Afrique", "carte de visite", "EmiID"],
+    "Créez votre carte de visite numérique vérifiée et rejoignez le réseau de référence des professionnels, artisans et entreprises en Afrique.",
+  keywords: [
+    "networking",
+    "professionnel",
+    "Afrique",
+    "carte de visite numérique",
+    "annuaire professionnel",
+    "EmiID",
+    "profil vérifié",
+    "freelance Afrique"
+  ],
   authors: [{ name: "Nexus Partners", url: "https://app.emiid.com" }],
+  alternates: {
+    canonical: "https://app.emiid.com",
+  },
   openGraph: {
     type: "website",
     locale: "fr_FR",
@@ -38,13 +50,14 @@ export const metadata: Metadata = {
     siteName: "EmiID",
     title: "EmiID — Votre empreinte numérique professionnelle",
     description:
-      "Crée ta carte de visite numérique et rejoins le réseau de professionnels qui construisent l'Afrique de demain.",
+      "Créez votre carte de visite numérique vérifiée et rejoignez le réseau des professionnels qui construisent l'Afrique de demain.",
     images: [
       {
-        url: "https://app.emiid.com/logo/og-image.png",
-        width: 1200,
-        height: 630,
+        url: "/logo-emiid-bleu-blanc.png",
+        width: 500,
+        height: 500,
         alt: "EmiID — Votre empreinte numérique professionnelle",
+        type: "image/png",
       },
     ],
   },
@@ -53,9 +66,10 @@ export const metadata: Metadata = {
     creator: "@hopsyder",
     title: "EmiID — Votre empreinte numérique professionnelle",
     description:
-      "Crée ta carte de visite numérique et rejoins le réseau de professionnels qui construisent l'Afrique de demain.",
+      "Créez votre carte de visite numérique vérifiée et rejoignez le réseau des professionnels en Afrique.",
+    images: ["/logo-emiid-bleu-blanc.png"],
   },
-  // La page d'accueil publique est maintenant indexable car c'est le point d'entrée principal
+  // La page d'accueil publique est indexable car c'est le point d'entrée principal
   robots: {
     index: true,
     follow: true,

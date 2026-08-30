@@ -55,6 +55,16 @@
 
 - Zod — Validation stricte des schémas de données, type-safety TypeScript, et protection contre les failles d'injection.
 
+### SEO / Open Graph / Indexation & Social Cards
+
+- `seo` — Framework et orchestration globale d'audit et stratégie SEO
+- `fixing-metadata` — Audit et correction fine des balises méta, Open Graph (og:title, og:image, og:description, og:url), Twitter Cards, favicons, canonicals
+- `seo-meta-optimizer` — Optimisation des titres, descriptions et accroches pour le taux de clic (CTR) et le partage social
+- `seo-technical` — Audit technique (robots.txt, sitemaps XML, indexabilité, crawlers IA : GPTBot, ClaudeBot, PerplexityBot)
+- `seo-schema` — Données structurées Schema.org en JSON-LD (Person, ProfilePage, Organization, WebSite) pour Google Rich Results
+- `seo-geo` — Optimisation pour les moteurs de recherche IA (Google AI Overviews, ChatGPT Search, Perplexity)
+- `seo-audit` — Audits complets de performance, balisage et conformité SEO
+
 ## 📁 Contexte projet
 
 - **Description courte** : EmiID — "Votre empreinte numérique professionnelle". Plateforme SaaS segmentée en plusieurs parties : frontend utilisateur, portail admin, site commercial, et API backend Node.js.
@@ -200,5 +210,7 @@
 - [2026-08-30] Paramètres User : Refonte de la navigation mobile en 2 écrans natifs (Écran 1 : carte d'identité + rubriques tapables avec icône colorée & chevrons + déconnexion ; Écran 2 : barre de retour sticky + contenu avec transitions fluides Framer Motion et réinitialisation de scroll).
 - [2026-08-30] Paramètres User : Déplacement et intégration directe du bloc « À propos & Bio » (`BioSection`) sous la carte « Informations personnelles » dans `ProfileSection`.
 - [2026-08-30] Git : Synchronisation réussie de `origin/main` via `git pull --rebase` et résolution propre des divergences sur `parametre-content.tsx`.
+- [2026-08-30] SEO & Open Graph : Activation complète de l'écosystème d'agents et compétences SEO (`seo`, `fixing-metadata`, `seo-meta-optimizer`, `seo-technical`, `seo-schema`, `seo-geo`, `seo-audit`).
+- [2026-08-30] SEO & Open Graph (frontend-user & frontend-commercial) : Refonte intégrale des métadonnées, Open Graph, Twitter Cards et données structurées JSON-LD (`Organization`, `WebSite`, `ProfilePage`, `Person`, `AboutPage`, `SoftwareApplication`, `BreadcrumbList`, `SearchAction`). Intégration du logo officiel `logo-emiid-bleu-blanc.png` comme image de référence Open Graph, Google Search & Schema sur l'ensemble des routes publiques et dynamiques. Compilation validée à 100% sur les deux applications Next.js.
 
 

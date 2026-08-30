@@ -33,36 +33,67 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL("https://emiid.com"),
   applicationName: "Emiid",
-  title: "Emiid - Votre empreinte numérique professionnelle",
-  description: "L'annuaire de référence pour les acteurs de l'écosystème africain.",
-  keywords: ["Emiid", "réseau professionnel", "Afrique", "annuaire", "profil professionnel", "freelance", "entreprise", "FCFA"],
+  title: {
+    default: "Emiid — Le réseau professionnel pensé pour l'Afrique",
+    template: "%s | Emiid",
+  },
+  description:
+    "Emiid est la première plateforme d'identité professionnelle certifiée en Afrique. Créez votre profil vérifié, boostez votre visibilité et connectez-vous avec des milliers d'entreprises et talents.",
+  keywords: [
+    "Emiid",
+    "réseau professionnel Afrique",
+    "carte de visite numérique",
+    "annuaire certifié",
+    "profil vérifié",
+    "B2B Afrique",
+    "freelance Afrique",
+    "artisans certifiés",
+    "entreprise",
+    "Bénin",
+    "Côte d'Ivoire",
+    "Sénégal",
+    "Togo",
+    "Afrique de l'Ouest",
+    "FCFA"
+  ],
+  authors: [{ name: "Nexus Partners", url: "https://emiid.com" }],
+  creator: "Nexus Partners",
+  publisher: "Nexus Partners",
   alternates: { canonical: "/" },
   appleWebApp: { capable: true, title: "Emiid", statusBarStyle: "default" },
   other: { "msapplication-TileColor": "#013ff4" },
   openGraph: {
-    title: "Emiid - L'annuaire de l'écosystème africain",
-    description: "Rejoignez l'annuaire Emiid pour augmenter votre visibilité et développer votre réseau.",
+    title: "Emiid — Le réseau professionnel pensé pour l'Afrique",
+    description:
+      "Rejoignez l'annuaire de référence des professionnels et entreprises en Afrique. Profil certifié, messagerie et opportunités.",
     url: "https://emiid.com",
     siteName: "Emiid",
     locale: "fr_FR",
     type: "website",
     images: [
       {
-        url: "/logo/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "Emiid - Votre empreinte numérique professionnelle",
+        url: "/logo-emiid-bleu-blanc.png",
+        width: 500,
+        height: 500,
+        alt: "Emiid — Le réseau professionnel pensé pour l'Afrique",
+        type: "image/png",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Emiid - Votre empreinte numérique",
-    description: "L'annuaire de référence pour les acteurs de l'écosystème africain.",
-    images: ["/logo/og-image.png"],
+    title: "Emiid — Le réseau professionnel pensé pour l'Afrique",
+    description:
+      "L'annuaire certifié pour les acteurs et talents de l'écosystème africain.",
+    creator: "@hopsyder",
+    images: ["/logo-emiid-bleu-blanc.png"],
   },
   icons: {
     icon: [
+      {
+        url: "/logo-emiid-bleu-blanc.png",
+        type: "image/png",
+      },
       {
         url: "/logo/icon-light-32x32.png",
         media: "(prefers-color-scheme: light)",
@@ -76,7 +107,7 @@ export const metadata: Metadata = {
         type: "image/svg+xml",
       },
     ],
-    apple: "/logo/apple-icon.png",
+    apple: "/logo-emiid-bleu-blanc.png",
   },
 };
 
@@ -106,29 +137,53 @@ export default function RootLayout({
           `}
         </Script>
 
-        {/* Données structurées — Organization + WebSite (valides en body pour Google) */}
+        {/* Données structurées — Organization + WebSite + SoftwareApplication (valides en body pour Google) */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
-              "@type": "Organization",
-              name: "Emiid",
-              url: "https://emiid.com",
-              logo: "https://emiid.com/logo/logo-emiid-light.png",
-              description:
-                "Le réseau professionnel certifié pensé pour l'Afrique : profils vérifiés, annuaire et messagerie.",
-            }).replace(/</g, "\\u003c"),
-          }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "WebSite",
-              name: "Emiid",
-              url: "https://emiid.com",
+              "@graph": [
+                {
+                  "@type": "Organization",
+                  "@id": "https://emiid.com/#organization",
+                  name: "Emiid",
+                  url: "https://emiid.com",
+                  logo: "https://emiid.com/logo-emiid-bleu-blanc.png",
+                  image: "https://emiid.com/logo-emiid-bleu-blanc.png",
+                  description:
+                    "Le réseau professionnel certifié pensé pour l'Afrique : profils vérifiés, annuaire et messagerie.",
+                  address: {
+                    "@type": "PostalAddress",
+                    addressLocality: "Cotonou",
+                    addressCountry: "BJ",
+                  },
+                  sameAs: [
+                    "https://app.emiid.com",
+                    "https://x.com/hopsyder",
+                  ],
+                },
+                {
+                  "@type": "WebSite",
+                  "@id": "https://emiid.com/#website",
+                  name: "Emiid",
+                  url: "https://emiid.com",
+                  publisher: {
+                    "@id": "https://emiid.com/#organization",
+                  },
+                },
+                {
+                  "@type": "SoftwareApplication",
+                  name: "Emiid",
+                  applicationCategory: "BusinessApplication",
+                  operatingSystem: "Web, Mobile (PWA)",
+                  offers: {
+                    "@type": "Offer",
+                    price: "0",
+                    priceCurrency: "XOF",
+                  },
+                },
+              ],
             }).replace(/</g, "\\u003c"),
           }}
         />

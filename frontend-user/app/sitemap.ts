@@ -61,10 +61,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     }))
 
-    // 3. (Optionnel pour le futur) On pourrait aussi ajouter ici les routes du SEO Local (Programmatic)
-    // Ex: /annuaire/freelance/abidjan
+    const categories = [
+      'artisan',
+      'freelance',
+      'entreprise',
+      'startup',
+      'ong',
+      'consultant',
+      'commerce',
+      'sante',
+      'education',
+      'restauration'
+    ]
 
-    return [...routes, ...profileRoutes]
+    const categoryRoutes = categories.map((cat) => ({
+      url: `${baseUrl}/annuaire/${cat}`,
+      lastModified: new Date(),
+      changeFrequency: 'daily' as const,
+      priority: 0.85,
+    }))
+
+    return [...routes, ...categoryRoutes, ...profileRoutes]
   } catch (error) {
     console.error("Erreur lors de la génération du sitemap:", error)
     // En cas d'erreur de la BDD, on retourne au moins les pages de base pour ne pas bloquer Google

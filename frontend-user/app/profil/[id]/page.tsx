@@ -145,6 +145,7 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
             : `Découvrez le profil de ${fullName}, expert en ${data.specialty || data.role || 'son domaine'} sur EmiID.`
 
         const ogImageUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://app.emiid.com'}/api/og/profile?id=${id}`
+        const fallbackLogoUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://app.emiid.com'}/logo-emiid-bleu-blanc.png`
 
         return {
             title: `${fullName} - ${data.role || 'Profil'} | EmiID`,
@@ -156,8 +157,11 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
                 canonical: `/profil/${data.slug || id}`,
             },
             openGraph: {
-                title: `${fullName} sur EmiID`,
+                title: `${fullName} — Profil certifié sur EmiID`,
                 description: description,
+                url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://app.emiid.com'}/profil/${data.slug || id}`,
+                siteName: 'EmiID',
+                locale: 'fr_FR',
                 type: 'profile',
                 images: [
                     {
@@ -165,19 +169,29 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
                         width: 1200,
                         height: 630,
                         alt: `Carte de profil de ${fullName}`,
-                    }
+                    },
+                    {
+                        url: fallbackLogoUrl,
+                        width: 500,
+                        height: 500,
+                        alt: `EmiID - ${fullName}`,
+                    },
                 ],
             },
             twitter: {
                 card: 'summary_large_image',
                 title: `${fullName} sur EmiID`,
                 description: description,
-                images: [ogImageUrl],
+                creator: '@hopsyder',
+                images: [ogImageUrl, fallbackLogoUrl],
             }
         }
     } catch {
         return {
-            title: 'Profil | EmiID'
+            title: 'Profil | EmiID',
+            openGraph: {
+                images: ['/logo-emiid-bleu-blanc.png']
+            }
         }
     }
 }
@@ -190,29 +204,71 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     const fullName = data ? `${data.first_name || ''} ${data.last_name || ''}`.trim() : ''
     const skills: string[] = data?.profile_tags?.map((pt: ProfileTagJoin) => pt.tags?.name).filter((n): n is string => Boolean(n)) || []
 
-    // Person enrichi : Google n'affiche une vignette et un rich result complet que
-    // si l'image, l'URL canonique et la zone desservie sont présentes. Les champs
-    // avatar_url et slug doivent donc figurer dans le select ci-dessus.
+    // Données structurées ProfilePage + Person pour Google Rich Results
     const jsonLd = data ? {
         '@context': 'https://schema.org',
-        '@type': 'Person',
-        name: fullName,
-        jobTitle: data.role || data.specialty || undefined,
-        description: data.bio || undefined,
-        image: data.avatar_url || undefined,
-        url: `${baseUrl}/profil/${data.slug || id}`,
-        ...(skills.length ? { knowsAbout: skills } : {}),
-        ...(data.city ? { areaServed: { '@type': 'City', name: data.city } } : {}),
-        address: {
-            '@type': 'PostalAddress',
-            addressLocality: data.city || 'Afrique',
-            addressCountry: 'BJ'
-        },
-        memberOf: {
-            '@type': 'Organization',
-            name: 'EmiID',
-            url: baseUrl
-        }
+        '@graph': [
+            {
+                '@type': 'ProfilePage',
+                '@id': `${baseUrl}/profil/${data.slug || id}#webpage`,
+                url: `${baseUrl}/profil/${data.slug || id}`,
+                name: `${fullName} — EmiID`,
+                isPartOf: {
+                    '@type': 'WebSite',
+                    '@id': `${baseUrl}/#website`,
+                    name: 'EmiID',
+                    url: baseUrl,
+                },
+                mainEntity: {
+                    '@id': `${baseUrl}/profil/${data.slug || id}#person`,
+                },
+            },
+            {
+                '@type': 'Person',
+                '@id': `${baseUrl}/profil/${data.slug || id}#person`,
+                name: fullName,
+                jobTitle: data.role || data.specialty || undefined,
+                description: data.bio || undefined,
+                image: data.avatar_url || `${baseUrl}/logo-emiid-bleu-blanc.png`,
+                url: `${baseUrl}/profil/${data.slug || id}`,
+                ...(skills.length ? { knowsAbout: skills } : {}),
+                ...(data.city ? { areaServed: { '@type': 'City', name: data.city } } : {}),
+                address: {
+                    '@type': 'PostalAddress',
+                    addressLocality: data.city || 'Afrique',
+                    addressCountry: 'BJ'
+                },
+                memberOf: {
+                    '@type': 'Organization',
+                    name: 'EmiID',
+                    url: baseUrl,
+                    logo: `${baseUrl}/logo-emiid-bleu-blanc.png`
+                }
+            },
+            {
+                '@type': 'BreadcrumbList',
+                itemListElement: [
+                    {
+                        '@type': 'ListItem',
+                        position: 1,
+                        name: 'Accueil',
+                        item: baseUrl,
+                    },
+                    {
+                        '@type': 'ListItem',
+                        position: 2,
+                        name: 'Annuaire',
+                        item: `${baseUrl}/annuaire`,
+                    },
+                    {
+                        '@type': 'ListItem',
+                        position: 3,
+                        name: fullName,
+                        item: `${baseUrl}/profil/${data.slug || id}`,
+                    }
+                ]
+            }
+        ]
     } : null
 
     return (
