@@ -198,3 +198,4 @@
 - [2026-08-30] Annuaire Public : Renommage du titre de la section `AnnuaireSpotlight` en « En vue cette semaine dans votre entourage » avec accent chaleureux ambré.
 - [2026-08-30] Annuaire Public : Affichage compact en icônes seules (`BadgeCheck` et `Crown`) et regroupement sur la même ligne avec le filtre `Pays` et `Autour de moi` sur mobile dans `AnnuaireFilters`.
 - [2026-08-30] Paramètres User : Refonte de la navigation mobile en 2 écrans natifs (Écran 1 : carte d'identité + rubriques tapables avec icône colorée & chevrons + déconnexion ; Écran 2 : barre de retour sticky + contenu avec transitions fluides Framer Motion et réinitialisation de scroll).
+- [2026-08-30] Git : Synchronisation réussie de `origin/main` via `git pull --rebase` et résolution propre des divergences sur `parametre-content.tsx`.
