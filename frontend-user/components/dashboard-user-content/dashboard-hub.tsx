@@ -59,7 +59,7 @@ export function DashboardHubContent({
           <div className="lg:col-span-7">
             <PersonalHero />
           </div>
-          <div className="lg:col-span-5">
+          <div className="hidden lg:block lg:col-span-5">
             <InlineActivityFeed />
           </div>
         </div>

@@ -87,7 +87,7 @@ export function InlineActivityFeed() {
   const recent = notifications.slice(0, 2)
 
   return (
-    <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_4px_24px_rgb(15,23,42,0.05)] overflow-hidden">
+    <div className="hidden lg:block bg-white rounded-3xl border border-slate-100 shadow-[0_4px_24px_rgb(15,23,42,0.05)] overflow-hidden">
       <div className="flex items-center justify-between px-4 sm:px-5 py-3.5 sm:py-4 border-b border-slate-100">
         <div className="flex items-center gap-3 min-w-0 flex-1">
           <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-sm shadow-emerald-500/20 shrink-0">

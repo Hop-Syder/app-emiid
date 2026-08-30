@@ -191,3 +191,4 @@
 - [2026-08-30] Dashboard User : Limitation et calibrage responsive de la section `InlineActivityFeed` à exactement 2 activités récentes sur desktop et mobile.
 - [2026-08-30] Dashboard User : Refonte ergonomique et visuelle épurée du header (`DashboardBentoHeader`) pour une lisibilité maximale, des contrastes renforcés et une disposition responsive adaptée mobile/desktop.
 - [2026-08-30] Dashboard User : Intégration de l'icône de notification avec compteur temps réel en haut à droite de `ProfileCompleteness` sur mobile pour un accès direct et un gain d'espace.
+- [2026-08-30] Dashboard User : Masquage du bloc `InlineActivityFeed` sur mobile (`hidden lg:block`) pour supprimer la redondance et libérer l'espace au-dessus du pli.
