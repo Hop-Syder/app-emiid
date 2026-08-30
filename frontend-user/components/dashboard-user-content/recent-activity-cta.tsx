@@ -41,7 +41,7 @@ export function RecentActivityCta() {
                   Activité Récente
                 </h3>
                 {hasNew && (
-                  <span className="text-[10px] font-bold text-emerald-600 bg-emerald-100 uppercase tracking-wider px-2 py-0.5 rounded-full ring-1 ring-emerald-200/50 shadow-sm animate-pulse">
+                  <span className="text-[10px] font-bold text-emerald-600 bg-emerald-100 dark:bg-emerald-900/40 uppercase tracking-wider px-2 py-0.5 rounded-full ring-1 ring-emerald-200/50 shadow-sm animate-pulse">
                     {unreadCount > 9 ? "9+" : unreadCount} Nouveau{unreadCount > 1 ? "x" : ""}
                   </span>
                 )}

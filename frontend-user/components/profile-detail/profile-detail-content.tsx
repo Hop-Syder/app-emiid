@@ -141,7 +141,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-tr from-[#013ff4]/5 via-[#f8fafc] to-[#03b3f8]/5 text-foreground antialiased selection:bg-[#013ff4]/10 selection:text-[#013ff4]">
+        <div className="min-h-screen bg-gradient-to-tr from-[#013ff4]/5 via-[#f8fafc] to-[#03b3f8]/5 dark:bg-none dark:bg-background text-foreground antialiased selection:bg-[#013ff4]/10 selection:text-[#013ff4]">
             <div
                 className={cn(
                     "sticky top-0 z-50 transition-all duration-300",
@@ -277,7 +277,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
 
 function ProfileSkeleton() {
     return (
-        <div className="min-h-screen bg-gradient-to-tr from-[#013ff4]/5 via-[#f8fafc] to-[#03b3f8]/5 animate-pulse">
+        <div className="min-h-screen bg-gradient-to-tr from-[#013ff4]/5 via-[#f8fafc] to-[#03b3f8]/5 dark:bg-none dark:bg-background animate-pulse">
             <div className="h-16 container max-w-6xl mx-auto px-4 flex items-center justify-between py-6">
                 <div className="h-10 w-24 bg-muted rounded-2xl" />
                 <div className="h-10 w-28 bg-muted rounded-2xl" />
