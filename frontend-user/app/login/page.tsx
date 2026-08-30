@@ -188,8 +188,8 @@ export default function LoginPage() {
             <Image
               src="/login/logo-emiid-bleu-blanc.svg"
               alt="EmiID"
-              width={200}
-              height={55}
+              width={400}
+              height={110}
               className="h-10 sm:h-12 lg:h-12 w-auto object-contain drop-shadow-[0_2px_18px_rgba(1,63,244,0.45)]"
               priority
             />
@@ -242,171 +242,171 @@ export default function LoginPage() {
             </div>
           </div>
 
-        {/* Bloc central : salutation + boutons */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="w-full max-w-[360px] mx-auto flex flex-col lg:block"
-        >
-          {/* En-tête */}
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white flex items-center gap-2">
-            {greeting} <span className="inline-block animate-wave origin-bottom-right">👋</span>
-          </h1>
-          <p className="mt-1.5 text-xs sm:text-sm text-[#8891AC] leading-relaxed">
-            Connectez-vous pour retrouver votre empreinte numérique professionnelle.
-          </p>
-
-          {/* Message d'erreur éventuel */}
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="mt-4 text-xs text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-lg px-4 py-3 text-center font-medium flex items-center justify-center gap-2"
-            >
-              <Lock className="w-3.5 h-3.5 shrink-0 text-rose-400" />
-              <span>{error}</span>
-            </motion.div>
-          )}
-
-          {/* Boutons d'authentification OAuth */}
-          <div className="flex flex-col gap-2.5 mt-5 sm:mt-6">
-            {providers.map((p, i) => {
-              const isLastUsed = !p.soon && lastProvider === p.id
-              return (
-                <motion.div
-                  key={p.id}
-                  initial={{ opacity: 0, x: -12 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.1 + i * 0.06 }}
-                  className="relative"
-                >
-                  {p.soon && (
-                    <span className="absolute -top-2 right-4 z-20 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-[#000616] shadow-[0_0_12px_rgba(245,158,11,0.4)]">
-                      Bientôt
-                    </span>
-                  )}
-                  {isLastUsed && (
-                    <span className="absolute -top-2 right-4 z-20 rounded-full bg-emerald-500/15 border border-emerald-500/40 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-emerald-400">
-                      Dernier utilisé
-                    </span>
-                  )}
-
-                  <Button
-                    variant="outline"
-                    disabled={loading !== null || !accepted || !captchaToken || p.soon}
-                    onClick={() => !p.soon && handleLogin(p.id)}
-                    aria-disabled={p.soon}
-                    title={p.soon ? "Indisponible pour l'instant" : undefined}
-                    className={`relative w-full h-[48px] sm:h-[50px] rounded-xl bg-white/[0.05] hover:bg-white/[0.09] border ${isLastUsed ? "border-emerald-500/40" : "border-white/[0.12]"} ${p.borderHover} text-white transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.3)] backdrop-blur-xl group overflow-hidden disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none active:scale-[0.99]`}
-                  >
-                    {/* Halo réactif au survol */}
-                    <div
-                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-                      style={{
-                        background: `radial-gradient(circle at center, ${p.accentGlow} 0%, transparent 70%)`
-                      }}
-                    />
-
-                    <span className="relative z-10 flex items-center justify-between w-full px-2">
-                      <div className="flex items-center gap-3">
-                        {loading === p.id ? (
-                          <Loader2 className="w-4.5 h-4.5 animate-spin text-[#03b3f8]" />
-                        ) : (
-                          <div className="w-6 h-6 sm:w-6.5 sm:h-6.5 rounded-md flex items-center justify-center bg-white/10 p-1 group-hover:scale-110 transition-transform duration-300">
-                            <Image
-                              src={p.icon}
-                              alt={p.name}
-                              width={19}
-                              height={19}
-                              className="object-contain"
-                            />
-                          </div>
-                        )}
-                        <span className="font-semibold text-xs sm:text-sm tracking-wide text-white group-hover:text-[#03b3f8] transition-colors">
-                          Continuer avec {p.name}
-                        </span>
-                      </div>
-
-                      <ArrowRight className="w-4 h-4 text-white/30 group-hover:text-white group-hover:translate-x-1 transition-all duration-300" />
-                    </span>
-                  </Button>
-                </motion.div>
-              )
-            })}
-          </div>
-        </motion.div>
-
-        {/* Bas de page : CGU, Turnstile, statut — enchaîné directement sous les boutons */}
-        <div className="w-full max-w-[360px] mx-auto shrink-0 mt-3 sm:mt-4">
-          {/* Case à cocher CGU / Confidentialité */}
-          <motion.button
-            type="button"
-            onClick={() => setAccepted((v: boolean) => !v)}
-            initial={{ opacity: 0, y: 6 }}
+          {/* Bloc central : salutation + boutons */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35 }}
-            className="flex items-start gap-2.5 sm:gap-3 w-full text-left p-1 rounded-lg hover:bg-white/[0.02] transition-colors group cursor-pointer"
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="w-full max-w-[360px] mx-auto flex flex-col lg:block"
           >
-            <div
-              className={`mt-0.5 shrink-0 w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all duration-200 shadow-sm ${accepted
-                ? "bg-gradient-to-tr from-[#013ff4] to-[#03b3f8] border-white shadow-[0_0_12px_rgba(1,63,244,0.6)] scale-105"
-                : "bg-white/[0.06] border-white/80 group-hover:border-white group-hover:bg-white/15"
-                }`}
-            >
-              {accepted && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
-            </div>
-            <p className="text-[12px] text-[#A8B0C7] leading-relaxed select-none">
-              J&apos;accepte les{" "}
-              <Link
-                href="/conditions"
-                onClick={(e: React.MouseEvent) => e.stopPropagation()}
-                className="text-[#03b3f8] hover:text-white underline underline-offset-4 decoration-[#03b3f8]/40 hover:decoration-white transition-colors"
-              >
-                conditions d&apos;utilisation
-              </Link>{" "}
-              et la{" "}
-              <Link
-                href="/confidentialite"
-                onClick={(e: React.MouseEvent) => e.stopPropagation()}
-                className="text-[#03b3f8] hover:text-white underline underline-offset-4 decoration-[#03b3f8]/40 hover:decoration-white transition-colors"
-              >
-                politique de confidentialité
-              </Link>{" "}
-              d&apos;EmiID.
+            {/* En-tête */}
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white flex items-center gap-2">
+              {greeting} <span className="inline-block animate-wave origin-bottom-right">👋</span>
+            </h1>
+            <p className="mt-1.5 text-xs sm:text-sm text-[#8891AC] leading-relaxed">
+              Connectez-vous pour retrouver votre empreinte numérique professionnelle.
             </p>
-          </motion.button>
 
-          {/* Widget Cloudflare Turnstile */}
-          <div className="flex flex-col items-center justify-center mt-4 pt-4 border-t border-white/[0.06]">
-            <div className="relative">
-              <Turnstile
-                siteKey={TURNSTILE_SITE_KEY}
-                options={{ theme: "dark", size: "normal" }}
-                onSuccess={(token: string) => setCaptchaToken(token)}
-                onError={() => setCaptchaToken(null)}
-                onExpire={() => setCaptchaToken(null)}
-              />
-            </div>
-            <div className="flex items-center gap-1.5 mt-2 text-[10px] text-[#6A7596]">
-              <Shield className="w-3 h-3 text-[#03b3f8]/70" />
-              <span>Protection antibot sécurisée</span>
-            </div>
-          </div>
+            {/* Message d'erreur éventuel */}
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="mt-4 text-xs text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-lg px-4 py-3 text-center font-medium flex items-center justify-center gap-2"
+              >
+                <Lock className="w-3.5 h-3.5 shrink-0 text-rose-400" />
+                <span>{error}</span>
+              </motion.div>
+            )}
 
-          {/* Pied de page : Statut & Droits */}
-          <div className="mt-6 pt-3.5 border-t border-white/[0.06] flex items-center justify-between text-[11px] text-[#6A7596]">
-            <div className="flex items-center gap-1.5">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-              </span>
-              <span className="text-emerald-400/90 font-medium">Systèmes 100% opérationnels</span>
+            {/* Boutons d'authentification OAuth */}
+            <div className="flex flex-col gap-2.5 mt-5 sm:mt-6">
+              {providers.map((p, i) => {
+                const isLastUsed = !p.soon && lastProvider === p.id
+                return (
+                  <motion.div
+                    key={p.id}
+                    initial={{ opacity: 0, x: -12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 + i * 0.06 }}
+                    className="relative"
+                  >
+                    {p.soon && (
+                      <span className="absolute -top-2 right-4 z-20 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-[#000616] shadow-[0_0_12px_rgba(245,158,11,0.4)]">
+                        Bientôt
+                      </span>
+                    )}
+                    {isLastUsed && (
+                      <span className="absolute -top-2 right-4 z-20 rounded-full bg-emerald-500/15 border border-emerald-500/40 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-emerald-400">
+                        Dernier utilisé
+                      </span>
+                    )}
+
+                    <Button
+                      variant="outline"
+                      disabled={loading !== null || !accepted || !captchaToken || p.soon}
+                      onClick={() => !p.soon && handleLogin(p.id)}
+                      aria-disabled={p.soon}
+                      title={p.soon ? "Indisponible pour l'instant" : undefined}
+                      className={`relative w-full h-[48px] sm:h-[50px] rounded-xl bg-white/[0.05] hover:bg-white/[0.09] border ${isLastUsed ? "border-emerald-500/40" : "border-white/[0.12]"} ${p.borderHover} text-white transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.3)] backdrop-blur-xl group overflow-hidden disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none active:scale-[0.99]`}
+                    >
+                      {/* Halo réactif au survol */}
+                      <div
+                        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                        style={{
+                          background: `radial-gradient(circle at center, ${p.accentGlow} 0%, transparent 70%)`
+                        }}
+                      />
+
+                      <span className="relative z-10 flex items-center justify-between w-full px-2">
+                        <div className="flex items-center gap-3">
+                          {loading === p.id ? (
+                            <Loader2 className="w-4.5 h-4.5 animate-spin text-[#03b3f8]" />
+                          ) : (
+                            <div className="w-6 h-6 sm:w-6.5 sm:h-6.5 rounded-md flex items-center justify-center bg-white/10 p-1 group-hover:scale-110 transition-transform duration-300">
+                              <Image
+                                src={p.icon}
+                                alt={p.name}
+                                width={19}
+                                height={19}
+                                className="object-contain"
+                              />
+                            </div>
+                          )}
+                          <span className="font-semibold text-xs sm:text-sm tracking-wide text-white group-hover:text-[#03b3f8] transition-colors">
+                            Continuer avec {p.name}
+                          </span>
+                        </div>
+
+                        <ArrowRight className="w-4 h-4 text-white/30 group-hover:text-white group-hover:translate-x-1 transition-all duration-300" />
+                      </span>
+                    </Button>
+                  </motion.div>
+                )
+              })}
             </div>
-            <span>© {new Date().getFullYear()} EmiID</span>
+          </motion.div>
+
+          {/* Bas de page : CGU, Turnstile, statut — enchaîné directement sous les boutons */}
+          <div className="w-full max-w-[360px] mx-auto shrink-0 mt-3 sm:mt-4">
+            {/* Case à cocher CGU / Confidentialité */}
+            <motion.button
+              type="button"
+              onClick={() => setAccepted((v: boolean) => !v)}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.35 }}
+              className="flex items-start gap-2.5 sm:gap-3 w-full text-left p-1 rounded-lg hover:bg-white/[0.02] transition-colors group cursor-pointer"
+            >
+              <div
+                className={`mt-0.5 shrink-0 w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all duration-200 shadow-sm ${accepted
+                  ? "bg-gradient-to-tr from-[#013ff4] to-[#03b3f8] border-white shadow-[0_0_12px_rgba(1,63,244,0.6)] scale-105"
+                  : "bg-white/[0.06] border-white/80 group-hover:border-white group-hover:bg-white/15"
+                  }`}
+              >
+                {accepted && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
+              </div>
+              <p className="text-[12px] text-[#A8B0C7] leading-relaxed select-none">
+                J&apos;accepte les{" "}
+                <Link
+                  href="/conditions"
+                  onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                  className="text-[#03b3f8] hover:text-white underline underline-offset-4 decoration-[#03b3f8]/40 hover:decoration-white transition-colors"
+                >
+                  conditions d&apos;utilisation
+                </Link>{" "}
+                et la{" "}
+                <Link
+                  href="/confidentialite"
+                  onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                  className="text-[#03b3f8] hover:text-white underline underline-offset-4 decoration-[#03b3f8]/40 hover:decoration-white transition-colors"
+                >
+                  politique de confidentialité
+                </Link>{" "}
+                d&apos;EmiID.
+              </p>
+            </motion.button>
+
+            {/* Widget Cloudflare Turnstile */}
+            <div className="flex flex-col items-center justify-center mt-4 pt-4 border-t border-white/[0.06]">
+              <div className="relative">
+                <Turnstile
+                  siteKey={TURNSTILE_SITE_KEY}
+                  options={{ theme: "dark", size: "normal" }}
+                  onSuccess={(token: string) => setCaptchaToken(token)}
+                  onError={() => setCaptchaToken(null)}
+                  onExpire={() => setCaptchaToken(null)}
+                />
+              </div>
+              <div className="flex items-center gap-1.5 mt-2 text-[10px] text-[#6A7596]">
+                <Shield className="w-3 h-3 text-[#03b3f8]/70" />
+                <span>Protection antibot sécurisée</span>
+              </div>
+            </div>
+
+            {/* Pied de page : Statut & Droits */}
+            <div className="mt-6 pt-3.5 border-t border-white/[0.06] flex items-center justify-between text-[11px] text-[#6A7596]">
+              <div className="flex items-center gap-1.5">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                </span>
+                <span className="text-emerald-400/90 font-medium">Systèmes 100% opérationnels</span>
+              </div>
+              <span>© {new Date().getFullYear()} EmiID</span>
+            </div>
           </div>
         </div>
-      </div>
       </div>
 
       {/* ══════════════════════════════════════════════════════════════════
