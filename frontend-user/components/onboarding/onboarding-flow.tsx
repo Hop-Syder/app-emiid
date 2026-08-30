@@ -85,32 +85,32 @@ function StepDots({ current, total }: { current: number; total: number }) {
 
 function PresentationSlide({ slide }: { slide: Slide }) {
   return (
-    <div className="flex flex-col items-center text-center gap-3 sm:gap-5 px-2">
+    <div className="flex flex-col items-center justify-center text-center gap-4 sm:gap-6 px-4 max-w-md mx-auto">
       <motion.div
         initial={{ scale: 0.85, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="relative w-[30vh] h-[30vh] max-w-[14rem] max-h-[14rem] sm:max-w-[16rem] sm:max-h-[16rem]"
+        className="relative w-36 h-36 sm:w-48 sm:h-48 md:w-52 md:h-52 mx-auto flex items-center justify-center"
       >
         <Image
           src={slide.image}
           alt={slide.alt}
           fill
-          sizes="(max-width: 640px) 30vh, 16rem"
-          className="object-contain drop-shadow-[0_0_40px_rgba(99,102,241,0.4)]"
+          sizes="(max-width: 640px) 9rem, 13rem"
+          className="object-contain drop-shadow-[0_0_40px_rgba(1,63,244,0.45)]"
           priority
         />
       </motion.div>
 
-      <div className="space-y-1.5 sm:space-y-2 max-w-sm">
+      <div className="space-y-2 sm:space-y-3 w-full text-center flex flex-col items-center justify-center">
         <motion.h2
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
-          className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight leading-snug"
+          className="text-2xl sm:text-3xl md:text-3xl font-black text-white tracking-tight leading-snug text-center"
         >
           {slide.title}{" "}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-sky-400">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#013ff4] via-[#03b3f8] to-sky-300">
             {slide.highlight}
           </span>
         </motion.h2>
@@ -118,7 +118,7 @@ function PresentationSlide({ slide }: { slide: Slide }) {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}
-          className="text-slate-400 text-[13px] sm:text-sm font-medium leading-relaxed px-1"
+          className="text-slate-300/90 text-sm sm:text-base font-normal leading-relaxed text-center max-w-sm sm:max-w-md mx-auto"
         >
           {slide.description}
         </motion.p>
@@ -163,26 +163,35 @@ export function OnboardingFlow() {
   const handleNext = () => (isLast ? finish() : goTo(step + 1))
 
   return (
-    <div className="fixed inset-0 w-full flex flex-col items-center justify-center bg-[#020617] overflow-hidden px-4 py-4 sm:py-6">
+    <div className="fixed inset-0 w-full flex flex-col items-center justify-center bg-[#000616] overflow-hidden px-4 py-4 sm:py-6 selection:bg-[#013ff4] selection:text-white">
 
-      {/* Fond */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_-10%,rgba(79,70,229,0.18),transparent_65%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808010_1px,transparent_1px),linear-gradient(to_bottom,#80808010_1px,transparent_1px)] bg-[size:48px_48px]" />
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] max-w-full h-64 bg-indigo-600/6 blur-[80px] rounded-full" />
+      {/* Fond avec image /onboarding/background.avif et teintes #000616 */}
+      <div className="absolute inset-0 pointer-events-none z-0">
+        <Image
+          src="/onboarding/background.avif"
+          alt="EmiID Onboarding Background"
+          fill
+          sizes="100vw"
+          className="object-cover object-center opacity-30 mix-blend-luminosity scale-105"
+          priority
+        />
+        <div className="absolute inset-0 bg-[#000616]/85 backdrop-blur-[1px]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#000616] via-transparent to-[#000616]/70" />
+        <div className="absolute -top-32 -right-24 w-[28rem] h-[28rem] bg-[#013ff4]/20 rounded-full blur-[130px]" />
+        <div className="absolute -bottom-40 -left-24 w-[28rem] h-[28rem] bg-[#03b3f8]/15 rounded-full blur-[130px]" />
       </div>
 
-      <div className="relative z-10 w-full max-w-lg h-full flex flex-col items-center justify-between py-10 sm:py-16">
+      <div className="relative z-10 w-full max-w-lg mx-auto flex flex-col items-center justify-center my-auto py-6 sm:py-8 gap-5 sm:gap-6">
 
         {/* Logo + dots */}
-        <div className="flex flex-col items-center gap-3 sm:gap-4 -mt-2 sm:-mt-4">
+        <div className="flex flex-col items-center justify-center gap-3 sm:gap-3.5">
           {step < 2 && (
             <Image
-              src="/logo/logo-emiid.png"
+              src="/logo-emiid-bleu-blanc-2.png"
               alt="EmiID"
-              width={448}
-              height={112}
-              className="h-24 sm:h-28 w-auto object-contain brightness-0 invert drop-shadow-[0_4px_24px_rgba(255,255,255,0.12)]"
+              width={260}
+              height={120}
+              className="h-14 sm:h-16 w-auto object-contain drop-shadow-[0_4px_24px_rgba(1,63,244,0.4)]"
               priority
             />
           )}
@@ -190,7 +199,7 @@ export function OnboardingFlow() {
         </div>
 
         {/* Slide courant */}
-        <div className="w-full relative overflow-hidden">
+        <div className="w-full relative overflow-hidden flex items-center justify-center">
           <AnimatePresence mode="wait" custom={direction}>
             <motion.div
               key={step}
@@ -200,47 +209,49 @@ export function OnboardingFlow() {
               animate="center"
               exit="exit"
               transition={{ duration: 0.28, ease: "easeInOut" }}
-              className="w-full"
+              className="w-full flex items-center justify-center"
             >
               <PresentationSlide slide={SLIDES[step]} />
             </motion.div>
           </AnimatePresence>
         </div>
 
-        {/* Navigation */}
-        <div className="w-full max-w-sm flex items-center gap-3">
-          {step > 0 && (
-            <Button
-              variant="ghost"
-              onClick={() => goTo(step - 1)}
-              disabled={saving}
-              className="flex-1 h-11 rounded-2xl text-slate-400 hover:text-white hover:bg-white/5 font-semibold text-sm"
-            >
-              <ChevronLeft className="w-4 h-4 mr-1" /> Retour
-            </Button>
-          )}
-          <Button
-            onClick={handleNext}
-            disabled={saving}
-            className="flex-[2] h-11 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm tracking-wide transition-all hover:scale-[1.01] shadow-lg shadow-indigo-500/20 disabled:opacity-60"
-          >
-            {saving ? (
-              <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Chargement...</>
-            ) : (
-              <>{SLIDES[step].cta} <ArrowRight className="w-4 h-4 ml-2" /></>
+        {/* Navigation & Passer */}
+        <div className="w-full max-w-xs sm:max-w-sm flex flex-col items-center gap-3 mt-1">
+          <div className="w-full flex items-center gap-3">
+            {step > 0 && (
+              <Button
+                variant="ghost"
+                onClick={() => goTo(step - 1)}
+                disabled={saving}
+                className="flex-1 h-12 rounded-2xl text-slate-300 hover:text-white hover:bg-white/10 font-semibold text-sm transition-all"
+              >
+                <ChevronLeft className="w-4 h-4 mr-1" /> Retour
+              </Button>
             )}
-          </Button>
-        </div>
+            <Button
+              onClick={handleNext}
+              disabled={saving}
+              className="flex-[2] h-12 rounded-2xl bg-gradient-to-r from-[#013ff4] to-[#03b3f8] hover:from-[#0135d0] hover:to-[#029ad7] text-white font-bold text-sm tracking-wide transition-all hover:scale-[1.01] shadow-lg shadow-blue-500/25 disabled:opacity-60"
+            >
+              {saving ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Chargement...</>
+              ) : (
+                <>{SLIDES[step].cta} <ArrowRight className="w-4 h-4 ml-2" /></>
+              )}
+            </Button>
+          </div>
 
-        {/* Skip */}
-        {!isLast && (
-          <button
-            onClick={() => router.replace("/creer-profil")}
-            className="text-[10px] text-slate-600 hover:text-slate-400 font-medium transition-colors tracking-wide uppercase"
-          >
-            Passer l&apos;introduction
-          </button>
-        )}
+          {/* Skip */}
+          {!isLast && (
+            <button
+              onClick={() => router.replace("/creer-profil")}
+              className="text-xs text-slate-400 hover:text-white font-semibold transition-colors tracking-wider uppercase py-1"
+            >
+              Passer l&apos;introduction
+            </button>
+          )}
+        </div>
       </div>
     </div>
   )
