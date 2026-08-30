@@ -70,7 +70,7 @@ export function AnnuaireFilters({ filters, onFilterChange, onReset }: AnnuaireFi
     return () => { active = false }
   }, [])
 
-  const countryOptions = [{ id: "all", label: "Pays" }, ...countries.map((c) => ({ id: c.iso_code, label: c.name }))]
+  const countryOptions = [{ id: "all", label: "Tous les pays" }, ...countries.map((c) => ({ id: c.iso_code, label: c.name }))]
 
   const activeCount =
     (filters.category !== "all" ? 1 : 0) +
@@ -133,19 +133,25 @@ export function AnnuaireFilters({ filters, onFilterChange, onReset }: AnnuaireFi
         </button>
         <button
           onClick={() => setStatus("verified")}
+          title="Profils vérifiés"
+          aria-label="Profils vérifiés"
           className={cn(
-            "inline-flex items-center gap-1.5 h-10 px-3 rounded-xl text-sm font-semibold border transition-colors",
+            "inline-flex items-center justify-center w-10 h-10 shrink-0 rounded-xl border transition-colors",
             filters.status === "verified" ? "bg-[#03b3f8]/10 border-[#03b3f8]/40 text-[#03b3f8]" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50",
           )}
         >
+          <BadgeCheck className="h-5 w-5" />
         </button>
         <button
           onClick={() => setStatus("premium")}
+          title="Profils Premium"
+          aria-label="Profils Premium"
           className={cn(
-            "inline-flex items-center gap-1.5 h-10 px-3 rounded-xl text-sm font-semibold border transition-colors",
+            "inline-flex items-center justify-center w-10 h-10 shrink-0 rounded-xl border transition-colors",
             filters.status === "premium" ? "bg-amber-100 border-amber-300 text-amber-700" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50",
           )}
         >
+          <Crown className="h-5 w-5" />
         </button>
       </div>
 
