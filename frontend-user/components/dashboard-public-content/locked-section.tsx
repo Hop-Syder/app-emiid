@@ -44,7 +44,7 @@ export function LockedSection({
   return (
     <section className="space-y-4">
       <div className="flex flex-row items-center justify-between gap-2 px-1 sm:px-2">
-        <h3 className="flex items-center gap-2 text-lg font-black tracking-tight text-slate-800 sm:gap-3 sm:text-2xl">
+        <h3 className="flex items-center gap-2 text-lg font-black tracking-tight text-foreground sm:gap-3 sm:text-2xl">
           <span className={`shrink-0 rounded-xl p-1.5 sm:p-2 ${iconClassName}`}>
             <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
           </span>
@@ -52,7 +52,7 @@ export function LockedSection({
         </h3>
       </div>
 
-      <div className="relative flex min-h-[300px] items-center justify-center overflow-hidden rounded-[2.5rem] border border-slate-200/80 bg-white p-6 shadow-md sm:p-8">
+      <div className="relative flex min-h-[300px] items-center justify-center overflow-hidden rounded-[2.5rem] border border-border/80 bg-card p-6 shadow-md sm:p-8">
         {/* Aperçu inerte. `aria-hidden` autant que `pointer-events-none` : un
             lecteur d'écran ne doit pas énoncer des formes vides, et rien ici ne
             doit pouvoir être cliqué ni sélectionné. */}
@@ -63,14 +63,14 @@ export function LockedSection({
           {children}
         </div>
 
-        <div className="relative z-10 flex w-full max-w-md flex-col items-center gap-5 rounded-3xl border border-slate-200/40 bg-white/70 px-6 py-8 text-center shadow-2xl backdrop-blur-xl">
+        <div className="relative z-10 flex w-full max-w-md flex-col items-center gap-5 rounded-3xl border border-border/40 bg-card/70 px-6 py-8 text-center shadow-2xl backdrop-blur-xl">
           <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900">
             <Lock className="h-6 w-6 text-amber-400" />
           </span>
 
           <div className="space-y-1.5">
-            <p className="text-lg font-black tracking-tight text-slate-900">Réservé aux membres</p>
-            <p className="text-sm font-medium leading-relaxed text-slate-600">{pitch}</p>
+            <p className="text-lg font-black tracking-tight text-foreground">Réservé aux membres</p>
+            <p className="text-sm font-medium leading-relaxed text-muted-foreground">{pitch}</p>
           </div>
 
           <div className="flex w-full flex-col gap-2 sm:flex-row">
@@ -83,7 +83,7 @@ export function LockedSection({
             </Link>
             <Link
               href="/login"
-              className="flex flex-1 items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 py-3 text-xs font-black uppercase tracking-wider text-slate-700 transition-colors hover:bg-slate-50"
+              className="flex flex-1 items-center justify-center rounded-2xl border border-border bg-card px-5 py-3 text-xs font-black uppercase tracking-wider text-foreground transition-colors hover:bg-muted"
             >
               Se connecter
             </Link>
@@ -100,16 +100,16 @@ export function CockpitPreview() {
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="space-y-2 rounded-2xl border border-slate-100 bg-slate-50 p-5">
-            <div className="h-8 w-8 rounded-xl bg-slate-200" />
-            <div className="h-5 w-14 rounded bg-slate-200" />
-            <div className="h-3 w-20 rounded bg-slate-200" />
+          <div key={i} className="space-y-2 rounded-2xl border border-border bg-muted p-5">
+            <div className="h-8 w-8 rounded-xl bg-muted" />
+            <div className="h-5 w-14 rounded bg-muted" />
+            <div className="h-3 w-20 rounded bg-muted" />
           </div>
         ))}
       </div>
-      <div className="space-y-3 rounded-2xl border border-slate-100 bg-slate-50 p-5">
-        <div className="h-3 w-40 rounded bg-slate-200" />
-        <div className="h-2.5 w-full rounded-full bg-slate-200">
+      <div className="space-y-3 rounded-2xl border border-border bg-muted p-5">
+        <div className="h-3 w-40 rounded bg-muted" />
+        <div className="h-2.5 w-full rounded-full bg-muted">
           <div className="h-full w-2/3 rounded-full bg-slate-300" />
         </div>
       </div>
@@ -122,11 +122,11 @@ export function ActivityPreview() {
   return (
     <div className="space-y-3">
       {Array.from({ length: 4 }).map((_, i) => (
-        <div key={i} className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50 p-4">
-          <div className="h-10 w-10 shrink-0 rounded-full bg-slate-200" />
+        <div key={i} className="flex items-center gap-3 rounded-2xl border border-border bg-muted p-4">
+          <div className="h-10 w-10 shrink-0 rounded-full bg-muted" />
           <div className="flex-1 space-y-2">
-            <div className="h-3.5 rounded bg-slate-200" style={{ width: `${70 - i * 8}%` }} />
-            <div className="h-2.5 w-24 rounded bg-slate-200" />
+            <div className="h-3.5 rounded bg-muted" style={{ width: `${70 - i * 8}%` }} />
+            <div className="h-2.5 w-24 rounded bg-muted" />
           </div>
         </div>
       ))}

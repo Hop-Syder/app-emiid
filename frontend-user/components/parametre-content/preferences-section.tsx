@@ -61,7 +61,7 @@ export function PreferencesSection({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <Field label="Langue de l'interface">
             <Select value={settings.language} onValueChange={(v) => update("language", v)}>
-              <SelectTrigger className="h-11 rounded-2xl bg-slate-50/80 border-slate-200 text-sm font-medium focus:bg-white focus:ring-2 focus:ring-[#013ff4]/15 focus:border-[#013ff4]">
+              <SelectTrigger className="h-11 rounded-2xl bg-muted/80 border-border text-sm font-medium focus:bg-card focus:ring-2 focus:ring-[#013ff4]/15 focus:border-[#013ff4]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="rounded-2xl">
@@ -74,7 +74,7 @@ export function PreferencesSection({
 
           <Field label="Devise de facturation">
             <Select value={settings.currency} onValueChange={(v) => update("currency", v)}>
-              <SelectTrigger className="h-11 rounded-2xl bg-slate-50/80 border-slate-200 text-sm font-medium focus:bg-white focus:ring-2 focus:ring-[#013ff4]/15 focus:border-[#013ff4]">
+              <SelectTrigger className="h-11 rounded-2xl bg-muted/80 border-border text-sm font-medium focus:bg-card focus:ring-2 focus:ring-[#013ff4]/15 focus:border-[#013ff4]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="rounded-2xl">
@@ -87,7 +87,7 @@ export function PreferencesSection({
 
           <Field label="Fuseau horaire">
             <Select value={settings.timezone} onValueChange={(v) => update("timezone", v)}>
-              <SelectTrigger className="h-11 rounded-2xl bg-slate-50/80 border-slate-200 text-sm font-medium focus:bg-white focus:ring-2 focus:ring-[#013ff4]/15 focus:border-[#013ff4]">
+              <SelectTrigger className="h-11 rounded-2xl bg-muted/80 border-border text-sm font-medium focus:bg-card focus:ring-2 focus:ring-[#013ff4]/15 focus:border-[#013ff4]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="rounded-2xl">
@@ -101,12 +101,12 @@ export function PreferencesSection({
 
       {/* ── Apparence & Confidentialité ───────────────────────────────── */}
       <SectionCard title="Apparence & Affichage" icon={Moon}>
-        <div className="divide-y divide-slate-100">
+        <div className="divide-y divide-border">
           <SettingToggle
             id="theme-dark-mode"
             icon={Moon}
-            iconBg="bg-slate-100"
-            iconColor="text-slate-700"
+            iconBg="bg-muted"
+            iconColor="text-foreground"
             title="Thème Sombre"
             description="Activez le mode sombre pour reposer vos yeux dans les environnements sombres."
             checked={settings.theme === "dark"}

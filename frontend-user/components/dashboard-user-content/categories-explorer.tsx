@@ -28,7 +28,7 @@ const categories: CategoryItem[] = [
   { id: "artisan", label: "Artisan", desc: "Création manuelle, métiers de l'artisanat, savoir-faire", icon: Hammer, color: "text-amber-600", bg: "bg-amber-50 border-amber-100", count: "1.2k+" },
   { id: "commerçante", label: "Commerçant", desc: "Vente de biens, boutiquier, grossiste", icon: Store, color: "text-emerald-500", bg: "bg-emerald-50 border-emerald-100", count: "850+" },
   { id: "freelance", label: "Freelance / Indépendant", desc: "Prestation de service en solo, consultant", icon: Laptop, color: "text-blue-500", bg: "bg-blue-50 border-blue-100", count: "420+" },
-  { id: "entreprise", label: "Entreprise", desc: "PME, TPE, Grande entreprise classique", icon: Briefcase, color: "text-slate-700", bg: "bg-slate-100 border-slate-200", count: "310+" },
+  { id: "entreprise", label: "Entreprise", desc: "PME, TPE, Grande entreprise classique", icon: Briefcase, color: "text-foreground", bg: "bg-muted border-border", count: "310+" },
   { id: "agence", label: "Agence", desc: "Communication, Marketing, Web, RH", icon: Megaphone, color: "text-purple-500", bg: "bg-purple-50 border-purple-100", count: "540+" },
   // Ligne 2
   { id: "startup", label: "Startup", desc: "Jeune entreprise innovante, Tech", icon: Rocket, color: "text-rose-500", bg: "bg-rose-50 border-rose-100", count: "210+" },
@@ -62,11 +62,11 @@ const CategoryCard = ({ cat, idx, categoryCounts }: { cat: CategoryItem, idx: nu
         <Icon className="w-28 h-28" />
       </div>
 
-      <div className="p-3 bg-white w-max rounded-xl mb-4 border border-slate-100 shadow-sm group-hover:scale-110 transition-transform duration-300">
+      <div className="p-3 bg-card w-max rounded-xl mb-4 border border-border shadow-sm group-hover:scale-110 transition-transform duration-300">
         <Icon className={`w-6 h-6 ${cat.color}`} />
       </div>
-      <h4 className="font-bold text-slate-800 text-base md:text-lg tracking-tight z-10 group-hover:text-slate-950 transition-colors leading-tight">{cat.label}</h4>
-      <p className="text-xs text-slate-500 z-10 mt-2 mb-1 line-clamp-2 leading-relaxed">{cat.desc}</p>
+      <h4 className="font-bold text-foreground text-base md:text-lg tracking-tight z-10 group-hover:text-slate-950 transition-colors leading-tight">{cat.label}</h4>
+      <p className="text-xs text-muted-foreground z-10 mt-2 mb-1 line-clamp-2 leading-relaxed">{cat.desc}</p>
       
       <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400 z-10 mt-auto pt-2">
         {displayCount} {displayCount !== "Nouveau" && "profils"}
@@ -74,7 +74,7 @@ const CategoryCard = ({ cat, idx, categoryCounts }: { cat: CategoryItem, idx: nu
       
       {/* Petit indicateur interactif */}
       <div className="absolute top-4 right-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
-        <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center border border-slate-200">
+        <div className="w-6 h-6 rounded-full bg-card flex items-center justify-center border border-border">
           <Icon className={`w-3 h-3 ${cat.color}`} />
         </div>
       </div>

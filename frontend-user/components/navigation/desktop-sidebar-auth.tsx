@@ -95,16 +95,16 @@ export function DesktopSidebarAuth({ collapsed, onToggle }: DesktopSidebarAuthPr
     <aside
       aria-label="Navigation principale"
       style={{ width: collapsed ? SIDEBAR_WIDTH_COLLAPSED : SIDEBAR_WIDTH }}
-      className="hidden lg:flex fixed inset-y-0 left-0 z-50 flex-col border-r border-slate-200 bg-white transition-[width] duration-300 ease-out dark:border-slate-800 dark:bg-slate-950"
+      className="hidden lg:flex fixed inset-y-0 left-0 z-50 flex-col border-r border-border bg-card transition-[width] duration-300 ease-out dark:border-slate-800 dark:bg-slate-950"
     >
       {/* ── Marque ─────────────────────────────────────────────────────── */}
-      <div className={cn("flex h-16 shrink-0 items-center border-b border-slate-100 dark:border-slate-900", collapsed ? "justify-center px-0" : "px-4")}>
+      <div className={cn("flex h-16 shrink-0 items-center border-b border-border dark:border-slate-900", collapsed ? "justify-center px-0" : "px-4")}>
         <Link href="/dashboard-user" className="flex items-center gap-2.5 outline-none group">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#013ff4] to-[#1e61ff] shadow-md shadow-blue-500/25 transition-transform group-hover:scale-105">
             <Image src="/logo/icon.svg" alt="" width={20} height={20} className="object-contain brightness-0 invert" />
           </span>
           {!collapsed && (
-            <span className="font-wordmark text-lg font-black tracking-tight text-slate-900 dark:text-white">
+            <span className="font-wordmark text-lg font-black tracking-tight text-foreground dark:text-white">
               Emi<span className="text-[#013ff4]">ID</span>
             </span>
           )}
@@ -131,7 +131,7 @@ export function DesktopSidebarAuth({ collapsed, onToggle }: DesktopSidebarAuthPr
                 collapsed ? "justify-center px-0" : "gap-3 px-3",
                 active
                   ? "text-[#013ff4]"
-                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white",
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white",
               )}
             >
               {active && (
@@ -180,11 +180,11 @@ export function DesktopSidebarAuth({ collapsed, onToggle }: DesktopSidebarAuthPr
       </div>
 
       {/* ── Compte ─────────────────────────────────────────────────────── */}
-      <div className="border-t border-slate-100 p-3 dark:border-slate-900">
+      <div className="border-t border-border p-3 dark:border-slate-900">
         <DropdownMenu>
           <DropdownMenuTrigger
             className={cn(
-              "flex w-full items-center rounded-2xl outline-none transition-colors hover:bg-slate-50 focus-visible:ring-2 focus-visible:ring-[#013ff4] dark:hover:bg-slate-900",
+              "flex w-full items-center rounded-2xl outline-none transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-[#013ff4] dark:hover:bg-slate-900",
               collapsed ? "justify-center p-1" : "gap-2.5 p-2",
             )}
           >
@@ -196,7 +196,7 @@ export function DesktopSidebarAuth({ collapsed, onToggle }: DesktopSidebarAuthPr
             </Avatar>
             {!collapsed && (
               <span className="min-w-0 flex-1 text-left">
-                <span className="block truncate text-xs font-bold text-slate-900 dark:text-white">
+                <span className="block truncate text-xs font-bold text-foreground dark:text-white">
                   {profile?.full_name || "Mon compte"}
                 </span>
                 <span className="block truncate text-[10px] font-bold uppercase tracking-wider text-[#013ff4]">
@@ -228,7 +228,7 @@ export function DesktopSidebarAuth({ collapsed, onToggle }: DesktopSidebarAuthPr
           onClick={onToggle}
           aria-label={collapsed ? "Déplier la barre latérale" : "Replier la barre latérale"}
           className={cn(
-            "mt-2 flex h-9 w-full items-center rounded-xl text-xs font-bold text-slate-500 outline-none transition-colors hover:bg-slate-50 hover:text-slate-900 focus-visible:ring-2 focus-visible:ring-[#013ff4] dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white",
+            "mt-2 flex h-9 w-full items-center rounded-xl text-xs font-bold text-muted-foreground outline-none transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-[#013ff4] dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white",
             collapsed ? "justify-center px-0" : "gap-2 px-3",
           )}
         >

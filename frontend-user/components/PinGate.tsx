@@ -171,7 +171,7 @@ export function PinGate({ children }: { children: React.ReactNode }) {
     if (loading) {
         // Écran de chargement minimaliste pour éviter le flash
         return (
-            <div className="flex h-screen w-full items-center justify-center bg-white">
+            <div className="flex h-screen w-full items-center justify-center bg-card">
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#013ff4] border-t-transparent" />
             </div>
         )
@@ -179,8 +179,8 @@ export function PinGate({ children }: { children: React.ReactNode }) {
 
     if (locked) {
         return (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white/80 backdrop-blur-md">
-                <div className="bg-white border border-gray-100 shadow-2xl p-8 rounded-2xl flex flex-col items-center gap-6 max-w-sm w-full animate-in zoom-in-95 duration-300">
+            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-card/80 backdrop-blur-md">
+                <div className="bg-card border border-gray-100 shadow-2xl p-8 rounded-2xl flex flex-col items-center gap-6 max-w-sm w-full animate-in zoom-in-95 duration-300">
                     
                     {recoveryStep === "none" ? (
                         <>

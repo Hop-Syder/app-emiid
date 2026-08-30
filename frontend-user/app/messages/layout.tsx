@@ -22,7 +22,7 @@ function InnerMessagesLayout({ children }: { children: React.ReactNode }) {
 
     return (
         <div className={cn(
-            "w-full bg-slate-50 overflow-hidden flex flex-col transition-all duration-300",
+            "w-full bg-muted overflow-hidden flex flex-col transition-all duration-300",
             isMessageChatActive ? "h-[100dvh] md:h-screen" : "h-[calc(100dvh-80px)] md:h-screen"
         )}>
             {children}
@@ -37,7 +37,7 @@ export default function MessagesLayout({
 }) {
     return (
         <ProtectedShell>
-            <Suspense fallback={<div className="h-screen w-full bg-slate-50" />}>
+            <Suspense fallback={<div className="h-screen w-full bg-muted" />}>
                 <InnerMessagesLayout>{children}</InnerMessagesLayout>
             </Suspense>
         </ProtectedShell>

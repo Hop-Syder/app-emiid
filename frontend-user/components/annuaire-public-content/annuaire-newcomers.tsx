@@ -54,7 +54,7 @@ export function AnnuaireNewcomers() {
         <div className="w-full">
             <div className="flex items-center mb-4 px-1 gap-2">
                 <Sparkle className="w-5 h-5 text-[#0150fd]" />
-                <h3 className="text-lg font-bold text-slate-800 tracking-tight">Nouveaux arrivants</h3>
+                <h3 className="text-lg font-bold text-foreground tracking-tight">Nouveaux arrivants</h3>
             </div>
             
             <div className="flex overflow-x-auto pb-6 -mx-4 px-4 sm:mx-0 sm:px-0 gap-4 no-scrollbar snap-x scroll-smooth lg:grid lg:grid-cols-4 lg:gap-5 xl:gap-6 lg:overflow-visible lg:p-0 lg:m-0">
@@ -64,7 +64,7 @@ export function AnnuaireNewcomers() {
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.05 }}
-                        className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center gap-3 min-w-[280px] lg:min-w-0 snap-start hover:shadow-md transition-shadow"
+                        className="bg-card rounded-2xl p-4 shadow-sm border border-border flex items-center gap-3 min-w-[280px] lg:min-w-0 snap-start hover:shadow-md transition-shadow"
                     >
                         <Image 
                             src={profile.avatar} 
@@ -74,15 +74,15 @@ export function AnnuaireNewcomers() {
                             className="w-12 h-12 rounded-full object-cover shrink-0"
                         />
                         <div className="flex-1 min-w-0">
-                            <h4 className="font-bold text-sm text-slate-900 truncate">{profile.name}</h4>
-                            <p className="text-xs text-slate-500 truncate">{profile.role}</p>
+                            <h4 className="font-bold text-sm text-foreground truncate">{profile.name}</h4>
+                            <p className="text-xs text-muted-foreground truncate">{profile.role}</p>
                             {profile.category && (
                                 <p className="text-[10px] uppercase font-bold tracking-wider text-[#0150fd] mt-0.5 truncate">{profile.category}</p>
                             )}
                         </div>
                         <a 
                             href={`/profil/${profile.slug || profile.id}`}
-                            className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-[#eaf0ff] hover:text-[#013ff4] transition-colors shrink-0"
+                            className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-slate-400 hover:bg-[#eaf0ff] hover:text-[#013ff4] transition-colors shrink-0"
                         >
                             <ArrowRight className="w-4 h-4" />
                         </a>

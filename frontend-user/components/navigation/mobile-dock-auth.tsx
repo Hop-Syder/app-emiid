@@ -143,17 +143,17 @@ export function MobileDockAuth() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 20, scale: 0.95 }}
               transition={{ type: "spring", stiffness: 420, damping: 32 }}
-              className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-[32px] border border-slate-200/90 bg-white/95 p-1 pb-3 shadow-[0_24px_60px_-12px_rgba(15,23,42,0.28)] backdrop-blur-2xl"
+              className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-[32px] border border-border/90 bg-card/95 p-1 pb-3 shadow-[0_24px_60px_-12px_rgba(15,23,42,0.28)] backdrop-blur-2xl"
             >
               {/* Poignée d'entraînement (Drag handle) */}
               <div className="flex justify-center pt-2 pb-0.5">
-                <span className="h-1 w-9 rounded-full bg-slate-200/80" />
+                <span className="h-1 w-9 rounded-full bg-muted/80" />
               </div>
 
               {/* En-tête profil */}
               <Link
                 href={profileHref}
-                className="flex items-center gap-3 rounded-2xl border-b border-slate-100 p-3.5 transition-colors hover:bg-slate-50/80"
+                className="flex items-center gap-3 rounded-2xl border-b border-border p-3.5 transition-colors hover:bg-muted/80"
               >
                 {currentUser?.avatar_url ? (
                   <Image
@@ -169,8 +169,8 @@ export function MobileDockAuth() {
                   </div>
                 )}
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-bold text-slate-900">{displayName}</p>
-                  <p className="truncate text-xs text-slate-500 font-medium">Voir mon profil public</p>
+                  <p className="truncate text-sm font-bold text-foreground">{displayName}</p>
+                  <p className="truncate text-xs text-muted-foreground font-medium">Voir mon profil public</p>
                 </div>
                 <ChevronRight className="h-4 w-4 shrink-0 text-slate-300" />
               </Link>
@@ -182,7 +182,7 @@ export function MobileDockAuth() {
                 <MenuRow href="/notifications" icon={Bell} label="Notifications" badge={unreadCount} />
                 <MenuRow href="/parametres" icon={Settings} label="Paramètres" />
 
-                <div className="my-1.5 h-px bg-slate-100/80" />
+                <div className="my-1.5 h-px bg-muted/80" />
 
                 <button
                   onClick={handleLogout}
@@ -208,7 +208,7 @@ export function MobileDockAuth() {
               par tous les moteurs mobiles — la lisibilité ne doit donc pas en
               dépendre. */}
           <div
-            className="absolute inset-0 bg-white/95 backdrop-blur-2xl"
+            className="absolute inset-0 bg-card/95 backdrop-blur-2xl"
             style={{
               WebkitMaskImage: DOCK_MASK,
               maskImage: DOCK_MASK,
@@ -292,7 +292,7 @@ export function MobileDockAuth() {
                   </span>
                 )}
               </span>
-              <span className={cn("relative text-[10px] font-bold transition-colors", menuOpen ? "text-[#013ff4]" : "text-slate-600 group-hover:text-slate-900")}>
+              <span className={cn("relative text-[10px] font-bold transition-colors", menuOpen ? "text-[#013ff4]" : "text-muted-foreground group-hover:text-foreground")}>
                 Espace
               </span>
             </button>
@@ -333,7 +333,7 @@ function DockTab({ item, active }: { item: DockItem; active: boolean }) {
         strokeWidth={active ? 2.4 : 2}
         className="relative transition-transform group-hover:scale-105"
       />
-      <span className={cn("relative text-[10px] font-bold transition-colors", active ? "text-[#013ff4]" : "text-slate-600 group-hover:text-slate-900")}>
+      <span className={cn("relative text-[10px] font-bold transition-colors", active ? "text-[#013ff4]" : "text-muted-foreground group-hover:text-foreground")}>
         {item.name}
       </span>
     </Link>
@@ -345,12 +345,12 @@ function MenuRow({ href, icon: Icon, label, badge = 0 }: { href: string; icon: L
   return (
     <Link
       href={href}
-      className="flex items-center gap-3 rounded-2xl px-3 py-2.5 transition-all hover:bg-slate-50 active:scale-[0.99]"
+      className="flex items-center gap-3 rounded-2xl px-3 py-2.5 transition-all hover:bg-muted active:scale-[0.99]"
     >
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100/80 text-slate-700 shadow-xs">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-muted/80 text-foreground shadow-xs">
         <Icon className="h-[18px] w-[18px]" />
       </span>
-      <span className="flex-1 text-sm font-semibold text-slate-800">{label}</span>
+      <span className="flex-1 text-sm font-semibold text-foreground">{label}</span>
       {badge > 0 && (
         <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-rose-500 px-1.5 text-[10px] font-black text-white shadow-xs">
           {badge > 9 ? "9+" : badge}

@@ -72,19 +72,19 @@ export function PlanSection({ profile }: PlanSectionProps) {
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 space-y-8">
+    <div className="bg-card rounded-2xl border border-border p-6 sm:p-8 space-y-8">
       <div>
-        <h3 className="text-lg font-bold text-slate-900">Mon offre EmiID</h3>
-        <p className="text-slate-500 text-xs mt-1">
+        <h3 className="text-lg font-bold text-foreground">Mon offre EmiID</h3>
+        <p className="text-muted-foreground text-xs mt-1">
           Consultez et gérez votre abonnement, vos avantages et vos statistiques.
         </p>
       </div>
 
       {/* ── Offre active ─────────────────────────────────────────────── */}
-      <div className="relative overflow-hidden rounded-2xl border border-slate-100 p-6 bg-slate-50 flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="relative overflow-hidden rounded-2xl border border-border p-6 bg-muted flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-2">
           <span className="text-[10px] font-bold tracking-widest text-slate-400 uppercase">Offre active</span>
-          <h4 className="text-xl font-black text-slate-900 flex items-center gap-2">
+          <h4 className="text-xl font-black text-foreground flex items-center gap-2">
             {pro ? (
               <>
                 <Star className="h-5 w-5 text-amber-500 fill-amber-500" />
@@ -97,7 +97,7 @@ export function PlanSection({ profile }: PlanSectionProps) {
               </>
             )}
           </h4>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-muted-foreground">
             {pro
               ? subscription?.endDate
                 ? `Votre abonnement est actif jusqu'au ${formatDate(subscription.endDate)}.`
@@ -129,11 +129,11 @@ export function PlanSection({ profile }: PlanSectionProps) {
 
       {/* ── Gestion de l'abonnement (si Pro) ─────────────────────────── */}
       {pro && subscription && !loading && (
-        <div className="rounded-2xl border border-slate-200 p-5 space-y-4">
+        <div className="rounded-2xl border border-border p-5 space-y-4">
           <div className="flex items-center justify-between gap-4">
             <div className="min-w-0">
-              <p className="text-sm font-bold text-slate-900">Renouvellement automatique</p>
-              <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
+              <p className="text-sm font-bold text-foreground">Renouvellement automatique</p>
+              <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
                 {subscription.autoRenew
                   ? `Votre forfait sera renouvelé automatiquement le ${formatDate(subscription.endDate)}.`
                   : "Sans renouvellement, votre abonnement s'achève à son échéance — pensez à le relancer."}
@@ -146,10 +146,10 @@ export function PlanSection({ profile }: PlanSectionProps) {
               aria-label="Renouvellement automatique"
             />
           </div>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-slate-100">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-border">
             <div className="min-w-0">
-              <p className="text-sm font-bold text-slate-900">Résilier l&apos;abonnement</p>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-sm font-bold text-foreground">Résilier l&apos;abonnement</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
                 Effet immédiat : le badge Pro et ses avantages sont retirés, sans remboursement au prorata.
               </p>
             </div>
@@ -183,8 +183,8 @@ export function PlanSection({ profile }: PlanSectionProps) {
       {/* ── Historique de paiements ──────────────────────────────────── */}
       {!loading && invoices.length > 0 && (
         <div className="space-y-4">
-          <h5 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Historique de paiements</h5>
-          <div className="divide-y divide-slate-100 overflow-hidden rounded-2xl border border-slate-100 bg-white">
+          <h5 className="text-xs font-bold text-foreground uppercase tracking-wider">Historique de paiements</h5>
+          <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
             {invoices.map((invoice) => (
               <InvoiceRow key={invoice.id} invoice={invoice} />
             ))}
@@ -195,7 +195,7 @@ export function PlanSection({ profile }: PlanSectionProps) {
       {/* ── Forfaits (si pas encore Pro) ─────────────────────────────── */}
       {!pro && !loading && (
         <div className="space-y-4">
-          <h5 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Choisir un forfait</h5>
+          <h5 className="text-xs font-bold text-foreground uppercase tracking-wider">Choisir un forfait</h5>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {(Object.keys(PLANS) as PlanId[]).map((planId) => {
               const plan = PLANS[planId]
@@ -204,7 +204,7 @@ export function PlanSection({ profile }: PlanSectionProps) {
                 <div
                   key={planId}
                   className={`relative rounded-2xl border p-5 flex flex-col justify-between gap-4 transition-colors ${
-                    isAnnual ? "border-[#013ff4]/30 bg-[#013ff4]/[0.03]" : "border-slate-200"
+                    isAnnual ? "border-[#013ff4]/30 bg-[#013ff4]/[0.03]" : "border-border"
                   }`}
                 >
                   {isAnnual && (
@@ -213,8 +213,8 @@ export function PlanSection({ profile }: PlanSectionProps) {
                     </span>
                   )}
                   <div>
-                    <p className="text-xs font-bold text-slate-500">{plan.label}</p>
-                    <p className="mt-1 text-2xl font-black text-slate-900">{formatFcfa(plan.amount)}</p>
+                    <p className="text-xs font-bold text-muted-foreground">{plan.label}</p>
+                    <p className="mt-1 text-2xl font-black text-foreground">{formatFcfa(plan.amount)}</p>
                     <p className="text-[11px] font-medium text-slate-400">{plan.period}</p>
                   </div>
                   <button
@@ -223,7 +223,7 @@ export function PlanSection({ profile }: PlanSectionProps) {
                     className={`w-full rounded-xl px-4 py-3 text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed ${
                       isAnnual
                         ? "bg-[#013ff4] text-white shadow-lg shadow-[#013ff4]/25 hover:bg-[#0135d0]"
-                        : "bg-white border border-slate-200 text-slate-800 hover:bg-slate-50"
+                        : "bg-card border border-border text-foreground hover:bg-muted"
                     }`}
                   >
                     {checkoutLoading === planId ? (
@@ -251,16 +251,16 @@ export function PlanSection({ profile }: PlanSectionProps) {
       {/* ── Avantages Pro (si pas encore Pro) ────────────────────────── */}
       {!pro && (
         <div className="space-y-5 pt-2">
-          <h5 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Pourquoi passer Pro ?</h5>
+          <h5 className="text-xs font-bold text-foreground uppercase tracking-wider">Pourquoi passer Pro ?</h5>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {FEATURES.map((f) => (
-              <div key={f.title} className="flex gap-3 items-start p-4 rounded-xl border border-slate-100 hover:bg-slate-50/50 transition-colors">
+              <div key={f.title} className="flex gap-3 items-start p-4 rounded-xl border border-border hover:bg-muted/50 transition-colors">
                 <div className="p-2 bg-[#013ff4]/[0.08] rounded-lg text-[#013ff4]">
                   <f.icon className="h-4 w-4" />
                 </div>
                 <div>
-                  <h6 className="text-xs font-bold text-slate-900">{f.title}</h6>
-                  <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">{f.desc}</p>
+                  <h6 className="text-xs font-bold text-foreground">{f.title}</h6>
+                  <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">{f.desc}</p>
                 </div>
               </div>
             ))}
@@ -269,11 +269,11 @@ export function PlanSection({ profile }: PlanSectionProps) {
       )}
 
       {/* ── Statistiques d'engagement ────────────────────────────────── */}
-      <div className="space-y-4 pt-2 border-t border-slate-100">
+      <div className="space-y-4 pt-2 border-t border-border">
         <div className="flex items-center justify-between gap-2 pt-6">
-          <h5 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Performance du profil</h5>
+          <h5 className="text-xs font-bold text-foreground uppercase tracking-wider">Performance du profil</h5>
           {!pro && (
-            <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-bold text-slate-500">
+            <span className="rounded-full bg-muted px-2.5 py-0.5 text-[10px] font-bold text-muted-foreground">
               Détail complet avec Pro
             </span>
           )}
@@ -303,11 +303,11 @@ function InvoiceRow({ invoice }: { invoice: Invoice }) {
   return (
     <div className="flex items-center justify-between gap-3 px-4 py-3">
       <div className="flex items-center gap-3 min-w-0">
-        <div className="p-2 rounded-xl bg-slate-50 text-slate-400 shrink-0">
+        <div className="p-2 rounded-xl bg-muted text-slate-400 shrink-0">
           <ReceiptText className="h-4 w-4" />
         </div>
         <div className="min-w-0">
-          <p className="text-xs font-bold text-slate-900">{formatFcfa(invoice.amount)}</p>
+          <p className="text-xs font-bold text-foreground">{formatFcfa(invoice.amount)}</p>
           <p className="text-[11px] text-slate-400">{formatDate(invoice.createdAt)}</p>
         </div>
       </div>
@@ -336,14 +336,14 @@ function StatTile({
     <motion.div
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-2xl border border-slate-100 bg-white p-4"
+      className="rounded-2xl border border-border bg-card p-4"
     >
       <div className="flex items-center gap-1.5 text-slate-400">
         <Icon className="h-3.5 w-3.5" />
         <span className="text-[10px] font-bold uppercase tracking-wider">{label}</span>
       </div>
-      <p className="mt-1.5 text-xl font-black text-slate-900">
-        {loading ? <span className="inline-block h-5 w-10 animate-pulse rounded bg-slate-100" /> : locked ? "—" : value}
+      <p className="mt-1.5 text-xl font-black text-foreground">
+        {loading ? <span className="inline-block h-5 w-10 animate-pulse rounded bg-muted" /> : locked ? "—" : value}
       </p>
     </motion.div>
   )

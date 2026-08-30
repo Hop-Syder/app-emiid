@@ -116,7 +116,7 @@ export function ProximitySection({ fallbackLocation, initialProfiles = [] }: Pro
   return (
     <div className="space-y-4 pt-4">
       <div className="flex flex-row items-center justify-between px-1 sm:px-2 gap-2">
-        <h3 className="text-lg sm:text-2xl font-black text-slate-800 flex items-center gap-2 sm:gap-3 tracking-tight">
+        <h3 className="text-lg sm:text-2xl font-black text-foreground flex items-center gap-2 sm:gap-3 tracking-tight">
           <div className="p-1.5 sm:p-2 bg-[#03b3f8]/10 rounded-xl shrink-0 relative overflow-hidden">
             {loading && <div className="absolute inset-0 bg-[#03b3f8]/20 animate-ping rounded-xl" />}
             <MapPin className="text-[#03b3f8] w-4 h-4 sm:w-5 sm:h-5 relative z-10" />

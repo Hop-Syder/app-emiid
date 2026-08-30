@@ -71,7 +71,7 @@ function StepDots({ current, total }: { current: number; total: number }) {
           key={i}
           animate={{ width: i === current ? 24 : 8, opacity: i <= current ? 1 : 0.3 }}
           transition={{ duration: 0.3 }}
-          className={`h-2 rounded-full ${i <= current ? "bg-indigo-400" : "bg-white/20"}`}
+          className={`h-2 rounded-full ${i <= current ? "bg-indigo-400" : "bg-card/20"}`}
         />
       ))}
     </div>
@@ -221,7 +221,7 @@ export function OnboardingFlow() {
                 variant="ghost"
                 onClick={() => goTo(step - 1)}
                 disabled={saving}
-                className="flex-1 h-12 rounded-2xl text-slate-300 hover:text-white hover:bg-white/10 font-semibold text-sm transition-all"
+                className="flex-1 h-12 rounded-2xl text-slate-300 hover:text-white hover:bg-card/10 font-semibold text-sm transition-all"
               >
                 <ChevronLeft className="w-4 h-4 mr-1" /> Retour
               </Button>

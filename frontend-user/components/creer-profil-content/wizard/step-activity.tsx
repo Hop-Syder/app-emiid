@@ -22,13 +22,13 @@ export function StepActivity({ formData, handleInputChange, errors }: StepActivi
     return (
         <div className="space-y-6">
             <div>
-                <h2 className="text-2xl font-bold tracking-tight text-slate-900">Que fais-tu ?</h2>
-                <p className="text-sm text-slate-500 mt-1">Ton activité et ton contact direct.</p>
+                <h2 className="text-2xl font-bold tracking-tight text-foreground">Que fais-tu ?</h2>
+                <p className="text-sm text-muted-foreground mt-1">Ton activité et ton contact direct.</p>
             </div>
 
             {/* Corps de métier */}
             <div className="space-y-1.5">
-                <Label htmlFor="role" className="text-sm font-semibold text-slate-700">
+                <Label htmlFor="role" className="text-sm font-semibold text-foreground">
                     Corps de métier <span className="text-[#013ff4]">*</span>
                 </Label>
                 <Input
@@ -43,14 +43,14 @@ export function StepActivity({ formData, handleInputChange, errors }: StepActivi
 
             {/* Type de profil */}
             <div className="space-y-1.5">
-                <Label htmlFor="category" className="text-sm font-semibold text-slate-700">
+                <Label htmlFor="category" className="text-sm font-semibold text-foreground">
                     Type de profil <span className="text-[#013ff4]">*</span>
                 </Label>
                 <Select value={formData.category || ""} onValueChange={(v) => handleInputChange("category", v)}>
                     <SelectTrigger id="category" className="h-12 rounded-xl">
                         <SelectValue placeholder="Choisir un type de profil..." />
                     </SelectTrigger>
-                    <SelectContent className="rounded-2xl border-slate-200 shadow-2xl p-1 max-h-[300px]">
+                    <SelectContent className="rounded-2xl border-border shadow-2xl p-1 max-h-[300px]">
                         {PROFILE_CATEGORIES.map((opt) => (
                             <SelectItem key={opt.value} value={opt.value} className="rounded-xl py-2.5 cursor-pointer">
                                 {opt.label}
@@ -63,14 +63,14 @@ export function StepActivity({ formData, handleInputChange, errors }: StepActivi
 
             {/* Secteur d'activité */}
             <div className="space-y-1.5">
-                <Label htmlFor="activity_domain" className="text-sm font-semibold text-slate-700">
+                <Label htmlFor="activity_domain" className="text-sm font-semibold text-foreground">
                     Secteur d&apos;activité
                 </Label>
                 <Select value={formData.activity_domain || ""} onValueChange={(v) => handleInputChange("activity_domain", v)}>
                     <SelectTrigger id="activity_domain" className="h-12 rounded-xl">
                         <SelectValue placeholder="Choisir un secteur..." />
                     </SelectTrigger>
-                    <SelectContent className="rounded-2xl border-slate-200 shadow-2xl p-1 max-h-[300px]">
+                    <SelectContent className="rounded-2xl border-border shadow-2xl p-1 max-h-[300px]">
                         {ACTIVITY_DOMAINS.map((opt) => (
                             <SelectItem key={opt.value} value={opt.value} className="rounded-xl py-2.5 cursor-pointer">
                                 {opt.label}
@@ -82,7 +82,7 @@ export function StepActivity({ formData, handleInputChange, errors }: StepActivi
 
             {/* WhatsApp */}
             <div className="space-y-1.5">
-                <Label htmlFor="phone" className="text-sm font-semibold text-slate-700">
+                <Label htmlFor="phone" className="text-sm font-semibold text-foreground">
                     Téléphone (WhatsApp direct) <span className="text-[#013ff4]">*</span>
                 </Label>
                 <Input

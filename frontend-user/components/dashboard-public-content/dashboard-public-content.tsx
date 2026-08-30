@@ -210,7 +210,7 @@ export function DashboardPublicContent({ initialStats = null, initialProfiles = 
     }, [supabase])
 
     return (
-        <div className="flex flex-col min-h-screen pb-16 w-full bg-slate-50/50">
+        <div className="flex flex-col min-h-screen pb-16 w-full bg-muted/50">
             {/* =========================================
                 SECTION 1 : HERO MATRIX 3D & STATS DYNAMIQUES
                 ========================================= */}

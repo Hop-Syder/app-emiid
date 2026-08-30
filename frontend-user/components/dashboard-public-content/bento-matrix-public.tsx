@@ -275,14 +275,14 @@ export function BentoMatrixPublic({ categoryCounts }: BentoMatrixPublicProps = {
   return (
     <section className="space-y-8 py-4">
       {/* ── EN-TÊTE DE LA SECTION ────────────────────────────────────────── */}
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 bg-white p-6 sm:p-8 rounded-[2.5rem] border border-slate-200/90 shadow-[0_12px_32px_rgba(15,23,42,0.04)] relative overflow-hidden">
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 bg-card p-6 sm:p-8 rounded-[2.5rem] border border-border/90 shadow-[0_12px_32px_rgba(15,23,42,0.04)] relative overflow-hidden">
         <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-br from-[#013ff4]/5 to-[#03b3f8]/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
 
         <div className="space-y-3 relative z-10 max-w-2xl">
-          <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight font-heading">
+          <h2 className="text-2xl sm:text-4xl font-black text-foreground tracking-tight font-heading">
             Découvrez nos 10 Catégories d&apos;Activité
           </h2>
-          <p className="text-sm sm:text-base text-slate-600 font-medium leading-relaxed">
+          <p className="text-sm sm:text-base text-muted-foreground font-medium leading-relaxed">
             Du créateur indépendant aux grandes institutions, explorez les profils vérifiés de l&apos;écosystème EmiID et connectez-vous immédiatement.
           </p>
         </div>
@@ -360,7 +360,7 @@ export function BentoMatrixPublic({ categoryCounts }: BentoMatrixPublicProps = {
               </div>
 
               {/* Bouton flèche discret en haut à droite (animé au survol) */}
-              <div className="pointer-events-none absolute top-3 right-3 z-10 flex h-7 w-7 items-center justify-center rounded-lg bg-white/15 text-white opacity-0 backdrop-blur-md transition-all duration-300 group-hover:opacity-100 group-hover:scale-105">
+              <div className="pointer-events-none absolute top-3 right-3 z-10 flex h-7 w-7 items-center justify-center rounded-lg bg-card/15 text-white opacity-0 backdrop-blur-md transition-all duration-300 group-hover:opacity-100 group-hover:scale-105">
                 <ArrowRight className="h-3.5 w-3.5" />
               </div>
 
@@ -389,7 +389,7 @@ export function BentoMatrixPublic({ categoryCounts }: BentoMatrixPublicProps = {
 
         <button
           onClick={() => router.push('/annuaire')}
-          className="z-10 shrink-0 px-5 py-2.5 rounded-xl bg-white text-slate-900 hover:bg-slate-100 text-xs sm:text-sm font-bold shadow-md transition-all active:scale-95 flex items-center gap-2"
+          className="z-10 shrink-0 px-5 py-2.5 rounded-xl bg-card text-foreground hover:bg-muted text-xs sm:text-sm font-bold shadow-md transition-all active:scale-95 flex items-center gap-2"
         >
           <span>Voir l&apos;annuaire</span>
           <ArrowRight className="h-4 w-4 text-[#013ff4]" />

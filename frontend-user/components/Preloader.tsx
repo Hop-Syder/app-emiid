@@ -53,7 +53,7 @@ export function Preloader({
                     <motion.div
                         animate={{ scale: [0.95, 1.05, 0.95] }}
                         transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-                        className="w-[4.5rem] h-[4.5rem] sm:w-20 sm:h-20 rounded-full bg-white/80 backdrop-blur-xl shadow-[inset_0_2px_4px_rgba(255,255,255,0.6),0_10px_30px_rgba(0,0,0,0.06)] border border-white/50 flex items-center justify-center p-3"
+                        className="w-[4.5rem] h-[4.5rem] sm:w-20 sm:h-20 rounded-full bg-card/80 backdrop-blur-xl shadow-[inset_0_2px_4px_rgba(255,255,255,0.6),0_10px_30px_rgba(0,0,0,0.06)] border border-white/50 flex items-center justify-center p-3"
                     >
                         <Image
                             src="/logo/logo-emiid.png"
@@ -71,7 +71,7 @@ export function Preloader({
                     <motion.p
                         animate={{ opacity: [0.4, 1, 0.4] }}
                         transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                        className="text-xs font-black tracking-[0.25em] text-slate-800 uppercase"
+                        className="text-xs font-black tracking-[0.25em] text-foreground uppercase"
                     >
                         {text}
                     </motion.p>

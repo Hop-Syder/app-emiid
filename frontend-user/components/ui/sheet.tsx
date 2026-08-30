@@ -37,17 +37,17 @@ function SheetOverlay({ className, ...props }: React.ComponentProps<typeof Sheet
 }
 
 const sheetVariants = cva(
-  "fixed z-50 flex flex-col bg-white shadow-2xl transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500",
+  "fixed z-50 flex flex-col bg-card shadow-2xl transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500",
   {
     variants: {
       side: {
         right:
-          "inset-y-0 right-0 h-full w-full sm:max-w-md border-l border-slate-100 data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right",
+          "inset-y-0 right-0 h-full w-full sm:max-w-md border-l border-border data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right",
         left:
-          "inset-y-0 left-0 h-full w-full sm:max-w-md border-r border-slate-100 data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left",
-        top: "inset-x-0 top-0 h-auto border-b border-slate-100 data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
+          "inset-y-0 left-0 h-full w-full sm:max-w-md border-r border-border data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left",
+        top: "inset-x-0 top-0 h-auto border-b border-border data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
         bottom:
-          "inset-x-0 bottom-0 h-auto border-t border-slate-100 data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
+          "inset-x-0 bottom-0 h-auto border-t border-border data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
       },
     },
     defaultVariants: { side: "right" },
@@ -71,7 +71,7 @@ function SheetContent({ side = "right", className, children, hideClose, ...props
       >
         {children}
         {!hideClose && (
-          <SheetPrimitive.Close className="absolute right-4 top-4 rounded-full p-1.5 text-slate-400 opacity-80 transition hover:bg-slate-100 hover:text-slate-700 hover:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#013ff4]/40 disabled:pointer-events-none">
+          <SheetPrimitive.Close className="absolute right-4 top-4 rounded-full p-1.5 text-slate-400 opacity-80 transition hover:bg-muted hover:text-foreground hover:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#013ff4]/40 disabled:pointer-events-none">
             <XIcon className="h-5 w-5" />
             <span className="sr-only">Fermer</span>
           </SheetPrimitive.Close>
@@ -90,11 +90,11 @@ function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 function SheetTitle({ className, ...props }: React.ComponentProps<typeof SheetPrimitive.Title>) {
-  return <SheetPrimitive.Title data-slot="sheet-title" className={cn("text-lg font-black text-slate-900", className)} {...props} />
+  return <SheetPrimitive.Title data-slot="sheet-title" className={cn("text-lg font-black text-foreground", className)} {...props} />
 }
 
 function SheetDescription({ className, ...props }: React.ComponentProps<typeof SheetPrimitive.Description>) {
-  return <SheetPrimitive.Description data-slot="sheet-description" className={cn("text-sm text-slate-500", className)} {...props} />
+  return <SheetPrimitive.Description data-slot="sheet-description" className={cn("text-sm text-muted-foreground", className)} {...props} />
 }
 
 export {

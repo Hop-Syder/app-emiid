@@ -84,12 +84,12 @@ export function HoursPricingSection({ profile, setProfile, saving, handleSave, h
         icon={Clock}
         description="Définissez vos plages de disponibilité hebdomadaires affichées sur votre profil."
       >
-        <div className="divide-y divide-slate-100">
+        <div className="divide-y divide-border">
           {DAYS.map(({ day, label }) => {
             const h = getDay(day)
             return (
               <div key={day} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
-                <span className="w-24 shrink-0 text-sm font-bold text-slate-800">{label}</span>
+                <span className="w-24 shrink-0 text-sm font-bold text-foreground">{label}</span>
                 
                 {h.closed ? (
                   <span className="flex-1 text-xs text-slate-400 font-semibold py-1">Fermé au public</span>
@@ -132,19 +132,19 @@ export function HoursPricingSection({ profile, setProfile, saving, handleSave, h
       >
         <div className="space-y-3">
           {services.length === 0 && (
-            <div className="p-6 text-center rounded-2xl bg-slate-50/60 border border-dashed border-slate-200">
-              <p className="text-xs text-slate-500 font-medium">Aucune prestation configurée pour le moment.</p>
+            <div className="p-6 text-center rounded-2xl bg-muted/60 border border-dashed border-border">
+              <p className="text-xs text-muted-foreground font-medium">Aucune prestation configurée pour le moment.</p>
               <p className="text-[11px] text-slate-400 mt-1">Ajoutez vos offres pour valoriser votre profil dans l&apos;annuaire.</p>
             </div>
           )}
 
           {services.map((service, index) => (
-            <div key={index} className="rounded-2xl border border-slate-200/80 bg-slate-50/50 p-4 space-y-3 shadow-xs">
+            <div key={index} className="rounded-2xl border border-border/80 bg-muted/50 p-4 space-y-3 shadow-xs">
               <div className="flex items-center gap-2.5">
                 <Input
                   value={service.title}
                   onChange={(e) => updateService(index, { title: e.target.value })}
-                  className={`${INPUT} bg-white flex-1 font-bold text-sm`}
+                  className={`${INPUT} bg-card flex-1 font-bold text-sm`}
                   placeholder="Intitulé de la prestation (ex : Création Logo & Charte)"
                 />
                 <div className="relative w-32 shrink-0">
@@ -153,7 +153,7 @@ export function HoursPricingSection({ profile, setProfile, saving, handleSave, h
                     min={0}
                     value={service.price ?? ""}
                     onChange={(e) => updateService(index, { price: e.target.value === "" ? null : Number(e.target.value) })}
-                    className={`${INPUT} bg-white pr-10 text-right font-bold text-sm`}
+                    className={`${INPUT} bg-card pr-10 text-right font-bold text-sm`}
                     placeholder="Prix"
                   />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400 uppercase pointer-events-none">
@@ -174,7 +174,7 @@ export function HoursPricingSection({ profile, setProfile, saving, handleSave, h
               <Input
                 value={service.description}
                 onChange={(e) => updateService(index, { description: e.target.value })}
-                className={`${INPUT} bg-white text-xs`}
+                className={`${INPUT} bg-card text-xs`}
                 placeholder="Description sommaire, délai indicatif ou conditions (facultatif)"
               />
             </div>
@@ -184,7 +184,7 @@ export function HoursPricingSection({ profile, setProfile, saving, handleSave, h
             type="button"
             variant="outline"
             onClick={addService}
-            className="rounded-2xl h-11 gap-2 border-dashed border-slate-300 text-slate-600 w-full font-bold hover:bg-slate-50 transition-all"
+            className="rounded-2xl h-11 gap-2 border-dashed border-slate-300 text-muted-foreground w-full font-bold hover:bg-muted transition-all"
           >
             <Plus className="h-4 w-4 text-[#013ff4]" />
             Ajouter une prestation

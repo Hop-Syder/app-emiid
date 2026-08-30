@@ -110,14 +110,14 @@ export const MessageInput: React.FC<MessageInputProps> = ({
 
   // === RENDU DU COMPOSANT ===
   return (
-    <div className="px-4 py-3 bg-white/80 backdrop-blur-xl border-t border-slate-100/80 shrink-0">
+    <div className="px-4 py-3 bg-card/80 backdrop-blur-xl border-t border-border/80 shrink-0">
       {/* Bannière de modification de message */}
       {editingMessage && (
         <div className="flex items-center justify-between bg-[#eaf0ff]/80 border border-[#d5e0ff] px-3 py-1.5 rounded-xl text-xs font-semibold text-[#0132cc] mb-2 animate-in slide-in-from-bottom-1">
           <div className="flex items-center gap-1.5 truncate">
             <span className="w-1.5 h-1.5 bg-primary rounded-full" />
             <span className="truncate">
-              Modification du message : <span className="font-normal italic text-slate-500">&quot;{editingMessage.content}&quot;</span>
+              Modification du message : <span className="font-normal italic text-muted-foreground">&quot;{editingMessage.content}&quot;</span>
             </span>
           </div>
           <button
@@ -132,9 +132,9 @@ export const MessageInput: React.FC<MessageInputProps> = ({
 
       <form 
         onSubmit={handleSubmit}
-        className="flex items-end gap-2.5 bg-slate-50/80 p-1.5 rounded-[24px] border border-slate-200/60 transition-all focus-within:border-primary/30 focus-within:shadow-[0_0_0_3px_rgba(79,70,229,0.08)] focus-within:bg-white"
+        className="flex items-end gap-2.5 bg-muted/80 p-1.5 rounded-[24px] border border-border/60 transition-all focus-within:border-primary/30 focus-within:shadow-[0_0_0_3px_rgba(79,70,229,0.08)] focus-within:bg-card"
       >
-        <div className="flex-1 relative bg-slate-50/50 rounded-[20px] transition-all focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/20 flex items-end">
+        <div className="flex-1 relative bg-muted/50 rounded-[20px] transition-all focus-within:bg-card focus-within:ring-2 focus-within:ring-primary/20 flex items-end">
           <input 
             id="message-file-input"
             name="message_file"
@@ -169,7 +169,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
             name="message_text"
             rows={1}
             placeholder={editingMessage ? "Modifier le message..." : "Message..."} 
-            className="flex-1 border-none bg-transparent pl-2 pr-11 py-3 focus:outline-none focus:ring-0 shadow-none font-medium text-[15px] resize-none overflow-y-auto max-h-[140px] leading-relaxed text-slate-800 self-center"
+            className="flex-1 border-none bg-transparent pl-2 pr-11 py-3 focus:outline-none focus:ring-0 shadow-none font-medium text-[15px] resize-none overflow-y-auto max-h-[140px] leading-relaxed text-foreground self-center"
             value={text}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -193,18 +193,18 @@ export const MessageInput: React.FC<MessageInputProps> = ({
             "h-9 w-9 rounded-full shadow-sm transition-all duration-200 shrink-0",
             text.trim() || file
               ? "bg-primary hover:bg-primary/90 text-white scale-100 hover:scale-105 active:scale-95 shadow-primary/30"
-              : "bg-slate-200 text-slate-400 cursor-not-allowed"
+              : "bg-muted text-slate-400 cursor-not-allowed"
           )}
         >
           <Send className="h-3.5 w-3.5 ml-0.5" />
         </Button>
 
         {file && (
-          <div className="absolute bottom-24 left-4 right-4 md:left-auto md:right-auto md:w-80 bg-white/95 backdrop-blur-md border border-white shadow-xl rounded-2xl p-3 flex items-center gap-3 animate-in slide-in-from-bottom-2">
+          <div className="absolute bottom-24 left-4 right-4 md:left-auto md:right-auto md:w-80 bg-card/95 backdrop-blur-md border border-white shadow-xl rounded-2xl p-3 flex items-center gap-3 animate-in slide-in-from-bottom-2">
             <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary font-bold text-xs">
               {file.name.split('.').pop()?.toUpperCase()}
             </div>
-            <span className="text-sm font-medium text-slate-700 flex-1 truncate">{file.name}</span>
+            <span className="text-sm font-medium text-foreground flex-1 truncate">{file.name}</span>
             <Button 
               type="button" 
               variant="ghost" 

@@ -65,7 +65,7 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
           "w-full flex items-center gap-3 px-3 py-2.5 pr-10 transition-all duration-200 rounded-xl border relative overflow-hidden group",
           isActive
             ? "bg-primary/8 border-primary/15 shadow-sm ring-1 ring-primary/10"
-            : "bg-transparent border-transparent hover:bg-slate-50/80 hover:border-slate-100"
+            : "bg-transparent border-transparent hover:bg-muted/80 hover:border-border"
         )}
       >
         {/* Active accent bar */}
@@ -77,14 +77,14 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
         <div className="relative shrink-0">
           <Avatar className={cn(
             "h-11 w-11 border-2 transition-all duration-200",
-            isActive ? "border-primary/20 shadow-sm" : "border-white shadow-sm group-hover:border-slate-200"
+            isActive ? "border-primary/20 shadow-sm" : "border-white shadow-sm group-hover:border-border"
           )}>
             <AvatarImage src={p?.avatar_url || '/profil/avatar.jpg'} alt={fullName} />
             <AvatarFallback className={cn(
               "font-bold text-sm",
               isActive
                 ? "bg-primary/15 text-primary"
-                : "bg-gradient-to-br from-slate-100 to-slate-200 text-slate-600"
+                : "bg-gradient-to-br from-slate-100 to-slate-200 text-muted-foreground"
             )}>
               {initials}
             </AvatarFallback>
@@ -101,7 +101,7 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
           <div className="flex justify-between items-baseline mb-0.5">
             <h3 className={cn(
               "text-sm truncate leading-snug",
-              hasUnread ? "font-bold text-slate-900" : "font-semibold text-slate-700"
+              hasUnread ? "font-bold text-foreground" : "font-semibold text-foreground"
             )}>
               {fullName}
             </h3>
@@ -122,7 +122,7 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
           <div className="flex items-center justify-between gap-1">
             <p className={cn(
               "text-xs truncate flex items-center gap-1",
-              hasUnread ? "text-slate-700 font-medium" : "text-slate-400 font-normal"
+              hasUnread ? "text-foreground font-medium" : "text-slate-400 font-normal"
             )}>
               {!hasUnread && <CheckCheck className="h-3 w-3 text-primary/60 shrink-0" />}
               {conversation.last_message || "Démarrer la discussion..."}
@@ -147,32 +147,32 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100/50"
+              className="h-8 w-8 rounded-lg text-slate-400 hover:text-foreground hover:bg-muted/50"
               onClick={(e) => e.stopPropagation()}
             >
               <MoreVertical className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-44 rounded-xl shadow-xl border-slate-100">
+          <DropdownMenuContent align="end" className="w-44 rounded-xl shadow-xl border-border">
             <DropdownMenuItem
-              className="text-slate-700 focus:text-primary rounded-lg flex items-center gap-2 cursor-pointer"
+              className="text-foreground focus:text-primary rounded-lg flex items-center gap-2 cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation()
                 onPin?.(conversation.id)
               }}
             >
-              <Pin className="h-3.5 w-3.5 rotate-45 text-slate-500" />
+              <Pin className="h-3.5 w-3.5 rotate-45 text-muted-foreground" />
               {conversation.isPinned ? "Désépingler" : "Épingler"}
             </DropdownMenuItem>
             
             <DropdownMenuItem
-              className="text-slate-700 focus:text-primary rounded-lg flex items-center gap-2 cursor-pointer"
+              className="text-foreground focus:text-primary rounded-lg flex items-center gap-2 cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation()
                 onArchive?.(conversation.id)
               }}
             >
-              <Archive className="h-3.5 w-3.5 text-slate-500" />
+              <Archive className="h-3.5 w-3.5 text-muted-foreground" />
               {conversation.isArchived ? "Désarchiver" : "Archiver"}
             </DropdownMenuItem>
 

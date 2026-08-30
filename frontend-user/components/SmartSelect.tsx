@@ -108,7 +108,7 @@ export function SmartSelect({ table, label, value, onChange, placeholder }: Smar
             </label>
 
             <div className="relative">
-                <Command className="rounded-xl border border-gray-200 bg-white overflow-visible shadow-sm focus-within:ring-2 focus-within:ring-[#013ff4]/20 focus-within:border-[#013ff4] transition-all">
+                <Command className="rounded-xl border border-gray-200 bg-card overflow-visible shadow-sm focus-within:ring-2 focus-within:ring-[#013ff4]/20 focus-within:border-[#013ff4] transition-all">
                     <div className="flex items-center px-3 border-b-0">
                         <CommandInput
                             placeholder={placeholder || "Rechercher ou créer..."}
@@ -128,7 +128,7 @@ export function SmartSelect({ table, label, value, onChange, placeholder }: Smar
 
                     {/* Liste déroulante Flottante */}
                     {open && (
-                        <div className="absolute top-[calc(100%+4px)] left-0 w-full z-50 rounded-xl border border-gray-100 bg-white shadow-xl animate-in fade-in-0 zoom-in-95 data-[side=bottom]:slide-in-from-top-2">
+                        <div className="absolute top-[calc(100%+4px)] left-0 w-full z-50 rounded-xl border border-gray-100 bg-card shadow-xl animate-in fade-in-0 zoom-in-95 data-[side=bottom]:slide-in-from-top-2">
                             <CommandList className="max-h-[250px] overflow-y-auto p-1">
 
                                 {/* Option de création si pas de match exact */}

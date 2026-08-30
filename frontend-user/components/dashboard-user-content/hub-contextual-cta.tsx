@@ -19,7 +19,7 @@ export function HubContextualCta() {
   const { currentUser, session } = useCurrentUserProfile()
 
   if (session === undefined || (currentUser && currentUser.has_profile === undefined)) {
-    return <div className="h-28 rounded-3xl bg-slate-100/50 animate-pulse" />
+    return <div className="h-28 rounded-3xl bg-muted/50 animate-pulse" />
   }
 
   const needsProfile = currentUser && (!currentUser.has_profile || currentUser.is_published === false)

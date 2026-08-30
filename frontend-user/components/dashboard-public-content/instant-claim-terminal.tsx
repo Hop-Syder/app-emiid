@@ -54,7 +54,7 @@ export function InstantClaimTerminal() {
         </p>
 
         <form onSubmit={handleSubmit} className="pt-4 max-w-md mx-auto">
-          <div className="flex flex-col sm:flex-row items-stretch gap-2.5 p-2 bg-white/10 backdrop-blur-2xl rounded-2xl border border-white/20 shadow-xl">
+          <div className="flex flex-col sm:flex-row items-stretch gap-2.5 p-2 bg-card/10 backdrop-blur-2xl rounded-2xl border border-white/20 shadow-xl">
             <Input
               type="text"
               placeholder="Entrez votre prénom..."

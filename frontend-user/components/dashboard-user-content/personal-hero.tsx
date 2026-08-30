@@ -29,7 +29,7 @@ export function PersonalHero() {
   } = usePersonalHero()
 
   return (
-    <div className="rounded-3xl bg-white border border-slate-100 p-4 sm:p-5 shadow-[0_4px_24px_rgb(15,23,42,0.05)]">
+    <div className="rounded-3xl bg-card border border-border p-4 sm:p-5 shadow-[0_4px_24px_rgb(15,23,42,0.05)]">
       <div className="flex flex-col lg:flex-row gap-4">
         {/* Complétude */}
         <ProfileCompleteness completion={completion} loading={loading} nextAction={nextAction} />
@@ -72,7 +72,7 @@ export function PersonalHero() {
                 {unreadMsgs > 9 ? "9+" : unreadMsgs}
               </span>
             </span>
-            <span className="text-sm font-bold text-slate-900 truncate">
+            <span className="text-sm font-bold text-foreground truncate">
               Vous avez {unreadMsgs} message{unreadMsgs > 1 ? "s" : ""} non lu{unreadMsgs > 1 ? "s" : ""}
             </span>
           </span>
@@ -90,7 +90,7 @@ export function PersonalHero() {
         >
           <span className="flex items-center gap-2.5 min-w-0">
             <Images className="h-5 w-5 text-[#03b3f8] shrink-0" />
-            <span className="text-sm font-bold text-slate-900 truncate">
+            <span className="text-sm font-bold text-foreground truncate">
               Exposez votre talent — ajoutez votre 1<sup>re</sup> réalisation
             </span>
           </span>

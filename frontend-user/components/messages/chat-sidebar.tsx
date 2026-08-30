@@ -79,17 +79,17 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
 
   // === RENDU DU COMPOSANT ===
   return (
-    <div className="flex flex-col h-full border-r border-white/50 bg-white/50 backdrop-blur-xl w-full z-20 shadow-[4px_0_24px_-12px_rgba(0,0,0,0.08)]">
+    <div className="flex flex-col h-full border-r border-white/50 bg-card/50 backdrop-blur-xl w-full z-20 shadow-[4px_0_24px_-12px_rgba(0,0,0,0.08)]">
       
       {/* === EN-TÊTE === */}
-      <div className="px-4 pt-5 pb-3 border-b border-slate-100/80 bg-white/30 space-y-3">
+      <div className="px-4 pt-5 pb-3 border-b border-border/80 bg-card/30 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             {showArchived ? (
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 rounded-lg text-slate-500 hover:text-slate-800 mr-0.5"
+                className="h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground mr-0.5"
                 onClick={() => setShowArchived(false)}
                 title="Retour aux messages"
               >
@@ -99,14 +99,14 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 rounded-lg text-slate-500 hover:text-slate-800 mr-0.5"
+                className="h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground mr-0.5"
                 onClick={() => router.push('/annuaire')}
                 title="Retour à l'annuaire"
               >
                 <ArrowLeft className="h-4 w-4" />
               </Button>
             )}
-            <h2 className="text-lg font-bold text-slate-800 tracking-tight">
+            <h2 className="text-lg font-bold text-foreground tracking-tight">
               {showArchived ? "Archivées" : "Messages"}
             </h2>
             {totalUnread > 0 && !showArchived && (
@@ -123,7 +123,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
             <Button 
               size="icon" 
               variant="ghost" 
-              className="rounded-xl h-8 w-8 text-slate-500 hover:text-primary hover:bg-primary/8 transition-colors"
+              className="rounded-xl h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/8 transition-colors"
               onClick={() => router.push('/annuaire')}
               title="Démarrer une nouvelle discussion"
             >
@@ -140,7 +140,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
             name="chat_search"
             autoComplete="off"
             placeholder="Rechercher une conversation..." 
-            className="pl-9 h-9 text-sm bg-slate-50/80 border-slate-200/60 focus-visible:ring-primary/20 rounded-xl transition-all focus-visible:bg-white shadow-none"
+            className="pl-9 h-9 text-sm bg-muted/80 border-border/60 focus-visible:ring-primary/20 rounded-xl transition-all focus-visible:bg-card shadow-none"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
           />
@@ -153,11 +153,11 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
         {archivedConversations.length > 0 && !showArchived && (
           <button
             onClick={() => setShowArchived(true)}
-            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors border-b border-slate-100 text-slate-600 hover:text-slate-900 group"
+            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors border-b border-border text-muted-foreground hover:text-foreground group"
           >
             <Archive className="h-4 w-4 text-slate-400 group-hover:text-primary transition-colors" />
             <span className="text-xs font-semibold flex-1 text-left">Discussions archivées</span>
-            <span className="text-xs bg-slate-100 px-2 py-0.5 rounded-full font-bold text-slate-500">
+            <span className="text-xs bg-muted px-2 py-0.5 rounded-full font-bold text-muted-foreground">
               {archivedConversations.length}
             </span>
           </button>
@@ -167,10 +167,10 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
           <div className="p-6 space-y-3">
             {[1, 2, 3].map((i) => (
               <div key={i} className="flex items-center gap-3 px-3 py-2.5 animate-pulse">
-                <div className="h-11 w-11 rounded-full bg-slate-200/80 shrink-0" />
+                <div className="h-11 w-11 rounded-full bg-muted/80 shrink-0" />
                 <div className="flex-1 space-y-2">
-                  <div className="h-3 bg-slate-200/80 rounded-full w-3/4" />
-                  <div className="h-2.5 bg-slate-100 rounded-full w-1/2" />
+                  <div className="h-3 bg-muted/80 rounded-full w-3/4" />
+                  <div className="h-2.5 bg-muted rounded-full w-1/2" />
                 </div>
               </div>
             ))}
@@ -202,7 +202,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
           </motion.div>
         ) : (
           <div className="flex flex-col items-center justify-center p-12 gap-3 text-center">
-            <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center">
               <MessageSquareDot className="h-5 w-5 text-slate-400" />
             </div>
             <p className="text-sm text-slate-400 font-medium">

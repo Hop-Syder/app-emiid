@@ -77,14 +77,14 @@ export function TrustSecuritySection() {
               initial={reduceMotion ? false : "hidden"}
               whileInView={reduceMotion ? undefined : "show"}
               viewport={{ once: true, amount: 0.15 }}
-              className="flex flex-col gap-2 sm:gap-3 rounded-2xl border border-slate-200/90 bg-white p-3.5 sm:p-5 lg:p-6 shadow-[0_8px_24px_rgba(15,23,42,0.03)] hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 h-full"
+              className="flex flex-col gap-2 sm:gap-3 rounded-2xl border border-border/90 bg-card p-3.5 sm:p-5 lg:p-6 shadow-[0_8px_24px_rgba(15,23,42,0.03)] hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 h-full"
             >
               <span className="flex h-9 w-9 sm:h-11 sm:w-11 items-center justify-center rounded-xl sm:rounded-2xl bg-emerald-50 text-emerald-600 shrink-0">
                 <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
               </span>
               <div className="space-y-1 mt-0.5">
-                <h3 className="text-xs sm:text-sm font-black tracking-tight text-slate-900 leading-snug">{item.title}</h3>
-                <p className="text-[11px] sm:text-xs font-medium leading-snug sm:leading-relaxed text-slate-600 line-clamp-3 sm:line-clamp-none">{item.text}</p>
+                <h3 className="text-xs sm:text-sm font-black tracking-tight text-foreground leading-snug">{item.title}</h3>
+                <p className="text-[11px] sm:text-xs font-medium leading-snug sm:leading-relaxed text-muted-foreground line-clamp-3 sm:line-clamp-none">{item.text}</p>
               </div>
             </motion.div>
           )
@@ -92,7 +92,7 @@ export function TrustSecuritySection() {
       </div>
 
       {PARTNER_LOGOS.length > 0 && (
-        <div className="flex flex-wrap items-center justify-center gap-8 rounded-[2rem] border border-slate-200/90 bg-white px-8 py-6 shadow-[0_12px_32px_rgba(15,23,42,0.04)]">
+        <div className="flex flex-wrap items-center justify-center gap-8 rounded-[2rem] border border-border/90 bg-card px-8 py-6 shadow-[0_12px_32px_rgba(15,23,42,0.04)]">
           {PARTNER_LOGOS.map((partner) => (
             // eslint-disable-next-line @next/next/no-img-element -- logos externes, dimensions variables
             <img key={partner.name} src={partner.logoUrl} alt={partner.name} className="h-8 w-auto grayscale opacity-70 transition-opacity hover:opacity-100" />

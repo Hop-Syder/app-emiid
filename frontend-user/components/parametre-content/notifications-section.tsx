@@ -78,7 +78,7 @@ export function NotificationsSection({
         icon={Bell}
         description="Choisissez comment et quand vous souhaitez être alerté de l'activité sur votre compte."
       >
-        <div className="divide-y divide-slate-100">
+        <div className="divide-y divide-border">
           <SettingToggle
             id="notif-push"
             icon={Smartphone}

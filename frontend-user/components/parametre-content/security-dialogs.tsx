@@ -135,7 +135,7 @@ export function MfaDialog({
                                 className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${
                                     mfaChannel === "whatsapp"
                                         ? "border-green-500 bg-green-50 text-green-700"
-                                        : "border-slate-100 hover:border-slate-200"
+                                        : "border-border hover:border-border"
                                 }`}
                             >
                                 <Image src="/svg/whatsapp-logo.svg" width={24} height={24} className="mb-2" alt="WhatsApp" />
@@ -146,7 +146,7 @@ export function MfaDialog({
                                 className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${
                                     mfaChannel === "sms"
                                         ? "border-blue-500 bg-blue-50 text-blue-700"
-                                        : "border-slate-100 hover:border-slate-200"
+                                        : "border-border hover:border-border"
                                 }`}
                             >
                                 <Phone className="h-6 w-6 mb-2" />
@@ -164,7 +164,7 @@ export function MfaDialog({
                     </div>
                 ) : (
                     <div className="flex flex-col items-center gap-8 py-6">
-                        <div className="bg-slate-50 p-4 sm:p-6 rounded-2xl w-full flex flex-col items-center gap-6 border border-slate-100">
+                        <div className="bg-muted p-4 sm:p-6 rounded-2xl w-full flex flex-col items-center gap-6 border border-border">
                             <InputOTP
                                 id="mfa-verification-code"
                                 name="mfa_verification_code"
@@ -284,12 +284,12 @@ export function ReauthDialog({
                                         placeholder="••••••••"
                                         value={reauthPassword}
                                         onChange={(e) => setReauthPassword(e.target.value)}
-                                        className="pr-10 rounded-xl h-12 border-slate-200 focus:border-[#013ff4] focus:ring-[#013ff4]/10"
+                                        className="pr-10 rounded-xl h-12 border-border focus:border-[#013ff4] focus:ring-[#013ff4]/10"
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-3 top-3.5 text-slate-400 hover:text-slate-600 transition-colors"
+                                        className="absolute right-3 top-3.5 text-slate-400 hover:text-muted-foreground transition-colors"
                                     >
                                         {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                     </button>
@@ -308,7 +308,7 @@ export function ReauthDialog({
                             type="button"
                             variant="ghost"
                             onClick={() => onOpenChange(false)}
-                            className="flex-1 h-12 rounded-xl text-slate-500 hover:bg-slate-50"
+                            className="flex-1 h-12 rounded-xl text-muted-foreground hover:bg-muted"
                         >
                             Annuler
                         </Button>

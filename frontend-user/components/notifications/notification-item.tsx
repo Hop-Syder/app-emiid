@@ -81,8 +81,8 @@ export function NotificationItem({ notification, onMarkAsRead, onDelete }: Notif
       default:
         return {
           icon: Bell,
-          color: "text-slate-500",
-          bg: "bg-slate-100/70 border-slate-200/50",
+          color: "text-muted-foreground",
+          bg: "bg-muted/70 border-border/50",
           glow: "group-hover:shadow-slate-500/10",
         }
     }
@@ -135,8 +135,8 @@ export function NotificationItem({ notification, onMarkAsRead, onDelete }: Notif
       className={cn(
         "group relative rounded-[2rem] border p-5 md:p-6 transition-all duration-300 flex items-start gap-4 shadow-sm",
         notification.is_read 
-          ? "bg-white/40 border-slate-150/70 text-slate-600" 
-          : "bg-white/90 border-slate-200 shadow-md shadow-slate-100/40 text-slate-800",
+          ? "bg-card/40 border-slate-150/70 text-muted-foreground" 
+          : "bg-card/90 border-border shadow-md shadow-slate-100/40 text-foreground",
         config.glow
       )}
     >
@@ -190,14 +190,14 @@ export function NotificationItem({ notification, onMarkAsRead, onDelete }: Notif
       <div className="flex-1 min-w-0 pr-4">
         <CardWrapper>
           <div className="flex items-center gap-1.5 cursor-pointer">
-            <h4 className={cn("font-bold text-sm sm:text-base leading-snug truncate", !notification.is_read && "text-slate-900")}>
+            <h4 className={cn("font-bold text-sm sm:text-base leading-snug truncate", !notification.is_read && "text-foreground")}>
               {notification.title}
             </h4>
             {notification.link && (
               <ExternalLink className="w-3.5 h-3.5 text-slate-400 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
             )}
           </div>
-          <p className="text-xs sm:text-sm text-slate-500 leading-relaxed mt-1 whitespace-pre-line">
+          <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed mt-1 whitespace-pre-line">
             {notification.content}
           </p>
         </CardWrapper>
@@ -213,7 +213,7 @@ export function NotificationItem({ notification, onMarkAsRead, onDelete }: Notif
               {senderName}
             </Link>
           ) : senderName ? (
-            <span className="text-[11px] font-bold text-slate-600">{senderName}</span>
+            <span className="text-[11px] font-bold text-muted-foreground">{senderName}</span>
           ) : null}
           {senderName && <span className="text-slate-300">{"•"}</span>}
           <span className="text-[11px] font-semibold tracking-wide text-slate-400 uppercase">
@@ -231,7 +231,7 @@ export function NotificationItem({ notification, onMarkAsRead, onDelete }: Notif
               onMarkAsRead(notification.id)
             }}
             title="Marquer comme lu"
-            className="p-2 rounded-xl bg-slate-50 text-slate-400 hover:text-blue-500 hover:bg-blue-50/50 transition-colors border border-slate-100 shadow-sm active:scale-95"
+            className="p-2 rounded-xl bg-muted text-slate-400 hover:text-blue-500 hover:bg-blue-50/50 transition-colors border border-border shadow-sm active:scale-95"
           >
             <Check className="w-4 h-4" />
           </button>
@@ -242,7 +242,7 @@ export function NotificationItem({ notification, onMarkAsRead, onDelete }: Notif
             onDelete(notification.id)
           }}
           title="Supprimer"
-          className="p-2 rounded-xl bg-slate-50 text-slate-400 hover:text-rose-500 hover:bg-rose-50/50 transition-colors border border-slate-100 shadow-sm active:scale-95"
+          className="p-2 rounded-xl bg-muted text-slate-400 hover:text-rose-500 hover:bg-rose-50/50 transition-colors border border-border shadow-sm active:scale-95"
         >
           <Trash2 className="w-4 h-4" />
         </button>

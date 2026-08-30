@@ -70,19 +70,19 @@ export function AnnuaireGrid({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05, duration: 0.3 }}
-            className="w-full aspect-[1/1.4] bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden flex flex-col"
+            className="w-full aspect-[1/1.4] bg-card rounded-3xl border border-border shadow-sm overflow-hidden flex flex-col"
           >
-            <div className="h-[100px] w-full bg-slate-200/50 animate-pulse" />
+            <div className="h-[100px] w-full bg-muted/50 animate-pulse" />
             <div className="flex-1 p-5 relative">
               <div className="absolute -top-12 left-5 w-20 h-20 rounded-full bg-slate-300/50 animate-pulse border-4 border-white" />
               <div className="mt-10 space-y-3">
-                <div className="h-5 w-3/4 bg-slate-200/60 rounded-md animate-pulse" />
-                <div className="h-4 w-1/2 bg-slate-200/40 rounded-md animate-pulse" />
+                <div className="h-5 w-3/4 bg-muted/60 rounded-md animate-pulse" />
+                <div className="h-4 w-1/2 bg-muted/40 rounded-md animate-pulse" />
               </div>
               <div className="mt-6 space-y-2">
-                <div className="h-3 w-full bg-slate-100 rounded-md animate-pulse" />
-                <div className="h-3 w-full bg-slate-100 rounded-md animate-pulse" />
-                <div className="h-3 w-2/3 bg-slate-100 rounded-md animate-pulse" />
+                <div className="h-3 w-full bg-muted rounded-md animate-pulse" />
+                <div className="h-3 w-full bg-muted rounded-md animate-pulse" />
+                <div className="h-3 w-2/3 bg-muted rounded-md animate-pulse" />
               </div>
             </div>
           </motion.div>
@@ -124,7 +124,7 @@ export function AnnuaireGrid({
 
       {/* Pagination Controls */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-4 pt-6 border-t border-slate-200">
+        <div className="flex items-center justify-center gap-4 pt-6 border-t border-border">
           <Button
             variant="outline"
             onClick={() => setPage((p) => Math.max(1, p - 1))}
@@ -134,12 +134,12 @@ export function AnnuaireGrid({
                 ? "hover:bg-red-50 hover:text-red-600"
                 : theme === "orange"
                   ? "hover:bg-orange-50 hover:text-orange-600"
-                  : "hover:bg-slate-100"
+                  : "hover:bg-muted"
             }
           >
             <ChevronLeft className="w-4 h-4 mr-2" /> Précédent
           </Button>
-          <span className="text-sm font-semibold text-slate-500 select-none">
+          <span className="text-sm font-semibold text-muted-foreground select-none">
             Page{" "}
             <span
               className={
@@ -147,7 +147,7 @@ export function AnnuaireGrid({
                   ? "text-red-600 font-bold"
                   : theme === "orange"
                     ? "text-orange-600 font-bold"
-                    : "text-slate-800 font-bold"
+                    : "text-foreground font-bold"
               }
             >
               {page}
@@ -163,7 +163,7 @@ export function AnnuaireGrid({
                 ? "hover:bg-red-50 hover:text-red-600"
                 : theme === "orange"
                   ? "hover:bg-orange-50 hover:text-orange-600"
-                  : "hover:bg-slate-100"
+                  : "hover:bg-muted"
             }
           >
             Suivant <ChevronRight className="w-4 h-4 ml-2" />

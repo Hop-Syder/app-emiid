@@ -157,11 +157,11 @@ export function PwaInstallPrompt() {
                 className="fixed inset-x-0 bottom-0 z-[60] px-4 lg:left-auto lg:right-6 lg:w-[360px] lg:px-0"
                 style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 6.5rem)" }}
             >
-                <div className="relative overflow-hidden rounded-3xl border border-slate-200/90 bg-white/95 shadow-[0_24px_60px_-12px_rgba(15,23,42,0.32)] backdrop-blur-2xl">
+                <div className="relative overflow-hidden rounded-3xl border border-border/90 bg-card/95 shadow-[0_24px_60px_-12px_rgba(15,23,42,0.32)] backdrop-blur-2xl">
                     {/* Bandeau de marque */}
                     <div className="relative flex items-center gap-3 bg-[linear-gradient(135deg,#013ff4_0%,#03b3f8_100%)] p-4 text-white">
-                        <div className="pointer-events-none absolute -right-6 -top-6 h-20 w-20 rounded-full bg-white/15 blur-2xl" />
-                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/15">
+                        <div className="pointer-events-none absolute -right-6 -top-6 h-20 w-20 rounded-full bg-card/15 blur-2xl" />
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-card/15">
                             <Sparkles className="h-5 w-5" />
                         </span>
                         <div className="min-w-0 flex-1">
@@ -173,7 +173,7 @@ export function PwaInstallPrompt() {
                         <button
                             onClick={() => hide(true)}
                             aria-label="Plus tard"
-                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-white/80 transition-colors hover:bg-white/15 hover:text-white"
+                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-white/80 transition-colors hover:bg-card/15 hover:text-white"
                         >
                             <X className="h-4 w-4" />
                         </button>
@@ -182,7 +182,7 @@ export function PwaInstallPrompt() {
                     <div className="p-5">
                         {iosMode ? (
                             <>
-                                <p className="text-sm font-medium leading-relaxed text-slate-600">
+                                <p className="text-sm font-medium leading-relaxed text-muted-foreground">
                                     Sur iPhone, l&apos;installation passe par le menu de partage de Safari :
                                 </p>
                                 <ol className="mt-4 space-y-3">
@@ -190,7 +190,7 @@ export function PwaInstallPrompt() {
                                         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-[#013ff4]/[0.08] text-xs font-black text-[#013ff4]">
                                             1
                                         </span>
-                                        <span className="flex-1 text-sm font-medium text-slate-700">
+                                        <span className="flex-1 text-sm font-medium text-foreground">
                                             Appuyez sur{" "}
                                             <Share className="mx-0.5 inline h-4 w-4 -translate-y-0.5 text-[#013ff4]" />{" "}
                                             <strong className="font-bold">Partager</strong>, en bas de l&apos;écran.
@@ -200,7 +200,7 @@ export function PwaInstallPrompt() {
                                         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-[#013ff4]/[0.08] text-xs font-black text-[#013ff4]">
                                             2
                                         </span>
-                                        <span className="flex-1 text-sm font-medium text-slate-700">
+                                        <span className="flex-1 text-sm font-medium text-foreground">
                                             Choisissez{" "}
                                             <PlusSquare className="mx-0.5 inline h-4 w-4 -translate-y-0.5 text-[#013ff4]" />{" "}
                                             <strong className="font-bold">Sur l&apos;écran d&apos;accueil</strong>.
@@ -210,28 +210,28 @@ export function PwaInstallPrompt() {
                                         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-[#013ff4]/[0.08] text-xs font-black text-[#013ff4]">
                                             3
                                         </span>
-                                        <span className="flex-1 text-sm font-medium text-slate-700">
+                                        <span className="flex-1 text-sm font-medium text-foreground">
                                             Confirmez avec <strong className="font-bold">Ajouter</strong>.
                                         </span>
                                     </li>
                                 </ol>
                                 <button
                                     onClick={() => hide(true)}
-                                    className="mt-5 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs font-black uppercase tracking-wider text-slate-700 transition-colors hover:bg-slate-50"
+                                    className="mt-5 w-full rounded-xl border border-border bg-card px-4 py-3 text-xs font-black uppercase tracking-wider text-foreground transition-colors hover:bg-muted"
                                 >
                                     J&apos;ai compris
                                 </button>
                             </>
                         ) : (
                             <>
-                                <p className="text-sm font-medium leading-relaxed text-slate-600">
+                                <p className="text-sm font-medium leading-relaxed text-muted-foreground">
                                     Ouvrez EmiID en un geste, sans passer par le navigateur — et recevez vos
                                     notifications comme avec une application installée.
                                 </p>
                                 <div className="mt-5 flex gap-2">
                                     <button
                                         onClick={() => hide(true)}
-                                        className="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs font-black uppercase tracking-wider text-slate-600 transition-colors hover:bg-slate-50"
+                                        className="flex-1 rounded-xl border border-border bg-card px-4 py-3 text-xs font-black uppercase tracking-wider text-muted-foreground transition-colors hover:bg-muted"
                                     >
                                         Plus tard
                                     </button>

@@ -74,14 +74,14 @@ export function DashboardBentoHeader() {
 
                     {/* Ligne haute — Tag Espace Membre & Badge Fondateur */}
                     <div className="flex items-center justify-between gap-3">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.06] border border-white/10 backdrop-blur-md">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-card/[0.06] border border-white/10 backdrop-blur-md">
                             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
                             <span className="text-[11px] sm:text-xs font-semibold tracking-wider uppercase text-slate-300">
                                 Espace Membre
                             </span>
                         </div>
 
-                        <div className="flex items-center gap-2 bg-white/[0.04] border border-white/10 px-2.5 py-1 rounded-xl backdrop-blur-md shrink-0">
+                        <div className="flex items-center gap-2 bg-card/[0.04] border border-white/10 px-2.5 py-1 rounded-xl backdrop-blur-md shrink-0">
                             <span className="text-[10px] sm:text-[11px] font-extrabold tracking-widest uppercase text-slate-300">BAGBE</span>
                             <span className="text-white/30 text-xs">·</span>
                             <Image 
@@ -115,7 +115,7 @@ export function DashboardBentoHeader() {
                         <div className="flex items-center gap-2.5 sm:gap-3 w-full sm:w-auto shrink-0 pt-1">
                             <Button
                                 size="sm"
-                                className="flex-1 sm:flex-initial h-10 sm:h-11 rounded-xl bg-white/[0.08] hover:bg-white/[0.15] border border-white/15 text-white font-semibold px-4 text-xs sm:text-sm backdrop-blur-md transition-all hover:border-white/30 shadow-sm"
+                                className="flex-1 sm:flex-initial h-10 sm:h-11 rounded-xl bg-card/[0.08] hover:bg-card/[0.15] border border-white/15 text-white font-semibold px-4 text-xs sm:text-sm backdrop-blur-md transition-all hover:border-white/30 shadow-sm"
                                 onClick={() => router.push(session?.user?.id ? `/profil/${session.user.id}` : "/profil/me")}
                             >
                                 Mon Profil

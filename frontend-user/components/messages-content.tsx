@@ -80,7 +80,7 @@ export function MessagesContent() {
   } = useMessages()
 
   return (
-    <div className="flex h-full w-full bg-gradient-to-br from-slate-50 via-white to-blue-50/30 overflow-hidden relative">
+    <div className="flex h-full w-full bg-gradient-to-br from-slate-50 via-white to-blue-50/30 dark:bg-none dark:bg-background overflow-hidden relative">
       <div className="absolute top-0 right-0 -mr-20 -mt-20 w-72 h-72 rounded-full bg-blue-100/40 blur-3xl opacity-50 mix-blend-multiply pointer-events-none" />
       <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-[#d5e0ff]/40 blur-3xl opacity-50 mix-blend-multiply pointer-events-none" />
 
@@ -123,15 +123,15 @@ export function MessagesContent() {
         {selectedConv ? (
           <>
             {/* Chat header */}
-            <div className="px-4 py-3 border-b border-white/40 flex items-center justify-between bg-white/70 backdrop-blur-xl z-20 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] shrink-0">
+            <div className="px-4 py-3 border-b border-white/40 flex items-center justify-between bg-card/70 backdrop-blur-xl z-20 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] shrink-0">
               <div className="flex items-center gap-3">
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="md:hidden -ml-2 hover:bg-slate-100/50 h-8 w-8 text-slate-900 dark:text-white"
+                  className="md:hidden -ml-2 hover:bg-muted/50 h-8 w-8 text-foreground dark:text-white"
                   onClick={() => { setShowChatMobile(false); router.push("/messages", { scroll: false }) }}
                 >
-                  <ArrowLeft className="h-4 w-4 text-slate-900 dark:text-white" />
+                  <ArrowLeft className="h-4 w-4 text-foreground dark:text-white" />
                 </Button>
                 {/* En-tête cliquable : ouvre le panneau d'info seulement pour un groupe. */}
                 <button
@@ -141,7 +141,7 @@ export function MessagesContent() {
                   aria-label={selectedConv.is_group ? "Voir les informations du groupe" : undefined}
                   className={cn(
                     "flex items-center gap-3 text-left rounded-xl -m-1 p-1 transition-colors",
-                    selectedConv.is_group ? "cursor-pointer hover:bg-slate-100/60" : "cursor-default"
+                    selectedConv.is_group ? "cursor-pointer hover:bg-muted/60" : "cursor-default"
                   )}
                 >
                   <div className="relative group">
@@ -159,7 +159,7 @@ export function MessagesContent() {
                     )}
                   </div>
                   <div>
-                    <h2 className="text-sm font-bold text-slate-800 leading-tight">
+                    <h2 className="text-sm font-bold text-foreground leading-tight">
                       {selectedConv.other_participant.first_name} {selectedConv.other_participant.last_name}
                     </h2>
                     {selectedConv.is_group ? (
@@ -194,11 +194,11 @@ export function MessagesContent() {
                 </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="text-slate-400 hover:text-slate-600 hover:bg-slate-100/50 h-9 w-9 rounded-xl">
+                    <Button variant="ghost" size="icon" className="text-slate-400 hover:text-muted-foreground hover:bg-muted/50 h-9 w-9 rounded-xl">
                       <MoreHorizontal className="h-5 w-5" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-52 rounded-xl shadow-xl border-slate-100">
+                  <DropdownMenuContent align="end" className="w-52 rounded-xl shadow-xl border-border">
                     <DropdownMenuItem className="text-amber-600 focus:text-amber-700 focus:bg-amber-50 rounded-lg" onClick={() => setIsMediationOpen(true)}>
                       <Gavel className="mr-2 h-4 w-4" /> Demander médiation
                     </DropdownMenuItem>
@@ -212,7 +212,7 @@ export function MessagesContent() {
 
             {/* In-chat search bar */}
             {inChatSearchOpen && (
-              <div className="px-4 py-2 border-b border-white/40 bg-white/60 backdrop-blur-xl z-10 shrink-0 flex items-center gap-2">
+              <div className="px-4 py-2 border-b border-white/40 bg-card/60 backdrop-blur-xl z-10 shrink-0 flex items-center gap-2">
                 <Search className="h-4 w-4 text-slate-400 shrink-0" />
                 <input
                   autoFocus
@@ -221,7 +221,7 @@ export function MessagesContent() {
                   onChange={(e) => setInChatQuery(e.target.value)}
                   placeholder="Rechercher dans cette discussion..."
                   aria-label="Texte à rechercher dans la discussion"
-                  className="flex-1 bg-transparent text-sm text-slate-700 placeholder:text-slate-400 outline-none"
+                  className="flex-1 bg-transparent text-sm text-foreground placeholder:text-slate-400 outline-none"
                 />
                 {inChatQuery.trim() && (
                   <span className="text-[11px] font-semibold text-slate-400 shrink-0">
@@ -232,7 +232,7 @@ export function MessagesContent() {
                   variant="ghost"
                   size="icon"
                   aria-label="Fermer la recherche"
-                  className="h-7 w-7 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100/50 shrink-0"
+                  className="h-7 w-7 rounded-lg text-slate-400 hover:text-muted-foreground hover:bg-muted/50 shrink-0"
                   onClick={() => { setInChatSearchOpen(false); setInChatQuery("") }}
                 >
                   <X className="h-4 w-4" />
@@ -241,9 +241,9 @@ export function MessagesContent() {
             )}
 
             {loadingMsgs ? (
-              <div className="flex-1 flex flex-col items-center justify-center gap-3 bg-slate-50/10 backdrop-blur-sm">
+              <div className="flex-1 flex flex-col items-center justify-center gap-3 bg-muted/10 backdrop-blur-sm">
                 <div className="animate-spin h-8 w-8 border-4 border-primary/20 border-t-primary rounded-full" />
-                <p className="text-sm text-slate-500 font-medium">Chargement des messages...</p>
+                <p className="text-sm text-muted-foreground font-medium">Chargement des messages...</p>
               </div>
             ) : (
               <MessageList
@@ -264,12 +264,12 @@ export function MessagesContent() {
             />
           </>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center bg-slate-50/30 backdrop-blur-md p-8 text-center h-full">
-            <div className="w-24 h-24 bg-white shadow-xl shadow-[#d5e0ff]/50 rounded-full flex items-center justify-center mb-6 border border-slate-100">
+          <div className="flex-1 flex flex-col items-center justify-center bg-muted/30 backdrop-blur-md p-8 text-center h-full">
+            <div className="w-24 h-24 bg-card shadow-xl shadow-[#d5e0ff]/50 rounded-full flex items-center justify-center mb-6 border border-border">
               <MessageSquare className="h-10 w-10 text-primary/60" />
             </div>
-            <h2 className="text-2xl font-bold text-slate-800 mb-3">Vos Messages</h2>
-            <p className="text-slate-500 max-w-sm text-sm leading-relaxed">
+            <h2 className="text-2xl font-bold text-foreground mb-3">Vos Messages</h2>
+            <p className="text-muted-foreground max-w-sm text-sm leading-relaxed">
               Sélectionnez une conversation dans le panneau latéral pour commencer à échanger avec votre réseau.
             </p>
           </div>

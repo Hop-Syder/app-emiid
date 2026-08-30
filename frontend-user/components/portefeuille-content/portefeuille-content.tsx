@@ -70,9 +70,9 @@ export function PortefeuilleContent() {
       sublabel: stats.isPublished ? "Vous êtes dans l'annuaire" : "Activez dans Paramètres",
       value:    null as number | null,
       icon:     stats.isPublished ? Globe : Lock,
-      color:    stats.isPublished ? "text-emerald-600" : "text-slate-500",
-      bg:       stats.isPublished ? "bg-emerald-50" : "bg-slate-50",
-      border:   stats.isPublished ? "border-emerald-100" : "border-slate-200",
+      color:    stats.isPublished ? "text-emerald-600" : "text-muted-foreground",
+      bg:       stats.isPublished ? "bg-emerald-50" : "bg-muted",
+      border:   stats.isPublished ? "border-emerald-100" : "border-border",
       cta:      true,
     },
   ]
@@ -85,13 +85,13 @@ export function PortefeuilleContent() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-slate-50">
+    <div className="min-h-[calc(100vh-4rem)] bg-muted">
       <div className="max-w-5xl lg:max-w-6xl mx-auto px-4 sm:px-6 py-6 lg:py-10 space-y-6">
 
         {/* Page header */}
         <div>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">Mon Portefeuille</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Gérez vos réalisations, compétences et votre réseau professionnel</p>
+          <h1 className="text-2xl font-black text-foreground tracking-tight">Mon Portefeuille</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Gérez vos réalisations, compétences et votre réseau professionnel</p>
         </div>
 
         {/* ── Hero Stats ─────────────────────────────────────────────── */}
@@ -102,7 +102,7 @@ export function PortefeuilleContent() {
               <div
                 key={card.label}
                 onClick={card.cta ? () => router.push("/parametres") : undefined}
-                className={`bg-white border ${card.border} rounded-2xl p-4 sm:p-5 ${
+                className={`bg-card border ${card.border} rounded-2xl p-4 sm:p-5 ${
                   card.cta ? "cursor-pointer hover:shadow-md active:scale-[0.98]" : ""
                 } transition-all`}
               >
@@ -116,7 +116,7 @@ export function PortefeuilleContent() {
                   <p className={`text-sm font-black leading-tight ${card.color}`}>{card.label}</p>
                 )}
 
-                <p className="text-[11px] text-slate-500 font-semibold mt-0.5">
+                <p className="text-[11px] text-muted-foreground font-semibold mt-0.5">
                   {card.value !== null ? card.label : card.sublabel}
                 </p>
               </div>
@@ -128,7 +128,7 @@ export function PortefeuilleContent() {
         <div className="lg:grid lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-8 lg:items-start">
 
           {/* Rail vertical — desktop */}
-          <nav className="hidden lg:flex flex-col gap-2 bg-white border border-slate-200 rounded-2xl p-2 sticky top-24 shadow-[0_8px_30px_rgb(0,0,0,0.02)]">
+          <nav className="hidden lg:flex flex-col gap-2 bg-card border border-border rounded-2xl p-2 sticky top-24 shadow-[0_8px_30px_rgb(0,0,0,0.02)]">
             {TABS.map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
@@ -136,7 +136,7 @@ export function PortefeuilleContent() {
                 className={`relative w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all text-left ${
                   activeTab === id
                     ? "bg-slate-900 text-white"
-                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 }`}
               >
                 <Icon className={`h-4 w-4 shrink-0 ${activeTab === id ? "text-[#03b3f8]" : "text-slate-400"}`} />
@@ -158,7 +158,7 @@ export function PortefeuilleContent() {
                     className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap border transition-all ${
                       activeTab === id
                         ? "bg-slate-900 text-white border-slate-900 shadow-sm"
-                        : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-slate-900"
+                        : "bg-card text-muted-foreground border-border hover:bg-muted hover:text-foreground"
                     }`}
                   >
                     <Icon className="h-4 w-4 shrink-0" />
@@ -171,7 +171,7 @@ export function PortefeuilleContent() {
             {/* Section title */}
             {activeTab !== "reseau" && (
               <div className="hidden lg:block">
-                <h2 className="text-lg font-black text-slate-900">
+                <h2 className="text-lg font-black text-foreground">
                   {TABS.find(t => t.id === activeTab)?.label}
                 </h2>
               </div>

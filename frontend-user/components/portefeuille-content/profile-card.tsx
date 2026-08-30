@@ -59,7 +59,7 @@ export function ProfileCard({ profile, onUnfollow, onViewProfile, onSaveNote, on
     }
 
     // Glassmorphism subtle variations based on premium status
-    const cardBg = profile.premium ? "bg-slate-950/80 text-white border-white/10" : "bg-white text-slate-900 border-slate-200"
+    const cardBg = profile.premium ? "bg-slate-950/80 text-white border-white/10" : "bg-card text-foreground border-border"
     const accentColor = profile.premium ? "text-amber-500" : "text-[#013ff4]"
     const bgAccent = profile.premium ? "bg-amber-500" : "bg-[#013ff4]"
 
@@ -95,7 +95,7 @@ export function ProfileCard({ profile, onUnfollow, onViewProfile, onSaveNote, on
                             className="relative h-24 w-24 rounded-full object-cover shadow-xl transition-transform duration-500 group-hover/avatar:scale-105"
                         />
                         {profile.verified && (
-                            <div className={cn("absolute bottom-0 right-0 rounded-full p-1 shadow-md border-2", profile.premium ? "bg-black border-amber-900" : "bg-white border-blue-100")}>
+                            <div className={cn("absolute bottom-0 right-0 rounded-full p-1 shadow-md border-2", profile.premium ? "bg-black border-amber-900" : "bg-card border-blue-100")}>
                                 <CheckCircle2 className={cn("h-4 w-4", accentColor)} />
                             </div>
                         )}
@@ -124,7 +124,7 @@ export function ProfileCard({ profile, onUnfollow, onViewProfile, onSaveNote, on
                         onClick={(e) => { e.stopPropagation(); onMessage?.(profile.id) }}
                         className={cn(
                             "flex-1 h-10 rounded-xl font-bold text-xs transition-all shadow-md px-2",
-                            profile.premium ? "bg-amber-500 text-black hover:bg-amber-400" : "bg-[#013ff4] text-white hover:bg-[#0150fd]"
+                            profile.premium ? "bg-amber-500 text-foreground hover:bg-amber-400" : "bg-[#013ff4] text-white hover:bg-[#0150fd]"
                         )}
                     >
                         <Mail className="h-4 w-4 mr-1 shrink-0" /> <span className="truncate">Message</span>
@@ -135,7 +135,7 @@ export function ProfileCard({ profile, onUnfollow, onViewProfile, onSaveNote, on
                         onClick={(e) => { e.stopPropagation(); onUnfollow?.(profile.id) }}
                         className={cn(
                             "h-10 w-10 shrink-0 rounded-xl transition-all",
-                            profile.premium ? "border-white/10 text-white/50 hover:bg-white/10" : "border-slate-200 text-slate-400 hover:bg-slate-100"
+                            profile.premium ? "border-white/10 text-white/50 hover:bg-card/10" : "border-border text-slate-400 hover:bg-muted"
                         )}
                     >
                         <UserMinus className="h-4 w-4" />
@@ -146,11 +146,11 @@ export function ProfileCard({ profile, onUnfollow, onViewProfile, onSaveNote, on
             {/* Bloc CRM Notes (Style Apple Notes) */}
             <Card className={cn(
                 "flex-1 min-h-[250px] lg:min-h-0 p-6 rounded-3xl shadow-lg flex flex-col transition-all duration-300 relative overflow-hidden border",
-                profile.premium ? "bg-slate-900/50 border-white/5 text-white" : "bg-[#a6abb3]/10 border-[#a6abb3]/30 text-slate-900"
+                profile.premium ? "bg-slate-900/50 border-white/5 text-white" : "bg-[#a6abb3]/10 border-[#a6abb3]/30 text-foreground"
             )}>
                 <div className={cn("flex items-center justify-between mb-4 border-b pb-4", profile.premium ? "border-white/10" : "border-[#a6abb3]/30")}>
                     <div className="flex items-center gap-3">
-                        <div className={cn("p-2 rounded-xl", profile.premium ? "bg-white/5" : "bg-[#a6abb3]/20")}>
+                        <div className={cn("p-2 rounded-xl", profile.premium ? "bg-card/5" : "bg-[#a6abb3]/20")}>
                             <StickyNote className={cn("h-4 w-4 opacity-90", profile.premium ? "text-slate-300" : "text-[#a6abb3]")} />
                         </div>
                         <div className="flex flex-col">
@@ -182,7 +182,7 @@ export function ProfileCard({ profile, onUnfollow, onViewProfile, onSaveNote, on
                         placeholder="Ajouter des notes stratégiques..."
                         className={cn(
                             "w-full h-full min-h-[120px] text-sm resize-none bg-transparent border-0 focus-visible:ring-0 p-0 shadow-none font-medium leading-relaxed",
-                            profile.premium ? "placeholder:text-slate-500" : "placeholder:text-[#a6abb3]/60 text-[#013ff4]"
+                            profile.premium ? "placeholder:text-muted-foreground" : "placeholder:text-[#a6abb3]/60 text-[#013ff4]"
                         )}
                     />
                 </div>
@@ -211,8 +211,8 @@ export function ProfileCard({ profile, onUnfollow, onViewProfile, onSaveNote, on
                             className={cn(
                                 "h-9 px-6 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all",
                                 localNote !== (profile.notes || "") 
-                                    ? (profile.premium ? "bg-white text-black hover:bg-slate-200" : "bg-[#a6abb3] text-white hover:bg-[#8f949c]")
-                                    : (profile.premium ? "bg-white/5 text-white/30" : "bg-[#a6abb3]/20 text-[#a6abb3]/60 cursor-not-allowed")
+                                    ? (profile.premium ? "bg-card text-foreground hover:bg-muted" : "bg-[#a6abb3] text-white hover:bg-[#8f949c]")
+                                    : (profile.premium ? "bg-card/5 text-white/30" : "bg-[#a6abb3]/20 text-[#a6abb3]/60 cursor-not-allowed")
                             )}
                         >
                             Enregistrer

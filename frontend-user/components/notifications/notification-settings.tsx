@@ -35,11 +35,11 @@ function PreferenceToggle({ label, description, icon: Icon, checked, onChange, d
   return (
     <div className={cn("flex items-start justify-between gap-4 py-3", disabled && "opacity-50")}>
       <div className="flex gap-3">
-        <div className="p-2 bg-slate-100 rounded-xl text-slate-600 shrink-0 mt-0.5">
+        <div className="p-2 bg-muted rounded-xl text-muted-foreground shrink-0 mt-0.5">
           <Icon className="w-4 h-4" />
         </div>
         <div>
-          <h5 className="text-sm font-bold text-slate-800">{label}</h5>
+          <h5 className="text-sm font-bold text-foreground">{label}</h5>
           <p className="text-xs text-slate-400 font-medium mt-0.5">{description}</p>
         </div>
       </div>
@@ -56,7 +56,7 @@ function PreferenceToggle({ label, description, icon: Icon, checked, onChange, d
             <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
           </div>
         ) : (
-          <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600 peer-disabled:cursor-not-allowed"></div>
+          <div className="w-11 h-6 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-card after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600 peer-disabled:cursor-not-allowed"></div>
         )}
       </label>
     </div>
@@ -119,10 +119,10 @@ export function NotificationSettings() {
   return (
     <div className="space-y-6">
       {/* Bento 1 : Canaux généraux */}
-      <div className="bg-white/80 backdrop-blur-md rounded-[2rem] border border-slate-200/60 p-6 shadow-sm">
+      <div className="bg-card/80 backdrop-blur-md rounded-[2rem] border border-border/60 p-6 shadow-sm">
         <div className="flex items-center gap-2 mb-4 pb-2 border-b border-slate-150/50">
           <Bell className="w-4 h-4 text-blue-500" />
-          <h4 className="text-sm font-bold uppercase tracking-wider text-slate-500">{"Canaux d'alerte"}</h4>
+          <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">{"Canaux d'alerte"}</h4>
         </div>
         
         {prefsLoading ? (
@@ -130,7 +130,7 @@ export function NotificationSettings() {
             <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
           </div>
         ) : preferences ? (
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y divide-border">
             <PreferenceToggle 
               label="Notifications E-mail"
               description="Recevoir un résumé périodique de l'activité du réseau par mail."
@@ -153,15 +153,15 @@ export function NotificationSettings() {
             />
           </div>
         ) : (
-          <p className="text-sm text-slate-500 text-center py-4">Connectez-vous pour gérer vos préférences</p>
+          <p className="text-sm text-muted-foreground text-center py-4">Connectez-vous pour gérer vos préférences</p>
         )}
       </div>
 
       {/* Bento 2 : Types de notifications */}
-      <div className="bg-white/80 backdrop-blur-md rounded-[2rem] border border-slate-200/60 p-6 shadow-sm">
+      <div className="bg-card/80 backdrop-blur-md rounded-[2rem] border border-border/60 p-6 shadow-sm">
         <div className="flex items-center gap-2 mb-4 pb-2 border-b border-slate-150/50">
           <Sparkles className="w-4 h-4 text-emerald-500" />
-          <h4 className="text-sm font-bold uppercase tracking-wider text-slate-500">Événements</h4>
+          <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Événements</h4>
         </div>
         
         {prefsLoading ? (
@@ -169,7 +169,7 @@ export function NotificationSettings() {
             <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
           </div>
         ) : preferences ? (
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y divide-border">
             <PreferenceToggle 
               label="Visites du Profil"
               description="Recevoir une alerte quand quelqu'un explore votre carte."
@@ -204,7 +204,7 @@ export function NotificationSettings() {
             />
           </div>
         ) : (
-          <p className="text-sm text-slate-500 text-center py-4">Connectez-vous pour gérer vos préférences</p>
+          <p className="text-sm text-muted-foreground text-center py-4">Connectez-vous pour gérer vos préférences</p>
         )}
       </div>
 
@@ -244,21 +244,21 @@ export function NotificationSettings() {
               
               {/* Mini stats */}
               <div className="grid grid-cols-2 gap-3 pt-3 border-t border-white/10">
-                <div className="bg-white/5 rounded-xl p-3">
+                <div className="bg-card/5 rounded-xl p-3">
                   <div className="flex items-center gap-1.5 text-slate-400">
                     <Eye className="w-3.5 h-3.5" />
                     <span className="text-[10px] font-semibold uppercase">Vues</span>
                   </div>
                   <p className="text-lg font-bold mt-1">{stats.viewsThisWeek}</p>
-                  <p className="text-[10px] text-slate-500">cette semaine</p>
+                  <p className="text-[10px] text-muted-foreground">cette semaine</p>
                 </div>
-                <div className="bg-white/5 rounded-xl p-3">
+                <div className="bg-card/5 rounded-xl p-3">
                   <div className="flex items-center gap-1.5 text-slate-400">
                     <Users className="w-3.5 h-3.5" />
                     <span className="text-[10px] font-semibold uppercase">Abonnés</span>
                   </div>
                   <p className="text-lg font-bold mt-1">+{stats.followersThisWeek}</p>
-                  <p className="text-[10px] text-slate-500">cette semaine</p>
+                  <p className="text-[10px] text-muted-foreground">cette semaine</p>
                 </div>
               </div>
             </>

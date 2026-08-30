@@ -66,7 +66,7 @@ export function ProfileHero({
     handleShare
 }: ProfileHeroProps) {
     return (
-        <section className="bg-white border border-slate-100 shadow-[0_4px_24px_rgb(15,23,42,0.05)] rounded-3xl overflow-hidden relative">
+        <section className="bg-card border border-border shadow-[0_4px_24px_rgb(15,23,42,0.05)] rounded-3xl overflow-hidden relative">
             {/* Bannière encartée à coins arrondis (dégradé navy/acier par défaut) */}
             <div className="p-2.5 sm:p-3">
                 <div
@@ -95,11 +95,11 @@ export function ProfileHero({
 
                     {isOwnProfile && (
                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/cover:opacity-100 transition-opacity duration-300 bg-black/20 backdrop-blur-sm">
-                            <div className="bg-white/90 text-slate-900 font-medium text-xs px-5 py-2.5 rounded-full flex items-center gap-2 shadow-xl backdrop-blur-md border border-white/20 transition-transform hover:scale-105">
+                            <div className="bg-card/90 text-foreground font-medium text-xs px-5 py-2.5 rounded-full flex items-center gap-2 shadow-xl backdrop-blur-md border border-white/20 transition-transform hover:scale-105">
                                 {uploadingCover ? (
-                                    <Loader2 className="h-4 w-4 animate-spin text-slate-700" />
+                                    <Loader2 className="h-4 w-4 animate-spin text-foreground" />
                                 ) : (
-                                    <Camera className="h-4 w-4 text-slate-700" />
+                                    <Camera className="h-4 w-4 text-foreground" />
                                 )}
                                 {uploadingCover ? "Mise à jour..." : "Modifier la couverture"}
                             </div>
@@ -121,7 +121,7 @@ export function ProfileHero({
             <div className="px-5 sm:px-8 md:px-9 pb-7 sm:pb-8 relative z-10">
                 {/* Avatar qui chevauche la couverture */}
                 <div className="-mt-14 sm:-mt-16 mb-4">
-                    <Avatar className="h-24 w-24 sm:h-32 sm:w-32 rounded-full border-[4px] border-white shadow-xl shadow-slate-900/10 bg-white relative z-10 transition-transform duration-500 hover:scale-105">
+                    <Avatar className="h-24 w-24 sm:h-32 sm:w-32 rounded-full border-[4px] border-white shadow-xl shadow-slate-900/10 bg-card relative z-10 transition-transform duration-500 hover:scale-105">
                         <AvatarImage
                             src={getOptimizedImageUrl(profile.avatar || "/profil/avatar.jpg", { width: 240, height: 240 })}
                             alt={profile.name}
@@ -137,7 +137,7 @@ export function ProfileHero({
                 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 lg:gap-8">
                     <div className="space-y-2.5 min-w-0 flex-1">
                         <div className="flex items-center gap-2.5 flex-wrap">
-                            <h1 className="text-2xl sm:text-[28px] font-bold tracking-tight text-slate-900 leading-tight break-words">
+                            <h1 className="text-2xl sm:text-[28px] font-bold tracking-tight text-foreground leading-tight break-words">
                                 {profile.name}
                             </h1>
                             <div className="flex items-center gap-2 shrink-0">
@@ -152,7 +152,7 @@ export function ProfileHero({
                                     />
                                 )}
                                 {profile.premium && (
-                                    <span className="inline-flex items-center gap-1.5 rounded-full bg-white border border-slate-200 px-2.5 py-1 text-[10px] font-semibold text-slate-700 shadow-[0_1px_4px_rgb(15,23,42,0.04)]">
+                                    <span className="inline-flex items-center gap-1.5 rounded-full bg-card border border-border px-2.5 py-1 text-[10px] font-semibold text-foreground shadow-[0_1px_4px_rgb(15,23,42,0.04)]">
                                         <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
                                         Premium
                                     </span>
@@ -160,11 +160,11 @@ export function ProfileHero({
                             </div>
                         </div>
                         {profile.business_name && (
-                            <div className="text-base font-semibold text-slate-700">
+                            <div className="text-base font-semibold text-foreground">
                                 {profile.business_name}
                             </div>
                         )}
-                        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-500 font-medium tracking-wide">
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground font-medium tracking-wide">
                             <span className="inline-flex items-center gap-2 min-w-0">
                                 <Users className="h-4 w-4 text-slate-400 shrink-0" />
                                 <span className="truncate">{profile.specialty}</span>
@@ -185,7 +185,7 @@ export function ProfileHero({
                             className={cn(
                                 "rounded-xl h-11 text-xs px-5 gap-2 font-semibold tracking-wide transition-all hover:-translate-y-0.5 active:translate-y-0 flex-1 lg:flex-none min-w-[112px]",
                                 isFollowed
-                                    ? "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200/60 dark:border-slate-700/50"
+                                    ? "bg-muted dark:bg-slate-800 text-foreground dark:text-slate-300 hover:bg-muted dark:hover:bg-slate-700 border border-border/60 dark:border-slate-700/50"
                                     : "bg-[#013ff4] hover:bg-[#013ff4]/90 shadow-lg shadow-[#013ff4]/25 text-white border-none"
                             )}
                             onClick={handleFollow}
@@ -197,7 +197,7 @@ export function ProfileHero({
                             <Button
                                 variant="outline"
                                 size="default"
-                                className="rounded-xl h-11 text-xs px-5 gap-2 font-semibold tracking-wide border-slate-200 bg-white hover:bg-slate-50 shadow-sm transition-all hover:-translate-y-0.5 active:translate-y-0 text-slate-700 flex-1 lg:flex-none min-w-[112px]"
+                                className="rounded-xl h-11 text-xs px-5 gap-2 font-semibold tracking-wide border-border bg-card hover:bg-muted shadow-sm transition-all hover:-translate-y-0.5 active:translate-y-0 text-foreground flex-1 lg:flex-none min-w-[112px]"
                                 asChild
                             >
                                 <Link href={`/messages?contact=${profile.id}`}>
@@ -210,7 +210,7 @@ export function ProfileHero({
                             variant="outline"
                             size="default"
                             aria-label="Partager le profil"
-                            className="rounded-xl h-11 w-11 p-0 flex items-center justify-center shrink-0 border-slate-200 bg-white hover:bg-slate-50 shadow-sm transition-all hover:-translate-y-0.5 active:translate-y-0 text-slate-700"
+                            className="rounded-xl h-11 w-11 p-0 flex items-center justify-center shrink-0 border-border bg-card hover:bg-muted shadow-sm transition-all hover:-translate-y-0.5 active:translate-y-0 text-foreground"
                             onClick={handleShare}
                         >
                             <Share2 className="h-4 w-4" />
@@ -219,19 +219,19 @@ export function ProfileHero({
                 </div>
 
                 {/* Statistiques (ligne dédiée avec séparateurs droits) */}
-                <div className="flex items-center gap-5 sm:gap-8 mt-6 pt-6 border-t border-slate-100">
+                <div className="flex items-center gap-5 sm:gap-8 mt-6 pt-6 border-t border-border">
                     <div className="flex flex-col items-start group cursor-default">
-                        <div className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight leading-none group-hover:text-[#013ff4] transition-colors">{followersCount}</div>
+                        <div className="text-xl sm:text-2xl font-bold text-foreground tracking-tight leading-none group-hover:text-[#013ff4] transition-colors">{followersCount}</div>
                         <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.15em] mt-1.5">Abonnés</div>
                     </div>
-                    <div className="w-px h-9 bg-slate-200" />
+                    <div className="w-px h-9 bg-muted" />
                     <div className="flex flex-col items-start group cursor-default">
-                        <div className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight leading-none group-hover:text-[#013ff4] transition-colors">{profile.following}</div>
+                        <div className="text-xl sm:text-2xl font-bold text-foreground tracking-tight leading-none group-hover:text-[#013ff4] transition-colors">{profile.following}</div>
                         <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.15em] mt-1.5">Suivis</div>
                     </div>
-                    <div className="w-px h-9 bg-slate-200" />
+                    <div className="w-px h-9 bg-muted" />
                     <div className="flex flex-col items-start group cursor-default">
-                        <div className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight leading-none group-hover:text-[#013ff4] transition-colors">{profile.skills.length}</div>
+                        <div className="text-xl sm:text-2xl font-bold text-foreground tracking-tight leading-none group-hover:text-[#013ff4] transition-colors">{profile.skills.length}</div>
                         <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.15em] mt-1.5">Skills</div>
                     </div>
                 </div>

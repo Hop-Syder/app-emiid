@@ -100,7 +100,7 @@ export function SecuritySection({
         icon={Shield}
         description="Protégez l'accès à votre espace utilisateur et à vos données confidentielles."
       >
-        <div className="divide-y divide-slate-100">
+        <div className="divide-y divide-border">
           <div className="py-3 first:pt-0 last:pb-0">
             <SettingToggle
               id="pin-security-toggle"
@@ -154,8 +154,8 @@ export function SecuritySection({
                 <UserX className="h-4.5 w-4.5 text-amber-700" />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-bold text-slate-900 leading-snug">Désactiver temporairement le compte</p>
-                <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
+                <p className="text-sm font-bold text-foreground leading-snug">Désactiver temporairement le compte</p>
+                <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
                   Votre profil public sera masqué de l&apos;annuaire et vos accès suspendus.
                 </p>
               </div>
@@ -165,7 +165,7 @@ export function SecuritySection({
               variant="outline"
               onClick={handleDeactivateAccount}
               disabled={accountLoading}
-              className="w-full sm:w-auto shrink-0 h-10 px-4 rounded-2xl border-amber-200 text-amber-800 bg-white hover:bg-amber-50 text-xs font-bold shadow-xs transition-all"
+              className="w-full sm:w-auto shrink-0 h-10 px-4 rounded-2xl border-amber-200 text-amber-800 bg-card hover:bg-amber-50 text-xs font-bold shadow-xs transition-all"
             >
               Désactiver
             </Button>
@@ -177,8 +177,8 @@ export function SecuritySection({
                 <Trash2 className="h-4.5 w-4.5 text-rose-600" />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-bold text-slate-900 leading-snug">Supprimer définitivement le compte</p>
-                <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
+                <p className="text-sm font-bold text-foreground leading-snug">Supprimer définitivement le compte</p>
+                <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
                   Suppression irréversible de vos informations, identifiants et données de profil.
                 </p>
               </div>

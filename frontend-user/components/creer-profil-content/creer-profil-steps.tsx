@@ -37,8 +37,8 @@ export function StepIdentite({ formData, handleInputChange, handleAvatarUploadCo
         <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-4">
-                    <Label className="text-sm font-bold text-slate-700">Photo de profil</Label>
-                    <div className="rounded-3xl border-2 border-dashed border-slate-200 bg-slate-50/50 hover:bg-slate-50 hover:border-primary/30 transition-all p-4">
+                    <Label className="text-sm font-bold text-foreground">Photo de profil</Label>
+                    <div className="rounded-3xl border-2 border-dashed border-border bg-muted/50 hover:bg-muted hover:border-primary/30 transition-all p-4">
                         <AvatarUpload
                             currentAvatarUrl={formData.avatar || null}
                             onUploadComplete={handleAvatarUploadComplete}
@@ -58,9 +58,9 @@ export function StepIdentite({ formData, handleInputChange, handleAvatarUploadCo
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-slate-100">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-border">
                 <div className="space-y-3">
-                    <Label htmlFor="name" className="text-xs font-bold text-slate-700 uppercase tracking-wider">Nom Complet *</Label>
+                    <Label htmlFor="name" className="text-xs font-bold text-foreground uppercase tracking-wider">Nom Complet *</Label>
                     <Input
                         id="name"
                         name="name"
@@ -72,7 +72,7 @@ export function StepIdentite({ formData, handleInputChange, handleAvatarUploadCo
                     />
                 </div>
                 <div className="space-y-3">
-                    <Label htmlFor="role" className="text-xs font-bold text-slate-700 uppercase tracking-wider">Poste / Titre *</Label>
+                    <Label htmlFor="role" className="text-xs font-bold text-foreground uppercase tracking-wider">Poste / Titre *</Label>
                     <Input
                         id="role"
                         name="organization-title"
@@ -101,12 +101,12 @@ export function StepExpertise({ formData, handleInputChange, inputClasses }: Ste
         <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-3">
-                    <Label htmlFor="category" className="text-xs font-bold text-slate-700 uppercase tracking-wider">Type de Profil *</Label>
+                    <Label htmlFor="category" className="text-xs font-bold text-foreground uppercase tracking-wider">Type de Profil *</Label>
                     <Select value={formData.category || ""} onValueChange={(value) => handleInputChange("category", value)}>
                         <SelectTrigger id="category" className={inputClasses}>
                             <SelectValue placeholder="Catégorie..." />
                         </SelectTrigger>
-                        <SelectContent className="rounded-2xl border-slate-200 shadow-2xl p-1 max-h-[300px]">
+                        <SelectContent className="rounded-2xl border-border shadow-2xl p-1 max-h-[300px]">
                             {PROFILE_CATEGORIES.map((opt) => (
                                 <SelectItem key={opt.value} value={opt.value} className="rounded-xl py-3 cursor-pointer">{opt.label}</SelectItem>
                             ))}
@@ -114,12 +114,12 @@ export function StepExpertise({ formData, handleInputChange, inputClasses }: Ste
                     </Select>
                 </div>
                 <div className="space-y-3">
-                    <Label htmlFor="activity_domain" className="text-xs font-bold text-slate-700 uppercase tracking-wider">Secteur d&apos;activité *</Label>
+                    <Label htmlFor="activity_domain" className="text-xs font-bold text-foreground uppercase tracking-wider">Secteur d&apos;activité *</Label>
                     <Select value={formData.activity_domain || ""} onValueChange={(value) => handleInputChange("activity_domain", value)}>
                         <SelectTrigger id="activity_domain" className={inputClasses}>
                             <SelectValue placeholder="Secteur..." />
                         </SelectTrigger>
-                        <SelectContent className="rounded-2xl border-slate-200 shadow-2xl p-1 max-h-[300px]">
+                        <SelectContent className="rounded-2xl border-border shadow-2xl p-1 max-h-[300px]">
                             {ACTIVITY_DOMAINS.map((opt) => (
                                 <SelectItem key={opt.value} value={opt.value} className="rounded-xl py-3 cursor-pointer">{opt.label}</SelectItem>
                             ))}
@@ -129,7 +129,7 @@ export function StepExpertise({ formData, handleInputChange, inputClasses }: Ste
             </div>
 
             <div className="space-y-3">
-                <Label htmlFor="specialty" className="text-xs font-bold text-slate-700 uppercase tracking-wider">Expertise spécifique *</Label>
+                <Label htmlFor="specialty" className="text-xs font-bold text-foreground uppercase tracking-wider">Expertise spécifique *</Label>
                 <Input
                     id="specialty"
                     name="specialty"
@@ -139,7 +139,7 @@ export function StepExpertise({ formData, handleInputChange, inputClasses }: Ste
                     value={formData.specialty || ""}
                     onChange={(e) => handleInputChange("specialty", e.target.value)}
                 />
-                <p className="text-xs text-slate-500 pl-1">Soyez précis pour mieux apparaître dans les recherches.</p>
+                <p className="text-xs text-muted-foreground pl-1">Soyez précis pour mieux apparaître dans les recherches.</p>
             </div>
         </div>
     )
@@ -157,9 +157,9 @@ export function StepHistoire({ formData, handleInputChange, inputClasses }: Step
     return (
         <div className="space-y-6">
             <div className="space-y-3">
-                <Label htmlFor="slug" className="text-xs font-bold text-slate-700 uppercase tracking-wider">Lien personnalisé EmiID *</Label>
-                <div className="flex flex-col sm:flex-row sm:items-center rounded-2xl bg-slate-50/80 border border-slate-200 overflow-hidden focus-within:ring-2 focus-within:ring-primary/20 focus-within:bg-white transition-all shadow-sm">
-                    <div className="bg-slate-100/80 px-3 py-3 sm:px-4 sm:py-4 text-slate-500 font-semibold text-xs sm:text-sm border-b sm:border-b-0 sm:border-r border-slate-200 flex items-center">
+                <Label htmlFor="slug" className="text-xs font-bold text-foreground uppercase tracking-wider">Lien personnalisé EmiID *</Label>
+                <div className="flex flex-col sm:flex-row sm:items-center rounded-2xl bg-muted/80 border border-border overflow-hidden focus-within:ring-2 focus-within:ring-primary/20 focus-within:bg-card transition-all shadow-sm">
+                    <div className="bg-muted/80 px-3 py-3 sm:px-4 sm:py-4 text-muted-foreground font-semibold text-xs sm:text-sm border-b sm:border-b-0 sm:border-r border-border flex items-center">
                         app.emiid.com/profil/
                     </div>
                     <Input
@@ -167,7 +167,7 @@ export function StepHistoire({ formData, handleInputChange, inputClasses }: Step
                         name="slug"
                         autoComplete="off"
                         placeholder="mon-prenom"
-                        className="h-12 sm:h-14 border-none bg-transparent shadow-none focus-visible:ring-0 px-4 font-bold text-slate-800 w-full"
+                        className="h-12 sm:h-14 border-none bg-transparent shadow-none focus-visible:ring-0 px-4 font-bold text-foreground w-full"
                         value={formData.slug || ""}
                         onChange={(e) => {
                             const val = e.target.value
@@ -180,11 +180,11 @@ export function StepHistoire({ formData, handleInputChange, inputClasses }: Step
                         }}
                     />
                 </div>
-                <p className="text-xs text-slate-500 pl-1">C&apos;est le lien que vous partagerez à vos contacts.</p>
+                <p className="text-xs text-muted-foreground pl-1">C&apos;est le lien que vous partagerez à vos contacts.</p>
             </div>
 
             <div className="space-y-3">
-                <Label htmlFor="bio" className="text-xs font-bold text-slate-700 uppercase tracking-wider">Votre Histoire (Bio)</Label>
+                <Label htmlFor="bio" className="text-xs font-bold text-foreground uppercase tracking-wider">Votre Histoire (Bio)</Label>
                 <Textarea
                     id="bio"
                     name="bio"
@@ -193,7 +193,7 @@ export function StepHistoire({ formData, handleInputChange, inputClasses }: Step
                     value={formData.bio || ""}
                     onChange={(e) => handleInputChange("bio", e.target.value)}
                 />
-                <div className="flex justify-between text-xs text-slate-500 px-1">
+                <div className="flex justify-between text-xs text-muted-foreground px-1">
                     <span>Soyez authentique.</span>
                     <span>{formData.bio?.length || 0} / 1200</span>
                 </div>
@@ -215,7 +215,7 @@ export function StepContact({ formData, handleInputChange, handleLocationSelect,
     return (
         <div className="space-y-6">
             <div className="space-y-4">
-                <Label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Localisation *</Label>
+                <Label className="text-xs font-bold text-foreground uppercase tracking-wider">Localisation *</Label>
                 <div className="p-1">
                     <LocationSelector
                         defaultCountryCode={formData.country_code}
@@ -225,9 +225,9 @@ export function StepContact({ formData, handleInputChange, handleLocationSelect,
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-100">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-border">
                 <div className="space-y-3">
-                    <Label htmlFor="phone" className="text-xs font-bold text-slate-700 uppercase tracking-wider">Téléphone</Label>
+                    <Label htmlFor="phone" className="text-xs font-bold text-foreground uppercase tracking-wider">Téléphone</Label>
                     <Input
                         id="phone"
                         name="tel"
@@ -239,7 +239,7 @@ export function StepContact({ formData, handleInputChange, handleLocationSelect,
                     />
                 </div>
                 <div className="space-y-3">
-                    <Label htmlFor="email" className="text-xs font-bold text-slate-700 uppercase tracking-wider">Email Pro</Label>
+                    <Label htmlFor="email" className="text-xs font-bold text-foreground uppercase tracking-wider">Email Pro</Label>
                     <Input
                         id="email"
                         type="email"
@@ -252,7 +252,7 @@ export function StepContact({ formData, handleInputChange, handleLocationSelect,
                     />
                 </div>
                 <div className="space-y-3 md:col-span-2">
-                    <Label htmlFor="website" className="text-xs font-bold text-slate-700 uppercase tracking-wider">Site Web / Portfolio</Label>
+                    <Label htmlFor="website" className="text-xs font-bold text-foreground uppercase tracking-wider">Site Web / Portfolio</Label>
                     <Input
                         id="website"
                         name="url"
@@ -328,7 +328,7 @@ export function StepCompetences({ tags, tagInput, setTagInput, addTag, addSugges
     return (
         <div className="space-y-6">
             <div className="space-y-4">
-                <Label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Ajouter des Compétences</Label>
+                <Label className="text-xs font-bold text-foreground uppercase tracking-wider">Ajouter des Compétences</Label>
                 <div className="flex flex-col sm:flex-row gap-3">
                     <Input
                         id="tags-input"
@@ -356,8 +356,8 @@ export function StepCompetences({ tags, tagInput, setTagInput, addTag, addSugges
                                     className={cn(
                                         "text-xs px-3 py-1.5 rounded-xl transition-all border font-semibold",
                                         isAlreadyAdded
-                                            ? "bg-slate-50 text-slate-300 border-slate-100 cursor-not-allowed"
-                                             : "bg-white text-slate-600 border-slate-200 hover:border-primary/30 hover:bg-primary/5 active:scale-95"
+                                            ? "bg-muted text-slate-300 border-border cursor-not-allowed"
+                                             : "bg-card text-muted-foreground border-border hover:border-primary/30 hover:bg-primary/5 active:scale-95"
                                     )}
                                 >
                                     + {suggestedTag}
@@ -376,12 +376,12 @@ export function StepCompetences({ tags, tagInput, setTagInput, addTag, addSugges
                             className="flex items-center gap-2 bg-slate-900 text-white pl-4 pr-2 py-2 rounded-xl text-xs font-bold shadow-md"
                         >
                             <span>{tag}</span>
-                            <button type="button" onClick={() => removeTag(tag)} className="p-1 hover:bg-white/20 rounded-lg transition-colors">
+                            <button type="button" onClick={() => removeTag(tag)} className="p-1 hover:bg-card/20 rounded-lg transition-colors">
                                 <X className="h-3 w-3" />
                             </button>
                         </motion.div>
                     )) : (
-                        <div className="w-full text-center p-8 border-2 border-dashed border-slate-200 rounded-2xl">
+                        <div className="w-full text-center p-8 border-2 border-dashed border-border rounded-2xl">
                             <p className="text-sm text-slate-400">Aucune compétence ajoutée pour l&apos;instant.</p>
                         </div>
                     )}

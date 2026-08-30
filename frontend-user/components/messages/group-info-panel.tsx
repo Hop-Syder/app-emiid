@@ -250,7 +250,7 @@ export function GroupInfoPanel({
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetContent side="right" className="p-0 gap-0">
           {/* En-tête */}
-          <SheetHeader className="items-center text-center gap-3 border-b border-slate-100 bg-gradient-to-b from-[#013ff4]/5 to-transparent pt-10">
+          <SheetHeader className="items-center text-center gap-3 border-b border-border bg-gradient-to-b from-[#013ff4]/5 to-transparent pt-10">
             <Avatar className="h-24 w-24 rounded-3xl ring-4 ring-white shadow-lg">
               <AvatarImage src={avatarUrl || undefined} alt={conversation.name || "Groupe"} className="object-cover" />
               <AvatarFallback className="rounded-3xl bg-gradient-to-br from-[#013ff4] to-[#03b3f8] text-white">
@@ -265,7 +265,7 @@ export function GroupInfoPanel({
                   maxLength={80}
                   autoFocus
                   onKeyDown={(e) => { if (e.key === "Enter") saveName(); if (e.key === "Escape") setEditingName(false) }}
-                  className="w-full text-center text-lg font-black text-slate-900 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#013ff4]/30"
+                  className="w-full text-center text-lg font-black text-foreground rounded-xl border border-border bg-muted px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#013ff4]/30"
                 />
                 <div className="flex items-center gap-2">
                   <Button variant="ghost" size="sm" className="rounded-lg h-8" onClick={() => setEditingName(false)} disabled={savingName}>
@@ -320,7 +320,7 @@ export function GroupInfoPanel({
                   </button>
                 )}
               </div>
-              <div className="rounded-2xl border border-slate-200/60 bg-white/60 backdrop-blur-md p-4 shadow-sm">
+              <div className="rounded-2xl border border-border/60 bg-card/60 backdrop-blur-md p-4 shadow-sm">
                 {editingDesc ? (
                   <div className="space-y-3">
                     <textarea
@@ -330,7 +330,7 @@ export function GroupInfoPanel({
                       rows={4}
                       autoFocus
                       placeholder="Présentez le groupe en quelques mots…"
-                      className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#013ff4]/30"
+                      className="w-full resize-none rounded-xl border border-border bg-muted px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#013ff4]/30"
                     />
                     <div className="flex items-center justify-end gap-2">
                       <Button variant="ghost" size="sm" className="rounded-xl" onClick={() => setEditingDesc(false)} disabled={savingDesc}>
@@ -342,7 +342,7 @@ export function GroupInfoPanel({
                     </div>
                   </div>
                 ) : conversation.description ? (
-                  <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{conversation.description}</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{conversation.description}</p>
                 ) : (
                   <p className="text-sm text-slate-400 italic">Aucune description{isAdmin ? " — cliquez sur le crayon pour en ajouter." : "."}</p>
                 )}
@@ -359,14 +359,14 @@ export function GroupInfoPanel({
                   <UserPlus className="h-4 w-4" /> Ajouter des membres
                 </button>
                 {addOpen && (
-                  <div className="mt-3 rounded-2xl border border-slate-200/60 bg-white/60 p-3 space-y-3">
+                  <div className="mt-3 rounded-2xl border border-border/60 bg-card/60 p-3 space-y-3">
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                       <input
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         placeholder="Rechercher un membre EmiID…"
-                        className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#013ff4]/30"
+                        className="w-full pl-9 pr-3 py-2 rounded-xl border border-border bg-muted text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#013ff4]/30"
                       />
                     </div>
                     {searching && <p className="text-xs text-slate-400 px-1">Recherche…</p>}
@@ -375,13 +375,13 @@ export function GroupInfoPanel({
                     )}
                     <div className="space-y-1.5 max-h-56 overflow-y-auto">
                       {results.map((u) => (
-                        <div key={u.id} className="flex items-center gap-3 rounded-xl px-2 py-1.5 hover:bg-slate-50">
+                        <div key={u.id} className="flex items-center gap-3 rounded-xl px-2 py-1.5 hover:bg-muted">
                           <Avatar className="h-8 w-8 shrink-0">
                             <AvatarImage src={u.avatar || undefined} alt={u.name} className="object-cover" />
-                            <AvatarFallback className="bg-slate-200 text-slate-500 text-xs font-bold">{u.name?.[0] || "?"}</AvatarFallback>
+                            <AvatarFallback className="bg-muted text-muted-foreground text-xs font-bold">{u.name?.[0] || "?"}</AvatarFallback>
                           </Avatar>
                           <div className="min-w-0 flex-1">
-                            <p className="text-sm font-semibold text-slate-800 truncate">{u.name}</p>
+                            <p className="text-sm font-semibold text-foreground truncate">{u.name}</p>
                             {u.role && <p className="text-[11px] text-slate-400 truncate">{u.role}</p>}
                           </div>
                           <Button size="sm" variant="ghost" className="rounded-lg h-8 text-[#013ff4] hover:bg-[#013ff4]/10" disabled={adding === u.id} onClick={() => addMember(u)}>
@@ -412,13 +412,13 @@ export function GroupInfoPanel({
                       ? getOptimizedImageUrl(m.profile.avatar_url, { width: 80, height: 80, quality: 80 })
                       : null
                     return (
-                      <li key={m.user_id} className="flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-slate-50 transition-colors">
+                      <li key={m.user_id} className="flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-muted transition-colors">
                         <Avatar className="h-10 w-10 shrink-0 ring-1 ring-slate-100">
                           <AvatarImage src={av || undefined} alt={memberName(m)} className="object-cover" />
-                          <AvatarFallback className="bg-slate-200 text-slate-500 text-xs font-bold">{(m.profile?.first_name?.[0] || "?").toUpperCase()}</AvatarFallback>
+                          <AvatarFallback className="bg-muted text-muted-foreground text-xs font-bold">{(m.profile?.first_name?.[0] || "?").toUpperCase()}</AvatarFallback>
                         </Avatar>
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-bold text-slate-800 truncate">
+                          <p className="text-sm font-bold text-foreground truncate">
                             {memberName(m)} {isMe && <span className="text-slate-400 font-medium">(vous)</span>}
                           </p>
                           {m.profile?.role && <p className="text-[11px] text-slate-400 truncate">{m.profile.role}</p>}
@@ -434,7 +434,7 @@ export function GroupInfoPanel({
                         {canManage && (
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <button className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 shrink-0" aria-label="Options du membre">
+                              <button className="p-1.5 rounded-lg text-slate-400 hover:text-foreground hover:bg-muted shrink-0" aria-label="Options du membre">
                                 <MoreVertical className="h-4 w-4" />
                               </button>
                             </DropdownMenuTrigger>
@@ -445,7 +445,7 @@ export function GroupInfoPanel({
                                 </DropdownMenuItem>
                               ) : (
                                 <DropdownMenuItem className="rounded-lg cursor-pointer" onClick={() => act(m, "demote")}>
-                                  <ShieldMinus className="mr-2 h-4 w-4 text-slate-500" /> Rétrograder en membre
+                                  <ShieldMinus className="mr-2 h-4 w-4 text-muted-foreground" /> Rétrograder en membre
                                 </DropdownMenuItem>
                               )}
                               <DropdownMenuItem className="rounded-lg cursor-pointer text-red-600 focus:text-red-700 focus:bg-red-50" onClick={() => setConfirm({ kind: "remove", target: m })}>
@@ -468,7 +468,7 @@ export function GroupInfoPanel({
           </div>
 
           {/* Pied : Quitter / Supprimer */}
-          <div className="border-t border-slate-100 p-4 bg-white">
+          <div className="border-t border-border p-4 bg-card">
             {isOwner ? (
               <Button
                 variant="ghost"

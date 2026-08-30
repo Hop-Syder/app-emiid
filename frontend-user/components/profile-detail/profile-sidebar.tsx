@@ -52,11 +52,11 @@ function LockedContact() {
                 </div>
             </div>
 
-            <div className="flex flex-col items-center gap-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 px-4 py-5 text-center">
+            <div className="flex flex-col items-center gap-3 rounded-2xl border border-border/80 bg-muted/70 px-4 py-5 text-center">
                 <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900">
                     <Lock className="h-4 w-4 text-amber-400" />
                 </span>
-                <p className="text-xs font-semibold leading-relaxed text-slate-600">
+                <p className="text-xs font-semibold leading-relaxed text-muted-foreground">
                     Créez votre compte pour voir l&apos;email et le téléphone de ce membre.
                 </p>
                 <div className="flex w-full flex-col gap-2 sm:flex-row">
@@ -69,7 +69,7 @@ function LockedContact() {
                     </Link>
                     <Link
                         href="/login"
-                        className="flex flex-1 items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-[11px] font-black uppercase tracking-wide text-slate-700 transition-colors hover:bg-slate-50"
+                        className="flex flex-1 items-center justify-center rounded-xl border border-border bg-card px-3 py-2.5 text-[11px] font-black uppercase tracking-wide text-foreground transition-colors hover:bg-muted"
                     >
                         Se connecter
                     </Link>
@@ -105,37 +105,37 @@ export function ProfileSidebar({
     return (
         <aside className="lg:col-span-4 min-w-0 space-y-6">
             {/* Coordinates card */}
-            <div className="bg-white border border-slate-100 rounded-3xl p-5 sm:p-6 shadow-[0_4px_24px_rgb(15,23,42,0.05)] relative overflow-hidden">
+            <div className="bg-card border border-border rounded-3xl p-5 sm:p-6 shadow-[0_4px_24px_rgb(15,23,42,0.05)] relative overflow-hidden">
                 <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
                     <Globe className="h-4 w-4 text-[#013ff4]" />
                     Coordonnées
                 </h3>
 
                 <div className="mt-5 space-y-4 text-sm">
-                    <div className="flex items-start gap-3.5 text-slate-700 hover:bg-slate-50/50 p-2 -mx-2 rounded-xl transition-colors duration-200">
+                    <div className="flex items-start gap-3.5 text-foreground hover:bg-muted/50 p-2 -mx-2 rounded-xl transition-colors duration-200">
                         <Calendar className="h-4 w-4 text-slate-400 shrink-0 mt-0.5" />
                         <div>
                             <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Membre depuis</div>
-                            <div className="font-extrabold text-slate-800">{joinedDate}</div>
+                            <div className="font-extrabold text-foreground">{joinedDate}</div>
                         </div>
                     </div>
 
                     {isLoggedIn && profile.email && (
-                        <div className="flex items-start gap-3.5 text-slate-700 hover:bg-slate-50/50 p-2 -mx-2 rounded-xl transition-colors duration-200">
+                        <div className="flex items-start gap-3.5 text-foreground hover:bg-muted/50 p-2 -mx-2 rounded-xl transition-colors duration-200">
                             <Mail className="h-4 w-4 text-slate-400 shrink-0 mt-0.5" />
                             <div className="min-w-0 flex-1">
                                 <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Email</div>
-                                <div className="font-extrabold text-slate-800 break-all">{profile.email}</div>
+                                <div className="font-extrabold text-foreground break-all">{profile.email}</div>
                             </div>
                         </div>
                     )}
 
                     {isLoggedIn && profile.phone && (
-                        <div className="flex items-start gap-3.5 text-slate-700 hover:bg-slate-50/50 p-2 -mx-2 rounded-xl transition-colors duration-200">
+                        <div className="flex items-start gap-3.5 text-foreground hover:bg-muted/50 p-2 -mx-2 rounded-xl transition-colors duration-200">
                             <Phone className="h-4 w-4 text-slate-400 shrink-0 mt-0.5" />
                             <div className="min-w-0">
                                 <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Téléphone</div>
-                                <div className="font-extrabold text-slate-800 break-words">{profile.phone}</div>
+                                <div className="font-extrabold text-foreground break-words">{profile.phone}</div>
                             </div>
                         </div>
                     )}
@@ -174,7 +174,7 @@ export function ProfileSidebar({
                     <Button
                         asChild
                         variant="outline"
-                        className="w-full mt-5 h-11 rounded-2xl text-xs font-black border-slate-200 bg-white hover:bg-slate-50 gap-2 shadow-sm transition-all duration-300 hover:-translate-y-0.5"
+                        className="w-full mt-5 h-11 rounded-2xl text-xs font-black border-border bg-card hover:bg-muted gap-2 shadow-sm transition-all duration-300 hover:-translate-y-0.5"
                     >
                         <a href={profile.website} target="_blank" rel="noopener noreferrer">
                             Visiter le site <ExternalLink className="h-4 w-4" />
@@ -184,7 +184,7 @@ export function ProfileSidebar({
             </div>
 
             {/* Share card */}
-            <div className="bg-white border border-slate-100 rounded-3xl p-5 sm:p-6 shadow-[0_4px_24px_rgb(15,23,42,0.05)] overflow-hidden">
+            <div className="bg-card border border-border rounded-3xl p-5 sm:p-6 shadow-[0_4px_24px_rgb(15,23,42,0.05)] overflow-hidden">
                 <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
                     <Share2 className="h-4 w-4 text-[#013ff4] shrink-0" />
                     Partage
@@ -195,22 +195,22 @@ export function ProfileSidebar({
                         <Input
                             readOnly
                             value={profileUrl}
-                            className="h-11 min-w-0 flex-1 bg-slate-50/70 border-slate-200 text-slate-700 font-mono text-xs focus-visible:ring-0 rounded-2xl font-semibold select-all"
+                            className="h-11 min-w-0 flex-1 bg-muted/70 border-border text-foreground font-mono text-xs focus-visible:ring-0 rounded-2xl font-semibold select-all"
                         />
                         <Button
                             size="icon"
                             variant="outline"
-                            className="h-11 w-11 rounded-2xl shrink-0 border-slate-200 bg-white hover:bg-slate-50 transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm"
+                            className="h-11 w-11 rounded-2xl shrink-0 border-border bg-card hover:bg-muted transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm"
                             onClick={() => copyToClipboard(profileUrl)}
                         >
-                            {copiedLink === profileUrl ? <Check className="h-4 w-4 text-green-600 animate-in zoom-in duration-200" /> : <Copy className="h-4 w-4 text-slate-700" />}
+                            {copiedLink === profileUrl ? <Check className="h-4 w-4 text-green-600 animate-in zoom-in duration-200" /> : <Copy className="h-4 w-4 text-foreground" />}
                         </Button>
                     </div>
 
                     <div className="grid grid-cols-2 gap-2">
                         <Button
                             variant="outline"
-                            className="h-11 rounded-2xl border-slate-200 bg-white hover:bg-slate-50 font-black text-xs gap-2 transition-all duration-300 hover:-translate-y-0.5 shadow-sm"
+                            className="h-11 rounded-2xl border-border bg-card hover:bg-muted font-black text-xs gap-2 transition-all duration-300 hover:-translate-y-0.5 shadow-sm"
                             onClick={() => setIsShareModalOpen(true)}
                         >
                             <Share className="h-4 w-4 text-[#013ff4]" />
@@ -218,7 +218,7 @@ export function ProfileSidebar({
                         </Button>
                         <Button
                             variant="outline"
-                            className="h-11 rounded-2xl border-slate-200 bg-white hover:bg-slate-50 font-black text-xs gap-2 transition-all duration-300 hover:-translate-y-0.5 shadow-sm"
+                            className="h-11 rounded-2xl border-border bg-card hover:bg-muted font-black text-xs gap-2 transition-all duration-300 hover:-translate-y-0.5 shadow-sm"
                             onClick={downloadVCard}
                         >
                             <Download className="h-4 w-4 text-[#03b3f8]" />

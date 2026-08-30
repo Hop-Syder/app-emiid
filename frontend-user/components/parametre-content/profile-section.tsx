@@ -37,6 +37,7 @@ import { toast } from "sonner"
 import { PROFILE_CATEGORIES, ACTIVITY_DOMAINS } from "@/lib/profile-options"
 import type { UserProfileData } from "@/hooks/use-settings"
 import { BioSection } from "./bio-section"
+import { LocationMapPicker } from "./location-map-picker"
 import {
   SectionCard,
   SettingRow,
@@ -172,8 +173,8 @@ export function ProfileSection({
             onUploadComplete={(url: string) => up("avatar_url", url)}
           />
           <div className="min-w-0 flex-1">
-            <p className="text-base font-extrabold text-slate-900 truncate leading-snug">{displayName}</p>
-            <p className="text-xs text-slate-500 truncate mt-0.5">{profile.email}</p>
+            <p className="text-base font-extrabold text-foreground truncate leading-snug">{displayName}</p>
+            <p className="text-xs text-muted-foreground truncate mt-0.5">{profile.email}</p>
             <div className="flex items-center gap-2 mt-2">
               <span className="text-[11px] font-semibold text-slate-400">JPG, PNG, WEBP · Max 2 MB</span>
             </div>
@@ -291,7 +292,7 @@ export function ProfileSection({
               variant="outline"
               onClick={handleGetLocation}
               disabled={locating}
-              className="h-11 px-4 rounded-2xl border-slate-200 font-bold shrink-0 w-full sm:w-auto hover:bg-slate-50 transition-all text-slate-700 disabled:opacity-60"
+              className="h-11 px-4 rounded-2xl border-border font-bold shrink-0 w-full sm:w-auto hover:bg-muted transition-all text-foreground disabled:opacity-60"
             >
               {locating ? (
                 <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Détection…</>
@@ -307,8 +308,8 @@ export function ProfileSection({
               <div className="flex items-center gap-2.5 min-w-0">
                 <CheckCircle2 className="w-4.5 h-4.5 text-emerald-600 shrink-0" />
                 <div className="min-w-0">
-                  <p className="text-xs font-bold text-slate-900 leading-snug">Position GPS enregistrée</p>
-                  <p className="text-[11px] text-slate-500 font-mono mt-0.5 truncate">
+                  <p className="text-xs font-bold text-foreground leading-snug">Position GPS enregistrée</p>
+                  <p className="text-[11px] text-muted-foreground font-mono mt-0.5 truncate">
                     {Number(profile.latitude).toFixed(6)}, {Number(profile.longitude).toFixed(6)}
                   </p>
                 </div>
@@ -325,7 +326,7 @@ export function ProfileSection({
                 <button
                   type="button"
                   onClick={clearLocation}
-                  className="inline-flex items-center gap-1 text-xs font-bold text-slate-500 hover:text-rose-600 transition-colors"
+                  className="inline-flex items-center gap-1 text-xs font-bold text-muted-foreground hover:text-rose-600 transition-colors"
                 >
                   <RotateCcw className="w-3 h-3" /> Effacer
                 </button>
@@ -338,8 +339,21 @@ export function ProfileSection({
             </p>
           )}
 
+          {/* Carte interactive : affiner la position au marqueur (précis au mètre) */}
+          <div>
+            <LocationMapPicker
+              latitude={profile.latitude}
+              longitude={profile.longitude}
+              onChange={(lat, lng) => setProfile({ ...profile, latitude: round6(lat), longitude: round6(lng) })}
+            />
+            <p className="mt-2 text-xs text-slate-400 flex items-center gap-1.5 px-1">
+              <MapPin className="w-3.5 h-3.5 shrink-0" />
+              Déplacez le marqueur ou tapez sur la carte pour ajuster précisément votre position.
+            </p>
+          </div>
+
           {/* Mode nomade */}
-          <div className="pt-2 border-t border-slate-100">
+          <div className="pt-2 border-t border-border">
             <SettingToggle
               id="is_nomad"
               icon={Compass}
@@ -440,7 +454,7 @@ export function ProfileSection({
 
         {/* Validation SMS / WhatsApp si téléphone renseigné */}
         {profile.phone && profile.phone.length > 5 && (
-          <div className="pt-2 border-t border-slate-100">
+          <div className="pt-2 border-t border-border">
             {profile.phone_verified ? (
               <div className="flex items-center gap-2.5 text-emerald-700 bg-emerald-50 w-fit px-3.5 py-2 rounded-2xl border border-emerald-200 text-xs sm:text-sm font-bold shadow-xs">
                 <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
@@ -450,7 +464,7 @@ export function ProfileSection({
               <div className="p-4.5 bg-[#013ff4]/5 border border-[#013ff4]/20 rounded-3xl space-y-3">
                 <div>
                   <p className="text-sm font-bold text-[#013ff4]">Code de confirmation envoyé</p>
-                  <p className="text-xs text-slate-600 mt-0.5">
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     Saisissez le code à 6 chiffres reçu sur <strong>{profile.phone}</strong>.
                   </p>
                 </div>
@@ -463,14 +477,14 @@ export function ProfileSection({
                     onChange={(e) => setOtpCode(e.target.value.replace(/[^0-9]/g, ""))}
                     placeholder="000000"
                     maxLength={6}
-                    className="h-11 text-center text-xl tracking-[0.4em] font-black rounded-2xl border-[#013ff4]/30 bg-white flex-1"
+                    className="h-11 text-center text-xl tracking-[0.4em] font-black rounded-2xl border-[#013ff4]/30 bg-card flex-1"
                   />
                   <div className="flex gap-2 shrink-0">
                     <Button
                       type="button"
                       variant="ghost"
                       onClick={() => { setVerifyMethod(null); setOtpCode("") }}
-                      className="h-11 px-4 rounded-2xl text-slate-600 hover:bg-white"
+                      className="h-11 px-4 rounded-2xl text-muted-foreground hover:bg-card"
                     >
                       Annuler
                     </Button>
@@ -498,7 +512,7 @@ export function ProfileSection({
                   <button
                     type="button"
                     onClick={() => handleVerifyRequest("whatsapp")}
-                    className="flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-2xl bg-white border border-emerald-300 text-emerald-800 text-xs font-bold hover:bg-emerald-50 active:scale-95 transition-all shadow-xs"
+                    className="flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-2xl bg-card border border-emerald-300 text-emerald-800 text-xs font-bold hover:bg-emerald-50 active:scale-95 transition-all shadow-xs"
                   >
                     <Image src="/svg/whatsapp-logo.svg" width={14} height={14} alt="WhatsApp" />
                     WhatsApp
@@ -506,7 +520,7 @@ export function ProfileSection({
                   <button
                     type="button"
                     onClick={() => handleVerifyRequest("sms")}
-                    className="flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-2xl bg-white border border-blue-300 text-blue-800 text-xs font-bold hover:bg-blue-50 active:scale-95 transition-all shadow-xs"
+                    className="flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-2xl bg-card border border-blue-300 text-blue-800 text-xs font-bold hover:bg-blue-50 active:scale-95 transition-all shadow-xs"
                   >
                     <MessageSquare className="h-3.5 w-3.5 text-blue-600" />
                     SMS
@@ -520,7 +534,7 @@ export function ProfileSection({
 
       {/* ── Statuts de vérification ─────────────────────────────────────── */}
       <SectionCard title="Statut de vérification du compte" icon={Shield}>
-        <div className="divide-y divide-slate-100">
+        <div className="divide-y divide-border">
           <SettingRow
             icon={Mail}
             iconBg="bg-emerald-50"
@@ -537,7 +551,7 @@ export function ProfileSection({
 
           <SettingRow
             icon={Smartphone}
-            iconBg={profile.phone_verified ? "bg-emerald-50" : "bg-slate-100"}
+            iconBg={profile.phone_verified ? "bg-emerald-50" : "bg-muted"}
             iconColor={profile.phone_verified ? "text-emerald-600" : "text-slate-400"}
             title="Numéro de Téléphone"
             subtitle={profile.phone || "Aucun numéro renseigné"}
@@ -548,7 +562,7 @@ export function ProfileSection({
                   Vérifié
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-500 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-slate-200">
+                <span className="inline-flex items-center gap-1 bg-muted text-muted-foreground text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-border">
                   <AlertCircle className="h-2.5 w-2.5" />
                   En attente
                 </span>

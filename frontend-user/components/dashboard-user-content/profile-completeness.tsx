@@ -34,10 +34,10 @@ export function ProfileCompleteness({ completion, loading, nextAction }: Profile
       <Link
         href="/notifications"
         aria-label="Voir mes notifications"
-        className="lg:hidden absolute -top-1.5 right-0 p-2.5 rounded-2xl bg-slate-50 border border-slate-200/70 text-slate-700 hover:text-[#013ff4] hover:bg-[#013ff4]/10 active:scale-90 transition-all shadow-sm"
+        className="lg:hidden absolute -top-1.5 right-0 p-2.5 rounded-2xl bg-muted border border-border/70 text-foreground hover:text-[#013ff4] hover:bg-[#013ff4]/10 active:scale-90 transition-all shadow-sm"
       >
         <span className="relative flex items-center justify-center">
-          <Bell className="w-5 h-5 text-slate-800" />
+          <Bell className="w-5 h-5 text-foreground" />
           {unreadCount > 0 && (
             <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-black flex items-center justify-center ring-2 ring-white shadow-sm animate-pulse">
               {unreadCount > 9 ? "9+" : unreadCount}
@@ -62,7 +62,7 @@ export function ProfileCompleteness({ completion, loading, nextAction }: Profile
             className="transition-[stroke-dashoffset] duration-700 ease-out"
           />
         </svg>
-        <span className="absolute inset-0 flex items-center justify-center text-sm font-black text-slate-900">
+        <span className="absolute inset-0 flex items-center justify-center text-sm font-black text-foreground">
           {loading ? "…" : `${completion}%`}
         </span>
       </div>
@@ -70,13 +70,13 @@ export function ProfileCompleteness({ completion, loading, nextAction }: Profile
       <div className="min-w-0 pr-11 lg:pr-0">
         {completion >= 100 ? (
           <>
-            <p className="text-sm font-black text-slate-900">Profil complet 🎉</p>
-            <p className="text-xs text-slate-500 mt-0.5">Vous apparaissez au mieux dans les recherches.</p>
+            <p className="text-sm font-black text-foreground">Profil complet 🎉</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Vous apparaissez au mieux dans les recherches.</p>
           </>
         ) : (
           <>
-            <p className="text-sm font-black text-slate-900">Complétez votre profil</p>
-            <p className="text-xs text-slate-500 mt-0.5">Un profil complet apparaît bien plus haut dans l&apos;annuaire.</p>
+            <p className="text-sm font-black text-foreground">Complétez votre profil</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Un profil complet apparaît bien plus haut dans l&apos;annuaire.</p>
             {nextAction && (
               <Link
                 href={nextAction.href}

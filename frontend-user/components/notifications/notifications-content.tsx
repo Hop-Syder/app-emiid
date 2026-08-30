@@ -47,17 +47,17 @@ export function NotificationsContent() {
   const totalFilteredCount = filteredNotifications.length
 
   return (
-    <div className="flex-1 w-full min-h-screen bg-slate-50/50 pb-24 md:pb-12">
+    <div className="flex-1 w-full min-h-screen bg-muted/50 pb-24 md:pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-8">
         
         {/* HEADER BENTO */}
-        <div className="bg-white/80 backdrop-blur-md rounded-[2.5rem] border border-slate-200/60 p-6 md:p-8 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="bg-card/80 backdrop-blur-md rounded-[2.5rem] border border-border/60 p-6 md:p-8 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-start md:items-center gap-4">
             <div className="p-4 bg-gradient-to-tr from-blue-500 to-indigo-600 rounded-[1.75rem] text-white shadow-lg shadow-blue-500/20 shrink-0">
               <Bell className="w-6 h-6 animate-pulse" />
             </div>
             <div>
-              <h1 className="text-xl md:text-3xl font-black text-slate-900 tracking-tight flex flex-wrap items-center gap-2 md:gap-3">
+              <h1 className="text-xl md:text-3xl font-black text-foreground tracking-tight flex flex-wrap items-center gap-2 md:gap-3">
                 Centre d&apos;Alertes
                 {unreadCount > 0 && (
                   <span className="text-[10px] md:text-xs font-bold px-2.5 py-1 rounded-full bg-blue-100 text-blue-600 border border-blue-200/50 whitespace-nowrap">
@@ -65,7 +65,7 @@ export function NotificationsContent() {
                   </span>
                 )}
               </h1>
-              <p className="text-slate-500 text-xs md:text-sm font-medium mt-1 leading-relaxed max-w-lg">
+              <p className="text-muted-foreground text-xs md:text-sm font-medium mt-1 leading-relaxed max-w-lg">
                 Gérez vos notifications système, messages et l&apos;activité de votre réseau en temps réel.
               </p>
             </div>
@@ -74,7 +74,7 @@ export function NotificationsContent() {
           <button
             onClick={handleMarkAllAsRead}
             disabled={unreadCount === 0}
-            className="w-full md:w-auto flex items-center justify-center gap-2 h-12 px-6 rounded-2xl bg-white border border-slate-200 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-700 transition-all shadow-sm hover:scale-[1.02] active:scale-[0.98] shrink-0"
+            className="w-full md:w-auto flex items-center justify-center gap-2 h-12 px-6 rounded-2xl bg-card border border-border hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed text-[10px] md:text-xs font-black uppercase tracking-widest text-foreground transition-all shadow-sm hover:scale-[1.02] active:scale-[0.98] shrink-0"
           >
             <CheckCheck className="w-4 h-4 text-blue-500" />
             Tout marquer comme lu
@@ -97,7 +97,7 @@ export function NotificationsContent() {
                 className={`flex-shrink-0 h-10 px-5 rounded-xl font-bold text-xs transition-all whitespace-nowrap border ${
                   activeTab === value
                     ? "bg-slate-900 text-white border-slate-900 shadow-sm"
-                    : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-slate-900"
+                    : "bg-card text-muted-foreground border-border hover:bg-muted hover:text-foreground"
                 }`}
               >
                 {label}
@@ -174,7 +174,7 @@ export function NotificationsContent() {
                 {activeTab === "all" && (
                   <div ref={loadMoreRef} className="py-4 flex justify-center">
                     {isLoadingMore && (
-                      <div className="flex items-center gap-2 text-slate-500">
+                      <div className="flex items-center gap-2 text-muted-foreground">
                         <Loader2 className="w-5 h-5 animate-spin" />
                         <span className="text-sm font-medium">Chargement...</span>
                       </div>
@@ -191,15 +191,15 @@ export function NotificationsContent() {
               <motion.div 
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="flex flex-col items-center justify-center py-20 bg-white/80 backdrop-blur-md rounded-[2.5rem] border border-slate-200/60 p-8 shadow-sm text-center"
+                className="flex flex-col items-center justify-center py-20 bg-card/80 backdrop-blur-md rounded-[2.5rem] border border-border/60 p-8 shadow-sm text-center"
               >
-                <div className="p-6 rounded-full bg-slate-100 text-slate-400 mb-6">
+                <div className="p-6 rounded-full bg-muted text-slate-400 mb-6">
                   <Inbox className="w-12 h-12" />
                 </div>
-                <h3 className="text-xl font-bold tracking-tight text-slate-900 mb-2">
+                <h3 className="text-xl font-bold tracking-tight text-foreground mb-2">
                   Aucune alerte
                 </h3>
-                <p className="text-slate-500 text-sm font-medium max-w-sm">
+                <p className="text-muted-foreground text-sm font-medium max-w-sm">
                   {activeTab === "all" 
                     ? "Vous n'avez reçu aucune notification pour le moment." 
                     : `Aucune notification de type "${activeTab}" disponible.`}

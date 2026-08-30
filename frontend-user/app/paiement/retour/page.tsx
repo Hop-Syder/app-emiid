@@ -22,7 +22,7 @@ export default function PaiementRetourPage() {
         <Suspense
             fallback={
                 <div className="min-h-screen w-full flex items-center justify-center bg-[#000616]">
-                    <Loader2 className="h-6 w-6 animate-spin text-slate-500" />
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                 </div>
             }
         >

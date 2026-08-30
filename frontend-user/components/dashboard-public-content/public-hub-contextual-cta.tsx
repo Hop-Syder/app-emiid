@@ -35,7 +35,7 @@ export function PublicHubContextualCta() {
           Créez votre compte gratuitement pour interagir avec les autres membres, envoyer des messages et participer à nos groupes privés.
         </p>
         <Link href="/creer-profil">
-          <Button className="group/btn relative overflow-hidden rounded-2xl bg-white text-slate-900 hover:text-white font-bold px-10 h-14 shadow-[0_0_40px_-10px_rgba(255,255,255,0.3)] hover:shadow-[0_0_40px_-10px_rgba(99,102,241,0.5)] transition-all duration-300 hover:scale-105">
+          <Button className="group/btn relative overflow-hidden rounded-2xl bg-card text-foreground hover:text-white font-bold px-10 h-14 shadow-[0_0_40px_-10px_rgba(255,255,255,0.3)] hover:shadow-[0_0_40px_-10px_rgba(99,102,241,0.5)] transition-all duration-300 hover:scale-105">
             <span className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-blue-500 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300" />
             <span className="relative flex items-center gap-2">
               <Sparkles className="w-4 h-4 group-hover/btn:text-white transition-colors duration-300" />

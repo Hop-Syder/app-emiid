@@ -17,13 +17,13 @@ import { ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export const INPUT =
-  "h-11 rounded-2xl bg-slate-50/80 border-slate-200 text-sm font-medium text-slate-900 focus:bg-white focus:ring-2 focus:ring-[#013ff4]/15 focus:border-[#013ff4] transition-all placeholder:text-slate-400 disabled:opacity-60 disabled:cursor-not-allowed"
+  "h-11 rounded-2xl bg-muted/80 border-border text-sm font-medium text-foreground focus:bg-card focus:ring-2 focus:ring-[#013ff4]/15 focus:border-[#013ff4] transition-all placeholder:text-slate-400 disabled:opacity-60 disabled:cursor-not-allowed"
 
 export const SELECT =
-  "w-full h-11 px-3.5 rounded-2xl bg-slate-50/80 border border-slate-200 text-sm font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#013ff4]/15 focus:border-[#013ff4] transition-all cursor-pointer"
+  "w-full h-11 px-3.5 rounded-2xl bg-muted/80 border border-border text-sm font-medium text-foreground focus:bg-card focus:outline-none focus:ring-2 focus:ring-[#013ff4]/15 focus:border-[#013ff4] transition-all cursor-pointer"
 
 export const TEXTAREA =
-  "w-full rounded-2xl bg-slate-50/80 border border-slate-200 px-3.5 py-3 text-sm font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#013ff4]/15 focus:border-[#013ff4] transition-all resize-y placeholder:text-slate-400"
+  "w-full rounded-2xl bg-muted/80 border border-border px-3.5 py-3 text-sm font-medium text-foreground focus:bg-card focus:outline-none focus:ring-2 focus:ring-[#013ff4]/15 focus:border-[#013ff4] transition-all resize-y placeholder:text-slate-400"
 
 /**
  * Conteneur de section façon SwiftUI Grouped Inset Card
@@ -56,8 +56,8 @@ export function SectionCard({
           {badge}
         </div>
       )}
-      <div className={cn("bg-white border border-slate-200/70 rounded-3xl p-4.5 sm:p-6 shadow-[0_4px_20px_rgb(0,0,0,0.02)] space-y-4", className)}>
-        {description && <p className="text-xs text-slate-500 -mt-1 mb-2">{description}</p>}
+      <div className={cn("bg-card border border-border/70 rounded-3xl p-4.5 sm:p-6 shadow-[0_4px_20px_rgb(0,0,0,0.02)] space-y-4", className)}>
+        {description && <p className="text-xs text-muted-foreground -mt-1 mb-2">{description}</p>}
         {children}
       </div>
       {footerHint && <p className="text-[11px] text-slate-400 px-2 leading-relaxed">{footerHint}</p>}
@@ -84,7 +84,7 @@ export function Field({
   return (
     <div className={cn("space-y-1.5", className)}>
       <div className="flex items-center justify-between px-0.5">
-        <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">{label}</label>
+        <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">{label}</label>
         {counter && <span className="text-[10px] font-semibold text-slate-400">{counter}</span>}
       </div>
       {children}
@@ -98,8 +98,8 @@ export function Field({
  */
 export function SettingRow({
   icon: Icon,
-  iconBg = "bg-slate-100",
-  iconColor = "text-slate-600",
+  iconBg = "bg-muted",
+  iconColor = "text-muted-foreground",
   title,
   subtitle,
   rightElement,
@@ -124,7 +124,7 @@ export function SettingRow({
       onClick={onClick}
       className={cn(
         "w-full flex items-center justify-between gap-3.5 py-3 first:pt-0 last:pb-0 text-left transition-colors",
-        isClickable && "hover:bg-slate-50/80 active:bg-slate-100 rounded-2xl px-2 -mx-2",
+        isClickable && "hover:bg-muted/80 active:bg-muted rounded-2xl px-2 -mx-2",
         className
       )}
     >
@@ -135,8 +135,8 @@ export function SettingRow({
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-bold text-slate-900 leading-snug truncate">{title}</p>
-          {subtitle && <p className="text-xs text-slate-500 mt-0.5 line-clamp-1 leading-relaxed">{subtitle}</p>}
+          <p className="text-sm font-bold text-foreground leading-snug truncate">{title}</p>
+          {subtitle && <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1 leading-relaxed">{subtitle}</p>}
         </div>
       </div>
 
@@ -190,8 +190,8 @@ export function SettingToggle({
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-bold text-slate-900 leading-snug">{title}</p>
-          {description && <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">{description}</p>}
+          <p className="text-sm font-bold text-foreground leading-snug">{title}</p>
+          {description && <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{description}</p>}
         </div>
       </div>
       <Switch
@@ -225,7 +225,7 @@ export function SaveBar({
         type="button"
         variant="outline"
         onClick={handleCancel}
-        className="w-full sm:w-auto h-11 px-5 rounded-2xl border-slate-200 text-slate-700 font-bold hover:bg-slate-100 transition-all"
+        className="w-full sm:w-auto h-11 px-5 rounded-2xl border-border text-foreground font-bold hover:bg-muted transition-all"
       >
         Annuler
       </Button>

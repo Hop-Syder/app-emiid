@@ -14,11 +14,11 @@ import { Button } from "@/components/ui/button"
 
 export default function AuthCodeErrorPage() {
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-center">
+    <div className="min-h-screen bg-muted flex flex-col items-center justify-center p-6 text-center">
       <motion.div 
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="max-w-md w-full bg-white rounded-[40px] shadow-2xl p-10 space-y-8 relative overflow-hidden"
+        className="max-w-md w-full bg-card rounded-[40px] shadow-2xl p-10 space-y-8 relative overflow-hidden"
       >
         {/* Background Decor */}
         <div className="absolute top-0 right-0 w-32 h-32 bg-red-50 rounded-full -mr-16 -mt-16 blur-3xl opacity-50" />
@@ -29,16 +29,16 @@ export default function AuthCodeErrorPage() {
           </div>
           
           <div className="space-y-2">
-            <h1 className="text-3xl font-black text-slate-900 tracking-tight leading-tight">
+            <h1 className="text-3xl font-black text-foreground tracking-tight leading-tight">
               Erreur d&apos;Authentification
             </h1>
-            <p className="text-slate-500 font-medium leading-relaxed">
+            <p className="text-muted-foreground font-medium leading-relaxed">
               Le lien de connexion a expiré ou a déjà été utilisé. Par sécurité, vous devez recommencer l&apos;opération.
             </p>
           </div>
         </div>
 
-        <div className="space-y-3 pt-4 border-t border-slate-100 mt-4">
+        <div className="space-y-3 pt-4 border-t border-border mt-4">
           <Button 
             asChild
             className="w-full h-14 rounded-2xl bg-[#013ff4] hover:bg-[#013ff4]/90 text-white font-bold shadow-xl shadow-[#013ff4]/20 gap-3 transition-all hover:-translate-y-1"
@@ -52,7 +52,7 @@ export default function AuthCodeErrorPage() {
           <Button 
             asChild
             variant="outline"
-            className="w-full h-14 rounded-2xl border-slate-200 text-slate-600 font-bold gap-3 hover:bg-slate-50 transition-all"
+            className="w-full h-14 rounded-2xl border-border text-muted-foreground font-bold gap-3 hover:bg-muted transition-all"
           >
             <Link href="/">
               <ArrowLeft className="h-5 w-5" />

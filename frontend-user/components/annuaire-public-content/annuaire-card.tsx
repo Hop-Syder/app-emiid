@@ -138,7 +138,7 @@ export function AnnuaireCard({ profile, theme = 'default' }: AnnuaireCardProps) 
                     <MapPin className="h-3 w-3" />
                     En vedette
                 </span>
-                <div className="overflow-hidden rounded-[1.5rem] bg-white">{card}</div>
+                <div className="overflow-hidden rounded-[1.5rem] bg-card">{card}</div>
             </div>
         )
     }
