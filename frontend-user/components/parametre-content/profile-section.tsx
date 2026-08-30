@@ -172,17 +172,6 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
             />
           </Field>
         </div>
-        <div className="mt-4">
-          <Field label="Bio">
-            <textarea
-              value={profile.bio || ""}
-              onChange={e => up("bio", e.target.value)}
-              rows={3}
-              className="w-full rounded-xl bg-slate-50 border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-y placeholder:text-slate-400"
-              placeholder="Racontez votre parcours et vos réalisations..."
-            />
-          </Field>
-        </div>
       </SectionCard>
 
       {/* ── GPS Location ──────────────────────────────────────────────────────── */}
