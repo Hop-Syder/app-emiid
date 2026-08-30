@@ -190,3 +190,4 @@
 - [2026-08-30] Intégration des 10 catégories officielles EmiID dans `BentoMatrixPublic` et connexion directe aux statistiques temps réel Supabase (`public_profiles`) sans aucun chiffre factice ni mock résiduel.
 - [2026-08-30] Dashboard User : Limitation et calibrage responsive de la section `InlineActivityFeed` à exactement 2 activités récentes sur desktop et mobile.
 - [2026-08-30] Dashboard User : Refonte ergonomique et visuelle épurée du header (`DashboardBentoHeader`) pour une lisibilité maximale, des contrastes renforcés et une disposition responsive adaptée mobile/desktop.
+- [2026-08-30] Dashboard User : Intégration de l'icône de notification avec compteur temps réel en haut à droite de `ProfileCompleteness` sur mobile pour un accès direct et un gain d'espace.
