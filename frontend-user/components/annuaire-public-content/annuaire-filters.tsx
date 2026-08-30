@@ -70,7 +70,7 @@ export function AnnuaireFilters({ filters, onFilterChange, onReset }: AnnuaireFi
     return () => { active = false }
   }, [])
 
-  const countryOptions = [{ id: "all", label: "Tous les pays" }, ...countries.map((c) => ({ id: c.iso_code, label: c.name }))]
+  const countryOptions = [{ id: "all", label: "Pays" }, ...countries.map((c) => ({ id: c.iso_code, label: c.name }))]
 
   const activeCount =
     (filters.category !== "all" ? 1 : 0) +
