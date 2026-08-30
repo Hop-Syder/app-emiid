@@ -11,6 +11,7 @@
 
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
+import { fetchWithAuth } from "@/lib/apiClient"
 import { useImpactStats } from "@/hooks/use-impact-stats"
 
 export const FIELD_LABELS = [
@@ -55,11 +56,11 @@ export function usePersonalHero() {
           return
         }
 
-        const profileReq = supabase
-          .from("user_profiles")
-          .select("avatar_url, bio, specialty, city, phone, website, role, category, is_premium")
-          .eq("user_id", user.id)
-          .maybeSingle()
+        // Profil propre : lu via le backend (/api/users/me, service_role) plutôt
+        // qu'en direct sur user_profiles — le rôle authenticated n'a plus accès
+        // aux colonnes sensibles (phone, email…). La complétude « téléphone »
+        // reste ainsi calculable sans exposer ces colonnes côté client.
+        const profileReq = fetchWithAuth("/api/users/me")
 
         const msgReq = supabase
           .from("notifications")
@@ -75,12 +76,27 @@ export function usePersonalHero() {
 
         const [profileRes, msgRes, galleryRes] = await Promise.all([profileReq, msgReq, realisationsReq])
 
-        if (profileRes.error) throw profileRes.error
         if (msgRes.error) throw msgRes.error
         if (galleryRes.error) throw galleryRes.error
 
+        let ownProfile: OwnProfile | null = null
+        if (profileRes.ok) {
+          const d = await profileRes.json()
+          ownProfile = {
+            avatar_url: d.avatar_url ?? null,
+            bio: d.bio ?? null,
+            specialty: d.specialty ?? null,
+            city: d.city ?? null,
+            phone: d.phone ?? null,
+            website: d.website ?? null,
+            role: d.role ?? null,
+            category: d.category ?? null,
+            is_premium: d.is_premium ?? null,
+          }
+        }
+
         if (active) {
-          setProfile((profileRes.data as OwnProfile) || null)
+          setProfile(ownProfile)
           setUnreadMsgs(msgRes.count ?? 0)
           setRealisationsCount(galleryRes.count ?? 0)
         }
