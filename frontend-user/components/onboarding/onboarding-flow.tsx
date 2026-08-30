@@ -165,7 +165,7 @@ export function OnboardingFlow() {
       {/* Fond avec image /onboarding/background.avif et teintes #000616 */}
       <div className="absolute inset-0 pointer-events-none z-0">
         <Image
-          src="/onboarding/background.avif"
+          src="/onboarding/background.jpg"
           alt="EmiID Onboarding Background"
           fill
           sizes="100vw"

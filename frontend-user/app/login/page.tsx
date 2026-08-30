@@ -214,15 +214,6 @@ export default function LoginPage() {
             <div className="relative z-10">
               <div className="flex items-center justify-between">
                 <Quote className="w-7 h-7 text-[#013ff4]" strokeWidth={2.5} />
-                {/* Puces de progression compactes */}
-                <div className="flex items-center gap-1.5">
-                  {MOTIVATIONAL_QUOTES.map((_, i) => (
-                    <span
-                      key={i}
-                      className={`h-1.5 rounded-full transition-all duration-500 ${i === quoteIndex ? "w-6 bg-[#03b3f8]" : "w-1.5 bg-white/20"}`}
-                    />
-                  ))}
-                </div>
               </div>
 
               <div className="mt-2.5 min-h-[64px] sm:min-h-[58px] flex items-center">

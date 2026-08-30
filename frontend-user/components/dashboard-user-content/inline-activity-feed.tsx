@@ -44,7 +44,7 @@ function NotifRow({ notif }: { notif: Notification }) {
     : null
 
   const inner = (
-    <div className={`flex items-center gap-4 px-5 py-4 rounded-2xl transition-colors hover:bg-slate-50 cursor-pointer ${!notif.is_read ? "bg-[#013ff4]/[0.05]" : ""}`}>
+    <div className={`flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-2.5 sm:py-3.5 rounded-2xl transition-colors hover:bg-slate-50 cursor-pointer ${!notif.is_read ? "bg-[#013ff4]/[0.05]" : ""}`}>
       <div className="relative shrink-0">
         {notif.sender?.avatar_url ? (
           <>
@@ -53,14 +53,14 @@ function NotifRow({ notif }: { notif: Notification }) {
               alt={senderName || "Membre"}
               width={40}
               height={40}
-              className="w-10 h-10 rounded-full object-cover ring-2 ring-white shadow-sm"
+              className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover ring-2 ring-white shadow-sm"
             />
-            <div className={`absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full flex items-center justify-center ${colors.bg} ring-2 ring-white`}>
+            <div className={`absolute -bottom-0.5 -right-0.5 w-4.5 h-4.5 sm:w-5 sm:h-5 rounded-full flex items-center justify-center ${colors.bg} ring-2 ring-white`}>
               <Icon className={`w-2.5 h-2.5 ${colors.icon}`} />
             </div>
           </>
         ) : (
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center ring-2 ring-white shadow-sm ${colors.bg} ring-1 ${colors.ring}`}>
+          <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ring-2 ring-white shadow-sm ${colors.bg} ring-1 ${colors.ring}`}>
             <Icon className={`w-4 h-4 ${colors.icon}`} />
           </div>
         )}
@@ -70,11 +70,11 @@ function NotifRow({ notif }: { notif: Notification }) {
       </div>
 
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-slate-800 truncate">{notif.title}</p>
-        <p className="text-xs text-slate-500 truncate mt-0.5">{notif.content}</p>
+        <p className="text-xs sm:text-sm font-semibold text-slate-800 truncate">{notif.title}</p>
+        <p className="text-[11px] sm:text-xs text-slate-500 truncate mt-0.5">{notif.content}</p>
       </div>
 
-      <span className="text-[10px] font-medium text-slate-400 shrink-0 tabular-nums">{timeAgo(notif.created_at)}</span>
+      <span className="text-[10px] sm:text-xs font-medium text-slate-400 shrink-0 tabular-nums">{timeAgo(notif.created_at)}</span>
     </div>
   )
 
@@ -84,19 +84,19 @@ function NotifRow({ notif }: { notif: Notification }) {
 
 export function InlineActivityFeed() {
   const { notifications, isLoading, unreadCount } = useNotifications()
-  const recent = notifications.slice(0, 3)
+  const recent = notifications.slice(0, 2)
 
   return (
     <div className="bg-white rounded-3xl border border-slate-100 shadow-[0_4px_24px_rgb(15,23,42,0.05)] overflow-hidden">
-      <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+      <div className="flex items-center justify-between px-4 sm:px-5 py-3.5 sm:py-4 border-b border-slate-100">
         <div className="flex items-center gap-3 min-w-0 flex-1">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-sm shadow-emerald-500/20 shrink-0">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-sm shadow-emerald-500/20 shrink-0">
             <Bell className="w-4 h-4 text-white" />
           </div>
           <div className="min-w-0">
-            <h3 className="text-base font-bold text-slate-800 leading-tight truncate">Activité Récente</h3>
+            <h3 className="text-sm sm:text-base font-bold text-slate-800 leading-tight truncate">Activité Récente</h3>
             {unreadCount > 0 && (
-              <p className="text-xs text-emerald-600 font-semibold leading-tight">
+              <p className="text-[11px] sm:text-xs text-emerald-600 font-semibold leading-tight">
                 {unreadCount} nouvelle{unreadCount > 1 ? "s" : ""}
               </p>
             )}
@@ -104,7 +104,7 @@ export function InlineActivityFeed() {
         </div>
         <Link
           href="/notifications"
-          className="text-xs font-semibold text-slate-500 hover:text-slate-800 flex items-center gap-1 group transition-colors"
+          className="text-xs font-semibold text-slate-500 hover:text-slate-800 flex items-center gap-1 group transition-colors shrink-0"
         >
           Tout voir
           <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />

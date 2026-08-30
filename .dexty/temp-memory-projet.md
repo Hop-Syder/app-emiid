@@ -188,3 +188,5 @@
 - [2026-08-26] Résolution des dettes d'accessibilité (WCAG focus ring sur liens), amélioration du contraste (slate-500 -> slate-600) et renommage des composants Desktop (`sidebar` vers `topbar`) dans le système de navigation.
 - [2026-08-26] Résolution des warnings Next.js : renommage de `middleware.ts` en `proxy.ts` et suppression des fichiers `pnpm-lock.yaml` orphelins pour éviter les conflits de workspace avec npm.
 - [2026-08-30] Intégration des 10 catégories officielles EmiID dans `BentoMatrixPublic` et connexion directe aux statistiques temps réel Supabase (`public_profiles`) sans aucun chiffre factice ni mock résiduel.
+- [2026-08-30] Dashboard User : Limitation et calibrage responsive de la section `InlineActivityFeed` à exactement 2 activités récentes sur desktop et mobile.
+- [2026-08-30] Dashboard User : Refonte ergonomique et visuelle épurée du header (`DashboardBentoHeader`) pour une lisibilité maximale, des contrastes renforcés et une disposition responsive adaptée mobile/desktop.

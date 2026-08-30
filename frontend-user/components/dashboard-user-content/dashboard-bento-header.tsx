@@ -1,16 +1,16 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Header Dashboard — Hero compact + Stats pills. Design Premium 2025.
+ * @description Header Dashboard — Hero compact & épuré. Design Luxury & Lisibilité maximale.
  * @created 2026-05-31
- * @updated 2026-06-22
+ * @updated 2026-08-30
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
 
 "use client"
 
-import { motion, Variants } from "framer-motion"
+import { motion, type Variants } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import { ArrowRight, Briefcase } from "lucide-react"
@@ -38,8 +38,8 @@ export function DashboardBentoHeader() {
     }
 
     const itemVariants: Variants = {
-        hidden: { opacity: 0, y: 16 },
-        show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 340, damping: 28 } }
+        hidden: { opacity: 0, y: 14 },
+        show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 320, damping: 26 } }
     }
 
     return (
@@ -47,71 +47,90 @@ export function DashboardBentoHeader() {
             variants={containerVariants}
             initial="hidden"
             animate="show"
-            className="flex flex-col gap-4"
+            className="w-full"
         >
-            {/* ── HERO COMPACT ────────────────────────────────────────── */}
+            {/* ── HERO COMPACT & LISIBLE ────────────────────────────────── */}
             <motion.div
                 variants={itemVariants}
-                className="relative overflow-hidden rounded-3xl border border-white/10 shadow-xl bg-[url('/dashboard/background.jpg')] bg-cover bg-center min-h-[200px]"
+                className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#000616] shadow-xl min-h-[180px] sm:min-h-[190px]"
             >
-                {/* Overlay dégradé gauche → droite pour la lisibilité */}
-                <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-900/75 to-slate-900/10" />
-                {/* Vignette basse pour ancrer le contenu */}
-                <div className="absolute bottom-0 inset-x-0 h-1/2 bg-gradient-to-t from-slate-950/60 to-transparent" />
+                {/* Image de fond avec overlay maîtrisé pour contraste 100% lisible */}
+                <div className="absolute inset-0 z-0 pointer-events-none">
+                    <Image
+                        src="/dashboard/background.jpg"
+                        alt="EmiID Dashboard"
+                        fill
+                        sizes="100vw"
+                        className="object-cover object-center opacity-25 mix-blend-luminosity"
+                        priority
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#000616] via-[#000616]/90 to-[#000616]/75" />
+                    <div className="absolute -top-24 -right-24 w-80 h-80 bg-[#013ff4]/20 rounded-full blur-[100px]" />
+                    <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-[#03b3f8]/15 rounded-full blur-[100px]" />
+                </div>
 
-                {/* Layout vertical : salutation en haut, titre+actions en bas */}
-                <div className="relative z-10 flex flex-col justify-between h-full px-8 md:px-12 pt-8 pb-8 gap-6">
+                {/* Contenu structuré et aéré */}
+                <div className="relative z-10 flex flex-col justify-between h-full p-5 sm:p-7 md:p-8 gap-5 sm:gap-6">
 
-                    {/* Ligne haute — sous-titre contextuel + signature fondateur */}
-                    <div className="flex items-center justify-between gap-4">
-                        <p className="text-[11px] font-semibold tracking-[0.22em] uppercase text-white/30 select-none flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                            Espace Membre
-                        </p>
-                        <div className="flex items-center gap-2 select-none shrink-0">
-                            <span className="text-[10px] font-black tracking-[0.20em] uppercase text-white/50">BAGBE</span>
-                            <span className="text-white/20 text-[10px]">·</span>
+                    {/* Ligne haute — Tag Espace Membre & Badge Fondateur */}
+                    <div className="flex items-center justify-between gap-3">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.06] border border-white/10 backdrop-blur-md">
+                            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+                            <span className="text-[11px] sm:text-xs font-semibold tracking-wider uppercase text-slate-300">
+                                Espace Membre
+                            </span>
+                        </div>
+
+                        <div className="flex items-center gap-2 bg-white/[0.04] border border-white/10 px-2.5 py-1 rounded-xl backdrop-blur-md shrink-0">
+                            <span className="text-[10px] sm:text-[11px] font-extrabold tracking-widest uppercase text-slate-300">BAGBE</span>
+                            <span className="text-white/30 text-xs">·</span>
                             <Image 
                                 src="/svg/Badge-fondateur.svg" 
                                 alt="Badge Fondateur" 
                                 title="Fondateur" 
                                 width={16}
                                 height={16}
-                                className="size-4 object-contain opacity-80 hover:opacity-100 transition-opacity duration-200" 
+                                className="w-4 h-4 object-contain" 
                             />
                         </div>
                     </div>
 
-                    {/* Ligne basse — titre grand + CTA alignés */}
-                    <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-5">
+                    {/* Ligne principale — Salutation + Actions */}
+                    <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 sm:gap-5">
+                        
+                        {/* Titre percutant et ultra-lisible */}
+                        <div className="space-y-1">
+                            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-[40px] font-black text-white tracking-tight leading-tight">
+                                {greeting}{userName ? "," : ""}{" "}
+                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#03b3f8] via-sky-200 to-white">
+                                    {userName || "Talent"}
+                                </span>
+                            </h1>
+                            <p className="text-xs sm:text-sm font-medium text-slate-300/90">
+                                Bienvenue sur votre hub d&apos;opportunités professionnelles.
+                            </p>
+                        </div>
 
-                        {/* Titre plein écran */}
-                        <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white tracking-tight leading-[1.05]">
-                            {greeting}{" "}
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#03b3f8] via-sky-200 to-white">
-                                {userName || "Talent"}
-                            </span>
-                        </h1>
-
-                        {/* Boutons ancrés en bas-droite */}
-                        <div className="flex items-center gap-3 shrink-0 pb-0.5">
+                        {/* Boutons d'action modernes et ergonomiques */}
+                        <div className="flex items-center gap-2.5 sm:gap-3 w-full sm:w-auto shrink-0 pt-1">
                             <Button
                                 size="sm"
-                                className="rounded-xl bg-white/8 hover:bg-white/15 border border-white/12 text-white/90 backdrop-blur-md font-semibold px-4 h-10 transition-all hover:border-white/25 text-sm"
+                                className="flex-1 sm:flex-initial h-10 sm:h-11 rounded-xl bg-white/[0.08] hover:bg-white/[0.15] border border-white/15 text-white font-semibold px-4 text-xs sm:text-sm backdrop-blur-md transition-all hover:border-white/30 shadow-sm"
                                 onClick={() => router.push(session?.user?.id ? `/profil/${session.user.id}` : "/profil/me")}
                             >
                                 Mon Profil
-                                <ArrowRight className="w-3.5 h-3.5 ml-1.5 opacity-50" />
+                                <ArrowRight className="w-3.5 h-3.5 ml-1.5 text-sky-400" />
                             </Button>
                             <Button
                                 size="sm"
-                                className="rounded-xl bg-white text-slate-900 hover:bg-slate-50 font-bold px-5 h-10 shadow-xl transition-all hover:scale-[1.02] text-sm"
+                                className="flex-1 sm:flex-initial h-10 sm:h-11 rounded-xl bg-gradient-to-r from-[#013ff4] to-[#03b3f8] hover:from-[#0135d0] hover:to-[#029ad7] text-white font-bold px-4 sm:px-5 text-xs sm:text-sm shadow-lg shadow-blue-500/25 transition-all hover:scale-[1.02]"
                                 onClick={() => router.push("/portefeuille")}
                             >
                                 <Briefcase className="w-3.5 h-3.5 mr-1.5" />
                                 Mes réalisations
                             </Button>
                         </div>
+
                     </div>
 
                 </div>
