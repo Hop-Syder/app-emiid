@@ -123,7 +123,7 @@ export function MessagesContent() {
         {selectedConv ? (
           <>
             {/* Chat header */}
-            <div className="px-4 py-3 border-b border-white/40 flex items-center justify-between bg-card/70 backdrop-blur-xl z-20 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] shrink-0">
+            <div className="px-4 py-3 border-b border-white/40 dark:border-white/10 flex items-center justify-between bg-card/70 backdrop-blur-xl z-20 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] shrink-0">
               <div className="flex items-center gap-3">
                 <Button
                   variant="ghost"
@@ -212,7 +212,7 @@ export function MessagesContent() {
 
             {/* In-chat search bar */}
             {inChatSearchOpen && (
-              <div className="px-4 py-2 border-b border-white/40 bg-card/60 backdrop-blur-xl z-10 shrink-0 flex items-center gap-2">
+              <div className="px-4 py-2 border-b border-white/40 dark:border-white/10 bg-card/60 backdrop-blur-xl z-10 shrink-0 flex items-center gap-2">
                 <Search className="h-4 w-4 text-slate-400 shrink-0" />
                 <input
                   autoFocus

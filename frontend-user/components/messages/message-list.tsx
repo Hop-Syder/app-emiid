@@ -140,7 +140,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
         borderRadiusClass,
         isOwn 
           ? "bg-gradient-to-br from-primary to-[#0132cc] text-white shadow-primary/10" 
-          : "bg-card/90 backdrop-blur-sm border border-white/60 text-foreground shadow-slate-200/50"
+          : "bg-card/90 backdrop-blur-sm border border-white/60 dark:border-white/10 text-foreground shadow-slate-200/50"
       )}>
         {parsed.kind === "text" && (
           <p className="text-[14.5px] whitespace-pre-wrap break-words leading-relaxed font-medium">
@@ -346,10 +346,7 @@ export const MessageList: React.FC<MessageListProps> = ({
       <div 
         ref={containerRef}
         onScroll={handleScroll}
-        className="flex-1 overflow-y-auto py-4 px-2 custom-scrollbar flex flex-col"
-        style={{
-          background: 'linear-gradient(135deg, #f0f4ff 0%, #f8faff 30%, #fff 60%, #f5f8ff 100%)'
-        }}
+        className="chat-surface flex-1 overflow-y-auto py-4 px-2 custom-scrollbar flex flex-col"
       >
         {enrichedMessages.length > 0 ? (
           enrichedMessages.map((msg) => (

@@ -79,7 +79,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
 
   // === RENDU DU COMPOSANT ===
   return (
-    <div className="flex flex-col h-full border-r border-white/50 bg-card/50 backdrop-blur-xl w-full z-20 shadow-[4px_0_24px_-12px_rgba(0,0,0,0.08)]">
+    <div className="flex flex-col h-full border-r border-white/50 dark:border-white/10 bg-card/50 backdrop-blur-xl w-full z-20 shadow-[4px_0_24px_-12px_rgba(0,0,0,0.08)]">
       
       {/* === EN-TÊTE === */}
       <div className="px-4 pt-5 pb-3 border-b border-border/80 bg-card/30 space-y-3">

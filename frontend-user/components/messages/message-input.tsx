@@ -200,7 +200,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
         </Button>
 
         {file && (
-          <div className="absolute bottom-24 left-4 right-4 md:left-auto md:right-auto md:w-80 bg-card/95 backdrop-blur-md border border-white shadow-xl rounded-2xl p-3 flex items-center gap-3 animate-in slide-in-from-bottom-2">
+          <div className="absolute bottom-24 left-4 right-4 md:left-auto md:right-auto md:w-80 bg-card/95 backdrop-blur-md border border-white dark:border-border shadow-xl rounded-2xl p-3 flex items-center gap-3 animate-in slide-in-from-bottom-2">
             <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary font-bold text-xs">
               {file.name.split('.').pop()?.toUpperCase()}
             </div>

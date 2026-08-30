@@ -77,7 +77,7 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
         <div className="relative shrink-0">
           <Avatar className={cn(
             "h-11 w-11 border-2 transition-all duration-200",
-            isActive ? "border-primary/20 shadow-sm" : "border-white shadow-sm group-hover:border-border"
+            isActive ? "border-primary/20 shadow-sm" : "border-white dark:border-border shadow-sm group-hover:border-border"
           )}>
             <AvatarImage src={p?.avatar_url || '/profil/avatar.jpg'} alt={fullName} />
             <AvatarFallback className={cn(

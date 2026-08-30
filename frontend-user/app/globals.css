@@ -203,4 +203,14 @@
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
   }
+
+  /* Fond de la zone de conversation (messagerie). Défini ici plutôt qu'en style
+     inline pour rester theme-aware : un style inline ne peut pas être surchargé
+     par le mode sombre. Clair = dégradé bleuté ; sombre = fond token. */
+  .chat-surface {
+    background: linear-gradient(135deg, #f0f4ff 0%, #f8faff 30%, #ffffff 60%, #f5f8ff 100%);
+  }
+  .dark .chat-surface {
+    background: hsl(var(--background));
+  }
 }
