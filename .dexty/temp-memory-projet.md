@@ -192,3 +192,5 @@
 - [2026-08-30] Dashboard User : Refonte ergonomique et visuelle épurée du header (`DashboardBentoHeader`) pour une lisibilité maximale, des contrastes renforcés et une disposition responsive adaptée mobile/desktop.
 - [2026-08-30] Dashboard User : Intégration de l'icône de notification avec compteur temps réel en haut à droite de `ProfileCompleteness` sur mobile pour un accès direct et un gain d'espace.
 - [2026-08-30] Dashboard User : Masquage du bloc `InlineActivityFeed` sur mobile (`hidden lg:block`) pour supprimer la redondance et libérer l'espace au-dessus du pli.
+- [2026-08-30] Dashboard User : Suppression de l'onglet et du filtre `Premium` dans `ExplorerHub` (restent : Nouveaux, Réalisations, Catégories).
+- [2026-08-30] Dashboard User : Refonte épurée du CTA contextuel `HubContextualCta` avec des textes courts et percutants, format compact bento horizontal et style `#000616`.

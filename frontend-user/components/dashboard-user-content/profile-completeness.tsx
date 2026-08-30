@@ -34,12 +34,12 @@ export function ProfileCompleteness({ completion, loading, nextAction }: Profile
       <Link
         href="/notifications"
         aria-label="Voir mes notifications"
-        className="lg:hidden absolute -top-1 right-0 p-2 rounded-xl bg-slate-50 border border-slate-200/60 text-slate-600 hover:text-[#013ff4] hover:bg-[#013ff4]/5 active:scale-95 transition-all shadow-sm"
+        className="lg:hidden absolute -top-1.5 right-0 p-2.5 rounded-2xl bg-slate-50 border border-slate-200/70 text-slate-700 hover:text-[#013ff4] hover:bg-[#013ff4]/10 active:scale-90 transition-all shadow-sm"
       >
         <span className="relative flex items-center justify-center">
-          <Bell className="w-4 h-4" />
+          <Bell className="w-5 h-5 text-slate-800" />
           {unreadCount > 0 && (
-            <span className="absolute -top-1.5 -right-1.5 min-w-[15px] h-3.5 px-0.5 rounded-full bg-rose-500 text-white text-[9px] font-black flex items-center justify-center ring-2 ring-white">
+            <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-black flex items-center justify-center ring-2 ring-white shadow-sm animate-pulse">
               {unreadCount > 9 ? "9+" : unreadCount}
             </span>
           )}
@@ -67,7 +67,7 @@ export function ProfileCompleteness({ completion, loading, nextAction }: Profile
         </span>
       </div>
 
-      <div className="min-w-0 pr-8 lg:pr-0">
+      <div className="min-w-0 pr-11 lg:pr-0">
         {completion >= 100 ? (
           <>
             <p className="text-sm font-black text-slate-900">Profil complet 🎉</p>

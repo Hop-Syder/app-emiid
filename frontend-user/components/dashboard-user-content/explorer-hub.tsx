@@ -1,10 +1,10 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Bloc « Explorer » unifié — Premium / Nouveaux / Catégories en onglets.
- *              Remplace 3 sections empilées → 1 seul bloc (moins de scroll, moins de
- *              redondance avec l'Annuaire).
+ * @description Bloc « Explorer » unifié — Nouveaux / Réalisations / Catégories en onglets.
+ *              Remplace les sections empilées → 1 seul bloc ergonomique.
  * @created 2026-07-10
+ * @updated 2026-08-30
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -13,17 +13,17 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Crown, Sparkles, LayoutGrid, ArrowRight, Images } from "lucide-react"
+import { Sparkles, LayoutGrid, ArrowRight, Images } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { PublicProfile } from "@/types"
 import { EntrepreneursSection } from "./entrepreneurs-section"
 import { CategoriesExplorer } from "./categories-explorer"
 import { RealisationsShowcase } from "./realisations-showcase"
 
-type TabId = "new" | "premium" | "categories" | "realisations"
+type TabId = "new" | "categories" | "realisations"
 
 interface ExplorerHubProps {
-  premiumProfiles: PublicProfile[]
+  premiumProfiles?: PublicProfile[]
   newProfiles: PublicProfile[]
   categoryCounts?: Record<string, number>
   /**
@@ -34,19 +34,16 @@ interface ExplorerHubProps {
   loading?: boolean
 }
 
-export function ExplorerHub({ premiumProfiles, newProfiles, categoryCounts, loading = false }: ExplorerHubProps) {
-  const hasPremium = premiumProfiles.length > 0
-
+export function ExplorerHub({ newProfiles, categoryCounts, loading = false }: ExplorerHubProps) {
   const tabs = [
     { id: "new" as const, label: "Nouveaux", icon: Sparkles, color: "text-[#013ff4]", chip: "bg-[#013ff4]/10" },
-    ...(hasPremium ? [{ id: "premium" as const, label: "Premium", icon: Crown, color: "text-amber-500", chip: "bg-amber-100" }] : []),
     { id: "realisations" as const, label: "Réalisations", icon: Images, color: "text-[#03b3f8]", chip: "bg-[#03b3f8]/10" },
     { id: "categories" as const, label: "Catégories", icon: LayoutGrid, color: "text-[#013ff4]", chip: "bg-[#013ff4]/10" },
   ]
 
   const [active, setActive] = useState<TabId>("new")
 
-  const seeAllHref = active === "premium" ? "/annuaire?filter=premium" : active === "new" ? "/annuaire?filter=new" : "/annuaire"
+  const seeAllHref = active === "new" ? "/annuaire?filter=new" : "/annuaire"
 
   return (
     <div className="space-y-6 pt-8 pb-10 px-4 sm:px-8 -mx-4 sm:-mx-8 bg-slate-50 rounded-3xl border border-slate-100 shadow-[0_4px_24px_rgb(15,23,42,0.04)] relative overflow-hidden">
@@ -76,7 +73,7 @@ export function ExplorerHub({ premiumProfiles, newProfiles, categoryCounts, load
           })}
         </div>
 
-        {(active === "new" || active === "premium") && (
+        {active === "new" && (
           <Link
             href={seeAllHref}
             className="shrink-0 text-xs sm:text-sm font-semibold text-slate-500 hover:text-[#013ff4] flex items-center gap-1 group self-start sm:self-auto"
@@ -90,9 +87,6 @@ export function ExplorerHub({ premiumProfiles, newProfiles, categoryCounts, load
       <div className="relative z-10">
         {active === "new" && (
           <EntrepreneursSection entrepreneursList={newProfiles.slice(0, 8)} loading={loading} variant="glass-blue" />
-        )}
-        {active === "premium" && hasPremium && (
-          <EntrepreneursSection entrepreneursList={premiumProfiles} loading={loading} variant="elite" />
         )}
         {active === "realisations" && <RealisationsShowcase />}
         {active === "categories" && <CategoriesExplorer categoryCounts={categoryCounts} />}
