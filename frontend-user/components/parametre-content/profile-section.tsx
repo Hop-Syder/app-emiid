@@ -12,7 +12,7 @@
 
 import { useState } from "react"
 import Image from "next/image"
-import { Mail, Smartphone, User, Shield, MessageSquare, CheckCircle2, AlertCircle, Loader2, MapPin } from "lucide-react"
+import { Mail, Smartphone, User, Shield, MessageSquare, CheckCircle2, AlertCircle, Loader2, MapPin, ExternalLink, RotateCcw } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
@@ -57,29 +57,55 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
   const [verifyMethod, setVerifyMethod] = useState<"whatsapp" | "sms" | null>(null)
   const [otpCode,      setOtpCode]      = useState("")
   const [verifying,    setVerifying]    = useState(false)
+  const [locating,     setLocating]     = useState(false)
 
   const up = (key: keyof UserProfileData, value: string | boolean | number | null) => setProfile({ ...profile, [key]: value })
+
+  // 6 décimales ≈ 0,11 m de précision : largement suffisant pour un lieu, et
+  // l'on évite les longues valeurs illisibles renvoyées par le GPS du navigateur.
+  const round6 = (n: number) => Math.round(n * 1e6) / 1e6
 
   const handleGetLocation = () => {
     if (!navigator.geolocation) {
       toast.error("La géolocalisation n'est pas supportée par votre navigateur")
       return
     }
-    const loadingToast = toast.loading("Récupération de la position...")
+    setLocating(true)
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        up("latitude", position.coords.latitude)
-        up("longitude", position.coords.longitude)
-        toast.dismiss(loadingToast)
+        // Les deux coordonnées sont posées en une seule mise à jour : deux appels
+        // successifs à `up` repartiraient du même `profile` figé et la seconde
+        // écraserait la première (latitude perdue).
+        setProfile({
+          ...profile,
+          latitude: round6(position.coords.latitude),
+          longitude: round6(position.coords.longitude),
+        })
+        setLocating(false)
         toast.success("Position récupérée avec succès")
       },
-      (error) => {
-        toast.dismiss(loadingToast)
+      () => {
+        setLocating(false)
         toast.error("Impossible de récupérer la position. Assurez-vous d'avoir autorisé l'accès.")
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     )
   }
+
+  /** Vide les coordonnées enregistrées. */
+  const clearLocation = () => setProfile({ ...profile, latitude: null, longitude: null })
+
+  const hasCoords = profile.latitude != null && profile.longitude != null
+
+  /** Au blur d'une saisie manuelle : borne la valeur au domaine valide et arrondit. */
+  const commitCoord = (key: "latitude" | "longitude", min: number, max: number) =>
+    (e: React.FocusEvent<HTMLInputElement>) => {
+      const raw = e.target.value
+      if (raw === "") { up(key, null); return }
+      const n = parseFloat(raw)
+      if (Number.isNaN(n)) { up(key, null); return }
+      up(key, Math.min(max, Math.max(min, round6(n))))
+    }
 
   const handleVerifyRequest = async (method: "whatsapp" | "sms") => {
     if (!profile.phone) { toast.error("Saisissez votre numéro d'abord"); return }
@@ -176,36 +202,89 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
 
       {/* ── GPS Location ──────────────────────────────────────────────────────── */}
       <SectionCard title="Localisation GPS">
-        <div className="flex flex-col sm:flex-row items-end gap-4">
-          <div className="grid grid-cols-2 gap-4 flex-1 w-full">
+        <p className="text-sm text-slate-500 -mt-2 mb-4">
+          Indiquez où vous exercez pour apparaître sur la carte et dans les recherches de proximité.
+        </p>
+
+        {/* Action principale : détecter automatiquement la position */}
+        <Button
+          type="button"
+          onClick={handleGetLocation}
+          disabled={locating}
+          className="h-12 w-full rounded-xl bg-primary text-white font-bold hover:bg-primary/90 transition-all active:scale-[0.99] disabled:opacity-60"
+        >
+          {locating ? (
+            <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Localisation en cours…</>
+          ) : (
+            <><MapPin className="w-4 h-4 mr-2" /> {hasCoords ? "Actualiser ma position" : "Détecter ma position"}</>
+          )}
+        </Button>
+
+        {/* État de la position */}
+        {hasCoords ? (
+          <div className="mt-4 p-4 rounded-xl border border-emerald-200 bg-emerald-50/60">
+            <div className="flex items-start gap-3">
+              <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-bold text-slate-900">Position enregistrée</p>
+                <p className="text-xs text-slate-500 mt-0.5 font-mono">
+                  {Number(profile.latitude).toFixed(6)}, {Number(profile.longitude).toFixed(6)}
+                </p>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2.5">
+                  <a
+                    href={`https://www.google.com/maps?q=${profile.latitude},${profile.longitude}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline"
+                  >
+                    Voir sur la carte <ExternalLink className="w-3 h-3" />
+                  </a>
+                  <button
+                    type="button"
+                    onClick={clearLocation}
+                    className="inline-flex items-center gap-1 text-xs font-bold text-slate-500 hover:text-red-500 transition-colors"
+                  >
+                    <RotateCcw className="w-3 h-3" /> Réinitialiser
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <p className="mt-3 text-xs text-slate-400 flex items-center gap-1.5">
+            <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+            Aucune position enregistrée pour le moment.
+          </p>
+        )}
+
+        {/* Saisie manuelle (secondaire, repliée par défaut) */}
+        <details className="mt-4 group">
+          <summary className="text-xs font-bold text-slate-500 cursor-pointer select-none hover:text-slate-700 transition-colors list-none flex items-center gap-1.5">
+            <span className="inline-block transition-transform group-open:rotate-90">›</span>
+            Saisir les coordonnées manuellement
+          </summary>
+          <div className="grid grid-cols-2 gap-4 mt-3">
             <Field label="Latitude">
               <Input
-                id="latitude" name="latitude" type="number" step="any"
+                id="latitude" name="latitude" type="number" step="any" min={-90} max={90} inputMode="decimal"
                 value={profile.latitude ?? ""}
                 onChange={e => up("latitude", e.target.value ? parseFloat(e.target.value) : null)}
-                className={INPUT} placeholder="Ex: 6.36536"
+                onBlur={commitCoord("latitude", -90, 90)}
+                className={INPUT} placeholder="Ex : 6.36536"
               />
             </Field>
             <Field label="Longitude">
               <Input
-                id="longitude" name="longitude" type="number" step="any"
+                id="longitude" name="longitude" type="number" step="any" min={-180} max={180} inputMode="decimal"
                 value={profile.longitude ?? ""}
                 onChange={e => up("longitude", e.target.value ? parseFloat(e.target.value) : null)}
-                className={INPUT} placeholder="Ex: 2.41833"
+                onBlur={commitCoord("longitude", -180, 180)}
+                className={INPUT} placeholder="Ex : 2.41833"
               />
             </Field>
           </div>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleGetLocation}
-            className="h-11 rounded-xl border-slate-200 font-bold shrink-0 w-full sm:w-auto"
-          >
-            <MapPin className="w-4 h-4 mr-2 text-slate-500" />
-            Obtenir ma position
-          </Button>
-        </div>
-        
+        </details>
+
         <div className="mt-6 p-4 rounded-xl border border-slate-200 bg-slate-50 flex items-start gap-4">
           <Switch 
             id="is_nomad" 
