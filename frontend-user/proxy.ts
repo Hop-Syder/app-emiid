@@ -144,10 +144,13 @@ export async function proxy(request: NextRequest) {
   return response
 }
 
-// Configuration : On exclut les fichiers statiques (images, CSS, JS, manifest, Service Worker) du middleware
+// Configuration : On exclut les fichiers statiques (images, polices, JS, manifest, Service Worker) du middleware.
+// Important : les polices woff/woff2/ttf/otf/eot doivent y figurer. Un @font-face est chargé par le
+// navigateur en mode CORS anonyme (sans cookie) ; sans cette exclusion, la requête de police est vue
+// comme non authentifiée et redirigée vers /login, renvoyant du HTML → « Failed to decode font ».
 export const config = {
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|sw.js|manifest.webmanifest|site.webmanifest|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|webmanifest|json|js)$).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|sw.js|manifest.webmanifest|site.webmanifest|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico|webmanifest|json|js|woff|woff2|ttf|otf|eot)$).*)',
   ],
 }
 
