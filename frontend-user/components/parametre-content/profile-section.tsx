@@ -21,6 +21,7 @@ import { fetchWithAuth } from "@/lib/apiClient"
 import { toast } from "sonner"
 import { PROFILE_CATEGORIES, ACTIVITY_DOMAINS } from "@/lib/profile-options"
 import type { UserProfileData } from "@/hooks/use-settings"
+import { LocationMapPicker } from "./location-map-picker"
 
 interface ProfileSectionProps {
   profile: UserProfileData
@@ -256,6 +257,19 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
             Aucune position enregistrée pour le moment.
           </p>
         )}
+
+        {/* Carte interactive : affiner la position au marqueur (précis au mètre) */}
+        <div className="mt-4">
+          <LocationMapPicker
+            latitude={profile.latitude}
+            longitude={profile.longitude}
+            onChange={(lat, lng) => setProfile({ ...profile, latitude: round6(lat), longitude: round6(lng) })}
+          />
+          <p className="mt-2 text-xs text-slate-400 flex items-center gap-1.5">
+            <MapPin className="w-3.5 h-3.5 shrink-0" />
+            Déplacez le marqueur ou tapez sur la carte pour ajuster précisément votre position.
+          </p>
+        </div>
 
         {/* Saisie manuelle (secondaire, repliée par défaut) */}
         <details className="mt-4 group">
