@@ -194,7 +194,7 @@ export function PaiementRetourContent() {
                 transition={{ duration: 0.45, ease: "easeOut" }}
                 className="relative z-10 w-full max-w-md"
             >
-                <div className="bg-white/[0.04] backdrop-blur-2xl border border-white/10 rounded-[2rem] px-8 py-10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.7)] text-center">
+                <div className="bg-card/[0.04] backdrop-blur-2xl border border-white/10 rounded-[2rem] px-8 py-10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.7)] text-center">
                     <Link href="/" aria-label="Accueil EmiID">
                         <Image
                             src="/logo/logo-emiid.png"
@@ -216,16 +216,16 @@ export function PaiementRetourContent() {
                     </p>
 
                     {tx && meta && state !== "loading" && (
-                        <div className="mt-6 rounded-2xl bg-white/[0.03] border border-white/10 px-5 py-4 text-left space-y-3">
+                        <div className="mt-6 rounded-2xl bg-card/[0.03] border border-white/10 px-5 py-4 text-left space-y-3">
                             <div className="flex items-center justify-between gap-3">
-                                <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500">
+                                <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-muted-foreground">
                                     <CreditCard className="h-3.5 w-3.5" />
                                     {meta.label}
                                 </span>
                                 <StatusBadge status={tx.status} />
                             </div>
                             <p className="text-xl font-black text-white">{formatFcfa(tx.amount)}</p>
-                            <p className="text-[11px] text-slate-500 inline-flex items-center gap-1.5">
+                            <p className="text-[11px] text-muted-foreground inline-flex items-center gap-1.5">
                                 <ReceiptText className="h-3 w-3" />
                                 {dateLabel}
                             </p>
@@ -245,7 +245,7 @@ export function PaiementRetourContent() {
                         {state === "failed" && meta && (
                             <a
                                 href={meta.ctaHref}
-                                className="flex items-center justify-center gap-2 w-full h-12 rounded-2xl bg-white/[0.06] border border-white/10 hover:bg-white/[0.1] text-white text-sm font-semibold transition-colors"
+                                className="flex items-center justify-center gap-2 w-full h-12 rounded-2xl bg-card/[0.06] border border-white/10 hover:bg-card/[0.1] text-white text-sm font-semibold transition-colors"
                             >
                                 Relancer le paiement
                             </a>
@@ -253,7 +253,7 @@ export function PaiementRetourContent() {
                         {state === "timeout" && (
                             <button
                                 onClick={() => window.location.reload()}
-                                className="flex items-center justify-center gap-2 w-full h-12 rounded-2xl bg-white/[0.06] border border-white/10 hover:bg-white/[0.1] text-white text-sm font-semibold transition-colors"
+                                className="flex items-center justify-center gap-2 w-full h-12 rounded-2xl bg-card/[0.06] border border-white/10 hover:bg-card/[0.1] text-white text-sm font-semibold transition-colors"
                             >
                                 <AlarmClock className="h-4 w-4" />
                                 Revérifier maintenant
@@ -262,7 +262,7 @@ export function PaiementRetourContent() {
                         {state !== "pending" && state !== "loading" && (
                             <a
                                 href="/dashboard-user"
-                                className="flex items-center justify-center gap-2 w-full h-12 rounded-2xl bg-transparent border border-white/10 hover:bg-white/[0.04] text-slate-400 hover:text-white text-sm font-semibold transition-colors"
+                                className="flex items-center justify-center gap-2 w-full h-12 rounded-2xl bg-transparent border border-white/10 hover:bg-card/[0.04] text-slate-400 hover:text-white text-sm font-semibold transition-colors"
                             >
                                 Retour au tableau de bord
                             </a>
@@ -270,7 +270,7 @@ export function PaiementRetourContent() {
                     </div>
                 </div>
 
-                <p className="text-center text-[11px] text-slate-600 mt-6">
+                <p className="text-center text-[11px] text-muted-foreground mt-6">
                     Paiement sécurisé FedaPay · Mobile Money · EmiID
                 </p>
             </motion.div>

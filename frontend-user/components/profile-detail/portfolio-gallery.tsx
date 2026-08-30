@@ -37,15 +37,15 @@ export function PortfolioGallery({ gallery, loadingGallery }: PortfolioGalleryPr
         return (
             <div className="flex flex-col items-center justify-center p-12 text-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#013ff4] mb-4" />
-                <p className="text-slate-500 text-xs font-bold">Chargement du portfolio...</p>
+                <p className="text-muted-foreground text-xs font-bold">Chargement du portfolio...</p>
             </div>
         )
     }
 
     if (gallery.length === 0) {
         return (
-            <div className="p-8 border border-dashed border-slate-200 text-center w-full rounded-2xl bg-slate-50/50">
-                <p className="text-slate-500 font-bold text-xs">Aucune réalisation publiée pour le moment.</p>
+            <div className="p-8 border border-dashed border-border text-center w-full rounded-2xl bg-muted/50">
+                <p className="text-muted-foreground font-bold text-xs">Aucune réalisation publiée pour le moment.</p>
             </div>
         )
     }
@@ -59,9 +59,9 @@ export function PortfolioGallery({ gallery, loadingGallery }: PortfolioGalleryPr
                         type="button"
                         onClick={() => setSelected(item)}
                         aria-label={`Voir la réalisation : ${item.title || "sans titre"}`}
-                        className="group text-left bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 relative cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#013ff4]/40"
+                        className="group text-left bg-card border border-border rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 relative cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#013ff4]/40"
                     >
-                        <div className="aspect-video w-full overflow-hidden bg-slate-100 relative">
+                        <div className="aspect-video w-full overflow-hidden bg-muted relative">
                             <Image
                                 src={item.imageUrl}
                                 alt={item.title || "Réalisation"}
@@ -71,7 +71,7 @@ export function PortfolioGallery({ gallery, loadingGallery }: PortfolioGalleryPr
                             />
                             {/* Indice cliquable */}
                             <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/20 transition-colors duration-300 flex items-center justify-center">
-                                <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-1.5 bg-white/90 backdrop-blur-md text-slate-800 text-[11px] font-bold px-3 py-1.5 rounded-full shadow-lg">
+                                <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-1.5 bg-card/90 backdrop-blur-md text-foreground text-[11px] font-bold px-3 py-1.5 rounded-full shadow-lg">
                                     <Maximize2 className="h-3.5 w-3.5" /> Voir le détail
                                 </span>
                             </div>
@@ -82,11 +82,11 @@ export function PortfolioGallery({ gallery, loadingGallery }: PortfolioGalleryPr
                             )}
                         </div>
                         <div className="p-5">
-                            <h4 className="text-sm font-extrabold text-slate-900 group-hover:text-[#013ff4] transition-colors duration-300">
+                            <h4 className="text-sm font-extrabold text-foreground group-hover:text-[#013ff4] transition-colors duration-300">
                                 {item.title}
                             </h4>
                             {item.description && (
-                                <p className="text-xs text-slate-600 font-medium mt-1.5 line-clamp-2">
+                                <p className="text-xs text-muted-foreground font-medium mt-1.5 line-clamp-2">
                                     {item.description}
                                 </p>
                             )}
@@ -100,7 +100,7 @@ export function PortfolioGallery({ gallery, loadingGallery }: PortfolioGalleryPr
                 <DialogContent className="max-w-2xl p-0 overflow-hidden rounded-3xl gap-0">
                     {selected && (
                         <>
-                            <div className="relative aspect-video w-full bg-slate-100">
+                            <div className="relative aspect-video w-full bg-muted">
                                 <Image
                                     src={getOptimizedImageUrl(selected.imageUrl, { width: 1200, height: 675, quality: 90 })}
                                     alt={selected.title || "Réalisation"}
@@ -117,13 +117,13 @@ export function PortfolioGallery({ gallery, loadingGallery }: PortfolioGalleryPr
                             </div>
                             <div className="p-6 max-h-[45vh] overflow-y-auto">
                                 <DialogHeader className="text-left">
-                                    <DialogTitle className="text-xl font-black text-slate-900">
+                                    <DialogTitle className="text-xl font-black text-foreground">
                                         {selected.title || "Réalisation"}
                                     </DialogTitle>
                                 </DialogHeader>
                                 {selected.description ? (
                                     <DialogDescription asChild>
-                                        <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line mt-3">
+                                        <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line mt-3">
                                             {selected.description}
                                         </p>
                                     </DialogDescription>
@@ -135,7 +135,7 @@ export function PortfolioGallery({ gallery, loadingGallery }: PortfolioGalleryPr
 
                                 {/* Liens externes */}
                                 {(selected.projectUrl || selected.driveUrl) && (
-                                    <div className="mt-6 pt-6 border-t border-slate-100 flex flex-col sm:flex-row gap-3">
+                                    <div className="mt-6 pt-6 border-t border-border flex flex-col sm:flex-row gap-3">
                                         {selected.projectUrl && (
                                             <a
                                                 href={selected.projectUrl.startsWith('http') ? selected.projectUrl : `https://${selected.projectUrl}`}
@@ -152,7 +152,7 @@ export function PortfolioGallery({ gallery, loadingGallery }: PortfolioGalleryPr
                                                 href={selected.driveUrl.startsWith('http') ? selected.driveUrl : `https://${selected.driveUrl}`}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="flex-1 flex items-center justify-center gap-2 h-11 px-4 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 active:scale-95 transition-all border border-slate-200 cursor-pointer"
+                                                className="flex-1 flex items-center justify-center gap-2 h-11 px-4 rounded-xl text-xs font-bold text-foreground bg-muted hover:bg-muted active:scale-95 transition-all border border-border cursor-pointer"
                                             >
                                                 <FolderOpen className="h-4 w-4" />
                                                 Voir les photos (Drive)

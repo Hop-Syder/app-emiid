@@ -52,8 +52,8 @@ export const ConfirmActionDialog: React.FC<ConfirmActionDialogProps> = ({
           <div className={cn("h-12 w-12 rounded-full flex items-center justify-center mb-4", iconBg)}>
             <Icon className={cn("h-6 w-6", iconColor)} />
           </div>
-          <DialogTitle className="text-xl font-bold text-slate-900">{title}</DialogTitle>
-          <DialogDescription className="text-slate-500">
+          <DialogTitle className="text-xl font-bold text-foreground">{title}</DialogTitle>
+          <DialogDescription className="text-muted-foreground">
             {description}
           </DialogDescription>
         </DialogHeader>

@@ -43,7 +43,7 @@ export function BioSection({ profile, setProfile, saving, handleSave, handleCanc
                             onChange={(e) => up("bio", e.target.value)}
                             rows={5}
                             maxLength={1200}
-                            className="w-full rounded-xl bg-slate-50 border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-y placeholder:text-slate-400"
+                            className="w-full rounded-xl bg-muted border border-border px-3 py-2.5 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-y placeholder:text-slate-400"
                             placeholder="Raconte ton parcours, ton savoir-faire et ce qui te distingue..."
                         />
                     </Field>

@@ -32,7 +32,7 @@ export function MobileDockGuest() {
     >
       <nav
         aria-label="Navigation principale"
-        className="pointer-events-auto flex w-full max-w-sm items-center gap-1 rounded-[32px] border border-slate-200/90 bg-white/95 p-2 shadow-[0_16px_36px_rgba(15,23,42,0.22)] backdrop-blur-2xl"
+        className="pointer-events-auto flex w-full max-w-sm items-center gap-1 rounded-[32px] border border-border/90 bg-card/95 p-2 shadow-[0_16px_36px_rgba(15,23,42,0.22)] backdrop-blur-2xl"
       >
         <GuestTab href="/" label="Accueil" icon={HouseIcon} active={isActive("/")} />
         <GuestTab href="/annuaire" label="Annuaire" icon={CompassIcon} active={isActive("/annuaire")} />
@@ -77,7 +77,7 @@ function GuestTab({ href, label, icon: Icon, active }: { href: string; label: st
         strokeWidth={active ? 2.4 : 2}
         className="relative transition-transform group-hover:scale-105"
       />
-      <span className={cn("relative text-[10px] font-bold transition-colors", active ? "text-[#013ff4]" : "text-slate-600 group-hover:text-slate-900")}>
+      <span className={cn("relative text-[10px] font-bold transition-colors", active ? "text-[#013ff4]" : "text-muted-foreground group-hover:text-foreground")}>
         {label}
       </span>
     </Link>

@@ -146,7 +146,7 @@ export function RealisationsSection({ userId, profileId }: RealisationsSectionPr
     return (
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
         {[...Array(3)].map((_, i) => (
-          <div key={i} className="aspect-square rounded-2xl bg-slate-100 animate-pulse" />
+          <div key={i} className="aspect-square rounded-2xl bg-muted animate-pulse" />
         ))}
       </div>
     )
@@ -158,10 +158,10 @@ export function RealisationsSection({ userId, profileId }: RealisationsSectionPr
       {/* Header row */}
       <div className="flex items-center justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold text-slate-900">
+          <p className="text-sm font-semibold text-foreground">
             {items.length} réalisation{items.length !== 1 ? "s" : ""}
           </p>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs text-muted-foreground mt-0.5">
             {items.filter(i => i.status === "approved").length} publiée{items.filter(i => i.status === "approved").length !== 1 ? "s" : ""} sur votre profil
           </p>
         </div>
@@ -173,17 +173,17 @@ export function RealisationsSection({ userId, profileId }: RealisationsSectionPr
 
       {/* Grid or empty state */}
       {items.length === 0 ? (
-        <div className="bg-white border border-dashed border-slate-200 rounded-2xl p-12 flex flex-col items-center gap-4 text-center">
-          <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center">
+        <div className="bg-card border border-dashed border-border rounded-2xl p-12 flex flex-col items-center gap-4 text-center">
+          <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center">
             <ImageIcon className="h-6 w-6 text-slate-400" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-slate-900">Aucune réalisation pour le moment</p>
-            <p className="text-xs text-slate-500 mt-1 max-w-xs">
+            <p className="text-sm font-semibold text-foreground">Aucune réalisation pour le moment</p>
+            <p className="text-xs text-muted-foreground mt-1 max-w-xs">
               Ajoutez des photos de vos travaux — elles apparaîtront sur votre profil public après validation.
             </p>
           </div>
-          <Button onClick={() => setDialogOpen(true)} variant="outline" className="h-9 px-4 rounded-xl text-sm font-bold gap-2 border-slate-200">
+          <Button onClick={() => setDialogOpen(true)} variant="outline" className="h-9 px-4 rounded-xl text-sm font-bold gap-2 border-border">
             <Plus className="h-4 w-4" />
             Première réalisation
           </Button>
@@ -194,9 +194,9 @@ export function RealisationsSection({ userId, profileId }: RealisationsSectionPr
             const cfg  = STATUS_CONFIG[item.status] ?? STATUS_CONFIG.pending
             const Icon = cfg.icon
             return (
-              <div key={item.id} className="group relative bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+              <div key={item.id} className="group relative bg-card border border-border rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                 {/* Image */}
-                <div className="aspect-square overflow-hidden bg-slate-100 relative w-full">
+                <div className="aspect-square overflow-hidden bg-muted relative w-full">
                   <Image
                     src={item.image_url}
                     alt={item.title ?? "Réalisation"}
@@ -217,7 +217,7 @@ export function RealisationsSection({ userId, profileId }: RealisationsSectionPr
                 {/* Delete button */}
                 <button
                   onClick={() => setDeleteTarget(item)}
-                  className="absolute top-2 right-2 w-7 h-7 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow border border-slate-200 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50 hover:border-red-200 hover:text-red-600"
+                  className="absolute top-2 right-2 w-7 h-7 bg-card/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow border border-border opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50 hover:border-red-200 hover:text-red-600"
                   aria-label="Supprimer"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
@@ -225,9 +225,9 @@ export function RealisationsSection({ userId, profileId }: RealisationsSectionPr
 
                 {/* Info footer */}
                 {(item.title || (item.status === "rejected" && item.rejection_reason)) && (
-                  <div className="p-3 border-t border-slate-100">
+                  <div className="p-3 border-t border-border">
                     {item.title && (
-                      <p className="text-xs font-semibold text-slate-900 truncate">{item.title}</p>
+                      <p className="text-xs font-semibold text-foreground truncate">{item.title}</p>
                     )}
                     {item.status === "rejected" && item.rejection_reason && (
                       <p className="text-[10px] text-red-600 mt-0.5 line-clamp-2">{item.rejection_reason}</p>
@@ -253,7 +253,7 @@ export function RealisationsSection({ userId, profileId }: RealisationsSectionPr
               type="button"
               onClick={() => document.getElementById("gallery-upload")?.click()}
               className={`w-full cursor-pointer rounded-2xl border-2 border-dashed overflow-hidden transition-colors ${
-                preview ? "border-primary/30" : "border-slate-200 hover:border-primary/40"
+                preview ? "border-primary/30" : "border-border hover:border-primary/40"
               }`}
             >
               {preview ? (
@@ -276,7 +276,7 @@ export function RealisationsSection({ userId, profileId }: RealisationsSectionPr
                 value={title}
                 onChange={e => setTitle(e.target.value)}
                 placeholder="Ex. : Rénovation salon moderne"
-                className="h-11 rounded-xl bg-slate-50 border-slate-200 text-sm"
+                className="h-11 rounded-xl bg-muted border-border text-sm"
               />
             </div>
 
@@ -286,7 +286,7 @@ export function RealisationsSection({ userId, profileId }: RealisationsSectionPr
                 value={description}
                 onChange={e => setDescription(e.target.value)}
                 placeholder="Décrivez brièvement ce travail..."
-                className="rounded-xl bg-slate-50 border-slate-200 text-sm resize-none"
+                className="rounded-xl bg-muted border-border text-sm resize-none"
                 rows={3}
               />
             </div>
@@ -297,7 +297,7 @@ export function RealisationsSection({ userId, profileId }: RealisationsSectionPr
                 value={projectUrl}
                 onChange={e => setProjectUrl(e.target.value)}
                 placeholder="Ex. : https://monprojet.com"
-                className="h-11 rounded-xl bg-slate-50 border-slate-200 text-sm"
+                className="h-11 rounded-xl bg-muted border-border text-sm"
               />
             </div>
 
@@ -307,12 +307,12 @@ export function RealisationsSection({ userId, profileId }: RealisationsSectionPr
                 value={driveUrl}
                 onChange={e => setDriveUrl(e.target.value)}
                 placeholder="Ex. : https://drive.google.com/..."
-                className="h-11 rounded-xl bg-slate-50 border-slate-200 text-sm"
+                className="h-11 rounded-xl bg-muted border-border text-sm"
               />
             </div>
 
             <div className="flex gap-3">
-              <Button variant="outline" onClick={() => setDialogOpen(false)} disabled={uploading} className="flex-1 h-11 rounded-xl border-slate-200 font-bold">
+              <Button variant="outline" onClick={() => setDialogOpen(false)} disabled={uploading} className="flex-1 h-11 rounded-xl border-border font-bold">
                 Annuler
               </Button>
               <Button onClick={() => void handleAdd()} disabled={!file || uploading} className="flex-1 h-11 rounded-xl font-bold shadow-sm">
@@ -333,9 +333,9 @@ export function RealisationsSection({ userId, profileId }: RealisationsSectionPr
           <DialogHeader>
             <DialogTitle className="text-base font-black">Supprimer cette réalisation ?</DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-slate-500">L&apos;image sera définitivement supprimée du stockage et de votre profil.</p>
+          <p className="text-sm text-muted-foreground">L&apos;image sera définitivement supprimée du stockage et de votre profil.</p>
           <div className="flex gap-3 pt-2">
-            <Button variant="outline" onClick={() => setDeleteTarget(null)} className="flex-1 h-11 rounded-xl border-slate-200 font-bold">
+            <Button variant="outline" onClick={() => setDeleteTarget(null)} className="flex-1 h-11 rounded-xl border-border font-bold">
               Annuler
             </Button>
             <Button

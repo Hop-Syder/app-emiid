@@ -88,11 +88,11 @@ export function CommandPalette() {
       <CommandList className="max-h-[400px] no-scrollbar">
         <CommandEmpty className="py-12 text-center text-slate-400">
           <div className="flex flex-col items-center justify-center space-y-4">
-            <div className="p-4 rounded-full bg-white/5 border border-white/10">
-              <Search className="w-8 h-8 text-slate-500" />
+            <div className="p-4 rounded-full bg-card/5 border border-white/10">
+              <Search className="w-8 h-8 text-muted-foreground" />
             </div>
             <p className="text-sm font-medium">Aucun résultat pour &quot;{searchQuery}&quot;</p>
-            <p className="text-xs text-slate-500">Essayez un autre mot-clé ou vérifiez l&apos;orthographe.</p>
+            <p className="text-xs text-muted-foreground">Essayez un autre mot-clé ou vérifiez l&apos;orthographe.</p>
           </div>
         </CommandEmpty>
         
@@ -100,7 +100,7 @@ export function CommandPalette() {
           <CommandGroup heading={<span className="text-xs font-bold uppercase tracking-wider text-slate-400 px-2">Navigation Rapide</span>}>
             <CommandItem 
               onSelect={() => runCommand(() => router.push("/dashboard-user"))}
-              className="data-[selected=true]:bg-white/10 data-[selected=true]:text-white text-slate-300 rounded-xl transition-all cursor-pointer py-3 my-1"
+              className="data-[selected=true]:bg-card/10 data-[selected=true]:text-white text-slate-300 rounded-xl transition-all cursor-pointer py-3 my-1"
             >
               <div className="p-2 rounded-lg bg-blue-500/20 text-blue-400 mr-3">
                 <Home className="h-4 w-4" />
@@ -110,7 +110,7 @@ export function CommandPalette() {
 
             <CommandItem 
               onSelect={() => runCommand(() => router.push("/annuaire"))}
-              className="data-[selected=true]:bg-white/10 data-[selected=true]:text-white text-slate-300 rounded-xl transition-all cursor-pointer py-3 my-1"
+              className="data-[selected=true]:bg-card/10 data-[selected=true]:text-white text-slate-300 rounded-xl transition-all cursor-pointer py-3 my-1"
             >
               <div className="p-2 rounded-lg bg-emerald-500/20 text-emerald-400 mr-3">
                 <Users className="h-4 w-4" />
@@ -120,7 +120,7 @@ export function CommandPalette() {
 
             <CommandItem 
               onSelect={() => runCommand(() => router.push("/messages"))}
-              className="data-[selected=true]:bg-white/10 data-[selected=true]:text-white text-slate-300 rounded-xl transition-all cursor-pointer py-3 my-1"
+              className="data-[selected=true]:bg-card/10 data-[selected=true]:text-white text-slate-300 rounded-xl transition-all cursor-pointer py-3 my-1"
             >
               <div className="p-2 rounded-lg bg-purple-500/20 text-purple-400 mr-3">
                 <MessageSquare className="h-4 w-4" />
@@ -130,13 +130,13 @@ export function CommandPalette() {
           </CommandGroup>
         </div>
 
-        <CommandSeparator className="bg-white/5" />
+        <CommandSeparator className="bg-card/5" />
 
         <div className="p-2 space-y-2">
           <CommandGroup heading={<span className="text-xs font-bold uppercase tracking-wider text-slate-400 px-2">Gestion du Compte</span>}>
             <CommandItem 
               onSelect={() => runCommand(() => router.push("/profil"))}
-              className="data-[selected=true]:bg-white/10 data-[selected=true]:text-white text-slate-300 rounded-xl transition-all cursor-pointer py-3 my-1"
+              className="data-[selected=true]:bg-card/10 data-[selected=true]:text-white text-slate-300 rounded-xl transition-all cursor-pointer py-3 my-1"
             >
               <div className="p-2 rounded-lg bg-rose-500/20 text-rose-400 mr-3">
                 <User className="h-4 w-4" />
@@ -147,7 +147,7 @@ export function CommandPalette() {
 
             <CommandItem 
               onSelect={() => runCommand(() => router.push("/portefeuille"))}
-              className="data-[selected=true]:bg-white/10 data-[selected=true]:text-white text-slate-300 rounded-xl transition-all cursor-pointer py-3 my-1"
+              className="data-[selected=true]:bg-card/10 data-[selected=true]:text-white text-slate-300 rounded-xl transition-all cursor-pointer py-3 my-1"
             >
               <div className="p-2 rounded-lg bg-amber-500/20 text-amber-400 mr-3">
                 <Wallet className="h-4 w-4" />
@@ -158,7 +158,7 @@ export function CommandPalette() {
 
             <CommandItem 
               onSelect={() => runCommand(() => router.push("/parametres"))}
-              className="data-[selected=true]:bg-white/10 data-[selected=true]:text-white text-slate-300 rounded-xl transition-all cursor-pointer py-3 my-1"
+              className="data-[selected=true]:bg-card/10 data-[selected=true]:text-white text-slate-300 rounded-xl transition-all cursor-pointer py-3 my-1"
             >
               <div className="p-2 rounded-lg bg-slate-500/20 text-slate-400 mr-3">
                 <Settings className="h-4 w-4" />

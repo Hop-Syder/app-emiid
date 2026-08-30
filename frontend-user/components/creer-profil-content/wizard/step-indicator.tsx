@@ -43,7 +43,7 @@ export function StepIndicator({ current }: StepIndicatorProps) {
                                         "h-9 w-9 rounded-full flex items-center justify-center text-sm font-bold transition-all",
                                         isActive && "bg-[#013ff4] text-white shadow-lg shadow-[#013ff4]/25 scale-110",
                                         isDone && "bg-[#013ff4] text-white",
-                                        !isActive && !isDone && "bg-slate-100 text-slate-400",
+                                        !isActive && !isDone && "bg-muted text-slate-400",
                                     )}
                                 >
                                     {isDone ? <Check className="h-4 w-4" /> : step.id}
@@ -51,14 +51,14 @@ export function StepIndicator({ current }: StepIndicatorProps) {
                                 <span
                                     className={cn(
                                         "text-[11px] font-semibold tracking-wide hidden sm:block",
-                                        isActive || isDone ? "text-slate-900" : "text-slate-400",
+                                        isActive || isDone ? "text-foreground" : "text-slate-400",
                                     )}
                                 >
                                     {step.label}
                                 </span>
                             </div>
                             {index < total - 1 && (
-                                <div className="flex-1 h-0.5 mx-2 sm:mx-3 rounded-full bg-slate-100 overflow-hidden">
+                                <div className="flex-1 h-0.5 mx-2 sm:mx-3 rounded-full bg-muted overflow-hidden">
                                     <div
                                         className={cn(
                                             "h-full bg-[#013ff4] transition-all duration-500",

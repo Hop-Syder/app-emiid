@@ -53,7 +53,7 @@ export function AnnuaireCountries({ filters, onFilterChange }: AnnuaireCountries
         <div className="w-full">
             <div className="flex items-center mb-4 px-1 gap-2">
                 <Globe className="w-5 h-5 text-teal-500" />
-                <h3 className="text-lg font-bold text-slate-800 tracking-tight">Parcourir par Pays</h3>
+                <h3 className="text-lg font-bold text-foreground tracking-tight">Parcourir par Pays</h3>
             </div>
             
             <div className="flex flex-wrap gap-3">
@@ -69,14 +69,14 @@ export function AnnuaireCountries({ filters, onFilterChange }: AnnuaireCountries
                                 "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300 border shadow-sm",
                                 isActive 
                                     ? "bg-teal-600 text-white border-teal-600 shadow-md shadow-teal-500/20 scale-105" 
-                                    : "bg-white text-slate-700 border-slate-200 hover:border-teal-300 hover:bg-teal-50 hover:shadow-md"
+                                    : "bg-card text-foreground border-border hover:border-teal-300 hover:bg-teal-50 hover:shadow-md"
                             )}
                         >
                             <span className="text-lg leading-none">{flag}</span>
                             <span>{country.name}</span>
                             <span className={cn(
                                 "text-xs px-2 py-0.5 rounded-md ml-1 font-bold",
-                                isActive ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"
+                                isActive ? "bg-card/20 text-white" : "bg-muted text-muted-foreground"
                             )}>
                                 {country.count}
                             </span>

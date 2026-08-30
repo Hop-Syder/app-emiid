@@ -95,16 +95,16 @@ export function FollowedProfilesContent() {
       <Tabs defaultValue="following" onValueChange={setActiveTab} className="w-full">
         <div className="flex flex-col space-y-6">
           <div className="flex flex-col md:flex-row gap-6 items-center justify-between">
-            <TabsList className="h-14 p-1.5 bg-slate-100 dark:bg-zinc-900/55 rounded-2xl border border-slate-200/40 dark:border-zinc-800/80 w-full md:w-auto min-w-[320px]">
+            <TabsList className="h-14 p-1.5 bg-muted dark:bg-zinc-900/55 rounded-2xl border border-border/40 dark:border-zinc-800/80 w-full md:w-auto min-w-[320px]">
               <TabsTrigger 
                 value="following" 
-                className="flex-1 rounded-xl font-bold text-[10px] uppercase tracking-widest text-muted-foreground data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-850 data-[state=active]:text-foreground data-[state=active]:shadow-md transition-all duration-300"
+                className="flex-1 rounded-xl font-bold text-[10px] uppercase tracking-widest text-muted-foreground data-[state=active]:bg-card dark:data-[state=active]:bg-zinc-850 data-[state=active]:text-foreground data-[state=active]:shadow-md transition-all duration-300"
               >
                 Favoris ({followedProfiles.length})
               </TabsTrigger>
               <TabsTrigger 
                 value="followers" 
-                className="flex-1 rounded-xl font-bold text-[10px] uppercase tracking-widest text-muted-foreground data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-850 data-[state=active]:text-foreground data-[state=active]:shadow-md transition-all duration-300"
+                className="flex-1 rounded-xl font-bold text-[10px] uppercase tracking-widest text-muted-foreground data-[state=active]:bg-card dark:data-[state=active]:bg-zinc-850 data-[state=active]:text-foreground data-[state=active]:shadow-md transition-all duration-300"
               >
                 Abonnés ({followers.length})
               </TabsTrigger>

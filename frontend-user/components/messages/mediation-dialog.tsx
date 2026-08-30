@@ -40,8 +40,8 @@ export const MediationDialog: React.FC<MediationDialogProps> = ({
           <div className="h-12 w-12 bg-amber-100 rounded-full flex items-center justify-center mb-4">
             <Gavel className="h-6 w-6 text-amber-600" />
           </div>
-          <DialogTitle className="text-xl font-bold text-slate-900">Demander une Médiation</DialogTitle>
-          <DialogDescription className="text-slate-500">
+          <DialogTitle className="text-xl font-bold text-foreground">Demander une Médiation</DialogTitle>
+          <DialogDescription className="text-muted-foreground">
             Un modérateur EmiID interviendra pour aider à résoudre ce litige. Expliquez brièvement le problème.
           </DialogDescription>
         </DialogHeader>
@@ -49,7 +49,7 @@ export const MediationDialog: React.FC<MediationDialogProps> = ({
         <div className="py-4">
           <Textarea
             placeholder="Détails du litige (ex: non-respect des termes, comportement inapproprié...)"
-            className="min-h-[120px] bg-slate-50 border-slate-200 focus:ring-[#013ff4] rounded-xl"
+            className="min-h-[120px] bg-muted border-border focus:ring-[#013ff4] rounded-xl"
             value={reason}
             onChange={(e) => setReason(e.target.value)}
           />

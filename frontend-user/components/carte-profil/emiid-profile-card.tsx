@@ -49,51 +49,51 @@ const VARIANT_STYLES = {
   },
   glass: {
     // Cristal / Frosted Glass (Lisibilité parfaite) - Emerald
-    wrapper: "bg-white/60 backdrop-blur-3xl border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:shadow-[0_8px_40px_rgb(0,0,0,0.12)] hover:border-white",
-    textPrimary: "text-slate-900",
-    textSecondary: "text-slate-500",
-    divider: "bg-slate-200/60",
+    wrapper: "bg-card/60 backdrop-blur-3xl border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:shadow-[0_8px_40px_rgb(0,0,0,0.12)] hover:border-white",
+    textPrimary: "text-foreground",
+    textSecondary: "text-muted-foreground",
+    divider: "bg-muted/60",
     glow: "rgba(255, 255, 255, 0.8)",
     badge: "text-emerald-600 bg-emerald-50 border-emerald-100",
     accent: "text-emerald-500",
     btnPrimary: "bg-emerald-500 text-white hover:bg-emerald-600 shadow-[0_0_15px_rgba(16,185,129,0.3)]",
-    btnSecondary: "bg-white/80 border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-emerald-600"
+    btnSecondary: "bg-card/80 border-border text-foreground hover:bg-muted hover:text-emerald-600"
   },
   "glass-blue": {
     // Cristal / Frosted Glass - Blue
-    wrapper: "bg-white/60 backdrop-blur-3xl border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:shadow-[0_8px_40px_rgb(0,0,0,0.12)] hover:border-white",
-    textPrimary: "text-slate-900",
-    textSecondary: "text-slate-500",
-    divider: "bg-slate-200/60",
+    wrapper: "bg-card/60 backdrop-blur-3xl border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:shadow-[0_8px_40px_rgb(0,0,0,0.12)] hover:border-white",
+    textPrimary: "text-foreground",
+    textSecondary: "text-muted-foreground",
+    divider: "bg-muted/60",
     glow: "rgba(255, 255, 255, 0.8)",
     badge: "text-blue-600 bg-blue-50 border-blue-100",
     accent: "text-blue-500",
     btnPrimary: "bg-blue-500 text-white hover:bg-blue-600 shadow-[0_0_15px_rgba(59,130,246,0.3)]",
-    btnSecondary: "bg-white/80 border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-blue-600"
+    btnSecondary: "bg-card/80 border-border text-foreground hover:bg-muted hover:text-blue-600"
   },
   "glass-orange": {
     // Cristal / Frosted Glass - Orange
-    wrapper: "bg-white/60 backdrop-blur-3xl border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:shadow-[0_8px_40px_rgb(0,0,0,0.12)] hover:border-white",
-    textPrimary: "text-slate-900",
-    textSecondary: "text-slate-500",
-    divider: "bg-slate-200/60",
+    wrapper: "bg-card/60 backdrop-blur-3xl border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:shadow-[0_8px_40px_rgb(0,0,0,0.12)] hover:border-white",
+    textPrimary: "text-foreground",
+    textSecondary: "text-muted-foreground",
+    divider: "bg-muted/60",
     glow: "rgba(255, 255, 255, 0.8)",
     badge: "text-orange-600 bg-orange-50 border-orange-100",
     accent: "text-orange-500",
     btnPrimary: "bg-orange-500 text-white hover:bg-orange-600 shadow-[0_0_15px_rgba(249,115,22,0.3)]",
-    btnSecondary: "bg-white/80 border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-orange-600"
+    btnSecondary: "bg-card/80 border-border text-foreground hover:bg-muted hover:text-orange-600"
   },
   "glass-red": {
     // Cristal / Frosted Glass - Red
-    wrapper: "bg-white/60 backdrop-blur-3xl border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:shadow-[0_8px_40px_rgb(0,0,0,0.12)] hover:border-white",
-    textPrimary: "text-slate-900",
-    textSecondary: "text-slate-500",
-    divider: "bg-slate-200/60",
+    wrapper: "bg-card/60 backdrop-blur-3xl border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:shadow-[0_8px_40px_rgb(0,0,0,0.12)] hover:border-white",
+    textPrimary: "text-foreground",
+    textSecondary: "text-muted-foreground",
+    divider: "bg-muted/60",
     glow: "rgba(255, 255, 255, 0.8)",
     badge: "text-red-600 bg-red-50 border-red-100",
     accent: "text-red-500",
     btnPrimary: "bg-red-600 text-white hover:bg-red-700 shadow-[0_0_15px_rgba(220,38,38,0.3)]",
-    btnSecondary: "bg-white/80 border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-red-600"
+    btnSecondary: "bg-card/80 border-border text-foreground hover:bg-muted hover:text-red-600"
   },
   elite: {
     // Obsidian & Vibrant Gold (Luxe Glassmorphism Premium)
@@ -104,7 +104,7 @@ const VARIANT_STYLES = {
     glow: "rgba(250, 204, 21, 0.35)",
     badge: "text-yellow-400 bg-yellow-500/10 border-yellow-500/30 shadow-[0_0_15px_rgba(250,204,21,0.2)] backdrop-blur-md",
     accent: "text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.6)]",
-    btnPrimary: "bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-400 text-black font-extrabold shadow-[0_0_20px_rgba(250,204,21,0.4)] hover:shadow-[0_0_30px_rgba(250,204,21,0.6)] hover:scale-[1.02] active:scale-[0.98]",
+    btnPrimary: "bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-400 text-foreground font-extrabold shadow-[0_0_20px_rgba(250,204,21,0.4)] hover:shadow-[0_0_30px_rgba(250,204,21,0.6)] hover:scale-[1.02] active:scale-[0.98]",
     btnSecondary: "bg-stone-900/60 border-stone-700/50 text-stone-300 hover:bg-stone-800 hover:text-yellow-400 hover:border-yellow-500/30 shadow-inner"
   },
 }
@@ -198,7 +198,7 @@ export function EmiIDProfileCard({
         <div className="relative">
           <Avatar className={cn("h-24 w-24 border-4 shadow-xl ring-1 ring-white/10", variant === "elite" ? "border-stone-900 shadow-[0_0_25px_rgba(250,204,21,0.2)]" : "border-white")}>
             <AvatarImage src={getOptimizedImageUrl(user.avatar, { width: 200, height: 200 })} className="object-cover" />
-            <AvatarFallback className="bg-slate-100 text-slate-900 font-bold text-2xl">{name[0]}</AvatarFallback>
+            <AvatarFallback className="bg-muted text-foreground font-bold text-2xl">{name[0]}</AvatarFallback>
           </Avatar>
         </div>
       </div>
@@ -238,7 +238,7 @@ export function EmiIDProfileCard({
             className={cn(
               "flex-1 h-10 px-2 rounded-2xl font-bold text-[11px] transition-all border-none shadow-lg",
               isFollowed 
-                ? "bg-slate-200/50 dark:bg-slate-800/80 border border-slate-300/30 dark:border-slate-700/50 text-slate-700 dark:text-slate-300 shadow-none hover:bg-slate-350/50 dark:hover:bg-slate-750" 
+                ? "bg-muted/50 dark:bg-slate-800/80 border border-slate-300/30 dark:border-slate-700/50 text-foreground dark:text-slate-300 shadow-none hover:bg-slate-350/50 dark:hover:bg-slate-750" 
                 : styles.btnPrimary
             )}
           >

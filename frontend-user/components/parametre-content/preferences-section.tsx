@@ -34,7 +34,7 @@ interface PreferencesSectionProps {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
-      <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">{label}</p>
+      <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">{label}</p>
       {children}
     </div>
   )
@@ -54,12 +54,12 @@ export function PreferencesSection({ settings, setSettings, saving, handleSave, 
     <div className="space-y-4">
 
       {/* Localisation */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6">
+      <div className="bg-card border border-border rounded-2xl p-5 sm:p-6">
         <h2 className="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-5">Localisation</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="Langue">
             <Select value={settings.language} onValueChange={v => update("language", v)}>
-              <SelectTrigger className="h-11 rounded-xl bg-slate-50 border-slate-200 text-sm font-medium">
+              <SelectTrigger className="h-11 rounded-xl bg-muted border-border text-sm font-medium">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -71,7 +71,7 @@ export function PreferencesSection({ settings, setSettings, saving, handleSave, 
           </Field>
           <Field label="Devise">
             <Select value={settings.currency} onValueChange={v => update("currency", v)}>
-              <SelectTrigger className="h-11 rounded-xl bg-slate-50 border-slate-200 text-sm font-medium">
+              <SelectTrigger className="h-11 rounded-xl bg-muted border-border text-sm font-medium">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -83,7 +83,7 @@ export function PreferencesSection({ settings, setSettings, saving, handleSave, 
           </Field>
           <Field label="Fuseau horaire">
             <Select value={settings.timezone} onValueChange={v => update("timezone", v)}>
-              <SelectTrigger className="h-11 rounded-xl bg-slate-50 border-slate-200 text-sm font-medium">
+              <SelectTrigger className="h-11 rounded-xl bg-muted border-border text-sm font-medium">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -96,13 +96,13 @@ export function PreferencesSection({ settings, setSettings, saving, handleSave, 
       </div>
 
       {/* Apparence & confidentialité */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6">
+      <div className="bg-card border border-border rounded-2xl p-5 sm:p-6">
         <h2 className="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-5">Apparence & confidentialité</h2>
-        <div className="divide-y divide-slate-100">
+        <div className="divide-y divide-border">
           <div className="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0">
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-slate-900">Mode sombre</p>
-              <p className="text-xs text-slate-500 mt-0.5">Basculer vers un thème sombre</p>
+              <p className="text-sm font-semibold text-foreground">Mode sombre</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Basculer vers un thème sombre</p>
             </div>
             <Switch
               className="shrink-0"
@@ -112,8 +112,8 @@ export function PreferencesSection({ settings, setSettings, saving, handleSave, 
           </div>
           <div className="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0">
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-slate-900">Profil public</p>
-              <p className="text-xs text-slate-500 mt-0.5">Votre profil apparaît dans l&apos;annuaire et les recherches</p>
+              <p className="text-sm font-semibold text-foreground">Profil public</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Votre profil apparaît dans l&apos;annuaire et les recherches</p>
             </div>
             <Switch
               className="shrink-0"
@@ -128,7 +128,7 @@ export function PreferencesSection({ settings, setSettings, saving, handleSave, 
           déjà l'ensemble des réglages. */}
       {!hideActions && (
         <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-1">
-          <Button variant="outline" onClick={handleCancel} className="w-full sm:w-auto h-11 rounded-xl border-slate-200 font-bold">
+          <Button variant="outline" onClick={handleCancel} className="w-full sm:w-auto h-11 rounded-xl border-border font-bold">
             Annuler
           </Button>
           <Button onClick={handleSave} disabled={saving} className="w-full sm:w-auto h-11 rounded-xl font-bold shadow-sm">

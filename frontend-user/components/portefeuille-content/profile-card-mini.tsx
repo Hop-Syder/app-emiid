@@ -145,7 +145,7 @@ export function ProfileCardMini({ profile, onUnfollow, onViewProfile, onSaveNote
             className={cn(
               "flex-1 h-9 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all",
               isPremium
-                ? "bg-amber-500 text-black hover:bg-amber-400"
+                ? "bg-amber-500 text-foreground hover:bg-amber-400"
                 : "bg-primary text-primary-foreground hover:opacity-90"
             )}
           >
@@ -187,7 +187,7 @@ export function ProfileCardMini({ profile, onUnfollow, onViewProfile, onSaveNote
         "flex-1 p-5 rounded-2xl flex flex-col justify-between transition-all duration-300 relative overflow-hidden backdrop-blur-md border shadow-sm",
         isPremium
           ? "bg-slate-950/65 border-amber-500/15 text-white shadow-[0_0_25px_rgba(245,158,11,0.03)]"
-          : "bg-white dark:bg-slate-900/60 border-slate-200 dark:border-slate-800/60 text-slate-800 dark:text-slate-100"
+          : "bg-card dark:bg-slate-900/60 border-border dark:border-slate-800/60 text-foreground dark:text-slate-100"
       )}>
         <div>
           <div className="flex items-center justify-between mb-3">
@@ -195,7 +195,7 @@ export function ProfileCardMini({ profile, onUnfollow, onViewProfile, onSaveNote
               <div className={cn("p-1.5 rounded-lg", isPremium ? "bg-amber-500/10" : "bg-[#eaf0ff] dark:bg-[#000616]/50")}>
                 <StickyNote className={cn("h-4 w-4 opacity-90", isPremium ? "text-amber-500" : "text-[#013ff4] dark:text-[#4d72ff]")} />
               </div>
-              <span className={cn("text-[10px] font-bold uppercase tracking-wider", isPremium ? "text-slate-400" : "text-slate-700 dark:text-slate-350")}>Notes Privées</span>
+              <span className={cn("text-[10px] font-bold uppercase tracking-wider", isPremium ? "text-slate-400" : "text-foreground dark:text-slate-350")}>Notes Privées</span>
             </div>
             {isSaving ? (
               <Loader2 className={cn("h-3.5 w-3.5 animate-spin opacity-70", isPremium ? "text-amber-500" : "text-[#013ff4]")} />
@@ -218,14 +218,14 @@ export function ProfileCardMini({ profile, onUnfollow, onViewProfile, onSaveNote
               placeholder="Ajouter des observations privées sur ce contact..."
               className={cn(
                 "w-full min-h-[60px] text-xs resize-none bg-transparent border-0 focus-visible:ring-0 p-0 shadow-none font-medium leading-relaxed",
-                isPremium ? "placeholder:text-slate-500 text-white" : "placeholder:text-slate-400 dark:placeholder:text-slate-500 text-slate-800 dark:text-slate-100"
+                isPremium ? "placeholder:text-muted-foreground text-white" : "placeholder:text-slate-400 dark:placeholder:text-muted-foreground text-foreground dark:text-slate-100"
               )}
             />
           </div>
         </div>
 
-        <div className={cn("flex items-center justify-between mt-4 pt-3 border-t", isPremium ? "border-white/10" : "border-slate-100 dark:border-slate-800")}>
-          <span className={cn("text-[10px] font-semibold truncate max-w-[150px]", isPremium ? "text-slate-500" : "text-slate-400 dark:text-slate-500")}>
+        <div className={cn("flex items-center justify-between mt-4 pt-3 border-t", isPremium ? "border-white/10" : "border-border dark:border-slate-800")}>
+          <span className={cn("text-[10px] font-semibold truncate max-w-[150px]", isPremium ? "text-muted-foreground" : "text-slate-400 dark:text-muted-foreground")}>
             {profile.lastUpdate || "Aucune note"}
           </span>
 
@@ -240,8 +240,8 @@ export function ProfileCardMini({ profile, onUnfollow, onViewProfile, onSaveNote
                     ? "bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md shadow-amber-500/25" 
                     : "bg-[#013ff4] hover:bg-[#0132cc] text-white shadow-md shadow-[#013ff4]/10")
                 : (isPremium 
-                    ? "bg-white/5 text-white/30 cursor-not-allowed border border-white/5" 
-                    : "bg-slate-100 text-slate-400 dark:bg-slate-800/50 dark:text-slate-600 cursor-not-allowed")
+                    ? "bg-card/5 text-white/30 cursor-not-allowed border border-white/5" 
+                    : "bg-muted text-slate-400 dark:bg-slate-800/50 dark:text-muted-foreground cursor-not-allowed")
             )}
           >
             <Save className="h-3 w-3 mr-1.5" /> Enregistrer

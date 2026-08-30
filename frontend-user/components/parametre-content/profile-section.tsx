@@ -33,13 +33,13 @@ interface ProfileSectionProps {
   hideActions?: boolean
 }
 
-const INPUT = "h-11 rounded-xl bg-slate-50 border-slate-200 text-sm font-medium text-slate-900 focus:ring-primary/20 transition-all placeholder:text-slate-400"
-const SELECT = "w-full h-11 px-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+const INPUT = "h-11 rounded-xl bg-muted border-border text-sm font-medium text-foreground focus:ring-primary/20 transition-all placeholder:text-slate-400"
+const SELECT = "w-full h-11 px-3 rounded-xl bg-muted border border-border text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
-      <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">{label}</p>
+      <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">{label}</p>
       {children}
     </div>
   )
@@ -47,7 +47,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6">
+    <div className="bg-card border border-border rounded-2xl p-5 sm:p-6">
       <h2 className="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-5">{title}</h2>
       {children}
     </div>
@@ -154,8 +154,8 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
             onUploadComplete={(url: string) => up("avatar_url", url)}
           />
           <div className="min-w-0">
-            <p className="text-sm font-bold text-slate-900 truncate">{displayName}</p>
-            <p className="text-xs text-slate-500 truncate mt-0.5">{profile.email}</p>
+            <p className="text-sm font-bold text-foreground truncate">{displayName}</p>
+            <p className="text-xs text-muted-foreground truncate mt-0.5">{profile.email}</p>
             <p className="text-xs text-slate-400 mt-2">JPG, PNG ou GIF · Max 2 MB</p>
           </div>
         </div>
@@ -203,7 +203,7 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
 
       {/* ── GPS Location ──────────────────────────────────────────────────────── */}
       <SectionCard title="Localisation GPS">
-        <p className="text-sm text-slate-500 -mt-2 mb-4">
+        <p className="text-sm text-muted-foreground -mt-2 mb-4">
           Indiquez où vous exercez pour apparaître sur la carte et dans les recherches de proximité.
         </p>
 
@@ -227,8 +227,8 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
             <div className="flex items-start gap-3">
               <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-bold text-slate-900">Position enregistrée</p>
-                <p className="text-xs text-slate-500 mt-0.5 font-mono">
+                <p className="text-sm font-bold text-foreground">Position enregistrée</p>
+                <p className="text-xs text-muted-foreground mt-0.5 font-mono">
                   {Number(profile.latitude).toFixed(6)}, {Number(profile.longitude).toFixed(6)}
                 </p>
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2.5">
@@ -243,7 +243,7 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
                   <button
                     type="button"
                     onClick={clearLocation}
-                    className="inline-flex items-center gap-1 text-xs font-bold text-slate-500 hover:text-red-500 transition-colors"
+                    className="inline-flex items-center gap-1 text-xs font-bold text-muted-foreground hover:text-red-500 transition-colors"
                   >
                     <RotateCcw className="w-3 h-3" /> Réinitialiser
                   </button>
@@ -273,7 +273,7 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
 
         {/* Saisie manuelle (secondaire, repliée par défaut) */}
         <details className="mt-4 group">
-          <summary className="text-xs font-bold text-slate-500 cursor-pointer select-none hover:text-slate-700 transition-colors list-none flex items-center gap-1.5">
+          <summary className="text-xs font-bold text-muted-foreground cursor-pointer select-none hover:text-foreground transition-colors list-none flex items-center gap-1.5">
             <span className="inline-block transition-transform group-open:rotate-90">›</span>
             Saisir les coordonnées manuellement
           </summary>
@@ -299,17 +299,17 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
           </div>
         </details>
 
-        <div className="mt-6 p-4 rounded-xl border border-slate-200 bg-slate-50 flex items-start gap-4">
+        <div className="mt-6 p-4 rounded-xl border border-border bg-muted flex items-start gap-4">
           <Switch 
             id="is_nomad" 
             checked={!!profile.is_nomad} 
             onCheckedChange={(checked) => up("is_nomad", checked)} 
           />
           <div>
-            <label htmlFor="is_nomad" className="font-semibold text-slate-900 block mb-1 cursor-pointer">
+            <label htmlFor="is_nomad" className="font-semibold text-foreground block mb-1 cursor-pointer">
               Je suis en déplacement
             </label>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-muted-foreground">
               Activez ce mode si vous êtes un professionnel itinérant. Cela indique aux visiteurs que votre position peut varier.
             </p>
           </div>
@@ -403,10 +403,10 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
                     onChange={e => setOtpCode(e.target.value.replace(/[^0-9]/g, ""))}
                     placeholder="000000"
                     maxLength={6}
-                    className="h-11 text-center text-xl tracking-[0.4em] font-black rounded-xl border-[#013ff4]/30 bg-white flex-1"
+                    className="h-11 text-center text-xl tracking-[0.4em] font-black rounded-xl border-[#013ff4]/30 bg-card flex-1"
                   />
                   <div className="flex gap-2 shrink-0">
-                    <Button type="button" variant="ghost" onClick={() => { setVerifyMethod(null); setOtpCode("") }} className="h-11 px-4 rounded-xl text-slate-500">
+                    <Button type="button" variant="ghost" onClick={() => { setVerifyMethod(null); setOtpCode("") }} className="h-11 px-4 rounded-xl text-muted-foreground">
                       Annuler
                     </Button>
                     <Button type="button" onClick={handleVerifySubmit} disabled={otpCode.length < 6 || verifying} className="h-11 px-5 rounded-xl bg-[#013ff4] hover:bg-[#033a7a] text-white font-bold">
@@ -448,7 +448,7 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
 
       {/* ── Verification status ──────────────────────────────────────────────── */}
       <SectionCard title="Statut de vérification">
-        <div className="divide-y divide-slate-100">
+        <div className="divide-y divide-border">
 
           {/* Email */}
           <div className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
@@ -457,8 +457,8 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
                 <Mail className="h-4 w-4 text-emerald-600" />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-slate-900">Email</p>
-                <p className="text-xs text-slate-500 truncate">{profile.email}</p>
+                <p className="text-sm font-semibold text-foreground">Email</p>
+                <p className="text-xs text-muted-foreground truncate">{profile.email}</p>
               </div>
             </div>
             <span className="ml-3 shrink-0 inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border border-emerald-200">
@@ -470,12 +470,12 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
           {/* Phone */}
           <div className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
             <div className="flex items-center gap-3 min-w-0 flex-1">
-              <div className={`p-2 rounded-lg shrink-0 ${profile.phone_verified ? "bg-emerald-50" : "bg-slate-100"}`}>
+              <div className={`p-2 rounded-lg shrink-0 ${profile.phone_verified ? "bg-emerald-50" : "bg-muted"}`}>
                 <Smartphone className={`h-4 w-4 ${profile.phone_verified ? "text-emerald-600" : "text-slate-400"}`} />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-slate-900">Téléphone</p>
-                <p className="text-xs text-slate-500 truncate">{profile.phone || "Non renseigné"}</p>
+                <p className="text-sm font-semibold text-foreground">Téléphone</p>
+                <p className="text-xs text-muted-foreground truncate">{profile.phone || "Non renseigné"}</p>
               </div>
             </div>
             {profile.phone_verified ? (
@@ -484,7 +484,7 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
                 Vérifié
               </span>
             ) : (
-              <span className="ml-3 shrink-0 inline-flex items-center gap-1 bg-slate-100 text-slate-500 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-slate-200">
+              <span className="ml-3 shrink-0 inline-flex items-center gap-1 bg-muted text-muted-foreground text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-border">
                 <AlertCircle className="h-2.5 w-2.5" />
                 En attente
               </span>
@@ -494,17 +494,17 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
           {/* KYC */}
           <div className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
             <div className="flex items-center gap-3 min-w-0 flex-1">
-              <div className="p-2 bg-slate-100 rounded-lg shrink-0">
+              <div className="p-2 bg-muted rounded-lg shrink-0">
                 <User className="h-4 w-4 text-slate-400" />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-slate-900">Identité professionnelle</p>
+                <p className="text-sm font-semibold text-foreground">Identité professionnelle</p>
                 <p className="text-xs text-slate-400">Pièces justificatives (CNI, IFU, registre…)</p>
               </div>
             </div>
             <button
               onClick={() => { window.location.href = "/parametres?tab=verification" }}
-              className="ml-3 shrink-0 text-xs font-bold text-slate-600 border border-slate-200 rounded-lg px-3 py-1.5 hover:bg-slate-50 transition-colors"
+              className="ml-3 shrink-0 text-xs font-bold text-muted-foreground border border-border rounded-lg px-3 py-1.5 hover:bg-muted transition-colors"
             >
               Vérifier
             </button>
@@ -517,8 +517,8 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
       <SectionCard title="Confidentialité">
         <div className="flex items-center justify-between gap-4">
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-slate-900">Afficher mes coordonnées</p>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-sm font-semibold text-foreground">Afficher mes coordonnées</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
               Votre email et votre téléphone sont visibles sur votre profil public. Désactivez pour les masquer.
             </p>
           </div>
@@ -536,7 +536,7 @@ export function ProfileSection({ profile, setProfile, saving, handleSave, handle
           distincts. */}
       {!hideActions && (
         <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-1">
-          <Button variant="outline" onClick={handleCancel} className="w-full sm:w-auto h-11 rounded-xl border-slate-200 font-bold">
+          <Button variant="outline" onClick={handleCancel} className="w-full sm:w-auto h-11 rounded-xl border-border font-bold">
             Annuler
           </Button>
           <Button onClick={handleSave} disabled={saving} className="w-full sm:w-auto h-11 rounded-xl font-bold shadow-sm">

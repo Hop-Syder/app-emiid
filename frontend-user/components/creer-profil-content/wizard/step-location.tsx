@@ -21,13 +21,13 @@ export function StepLocation({ formData, handleInputChange, errors }: StepLocati
     return (
         <div className="space-y-6">
             <div>
-                <h2 className="text-2xl font-bold tracking-tight text-slate-900">Où es-tu ?</h2>
-                <p className="text-sm text-slate-500 mt-1">Pour être découvert par géolocalisation dans l&apos;annuaire.</p>
+                <h2 className="text-2xl font-bold tracking-tight text-foreground">Où es-tu ?</h2>
+                <p className="text-sm text-muted-foreground mt-1">Pour être découvert par géolocalisation dans l&apos;annuaire.</p>
             </div>
 
             {/* Pays + Ville (Bénin par défaut, extensible CEDEAO) */}
             <div className="space-y-1.5">
-                <Label className="text-sm font-semibold text-slate-700">
+                <Label className="text-sm font-semibold text-foreground">
                     Pays &amp; Ville <span className="text-[#013ff4]">*</span>
                 </Label>
                 <LocationSelector
@@ -44,7 +44,7 @@ export function StepLocation({ formData, handleInputChange, errors }: StepLocati
 
             {/* Arrondissement / Quartier */}
             <div className="space-y-1.5">
-                <Label htmlFor="district" className="text-sm font-semibold text-slate-700">
+                <Label htmlFor="district" className="text-sm font-semibold text-foreground">
                     Arrondissement / Quartier <span className="text-[#013ff4]">*</span>
                 </Label>
                 <Input

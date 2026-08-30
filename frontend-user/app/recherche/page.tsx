@@ -153,7 +153,7 @@ export default function RecherchePage() {
     }, [listening])
 
     return (
-        <div className="relative min-h-[100dvh] w-full overflow-hidden bg-white text-slate-900">
+        <div className="relative min-h-[100dvh] w-full overflow-hidden bg-card text-foreground">
             {/* Halos lumineux d'ambiance — charte */}
             <div className="pointer-events-none absolute -top-28 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-[#013ff4]/10 blur-[110px]" />
             <div className="pointer-events-none absolute top-40 -right-20 h-64 w-64 rounded-full bg-[#03b3f8]/10 blur-[110px]" />
@@ -165,19 +165,19 @@ export default function RecherchePage() {
                     <button
                         onClick={() => router.back()}
                         aria-label="Retour"
-                        className="flex h-11 w-11 items-center justify-center rounded-xl text-slate-600 transition-colors hover:bg-slate-100"
+                        className="flex h-11 w-11 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-muted"
                     >
                         <ArrowLeft className="h-5 w-5" />
                     </button>
 
-                    <span className="text-lg font-extrabold tracking-tight text-slate-900">
+                    <span className="text-lg font-extrabold tracking-tight text-foreground">
                         Emi<span className="text-[#013ff4]">ID</span>
                     </span>
 
                     <Link
                         href="/notifications"
                         aria-label="Notifications"
-                        className="relative flex h-11 w-11 items-center justify-center rounded-xl text-slate-600 transition-colors hover:bg-slate-100"
+                        className="relative flex h-11 w-11 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-muted"
                     >
                         <Bell className="h-5 w-5" />
                         <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-[#03b3f8] ring-2 ring-white" />
@@ -194,7 +194,7 @@ export default function RecherchePage() {
                                 Recherche
                             </span>
 
-                            <h1 className="mt-5 text-[30px] lg:text-4xl font-extrabold leading-[1.15] tracking-tight text-slate-900">
+                            <h1 className="mt-5 text-[30px] lg:text-4xl font-extrabold leading-[1.15] tracking-tight text-foreground">
                                 Qui recherchez-vous
                                 <br />
                                 <span className="relative inline-block">
@@ -203,14 +203,14 @@ export default function RecherchePage() {
                                 </span>
                             </h1>
 
-                            <p className="mt-4 max-w-xs text-sm font-medium text-slate-500">
+                            <p className="mt-4 max-w-xs text-sm font-medium text-muted-foreground">
                                 Décrivez ce que vous cherchez, même en langage courant.
                             </p>
                         </div>
 
                         {/* ── Barre de recherche ─────────────────────────────────── */}
                         <div className="mt-8">
-                    <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white p-2 pl-4 shadow-[0_12px_40px_-12px_rgba(1,63,244,0.25)] transition-colors focus-within:border-[#013ff4]/40">
+                    <div className="flex items-center gap-2 rounded-2xl border border-border bg-card p-2 pl-4 shadow-[0_12px_40px_-12px_rgba(1,63,244,0.25)] transition-colors focus-within:border-[#013ff4]/40">
                         <Search className="h-5 w-5 shrink-0 text-slate-400" />
                         <input
                             ref={inputRef}
@@ -219,7 +219,7 @@ export default function RecherchePage() {
                             onKeyDown={(e) => e.key === "Enter" && submit()}
                             placeholder="Rechercher un artisan, un métier..."
                             aria-label="Rechercher"
-                            className="min-w-0 flex-1 bg-transparent py-2 text-[15px] font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none"
+                            className="min-w-0 flex-1 bg-transparent py-2 text-[15px] font-medium text-foreground placeholder:text-slate-400 focus:outline-none"
                         />
                         {micAvailable && (
                             <button
@@ -228,7 +228,7 @@ export default function RecherchePage() {
                                 className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-all ${
                                     listening
                                         ? "bg-[#013ff4]/10 text-[#013ff4] animate-pulse"
-                                        : "text-slate-400 hover:bg-slate-100"
+                                        : "text-slate-400 hover:bg-muted"
                                 }`}
                             >
                                 <Mic className="h-5 w-5" />
@@ -251,7 +251,7 @@ export default function RecherchePage() {
                                 <button
                                     key={s}
                                     onClick={() => router.push(`/annuaire?search=${encodeURIComponent(s)}`)}
-                                    className="rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:border-[#013ff4]/40 hover:bg-[#013ff4]/[0.04] hover:text-[#013ff4]"
+                                    className="rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-[#013ff4]/40 hover:bg-[#013ff4]/[0.04] hover:text-[#013ff4]"
                                 >
                                     {s}
                                 </button>
@@ -263,10 +263,10 @@ export default function RecherchePage() {
 
                     {/* ── Assistant de recherche — volet droit desktop ──────────── */}
                     <aside className="lg:col-span-5 lg:pt-24 mt-auto lg:mt-0 pt-10">
-                        <div className="relative overflow-hidden rounded-3xl border border-slate-100 bg-[linear-gradient(135deg,#013ff4_0%,#03b3f8_100%)] p-5 text-white shadow-[0_18px_45px_-15px_rgba(1,63,244,0.5)]">
-                        <div className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full bg-white/15 blur-2xl" />
+                        <div className="relative overflow-hidden rounded-3xl border border-border bg-[linear-gradient(135deg,#013ff4_0%,#03b3f8_100%)] p-5 text-white shadow-[0_18px_45px_-15px_rgba(1,63,244,0.5)]">
+                        <div className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full bg-card/15 blur-2xl" />
                         <div className="relative flex items-center gap-3">
-                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/15">
+                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-card/15">
                                 {assistantLoading ? (
                                     <Loader2 className="h-5 w-5 animate-spin" />
                                 ) : (
@@ -289,7 +289,7 @@ export default function RecherchePage() {
                                         onClick={() =>
                                             router.push(`/annuaire?search=${encodeURIComponent(s)}`)
                                         }
-                                        className="rounded-full bg-white/15 px-3.5 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-white/25"
+                                        className="rounded-full bg-card/15 px-3.5 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-card/25"
                                     >
                                         {s}
                                     </button>

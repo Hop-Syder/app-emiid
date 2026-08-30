@@ -173,7 +173,7 @@ export function LocationMapPicker({ latitude, longitude, onChange }: LocationMap
     <div className="relative">
       <div
         ref={containerRef}
-        className="h-56 w-full rounded-xl overflow-hidden border border-slate-200 bg-slate-100 z-0"
+        className="h-56 w-full rounded-xl overflow-hidden border border-border bg-muted z-0"
       />
 
       {/* Bouton flottant « me localiser » */}
@@ -184,7 +184,7 @@ export function LocationMapPicker({ latitude, longitude, onChange }: LocationMap
           disabled={locating}
           title="Me localiser"
           aria-label="Me localiser"
-          className="absolute top-3 right-3 z-[400] w-10 h-10 rounded-lg bg-white shadow-md border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-50 active:scale-95 transition-all disabled:opacity-60"
+          className="absolute top-3 right-3 z-[400] w-10 h-10 rounded-lg bg-card shadow-md border border-border flex items-center justify-center text-foreground hover:bg-muted active:scale-95 transition-all disabled:opacity-60"
         >
           {locating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Crosshair className="w-4 h-4" />}
         </button>
@@ -197,7 +197,7 @@ export function LocationMapPicker({ latitude, longitude, onChange }: LocationMap
         </div>
       )}
       {status === "error" && (
-        <div className="absolute inset-0 flex items-center justify-center text-xs text-slate-500 px-4 text-center">
+        <div className="absolute inset-0 flex items-center justify-center text-xs text-muted-foreground px-4 text-center">
           Carte indisponible. Utilisez la détection automatique ou la saisie manuelle ci-dessous.
         </div>
       )}

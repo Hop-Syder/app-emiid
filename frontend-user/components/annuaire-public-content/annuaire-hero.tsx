@@ -74,7 +74,7 @@ export function AnnuaireHero({
 
                     {/* Barre de recherche moderne & simple */}
                     <div className="w-full max-w-lg relative pt-2">
-                        <div className="relative flex items-center bg-white/[0.06] hover:bg-white/[0.09] focus-within:bg-white/[0.1] border border-white/15 focus-within:border-[#03b3f8]/70 rounded-2xl transition-all duration-200 h-12 sm:h-13 px-4 shadow-sm backdrop-blur-md">
+                        <div className="relative flex items-center bg-card/[0.06] hover:bg-card/[0.09] focus-within:bg-card/[0.1] border border-white/15 focus-within:border-[#03b3f8]/70 rounded-2xl transition-all duration-200 h-12 sm:h-13 px-4 shadow-sm backdrop-blur-md">
                             <Search className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400 mr-2.5 shrink-0" />
                             <input
                                 type="text"
@@ -89,7 +89,7 @@ export function AnnuaireHero({
                                     type="button"
                                     onClick={clear}
                                     aria-label="Effacer la recherche"
-                                    className="ml-2 shrink-0 flex items-center justify-center h-6 w-6 rounded-full text-slate-400 hover:text-white hover:bg-white/20 transition-colors"
+                                    className="ml-2 shrink-0 flex items-center justify-center h-6 w-6 rounded-full text-slate-400 hover:text-white hover:bg-card/20 transition-colors"
                                 >
                                     <X className="w-3.5 h-3.5" />
                                 </button>

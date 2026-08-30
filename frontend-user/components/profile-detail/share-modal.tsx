@@ -228,22 +228,22 @@ export function ShareModal({ isOpen, onOpenChange, profile, profileUrl }: ShareM
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-[92vw] sm:max-w-xl md:max-w-2xl rounded-3xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/95 backdrop-blur-2xl shadow-2xl p-0 overflow-hidden">
-                <DialogHeader className="p-6 pb-4 border-b border-slate-100 dark:border-white/5 text-left">
-                    <DialogTitle className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white">Partager le profil</DialogTitle>
-                    <DialogDescription className="text-xs text-slate-500 dark:text-slate-400 font-bold mt-1">
+            <DialogContent className="max-w-[92vw] sm:max-w-xl md:max-w-2xl rounded-3xl border border-border dark:border-white/10 bg-card dark:bg-slate-900/95 backdrop-blur-2xl shadow-2xl p-0 overflow-hidden">
+                <DialogHeader className="p-6 pb-4 border-b border-border dark:border-white/5 text-left">
+                    <DialogTitle className="text-xl sm:text-2xl font-black tracking-tight text-foreground dark:text-white">Partager le profil</DialogTitle>
+                    <DialogDescription className="text-xs text-muted-foreground dark:text-slate-400 font-bold mt-1">
                         Faites découvrir le profil de <span className="font-extrabold text-[#013ff4] dark:text-blue-400">{profile.name}</span> à votre réseau.
                     </DialogDescription>
                 </DialogHeader>
 
                 <div className="flex flex-col md:flex-row gap-0">
                     {/* Colonne Gauche : QR Code */}
-                    <div className="flex-1 p-6 flex flex-col items-center justify-center bg-slate-50/50 dark:bg-slate-950/20 border-b md:border-b-0 md:border-r border-slate-100 dark:border-white/5 text-center min-w-0">
-                        <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-1.5 justify-center">
+                    <div className="flex-1 p-6 flex flex-col items-center justify-center bg-muted/50 dark:bg-slate-950/20 border-b md:border-b-0 md:border-r border-border dark:border-white/5 text-center min-w-0">
+                        <span className="text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest mb-4 flex items-center gap-1.5 justify-center">
                             <QrCode className="h-3.5 w-3.5" /> Scan en direct
                         </span>
                         
-                        <div className="relative w-44 h-44 sm:w-48 sm:h-48 bg-white p-3 rounded-3xl border border-slate-200/60 dark:border-white/10 shadow-lg flex items-center justify-center overflow-hidden group">
+                        <div className="relative w-44 h-44 sm:w-48 sm:h-48 bg-card p-3 rounded-3xl border border-border/60 dark:border-white/10 shadow-lg flex items-center justify-center overflow-hidden group">
                             <Image
                                 src={qrCodeUrl}
                                 alt={`QR Code de ${profile.name}`}
@@ -254,14 +254,14 @@ export function ShareModal({ isOpen, onOpenChange, profile, profileUrl }: ShareM
                             />
                         </div>
 
-                        <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold mt-3 max-w-[200px]">
+                        <p className="text-[10px] text-slate-400 dark:text-muted-foreground font-semibold mt-3 max-w-[200px]">
                             Présentez cet écran pour qu&apos;on scanne votre profil directement.
                         </p>
 
                         <Button
                             size="sm"
                             variant="outline"
-                            className="mt-4 h-9 rounded-xl border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 font-bold text-[11px] px-4 gap-1.5 shadow-sm hover:bg-slate-100 dark:hover:bg-white/5 active:scale-95 transition-all"
+                            className="mt-4 h-9 rounded-xl border-border dark:border-white/10 text-foreground dark:text-slate-300 font-bold text-[11px] px-4 gap-1.5 shadow-sm hover:bg-muted dark:hover:bg-card/5 active:scale-95 transition-all"
                             onClick={downloadQRCode}
                             disabled={qrLoading}
                         >
@@ -274,18 +274,18 @@ export function ShareModal({ isOpen, onOpenChange, profile, profileUrl }: ShareM
                     <div className="flex-[1.2] p-6 space-y-6 min-w-0">
                         {/* Custom link */}
                         <div className="space-y-2.5">
-                            <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Lien personnalisé</span>
-                            <div className="flex items-center gap-2 p-1.5 bg-slate-50 dark:bg-slate-950/40 border border-slate-200/60 dark:border-white/10 rounded-2xl focus-within:border-[#013ff4]/30 dark:focus-within:border-blue-500/30 focus-within:ring-2 focus-within:ring-[#013ff4]/5 dark:focus-within:ring-blue-500/5 transition-all">
-                                <span className="pl-3 text-[11px] text-slate-400 dark:text-slate-500 font-bold select-none truncate max-w-[120px] sm:max-w-none">emiid.com/profil/</span>
+                            <span className="text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest ml-1">Lien personnalisé</span>
+                            <div className="flex items-center gap-2 p-1.5 bg-muted dark:bg-slate-950/40 border border-border/60 dark:border-white/10 rounded-2xl focus-within:border-[#013ff4]/30 dark:focus-within:border-blue-500/30 focus-within:ring-2 focus-within:ring-[#013ff4]/5 dark:focus-within:ring-blue-500/5 transition-all">
+                                <span className="pl-3 text-[11px] text-slate-400 dark:text-muted-foreground font-bold select-none truncate max-w-[120px] sm:max-w-none">emiid.com/profil/</span>
                                 <Input
                                     readOnly
                                     value={profile.slug || profile.id || ""}
-                                    className="h-9 border-none bg-transparent shadow-none focus-visible:ring-0 px-1 font-bold text-slate-700 dark:text-slate-200 text-xs lowercase select-all flex-1 min-w-0"
+                                    className="h-9 border-none bg-transparent shadow-none focus-visible:ring-0 px-1 font-bold text-foreground dark:text-slate-200 text-xs lowercase select-all flex-1 min-w-0"
                                 />
                                 <Button
                                     size="icon"
                                     variant="ghost"
-                                    className="h-9 w-9 rounded-xl shrink-0 hover:bg-slate-200/50 dark:hover:bg-white/5 text-slate-500 dark:text-slate-400 transition-all active:scale-95"
+                                    className="h-9 w-9 rounded-xl shrink-0 hover:bg-muted/50 dark:hover:bg-card/5 text-muted-foreground dark:text-slate-400 transition-all active:scale-95"
                                     onClick={() => copyToClipboard(profileUrl)}
                                 >
                                     {copiedLink === profileUrl ? <Check className="h-4 w-4 text-green-600 animate-in zoom-in duration-200" /> : <Copy className="h-4 w-4" />}
@@ -294,8 +294,8 @@ export function ShareModal({ isOpen, onOpenChange, profile, profileUrl }: ShareM
                         </div>
 
                         {/* Partage rapide (Grille Responsive) */}
-                        <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-white/5">
-                            <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Partager vers</span>
+                        <div className="space-y-3 pt-2 border-t border-border dark:border-white/5">
+                            <span className="text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest ml-1">Partager vers</span>
                             <div className="grid grid-cols-4 gap-2 sm:gap-3 py-1">
                                 <button
                                     className="flex flex-col items-center gap-1.5 group outline-none cursor-pointer"
@@ -304,7 +304,7 @@ export function ShareModal({ isOpen, onOpenChange, profile, profileUrl }: ShareM
                                     <div className="h-11 w-11 sm:h-12 sm:w-12 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-100/60 dark:border-emerald-500/10 flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:bg-emerald-500 group-hover:text-white group-active:scale-95">
                                         <WhatsAppIcon className="h-5 w-5 transition-transform group-hover:rotate-6" />
                                     </div>
-                                    <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors truncate w-full text-center">WhatsApp</span>
+                                    <span className="text-[10px] font-bold text-muted-foreground dark:text-slate-400 group-hover:text-foreground dark:group-hover:text-white transition-colors truncate w-full text-center">WhatsApp</span>
                                 </button>
 
                                 <button
@@ -314,17 +314,17 @@ export function ShareModal({ isOpen, onOpenChange, profile, profileUrl }: ShareM
                                     <div className="h-11 w-11 sm:h-12 sm:w-12 rounded-2xl bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-100/60 dark:border-blue-500/10 flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:bg-[#0a66c2] group-hover:text-white group-active:scale-95">
                                         <LinkedInIcon className="h-5 w-5 transition-transform group-hover:-rotate-6" />
                                     </div>
-                                    <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors truncate w-full text-center">LinkedIn</span>
+                                    <span className="text-[10px] font-bold text-muted-foreground dark:text-slate-400 group-hover:text-foreground dark:group-hover:text-white transition-colors truncate w-full text-center">LinkedIn</span>
                                 </button>
 
                                 <button
                                     className="flex flex-col items-center gap-1.5 group outline-none cursor-pointer"
                                     onClick={() => shareToTwitter(profileUrl)}
                                 >
-                                    <div className="h-11 w-11 sm:h-12 sm:w-12 rounded-2xl bg-slate-50 dark:bg-white/5 text-slate-900 dark:text-slate-300 border border-slate-200/60 dark:border-white/10 flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:bg-black dark:group-hover:bg-white dark:group-hover:text-black group-hover:text-white group-active:scale-95">
+                                    <div className="h-11 w-11 sm:h-12 sm:w-12 rounded-2xl bg-muted dark:bg-card/5 text-foreground dark:text-slate-300 border border-border/60 dark:border-white/10 flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:bg-black dark:group-hover:bg-card dark:group-hover:text-foreground group-hover:text-white group-active:scale-95">
                                         <XIcon className="h-4.5 w-4.5 transition-transform" />
                                     </div>
-                                    <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors truncate w-full text-center">X</span>
+                                    <span className="text-[10px] font-bold text-muted-foreground dark:text-slate-400 group-hover:text-foreground dark:group-hover:text-white transition-colors truncate w-full text-center">X</span>
                                 </button>
 
                                 <button
@@ -338,7 +338,7 @@ export function ShareModal({ isOpen, onOpenChange, profile, profileUrl }: ShareM
                                     <div className="h-11 w-11 sm:h-12 sm:w-12 rounded-2xl bg-[#eaf0ff]/50 dark:bg-[#0150fd]/10 text-[#013ff4] dark:text-[#4d72ff] border border-[#d5e0ff]/60 dark:border-[#0150fd]/10 flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:bg-[#013ff4] group-hover:text-white group-active:scale-95">
                                         <EmailIcon className="h-4.5 w-4.5 transition-transform group-hover:-translate-y-0.5" />
                                     </div>
-                                    <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors truncate w-full text-center">Email</span>
+                                    <span className="text-[10px] font-bold text-muted-foreground dark:text-slate-400 group-hover:text-foreground dark:group-hover:text-white transition-colors truncate w-full text-center">Email</span>
                                 </button>
                             </div>
                         </div>
@@ -347,10 +347,10 @@ export function ShareModal({ isOpen, onOpenChange, profile, profileUrl }: ShareM
                         {typeof navigator !== "undefined" && "share" in navigator && (
                             <Button
                                 variant="outline"
-                                className="w-full h-11 rounded-2xl border-slate-200 dark:border-white/10 text-slate-900 dark:text-slate-200 bg-white dark:bg-slate-950/20 hover:bg-slate-50 dark:hover:bg-white/5 flex gap-2 text-xs font-black transition-all active:scale-95 shadow-sm mt-2"
+                                className="w-full h-11 rounded-2xl border-border dark:border-white/10 text-foreground dark:text-slate-200 bg-card dark:bg-slate-950/20 hover:bg-muted dark:hover:bg-card/5 flex gap-2 text-xs font-black transition-all active:scale-95 shadow-sm mt-2"
                                 onClick={handleShare}
                             >
-                                <Share2 className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                                <Share2 className="h-4 w-4 text-muted-foreground dark:text-slate-400" />
                                 Options système de l&apos;appareil
                             </Button>
                         )}
@@ -358,15 +358,15 @@ export function ShareModal({ isOpen, onOpenChange, profile, profileUrl }: ShareM
                 </div>
 
                 {/* Section du bas : vCard interactive (imite le design de la carte EmiID) */}
-                <div className="p-6 bg-slate-50 dark:bg-slate-950/40 border-t border-slate-100 dark:border-white/5 space-y-4">
-                    <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Carte de contact (vCard)</span>
+                <div className="p-6 bg-muted dark:bg-slate-950/40 border-t border-border dark:border-white/5 space-y-4">
+                    <span className="text-[10px] font-black text-slate-400 dark:text-muted-foreground uppercase tracking-widest ml-1">Carte de contact (vCard)</span>
                     
                     <div className="relative p-5 bg-gradient-to-br from-[#013ff4] to-[#013ff4]/80 text-white rounded-3xl overflow-hidden shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full blur-2xl" />
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-card/5 rounded-full blur-2xl" />
                         <div className="absolute bottom-0 left-0 w-20 h-20 bg-blue-400/10 rounded-full blur-xl" />
                         
                         <div className="flex items-center gap-3.5 min-w-0 flex-1 relative z-10">
-                            <div className="h-12 w-12 rounded-2xl bg-white/10 border border-white/20 text-white flex items-center justify-center font-black text-sm shadow-md shrink-0">
+                            <div className="h-12 w-12 rounded-2xl bg-card/10 border border-white/20 text-white flex items-center justify-center font-black text-sm shadow-md shrink-0">
                                 {profile.avatar_url ? (
                                     <Image
                                         src={profile.avatar_url}
@@ -389,7 +389,7 @@ export function ShareModal({ isOpen, onOpenChange, profile, profileUrl }: ShareM
                             <Button
                                 size="sm"
                                 variant="secondary"
-                                className="flex-1 sm:flex-initial h-10 rounded-xl bg-white/15 hover:bg-white/25 border-none text-white font-bold text-[11px] px-4 gap-1.5 active:scale-95 transition-all"
+                                className="flex-1 sm:flex-initial h-10 rounded-xl bg-card/15 hover:bg-card/25 border-none text-white font-bold text-[11px] px-4 gap-1.5 active:scale-95 transition-all"
                                 onClick={copyVCardToClipboard}
                             >
                                 {copiedVCard ? <Check className="h-3.5 w-3.5 text-green-300 animate-in zoom-in duration-200" /> : <Copy className="h-3.5 w-3.5 text-blue-100" />}
@@ -398,7 +398,7 @@ export function ShareModal({ isOpen, onOpenChange, profile, profileUrl }: ShareM
                             <Button
                                 size="sm"
                                 variant="secondary"
-                                className="flex-1 sm:flex-initial h-10 rounded-xl bg-white text-[#013ff4] font-bold text-[11px] px-4 gap-1.5 hover:bg-white/90 active:scale-95 transition-all shadow-md"
+                                className="flex-1 sm:flex-initial h-10 rounded-xl bg-card text-[#013ff4] font-bold text-[11px] px-4 gap-1.5 hover:bg-card/90 active:scale-95 transition-all shadow-md"
                                 onClick={downloadVCard}
                             >
                                 <Download className="h-3.5 w-3.5 text-[#013ff4]" />

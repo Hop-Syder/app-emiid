@@ -21,7 +21,7 @@ export function RecentActivityCta() {
       {/* Glow effect derrière la carte */}
       <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500/20 via-blue-500/20 to-cyan-500/20 rounded-3xl blur opacity-0 group-hover:opacity-100 transition duration-500" />
       
-      <div className="bg-white rounded-3xl border border-slate-200/60 p-6 sm:p-8 shadow-sm overflow-hidden relative w-full h-full z-10">
+      <div className="bg-card rounded-3xl border border-border/60 p-6 sm:p-8 shadow-sm overflow-hidden relative w-full h-full z-10">
         
         {/* Background Decorative Pattern */}
         <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-gradient-to-br from-emerald-50 to-emerald-100/50 rounded-full blur-3xl opacity-60 pointer-events-none group-hover:scale-110 transition-transform duration-700" />
@@ -37,7 +37,7 @@ export function RecentActivityCta() {
             
             <div className="flex flex-col">
               <div className="flex items-center gap-3">
-                <h3 className="text-xl sm:text-2xl font-bold text-slate-800 tracking-tight mb-1 group-hover:text-emerald-600 transition-colors">
+                <h3 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight mb-1 group-hover:text-emerald-600 transition-colors">
                   Activité Récente
                 </h3>
                 {hasNew && (
@@ -46,7 +46,7 @@ export function RecentActivityCta() {
                   </span>
                 )}
               </div>
-              <p className="text-sm font-medium text-slate-500">
+              <p className="text-sm font-medium text-muted-foreground">
                 {hasNew
                   ? "Vous avez de nouvelles interactions sur votre profil."
                   : "Retrouvez ici l'historique de vos interactions."}

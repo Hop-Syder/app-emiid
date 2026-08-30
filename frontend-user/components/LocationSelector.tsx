@@ -108,7 +108,7 @@ export const LocationSelector = React.memo(function LocationSelector({
                             variant="outline"
                             role="combobox"
                             aria-expanded={countryOpen}
-                            className="h-10 w-full justify-between rounded-xl bg-white dark:bg-slate-900 border-muted px-3 font-normal"
+                            className="h-10 w-full justify-between rounded-xl bg-card dark:bg-slate-900 border-muted px-3 font-normal"
                         >
                             <span className="truncate text-left">
                                 {selectedCountry ? `${selectedCountry.flag} ${selectedCountry.name}` : "Sélectionner un pays..."}
@@ -178,7 +178,7 @@ export const LocationSelector = React.memo(function LocationSelector({
                             role="combobox"
                             aria-expanded={cityOpen}
                             disabled={!selectedCountry}
-                            className="h-10 w-full justify-between rounded-xl bg-white dark:bg-slate-900 border-muted px-3 font-normal disabled:opacity-50"
+                            className="h-10 w-full justify-between rounded-xl bg-card dark:bg-slate-900 border-muted px-3 font-normal disabled:opacity-50"
                         >
                             <span className="truncate text-left">
                                 {selectedCity || (selectedCountry ? "Sélectionner une ville..." : "Choisir un pays d'abord")}

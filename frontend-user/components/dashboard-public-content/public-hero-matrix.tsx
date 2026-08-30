@@ -93,7 +93,7 @@ export function PublicHeroMatrix({ stats }: PublicHeroMatrixProps) {
 
                     {/* Terminal d'acquisition directe (Instant Claim) */}
                     <form onSubmit={handleClaim} className="pt-1">
-                        <div className="flex flex-col sm:flex-row items-stretch gap-3 sm:gap-3.5 p-2 bg-white/[0.04] backdrop-blur-2xl rounded-xl border border-white/[0.12] shadow-[0_8px_30px_rgba(0,0,0,0.5)] focus-within:border-[#013ff4]/60 transition-all max-w-xl">
+                        <div className="flex flex-col sm:flex-row items-stretch gap-3 sm:gap-3.5 p-2 bg-card/[0.04] backdrop-blur-2xl rounded-xl border border-white/[0.12] shadow-[0_8px_30px_rgba(0,0,0,0.5)] focus-within:border-[#013ff4]/60 transition-all max-w-xl">
                             <Input
                                 type="text"
                                 placeholder="Entrez votre prénom ou métier..."

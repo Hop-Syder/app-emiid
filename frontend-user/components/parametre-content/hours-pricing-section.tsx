@@ -63,7 +63,7 @@ export function HoursPricingSection({ profile, setProfile, saving, handleSave, h
                             value={profile.address || ""}
                             onChange={(e) => setProfile({ ...profile, address: e.target.value })}
                             rows={2}
-                            className="w-full rounded-xl bg-slate-50 border border-slate-200 pl-10 pr-3 py-2.5 text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-y placeholder:text-slate-400"
+                            className="w-full rounded-xl bg-muted border border-border pl-10 pr-3 py-2.5 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-y placeholder:text-slate-400"
                             placeholder="Ex : Rue 123, Akpakpa, non loin de la pharmacie..."
                         />
                     </div>
@@ -77,7 +77,7 @@ export function HoursPricingSection({ profile, setProfile, saving, handleSave, h
                         const h = getDay(day)
                         return (
                             <div key={day} className="flex items-center gap-3 py-1.5">
-                                <span className="w-20 shrink-0 text-sm font-semibold text-slate-700">{label}</span>
+                                <span className="w-20 shrink-0 text-sm font-semibold text-foreground">{label}</span>
                                 {h.closed ? (
                                     <span className="flex-1 text-sm text-slate-400 font-medium">Fermé</span>
                                 ) : (
@@ -117,12 +117,12 @@ export function HoursPricingSection({ profile, setProfile, saving, handleSave, h
                         <p className="text-sm text-slate-400">Aucune prestation. Ajoute ton premier service.</p>
                     )}
                     {services.map((service, index) => (
-                        <div key={index} className="rounded-xl border border-slate-200 bg-slate-50/60 p-3.5 space-y-2.5">
+                        <div key={index} className="rounded-xl border border-border bg-muted/60 p-3.5 space-y-2.5">
                             <div className="flex items-center gap-2">
                                 <Input
                                     value={service.title}
                                     onChange={(e) => updateService(index, { title: e.target.value })}
-                                    className={`${INPUT} bg-white flex-1`}
+                                    className={`${INPUT} bg-card flex-1`}
                                     placeholder="Intitulé (ex : Costume sur mesure)"
                                 />
                                 <Input
@@ -130,7 +130,7 @@ export function HoursPricingSection({ profile, setProfile, saving, handleSave, h
                                     min={0}
                                     value={service.price ?? ""}
                                     onChange={(e) => updateService(index, { price: e.target.value === "" ? null : Number(e.target.value) })}
-                                    className={`${INPUT} bg-white w-32`}
+                                    className={`${INPUT} bg-card w-32`}
                                     placeholder="FCFA"
                                 />
                                 <Button
@@ -145,7 +145,7 @@ export function HoursPricingSection({ profile, setProfile, saving, handleSave, h
                             <Input
                                 value={service.description}
                                 onChange={(e) => updateService(index, { description: e.target.value })}
-                                className={`${INPUT} bg-white`}
+                                className={`${INPUT} bg-card`}
                                 placeholder="Description courte (facultatif)"
                             />
                         </div>
@@ -153,7 +153,7 @@ export function HoursPricingSection({ profile, setProfile, saving, handleSave, h
                     <Button
                         variant="outline"
                         onClick={addService}
-                        className="rounded-xl h-11 gap-2 border-dashed border-slate-300 text-slate-600 w-full"
+                        className="rounded-xl h-11 gap-2 border-dashed border-slate-300 text-muted-foreground w-full"
                     >
                         <Plus className="h-4 w-4" />
                         Ajouter une prestation

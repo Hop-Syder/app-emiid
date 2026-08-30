@@ -20,7 +20,7 @@ const getSkillBadgeStyles = (idx: number) => {
         "from-[#03b3f8]/5 to-[#03b3f8]/10 text-[#03b3f8] border-[#03b3f8]/20 hover:bg-[#03b3f8]/15",
         "from-emerald-500/10 to-teal-500/10 text-emerald-700 border-emerald-200/50 hover:bg-emerald-100/20",
         "from-amber-500/10 to-orange-500/10 text-amber-700 border-amber-200/50 hover:bg-amber-100/20",
-        "from-slate-500/10 to-slate-600/10 text-slate-700 border-slate-200 hover:bg-slate-100",
+        "from-slate-500/10 to-slate-600/10 text-foreground border-border hover:bg-muted",
     ]
     return presets[idx % presets.length]
 }
@@ -55,37 +55,37 @@ export function ProfileMainContent({ profile, gallery, loadingGallery }: Profile
     return (
         <div className="lg:col-span-8 min-w-0 space-y-6">
             {/* About card */}
-            <div className="bg-white border border-slate-100 rounded-3xl p-5 sm:p-8 shadow-[0_4px_24px_rgb(15,23,42,0.05)] relative overflow-hidden group">
+            <div className="bg-card border border-border rounded-3xl p-5 sm:p-8 shadow-[0_4px_24px_rgb(15,23,42,0.05)] relative overflow-hidden group">
                 {/* Decorative element */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-[#03b3f8]/5 to-transparent rounded-bl-full pointer-events-none" />
                 <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
                     <Award className="h-4 w-4 text-[#03b3f8] shrink-0" />
                     À propos de moi
                 </h2>
-                <p className="mt-5 text-slate-700 leading-relaxed text-sm sm:text-base whitespace-pre-line break-words font-medium">
+                <p className="mt-5 text-foreground leading-relaxed text-sm sm:text-base whitespace-pre-line break-words font-medium">
                     {profile.bio}
                 </p>
             </div>
 
             {/* Tabs content card */}
-            <div className="bg-white border border-slate-100 rounded-3xl p-5 sm:p-8 shadow-[0_4px_24px_rgb(15,23,42,0.05)] min-w-0 overflow-hidden">
+            <div className="bg-card border border-border rounded-3xl p-5 sm:p-8 shadow-[0_4px_24px_rgb(15,23,42,0.05)] min-w-0 overflow-hidden">
                 <Tabs defaultValue="skills" className="w-full min-w-0">
-                    <TabsList className="bg-slate-100 border border-slate-200 w-full justify-start h-auto p-1.5 mb-6 gap-2 rounded-2xl flex overflow-x-auto no-scrollbar snap-x whitespace-nowrap">
+                    <TabsList className="bg-muted border border-border w-full justify-start h-auto p-1.5 mb-6 gap-2 rounded-2xl flex overflow-x-auto no-scrollbar snap-x whitespace-nowrap">
                         <TabsTrigger
                             value="skills"
-                            className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-[#013ff4] data-[state=active]:shadow-md data-[state=active]:border-white/80 bg-transparent px-5 py-2.5 text-xs sm:text-sm font-black text-slate-500 transition-all duration-300 snap-start shrink-0"
+                            className="rounded-xl data-[state=active]:bg-card data-[state=active]:text-[#013ff4] data-[state=active]:shadow-md data-[state=active]:border-white/80 bg-transparent px-5 py-2.5 text-xs sm:text-sm font-black text-muted-foreground transition-all duration-300 snap-start shrink-0"
                         >
                             Compétences
                         </TabsTrigger>
                         <TabsTrigger
                             value="portfolio"
-                            className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-[#013ff4] data-[state=active]:shadow-md data-[state=active]:border-white/80 bg-transparent px-5 py-2.5 text-xs sm:text-sm font-black text-slate-500 transition-all duration-300 snap-start shrink-0"
+                            className="rounded-xl data-[state=active]:bg-card data-[state=active]:text-[#013ff4] data-[state=active]:shadow-md data-[state=active]:border-white/80 bg-transparent px-5 py-2.5 text-xs sm:text-sm font-black text-muted-foreground transition-all duration-300 snap-start shrink-0"
                         >
                             Portfolio & Réalisations
                         </TabsTrigger>
                         <TabsTrigger
                             value="experience"
-                            className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-[#013ff4] data-[state=active]:shadow-md data-[state=active]:border-white/80 bg-transparent px-5 py-2.5 text-xs sm:text-sm font-black text-slate-500 transition-all duration-300 snap-start shrink-0"
+                            className="rounded-xl data-[state=active]:bg-card data-[state=active]:text-[#013ff4] data-[state=active]:shadow-md data-[state=active]:border-white/80 bg-transparent px-5 py-2.5 text-xs sm:text-sm font-black text-muted-foreground transition-all duration-300 snap-start shrink-0"
                         >
                             Parcours & Expériences
                         </TabsTrigger>
@@ -107,8 +107,8 @@ export function ProfileMainContent({ profile, gallery, loadingGallery }: Profile
                                     </Badge>
                                 ))
                             ) : (
-                                <div className="p-8 border border-dashed border-slate-200 text-center w-full rounded-2xl bg-slate-50/50">
-                                    <p className="text-slate-500 font-bold text-xs">Aucune compétence spécifiée pour le moment.</p>
+                                <div className="p-8 border border-dashed border-border text-center w-full rounded-2xl bg-muted/50">
+                                    <p className="text-muted-foreground font-bold text-xs">Aucune compétence spécifiée pour le moment.</p>
                                 </div>
                             )}
                         </div>
@@ -121,15 +121,15 @@ export function ProfileMainContent({ profile, gallery, loadingGallery }: Profile
                     <TabsContent value="experience" className="animate-in fade-in duration-300 focus-visible:outline-none">
                         <div className="space-y-4">
                             {profile.experiences.length > 0 ? (
-                                <div className="relative border-l-2 border-slate-200 pl-6 ml-3 space-y-6 py-2">
+                                <div className="relative border-l-2 border-border pl-6 ml-3 space-y-6 py-2">
                                     {profile.experiences.map((exp: ExperienceItem, idx: number) => (
                                         <div key={idx} className="relative group">
-                                            <div className="absolute -left-[31px] top-1 h-3.5 w-3.5 rounded-full bg-white border-2 border-[#013ff4] flex items-center justify-center transition-all duration-300 group-hover:scale-110">
+                                            <div className="absolute -left-[31px] top-1 h-3.5 w-3.5 rounded-full bg-card border-2 border-[#013ff4] flex items-center justify-center transition-all duration-300 group-hover:scale-110">
                                                 <div className="h-1 w-1 rounded-full bg-[#013ff4]" />
                                             </div>
                                             <div className="transition-all duration-300 group-hover:translate-x-1">
-                                                <h4 className="text-sm font-extrabold text-slate-900">{exp.title}</h4>
-                                                <p className="text-xs font-bold text-slate-500 mt-1">
+                                                <h4 className="text-sm font-extrabold text-foreground">{exp.title}</h4>
+                                                <p className="text-xs font-bold text-muted-foreground mt-1">
                                                     {exp.company} • {exp.period}
                                                 </p>
                                             </div>
@@ -137,9 +137,9 @@ export function ProfileMainContent({ profile, gallery, loadingGallery }: Profile
                                     ))}
                                 </div>
                             ) : (
-                                <div className="rounded-2xl border border-slate-200 bg-slate-50/40 p-5">
-                                    <p className="text-sm font-bold text-slate-700">Parcours non renseigné.</p>
-                                    <p className="text-xs text-slate-500 mt-1">
+                                <div className="rounded-2xl border border-border bg-muted/40 p-5">
+                                    <p className="text-sm font-bold text-foreground">Parcours non renseigné.</p>
+                                    <p className="text-xs text-muted-foreground mt-1">
                                         Ce membre est actif sur EmiID et ouvert aux opportunités de collaboration.
                                     </p>
                                 </div>

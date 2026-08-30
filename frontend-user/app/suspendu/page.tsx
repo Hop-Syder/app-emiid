@@ -61,7 +61,7 @@ export default function SuspendedPage() {
       </div>
 
       <div className="relative z-10 w-full max-w-md">
-        <div className="bg-white/[0.04] backdrop-blur-2xl border border-white/10 rounded-[2rem] px-8 py-10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.7)] text-center">
+        <div className="bg-card/[0.04] backdrop-blur-2xl border border-white/10 rounded-[2rem] px-8 py-10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.7)] text-center">
           <Image
             src="/logo/logo-emiid.png"
             alt="EmiID"
@@ -81,15 +81,15 @@ export default function SuspendedPage() {
           </p>
 
           {!loading && (reason || untilLabel) && (
-            <div className="mt-6 rounded-2xl bg-white/[0.03] border border-white/10 px-5 py-4 text-left space-y-2">
+            <div className="mt-6 rounded-2xl bg-card/[0.03] border border-white/10 px-5 py-4 text-left space-y-2">
               {reason && (
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Motif</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Motif</p>
                   <p className="text-sm text-slate-200 mt-0.5">{reason}</p>
                 </div>
               )}
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Durée</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Durée</p>
                 <p className="text-sm text-slate-200 mt-0.5">
                   {untilLabel ? `Jusqu'au ${untilLabel}` : "Suspension permanente"}
                 </p>
@@ -99,14 +99,14 @@ export default function SuspendedPage() {
 
           {loading && (
             <div className="mt-6 flex justify-center">
-              <Loader2 className="h-5 w-5 animate-spin text-slate-500" />
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
             </div>
           )}
 
           <div className="mt-8 space-y-3">
             <a
               href="mailto:support@emiid.com?subject=Contestation%20suspension%20de%20compte"
-              className="flex items-center justify-center gap-2 w-full h-12 rounded-2xl bg-white/[0.06] border border-white/10 hover:bg-white/[0.1] text-white text-sm font-semibold transition-colors"
+              className="flex items-center justify-center gap-2 w-full h-12 rounded-2xl bg-card/[0.06] border border-white/10 hover:bg-card/[0.1] text-white text-sm font-semibold transition-colors"
             >
               <Mail className="h-4 w-4" />
               Contester auprès du support
@@ -114,7 +114,7 @@ export default function SuspendedPage() {
             <button
               onClick={handleSignOut}
               disabled={signingOut}
-              className="flex items-center justify-center gap-2 w-full h-12 rounded-2xl bg-transparent border border-white/10 hover:bg-white/[0.04] text-slate-400 hover:text-white text-sm font-semibold transition-colors disabled:opacity-50"
+              className="flex items-center justify-center gap-2 w-full h-12 rounded-2xl bg-transparent border border-white/10 hover:bg-card/[0.04] text-slate-400 hover:text-white text-sm font-semibold transition-colors disabled:opacity-50"
             >
               {signingOut ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogOut className="h-4 w-4" />}
               Se déconnecter
@@ -122,7 +122,7 @@ export default function SuspendedPage() {
           </div>
         </div>
 
-        <p className="text-center text-[11px] text-slate-600 mt-6">
+        <p className="text-center text-[11px] text-muted-foreground mt-6">
           EmiID · Votre empreinte numérique professionnelle
         </p>
       </div>

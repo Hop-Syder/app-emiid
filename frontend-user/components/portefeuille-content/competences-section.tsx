@@ -113,8 +113,8 @@ export function CompetencesSection({ profileId }: CompetencesSectionProps) {
 
   if (!profileId) {
     return (
-      <div className="bg-white border border-slate-200 rounded-2xl p-8 text-center">
-        <p className="text-sm text-slate-500">Créez d&apos;abord votre profil pour gérer vos compétences.</p>
+      <div className="bg-card border border-border rounded-2xl p-8 text-center">
+        <p className="text-sm text-muted-foreground">Créez d&apos;abord votre profil pour gérer vos compétences.</p>
       </div>
     )
   }
@@ -131,20 +131,20 @@ export function CompetencesSection({ profileId }: CompetencesSectionProps) {
             onChange={e => setSearchQuery(e.target.value)}
             onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
             placeholder="Rechercher une compétence à ajouter…"
-            className="w-full h-11 pl-10 pr-4 rounded-xl bg-white border border-slate-200 text-sm font-medium placeholder:text-slate-400 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition-all"
+            className="w-full h-11 pl-10 pr-4 rounded-xl bg-card border border-border text-sm font-medium placeholder:text-slate-400 focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition-all"
           />
         </div>
 
         {showSuggestions && suggestions.length > 0 && (
-          <div className="absolute top-full mt-1.5 left-0 right-0 bg-white border border-slate-200 rounded-xl shadow-lg z-20 overflow-hidden">
+          <div className="absolute top-full mt-1.5 left-0 right-0 bg-card border border-border rounded-xl shadow-lg z-20 overflow-hidden">
             {suggestions.map(tag => (
               <button
                 key={tag.id}
                 onClick={() => void addTag(tag)}
-                className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 text-left transition-colors text-sm"
+                className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-muted text-left transition-colors text-sm"
               >
                 <Plus className="h-3.5 w-3.5 text-primary shrink-0" />
-                <span className="font-medium text-slate-900">{tag.name}</span>
+                <span className="font-medium text-foreground">{tag.name}</span>
               </button>
             ))}
           </div>
@@ -152,7 +152,7 @@ export function CompetencesSection({ profileId }: CompetencesSectionProps) {
       </div>
 
       {/* Current tags card */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6">
+      <div className="bg-card border border-border rounded-2xl p-5 sm:p-6">
         <h2 className="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-5">
           Vos compétences ({currentTags.length})
         </h2>
@@ -160,16 +160,16 @@ export function CompetencesSection({ profileId }: CompetencesSectionProps) {
         {loading ? (
           <div className="flex flex-wrap gap-2">
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="h-8 rounded-full bg-slate-100 animate-pulse" style={{ width: `${60 + i * 14}px` }} />
+              <div key={i} className="h-8 rounded-full bg-muted animate-pulse" style={{ width: `${60 + i * 14}px` }} />
             ))}
           </div>
         ) : currentTags.length === 0 ? (
           <div className="flex flex-col items-center gap-3 py-8 text-center">
-            <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
               <Tag className="h-5 w-5 text-slate-400" />
             </div>
-            <p className="text-sm font-semibold text-slate-900">Aucune compétence ajoutée</p>
-            <p className="text-xs text-slate-500 max-w-xs">
+            <p className="text-sm font-semibold text-foreground">Aucune compétence ajoutée</p>
+            <p className="text-xs text-muted-foreground max-w-xs">
               Ajoutez vos compétences pour apparaître dans les recherches de l&apos;annuaire.
             </p>
           </div>

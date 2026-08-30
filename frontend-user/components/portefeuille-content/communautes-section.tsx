@@ -49,18 +49,18 @@ export function CommunautesSection() {
   if (loading) {
     return (
       <div className="grid sm:grid-cols-2 gap-3">
-        {[0, 1].map((i) => <div key={i} className="h-20 rounded-2xl bg-white border border-slate-100 animate-pulse" />)}
+        {[0, 1].map((i) => <div key={i} className="h-20 rounded-2xl bg-card border border-border animate-pulse" />)}
       </div>
     )
   }
 
   if (communities.length === 0) {
     return (
-      <div className="p-8 border border-dashed border-slate-200 rounded-2xl bg-white text-center">
+      <div className="p-8 border border-dashed border-border rounded-2xl bg-card text-center">
         <div className="w-12 h-12 rounded-2xl bg-[#013ff4]/10 flex items-center justify-center mx-auto mb-3">
           <Network className="h-6 w-6 text-[#013ff4]" />
         </div>
-        <p className="text-sm font-bold text-slate-700">Aucune communauté pour le moment</p>
+        <p className="text-sm font-bold text-foreground">Aucune communauté pour le moment</p>
         <p className="text-xs text-slate-400 mt-1">Rejoignez ou créez une communauté depuis la messagerie pour afficher un badge sur votre carte.</p>
       </div>
     )
@@ -72,9 +72,9 @@ export function CommunautesSection() {
         <button
           key={c.id}
           onClick={() => router.push(`/messages?conv=${c.id}`)}
-          className="group flex items-center gap-3 rounded-2xl bg-white border border-slate-100 p-4 text-left hover:shadow-md hover:border-slate-200 transition-all"
+          className="group flex items-center gap-3 rounded-2xl bg-card border border-border p-4 text-left hover:shadow-md hover:border-border transition-all"
         >
-          <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-slate-100 shrink-0">
+          <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-muted shrink-0">
             {c.avatar_url ? (
               <Image src={c.avatar_url} alt={c.name || "Communauté"} fill sizes="48px" className="object-cover" />
             ) : (
@@ -85,7 +85,7 @@ export function CommunautesSection() {
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5">
-              <p className="text-sm font-bold text-slate-900 truncate">{c.name || "Communauté"}</p>
+              <p className="text-sm font-bold text-foreground truncate">{c.name || "Communauté"}</p>
               {c.is_verified && <BadgeCheck className="h-4 w-4 text-[#013ff4] shrink-0" />}
             </div>
             <p className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">

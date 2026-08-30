@@ -65,13 +65,13 @@ export function NewGroupModal({ open, onOpenChange, onCreated }: NewGroupModalPr
     <Dialog open={open} onOpenChange={(o) => { if (!o) reset(); onOpenChange(o) }}>
       <DialogContent className="max-w-md rounded-3xl">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-lg font-black text-slate-900">
+          <DialogTitle className="flex items-center gap-2 text-lg font-black text-foreground">
             <span className="w-9 h-9 rounded-xl bg-[#013ff4]/10 flex items-center justify-center">
               <Users className="h-5 w-5 text-[#013ff4]" />
             </span>
             Nouveau groupe
           </DialogTitle>
-          <DialogDescription className="text-slate-500">
+          <DialogDescription className="text-muted-foreground">
             Créez un salon de discussion. Une communauté peut afficher un badge sur le profil de ses membres.
           </DialogDescription>
         </DialogHeader>
@@ -79,13 +79,13 @@ export function NewGroupModal({ open, onOpenChange, onCreated }: NewGroupModalPr
         <div className="space-y-5 mt-2">
           {/* Nom */}
           <div>
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Nom du groupe</label>
+            <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Nom du groupe</label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
               maxLength={80}
               placeholder="Ex. Développeurs Bénin"
-              className="mt-2 w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#013ff4]/30"
+              className="mt-2 w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#013ff4]/30"
             />
           </div>
 
@@ -95,21 +95,21 @@ export function NewGroupModal({ open, onOpenChange, onCreated }: NewGroupModalPr
             onClick={() => setIsCommunity((v) => !v)}
             className={cn(
               "w-full flex items-center gap-3 rounded-xl border p-3 text-left transition-all",
-              isCommunity ? "border-[#013ff4] bg-[#013ff4]/5 ring-1 ring-[#013ff4]/20" : "border-slate-200 hover:bg-slate-50",
+              isCommunity ? "border-[#013ff4] bg-[#013ff4]/5 ring-1 ring-[#013ff4]/20" : "border-border hover:bg-muted",
             )}
           >
             <span className={cn("w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0", isCommunity ? "bg-[#013ff4] border-[#013ff4]" : "border-slate-300")}>
-              {isCommunity && <span className="w-2 h-2 bg-white rounded-sm" />}
+              {isCommunity && <span className="w-2 h-2 bg-card rounded-sm" />}
             </span>
             <div>
-              <p className="text-sm font-bold text-slate-800">Communauté (badge de membre)</p>
+              <p className="text-sm font-bold text-foreground">Communauté (badge de membre)</p>
               <p className="text-[11px] text-slate-400">Affiche un badge sur la carte des membres. Vérification EmiID requise pour un badge officiel.</p>
             </div>
           </button>
 
           {/* Politique d'adhésion */}
           <div>
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Adhésion</label>
+            <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Adhésion</label>
             <div className="mt-2 grid gap-2">
               {POLICIES.map((p) => {
                 const active = joinPolicy === p.id
@@ -120,12 +120,12 @@ export function NewGroupModal({ open, onOpenChange, onCreated }: NewGroupModalPr
                     onClick={() => setJoinPolicy(p.id)}
                     className={cn(
                       "flex items-center gap-3 rounded-xl border p-2.5 text-left transition-all",
-                      active ? "border-[#013ff4] bg-[#013ff4]/5" : "border-slate-200 hover:bg-slate-50",
+                      active ? "border-[#013ff4] bg-[#013ff4]/5" : "border-border hover:bg-muted",
                     )}
                   >
                     <p.icon className={cn("h-4 w-4 shrink-0", active ? "text-[#013ff4]" : "text-slate-400")} />
                     <div>
-                      <p className={cn("text-sm font-semibold", active ? "text-[#013ff4]" : "text-slate-700")}>{p.label}</p>
+                      <p className={cn("text-sm font-semibold", active ? "text-[#013ff4]" : "text-foreground")}>{p.label}</p>
                       <p className="text-[11px] text-slate-400">{p.desc}</p>
                     </div>
                   </button>

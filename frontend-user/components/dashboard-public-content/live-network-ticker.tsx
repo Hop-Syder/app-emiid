@@ -31,7 +31,7 @@ export function LiveNetworkTicker() {
 
       <div className="flex items-center max-w-7xl mx-auto px-4">
         {/* Badge indicateur sobre */}
-        <div className="hidden sm:flex items-center gap-2 shrink-0 bg-white/[0.04] border border-white/[0.08] rounded-md px-2.5 py-1 mr-4 z-20">
+        <div className="hidden sm:flex items-center gap-2 shrink-0 bg-card/[0.04] border border-white/[0.08] rounded-md px-2.5 py-1 mr-4 z-20">
           <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
           <span className="text-[11px] font-medium tracking-wider uppercase text-[#A8B0C7]">EmiID Live</span>
         </div>
@@ -53,7 +53,7 @@ export function LiveNetworkTicker() {
                 <div key={idx} className="flex items-center gap-2.5 text-xs sm:text-[13px] font-normal text-[#C8D1E6]">
                   <Icon className={`h-3.5 w-3.5 shrink-0 ${item.accent}`} />
                   <span>{item.text}</span>
-                  <span className="w-1 h-1 rounded-full bg-white/20 ml-6 shrink-0" />
+                  <span className="w-1 h-1 rounded-full bg-card/20 ml-6 shrink-0" />
                 </div>
               )
             })}

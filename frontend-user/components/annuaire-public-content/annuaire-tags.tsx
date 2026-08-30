@@ -46,7 +46,7 @@ export function AnnuaireTags({ filters, onFilterChange }: AnnuaireTagsProps) {
         <div className="w-full">
             <div className="flex items-center mb-4 px-1 gap-2">
                 <Hash className="w-5 h-5 text-[#0150fd]" />
-                <h3 className="text-lg font-bold text-slate-800 tracking-tight">Tags Populaires</h3>
+                <h3 className="text-lg font-bold text-foreground tracking-tight">Tags Populaires</h3>
             </div>
             
             <div className="flex flex-wrap gap-2">
@@ -61,14 +61,14 @@ export function AnnuaireTags({ filters, onFilterChange }: AnnuaireTagsProps) {
                                 "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 border",
                                 isActive 
                                     ? "bg-[#013ff4] text-white border-[#013ff4] shadow-md shadow-[#0150fd]/20" 
-                                    : "bg-white text-slate-600 border-slate-200 hover:border-[#7f9dff] hover:bg-[#eaf0ff] hover:text-[#0132cc]"
+                                    : "bg-card text-muted-foreground border-border hover:border-[#7f9dff] hover:bg-[#eaf0ff] hover:text-[#0132cc]"
                             )}
                         >
                             <span className="opacity-60">#</span>
                             {tag.name}
                             <span className={cn(
                                 "text-xs px-1.5 py-0.5 rounded-full ml-1",
-                                isActive ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"
+                                isActive ? "bg-card/20 text-white" : "bg-muted text-muted-foreground"
                             )}>
                                 {tag.count}
                             </span>

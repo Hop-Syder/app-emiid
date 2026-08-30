@@ -97,7 +97,7 @@ export const EmojiPickerPopover: React.FC<EmojiPickerPopoverProps> = ({
             set="native"
           />
         ) : (
-          <div className="w-[352px] h-[400px] flex items-center justify-center bg-white rounded-xl">
+          <div className="w-[352px] h-[400px] flex items-center justify-center bg-card rounded-xl">
             <span className="text-slate-400 text-sm animate-pulse">Chargement...</span>
           </div>
         )}

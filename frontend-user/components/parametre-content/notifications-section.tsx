@@ -73,15 +73,15 @@ export function NotificationsSection({ settings, setSettings, saving, handleSave
   return (
     <div className="space-y-4">
 
-      <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6">
+      <div className="bg-card border border-border rounded-2xl p-5 sm:p-6">
         <h2 className="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-5">Préférences de notifications</h2>
 
-        <div className="divide-y divide-slate-100">
+        <div className="divide-y divide-border">
           {ROWS.map(({ key, label, desc }) => (
             <div key={key} className="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0">
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-slate-900">{label}</p>
-                <p className="text-xs text-slate-500 mt-0.5">{desc}</p>
+                <p className="text-sm font-semibold text-foreground">{label}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{desc}</p>
               </div>
               <Switch
                 className="shrink-0"
@@ -94,7 +94,7 @@ export function NotificationsSection({ settings, setSettings, saving, handleSave
       </div>
 
       <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-1">
-        <Button variant="outline" onClick={handleCancel} className="w-full sm:w-auto h-11 rounded-xl border-slate-200 font-bold">
+        <Button variant="outline" onClick={handleCancel} className="w-full sm:w-auto h-11 rounded-xl border-border font-bold">
           Annuler
         </Button>
         <Button onClick={handleSave} disabled={saving} className="w-full sm:w-auto h-11 rounded-xl font-bold shadow-sm">

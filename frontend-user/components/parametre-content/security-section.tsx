@@ -95,19 +95,19 @@ export function SecuritySection({
     <div className="space-y-4">
 
       {/* ── Authentification & accès ──────────────────────────────────── */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6">
+      <div className="bg-card border border-border rounded-2xl p-5 sm:p-6">
         <h2 className="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-5">
           Authentification et accès
         </h2>
-        <div className="divide-y divide-slate-100">
+        <div className="divide-y divide-border">
           <div className="flex items-start justify-between gap-4 py-4 first:pt-0">
             <div className="flex items-start gap-3 min-w-0 flex-1">
-              <div className="shrink-0 mt-0.5 w-8 h-8 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center">
-                <KeyRound className="h-4 w-4 text-slate-500" />
+              <div className="shrink-0 mt-0.5 w-8 h-8 rounded-xl bg-muted border border-border flex items-center justify-center">
+                <KeyRound className="h-4 w-4 text-muted-foreground" />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-slate-900">Verrouillage par Code PIN</p>
-                <p className="text-xs text-slate-500 mt-0.5">Sécurisez l&apos;accès au tableau de bord</p>
+                <p className="text-sm font-semibold text-foreground">Verrouillage par Code PIN</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Sécurisez l&apos;accès au tableau de bord</p>
                 {profile.pin_enabled && (
                   <button
                     onClick={() => handlePinToggle(true)}
@@ -123,12 +123,12 @@ export function SecuritySection({
 
           <div className="flex items-start justify-between gap-4 py-4 last:pb-0">
             <div className="flex items-start gap-3 min-w-0 flex-1">
-              <div className="shrink-0 mt-0.5 w-8 h-8 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center">
-                <Fingerprint className="h-4 w-4 text-slate-500" />
+              <div className="shrink-0 mt-0.5 w-8 h-8 rounded-xl bg-muted border border-border flex items-center justify-center">
+                <Fingerprint className="h-4 w-4 text-muted-foreground" />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-slate-900">Authentification à deux facteurs (2FA)</p>
-                <p className="text-xs text-slate-500 mt-0.5">Code de validation via WhatsApp ou SMS</p>
+                <p className="text-sm font-semibold text-foreground">Authentification à deux facteurs (2FA)</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Code de validation via WhatsApp ou SMS</p>
               </div>
             </div>
             <Switch
@@ -141,7 +141,7 @@ export function SecuritySection({
       </div>
 
       {/* ── Zone de danger ─────────────────────────────────────────────── */}
-      <div className="bg-white border border-red-100 rounded-2xl p-5 sm:p-6">
+      <div className="bg-card border border-red-100 rounded-2xl p-5 sm:p-6">
         <div className="flex items-center gap-2 mb-5">
           <Shield className="h-3.5 w-3.5 text-red-500 shrink-0" />
           <h2 className="text-[11px] font-black text-red-400 uppercase tracking-wider">Zone de danger</h2>
@@ -153,8 +153,8 @@ export function SecuritySection({
                 <UserX className="h-4 w-4 text-red-500" />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-slate-900">Désactiver le compte</p>
-                <p className="text-xs text-slate-500 mt-0.5">Votre compte sera masqué et l&apos;accès bloqué</p>
+                <p className="text-sm font-semibold text-foreground">Désactiver le compte</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Votre compte sera masqué et l&apos;accès bloqué</p>
               </div>
             </div>
             <Button
@@ -173,8 +173,8 @@ export function SecuritySection({
                 <Trash2 className="h-4 w-4 text-red-500" />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-slate-900">Supprimer le compte</p>
-                <p className="text-xs text-slate-500 mt-0.5">Suppression définitive de toutes vos données</p>
+                <p className="text-sm font-semibold text-foreground">Supprimer le compte</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Suppression définitive de toutes vos données</p>
               </div>
             </div>
             <Button

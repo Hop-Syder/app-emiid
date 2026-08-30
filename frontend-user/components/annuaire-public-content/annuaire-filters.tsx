@@ -46,7 +46,7 @@ function Select({ value, onChange, options, placeholder }: {
           "appearance-none h-10 pl-3.5 pr-9 rounded-xl border text-sm font-semibold cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-[#013ff4]/25",
           value && value !== "all"
             ? "bg-[#013ff4]/[0.06] border-[#013ff4]/30 text-[#013ff4]"
-            : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50",
+            : "bg-card border-border text-muted-foreground hover:bg-muted",
         )}
         aria-label={placeholder}
       >
@@ -128,7 +128,7 @@ export function AnnuaireFilters({ filters, onFilterChange, onReset }: AnnuaireFi
           aria-label="Autour de moi"
           className={cn(
             "inline-flex items-center justify-center gap-1.5 h-10 px-2.5 sm:px-3 rounded-xl text-xs sm:text-sm font-semibold border transition-colors shrink-0",
-            filters.lat ? "bg-emerald-100 border-emerald-300 text-emerald-700" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50",
+            filters.lat ? "bg-emerald-100 border-emerald-300 text-emerald-700" : "bg-card border-border text-muted-foreground hover:bg-muted",
             isLocating && "opacity-70 cursor-not-allowed"
           )}
         >
@@ -142,7 +142,7 @@ export function AnnuaireFilters({ filters, onFilterChange, onReset }: AnnuaireFi
           aria-label="Profils vérifiés"
           className={cn(
             "inline-flex items-center justify-center w-10 h-10 shrink-0 rounded-xl border transition-colors",
-            filters.status === "verified" ? "bg-[#03b3f8]/10 border-[#03b3f8]/40 text-[#03b3f8]" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50",
+            filters.status === "verified" ? "bg-[#03b3f8]/10 border-[#03b3f8]/40 text-[#03b3f8]" : "bg-card border-border text-muted-foreground hover:bg-muted",
           )}
         >
           <BadgeCheck className="h-5 w-5" />
@@ -154,7 +154,7 @@ export function AnnuaireFilters({ filters, onFilterChange, onReset }: AnnuaireFi
           aria-label="Profils Premium"
           className={cn(
             "inline-flex items-center justify-center w-10 h-10 shrink-0 rounded-xl border transition-colors",
-            filters.status === "premium" ? "bg-amber-100 border-amber-300 text-amber-700" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50",
+            filters.status === "premium" ? "bg-amber-100 border-amber-300 text-amber-700" : "bg-card border-border text-muted-foreground hover:bg-muted",
           )}
         >
           <Crown className="h-5 w-5" />
@@ -164,7 +164,7 @@ export function AnnuaireFilters({ filters, onFilterChange, onReset }: AnnuaireFi
       {activeCount > 0 && (
         <button
           onClick={onReset}
-          className="inline-flex items-center gap-1 h-10 px-3 rounded-xl text-sm font-semibold text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+          className="inline-flex items-center gap-1 h-10 px-3 rounded-xl text-sm font-semibold text-muted-foreground hover:text-rose-600 hover:bg-rose-50 transition-colors"
         >
           <X className="h-4 w-4" /> Réinitialiser ({activeCount})
         </button>

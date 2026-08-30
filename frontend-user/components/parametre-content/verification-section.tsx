@@ -111,14 +111,14 @@ export function VerificationSection({ profile }: SectionProps) {
             {/* Statut global */}
             <SectionCard title="Badge vérifié">
                 <div className="flex items-center gap-3">
-                    <div className={`p-2.5 rounded-xl shrink-0 ${profile.is_verified ? "bg-emerald-50" : "bg-slate-100"}`}>
+                    <div className={`p-2.5 rounded-xl shrink-0 ${profile.is_verified ? "bg-emerald-50" : "bg-muted"}`}>
                         <ShieldCheck className={`h-5 w-5 ${profile.is_verified ? "text-emerald-600" : "text-slate-400"}`} />
                     </div>
                     <div>
-                        <p className="text-sm font-bold text-slate-900">
+                        <p className="text-sm font-bold text-foreground">
                             {profile.is_verified ? "Profil vérifié" : "Profil non vérifié"}
                         </p>
-                        <p className="text-xs text-slate-500">
+                        <p className="text-xs text-muted-foreground">
                             {profile.is_verified
                                 ? "Ton identité professionnelle est certifiée."
                                 : "Téléverse une pièce pour demander la vérification."}
@@ -133,7 +133,7 @@ export function VerificationSection({ profile }: SectionProps) {
                     <select
                         value={docType}
                         onChange={(e) => setDocType(e.target.value)}
-                        className="flex-1 h-11 px-3 rounded-xl bg-slate-50 border border-slate-200 text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                        className="flex-1 h-11 px-3 rounded-xl bg-muted border border-border text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
                     >
                         {DOC_TYPES.map((t) => (
                             <option key={t.value} value={t.value}>
@@ -145,7 +145,7 @@ export function VerificationSection({ profile }: SectionProps) {
                     <label
                         className={`inline-flex items-center justify-center gap-2 h-11 px-5 rounded-xl text-sm font-bold cursor-pointer transition-all shrink-0 ${
                             uploading
-                                ? "bg-slate-100 text-slate-400 cursor-not-allowed"
+                                ? "bg-muted text-slate-400 cursor-not-allowed"
                                 : "bg-[#013ff4] text-white hover:bg-[#013ff4]/90 shadow-lg shadow-[#013ff4]/25"
                         }`}
                     >
@@ -169,18 +169,18 @@ export function VerificationSection({ profile }: SectionProps) {
                 ) : docs.length === 0 ? (
                     <p className="text-sm text-slate-400">Aucun document envoyé pour le moment.</p>
                 ) : (
-                    <div className="divide-y divide-slate-100">
+                    <div className="divide-y divide-border">
                         {docs.map((doc) => {
                             const meta = STATUS_META[doc.status] || STATUS_META.pending
                             const typeLabel = DOC_TYPES.find((t) => t.value === doc.doc_type)?.label || doc.doc_type
                             return (
                                 <div key={doc.id} className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
                                     <div className="flex items-center gap-3 min-w-0 flex-1">
-                                        <div className="p-2 bg-slate-100 rounded-lg shrink-0">
-                                            <FileText className="h-4 w-4 text-slate-500" />
+                                        <div className="p-2 bg-muted rounded-lg shrink-0">
+                                            <FileText className="h-4 w-4 text-muted-foreground" />
                                         </div>
                                         <div className="min-w-0">
-                                            <p className="text-sm font-semibold text-slate-900 truncate">{typeLabel}</p>
+                                            <p className="text-sm font-semibold text-foreground truncate">{typeLabel}</p>
                                             <p className="text-xs text-slate-400">
                                                 {new Date(doc.created_at).toLocaleDateString("fr-FR")}
                                             </p>

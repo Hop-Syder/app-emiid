@@ -54,7 +54,7 @@ export function ProfileRow({ profiles, theme }: ProfileRowProps) {
           type="button"
           aria-label="Faire défiler vers la gauche"
           onClick={() => scrollByCards(-1)}
-          className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 z-20 w-10 h-10 rounded-full bg-white shadow-lg border border-slate-200 items-center justify-center text-slate-600 hover:text-slate-900 hover:scale-105 transition-all"
+          className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 z-20 w-10 h-10 rounded-full bg-card shadow-lg border border-border items-center justify-center text-muted-foreground hover:text-foreground hover:scale-105 transition-all"
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
@@ -85,7 +85,7 @@ export function ProfileRow({ profiles, theme }: ProfileRowProps) {
           type="button"
           aria-label="Faire défiler vers la droite"
           onClick={() => scrollByCards(1)}
-          className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-20 w-10 h-10 rounded-full bg-white shadow-lg border border-slate-200 items-center justify-center text-slate-600 hover:text-slate-900 hover:scale-105 transition-all"
+          className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-20 w-10 h-10 rounded-full bg-card shadow-lg border border-border items-center justify-center text-muted-foreground hover:text-foreground hover:scale-105 transition-all"
         >
           <ChevronRight className="w-5 h-5" />
         </button>

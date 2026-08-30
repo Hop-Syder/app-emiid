@@ -70,7 +70,7 @@ export const CreerProfilForm = React.memo(function CreerProfilForm({
     const [currentStep, setCurrentStep] = useState(0)
     const [direction, setDirection] = useState(1)
 
-    const inputClasses = "h-14 rounded-2xl bg-slate-50/80 border-slate-200 text-slate-900 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all duration-300 shadow-sm"
+    const inputClasses = "h-14 rounded-2xl bg-muted/80 border-border text-foreground focus:bg-card focus:ring-2 focus:ring-primary/20 transition-all duration-300 shadow-sm"
 
     const steps = [
         { id: 0, title: "Identité", icon: Camera, subtitle: "Votre présentation de base" },
@@ -182,15 +182,15 @@ export const CreerProfilForm = React.memo(function CreerProfilForm({
         <div className="lg:col-span-2 flex flex-col min-h-[600px] pb-32">
 
             {/* EN-TÊTE DU WIZARD */}
-            <div className="bg-white/80 backdrop-blur-xl border border-white shadow-sm rounded-3xl p-5 md:p-6 mb-8 relative overflow-hidden">
+            <div className="bg-card/80 backdrop-blur-xl border border-white shadow-sm rounded-3xl p-5 md:p-6 mb-8 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -z-10 -translate-y-1/2 translate-x-1/2" />
                 <div className="flex justify-between items-end mb-4">
                     <div>
-                        <h3 className="font-bold text-slate-800 text-lg flex items-center gap-2">
+                        <h3 className="font-bold text-foreground text-lg flex items-center gap-2">
                             {steps[currentStep].title}
-                            <span className="text-xs px-2 py-1 bg-slate-100 text-slate-500 rounded-lg">Étape {currentStep + 1} / {totalSteps}</span>
+                            <span className="text-xs px-2 py-1 bg-muted text-muted-foreground rounded-lg">Étape {currentStep + 1} / {totalSteps}</span>
                         </h3>
-                        <p className="text-sm text-slate-500 font-medium">{steps[currentStep].subtitle}</p>
+                        <p className="text-sm text-muted-foreground font-medium">{steps[currentStep].subtitle}</p>
                     </div>
                     <div className="text-right">
                         <span className="text-2xl font-black text-primary">{progress}%</span>
@@ -199,7 +199,7 @@ export const CreerProfilForm = React.memo(function CreerProfilForm({
                 </div>
                 <div className="flex items-center justify-between gap-2 mb-4">
                     {steps.map((step, idx) => (
-                        <div key={step.id} className="flex-1 h-2 rounded-full overflow-hidden bg-slate-100">
+                        <div key={step.id} className="flex-1 h-2 rounded-full overflow-hidden bg-muted">
                             <motion.div
                                 className={cn("h-full rounded-full", idx <= currentStep ? "bg-primary" : "bg-transparent")}
                                 initial={{ width: 0 }}
@@ -241,7 +241,7 @@ export const CreerProfilForm = React.memo(function CreerProfilForm({
             </AnimatePresence>
 
             {/* ZONE DE CONTENU PRINCIPALE */}
-            <div className="flex-1 relative bg-white/60 backdrop-blur-xl border border-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-3xl p-6 md:p-8 overflow-hidden">
+            <div className="flex-1 relative bg-card/60 backdrop-blur-xl border border-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-3xl p-6 md:p-8 overflow-hidden">
                 <AnimatePresence mode="wait" custom={direction}>
 
                     {currentStep === 0 && (
@@ -327,13 +327,13 @@ export const CreerProfilForm = React.memo(function CreerProfilForm({
                     initial={{ y: 50, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ delay: 0.2, type: "spring", damping: 20 }}
-                    className="pointer-events-auto flex items-center justify-between p-2 md:p-3 bg-white/90 backdrop-blur-xl border border-white/60 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.15)] rounded-[2rem] w-full max-w-xl mx-auto"
+                    className="pointer-events-auto flex items-center justify-between p-2 md:p-3 bg-card/90 backdrop-blur-xl border border-white/60 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.15)] rounded-[2rem] w-full max-w-xl mx-auto"
                 >
                     {currentStep > 0 ? (
                         <Button
                             onClick={prevStep}
                             variant="ghost"
-                            className="rounded-full h-12 md:h-14 text-slate-500 hover:text-slate-900 font-bold px-4 md:px-6 transition-colors"
+                            className="rounded-full h-12 md:h-14 text-muted-foreground hover:text-foreground font-bold px-4 md:px-6 transition-colors"
                         >
                             <ArrowLeft className="w-5 h-5 md:mr-2" />
                             <span className="hidden md:inline">Précédent</span>
@@ -357,7 +357,7 @@ export const CreerProfilForm = React.memo(function CreerProfilForm({
                                     onClick={handleSave}
                                     variant="outline"
                                     disabled={saving || publishing || unpublishing}
-                                    className="rounded-full h-12 md:h-14 border-slate-200 text-slate-700 font-bold hover:bg-slate-100"
+                                    className="rounded-full h-12 md:h-14 border-border text-foreground font-bold hover:bg-muted"
                                 >
                                     {saving ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5 md:mr-2" />}
                                     <span className="hidden md:inline">Sauver</span>

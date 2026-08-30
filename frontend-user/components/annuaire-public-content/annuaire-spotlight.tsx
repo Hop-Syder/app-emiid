@@ -66,7 +66,7 @@ export function AnnuaireSpotlight() {
         <div className="w-full">
             <div className="flex items-center mb-6 px-1 gap-2.5">
                 <Sparkles className="w-6 h-6 text-amber-500 shrink-0" />
-                <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
+                <h2 className="text-2xl md:text-3xl font-black text-foreground tracking-tight">
                     En vue cette semaine{" "}
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-orange-500">
                         dans votre entourage
@@ -104,7 +104,7 @@ export function AnnuaireSpotlight() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.1 }}
-                            className="min-w-[280px] sm:min-w-[320px] max-w-[320px] lg:min-w-0 lg:max-w-none bg-white rounded-3xl p-6 shadow-xl shadow-slate-200/50 border border-amber-100 flex flex-col h-full relative overflow-hidden group snap-center shrink-0"
+                            className="min-w-[280px] sm:min-w-[320px] max-w-[320px] lg:min-w-0 lg:max-w-none bg-card rounded-3xl p-6 shadow-xl shadow-slate-200/50 border border-amber-100 flex flex-col h-full relative overflow-hidden group snap-center shrink-0"
                         >
                             {/* Glow effect */}
                             <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-amber-400/20 rounded-full blur-3xl transition-transform group-hover:scale-150 duration-500" />
@@ -118,14 +118,14 @@ export function AnnuaireSpotlight() {
                                     className="w-16 h-16 rounded-2xl object-cover ring-2 ring-amber-100"
                                 />
                                 <div>
-                                    <h3 className="font-bold text-lg text-slate-900">{profile.name}</h3>
+                                    <h3 className="font-bold text-lg text-foreground">{profile.name}</h3>
                                     <p className="text-sm font-medium text-amber-600">{profile.role}</p>
-                                    <p className="text-xs text-slate-500 mt-1">{profile.location}</p>
+                                    <p className="text-xs text-muted-foreground mt-1">{profile.location}</p>
                                 </div>
                             </div>
 
                             {profile.bio && (
-                                <p className="text-sm text-slate-600 mb-6 flex-grow line-clamp-3 relative z-10">
+                                <p className="text-sm text-muted-foreground mb-6 flex-grow line-clamp-3 relative z-10">
                                     {profile.bio}
                                 </p>
                             )}
@@ -134,7 +134,7 @@ export function AnnuaireSpotlight() {
                                 {profile.tags && profile.tags.length > 0 && (
                                     <div className="flex flex-wrap gap-2 mb-4">
                                         {profile.tags.slice(0, 3).map((tag, i) => (
-                                            <span key={i} className="text-xs font-medium px-2 py-1 bg-slate-100 text-slate-600 rounded-md">
+                                            <span key={i} className="text-xs font-medium px-2 py-1 bg-muted text-muted-foreground rounded-md">
                                                 #{tag}
                                             </span>
                                         ))}

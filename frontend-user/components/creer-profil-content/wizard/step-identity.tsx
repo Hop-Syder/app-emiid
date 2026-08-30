@@ -21,8 +21,8 @@ export function StepIdentity({ formData, handleInputChange, error }: StepIdentit
     return (
         <div className="space-y-6">
             <div>
-                <h2 className="text-2xl font-bold tracking-tight text-slate-900">Qui es-tu ?</h2>
-                <p className="text-sm text-slate-500 mt-1">Ton identité personnelle et ta marque.</p>
+                <h2 className="text-2xl font-bold tracking-tight text-foreground">Qui es-tu ?</h2>
+                <p className="text-sm text-muted-foreground mt-1">Ton identité personnelle et ta marque.</p>
             </div>
 
             {/* Photo / Logo */}
@@ -36,7 +36,7 @@ export function StepIdentity({ formData, handleInputChange, error }: StepIdentit
 
             {/* Nom & Prénom */}
             <div className="space-y-1.5">
-                <Label htmlFor="fullName" className="text-sm font-semibold text-slate-700">
+                <Label htmlFor="fullName" className="text-sm font-semibold text-foreground">
                     Nom &amp; Prénom <span className="text-[#013ff4]">*</span>
                 </Label>
                 <Input
@@ -52,7 +52,7 @@ export function StepIdentity({ formData, handleInputChange, error }: StepIdentit
 
             {/* Nom commercial / atelier */}
             <div className="space-y-1.5">
-                <Label htmlFor="businessName" className="text-sm font-semibold text-slate-700">
+                <Label htmlFor="businessName" className="text-sm font-semibold text-foreground">
                     Nom commercial / Nom d&apos;atelier
                 </Label>
                 <Input

@@ -107,18 +107,18 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100/50"
+                className="h-7 w-7 rounded-lg text-slate-400 hover:text-muted-foreground hover:bg-muted/50"
               >
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-32 rounded-xl shadow-xl border-slate-100">
+            <DropdownMenuContent align="end" className="w-32 rounded-xl shadow-xl border-border">
               {parsed.kind === "text" && (
                 <DropdownMenuItem
-                  className="text-slate-700 focus:text-primary rounded-lg flex items-center gap-2 cursor-pointer"
+                  className="text-foreground focus:text-primary rounded-lg flex items-center gap-2 cursor-pointer"
                   onClick={() => onEdit?.(message)}
                 >
-                  <Edit2 className="h-3.5 w-3.5 text-slate-500" />
+                  <Edit2 className="h-3.5 w-3.5 text-muted-foreground" />
                   Modifier
                 </DropdownMenuItem>
               )}
@@ -140,7 +140,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
         borderRadiusClass,
         isOwn 
           ? "bg-gradient-to-br from-primary to-[#0132cc] text-white shadow-primary/10" 
-          : "bg-white/90 backdrop-blur-sm border border-white/60 text-slate-800 shadow-slate-200/50"
+          : "bg-card/90 backdrop-blur-sm border border-white/60 text-foreground shadow-slate-200/50"
       )}>
         {parsed.kind === "text" && (
           <p className="text-[14.5px] whitespace-pre-wrap break-words leading-relaxed font-medium">
@@ -149,7 +149,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
         )}
 
         {parsed.kind === "image" && (
-          <div className="rounded-lg overflow-hidden border border-white/20 -mx-1 -mt-1 mb-1 bg-slate-100 relative w-full h-[200px] md:h-[260px]">
+          <div className="rounded-lg overflow-hidden border border-white/20 -mx-1 -mt-1 mb-1 bg-muted relative w-full h-[200px] md:h-[260px]">
             <Image 
               src={parsed.url} 
               alt="Image partagée" 
@@ -167,10 +167,10 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
             rel="noopener noreferrer"
             className={cn(
               "flex items-center gap-3 p-2.5 rounded-xl border transition-all mb-1",
-              isOwn ? "bg-white/10 border-white/20 hover:bg-white/20" : "bg-slate-50 border-slate-200 hover:bg-slate-100"
+              isOwn ? "bg-card/10 border-white/20 hover:bg-card/20" : "bg-muted border-border hover:bg-muted"
             )}
           >
-            <div className={cn("p-2 rounded-lg shrink-0", isOwn ? "bg-white/20" : "bg-[#eaf0ff]")}>
+            <div className={cn("p-2 rounded-lg shrink-0", isOwn ? "bg-card/20" : "bg-[#eaf0ff]")}>
               <FileText className={cn("h-5 w-5", isOwn ? "text-white" : "text-[#0132cc]")} />
             </div>
             <div className="flex-1 min-w-0">
@@ -182,7 +182,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
 
         <div className={cn(
           "flex items-center gap-1.5 mt-1 text-[10px] font-medium opacity-70 justify-end",
-          isOwn ? "text-[#d5e0ff]/90" : "text-slate-500"
+          isOwn ? "text-[#d5e0ff]/90" : "text-muted-foreground"
         )}>
           {message.is_edited && (
             <span className="text-[9px] italic opacity-80 shrink-0">(Modifié)</span>
@@ -197,7 +197,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
               {message.status === 'error' && (
                 <button
                   onClick={() => onResend?.(message)}
-                  className="p-0.5 hover:bg-white/10 rounded text-red-200 transition-colors"
+                  className="p-0.5 hover:bg-card/10 rounded text-red-200 transition-colors"
                   title="Renvoyer le message"
                 >
                   <RotateCcw className="h-3.5 w-3.5" />
@@ -356,7 +356,7 @@ export const MessageList: React.FC<MessageListProps> = ({
             <React.Fragment key={msg.id}>
               {msg.dateSeparator && (
                 <div className="flex justify-center my-4">
-                  <span className="bg-white/70 backdrop-blur-md text-slate-500 text-[11px] font-semibold px-4 py-1.5 rounded-full shadow-sm border border-slate-100/80">
+                  <span className="bg-card/70 backdrop-blur-md text-muted-foreground text-[11px] font-semibold px-4 py-1.5 rounded-full shadow-sm border border-border/80">
                     {msg.dateSeparator}
                   </span>
                 </div>

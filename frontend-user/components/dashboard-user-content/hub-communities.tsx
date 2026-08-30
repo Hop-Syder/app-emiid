@@ -74,14 +74,14 @@ export function HubCommunities() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 px-2">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-slate-600 mb-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted border border-border text-muted-foreground mb-3">
             <Users className="w-4 h-4" />
             <span className="text-xs font-bold tracking-wide uppercase">Réseau</span>
           </div>
-          <h3 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+          <h3 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">
             Rejoindre nos communautés
           </h3>
-          <p className="text-base text-slate-500 mt-2 font-medium max-w-xl">
+          <p className="text-base text-muted-foreground mt-2 font-medium max-w-xl">
             Échangez, apprenez et grandissez avec notre réseau de professionnels. Plongez au cœur de l&apos;écosystème EmiID.
           </p>
         </div>
@@ -110,13 +110,13 @@ export function HubCommunities() {
               {/* Text */}
               <div className="min-w-0 flex-1 relative z-10">
                 <p className={`text-[11px] sm:text-sm font-black tracking-wide uppercase ${c.color}`}>{c.name}</p>
-                <p className="text-xs sm:text-base font-extrabold text-slate-900 mt-0.5 sm:mt-1 leading-snug">{c.role}</p>
+                <p className="text-xs sm:text-base font-extrabold text-foreground mt-0.5 sm:mt-1 leading-snug">{c.role}</p>
               </div>
 
               {/* Join CTA */}
               {c.soon ? (
                 <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-bold text-slate-400 mt-1 sm:mt-2 relative z-10">
-                  <span className="rounded-full bg-slate-100 px-2 sm:px-2.5 py-0.5 sm:py-1 text-[9px] sm:text-[10px] font-black uppercase tracking-wider">
+                  <span className="rounded-full bg-muted px-2 sm:px-2.5 py-0.5 sm:py-1 text-[9px] sm:text-[10px] font-black uppercase tracking-wider">
                     Bientôt
                   </span>
                 </div>
@@ -133,7 +133,7 @@ export function HubCommunities() {
             <div
               key={c.name}
               aria-disabled="true"
-              className={`group relative overflow-hidden bg-white border ${c.border} rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 flex flex-col gap-3 sm:gap-5 shadow-[0_4px_24px_rgb(15,23,42,0.05)] opacity-75 cursor-not-allowed select-none`}
+              className={`group relative overflow-hidden bg-card border ${c.border} rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 flex flex-col gap-3 sm:gap-5 shadow-[0_4px_24px_rgb(15,23,42,0.05)] opacity-75 cursor-not-allowed select-none`}
             >
               {card}
             </div>
@@ -143,7 +143,7 @@ export function HubCommunities() {
               href={c.href ?? "#"}
               target="_blank"
               rel="noopener noreferrer"
-              className={`group relative overflow-hidden bg-white border ${c.border} ${c.hoverBorder} rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 flex flex-col gap-3 sm:gap-5 shadow-[0_4px_24px_rgb(15,23,42,0.05)] transition-all duration-300 hover:-translate-y-1 active:scale-[0.98]`}
+              className={`group relative overflow-hidden bg-card border ${c.border} ${c.hoverBorder} rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 flex flex-col gap-3 sm:gap-5 shadow-[0_4px_24px_rgb(15,23,42,0.05)] transition-all duration-300 hover:-translate-y-1 active:scale-[0.98]`}
             >
               {card}
             </a>

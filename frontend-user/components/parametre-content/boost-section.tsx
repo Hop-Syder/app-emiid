@@ -49,10 +49,10 @@ export function BoostSection() {
     const target = scope === "COMMUNE" ? selected : selectedDept
 
     return (
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 space-y-8">
+        <div className="bg-card rounded-2xl border border-border p-6 sm:p-8 space-y-8">
             <div>
-                <h3 className="text-lg font-bold text-slate-900">Boost de visibilité</h3>
-                <p className="text-slate-500 text-xs mt-1">
+                <h3 className="text-lg font-bold text-foreground">Boost de visibilité</h3>
+                <p className="text-muted-foreground text-xs mt-1">
                     Passez en tête des résultats dans la commune de votre choix, pour une durée limitée.
                 </p>
             </div>
@@ -66,16 +66,16 @@ export function BoostSection() {
                                 <Rocket className="h-5 w-5" />
                             </span>
                             <div>
-                                <p className="text-sm font-black text-slate-900">
+                                <p className="text-sm font-black text-foreground">
                                     En vedette {activeBoost.scope === "COMMUNE" ? "à" : "dans le"} {activeBoost.targetName}
                                 </p>
-                                <p className="text-xs font-medium text-slate-600 flex items-center gap-1.5">
+                                <p className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
                                     <Clock className="h-3.5 w-3.5" />
                                     {remaining(activeBoost.expiresAt)}
                                 </p>
                             </div>
                         </div>
-                        <span className="inline-flex items-center gap-1.5 rounded-xl border border-[#F59E0B]/40 bg-white px-3 py-1.5 text-xs font-bold text-[#B45309]">
+                        <span className="inline-flex items-center gap-1.5 rounded-xl border border-[#F59E0B]/40 bg-card px-3 py-1.5 text-xs font-bold text-[#B45309]">
                             <Check className="h-3.5 w-3.5" />
                             Boost actif
                         </span>
@@ -96,7 +96,7 @@ export function BoostSection() {
 
             {/* ── Portée et cible ──────────────────────────────────────────── */}
             <div className="space-y-3">
-                <h5 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Portée du boost</h5>
+                <h5 className="text-xs font-bold text-foreground uppercase tracking-wider">Portée du boost</h5>
 
                 <div className="grid grid-cols-2 gap-2">
                     {([
@@ -111,38 +111,38 @@ export function BoostSection() {
                                 className={`flex items-start gap-2.5 rounded-2xl border p-3.5 text-left transition-colors ${
                                     active
                                         ? "border-[#013ff4] bg-[#013ff4]/[0.05]"
-                                        : "border-slate-200 hover:bg-slate-50"
+                                        : "border-border hover:bg-muted"
                                 }`}
                             >
                                 <opt.icon className={`mt-0.5 h-4 w-4 shrink-0 ${active ? "text-[#013ff4]" : "text-slate-400"}`} />
                                 <span className="min-w-0">
-                                    <span className={`block text-xs font-black ${active ? "text-[#013ff4]" : "text-slate-800"}`}>
+                                    <span className={`block text-xs font-black ${active ? "text-[#013ff4]" : "text-foreground"}`}>
                                         {opt.title}
                                     </span>
-                                    <span className="block text-[11px] font-medium text-slate-500">{opt.desc}</span>
+                                    <span className="block text-[11px] font-medium text-muted-foreground">{opt.desc}</span>
                                 </span>
                             </button>
                         )
                     })}
                 </div>
 
-                <h5 className="pt-2 text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                <h5 className="pt-2 text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
                     <MapPin className="h-3.5 w-3.5 text-[#013ff4]" />
                     {scope === "COMMUNE" ? "Commune ciblée" : "Département ciblé"}
                 </h5>
 
                 {loading ? (
-                    <div className="h-11 w-full animate-pulse rounded-xl bg-slate-100" />
+                    <div className="h-11 w-full animate-pulse rounded-xl bg-muted" />
                 ) : scope === "COMMUNE" ? (
                     <>
-                        <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3">
+                        <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3">
                             <Search className="h-4 w-4 shrink-0 text-slate-400" />
                             <input
                                 value={filter}
                                 onChange={(e) => setFilter(e.target.value)}
                                 placeholder="Filtrer par commune ou département…"
                                 aria-label="Filtrer les communes"
-                                className="min-w-0 flex-1 bg-transparent py-2.5 text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none"
+                                className="min-w-0 flex-1 bg-transparent py-2.5 text-sm font-medium text-foreground placeholder:text-slate-400 focus:outline-none"
                             />
                         </div>
 
@@ -150,7 +150,7 @@ export function BoostSection() {
                             value={selected}
                             onChange={(e) => setSelected(e.target.value)}
                             aria-label="Commune à cibler"
-                            className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 focus:border-[#013ff4]/40 focus:outline-none"
+                            className="w-full rounded-xl border border-border bg-card px-3 py-2.5 text-sm font-semibold text-foreground focus:border-[#013ff4]/40 focus:outline-none"
                         >
                             <option value="">— Choisir une commune —</option>
                             {visible.map((c) => (
@@ -172,7 +172,7 @@ export function BoostSection() {
                         value={selectedDept}
                         onChange={(e) => setSelectedDept(e.target.value)}
                         aria-label="Département à cibler"
-                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 focus:border-[#013ff4]/40 focus:outline-none"
+                        className="w-full rounded-xl border border-border bg-card px-3 py-2.5 text-sm font-semibold text-foreground focus:border-[#013ff4]/40 focus:outline-none"
                     >
                         <option value="">— Choisir un département —</option>
                         {departments.map((d) => (
@@ -184,7 +184,7 @@ export function BoostSection() {
 
             {/* ── Forfaits ──────────────────────────────────────────────────── */}
             <div className="space-y-4">
-                <h5 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Durée du boost</h5>
+                <h5 className="text-xs font-bold text-foreground uppercase tracking-wider">Durée du boost</h5>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {plansForScope(scope).map((planId) => {
                         const plan = BOOST_PLANS[planId]
@@ -195,7 +195,7 @@ export function BoostSection() {
                                 initial={{ opacity: 0, y: 6 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 className={`relative rounded-2xl border p-5 flex flex-col justify-between gap-4 ${
-                                    best ? "border-[#013ff4]/30 bg-[#013ff4]/[0.03]" : "border-slate-200"
+                                    best ? "border-[#013ff4]/30 bg-[#013ff4]/[0.03]" : "border-border"
                                 }`}
                             >
                                 {best && (
@@ -204,8 +204,8 @@ export function BoostSection() {
                                     </span>
                                 )}
                                 <div>
-                                    <p className="text-xs font-bold text-slate-500">{plan.label}</p>
-                                    <p className="mt-1 text-2xl font-black text-slate-900">{formatFcfa(plan.amount)}</p>
+                                    <p className="text-xs font-bold text-muted-foreground">{plan.label}</p>
+                                    <p className="mt-1 text-2xl font-black text-foreground">{formatFcfa(plan.amount)}</p>
                                     <p className="text-[11px] font-medium text-slate-400">{plan.duration}</p>
                                 </div>
                                 <button
@@ -214,7 +214,7 @@ export function BoostSection() {
                                     className={`w-full rounded-xl px-4 py-3 text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${
                                         best
                                             ? "bg-[#013ff4] text-white shadow-lg shadow-[#013ff4]/25 hover:bg-[#0135d0]"
-                                            : "bg-white border border-slate-200 text-slate-800 hover:bg-slate-50"
+                                            : "bg-card border border-border text-foreground hover:bg-muted"
                                     }`}
                                 >
                                     {checkoutLoading === planId ? (

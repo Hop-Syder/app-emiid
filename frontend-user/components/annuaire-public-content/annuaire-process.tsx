@@ -36,7 +36,7 @@ const steps = [
 
 export function AnnuaireProcess() {
     return (
-        <section className="w-full bg-slate-50 py-24 relative overflow-hidden">
+        <section className="w-full bg-muted py-24 relative overflow-hidden">
             {/* Background elements */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-5xl pointer-events-none">
                 <div className="absolute top-20 left-10 w-72 h-72 bg-blue-400/10 rounded-full blur-[80px]" />
@@ -46,10 +46,10 @@ export function AnnuaireProcess() {
             <div className="container mx-auto px-4 max-w-6xl relative z-10">
                 <div className="text-center mb-20">
                     <span className="text-xs font-black tracking-widest text-[#0150fd] uppercase mb-4 block bg-[#eaf0ff] w-max mx-auto px-3 py-1 rounded-full border border-[#d5e0ff]">Processus</span>
-                    <h2 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight">
+                    <h2 className="text-4xl md:text-5xl font-black text-foreground tracking-tight">
                         Comment ça <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-[#013ff4]">marche ?</span>
                     </h2>
-                    <p className="text-slate-500 text-lg font-medium mt-6 max-w-2xl mx-auto leading-relaxed">
+                    <p className="text-muted-foreground text-lg font-medium mt-6 max-w-2xl mx-auto leading-relaxed">
                         Un parcours simple, rapide et transparent pour vous connecter aux meilleurs talents de notre réseau.
                     </p>
                 </div>
@@ -65,7 +65,7 @@ export function AnnuaireProcess() {
                                 whileInView={{ scale: 1 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: index * 0.2, type: "spring" }}
-                                className="flex h-12 w-12 items-center justify-center justify-self-center rounded-full bg-white font-black text-slate-900 shadow-md ring-8 ring-slate-50/50 border border-slate-100 relative z-10"
+                                className="flex h-12 w-12 items-center justify-center justify-self-center rounded-full bg-card font-black text-foreground shadow-md ring-8 ring-slate-50/50 border border-border relative z-10"
                             >
                                 {index + 1}
                             </motion.div>
@@ -82,10 +82,10 @@ export function AnnuaireProcess() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true, margin: "-50px" }}
                             transition={{ duration: 0.6, delay: index * 0.2, type: "spring", stiffness: 100 }}
-                            className={`group relative rounded-3xl border border-slate-200 bg-white p-8 md:p-10 text-center transition-all duration-500 ease-out hover:-translate-y-2 hover:shadow-2xl ${step.shadowHover} ${step.borderHover} ${step.bgHover} flex flex-col items-center`}
+                            className={`group relative rounded-3xl border border-border bg-card p-8 md:p-10 text-center transition-all duration-500 ease-out hover:-translate-y-2 hover:shadow-2xl ${step.shadowHover} ${step.borderHover} ${step.bgHover} flex flex-col items-center`}
                         >
                             {/* Icon Container */}
-                            <div className="mb-8 flex h-20 w-20 items-center justify-center rounded-2xl bg-slate-50 text-slate-400 group-hover:bg-white group-hover:shadow-lg transition-all duration-500 border border-slate-100">
+                            <div className="mb-8 flex h-20 w-20 items-center justify-center rounded-2xl bg-muted text-slate-400 group-hover:bg-card group-hover:shadow-lg transition-all duration-500 border border-border">
                                 <step.icon className={`h-10 w-10 transition-transform duration-500 group-hover:scale-110 ${step.color}`} strokeWidth={1.5} />
                             </div>
                             
@@ -94,8 +94,8 @@ export function AnnuaireProcess() {
                                 Étape {step.id}
                             </div>
                             
-                            <h3 className="mb-4 text-xl font-bold text-slate-900">{step.title}</h3>
-                            <p className="text-slate-500 leading-relaxed font-medium">{step.description}</p>
+                            <h3 className="mb-4 text-xl font-bold text-foreground">{step.title}</h3>
+                            <p className="text-muted-foreground leading-relaxed font-medium">{step.description}</p>
                         </motion.div>
                     ))}
                 </div>

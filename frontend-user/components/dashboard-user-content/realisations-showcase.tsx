@@ -32,7 +32,7 @@ export function RealisationsShowcase() {
     return (
       <div className="flex overflow-x-auto pb-6 pt-4 px-4 -mx-4 gap-6 no-scrollbar w-full lg:grid lg:grid-cols-4 lg:overflow-visible lg:p-0 lg:m-0">
         {[0, 1, 2, 3].map((i) => (
-          <div key={i} className="min-w-[240px] sm:min-w-[280px] lg:min-w-0 flex-shrink-0 aspect-square rounded-2xl bg-slate-100 animate-pulse" />
+          <div key={i} className="min-w-[240px] sm:min-w-[280px] lg:min-w-0 flex-shrink-0 aspect-square rounded-2xl bg-muted animate-pulse" />
         ))}
       </div>
     )
@@ -42,7 +42,7 @@ export function RealisationsShowcase() {
     return (
       <div className="p-10 text-center text-slate-400">
         <ImageOff className="h-9 w-9 mx-auto mb-3 opacity-50" />
-        <p className="text-sm font-bold text-slate-500">Aucune réalisation à découvrir pour le moment</p>
+        <p className="text-sm font-bold text-muted-foreground">Aucune réalisation à découvrir pour le moment</p>
         <p className="text-xs mt-1">Soyez le premier à exposer votre travail depuis votre portefeuille.</p>
       </div>
     )
@@ -70,10 +70,10 @@ export function RealisationsShowcase() {
               key={item.id}
               type="button"
               onClick={() => setSelected(item)}
-              className="group min-w-[240px] sm:min-w-[280px] lg:min-w-0 lg:shrink flex-shrink-0 snap-start text-left rounded-2xl overflow-hidden bg-white border border-slate-100 shadow-[0_4px_24px_rgb(15,23,42,0.05)] hover:shadow-xl hover:-translate-y-1 transition-all relative focus:outline-none focus-visible:ring-2 focus-visible:ring-[#013ff4]/40"
+              className="group min-w-[240px] sm:min-w-[280px] lg:min-w-0 lg:shrink flex-shrink-0 snap-start text-left rounded-2xl overflow-hidden bg-card border border-border shadow-[0_4px_24px_rgb(15,23,42,0.05)] hover:shadow-xl hover:-translate-y-1 transition-all relative focus:outline-none focus-visible:ring-2 focus-visible:ring-[#013ff4]/40"
             >
               {/* Cover carrée */}
-              <div className="relative aspect-square w-full bg-slate-100 overflow-hidden">
+              <div className="relative aspect-square w-full bg-muted overflow-hidden">
                 <Image
                   src={item.imageUrl}
                   alt={item.title || "Réalisation"}
@@ -83,14 +83,14 @@ export function RealisationsShowcase() {
                 />
                 {/* Dégradé sombre en bas pour la lisibilité */}
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/10 to-transparent" />
-                <span className="absolute top-2.5 right-2.5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 bg-white/90 backdrop-blur-md text-slate-800 text-[10px] font-bold px-2.5 py-1 rounded-full shadow">
+                <span className="absolute top-2.5 right-2.5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 bg-card/90 backdrop-blur-md text-foreground text-[10px] font-bold px-2.5 py-1 rounded-full shadow">
                   <Maximize2 className="h-3 w-3" /> Aperçu
                 </span>
                 {/* Titre + auteur en surimpression */}
                 <div className="absolute bottom-0 inset-x-0 p-3.5">
                   <p className="text-sm font-black text-white truncate drop-shadow">{item.title || "Réalisation"}</p>
                   <div className="flex items-center gap-1.5 mt-1.5">
-                    <span className="w-5 h-5 rounded-full overflow-hidden bg-white/30 shrink-0 relative ring-1 ring-white/40">
+                    <span className="w-5 h-5 rounded-full overflow-hidden bg-card/30 shrink-0 relative ring-1 ring-white/40">
                       {item.authorAvatar && (
                         <Image src={item.authorAvatar} alt={item.authorName} fill sizes="20px" className="object-cover" />
                       )}
@@ -119,7 +119,7 @@ export function RealisationsShowcase() {
         <DialogContent className="max-w-2xl p-0 overflow-hidden rounded-3xl gap-0">
           {selected && (
             <>
-              <div className="relative aspect-video w-full bg-slate-100">
+              <div className="relative aspect-video w-full bg-muted">
                 <Image
                   src={getOptimizedImageUrl(selected.imageUrl, { width: 1200, height: 675, quality: 90 })}
                   alt={selected.title || "Réalisation"}
@@ -128,11 +128,11 @@ export function RealisationsShowcase() {
               </div>
               <div className="p-6 max-h-[45vh] overflow-y-auto">
                 <DialogHeader className="text-left">
-                  <DialogTitle className="text-xl font-black text-slate-900">{selected.title || "Réalisation"}</DialogTitle>
+                  <DialogTitle className="text-xl font-black text-foreground">{selected.title || "Réalisation"}</DialogTitle>
                 </DialogHeader>
                 {selected.description ? (
                   <DialogDescription asChild>
-                    <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line mt-3">{selected.description}</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line mt-3">{selected.description}</p>
                   </DialogDescription>
                 ) : (
                   <DialogDescription className="text-sm text-slate-400 italic mt-3">Aucune description.</DialogDescription>

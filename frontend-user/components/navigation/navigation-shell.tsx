@@ -111,7 +111,7 @@ export function NavigationShell({ children, isPublic = false }: NavigationShellP
     <CommandPaletteProvider>
     <div
       style={{ "--sidebar-w": `${sidebarWidth}px` } as React.CSSProperties}
-      className={`relative bg-slate-50 w-full flex ${isMessagePage ? "h-screen max-h-screen overflow-hidden" : "min-h-screen"}`}
+      className={`relative bg-muted w-full flex ${isMessagePage ? "h-screen max-h-screen overflow-hidden" : "min-h-screen"}`}
     >
       <Suspense fallback={null}>
         <ChatActiveWatcher pathname={pathname} onChange={setIsMessageChatActive} />
