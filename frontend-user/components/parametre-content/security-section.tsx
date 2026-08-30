@@ -144,10 +144,10 @@ export function SecuritySection({
       <SectionCard
         title="Zone de Danger"
         icon={Shield}
-        className="border-red-100 bg-red-50/20"
+        className="border-red-100 bg-red-50/20 dark:border-red-900/40 dark:bg-red-950/20"
         description="Actions critiques et gestion du cycle de vie de votre compte EmiID."
       >
-        <div className="divide-y divide-red-100/60">
+        <div className="divide-y divide-red-100/60 dark:divide-red-900/40">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-3.5 first:pt-0">
             <div className="flex items-start gap-3.5 min-w-0 flex-1">
               <div className="w-9 h-9 rounded-2xl bg-amber-100/80 flex items-center justify-center shrink-0 mt-0.5">

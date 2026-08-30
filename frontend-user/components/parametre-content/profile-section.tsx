@@ -304,7 +304,7 @@ export function ProfileSection({
 
           {/* État de la position & carte Google Maps */}
           {hasCoords ? (
-            <div className="p-3.5 rounded-2xl border border-emerald-200 bg-emerald-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="p-3.5 rounded-2xl border border-emerald-200 bg-emerald-50/50 dark:border-emerald-800/50 dark:bg-emerald-950/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-2.5 min-w-0">
                 <CheckCircle2 className="w-4.5 h-4.5 text-emerald-600 shrink-0" />
                 <div className="min-w-0">
