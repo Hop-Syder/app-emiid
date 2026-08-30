@@ -1,22 +1,7 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Coquille de la page Paramètres.
- *
- *              Dix onglets ramenés à sept. « À propos » rejoint « Profil » —
- *              les deux éditaient le même champ bio, et l'on pouvait donc
- *              écrire deux valeurs différentes selon l'onglet ouvert.
- *              « Notifications » rejoint « Préférences », « Boost » rejoint
- *              « Abonnement » : dans les deux cas, deux onglets pour un même
- *              sujet.
- *
- *              Navigation façon « Réglages » de téléphone : sur mobile, un
- *              premier écran présente la LISTE des rubriques ; taper une
- *              rubrique ouvre son écran dédié, avec un bouton retour. Sur
- *              desktop, la vue deux colonnes (liste + contenu) est conservée.
- *
- *              Les anciens identifiants d'onglet restent acceptés en URL
- *              (voir use-settings) : aucun lien existant ne casse.
+ * @description Page Paramètres — Navigation mobile 2 écrans (Liste ⇆ Rubrique) & Sidebar Desktop.
  * @created 2026-06-22
  * @updated 2026-08-30
  * 🌐 ceo.nexuspartners.xyz
@@ -25,7 +10,7 @@
 
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { User, Shield, Settings, Star, LogOut, X, Share2, Clock, BadgeCheck, ChevronRight, ChevronLeft } from "lucide-react"
 import { Preloader } from "@/components/Preloader"
 import Image from "next/image"
@@ -42,14 +27,23 @@ import { PlanSection } from "./plan-section"
 import { BoostSection } from "./boost-section"
 import { useSettings, TabId } from "@/hooks/use-settings"
 
-const TABS: { id: TabId; label: string; icon: React.ElementType; desc: string }[] = [
-  { id: "profil",       label: "Profil",              icon: User,      desc: "Identité, bio, slogan et expérience" },
-  { id: "reseaux",      label: "Réseaux",             icon: Share2,    desc: "Liens sociaux et contacts publics" },
-  { id: "horaires",     label: "Horaires & Services", icon: Clock,     desc: "Adresse, horaires et prestations" },
-  { id: "verification", label: "Vérification",        icon: BadgeCheck, desc: "Badge vérifié et pièces justificatives" },
-  { id: "securite",     label: "Sécurité",            icon: Shield,    desc: "Accès, PIN et authentification" },
-  { id: "preferences",  label: "Préférences",         icon: Settings,  desc: "Langue, thème, confidentialité et notifications" },
-  { id: "plan",         label: "Abonnement",          icon: Star,      desc: "Offre EmiID Premium et mise en avant" },
+interface TabConfig {
+  id: TabId
+  label: string
+  icon: React.ElementType
+  desc: string
+  color: string
+  bg: string
+}
+
+const TABS: TabConfig[] = [
+  { id: "profil",       label: "Profil",              icon: User,        desc: "Identité, bio, slogan et expérience",              color: "text-[#013ff4]", bg: "bg-[#013ff4]/10" },
+  { id: "reseaux",      label: "Réseaux",             icon: Share2,      desc: "Liens sociaux et contacts publics",                color: "text-[#03b3f8]", bg: "bg-[#03b3f8]/10" },
+  { id: "horaires",     label: "Horaires & Services", icon: Clock,       desc: "Adresse, horaires et prestations",                 color: "text-indigo-600", bg: "bg-indigo-50" },
+  { id: "verification", label: "Vérification",        icon: BadgeCheck,  desc: "Badge vérifié et pièces justificatives",           color: "text-emerald-600", bg: "bg-emerald-50" },
+  { id: "securite",     label: "Sécurité",            icon: Shield,      desc: "Accès, PIN et authentification",                  color: "text-violet-600", bg: "bg-violet-50" },
+  { id: "preferences",  label: "Préférences",         icon: Settings,    desc: "Langue, thème, confidentialité et notifications", color: "text-slate-700", bg: "bg-slate-100" },
+  { id: "plan",         label: "Abonnement",          icon: Star,        desc: "Offre EmiID Premium et mise en avant",             color: "text-amber-600", bg: "bg-amber-50" },
 ]
 
 export function ParametresContent() {
@@ -72,23 +66,27 @@ export function ParametresContent() {
     handleLogout,
   } = useSettings()
 
-  // Navigation « Réglages » téléphone : sur mobile, `mobileDetail` distingue
-  // l'écran LISTE des rubriques (false) de l'écran d'une rubrique (true).
-  // Sur desktop, cet état est ignoré : les deux colonnes s'affichent toujours.
-  const [mobileDetail, setMobileDetail] = useState(false)
+  // Navigation mobile à deux écrans : null = Écran 1 (Liste), TabId = Écran 2 (Rubrique)
+  const [mobileSelectedTab, setMobileSelectedTab] = useState<TabId | null>(() => {
+    if (typeof window === "undefined") return null
+    const param = new URLSearchParams(window.location.search).get("tab")
+    const known: TabId[] = ["profil", "reseaux", "horaires", "verification", "securite", "preferences", "plan"]
+    if (param && (known as string[]).includes(param)) return param as TabId
+    return null
+  })
+  const [direction, setDirection] = useState<1 | -1>(1)
 
-  // Deep-link ?tab= (liens internes, retour de paiement…) : ouvrir directement
-  // l'écran de la rubrique sur mobile plutôt que la liste.
-  useEffect(() => {
-    if (typeof window === "undefined") return
-    if (new URLSearchParams(window.location.search).get("tab")) setMobileDetail(true)
-  }, [])
+  const openMobileTab = (tabId: TabId) => {
+    setDirection(1)
+    setActiveTab(tabId)
+    setMobileSelectedTab(tabId)
+    if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "instant" })
+  }
 
-  /** Ouvre l'écran d'une rubrique sur mobile (et remonte en haut de page). */
-  const openTab = (id: TabId) => {
-    setActiveTab(id)
-    setMobileDetail(true)
-    if (typeof window !== "undefined") window.scrollTo({ top: 0 })
+  const closeMobileTab = () => {
+    setDirection(-1)
+    setMobileSelectedTab(null)
+    if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "instant" })
   }
 
   if (loadingStatus === "loading") {
@@ -116,11 +114,8 @@ export function ParametresContent() {
   }
 
   const displayName = [profile.first_name, profile.last_name].filter(Boolean).join(" ") || "Mon Compte"
-  const currentTab = TABS.find(t => t.id === activeTab)
 
   const activeSection: Record<TabId, React.ReactNode> = {
-    // Identité puis bio : une seule barre d'enregistrement en bas, car les deux
-    // écrivent dans le même profil.
     profil: (
       <div className="space-y-4">
         <ProfileSection profile={profile} setProfile={setProfile} saving={saving} handleSave={handleSave} handleCancel={handleCancel} hideActions />
@@ -131,8 +126,6 @@ export function ParametresContent() {
     horaires:     <HoursPricingSection profile={profile} setProfile={setProfile} saving={saving} handleSave={handleSave} handleCancel={handleCancel} />,
     verification: <VerificationSection profile={profile} />,
     securite:     <SecuritySection profile={profile} setProfile={setProfile} securitySettings={securitySettings} setSecuritySettings={setSecuritySettings} saveSettings={saveSettings} />,
-    // Réglages de l'application et notifications : la barre finale enregistre
-    // les deux jeux de préférences en une fois.
     preferences: (
       <div className="space-y-4">
         <PreferencesSection settings={preferences} setSettings={setPreferences} saving={saving} handleSave={() => {}} handleCancel={handleCancel} hideActions />
@@ -148,8 +141,6 @@ export function ParametresContent() {
         />
       </div>
     ),
-    // Abonnement et mise en avant : deux volets d'un même sujet, aucun n'ayant
-    // de formulaire à enregistrer.
     plan: (
       <div className="space-y-4">
         <PlanSection profile={profile} />
@@ -158,144 +149,159 @@ export function ParametresContent() {
     ),
   }
 
+  const currentMobileConfig = TABS.find((t) => t.id === mobileSelectedTab)
+
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-50/20 via-slate-50 to-slate-50">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 lg:py-10">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 lg:py-10">
 
-        {/* ══════════════════════════════════════════════════════════════════
-            MOBILE — navigation façon « Réglages » : liste ⇆ écran de rubrique
-            ══════════════════════════════════════════════════════════════ */}
+        {/* ═════════════════════════════════════════════════════════════════════
+            AFFICHAGE MOBILE (< lg) : NAVIGATION 2 ÉCRANS
+            ═════════════════════════════════════════════════════════════════════ */}
         <div className="lg:hidden">
-          <AnimatePresence mode="wait" initial={false}>
-            {!mobileDetail ? (
-              // ── Écran 1 : LISTE des rubriques ──────────────────────────────
+          <AnimatePresence mode="wait" custom={direction}>
+            {mobileSelectedTab === null ? (
+              /* ── ÉCRAN 1 MOBILE : LA LISTE DES RUBRIQUES ── */
               <motion.div
-                key="list"
-                initial={{ opacity: 0, x: -16 }}
+                key="mobile-list"
+                custom={direction}
+                initial={{ opacity: 0, x: -24 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -16 }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
+                exit={{ opacity: 0, x: -24 }}
+                transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                className="space-y-5 pb-8"
               >
-                {/* En-tête de page */}
-                <div className="mb-5">
-                  <h1 className="text-xl font-black text-slate-900 tracking-tight">Paramètres</h1>
-                  <p className="text-sm text-slate-500 mt-0.5">Gérez votre compte et vos préférences</p>
+                {/* En-tête */}
+                <div>
+                  <h1 className="text-2xl font-black text-slate-900 tracking-tight">Paramètres</h1>
+                  <p className="text-xs sm:text-sm text-slate-500 mt-0.5">Gérez votre compte et vos préférences</p>
                 </div>
 
-                {/* Carte identité (façon en-tête de compte iOS/Android) */}
-                <div className="flex items-center gap-3 bg-white/80 backdrop-blur-md border border-slate-200/60 rounded-2xl p-4 mb-4 shadow-[0_8px_30px_rgb(0,0,0,0.02)]">
+                {/* Carte d'identité du compte */}
+                <div className="bg-white border border-slate-200/70 rounded-3xl p-4.5 sm:p-5 shadow-sm flex items-center gap-4">
                   <div className="relative shrink-0">
                     {profile.avatar_url ? (
                       <Image
                         src={profile.avatar_url}
                         alt={displayName}
-                        width={52}
-                        height={52}
-                        className="w-[52px] h-[52px] rounded-full object-cover ring-2 ring-slate-100"
+                        width={60}
+                        height={60}
+                        className="w-14 h-14 rounded-full object-cover ring-2 ring-slate-100 shadow-sm"
                       />
                     ) : (
-                      <div className="w-[52px] h-[52px] rounded-full bg-slate-100 ring-2 ring-slate-100 flex items-center justify-center">
+                      <div className="w-14 h-14 rounded-full bg-slate-100 ring-2 ring-slate-100 shadow-sm flex items-center justify-center">
                         <User className="h-6 w-6 text-slate-400" />
                       </div>
                     )}
                     {profile.is_verified && (
-                      <span className="absolute -bottom-0.5 -right-0.5 bg-primary rounded-full p-1 border-2 border-white shadow">
+                      <span className="absolute -bottom-0.5 -right-0.5 bg-[#013ff4] rounded-full p-1 border-2 border-white shadow">
                         <Shield className="h-2.5 w-2.5 text-white" />
                       </span>
                     )}
                   </div>
+
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-bold text-slate-900 truncate">{displayName}</p>
-                    <p className="text-xs text-slate-500 truncate">{profile.email}</p>
+                    <p className="text-base font-extrabold text-slate-900 truncate leading-snug">{displayName}</p>
+                    <p className="text-xs text-slate-500 truncate mt-0.5">{profile.email}</p>
+                    <div className="flex items-center gap-1.5 mt-2">
+                      {profile.is_premium && (
+                        <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border border-amber-200">
+                          <Star className="h-2.5 w-2.5 fill-current" />
+                          Premium
+                        </span>
+                      )}
+                      {profile.is_verified && (
+                        <span className="inline-flex items-center gap-1 bg-[#013ff4]/10 text-[#013ff4] text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border border-[#013ff4]/20">
+                          <BadgeCheck className="h-2.5 w-2.5" />
+                          Vérifié
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  {profile.is_premium && (
-                    <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded-full border border-amber-200 shrink-0">
-                      <Star className="h-2.5 w-2.5 fill-current" />
-                      Premium
-                    </span>
-                  )}
                 </div>
 
-                {/* Liste des rubriques — chaque rangée ouvre son écran */}
-                <nav className="bg-white/80 backdrop-blur-md border border-slate-200/60 rounded-2xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.02)] divide-y divide-slate-100">
-                  {TABS.map(({ id, label, icon: Icon, desc }) => (
+                {/* Liste des rubriques tapables */}
+                <div className="bg-white border border-slate-200/70 rounded-3xl overflow-hidden divide-y divide-slate-100 shadow-sm">
+                  {TABS.map(({ id, label, icon: Icon, desc, color, bg }) => (
                     <button
                       key={id}
-                      onClick={() => openTab(id)}
-                      className="w-full flex items-center gap-3.5 px-4 py-3.5 text-left hover:bg-slate-50 active:bg-slate-100 transition-colors"
+                      onClick={() => openMobileTab(id)}
+                      className="w-full flex items-center justify-between p-4 text-left hover:bg-slate-50/80 active:bg-slate-100 transition-colors"
                     >
-                      <span className="shrink-0 w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
-                        <Icon className="h-5 w-5 text-primary" />
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block text-sm font-bold text-slate-900">{label}</span>
-                        <span className="block text-xs text-slate-500 truncate">{desc}</span>
-                      </span>
-                      <ChevronRight className="h-5 w-5 text-slate-300 shrink-0" />
+                      <div className="flex items-center gap-3.5 min-w-0 flex-1 pr-2">
+                        <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 ${bg}`}>
+                          <Icon className={`w-5 h-5 ${color}`} />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-bold text-slate-900 leading-tight">{label}</p>
+                          <p className="text-xs text-slate-500 line-clamp-1 mt-0.5">{desc}</p>
+                        </div>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-slate-400 shrink-0" />
                     </button>
                   ))}
-                </nav>
+                </div>
 
                 {/* Déconnexion */}
                 <button
                   onClick={handleLogout}
-                  className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-white border border-slate-200 rounded-2xl text-sm font-semibold text-red-500 hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-all shadow-[0_8px_30px_rgb(0,0,0,0.02)]"
+                  className="w-full h-12 rounded-2xl bg-white border border-rose-200/80 text-rose-600 font-bold text-sm flex items-center justify-center gap-2.5 hover:bg-rose-50 active:scale-[0.98] transition-all shadow-sm"
                 >
                   <LogOut className="h-4 w-4 shrink-0" />
                   Se déconnecter
                 </button>
               </motion.div>
             ) : (
-              // ── Écran 2 : contenu de la rubrique choisie ───────────────────
+              /* ── ÉCRAN 2 MOBILE : LA RUBRIQUE SÉLECTIONNÉE ── */
               <motion.div
-                key="detail"
-                initial={{ opacity: 0, x: 16 }}
+                key={`mobile-tab-${mobileSelectedTab}`}
+                custom={direction}
+                initial={{ opacity: 0, x: 24 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 16 }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
+                exit={{ opacity: 0, x: 24 }}
+                transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                className="space-y-4 pb-8"
               >
-                {/* Barre de navigation avec bouton retour */}
-                <div className="flex items-center gap-2 mb-5 -mx-4 sm:-mx-6 px-2 sm:px-4 py-2 sticky top-16 z-20 bg-slate-50/95 backdrop-blur-md border-b border-slate-200/60">
+                {/* Barre de retour sticky en haut */}
+                <div className="sticky top-0 z-30 bg-slate-50/95 backdrop-blur-md border-b border-slate-200/80 -mx-4 px-4 py-3 sm:-mx-6 sm:px-6 flex items-center justify-between gap-3 shadow-xs">
                   <button
-                    onClick={() => setMobileDetail(false)}
-                    aria-label="Retour aux paramètres"
-                    className="shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-slate-600 hover:bg-slate-200/60 active:scale-95 transition-all"
+                    onClick={closeMobileTab}
+                    className="inline-flex items-center gap-1 text-sm font-bold text-slate-700 hover:text-slate-900 active:scale-95 transition-all"
                   >
-                    <ChevronLeft className="h-5 w-5" />
+                    <ChevronLeft className="w-5 h-5 text-[#013ff4] -ml-1" />
+                    <span>Retour</span>
                   </button>
-                  <div className="min-w-0">
-                    <h1 className="text-base font-black text-slate-900 tracking-tight truncate">{currentTab?.label}</h1>
-                    <p className="text-[11px] text-slate-500 truncate">{currentTab?.desc}</p>
+
+                  <div className="flex items-center gap-2 min-w-0">
+                    {currentMobileConfig && (
+                      <span className={`w-2 h-2 rounded-full ${currentMobileConfig.color.replace("text-", "bg-")}`} />
+                    )}
+                    <h2 className="text-sm sm:text-base font-extrabold text-slate-900 truncate">
+                      {currentMobileConfig?.label}
+                    </h2>
                   </div>
+
+                  <div className="w-12 shrink-0" aria-hidden />
                 </div>
 
                 {/* Contenu de la rubrique */}
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={activeTab}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -8 }}
-                    transition={{ duration: 0.2 }}
-                    className="min-w-0"
-                  >
-                    {activeSection[activeTab]}
-                  </motion.div>
-                </AnimatePresence>
+                <div className="pt-1">
+                  {activeSection[mobileSelectedTab]}
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
 
-        {/* ══════════════════════════════════════════════════════════════════
-            DESKTOP — deux colonnes : liste des rubriques + contenu
-            ══════════════════════════════════════════════════════════════ */}
-        <div className="hidden lg:grid lg:grid-cols-[220px_1fr] lg:gap-8 lg:items-start">
+        {/* ═════════════════════════════════════════════════════════════════════
+            AFFICHAGE DESKTOP (≥ lg) : SIDEBAR FIXE + CONTENU
+            ═════════════════════════════════════════════════════════════════════ */}
+        <div className="hidden lg:grid lg:grid-cols-[230px_1fr] lg:gap-8 lg:items-start">
 
-          {/* ── Barre latérale ──────────────────────────────────────────────── */}
+          {/* Desktop sidebar */}
           <aside className="flex flex-col gap-3 sticky top-24">
 
-            {/* Carte identité */}
+            {/* User identity card */}
             <div className="bg-white/80 backdrop-blur-md border border-slate-200/60 rounded-2xl p-5 text-center shadow-[0_8px_30px_rgb(0,0,0,0.02)]">
               <div className="relative inline-flex mb-3">
                 {profile.avatar_url ? (
@@ -352,7 +358,7 @@ export function ParametresContent() {
               ))}
             </nav>
 
-            {/* Déconnexion */}
+            {/* Logout */}
             <button
               onClick={handleLogout}
               className="flex items-center gap-3 px-4 py-3.5 bg-white border border-slate-200 rounded-2xl text-sm font-semibold text-red-500 hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-all shadow-[0_8px_30px_rgb(0,0,0,0.02)]"
@@ -362,17 +368,19 @@ export function ParametresContent() {
             </button>
           </aside>
 
-          {/* ── Contenu ──────────────────────────────────────────────────────── */}
+          {/* Main content */}
           <div className="min-w-0">
+            {/* Desktop section title */}
             <div className="mb-6">
               <h1 className="text-xl font-black text-slate-900 tracking-tight">
-                {currentTab?.label}
+                {TABS.find(t => t.id === activeTab)?.label}
               </h1>
               <p className="text-sm text-slate-500 mt-0.5">
-                {currentTab?.desc}
+                {TABS.find(t => t.id === activeTab)?.desc}
               </p>
             </div>
 
+            {/* Section content with animation */}
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeTab}
@@ -387,6 +395,7 @@ export function ParametresContent() {
             </AnimatePresence>
           </div>
         </div>
+
       </div>
     </div>
   )
