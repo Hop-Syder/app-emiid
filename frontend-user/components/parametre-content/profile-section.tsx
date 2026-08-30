@@ -357,7 +357,7 @@ export function ProfileSection({
             <SettingToggle
               id="is_nomad"
               icon={Compass}
-              iconBg="bg-indigo-50"
+              iconBg="bg-indigo-50 dark:bg-indigo-950/40"
               iconColor="text-indigo-600"
               title="Professionnel en déplacement (Nomade)"
               description="Indique aux visiteurs que votre activité est itinérante et que votre zone géographique peut varier."
@@ -456,7 +456,7 @@ export function ProfileSection({
         {profile.phone && profile.phone.length > 5 && (
           <div className="pt-2 border-t border-border">
             {profile.phone_verified ? (
-              <div className="flex items-center gap-2.5 text-emerald-700 bg-emerald-50 w-fit px-3.5 py-2 rounded-2xl border border-emerald-200 text-xs sm:text-sm font-bold shadow-xs">
+              <div className="flex items-center gap-2.5 text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 w-fit px-3.5 py-2 rounded-2xl border border-emerald-200 dark:border-emerald-800/50 text-xs sm:text-sm font-bold shadow-xs">
                 <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
                 <span>Numéro certifié et protégé</span>
               </div>
@@ -500,19 +500,19 @@ export function ProfileSection({
                 </div>
               </div>
             ) : (
-              <div className="p-4 bg-amber-50/80 border border-amber-200/80 rounded-3xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="p-4 bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/50 rounded-3xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-start gap-3">
                   <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-sm font-bold text-amber-900">Numéro non certifié</p>
-                    <p className="text-xs text-amber-700/90 mt-0.5">Recevez vos notifications et sécurisez votre accès.</p>
+                    <p className="text-sm font-bold text-amber-900 dark:text-amber-300">Numéro non certifié</p>
+                    <p className="text-xs text-amber-700/90 dark:text-amber-300 mt-0.5">Recevez vos notifications et sécurisez votre accès.</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <button
                     type="button"
                     onClick={() => handleVerifyRequest("whatsapp")}
-                    className="flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-2xl bg-card border border-emerald-300 text-emerald-800 text-xs font-bold hover:bg-emerald-50 active:scale-95 transition-all shadow-xs"
+                    className="flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-2xl bg-card border border-emerald-300 dark:border-emerald-700/50 text-emerald-800 dark:text-emerald-300 text-xs font-bold hover:bg-emerald-50 active:scale-95 transition-all shadow-xs"
                   >
                     <Image src="/svg/whatsapp-logo.svg" width={14} height={14} alt="WhatsApp" />
                     WhatsApp
@@ -520,7 +520,7 @@ export function ProfileSection({
                   <button
                     type="button"
                     onClick={() => handleVerifyRequest("sms")}
-                    className="flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-2xl bg-card border border-blue-300 text-blue-800 text-xs font-bold hover:bg-blue-50 active:scale-95 transition-all shadow-xs"
+                    className="flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-2xl bg-card border border-blue-300 dark:border-blue-700/50 text-blue-800 dark:text-blue-300 text-xs font-bold hover:bg-blue-50 active:scale-95 transition-all shadow-xs"
                   >
                     <MessageSquare className="h-3.5 w-3.5 text-blue-600" />
                     SMS
@@ -537,12 +537,12 @@ export function ProfileSection({
         <div className="divide-y divide-border">
           <SettingRow
             icon={Mail}
-            iconBg="bg-emerald-50"
+            iconBg="bg-emerald-50 dark:bg-emerald-950/40"
             iconColor="text-emerald-600"
             title="Adresse Email"
             subtitle={profile.email}
             rightElement={
-              <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border border-emerald-200">
+              <span className="inline-flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800/50">
                 <Shield className="h-2.5 w-2.5" />
                 Vérifié
               </span>
@@ -551,13 +551,13 @@ export function ProfileSection({
 
           <SettingRow
             icon={Smartphone}
-            iconBg={profile.phone_verified ? "bg-emerald-50" : "bg-muted"}
+            iconBg={profile.phone_verified ? "bg-emerald-50 dark:bg-emerald-950/40" : "bg-muted"}
             iconColor={profile.phone_verified ? "text-emerald-600" : "text-slate-400"}
             title="Numéro de Téléphone"
             subtitle={profile.phone || "Aucun numéro renseigné"}
             rightElement={
               profile.phone_verified ? (
-                <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border border-emerald-200">
+                <span className="inline-flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800/50">
                   <Shield className="h-2.5 w-2.5" />
                   Vérifié
                 </span>
@@ -572,7 +572,7 @@ export function ProfileSection({
 
           <SettingRow
             icon={User}
-            iconBg="bg-violet-50"
+            iconBg="bg-violet-50 dark:bg-violet-950/40"
             iconColor="text-violet-600"
             title="Identité & Documents officiels"
             subtitle="Badge vérifié, CNI, IFU, RCCM"

@@ -38,11 +38,11 @@ interface TabConfig {
 const TABS: TabConfig[] = [
   { id: "profil",       label: "Profil",              icon: User,        desc: "Identité, bio, slogan et expérience",              color: "text-[#013ff4]", bg: "bg-[#013ff4]/10" },
   { id: "reseaux",      label: "Réseaux",             icon: Share2,      desc: "Liens sociaux et contacts publics",                color: "text-[#03b3f8]", bg: "bg-[#03b3f8]/10" },
-  { id: "horaires",     label: "Horaires & Services", icon: Clock,       desc: "Adresse, horaires et prestations",                 color: "text-indigo-600", bg: "bg-indigo-50" },
-  { id: "verification", label: "Vérification",        icon: BadgeCheck,  desc: "Badge vérifié et pièces justificatives",           color: "text-emerald-600", bg: "bg-emerald-50" },
-  { id: "securite",     label: "Sécurité",            icon: Shield,      desc: "Accès, PIN et authentification",                  color: "text-violet-600", bg: "bg-violet-50" },
+  { id: "horaires",     label: "Horaires & Services", icon: Clock,       desc: "Adresse, horaires et prestations",                 color: "text-indigo-600", bg: "bg-indigo-50 dark:bg-indigo-950/40" },
+  { id: "verification", label: "Vérification",        icon: BadgeCheck,  desc: "Badge vérifié et pièces justificatives",           color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-950/40" },
+  { id: "securite",     label: "Sécurité",            icon: Shield,      desc: "Accès, PIN et authentification",                  color: "text-violet-600", bg: "bg-violet-50 dark:bg-violet-950/40" },
   { id: "preferences",  label: "Préférences",         icon: Settings,    desc: "Langue, thème, confidentialité et notifications", color: "text-foreground", bg: "bg-muted" },
-  { id: "plan",         label: "Abonnement",          icon: Star,        desc: "Offre EmiID Premium et mise en avant",             color: "text-amber-600", bg: "bg-amber-50" },
+  { id: "plan",         label: "Abonnement",          icon: Star,        desc: "Offre EmiID Premium et mise en avant",             color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-950/40" },
 ]
 
 export function ParametresContent() {
@@ -96,7 +96,7 @@ export function ParametresContent() {
     return (
       <div className="flex items-center justify-center min-h-[60vh] px-4">
         <div className="bg-card border border-red-100 rounded-2xl p-8 text-center max-w-sm w-full shadow-sm">
-          <div className="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-14 h-14 bg-red-50 dark:bg-red-950/40 rounded-full flex items-center justify-center mx-auto mb-4">
             <X className="h-7 w-7 text-red-500" />
           </div>
           <h2 className="text-lg font-black text-foreground mb-2">Impossible de charger</h2>
@@ -207,7 +207,7 @@ export function ParametresContent() {
                     <p className="text-xs text-muted-foreground truncate mt-0.5">{profile.email}</p>
                     <div className="flex items-center gap-1.5 mt-2">
                       {profile.is_premium && (
-                        <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border border-amber-200">
+                        <span className="inline-flex items-center gap-1 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-800/50">
                           <Star className="h-2.5 w-2.5 fill-current" />
                           Premium
                         </span>
@@ -247,7 +247,7 @@ export function ParametresContent() {
                 {/* Déconnexion */}
                 <button
                   onClick={handleLogout}
-                  className="w-full h-12 rounded-2xl bg-card border border-rose-200/80 text-rose-600 font-bold text-sm flex items-center justify-center gap-2.5 hover:bg-rose-50 active:scale-[0.98] transition-all shadow-sm"
+                  className="w-full h-12 rounded-2xl bg-card border border-rose-200/80 dark:border-rose-800/50 text-rose-600 font-bold text-sm flex items-center justify-center gap-2.5 hover:bg-rose-50 active:scale-[0.98] transition-all shadow-sm"
                 >
                   <LogOut className="h-4 w-4 shrink-0" />
                   Se déconnecter
@@ -328,7 +328,7 @@ export function ParametresContent() {
               <p className="text-sm font-bold text-foreground truncate leading-tight">{displayName}</p>
               <p className="text-xs text-muted-foreground truncate mt-0.5 px-2">{profile.email}</p>
               {profile.is_premium && (
-                <span className="mt-3 inline-flex items-center gap-1 bg-amber-50 text-amber-700 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border border-amber-200">
+                <span className="mt-3 inline-flex items-center gap-1 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border border-amber-200 dark:border-amber-800/50">
                   <Star className="h-2.5 w-2.5 fill-current" />
                   Premium
                 </span>

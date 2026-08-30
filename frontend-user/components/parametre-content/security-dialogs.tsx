@@ -134,7 +134,7 @@ export function MfaDialog({
                                 onClick={() => setMfaChannel("whatsapp")}
                                 className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${
                                     mfaChannel === "whatsapp"
-                                        ? "border-green-500 bg-green-50 text-green-700"
+                                        ? "border-green-500 bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-300"
                                         : "border-border hover:border-border"
                                 }`}
                             >
@@ -145,7 +145,7 @@ export function MfaDialog({
                                 onClick={() => setMfaChannel("sms")}
                                 className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${
                                     mfaChannel === "sms"
-                                        ? "border-blue-500 bg-blue-50 text-blue-700"
+                                        ? "border-blue-500 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300"
                                         : "border-border hover:border-border"
                                 }`}
                             >
@@ -236,7 +236,7 @@ export function ReauthDialog({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-md rounded-2xl border-none shadow-2xl">
                 <DialogHeader>
-                    <div className="mx-auto w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mb-4">
+                    <div className="mx-auto w-12 h-12 bg-blue-50 dark:bg-blue-950/40 rounded-full flex items-center justify-center mb-4">
                         <Lock className="h-6 w-6 text-[#013ff4]" />
                     </div>
                     <DialogTitle className="text-2xl font-black text-center text-[#013ff4]">

@@ -93,7 +93,7 @@ export function NotificationsSection({
           <SettingToggle
             id="notif-messages"
             icon={MessageSquare}
-            iconBg="bg-indigo-50"
+            iconBg="bg-indigo-50 dark:bg-indigo-950/40"
             iconColor="text-indigo-600"
             title="Nouveaux Messages & Devis"
             description="Recevez une alerte email et push pour chaque message entrant ou demande de devis."
@@ -104,7 +104,7 @@ export function NotificationsSection({
           <SettingToggle
             id="notif-network"
             icon={Users}
-            iconBg="bg-emerald-50"
+            iconBg="bg-emerald-50 dark:bg-emerald-950/40"
             iconColor="text-emerald-600"
             title="Activité du Réseau & Profil"
             description="Soyez averti des nouveaux abonnés, des recommandations et des vues sur votre profil public."
@@ -115,7 +115,7 @@ export function NotificationsSection({
           <SettingToggle
             id="notif-newsletter"
             icon={Mail}
-            iconBg="bg-amber-50"
+            iconBg="bg-amber-50 dark:bg-amber-950/40"
             iconColor="text-amber-600"
             title="Actualités & Mises à jour EmiID"
             description="Recevez notre récapitulatif mensuel d'opportunités, conseils de visibilité et nouveautés plateforme."

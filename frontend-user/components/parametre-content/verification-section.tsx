@@ -37,9 +37,9 @@ const DOC_TYPES: { value: string; label: string }[] = [
 ]
 
 const STATUS_META: Record<VerificationDoc["status"], { label: string; className: string; Icon: React.ElementType }> = {
-    pending: { label: "En attente", className: "bg-amber-50 text-amber-700 border-amber-200", Icon: Clock },
-    approved: { label: "Approuvé", className: "bg-emerald-50 text-emerald-700 border-emerald-200", Icon: CheckCircle2 },
-    rejected: { label: "Rejeté", className: "bg-rose-50 text-rose-700 border-rose-200", Icon: XCircle },
+    pending: { label: "En attente", className: "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/50", Icon: Clock },
+    approved: { label: "Approuvé", className: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/50", Icon: CheckCircle2 },
+    rejected: { label: "Rejeté", className: "bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800/50", Icon: XCircle },
 }
 
 export function VerificationSection({ profile }: SectionProps) {
@@ -111,7 +111,7 @@ export function VerificationSection({ profile }: SectionProps) {
             {/* Statut global */}
             <SectionCard title="Badge vérifié">
                 <div className="flex items-center gap-3">
-                    <div className={`p-2.5 rounded-xl shrink-0 ${profile.is_verified ? "bg-emerald-50" : "bg-muted"}`}>
+                    <div className={`p-2.5 rounded-xl shrink-0 ${profile.is_verified ? "bg-emerald-50 dark:bg-emerald-950/40" : "bg-muted"}`}>
                         <ShieldCheck className={`h-5 w-5 ${profile.is_verified ? "text-emerald-600" : "text-slate-400"}`} />
                     </div>
                     <div>

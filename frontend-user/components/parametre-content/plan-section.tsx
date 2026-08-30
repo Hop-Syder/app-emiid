@@ -108,7 +108,7 @@ export function PlanSection({ profile }: PlanSectionProps) {
 
         {pro && (
           <div className="shrink-0">
-            <span className="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-xs font-bold text-emerald-700">
+            <span className="inline-flex items-center gap-2 rounded-xl border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-950/40 px-4 py-2.5 text-xs font-bold text-emerald-700 dark:text-emerald-300">
               <Check className="h-4 w-4" />
               Abonnement actif
             </span>
@@ -118,11 +118,11 @@ export function PlanSection({ profile }: PlanSectionProps) {
 
       {/* ── Erreur de paiement ───────────────────────────────────────── */}
       {error && (
-        <div className="flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3">
+        <div className="flex items-start gap-3 rounded-2xl border border-rose-200 dark:border-rose-800/50 bg-rose-50 dark:bg-rose-950/40 px-4 py-3">
           <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-rose-500" />
           <div>
-            <p className="text-sm font-bold text-rose-900">Paiement impossible</p>
-            <p className="text-xs text-rose-700">{error}</p>
+            <p className="text-sm font-bold text-rose-900 dark:text-rose-300">Paiement impossible</p>
+            <p className="text-xs text-rose-700 dark:text-rose-300">{error}</p>
           </div>
         </div>
       )}
@@ -158,7 +158,7 @@ export function PlanSection({ profile }: PlanSectionProps) {
               size="sm"
               disabled={managing}
               onClick={() => setCancelOpen(true)}
-              className="shrink-0 rounded-xl text-rose-600 border-rose-200 hover:bg-rose-50 hover:text-rose-700"
+              className="shrink-0 rounded-xl text-rose-600 border-rose-200 dark:border-rose-800/50 hover:bg-rose-50 hover:text-rose-700"
             >
               {managing ? <Loader2 className="h-4 w-4 animate-spin" /> : "Résilier"}
             </Button>
@@ -294,10 +294,10 @@ export function PlanSection({ profile }: PlanSectionProps) {
 function InvoiceRow({ invoice }: { invoice: Invoice }) {
   const badge =
     invoice.status === "SUCCESS"
-      ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+      ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/50"
       : invoice.status === "FAILED"
-        ? "bg-rose-50 text-rose-700 border-rose-200"
-        : "bg-amber-50 text-amber-700 border-amber-200"
+        ? "bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800/50"
+        : "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/50"
   const label = invoice.status === "SUCCESS" ? "Payé" : invoice.status === "FAILED" ? "Échoué" : "En attente"
 
   return (

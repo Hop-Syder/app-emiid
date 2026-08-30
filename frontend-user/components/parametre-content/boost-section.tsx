@@ -85,11 +85,11 @@ export function BoostSection() {
 
             {/* ── Erreur ────────────────────────────────────────────────────── */}
             {error && (
-                <div className="flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3">
+                <div className="flex items-start gap-3 rounded-2xl border border-rose-200 dark:border-rose-800/50 bg-rose-50 dark:bg-rose-950/40 px-4 py-3">
                     <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-rose-500" />
                     <div>
-                        <p className="text-sm font-bold text-rose-900">Paiement impossible</p>
-                        <p className="text-xs text-rose-700">{error}</p>
+                        <p className="text-sm font-bold text-rose-900 dark:text-rose-300">Paiement impossible</p>
+                        <p className="text-xs text-rose-700 dark:text-rose-300">{error}</p>
                     </div>
                 </div>
             )}
@@ -161,7 +161,7 @@ export function BoostSection() {
                         </select>
 
                         {!profileCommuneId && (
-                            <p className="text-[11px] font-medium text-amber-700">
+                            <p className="text-[11px] font-medium text-amber-700 dark:text-amber-300">
                                 Votre profil n&apos;est rattaché à aucune commune : renseignez votre ville dans
                                 l&apos;onglet Profil pour qu&apos;elle soit présélectionnée.
                             </p>
