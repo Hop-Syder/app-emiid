@@ -48,8 +48,8 @@ export function DesktopAppBarGuest() {
           src="/logo-emiid-bleu-blanc-2.png"
           alt="EmiID"
           width={220}
-          height={65}
-          className="h-14 w-auto object-contain"
+          height={102}
+          className="h-12 lg:h-14 w-auto object-contain"
           priority
         />
       </Link>

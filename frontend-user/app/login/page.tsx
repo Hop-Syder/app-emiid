@@ -186,11 +186,11 @@ export default function LoginPage() {
             className="w-full inline-flex items-center justify-center lg:justify-start group transition-transform hover:scale-[1.03] mb-6 sm:mb-7 shrink-0 lg:absolute lg:top-8 lg:left-8 lg:mb-0 lg:w-auto lg:z-20"
           >
             <Image
-              src="/login/logo-emiid-bleu-blanc.svg"
+              src="/logo-emiid-bleu-blanc-2.png"
               alt="EmiID"
-              width={400}
-              height={110}
-              className="h-10 sm:h-12 lg:h-12 w-auto object-contain drop-shadow-[0_2px_18px_rgba(1,63,244,0.45)]"
+              width={260}
+              height={120}
+              className="h-12 sm:h-16 lg:h-20 w-auto object-contain drop-shadow-[0_4px_24px_rgba(1,63,244,0.45)]"
               priority
             />
           </Link>
