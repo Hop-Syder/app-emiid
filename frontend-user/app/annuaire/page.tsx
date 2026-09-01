@@ -130,16 +130,25 @@ export default async function AnnuairePage({ searchParams }: { searchParams: Pro
     const resolvedSearchParams = await searchParams
     const category = typeof resolvedSearchParams.category === 'string' ? resolvedSearchParams.category : "all"
     const activityDomain = typeof resolvedSearchParams.activity_domain === 'string' ? resolvedSearchParams.activity_domain : "all"
-    
-    const initialProfiles = await fetchInitialProfiles(category, activityDomain)
+    // La recherche vocale et l'écran /recherche redirigent vers /annuaire?search=…
+    // Ce paramètre n'était lu que côté client, après montage : le serveur rendait
+    // d'abord les 12 profils par défaut, sans rapport avec la requête. L'utilisateur
+    // voyait donc des profils hors sujet, puis la grille se vidait le temps du fetch.
+    // On lit désormais la requête ici pour que le premier rendu soit déjà le bon.
+    const search = typeof resolvedSearchParams.search === 'string' ? resolvedSearchParams.search : ""
+
+    // En recherche, la liste par défaut n'a aucune valeur : elle serait remplacée
+    // aussitôt par les résultats. On évite la requête et le clignotement.
+    const initialProfiles = search ? [] : await fetchInitialProfiles(category, activityDomain)
 
     return (
         <NavigationShell isPublic={true}>
             <div className="flex-1 w-full min-h-screen flex flex-col pt-8">
-                <AnnuairePublicContent 
-                    initialProfiles={initialProfiles} 
+                <AnnuairePublicContent
+                    initialProfiles={initialProfiles}
                     initialCategory={category}
                     initialActivityDomain={activityDomain}
+                    initialSearch={search}
                 />
             </div>
         </NavigationShell>

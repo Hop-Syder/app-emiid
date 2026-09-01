@@ -12,6 +12,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { PublicProfileJoined, ProfileTagJoin, countryName, errorMessage } from '@/types/supabase-rows'
 import { embedQuery } from '@/lib/embeddings'
+import { extractSearchTerms } from '@/lib/search-terms'
 
 export async function GET(request: NextRequest) {
     try {
@@ -132,6 +133,9 @@ export async function GET(request: NextRequest) {
         //    est indisponible (pas de clé / quota / erreur), on retombe
         //    proprement sur la seule Couche ① — la recherche marche toujours.
         let rankMap: Map<string, number> | null = null
+        // Vrai quand aucune couche de recherche n'a pu répondre (panne RPC) : on le
+        // distingue d'une recherche qui a bien tourné sans rien trouver.
+        let searchDegraded = false
         if (search) {
             const safe = search.replace(/[,()]/g, ' ').trim()
             if (safe) {
@@ -141,7 +145,8 @@ export async function GET(request: NextRequest) {
                     embedQuery(safe),
                 ])
 
-                if (ftsRes.error) {
+                const ftsFailed = !!ftsRes.error
+                if (ftsFailed) {
                     console.error('search_profile_ids RPC error:', ftsRes.error)
                 }
                 const ftsRows =
@@ -149,6 +154,9 @@ export async function GET(request: NextRequest) {
 
                 // ② Recherche sémantique (uniquement si la requête a pu être embarquée).
                 let semRows: { profile_id: string; similarity: number }[] = []
+                // Sans clé d'embedding, la couche ② n'est pas « en panne » : elle est
+                // hors service par configuration. Seul un échec du RPC compte comme panne.
+                let semFailed = false
                 if (queryVec) {
                     const { data: sem, error: semErr } = await supabase.rpc(
                         'match_profiles_semantic',
@@ -156,6 +164,7 @@ export async function GET(request: NextRequest) {
                     )
                     if (semErr) {
                         console.error('match_profiles_semantic RPC error:', semErr)
+                        semFailed = true
                     } else {
                         semRows =
                             (sem as { profile_id: string; similarity: number }[] | null) || []
@@ -182,11 +191,41 @@ export async function GET(request: NextRequest) {
                 addList(semRows, W_SEM)
 
                 if (fused.size === 0) {
-                    return NextResponse.json({ profiles: [], count: 0 })
-                }
+                    // Deux situations très différentes aboutissaient ici à la même
+                    // page vide. Le 29-30/08, un REVOKE de privilèges a cassé les deux
+                    // RPC (42501 sur search_vector / embedding) et la recherche a
+                    // silencieusement affiché « aucun résultat » pendant des jours.
+                    // Une panne d'infrastructure ne doit jamais être présentée à
+                    // l'utilisateur comme une absence de profils.
+                    const noLayerAnswered = ftsFailed && (!queryVec || semFailed)
+                    if (!noLayerAnswered) {
+                        // Les couches ont répondu : il n'existe réellement aucun profil.
+                        return NextResponse.json({ profiles: [], count: 0 })
+                    }
 
-                rankMap = fused
-                query = query.in('id', Array.from(fused.keys()))
+                    // ③ Filet de sécurité lexical : ILIKE sur les colonnes que la vue
+                    //    public_profiles expose déjà à tous. Moins pertinent que le FTS,
+                    //    mais il tient debout sans aucune RPC — la recherche continue de
+                    //    rendre des profils même si la base refuse les fonctions.
+                    searchDegraded = true
+                    const terms = extractSearchTerms(safe)
+                    if (terms.length === 0) {
+                        return NextResponse.json({ profiles: [], count: 0, degraded: true })
+                    }
+                    const FALLBACK_COLUMNS = [
+                        'first_name', 'last_name', 'role', 'specialty',
+                        'category', 'activity_domain', 'job_title', 'city', 'bio',
+                    ]
+                    // Un profil correspond dès qu'un terme touche une colonne (OR),
+                    // à l'image de la variante permissive du FTS.
+                    const orFilter = terms
+                        .flatMap((term) => FALLBACK_COLUMNS.map((col) => `${col}.ilike.%${term}%`))
+                        .join(',')
+                    query = query.or(orFilter)
+                } else {
+                    rankMap = fused
+                    query = query.in('id', Array.from(fused.keys()))
+                }
             }
         }
 
@@ -313,6 +352,13 @@ export async function GET(request: NextRequest) {
 
         // Transformation format retourné pour le frontend
         const formattedProfiles = rows.map((e) => {
+            // ⚠️ Deux identifiants coexistent et ne sont PAS interchangeables :
+            //    • `user_profiles.id`  → clé manipulée en base (RPC de recherche,
+            //      boosts, profile_tags) et par tous les filtres `.in('id', …)` ci-dessus ;
+            //    • `user_profiles.user_id` → clé exposée au client, celle qu'utilisent
+            //      les URLs de profil et le cache des suivis (cf. fetchFollowedIds).
+            //    La conversion se fait ici, et seulement ici. Ne jamais réinjecter un id
+            //    venu du client dans un filtre `.in('id', …)` : il ne correspondrait à rien.
             const profileId = e.user_id || e.id || "0"
             const country = countryName(e.countries)
             return {
@@ -343,6 +389,9 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({
             profiles: (rankMap || proximityMap) ? formattedProfiles.slice(from, to + 1) : formattedProfiles,
             count: (rankMap || proximityMap) ? formattedProfiles.length : (count || 0),
+            // Signale au client que le classement par pertinence était indisponible
+            // et que ces résultats viennent du filet lexical (couche ③).
+            ...(searchDegraded ? { degraded: true } : {}),
         })
 
     } catch (error) {

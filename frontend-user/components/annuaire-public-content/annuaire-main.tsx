@@ -23,6 +23,8 @@ interface AnnuairePublicContentProps {
     initialCategory?: string
     initialActivityDomain?: string
     initialCity?: string
+    /** Requête reçue du serveur (/annuaire?search=…), y compris depuis la dictée vocale. */
+    initialSearch?: string
     initialProfiles?: PublicProfile[]
 }
 
@@ -30,10 +32,13 @@ export function AnnuairePublicContent({
     initialCategory = "all",
     initialActivityDomain = "all",
     initialCity = "",
+    initialSearch = "",
     initialProfiles = []
 }: AnnuairePublicContentProps) {
     const [filters, setFilters] = useState({
-        search: "",
+        // Renseigné dès le premier rendu : la grille part de la bonne requête au lieu
+        // d'attendre l'effet de lecture d'URL, qui affichait un état transitoire faux.
+        search: initialSearch,
         category: initialCategory,
         country: "all",
         city: initialCity,

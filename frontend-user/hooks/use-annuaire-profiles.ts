@@ -9,7 +9,7 @@
 
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { fetchFollowedIds } from "@/lib/follows"
 import { useCurrentUserProfile } from "@/hooks/use-current-user-profile"
@@ -33,6 +33,22 @@ interface UseAnnuaireProfilesProps {
   onlyPremium?: boolean
 }
 
+/**
+ * Vrai quand aucun critère n'est posé : les profils rendus par le serveur
+ * suffisent alors, et interroger l'API n'apporterait rien.
+ */
+function hasNoActiveFilter(filters?: FiltersState): boolean {
+  return (
+    !filters ||
+    (!filters.search &&
+      (!filters.category || filters.category === "all") &&
+      (!filters.activity_domain || filters.activity_domain === "all") &&
+      (!filters.country || filters.country === "all") &&
+      !filters.city &&
+      !filters.tags)
+  )
+}
+
 export function useAnnuaireProfiles({
   filters,
   initialProfiles = [],
@@ -41,10 +57,22 @@ export function useAnnuaireProfiles({
   const router = useRouter()
   const { session } = useCurrentUserProfile()
   const [profiles, setProfiles] = useState<PublicProfile[]>(initialProfiles)
-  const [loading, setLoading] = useState(false)
-  const [isFirstRender, setIsFirstRender] = useState(true)
+  // Une requête est due dès le montage si le serveur n'a pas déjà fourni la bonne
+  // liste — typiquement une arrivée sur /annuaire?search=… . Démarrer à `false`
+  // faisait afficher « Aucun résultat trouvé » pendant tout le temps du chargement,
+  // exactement l'écran vide que voit l'utilisateur après une recherche vocale.
+  const [loading, setLoading] = useState(
+    () => !(hasNoActiveFilter(filters) && initialProfiles.length > 0)
+  )
+  // Un ref, pas un state : consommer le rendu serveur ne doit pas provoquer de
+  // re-rendu, sous peine de relancer l'effet et de doubler les appels réseau.
+  const isFirstRender = useRef(true)
   const [page, setPage] = useState(1)
   const [totalCount, setTotalCount] = useState(initialProfiles.length)
+  // L'API le signale quand le classement par pertinence est indisponible et que
+  // les résultats proviennent du repli lexical : l'écran doit le dire plutôt que
+  // de faire passer une liste approximative pour un classement fiable.
+  const [degraded, setDegraded] = useState(false)
   const limit = 30
 
   // Réinitialiser la page au changement de filtres
@@ -79,17 +107,10 @@ export function useAnnuaireProfiles({
 
   // Charger les profils en fonction des filtres et de la pagination
   useEffect(() => {
-    const isDefaultFilters =
-      !filters ||
-      (!filters.search &&
-        (!filters.category || filters.category === "all") &&
-        (!filters.activity_domain || filters.activity_domain === "all") &&
-        (!filters.country || filters.country === "all") &&
-        !filters.city &&
-        !filters.tags)
+    const isDefaultFilters = hasNoActiveFilter(filters)
 
-    if (isFirstRender && isDefaultFilters && initialProfiles.length > 0 && page === 1) {
-      setIsFirstRender(false)
+    if (isFirstRender.current && isDefaultFilters && initialProfiles.length > 0 && page === 1) {
+      isFirstRender.current = false
       return
     }
 
@@ -137,13 +158,14 @@ export function useAnnuaireProfiles({
           }))
           setProfiles(updatedProfiles)
           setTotalCount(result.count || 0)
+          setDegraded(!!result.degraded)
         }
       } catch (error) {
         console.error("Erreur chargement annuaire:", error)
       } finally {
         if (active) {
           setLoading(false)
-          setIsFirstRender(false)
+          isFirstRender.current = false
         }
       }
     }
@@ -153,7 +175,13 @@ export function useAnnuaireProfiles({
     return () => {
       active = false
     }
-  }, [filters, page, onlyPremium, isFirstRender, initialProfiles.length])
+    // Hors dépendances volontairement :
+    //  • `initialProfiles` ne décrit que le rendu serveur initial ; le réintroduire
+    //    relançait la requête sans raison ;
+    //  • `session` ne sert qu'à teinter le bouton « Suivi » — l'effet dédié
+    //    ci-dessus s'en charge déjà, sans recharger toute la grille.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters, page, onlyPremium])
 
   const totalPages = Math.ceil(totalCount / limit)
 
@@ -168,6 +196,7 @@ export function useAnnuaireProfiles({
     setPage,
     totalPages,
     totalCount,
+    degraded,
     handleResetFilters,
   }
 }

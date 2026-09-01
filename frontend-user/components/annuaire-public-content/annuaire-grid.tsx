@@ -54,6 +54,7 @@ export function AnnuaireGrid({
     page,
     setPage,
     totalPages,
+    degraded,
     handleResetFilters,
   } = useAnnuaireProfiles({
     filters,
@@ -113,6 +114,19 @@ export function AnnuaireGrid({
 
   return (
     <div className="space-y-8">
+      {/* Repli lexical actif : les profils affichés sont pertinents, mais l'ordre
+          n'est pas celui du moteur de pertinence. On le dit franchement plutôt
+          que de laisser croire à un classement fiable. */}
+      {degraded && (
+        <div
+          role="status"
+          className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900"
+        >
+          Le classement par pertinence est momentanément indisponible. Voici les
+          profils dont la fiche contient vos mots-clés.
+        </div>
+      )}
+
       {/* Lignes de ROW_SIZE cartes max */}
       {Array.from({ length: Math.ceil(profiles.length / ROW_SIZE) }, (_, rowIndex) => (
         <ProfileRow
