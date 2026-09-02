@@ -29,24 +29,36 @@
  *   recherche continuait de fonctionner car il lit la vue public_profiles.
  *
  *   ── Correctif ───────────────────────────────────────────────────────────
- *   Aligner ces deux fonctions sur la convention DÉJÀ appliquée à toutes les
- *   autres RPC du projet qui touchent user_profiles — search_profiles_by_proximity(),
+ *   Aligner ces fonctions sur la convention DÉJÀ appliquée à toutes les autres
+ *   RPC du projet qui touchent user_profiles — search_profiles_by_proximity(),
  *   active_boosted_profile_ids(), active_boosted_profile_ids_v2() sont toutes
- *   SECURITY DEFINER. Les deux fonctions de recherche étaient les seules
- *   restées en INVOKER : c'est l'incohérence à l'origine de la panne.
+ *   SECURITY DEFINER. Les deux fonctions de recherche étaient les seules restées
+ *   en INVOKER : c'est l'incohérence à l'origine de la panne.
  *
  *   SECURITY DEFINER est sûr ici, et strictement plus sûr qu'un re-GRANT :
  *     • la surface de sortie se limite à (profile_id uuid, score) — aucune PII,
  *       ni search_vector, ni embedding ne quittent la base ;
  *     • le filtre `is_published = true` reste appliqué dans chaque branche ;
- *     • search_path est figé (cf. durcissement M3 du 21/06), ce qui interdit
- *       le détournement par shadowing d'objets.
+ *     • search_path est figé, ce qui interdit le détournement par shadowing.
  *   Aucun privilège n'est rendu à anon/authenticated : la fermeture des fuites
  *   pin_code / email / phone des 29-30/08 reste intacte.
  *
- *   Corps des fonctions inchangés (repris à l'identique de
- *   20260828_search_natural_language.sql et 20260821_semantic_search.sql) :
- *   seul le mode d'exécution change. Idempotent.
+ *   ── Deux pièges d'environnement Supabase, traités explicitement ──────────
+ *   ① `search_path` DOIT inclure `extensions`. Sur Supabase, pg_trgm et pgvector
+ *      vivent dans le schéma `extensions`, hors du search_path par défaut d'une
+ *      fonction (cf. la note de 20260824_boosts_phase2.sql à propos d'unaccent).
+ *      Figer `search_path = public, pg_temp` ferait échouer `similarity()` et
+ *      l'opérateur `%` à l'exécution : on remplacerait une panne par une autre.
+ *   ② La couche sémantique est OPTIONNELLE. Référencer le type `vector` alors que
+ *      pgvector n'est pas installé fait échouer le script entier sur
+ *      « 42704: type vector does not exist » — et le correctif critique (couche
+ *      lexicale, qui n'a aucune dépendance vectorielle) ne s'applique jamais.
+ *      La partie ② est donc isolée dans un bloc conditionnel, et sa signature
+ *      est résolue dynamiquement via regprocedure plutôt qu'écrite en dur.
+ *
+ *   Corps de search_profile_ids inchangé (repris à l'identique de
+ *   20260828_search_natural_language.sql) : seul le mode d'exécution change.
+ *   Idempotent.
  * @created 2026-09-01
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
@@ -54,11 +66,15 @@
 -- ════════════════════════════════════════════════════════════════════════════
 
 -- ─── ① Recherche lexicale (FTS français + trigram + tags) ───────────────────
+--     Partie CRITIQUE : c'est elle qui répare l'annuaire. Aucune dépendance à
+--     pgvector — elle s'applique même si la couche sémantique n'est pas déployée.
 CREATE OR REPLACE FUNCTION public.search_profile_ids(q text, max_results int DEFAULT 200)
 RETURNS TABLE(profile_id uuid, rank real)
 LANGUAGE sql STABLE
 SECURITY DEFINER
-SET search_path = public, pg_temp
+-- `extensions` est indispensable : similarity() et l'opérateur % viennent de
+-- pg_trgm, installé dans ce schéma sur Supabase.
+SET search_path = public, extensions, pg_temp
 AS $$
   WITH cleaned AS (
     -- Formulations de requête, pas des critères : on les retire avant analyse.
@@ -137,32 +153,39 @@ AS $$
   LIMIT max_results;
 $$;
 
--- ─── ② Recherche sémantique (embeddings 768d) ──────────────────────────────
-CREATE OR REPLACE FUNCTION public.match_profiles_semantic(
-  query_embedding vector(768),
-  match_count     int   DEFAULT 50,
-  min_similarity  float DEFAULT 0.30
-)
-RETURNS TABLE(profile_id uuid, similarity real)
-LANGUAGE sql STABLE
-SECURITY DEFINER
-SET search_path = public, pg_temp
-AS $$
-  SELECT p.id AS profile_id,
-         (1 - (p.embedding <=> query_embedding))::real AS similarity
-  FROM public.user_profiles p
-  WHERE p.is_published = true
-    AND p.embedding IS NOT NULL
-    AND (1 - (p.embedding <=> query_embedding)) > min_similarity
-  ORDER BY p.embedding <=> query_embedding
-  LIMIT match_count;
-$$;
-
--- ─── Droits d'exécution (inchangés — rappelés pour l'idempotence) ──────────
 GRANT EXECUTE ON FUNCTION public.search_profile_ids(text, int) TO anon, authenticated;
-GRANT EXECUTE ON FUNCTION public.match_profiles_semantic(vector, int, float) TO anon, authenticated;
+
+-- ─── ② Recherche sémantique (embeddings 768d) — OPTIONNELLE ────────────────
+--     Traitée seulement si la fonction existe déjà (donc si pgvector est
+--     installé et 20260821_semantic_search.sql a été joué). Sa signature est
+--     lue dans le catalogue : le type `vector` n'apparaît jamais en dur, donc
+--     ce script reste valide sur une base sans pgvector.
+DO $do$
+DECLARE
+  signature text;
+BEGIN
+  SELECT p.oid::regprocedure::text
+    INTO signature
+  FROM pg_proc p
+  JOIN pg_namespace n ON n.oid = p.pronamespace
+  WHERE n.nspname = 'public'
+    AND p.proname = 'match_profiles_semantic'
+  LIMIT 1;
+
+  IF signature IS NULL THEN
+    RAISE NOTICE 'Couche ② (sémantique) absente de cette base : rien à corriger. La recherche fonctionne via la couche ① seule.';
+    RETURN;
+  END IF;
+
+  EXECUTE format('ALTER FUNCTION %s SECURITY DEFINER', signature);
+  EXECUTE format('ALTER FUNCTION %s SET search_path = public, extensions, pg_temp', signature);
+  EXECUTE format('GRANT EXECUTE ON FUNCTION %s TO anon, authenticated', signature);
+
+  RAISE NOTICE 'Couche ② (sémantique) passée en SECURITY DEFINER : %', signature;
+END
+$do$;
 
 -- ─── Recharger le cache de schéma PostgREST ────────────────────────────────
 NOTIFY pgrst, 'reload schema';
 
-SELECT '✅ Recherche annuaire réparée : search_profile_ids() et match_profiles_semantic() passent en SECURITY DEFINER (search_path figé). Aucun privilège rendu à anon/authenticated.' AS status;
+SELECT '✅ Recherche annuaire réparée : search_profile_ids() en SECURITY DEFINER (search_path = public, extensions). Couche sémantique traitée si présente. Aucun privilège rendu à anon/authenticated.' AS status;
