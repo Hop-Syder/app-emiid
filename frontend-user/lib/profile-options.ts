@@ -61,6 +61,35 @@ export const ACTIVITY_DOMAINS: ProfileOption[] = [
   { value: "b2b",          label: "🤝 Services B2B" },
 ]
 
+/**
+ * Résout un segment d'URL (/annuaire/[category]) vers une catégorie connue.
+ *
+ * Les routes d'annuaire sont dynamiques : sans cette validation, n'importe quel
+ * segment répondait 200 avec un titre fabriqué (« Annuaire des Nimportequois »)
+ * et un fil d'Ariane JSON-LD — du contenu vide indexable, et un soft-404.
+ *
+ * La comparaison est tolérante à la casse : les URL sont écrites en minuscules,
+ * mais un lien externe mal recopié ne doit pas produire un 404 gratuit.
+ *
+ * @returns l'option correspondante, ou null si le segment n'est pas une catégorie.
+ */
+export function resolveProfileCategory(segment: string): ProfileOption | null {
+  const normalized = decodeURIComponent(segment || "").trim().toLowerCase()
+  if (!normalized) return null
+  return PROFILE_CATEGORIES.find((c) => c.value.toLowerCase() === normalized) ?? null
+}
+
+/**
+ * Libellé lisible d'une catégorie, sans emoji — pour les titres de page, les
+ * métadonnées et les fils d'Ariane, où un emoji n'a pas sa place.
+ * Ex. « consultant » → « Consultant(e) / Expert indépendant ».
+ */
+export function categoryLabel(option: ProfileOption): string {
+  // Les libellés sont préfixés d'un emoji suivi d'une espace : on retire tout
+  // ce qui précède la première lettre.
+  return option.label.replace(/^[^\p{L}]+/u, "").trim()
+}
+
 /** Variante avec l'option « Tous » en tête, pour les filtres. */
 export const categoryFilterOptions = (allLabel = "Tous les types") => [
   { value: "all", label: allLabel },

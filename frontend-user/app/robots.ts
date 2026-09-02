@@ -27,7 +27,12 @@ export default function robots(): MetadataRoute.Robots {
         '/portefeuille',
         '/creer-profil',
         '/onboarding',
-        '/recherche',
+        // NB : /recherche n'est PAS bloquée ici. Elle est liée depuis la
+        // navigation publique : la bloquer empêcherait Googlebot de lire son
+        // noindex (app/recherche/layout.tsx), et l'URL pourrait finir indexée
+        // sans titre ni description. Un disallow n'exclut pas de l'index, il
+        // interdit seulement l'exploration — les deux ne sont pas équivalents
+        // dès qu'un lien public existe.
         '/paiement',
         '/suspendu',
         '/maintenance',

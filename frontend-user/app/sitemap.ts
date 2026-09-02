@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next'
 import { createClient } from '@supabase/supabase-js'
 import { SITE_URL } from '@/lib/seo'
+import { resolveProfileCategory } from '@/lib/profile-options'
 
 // Régénérée toutes les heures : les nouveaux profils apparaissent sans
 // re-déploiement, sans non plus marteler la base à chaque requête Googlebot.
@@ -50,6 +51,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   try {
     const profileRoutes: MetadataRoute.Sitemap = []
+    // Catégories effectivement portées par au moins un profil publié : ce sont
+    // les seules dont la page vitrine a du contenu à montrer.
+    const usedCategories = new Set<string>()
 
     // Supabase plafonne toute requête à 1 000 lignes : sans pagination, le
     // sitemap s'arrêtait silencieusement aux 1 000 premiers profils. On page
@@ -63,7 +67,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // fait échouer toute la requête (42703) : sans ce repli, le sitemap perdait
     // TOUS les profils, en silence, sur une base pas encore migrée. On tente la
     // sélection riche, et on retombe une fois sur created_at si elle est refusée.
-    let selectColumns = 'id, slug, created_at, updated_at'
+    let selectColumns = 'id, slug, created_at, category, updated_at'
 
     // Le `select()` est dynamique : supabase-js ne peut plus inférer la ligne,
     // on la décrit donc explicitement. `updated_at` est optionnel par nature.
@@ -71,6 +75,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       id: string | null
       slug: string | null
       created_at: string | null
+      category: string | null
       updated_at?: string | null
     }
 
@@ -101,7 +106,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           `[sitemap] updated_at indisponible sur public_profiles (${error?.message}) — repli sur created_at. ` +
             'Jouer sql/migrations/20260903_add_updated_at_to_public_profiles.sql pour restaurer la fraîcheur réelle.'
         )
-        selectColumns = 'id, slug, created_at'
+        selectColumns = 'id, slug, created_at, category'
         ;({ rows: profiles, error } = await fetchPage(from, to))
       }
 
@@ -125,29 +130,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           changeFrequency: 'weekly',
           priority: 0.8,
         })
+
+        const option = profile.category ? resolveProfileCategory(profile.category) : null
+        if (option) usedCategories.add(option.value)
       }
 
       // Dernière page partielle : on a tout récupéré.
       if (profiles.length < PAGE_SIZE) break
     }
 
-    // 3. Pages SEO par catégorie (vitrines « Annuaire des X »). Liste tenue
-    //    alignée avec les valeurs de `category` réellement utilisées en base —
-    //    une URL de catégorie sans contenu serait du thin content.
-    const categories = [
-      'artisan',
-      'freelance',
-      'entreprise',
-      'startup',
-      'ong',
-      'consultant',
-      'commerce',
-      'sante',
-      'education',
-      'restauration',
-    ]
-
-    const categoryRoutes: MetadataRoute.Sitemap = categories.map((cat) => ({
+    // 3. Pages SEO par catégorie (vitrines « Annuaire des X »).
+    //    La liste est DÉDUITE des profils ci-dessus, plus jamais recopiée à la
+    //    main : l'ancienne liste figée contenait « sante », « education »,
+    //    « restauration » et « commerce », qui n'existent pas dans
+    //    PROFILE_CATEGORIES — ces URL répondent 404 depuis la validation des
+    //    routes, et un sitemap qui pointe vers des 404 ruine la confiance que
+    //    Google lui accorde. On ne publie donc que des catégories connues ET
+    //    effectivement peuplées.
+    const categoryRoutes: MetadataRoute.Sitemap = [...usedCategories].sort().map((cat) => ({
       url: `${SITE_URL}/annuaire/${cat}`,
       lastModified: new Date(),
       changeFrequency: 'daily',
