@@ -1,15 +1,21 @@
 #!/usr/bin/env node
 /**
- * Génère les embeddings sémantiques des profils publiés (Couche ② de la
- * recherche annuaire) et les stocke dans user_profiles.embedding.
- *
+ * @author @hopsyder
+ * @organization Nexus Partners
+ * @description Génère les embeddings sémantiques des profils publiés (Couche ② recherche annuaire) via Gemini
+ * @created 2026-09-02
+ * @updated 2026-09-02
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+ */
+/**
  * Modèle : Gemini gemini-embedding-001, tronqué à 768 dimensions (gratuit).
  * Doit être joué APRÈS la migration
  * sql/migrations/20260902_enable_semantic_search.sql.
  *
  * Usage :
- *   cd /app/backend && node scripts/embed-profiles.js            # profils périmés
- *   cd /app/backend && node scripts/embed-profiles.js --all      # tout re-embarquer
+ *   cd backend && node scripts/embed-profiles.js            # profils périmés
+ *   cd backend && node scripts/embed-profiles.js --all      # tout re-embarquer
  *
  * Variables d'environnement (.env) :
  *   SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY   (accès service — écrit l'embedding)
@@ -80,41 +86,53 @@ function normalize(values) {
   return norm > 0 ? values.map((v) => v / norm) : values;
 }
 
-/** Embarque un document (profil) via Gemini. taskType=RETRIEVAL_DOCUMENT. */
-async function embedDocument(text) {
+/** Embarque un document (profil) via Gemini avec gestion de retry. taskType=RETRIEVAL_DOCUMENT. */
+async function embedDocument(text, attempt = 1) {
   const url =
     `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:embedContent`;
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      // En-tête plutôt que `?key=` : forme documentée par Google, seule acceptée
-      // par toutes les routes depuis les clés « auth » (préfixe AQ.), et la clé
-      // ne transite plus dans une URL (donc plus dans les journaux de proxy).
-      'x-goog-api-key': GEMINI_KEY,
-    },
-    body: JSON.stringify({
-      model: `models/${MODEL}`,
-      content: { parts: [{ text }] },
-      taskType: 'RETRIEVAL_DOCUMENT',
-      outputDimensionality: EMBED_DIM,
-    }),
-  });
-  if (!res.ok) {
-    const body = await res.text().catch(() => '');
-    throw new Error(`Gemini ${res.status} : ${body.slice(0, 200)}`);
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        // En-tête plutôt que `?key=` : forme documentée par Google, seule acceptée
+        // par toutes les routes depuis les clés « auth » (préfixe AQ.), et la clé
+        // ne transite plus dans une URL (donc plus dans les journaux de proxy).
+        'x-goog-api-key': GEMINI_KEY,
+      },
+      body: JSON.stringify({
+        model: `models/${MODEL}`,
+        content: { parts: [{ text }] },
+        taskType: 'RETRIEVAL_DOCUMENT',
+        outputDimensionality: EMBED_DIM,
+      }),
+    });
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      if ((res.status === 503 || res.status === 429 || res.status >= 500) && attempt < 3) {
+        await sleep(1000 * attempt);
+        return embedDocument(text, attempt + 1);
+      }
+      throw new Error(`Gemini ${res.status} : ${body.slice(0, 200)}`);
+    }
+    const json = await res.json();
+    const values = json && json.embedding && json.embedding.values;
+    if (!Array.isArray(values) || values.length === 0) {
+      throw new Error('Réponse Gemini sans embedding.');
+    }
+    // La colonne est un vector(768) : une taille inattendue serait rejetée par la
+    // base. On échoue explicitement ici, avec un message qui nomme la cause.
+    if (values.length !== EMBED_DIM) {
+      throw new Error(`${values.length} dimensions reçues, ${EMBED_DIM} attendues.`);
+    }
+    return normalize(values);
+  } catch (err) {
+    if (attempt < 3 && (err.message.includes('fetch') || err.message.includes('network'))) {
+      await sleep(1000 * attempt);
+      return embedDocument(text, attempt + 1);
+    }
+    throw err;
   }
-  const json = await res.json();
-  const values = json && json.embedding && json.embedding.values;
-  if (!Array.isArray(values) || values.length === 0) {
-    throw new Error('Réponse Gemini sans embedding.');
-  }
-  // La colonne est un vector(768) : une taille inattendue serait rejetée par la
-  // base. On échoue explicitement ici, avec un message qui nomme la cause.
-  if (values.length !== EMBED_DIM) {
-    throw new Error(`${values.length} dimensions reçues, ${EMBED_DIM} attendues.`);
-  }
-  return normalize(values);
 }
 
 (async () => {

@@ -8,7 +8,7 @@
 - **Nom** : EmiID
 - **Type** : SaaS (Web App + Backend API + Admin + Commercial)
 - **Initialisé le** : 2026-05-27
-- **Dernière mise à jour** : 2026-08-30
+- **Dernière mise à jour** : 2026-09-02
 
 ## 🛠️ Stack détectée
 
@@ -213,5 +213,7 @@
 - [2026-08-30] SEO & Open Graph : Activation complète de l'écosystème d'agents et compétences SEO (`seo`, `fixing-metadata`, `seo-meta-optimizer`, `seo-technical`, `seo-schema`, `seo-geo`, `seo-audit`).
 - [2026-08-30] SEO & Open Graph (frontend-user & frontend-commercial) : Refonte intégrale des métadonnées, Open Graph, Twitter Cards et données structurées JSON-LD (`Organization`, `WebSite`, `ProfilePage`, `Person`, `AboutPage`, `SoftwareApplication`, `BreadcrumbList`, `SearchAction`). Intégration du logo officiel `logo-emiid-bleu-blanc.png` comme image de référence Open Graph, Google Search & Schema sur l'ensemble des routes publiques et dynamiques. Compilation validée à 100% sur les deux applications Next.js.
 - [2026-08-30] Git : Résolution de la divergence de branche par rebase propre (`git pull --rebase origin main`), intégration des commits distants (sécurité et mode sombre messagerie) et configuration de `pull.rebase = true`. Local prêt à être poussé (`ahead by 1 commit`).
+- [2026-09-02] Recherche Sémantique & Embeddings : Installation des dépendances du backend (`npm install`), exécution complète du script de backfill `backend/scripts/embed-profiles.js --all` (32/32 profils publiés embarqués avec succès en 768d via `gemini-embedding-001` et normalisation L2), et ajout d'une logique de retry avec backoff exponentiel pour la résilience face aux erreurs transitoires (503/429) de l'API Gemini.
+- [2026-09-02] Nettoyage BDD & Démo : Purge complète des 15 profils mockup de démonstration via `node scripts/seed-demo.js --purge` (suppression en cascade depuis `auth.users` et `user_profiles`). Il reste exactement 17 profils réels publiés en base.
 
 
