@@ -34,9 +34,17 @@ et tolère les fautes (« couturié »).
 
 ## Couche ② — Recherche sémantique  *(actif si `GEMINI_API_KEY`)*
 
-- **Migration :** `sql/migrations/20260821_semantic_search.sql`
+- **Migration :** `sql/migrations/20260902_enable_semantic_search.sql`
   (extension `vector`, colonne `embedding vector(768)`, `embedding_stale`,
   trigger de péremption, index HNSW cosinus, RPC `match_profiles_semantic`).
+
+  > ⚠️ Elle **remplace** `20260821_semantic_search.sql`, qui ne pouvait pas
+  > s'appliquer sur ce projet Supabase (`42704: type vector does not exist`).
+  > Trois écarts corrigés : l'extension est installée dans le schéma
+  > `extensions` (convention Supabase), `match_profiles_semantic` est
+  > **SECURITY DEFINER** dès sa création — sans quoi elle lèverait `42501` sur
+  > la colonne `embedding`, rejouant la panne « zéro profil » du 01/09 — et le
+  > trigger a un `search_path` figé. Ne pas jouer l'ancienne migration.
 - **Embedding requête :** `frontend-user/lib/embeddings.ts` (`text-embedding-004`,
   768 dims, `taskType=RETRIEVAL_QUERY`, timeout 3,5 s, renvoie `null` si indispo).
 - **Backfill profils :** `backend/scripts/embed-profiles.js`
@@ -48,7 +56,16 @@ et tolère les fautes (« couturié »).
 ### Mise en service (3 étapes)
 
 1. **Jouer la migration** dans le SQL Editor Supabase :
-   `sql/migrations/20260821_semantic_search.sql`.
+   `sql/migrations/20260902_enable_semantic_search.sql`
+   (après `20260901_fix_search_rpc_privileges.sql`, qui répare la couche ①).
+
+   Contrôle attendu — les deux RPC doivent être en `SECURITY DEFINER` :
+
+   ```sql
+   select proname, prosecdef, proconfig
+   from pg_proc
+   where proname in ('search_profile_ids', 'match_profiles_semantic');
+   ```
 
 2. **Variables d'environnement :**
 
@@ -170,3 +187,14 @@ charge vide et **aucun bloc assistant ne s'affiche** — l'état vide standard
 - Régénérer toute clé qui aurait transité par un canal non sûr (chat, capture…).
 - Les RPC de recherche n'exposent que des **identifiants de profils publiés** ;
   les données affichées passent par la vue `public_profiles` (sans contact privé).
+- Les deux RPC de recherche sont **SECURITY DEFINER** avec `search_path` figé
+  (`public, extensions, pg_temp`). C'est délibéré et plus sûr qu'un `GRANT` :
+  elles lisent `search_vector` et `embedding`, colonnes dérivées qui restent
+  **inaccessibles** à `anon` et `authenticated`, et ne renvoient qu'un couple
+  `(profile_id, score)`. Ni PII, ni vecteur, ni index texte ne quittent la base.
+  `extensions` dans le `search_path` est obligatoire : `pg_trgm` et `pgvector`
+  y vivent sur Supabase — l'omettre casse `similarity()` et l'opérateur `<=>`.
+- Corollaire à retenir : **ne jamais créer une RPC de recherche en
+  SECURITY INVOKER**. C'est l'erreur qui a rendu l'annuaire muet du 29/08 au
+  01/09, un durcissement de privilèges ayant retiré sous ces fonctions l'accès
+  aux colonnes qu'elles lisent.
