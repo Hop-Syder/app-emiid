@@ -57,14 +57,61 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // un index de sitemaps conformément aux limites Google).
     const PAGE_SIZE = 1000
     const MAX_PROFILES = 50000
+
+    // `updated_at` donne la fraîcheur réelle, mais la vue public_profiles ne
+    // l'expose que depuis la migration 20260903. Demander une colonne absente
+    // fait échouer toute la requête (42703) : sans ce repli, le sitemap perdait
+    // TOUS les profils, en silence, sur une base pas encore migrée. On tente la
+    // sélection riche, et on retombe une fois sur created_at si elle est refusée.
+    let selectColumns = 'id, slug, created_at, updated_at'
+
+    // Le `select()` est dynamique : supabase-js ne peut plus inférer la ligne,
+    // on la décrit donc explicitement. `updated_at` est optionnel par nature.
+    interface ProfileRow {
+      id: string | null
+      slug: string | null
+      created_at: string | null
+      updated_at?: string | null
+    }
+
+    const fetchPage = async (from: number, to: number) => {
+      const res = await supabase
+        .from('public_profiles')
+        .select(selectColumns)
+        .range(from, to)
+      return {
+        rows: (res.data || []) as unknown as ProfileRow[],
+        error: res.error,
+      }
+    }
+
     for (let from = 0; from < MAX_PROFILES; from += PAGE_SIZE) {
       const to = from + PAGE_SIZE - 1
-      const { data: profiles, error } = await supabase
-        .from('public_profiles')
-        .select('id, slug, created_at, updated_at')
-        .range(from, to)
+      let { rows: profiles, error } = await fetchPage(from, to)
 
-      if (error || !profiles || profiles.length === 0) break
+      // Repli ciblé : uniquement quand la colonne est refusée (42703), pas sur
+      // une panne réseau — inutile de doubler la requête quand la base est
+      // injoignable, l'erreur est alors journalisée telle quelle juste après.
+      const columnMissing =
+        !!error &&
+        (error.code === '42703' || error.message?.includes('updated_at'))
+
+      if (columnMissing && selectColumns.includes('updated_at')) {
+        console.warn(
+          `[sitemap] updated_at indisponible sur public_profiles (${error?.message}) — repli sur created_at. ` +
+            'Jouer sql/migrations/20260903_add_updated_at_to_public_profiles.sql pour restaurer la fraîcheur réelle.'
+        )
+        selectColumns = 'id, slug, created_at'
+        ;({ rows: profiles, error } = await fetchPage(from, to))
+      }
+
+      // Une erreur ici vide le sitemap de tous ses profils : elle ne doit jamais
+      // passer inaperçue. C'est ce silence qui a rendu la panne invisible.
+      if (error) {
+        console.error('[sitemap] lecture des profils échouée :', error.message)
+        break
+      }
+      if (profiles.length === 0) break
 
       for (const profile of profiles) {
         profileRoutes.push({
@@ -73,9 +120,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           // Fraîcheur réelle : updated_at (bio, rôle, avatar…) plutôt que la
           // seule date de création, pour que Google re-crawl ce qui change.
           lastModified: new Date(
-            (profile as { updated_at?: string | null }).updated_at ||
-              profile.created_at ||
-              new Date().toISOString()
+            profile.updated_at || profile.created_at || new Date().toISOString()
           ),
           changeFrequency: 'weekly',
           priority: 0.8,
