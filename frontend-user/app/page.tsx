@@ -41,12 +41,12 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Nexus Partners", url: "https://app.emiid.com" }],
   alternates: {
-    canonical: "https://app.emiid.com",
+    canonical: "/",
   },
   openGraph: {
     type: "website",
     locale: "fr_FR",
-    url: "https://app.emiid.com",
+    url: "/",
     siteName: "EmiID",
     title: "EmiID — Votre empreinte numérique professionnelle",
     description:

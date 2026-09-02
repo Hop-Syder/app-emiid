@@ -10,18 +10,12 @@
 
 import { Metadata } from "next"
 import { cache } from "react"
+import { notFound } from "next/navigation"
 import { unstable_cache } from "next/cache"
 import { ProfileDetailContent } from "@/components/profile-detail/profile-detail-content"
 import { createClient } from "@/lib/supabase/server"
+import { SITE_URL, serializeJsonLd } from "@/lib/seo"
 import { PublicProfileJoined, ProfileTagJoin } from "@/types/supabase-rows"
-
-// Sérialise un objet JSON-LD de façon sûre : échappe < et > pour
-// empêcher une injection </script> via le contenu utilisateur.
-function serializeJsonLd(data: unknown): string {
-    return JSON.stringify(data)
-        .split('<').join('\u003c')
-        .split('>').join('\u003e')
-}
 
 interface ProfilePageProps {
     params: Promise<{ id: string }>
@@ -159,10 +153,16 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
             openGraph: {
                 title: `${fullName} — Profil certifié sur EmiID`,
                 description: description,
-                url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://app.emiid.com'}/profil/${data.slug || id}`,
+                url: `/profil/${data.slug || id}`,
                 siteName: 'EmiID',
                 locale: 'fr_FR',
                 type: 'profile',
+                // Propriétés structurées du type « profile » (spec Open Graph,
+                // namespace http://ogp.me/ns/profile#) : identité explicite
+                // pour les consommateurs du graphe social.
+                firstName: data.first_name || undefined,
+                lastName: data.last_name || undefined,
+                username: data.slug || undefined,
                 images: [
                     {
                         url: ogImageUrl,
@@ -200,7 +200,15 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     const { id } = await params
     const data = await getProfileForRequest(id)
 
-    const baseUrl = process.env.NEXT_PUBLIC_PUBLIC_URL || process.env.NEXT_PUBLIC_SITE_URL || 'https://app.emiid.com'
+    // Profil inexistant, dépublié ou suspendu → 404 HTTP réel (via not-found).
+    // Répondre 200 avec l'UI « introuvable » serait un soft-404 : Google
+    // conserverait ces URL vides dans l'index alors qu'elles sont listées au
+    // sitemap. notFound() est typé never → data est non-nulle ci-dessous.
+    if (!data) notFound()
+
+    // Origine canonique unique (voir lib/seo.ts) : les @id JSON-LD doivent
+    // matcher la canonical servie, pas un domaine qui redirige.
+    const baseUrl = SITE_URL
     const fullName = data ? `${data.first_name || ''} ${data.last_name || ''}`.trim() : ''
     const skills: string[] = data?.profile_tags?.map((pt: ProfileTagJoin) => pt.tags?.name).filter((n): n is string => Boolean(n)) || []
 

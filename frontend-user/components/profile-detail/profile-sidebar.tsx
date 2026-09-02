@@ -152,7 +152,7 @@ export function ProfileSidebar({
                                 `Bonjour ${profile.name || ""}, je vous ai trouve sur EmiID.`.replace(/\s+/g, " ").trim()
                             )}`}
                             target="_blank"
-                            rel="noopener noreferrer"
+                            rel="noopener noreferrer ugc nofollow"
                             onClick={() => { trackProfileMetric(profile.id, "whatsapp"); trackProfileContact(profile.id || "", "whatsapp") }}
                             className="flex h-11 items-center justify-center gap-2 rounded-2xl bg-[#059669] text-xs font-black text-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#047857]"
                         >
@@ -176,7 +176,7 @@ export function ProfileSidebar({
                         variant="outline"
                         className="w-full mt-5 h-11 rounded-2xl text-xs font-black border-border bg-card hover:bg-muted gap-2 shadow-sm transition-all duration-300 hover:-translate-y-0.5"
                     >
-                        <a href={profile.website} target="_blank" rel="noopener noreferrer">
+                        <a href={profile.website} target="_blank" rel="noopener noreferrer ugc nofollow">
                             Visiter le site <ExternalLink className="h-4 w-4" />
                         </a>
                     </Button>

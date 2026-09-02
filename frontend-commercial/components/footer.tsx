@@ -76,7 +76,7 @@ export function Footer() {
                     </Link>
                   </li>
                   <li>
-                    <a href="https://ceo.nexuspartners.xyz" target="_blank" rel="noopener noreferrer" className="text-sm leading-6 hover:text-white transition-colors">
+                    <a href="https://ceo.nexuspartners.xyz" target="_blank" rel="noopener noreferrer nofollow" className="text-sm leading-6 hover:text-white transition-colors">
                       Nexus Partners
                     </a>
                   </li>

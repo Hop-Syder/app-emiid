@@ -1,6 +1,7 @@
 import { NavigationShell } from "@/components/navigation/navigation-shell"
 import { Metadata } from "next"
 import { AnnuairePublicContent } from "@/components/annuaire-public-content/annuaire-main"
+import { absoluteUrl, serializeJsonLd } from "@/lib/seo"
 
 interface CategoryPageProps {
     params: Promise<{ category: string }>
@@ -20,7 +21,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
         openGraph: {
             title: `Annuaire des ${categoryName}s en Afrique | EmiID`,
             description: `Trouvez et contactez les meilleurs ${categoryName}s d'Afrique certifiés sur EmiID.`,
-            url: `https://app.emiid.com/annuaire/${category}`,
+            url: `/annuaire/${category}`,
             siteName: "EmiID",
             locale: "fr_FR",
             type: "website",
@@ -45,8 +46,25 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
     const { category } = await params
+    const categoryName = category.charAt(0).toUpperCase() + category.slice(1)
+
+    // Fil d'Ariane structuré : Accueil → Annuaire → Catégorie.
+    const jsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Accueil', item: absoluteUrl('/') },
+            { '@type': 'ListItem', position: 2, name: 'Annuaire', item: absoluteUrl('/annuaire') },
+            { '@type': 'ListItem', position: 3, name: categoryName, item: absoluteUrl(`/annuaire/${category}`) },
+        ],
+    }
+
     return (
         <NavigationShell isPublic={true}>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
+            />
             <div className="flex-1 w-full min-h-screen flex flex-col">
                 <AnnuairePublicContent initialCategory={category} />
             </div>

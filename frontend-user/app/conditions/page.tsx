@@ -12,6 +12,7 @@ import { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Conditions Générales - EmiID',
   description: 'Conditions générales d’utilisation de la plateforme EmiID.',
+  alternates: { canonical: '/conditions' },
 }
 
 export default function ConditionsPage() {

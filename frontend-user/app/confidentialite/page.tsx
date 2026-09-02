@@ -12,6 +12,7 @@ import { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Confidentialité - EmiID',
   description: 'Politique de confidentialité et protection des données de EmiID.',
+  alternates: { canonical: '/confidentialite' },
 }
 
 export default function ConfidentialitePage() {

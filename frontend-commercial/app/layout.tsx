@@ -109,6 +109,11 @@ export const metadata: Metadata = {
     ],
     apple: "/logo-emiid-bleu-blanc.png",
   },
+  // Propriété Search Console (méthode « balise HTML ») : renseigner
+  // NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION avec le jeton fourni par Google.
+  ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+    ? { verification: { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION } }
+    : {}),
 };
 
 import { ThemeProvider } from "@/components/theme-provider";

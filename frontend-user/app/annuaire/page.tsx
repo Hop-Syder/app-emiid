@@ -11,6 +11,7 @@ import type { Metadata } from "next"
 import { NavigationShell } from "@/components/navigation/navigation-shell"
 import { AnnuairePublicContent } from "@/components/annuaire-public-content/annuaire-main"
 import { createClient } from "@/lib/supabase/server"
+import { absoluteUrl, serializeJsonLd } from "@/lib/seo"
 
 export const metadata: Metadata = {
     title: "Annuaire des professionnels et entreprises d'Afrique | EmiID",
@@ -141,8 +142,42 @@ export default async function AnnuairePage({ searchParams }: { searchParams: Pro
     // aussitôt par les résultats. On évite la requête et le clignotement.
     const initialProfiles = search ? [] : await fetchInitialProfiles(category, activityDomain)
 
+    // Données structurées : BreadcrumbList + ItemList des profils servis en
+    // premier rendu (éligibilité carrousel/liste riche). Le contenu utilisateur
+    // (noms, slugs) passe obligatoirement par serializeJsonLd — un nom contenant
+    // « </script> » ne doit jamais pouvoir casser le bloc et injecter du code.
+    const jsonLd = {
+        '@context': 'https://schema.org',
+        '@graph': [
+            {
+                '@type': 'BreadcrumbList',
+                itemListElement: [
+                    { '@type': 'ListItem', position: 1, name: 'Accueil', item: absoluteUrl('/') },
+                    { '@type': 'ListItem', position: 2, name: 'Annuaire', item: absoluteUrl('/annuaire') },
+                ],
+            },
+            ...(initialProfiles.length > 0
+                ? [{
+                      '@type': 'ItemList',
+                      name: 'Profils EmiID',
+                      numberOfItems: initialProfiles.length,
+                      itemListElement: initialProfiles.map((p, index) => ({
+                          '@type': 'ListItem',
+                          position: index + 1,
+                          url: absoluteUrl(`/profil/${p.slug || p.id}`),
+                          name: p.name,
+                      })),
+                  }]
+                : []),
+        ],
+    }
+
     return (
         <NavigationShell isPublic={true}>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
+            />
             <div className="flex-1 w-full min-h-screen flex flex-col pt-8">
                 <AnnuairePublicContent
                     initialProfiles={initialProfiles}

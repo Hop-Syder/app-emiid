@@ -142,7 +142,7 @@ export function HubCommunities() {
               key={c.name}
               href={c.href ?? "#"}
               target="_blank"
-              rel="noopener noreferrer"
+              rel="noopener noreferrer ugc nofollow"
               className={`group relative overflow-hidden bg-card border ${c.border} ${c.hoverBorder} rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 flex flex-col gap-3 sm:gap-5 shadow-[0_4px_24px_rgb(15,23,42,0.05)] transition-all duration-300 hover:-translate-y-1 active:scale-[0.98]`}
             >
               {card}

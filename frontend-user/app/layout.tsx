@@ -30,10 +30,10 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  // Domaine public pour le SEO (canonical/OG). On privilégie le site officiel
-  // (emiid.com) via NEXT_PUBLIC_PUBLIC_URL ; défaut = domaine app pour ne rien
-  // casser tant que le site officiel ne sert pas encore les pages profil.
-  metadataBase: new URL(process.env.NEXT_PUBLIC_PUBLIC_URL || process.env.NEXT_PUBLIC_SITE_URL || 'https://app.emiid.com'),
+  // Origine canonique unique pour TOUTES les métadonnées (canonicals relatives,
+  // og:url, sitemap, robots). Voir lib/seo.ts : les pages sont servies par
+  // app.emiid.com, les canonicals ne doivent jamais pointer vers emiid.com.
+  metadataBase: new URL(SITE_URL),
   applicationName: 'EmiID',
   title: {
     default: 'EmiID — Votre empreinte numérique professionnelle',
@@ -65,9 +65,11 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  alternates: {
-    canonical: '/',
-  },
+  // NB : PAS de canonical ici. Une canonical définie dans le layout racine est
+  // héritée par toutes les pages sans canonical propre (login, recherche,
+  // pages légales…), qui se déclareraient alors comme « doublons de l'accueil »
+  // et sortiraient de l'index. Chaque page indexable pose SA canonical
+  // auto-référente ; les pages hors index portent noindex ou un disallow robots.
   appleWebApp: { capable: true, title: 'EmiID', statusBarStyle: 'black-translucent' },
   other: { 'msapplication-TileColor': '#013ff4' },
   // Propriété Search Console : requise pour soumettre le sitemap et suivre
@@ -79,7 +81,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'EmiID — Votre empreinte numérique professionnelle',
     description: "Rejoignez le réseau professionnel certifié pensé pour l'Afrique : carte de visite numérique, opportunités vérifiées et visibilité décuplée.",
-    url: 'https://app.emiid.com',
+    url: '/',
     siteName: 'EmiID',
     locale: 'fr_FR',
     type: 'website',
@@ -127,6 +129,7 @@ import { Toaster } from 'sonner'
 import { CookieConsent } from '@/components/CookieConsent'
 import { ThemeProvider } from '@/components/theme-provider'
 import { BackendStatusBanner } from '@/components/backend-status-banner'
+import { SITE_URL } from '@/lib/seo'
 
 export default function RootLayout({
   children,

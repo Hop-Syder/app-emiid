@@ -140,7 +140,7 @@ export function PortfolioGallery({ gallery, loadingGallery }: PortfolioGalleryPr
                                             <a
                                                 href={selected.projectUrl.startsWith('http') ? selected.projectUrl : `https://${selected.projectUrl}`}
                                                 target="_blank"
-                                                rel="noopener noreferrer"
+                                                rel="noopener noreferrer ugc nofollow"
                                                 className="flex-1 flex items-center justify-center gap-2 h-11 px-4 rounded-xl text-xs font-bold text-white bg-[#013ff4] hover:bg-[#013ff4]/90 active:scale-95 transition-all shadow-sm cursor-pointer"
                                             >
                                                 <ExternalLink className="h-4 w-4" />
@@ -151,7 +151,7 @@ export function PortfolioGallery({ gallery, loadingGallery }: PortfolioGalleryPr
                                             <a
                                                 href={selected.driveUrl.startsWith('http') ? selected.driveUrl : `https://${selected.driveUrl}`}
                                                 target="_blank"
-                                                rel="noopener noreferrer"
+                                                rel="noopener noreferrer ugc nofollow"
                                                 className="flex-1 flex items-center justify-center gap-2 h-11 px-4 rounded-xl text-xs font-bold text-foreground bg-muted hover:bg-muted active:scale-95 transition-all border border-border cursor-pointer"
                                             >
                                                 <FolderOpen className="h-4 w-4" />

@@ -161,10 +161,10 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
         )}
 
         {parsed.kind === "file" && (
-          <a 
-            href={parsed.url} 
-            target="_blank" 
-            rel="noopener noreferrer"
+          <a
+            href={parsed.url}
+            target="_blank"
+            rel="noopener noreferrer ugc nofollow"
             className={cn(
               "flex items-center gap-3 p-2.5 rounded-xl border transition-all mb-1",
               isOwn ? "bg-card/10 border-white/20 hover:bg-card/20" : "bg-muted border-border hover:bg-muted"

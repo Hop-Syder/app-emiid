@@ -1,6 +1,7 @@
 import { NavigationShell } from "@/components/navigation/navigation-shell"
 import { Metadata } from "next"
 import { AnnuairePublicContent } from "@/components/annuaire-public-content/annuaire-main"
+import { absoluteUrl, serializeJsonLd } from "@/lib/seo"
 
 interface CityPageProps {
     params: Promise<{ category: string; city: string }>
@@ -21,7 +22,7 @@ export async function generateMetadata({ params }: CityPageProps): Promise<Metad
         openGraph: {
             title: `Annuaire des ${categoryName}s à ${cityName} | EmiID`,
             description: `Trouvez les professionnels certifiés (${categoryName}) basés à ${cityName} sur EmiID.`,
-            url: `https://app.emiid.com/annuaire/${category}/${city}`,
+            url: `/annuaire/${category}/${city}`,
             siteName: "EmiID",
             locale: "fr_FR",
             type: "website",
@@ -30,6 +31,7 @@ export async function generateMetadata({ params }: CityPageProps): Promise<Metad
                     url: "/logo-emiid-bleu-blanc.png",
                     width: 500,
                     height: 500,
+                    type: "image/png",
                     alt: `Annuaire des ${categoryName}s à ${cityName} | EmiID`,
                 }
             ]
@@ -47,9 +49,26 @@ export async function generateMetadata({ params }: CityPageProps): Promise<Metad
 export default async function CityPage({ params }: CityPageProps) {
     const { category, city } = await params
     const cityName = city.replace(/-/g, ' ')
-    
+    const categoryName = category.charAt(0).toUpperCase() + category.slice(1)
+
+    // Fil d'Ariane structuré : Accueil → Annuaire → Catégorie → Ville.
+    const jsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Accueil', item: absoluteUrl('/') },
+            { '@type': 'ListItem', position: 2, name: 'Annuaire', item: absoluteUrl('/annuaire') },
+            { '@type': 'ListItem', position: 3, name: categoryName, item: absoluteUrl(`/annuaire/${category}`) },
+            { '@type': 'ListItem', position: 4, name: cityName, item: absoluteUrl(`/annuaire/${category}/${city}`) },
+        ],
+    }
+
     return (
         <NavigationShell isPublic={true}>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
+            />
             <div className="flex-1 w-full min-h-screen flex flex-col">
                 <AnnuairePublicContent initialCategory={category} initialCity={cityName} />
             </div>
