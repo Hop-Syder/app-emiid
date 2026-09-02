@@ -3,8 +3,9 @@
  * Génère les embeddings sémantiques des profils publiés (Couche ② de la
  * recherche annuaire) et les stocke dans user_profiles.embedding.
  *
- * Modèle : Gemini text-embedding-004 (768 dimensions, gratuit).
- * Doit être joué APRÈS la migration sql/migrations/20260821_semantic_search.sql.
+ * Modèle : Gemini gemini-embedding-001, tronqué à 768 dimensions (gratuit).
+ * Doit être joué APRÈS la migration
+ * sql/migrations/20260902_enable_semantic_search.sql.
  *
  * Usage :
  *   cd /app/backend && node scripts/embed-profiles.js            # profils périmés
@@ -13,7 +14,7 @@
  * Variables d'environnement (.env) :
  *   SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY   (accès service — écrit l'embedding)
  *   GEMINI_API_KEY                            (clé Google AI Studio)
- *   GEMINI_EMBED_MODEL   (optionnel, défaut text-embedding-004)
+ *   GEMINI_EMBED_MODEL   (optionnel, défaut gemini-embedding-001)
  *
  * À relancer périodiquement (cron) ou après un import massif de profils.
  * Le trigger trg_mark_embedding_stale remet embedding_stale=true dès qu'un
@@ -26,7 +27,14 @@ const { createClient } = require('@supabase/supabase-js');
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const GEMINI_KEY = process.env.GEMINI_API_KEY;
-const MODEL = process.env.GEMINI_EMBED_MODEL || 'text-embedding-004';
+// ⚠️ text-embedding-004 a été ARRÊTÉ par Google le 14/01/2026 (404 sur
+// l'endpoint). gemini-embedding-001 est son remplaçant sur embedContent.
+const MODEL = process.env.GEMINI_EMBED_MODEL || 'gemini-embedding-001';
+
+// gemini-embedding-001 renvoie 3072 dimensions par défaut ; la colonne
+// user_profiles.embedding est un vector(768). Doit rester aligné avec
+// frontend-user/lib/embeddings.ts, la colonne et l'index HNSW.
+const EMBED_DIM = 768;
 
 if (!SUPABASE_URL || !SERVICE_KEY) {
   console.error('❌ SUPABASE_URL ou SUPABASE_SERVICE_ROLE_KEY manquants dans .env');
@@ -58,17 +66,38 @@ function profileText(p) {
     .join(' — ');
 }
 
+/**
+ * Normalise un vecteur (norme L2 = 1). Google l'exige pour toute dimension
+ * autre que 3072 : les vecteurs tronqués ne sont plus unitaires, ce qui fausse
+ * les calculs de similarité. Identique à la normalisation appliquée côté
+ * requête (frontend-user/lib/embeddings.ts) : les deux doivent concorder, sinon
+ * documents et requêtes ne vivent pas dans le même espace.
+ */
+function normalize(values) {
+  let sum = 0;
+  for (const v of values) sum += v * v;
+  const norm = Math.sqrt(sum);
+  return norm > 0 ? values.map((v) => v / norm) : values;
+}
+
 /** Embarque un document (profil) via Gemini. taskType=RETRIEVAL_DOCUMENT. */
 async function embedDocument(text) {
   const url =
-    `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:embedContent?key=${GEMINI_KEY}`;
+    `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:embedContent`;
   const res = await fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      // En-tête plutôt que `?key=` : forme documentée par Google, seule acceptée
+      // par toutes les routes depuis les clés « auth » (préfixe AQ.), et la clé
+      // ne transite plus dans une URL (donc plus dans les journaux de proxy).
+      'x-goog-api-key': GEMINI_KEY,
+    },
     body: JSON.stringify({
       model: `models/${MODEL}`,
       content: { parts: [{ text }] },
       taskType: 'RETRIEVAL_DOCUMENT',
+      outputDimensionality: EMBED_DIM,
     }),
   });
   if (!res.ok) {
@@ -80,7 +109,12 @@ async function embedDocument(text) {
   if (!Array.isArray(values) || values.length === 0) {
     throw new Error('Réponse Gemini sans embedding.');
   }
-  return values;
+  // La colonne est un vector(768) : une taille inattendue serait rejetée par la
+  // base. On échoue explicitement ici, avec un message qui nomme la cause.
+  if (values.length !== EMBED_DIM) {
+    throw new Error(`${values.length} dimensions reçues, ${EMBED_DIM} attendues.`);
+  }
+  return normalize(values);
 }
 
 (async () => {

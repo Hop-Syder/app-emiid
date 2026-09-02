@@ -45,8 +45,19 @@ et tolère les fautes (« couturié »).
   > **SECURITY DEFINER** dès sa création — sans quoi elle lèverait `42501` sur
   > la colonne `embedding`, rejouant la panne « zéro profil » du 01/09 — et le
   > trigger a un `search_path` figé. Ne pas jouer l'ancienne migration.
-- **Embedding requête :** `frontend-user/lib/embeddings.ts` (`text-embedding-004`,
-  768 dims, `taskType=RETRIEVAL_QUERY`, timeout 3,5 s, renvoie `null` si indispo).
+- **Embedding requête :** `frontend-user/lib/embeddings.ts`
+  (`gemini-embedding-001`, tronqué à 768 dims, `taskType=RETRIEVAL_QUERY`,
+  timeout 3,5 s, renvoie `null` si indispo).
+
+  > ⚠️ **`text-embedding-004` a été arrêté par Google le 14/01/2026** — tout
+  > appel renvoie 404. Le modèle de remplacement est `gemini-embedding-001`,
+  > sur le même endpoint `embedContent`, avec deux contraintes :
+  > il renvoie **3072 dimensions par défaut** (d'où `outputDimensionality: 768`,
+  > sinon la base rejette le vecteur), et Google **exige la normalisation L2**
+  > pour toute dimension autre que 3072 — appliquée des deux côtés, requête et
+  > document, faute de quoi les vecteurs ne vivent pas dans le même espace.
+  > Les trois valeurs — colonne `vector(768)`, index HNSW, `EMBED_DIM` des deux
+  > scripts — doivent rester alignées.
 - **Backfill profils :** `backend/scripts/embed-profiles.js`
   (`taskType=RETRIEVAL_DOCUMENT`).
 - **Fusion :** dans la route annuaire, les classements ① et ② sont combinés par
@@ -71,13 +82,29 @@ et tolère les fautes (« couturié »).
 
    | Où | Variable | Valeur |
    |----|----------|--------|
-   | Vercel `frontend-user` | `GEMINI_API_KEY` | clé Google AI Studio (`AIza…`) |
+   | Vercel `frontend-user` | `GEMINI_API_KEY` | clé Google AI Studio (`AQ.…` ou `AIza…`) |
    | Backend `.env` (Render/local) | `SUPABASE_URL` | URL du projet |
    | Backend `.env` | `SUPABASE_SERVICE_ROLE_KEY` | clé *service role* |
    | Backend `.env` | `GEMINI_API_KEY` | même clé Gemini |
 
    > La clé Gemini se crée sur https://aistudio.google.com/apikey (bouton
-   > **Create API key**). Une clé valide commence par `AIza…`.
+   > **Create API key**). Google délivre désormais des clés « auth » préfixées
+   > `AQ.` (liées à un compte de service) à la place des anciennes `AIza…` ;
+   > les deux formats fonctionnent sur `generativelanguage.googleapis.com`.
+   >
+   > La clé est transmise via l'en-tête **`x-goog-api-key`**, jamais en
+   > paramètre d'URL : c'est la forme documentée par Google, la seule acceptée
+   > par toutes les routes avec les clés `AQ.`, et elle évite d'inscrire le
+   > secret dans les journaux de proxy. Vérification rapide d'une clé :
+   >
+   > ```bash
+   > curl -s -o /dev/null -w '%{http_code}\n' \
+   >   -X POST 'https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent' \
+   >   -H 'Content-Type: application/json' \
+   >   -H "x-goog-api-key: $GEMINI_API_KEY" \
+   >   -d '{"content":{"parts":[{"text":"test"}]},"outputDimensionality":768}'
+   > # 200 = clé valide · 400 = clé invalide · 404 = modèle inexistant
+   > ```
 
 3. **Générer les vecteurs** (une fois, puis périodiquement) :
 
@@ -86,6 +113,20 @@ et tolère les fautes (« couturié »).
    node scripts/embed-profiles.js         # n'embarque que les profils périmés
    node scripts/embed-profiles.js --all   # tout re-embarquer (changement de modèle)
    ```
+
+   **Où l'exécuter ?** Le script parle à Supabase et à Gemini par le réseau : il
+   n'a besoin d'aucune infrastructure particulière, seulement des trois
+   variables ci-dessus dans `backend/.env`.
+
+   - **Premier remplissage : en local**, c'est le plus simple et l'on voit
+     défiler les erreurs éventuelles.
+   - **Ensuite : sur le backend** (Render), en tâche planifiée quotidienne. Le
+     trigger `trg_mark_embedding_stale` ne laisse traiter que les profils
+     modifiés, donc l'exécution est courte et le quota gratuit suffit.
+
+   > La `SUPABASE_SERVICE_ROLE_KEY` contourne la RLS : elle ne doit jamais
+   > quitter `backend/.env` ni les variables d'environnement du serveur.
+   > Ne jamais la placer dans le frontend ni la commiter.
 
    Le trigger `trg_mark_embedding_stale` repositionne `embedding_stale=true`
    dès qu'un champ texte d'un profil change → relancer le script (cron
