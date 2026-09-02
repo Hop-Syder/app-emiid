@@ -4,7 +4,7 @@
  * @description Assistant de recherche (Couche ③) — affiché sous l'état vide de
  *              l'annuaire quand une recherche ne renvoie aucun résultat.
  *              Récupère un message + des suggestions cliquables via
- *              /api/search-assistant (Groq/Llama). Silencieux si indisponible.
+ *              /api/search-assistant (Gemini Flash-Lite). Silencieux si indisponible.
  *              Design aligné charte (bleu roi #013ff4 / cyan #03b3f8).
  * @created 2026-08-21
  */

@@ -13,7 +13,7 @@ Pour une immersion profonde dans les différentes couches du projet, consultez l
 - 🛠️ **[Frontend Admin](docs/FRONTEND_ADMIN.md)** : Cockpit d'administration, sécurité et modération.
 - 🗄️ **[Database & SQL](docs/DATABASE_SCHEMA.md)** : Schéma master, RLS et logique métier SQL.
 - 💳 **[Monétisation](docs/MONETISATION.md)** : Abonnements Pro, Boosts territoriaux et paiements FedaPay.
-- 🤖 **[Recherche IA & Sémantique](docs/RECHERCHE_IA.md)** : Moteur d'embeddings, FTS PostgreSQL et assistant Groq.
+- 🤖 **[Recherche IA & Sémantique](docs/RECHERCHE_IA.md)** : Moteur d'embeddings, FTS PostgreSQL et assistant Gemini.
 - 🎭 **[Jeu de Démonstration](docs/JEU_DEMO.md)** : Données réalistes marquées et réversibles pour les démos.
 
 ---
@@ -37,7 +37,7 @@ Pour une immersion profonde dans les différentes couches du projet, consultez l
 
 - 🔐 **Auth & Sécurité** : Authentification sécurisée (Email/OTP), protection par PIN et RLS granulaire.
 - 👥 **Profils & Réalisations** : Profils professionnels avec portfolio Bento, QR Code, vCard et badges vérifiés.
-- 🤖 **Recherche Intelligente & Vocale** : Moteur IA avec recherche sémantique (Groq/Gemini), FTS avec ranking et dictée vocale.
+- 🤖 **Recherche Intelligente & Vocale** : Moteur IA avec recherche sémantique (Gemini), FTS avec ranking et dictée vocale.
 - 💳 **Monétisation & Boosts** : Abonnements Pro mensuels/annuels, boosts communaux/départementaux et FedaPay Mobile Money.
 - 💬 **Messagerie & Médiation** : Chat temps réel, partage de pièces jointes et médiation de litiges admin.
 - 🗺️ **Annuaire & Référentiel** : Annuaire avec géolocalisation et filtres sectoriels (77 communes du Bénin).

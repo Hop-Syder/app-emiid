@@ -1,16 +1,17 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description API Route — Assistant de recherche (Couche ③, Groq/Llama).
+ * @description API Route — Assistant de recherche (Couche ③, Gemini Flash-Lite).
  *              Appelée par l'annuaire quand une recherche renvoie 0 résultat.
  *              Renvoie un message + des suggestions de recherche cliquables.
  *              Non bloquant : si l'assistant est indisponible, renvoie une
  *              charge vide (l'UI ne montre alors rien de particulier).
  * @created 2026-08-21
+ * @updated 2026-09-02 — bascule Groq/Llama → Gemini Flash-Lite (clé unique).
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { searchAssistant } from '@/lib/groq'
+import { searchAssistant } from '@/lib/search-assistant'
 
 export async function GET(request: NextRequest) {
     try {

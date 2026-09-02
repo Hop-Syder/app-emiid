@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Écran de recherche — point d'entrée universel de la recherche de profils.
  *              Design clair aligné charte (bleu roi #013ff4 / cyan #03b3f8).
- *              Assistant Groq : reformulations suggérées pendant la saisie,
+ *              Assistant IA (Gemini) : reformulations suggérées pendant la saisie,
  *              dégradation silencieuse si le service est indisponible.
  *              Soumission → /annuaire?search=…
  * @created 2026-08-19
@@ -41,7 +41,7 @@ export default function RecherchePage() {
     // Phrase dictée en attente d'envoi : passer par un état évite de capturer
     // une version périmée de la navigation dans le gestionnaire de l'API vocale.
     const [dictated, setDictated] = useState<string | null>(null)
-    // Reformulations de l'assistant Groq pendant la saisie (charge vide = masqué).
+    // Reformulations de l'assistant IA pendant la saisie (charge vide = masqué).
     const [assistantMessage, setAssistantMessage] = useState<string | null>(null)
     const [assistantSuggestions, setAssistantSuggestions] = useState<string[]>([])
     const [assistantLoading, setAssistantLoading] = useState(false)
@@ -95,7 +95,7 @@ export default function RecherchePage() {
         return () => clearTimeout(timer)
     }, [dictated, router])
 
-    // Assistant de recherche (Groq) : reformulations en direct pendant la frappe.
+    // Assistant de recherche (Gemini) : reformulations en direct pendant la frappe.
     // Non bloquant — réponse vide ou erreur = on masque simplement les pistes IA.
     useEffect(() => {
         const q = query.trim()

@@ -9,12 +9,12 @@ automatiquement sur la couche inférieure. **Elle fonctionne toujours.**
 |--------|------|--------|------|-------------|
 | ① Lexicale | multi-mots, radicalisation FR, fautes de frappe | Postgres FTS `french` + `pg_trgm` | gratuit | — |
 | ② Sémantique | comprendre le *sens* (« refaire mon élec » → électricien) | pgvector + embeddings Gemini | gratuit | `GEMINI_API_KEY` |
-| ③ Intention / reco | reformuler & recommander quand 0 résultat | Groq (Llama) | gratuit | `GROQ_API_KEY` |
+| ③ Intention / reco | reformuler & recommander quand 0 résultat | Gemini Flash-Lite | gratuit | `GEMINI_API_KEY` |
 
 ```
 requête ──► ① FTS (toujours) ─┐
         └─► ② sémantique (si clé) ─┤──► fusion RRF ──► profils classés
-                                    └─(0 résultat)──► ③ assistant/reco (Groq)
+                                    └─(0 résultat)──► ③ assistant/reco (Gemini)
 ```
 
 ---
@@ -191,34 +191,61 @@ champs A/B/C/D (migration).
 
 ---
 
-## Couche ③ — Intention & recommandations  *(actif si `GROQ_API_KEY`)*
+## Couche ③ — Intention & recommandations  *(actif si `GEMINI_API_KEY`)*
 
-Se déclenche sur le cas **0 résultat** dans l'annuaire : Groq (Llama) génère un
-message empathique + 3 à 5 **suggestions de recherche cliquables** (métier +
+Se déclenche sur le cas **0 résultat** dans l'annuaire : Gemini Flash-Lite génère
+un message empathique + 3 à 5 **suggestions de recherche cliquables** (métier +
 ville réalistes au Bénin), qui relancent la recherche.
 
-- **Helper :** `frontend-user/lib/groq.ts` (`searchAssistant()`, modèle
-  `llama-3.3-70b-versatile`, JSON mode, timeout 6 s, renvoie `null` si indispo).
+- **Helper :** `frontend-user/lib/search-assistant.ts` (`searchAssistant()`,
+  modèle `gemini-3.5-flash-lite`, sortie JSON contrainte par `responseSchema`,
+  timeout 6 s, renvoie `null` si indispo).
 - **Endpoint :** `frontend-user/app/api/search-assistant/route.ts` (`GET ?q=`).
 - **UI :** `frontend-user/components/annuaire-public-content/search-assistant.tsx`,
   affiché sous l'état vide de `annuaire-grid.tsx` quand une recherche est active.
+
+> **Bascule Groq → Gemini (02/09/2026).** Cette couche tournait sur Groq/Llama et
+> exigeait une seconde clé. Les couches ② et ③ partagent désormais
+> `GEMINI_API_KEY` : une seule clé à provisionner, à surveiller et à renouveler.
+> `lib/groq.ts` et la variable `GROQ_API_KEY` ne sont plus utilisés — la variable
+> peut être retirée de Vercel.
+>
+> Gain au passage : la sortie JSON n'est plus seulement *demandée* dans le prompt,
+> elle est **contrainte par un `responseSchema`** côté Gemini. Le modèle ne peut
+> structurellement pas répondre hors format.
 
 ### Mise en service
 
 | Où | Variable | Valeur |
 |----|----------|--------|
-| Vercel `frontend-user` | `GROQ_API_KEY` | clé Groq (https://console.groq.com) |
-| Vercel `frontend-user` | `GROQ_MODEL` *(optionnel)* | défaut `llama-3.3-70b-versatile` |
+| Vercel `frontend-user` | `GEMINI_API_KEY` | même clé que la couche ② |
+| Vercel `frontend-user` | `GEMINI_ASSISTANT_MODEL` *(optionnel)* | défaut `gemini-3.5-flash-lite` |
 
-La clé Groq se crée gratuitement (sans carte bancaire) dans la console Groq →
-*API Keys*. Free tier largement suffisant : l'assistant n'est appelé **que** sur
-une recherche à 0 résultat.
+Le modèle est surchargeable par variable d'environnement : le catalogue Google
+évolue vite, et en changer ne doit pas demander un redéploiement de code. Pour
+connaître les modèles réellement ouverts à votre clé :
+
+```bash
+curl -s 'https://generativelanguage.googleapis.com/v1beta/models' \
+  -H "x-goog-api-key: $GEMINI_API_KEY" \
+  | jq -r '.models[] | "\(.name)  →  \(.supportedGenerationMethods | join(", "))"'
+```
+
+### Coût et quotas
+
+Tout reste sur le **palier gratuit** de l'API Gemini, qui ne bascule jamais en
+facturé sans activation explicite de la facturation. Les quotas gratuits sont
+toutefois resserrés et varient selon le compte : les limites en vigueur se
+consultent dans Google AI Studio. L'assistant n'étant appelé **que** sur une
+recherche à 0 résultat, le volume reste marginal.
 
 ### Dégradation
 
-Sans `GROQ_API_KEY`, en cas de quota ou d'erreur/timeout, l'endpoint renvoie une
-charge vide et **aucun bloc assistant ne s'affiche** — l'état vide standard
-(« Aucun résultat trouvé » + réinitialiser les filtres) reste inchangé.
+Sans `GEMINI_API_KEY`, en cas de quota atteint (429) ou d'erreur/timeout,
+l'endpoint renvoie une charge vide et **aucun bloc assistant ne s'affiche** —
+l'état vide standard (« Aucun résultat trouvé » + réinitialiser les filtres)
+reste inchangé. Un dépassement de quota gratuit n'a donc aucun effet visible
+autre que l'absence de suggestions.
 
 ---
 

@@ -37,7 +37,7 @@ timeline
     title EmiID Product Roadmap
     Phase 1 : Fondations : Authentification multi-méthodes : Profils extensibles : Annuaire intelligent : Messagerie temps réel
     Phase 2 : Confiance & Engagement : Badges de vérification admin : Portefeuille & Galerie de réalisations : Code PIN de sécurité : Notification push / mail
-    Phase 3 : Écosystème & Monétisation : Abonnements Pro : Boosts communaux/départementaux : Paiement FedaPay (Mobile Money) : Recherche sémantique IA (Groq/Gemini) : Jeu de démo réversible
+    Phase 3 : Écosystème & Monétisation : Abonnements Pro : Boosts communaux/départementaux : Paiement FedaPay (Mobile Money) : Recherche sémantique IA (Gemini) : Jeu de démo réversible
 ```
 
 #### Phase 1 : Fondations (Complété)

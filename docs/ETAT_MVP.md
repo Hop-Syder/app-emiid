@@ -42,7 +42,7 @@ paiements en attente et les cinq derniers règlements.
 | **Abonnement Pro** | 🟡 **bloqué** | UI + paiement codés — **attend les clés FedaPay** |
 | **Boosts** | 🟡 **bloqué** | idem, communal et départemental |
 | **Recherche sémantique** | 🟡 optionnel | attend `GEMINI_API_KEY` — dégradation propre sur le FTS |
-| **Assistant 0 résultat** | 🟡 optionnel | attend `GROQ_API_KEY` — bloc masqué sinon |
+| **Assistant 0 résultat** | 🟡 optionnel | attend `GEMINI_API_KEY` — bloc masqué sinon |
 | **Hub public** | 🟠 à assumer | ticker et radar affichent des exemples **décoratifs** |
 
 ---
@@ -80,7 +80,7 @@ SQL, et toutes les tables référencées sont déclarées dans les types.
 ### Étape 1 — Débloquer (ops, ~30 min, aucun code)
 1. Render : `FEDAPAY_SECRET_KEY`, `FEDAPAY_WEBHOOK_SECRET`,
    `FEDAPAY_BASE_URL` (sandbox) ; déclarer le webhook côté FedaPay.
-2. Vercel `frontend-user` : `NEXT_PUBLIC_GA_ID`, `GROQ_API_KEY`,
+2. Vercel `frontend-user` : `NEXT_PUBLIC_GA_ID`, `GEMINI_API_KEY`,
    `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`.
 3. Vérifier en base : `subscriptions`, `profile_boosts`, `communes` (77),
    et le nombre de profils rattachés à une commune.
