@@ -10,6 +10,15 @@ import { getOptimizedImageUrl } from "@/lib/image-optimization"
 
 export type EmiIDCardVariant = "elite" | "glass" | "glass-blue" | "glass-orange" | "glass-red" | "tech"
 
+/**
+ * Gabarit de la carte.
+ *  • "default" — carte de visite pleine taille : l'aperçu de création de profil,
+ *    où la carte EST le produit qu'on montre à l'utilisateur.
+ *  • "compact" — listes et carrousels : mêmes informations, moins de vide, pour
+ *    qu'il en tienne davantage à l'écran.
+ */
+export type EmiIDCardSize = "default" | "compact"
+
 interface EmiIDProfileCardProps {
   user: {
     id: string
@@ -27,6 +36,7 @@ interface EmiIDProfileCardProps {
     is_nomad?: boolean
   }
   variant?: EmiIDCardVariant
+  size?: EmiIDCardSize
   onAction?: (type: 'message' | 'follow' | 'view') => void
   isFollowed?: boolean
   className?: string
@@ -109,9 +119,44 @@ const VARIANT_STYLES = {
   },
 }
 
+// Deux gabarits. Le compact réduit l'avatar, les marges et les corps de texte —
+// c'est le vide qui disparaît, pas l'information : nom, rôle, statistiques et
+// actions restent tous présents et lisibles.
+const SIZE_STYLES = {
+  default: {
+    frame: "max-w-[280px] min-h-[380px] rounded-[2rem]",
+    topPad: "pt-6 pb-2 px-6",
+    avatar: "h-24 w-24 border-4",
+    avatarFallback: "text-2xl",
+    avatarWrap: "mt-2 px-6",
+    info: "px-6 pt-4 pb-6",
+    name: "text-xl mb-1",
+    role: "text-xs mb-4",
+    stats: "gap-6 mb-6",
+    statValue: "text-base",
+    divider: "h-8",
+    button: "h-10 text-[11px]",
+  },
+  compact: {
+    frame: "max-w-[200px] min-h-[268px] rounded-3xl",
+    topPad: "pt-4 pb-1 px-4",
+    avatar: "h-16 w-16 border-[3px]",
+    avatarFallback: "text-lg",
+    avatarWrap: "mt-1 px-4",
+    info: "px-4 pt-3 pb-4",
+    name: "text-base mb-0.5",
+    role: "text-[10px] mb-3",
+    stats: "gap-4 mb-4",
+    statValue: "text-sm",
+    divider: "h-6",
+    button: "h-9 text-[10px]",
+  },
+} as const
+
 export function EmiIDProfileCard({ 
   user, 
   variant = "tech", 
+  size = "default",
   onAction,
   isFollowed = false,
   className,
@@ -123,6 +168,8 @@ export function EmiIDProfileCard({
   const following = user.following || 0
 
   const styles = VARIANT_STYLES[variant] || VARIANT_STYLES.tech
+  // Gabarit : la variante compacte resserre les mêmes éléments, sans en retirer.
+  const sizing = SIZE_STYLES[size] || SIZE_STYLES.default
 
   // Framer Motion 3D Tilt Logic
   const x = useMotionValue(0)
@@ -159,7 +206,7 @@ export function EmiIDProfileCard({
       onMouseLeave={handleMouseLeave}
       onClick={() => onAction?.('view')}
       className={cn(
-        "relative w-full max-w-[280px] h-full min-h-[380px] mx-auto rounded-[2rem] cursor-pointer group transition-all duration-500",
+        `relative w-full h-full mx-auto cursor-pointer group transition-all duration-500 ${sizing.frame}`,
         styles.wrapper,
         "overflow-hidden flex flex-col justify-between border",
         className
@@ -172,7 +219,7 @@ export function EmiIDProfileCard({
       />
 
       {/* Top Banner Area — type de profil à gauche, badge de vérification à l'opposé */}
-      <div className="pt-6 pb-2 px-6 flex justify-between items-center z-10">
+      <div className={cn("flex justify-between items-center z-10", sizing.topPad)}>
         <span className={cn("text-[10px] font-bold tracking-widest uppercase px-3 py-1 rounded-full border", styles.badge)}>
           {category}
         </span>
@@ -194,21 +241,21 @@ export function EmiIDProfileCard({
       </div>
 
       {/* Avatar Section */}
-      <div className="flex flex-col items-center mt-2 z-10 px-6">
+      <div className={cn("flex flex-col items-center z-10", sizing.avatarWrap)}>
         <div className="relative">
-          <Avatar className={cn("h-24 w-24 border-4 shadow-xl ring-1 ring-white/10", variant === "elite" ? "border-stone-900 shadow-[0_0_25px_rgba(250,204,21,0.2)]" : "border-white")}>
+          <Avatar className={cn("shadow-xl ring-1 ring-white/10", sizing.avatar, variant === "elite" ? "border-stone-900 shadow-[0_0_25px_rgba(250,204,21,0.2)]" : "border-white")}>
             <AvatarImage src={getOptimizedImageUrl(user.avatar, { width: 200, height: 200 })} className="object-cover" />
-            <AvatarFallback className="bg-muted text-foreground font-bold text-2xl">{name[0]}</AvatarFallback>
+            <AvatarFallback className={cn("bg-muted text-foreground font-bold", sizing.avatarFallback)}>{name[0]}</AvatarFallback>
           </Avatar>
         </div>
       </div>
 
       {/* Info Section */}
-      <div className="flex-1 flex flex-col items-center text-center px-6 pt-4 pb-6 z-10">
-        <h3 className={cn("text-xl font-bold tracking-tight mb-1 line-clamp-1 w-full", styles.textPrimary)}>
+      <div className={cn("flex-1 flex flex-col items-center text-center z-10", sizing.info)}>
+        <h3 className={cn("font-bold tracking-tight line-clamp-1 w-full", sizing.name, styles.textPrimary)}>
           {name}
         </h3>
-        <p className={cn("text-xs font-medium uppercase tracking-widest line-clamp-1 w-full mb-4 flex items-center justify-center gap-2", styles.textSecondary)}>
+        <p className={cn("font-medium uppercase tracking-widest line-clamp-1 w-full flex items-center justify-center gap-2", sizing.role, styles.textSecondary)}>
           {role}
           {user.is_nomad && (
             <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 dark:bg-blue-900/30 px-2 py-0.5 text-[9px] font-bold text-blue-700 dark:text-blue-300 normal-case tracking-normal border border-blue-200 dark:border-blue-800/50">
@@ -219,14 +266,14 @@ export function EmiIDProfileCard({
         </p>
 
         {/* Minimal Stats */}
-        <div className="flex items-center justify-center gap-6 mb-6">
+        <div className={cn("flex items-center justify-center", sizing.stats)}>
           <div className="flex flex-col items-center">
-            <span className={cn("text-base font-bold", styles.textPrimary)}>{user.followers || '0'}</span>
+            <span className={cn("font-bold", sizing.statValue, styles.textPrimary)}>{user.followers || '0'}</span>
             <span className={cn("text-[9px] uppercase tracking-wider font-semibold", styles.textSecondary)}>Abonnés</span>
           </div>
-          <div className={cn("h-8 w-px", styles.divider)} />
+          <div className={cn("w-px", sizing.divider, styles.divider)} />
           <div className="flex flex-col items-center">
-            <span className={cn("text-base font-bold", styles.textPrimary)}>{following}</span>
+            <span className={cn("font-bold", sizing.statValue, styles.textPrimary)}>{following}</span>
             <span className={cn("text-[9px] uppercase tracking-wider font-semibold", styles.textSecondary)}>Suivis</span>
           </div>
         </div>
@@ -236,7 +283,7 @@ export function EmiIDProfileCard({
           <Button 
             onClick={(e) => { e.stopPropagation(); onAction?.('follow') }}
             className={cn(
-              "flex-1 h-10 px-2 rounded-2xl font-bold text-[11px] transition-all border-none shadow-lg",
+              "flex-1 px-2 rounded-2xl font-bold transition-all border-none shadow-lg", sizing.button,
               isFollowed 
                 ? "bg-muted/50 dark:bg-slate-800/80 border border-slate-300/30 dark:border-slate-700/50 text-foreground dark:text-slate-300 shadow-none hover:bg-slate-350/50 dark:hover:bg-slate-750" 
                 : styles.btnPrimary
@@ -253,7 +300,7 @@ export function EmiIDProfileCard({
               onClick={(e) => { e.stopPropagation(); onAction?.('message') }}
               variant="ghost"
               className={cn(
-                "flex-1 h-10 px-2 rounded-2xl border transition-all flex items-center justify-center gap-1.5 text-[11px] font-semibold",
+                "flex-1 px-2 rounded-2xl border transition-all flex items-center justify-center gap-1.5 font-semibold", sizing.button,
                 styles.btnSecondary
               )}
             >

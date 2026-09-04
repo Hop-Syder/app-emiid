@@ -42,9 +42,9 @@ export function EntrepreneursSection({ entrepreneursList, loading, variant = "te
       {loading ? (
         <div className="flex overflow-x-auto pb-6 gap-6 snap-x no-scrollbar w-full lg:grid lg:grid-cols-5 lg:overflow-visible">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="min-w-[280px] lg:min-w-0 space-y-4 p-6 border rounded-xl bg-card snap-center">
+            <div key={i} className="min-w-[200px] lg:min-w-0 space-y-3 p-4 border rounded-xl bg-card snap-center">
               <div className="flex items-center gap-4">
-                <Skeleton className="h-16 w-16 rounded-full" />
+                <Skeleton className="h-12 w-12 rounded-full" />
                 <div className="space-y-2 flex-1">
                   <Skeleton className="h-4 w-[120px]" />
                   <Skeleton className="h-3 w-[80px]" />
@@ -79,7 +79,7 @@ export function EntrepreneursSection({ entrepreneursList, loading, variant = "te
                 animate={{ opacity: 1, scale: 1 }}
                 whileHover={{ scale: 1.03, y: -5, rotateY: 2 }}
                 transition={{ duration: 0.3, delay: index * 0.1 }}
-                className="min-w-[280px] lg:min-w-0 snap-center relative group perspective-1000"
+                className="min-w-[200px] lg:min-w-0 snap-center relative group perspective-1000"
               >
                 {/* Magic glow for Elite (Premium) variant if applicable */}
                 {variant === "elite" && (
@@ -101,6 +101,7 @@ export function EntrepreneursSection({ entrepreneursList, loading, variant = "te
                       tags: entrepreneur.tags || [entrepreneur.specialty],
                     }}
                     variant={variant}
+                    size="compact"
                     isFollowed={!!entrepreneur.isFollowed}
                     onAction={(type) => handleCardAction(type, entrepreneur.id, entrepreneur.slug)}
                     isLoggedIn={!!session}
