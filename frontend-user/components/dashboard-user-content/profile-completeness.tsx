@@ -23,8 +23,7 @@
 import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
-import { ArrowRight, Bell, ChevronDown } from "lucide-react"
-import { useUnreadNotifications } from "@/hooks/use-unread-notifications"
+import { ArrowRight, ChevronDown } from "lucide-react"
 
 interface ProfileCompletenessProps {
   completion: number
@@ -33,7 +32,6 @@ interface ProfileCompletenessProps {
 }
 
 export function ProfileCompleteness({ completion, loading, nextAction }: ProfileCompletenessProps) {
-  const unreadCount = useUnreadNotifications()
   const isComplete = completion >= 100
 
   // Ouverte tant que le profil est incomplet : c'est là qu'il y a une action à
@@ -117,23 +115,11 @@ export function ProfileCompleteness({ completion, loading, nextAction }: Profile
           />
         </button>
 
-        {/* Accès aux notifications — mobile uniquement, comme avant. Il vit
-            dans l'en-tête plutôt qu'en position absolue : le pli aurait fait
-            flotter un bouton détaché au-dessus de la carte. */}
-        <Link
-          href="/notifications"
-          aria-label="Voir mes notifications"
-          className="lg:hidden shrink-0 p-2.5 rounded-2xl bg-card border border-border/70 text-foreground hover:text-[#013ff4] hover:bg-[#013ff4]/10 active:scale-90 transition-all shadow-sm"
-        >
-          <span className="relative flex items-center justify-center">
-            <Bell className="w-5 h-5" />
-            {unreadCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-black flex items-center justify-center ring-2 ring-white shadow-sm animate-pulse">
-                {unreadCount > 9 ? "9+" : unreadCount}
-              </span>
-            )}
-          </span>
-        </Link>
+        {/* L'accès aux notifications qui vivait ici a été retiré : en mobile,
+            le dock affiche déjà le compteur de non-lus sur l'onglet « Espace ».
+            Deux badges pour la même information se contredisaient à l'œil dès
+            qu'un décalage de rafraîchissement survenait. Le dock, visible en
+            permanence, est le bon porteur. */}
       </div>
 
       {/* ── Détail : explication + action suivante ────────────────────────── */}

@@ -34,8 +34,11 @@ export function PersonalHero() {
         {/* Complétude */}
         <ProfileCompleteness completion={completion} loading={loading} nextAction={nextAction} />
 
-        {/* Stats perso (preuve sociale personnalisée) */}
-        <div className="flex-1 flex gap-3">
+        {/* Stats perso (preuve sociale personnalisée) — desktop uniquement.
+            Sur mobile, trois tuiles chiffrées poussaient les actions utiles
+            hors de l'écran : la complétude du profil et les signaux d'action
+            (messages, réalisations, Premium) passent avant des compteurs. */}
+        <div className="hidden lg:flex flex-1 gap-3">
           <StatTile
             icon={Eye}
             value={stats.viewsThisWeek}
