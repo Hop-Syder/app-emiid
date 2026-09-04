@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Section Profil de la page de paramètres — Refonte avec les patterns SwiftUI (Grouped Inset, SettingToggle, SettingRow).
  * @created 2026-06-13
- * @updated 2026-08-30
+ * @updated 2026-09-04
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -161,25 +161,20 @@ export function ProfileSection({
     }
   }
 
-  const displayName = [profile.first_name, profile.last_name].filter(Boolean).join(" ") || "Votre nom"
-
   return (
     <div className="space-y-4">
       {/* ── Photo de profil ─────────────────────────────────────────────── */}
       <SectionCard title="Photo de profil" icon={User}>
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
-          <AvatarUpload
-            currentAvatarUrl={profile.avatar_url}
-            onUploadComplete={(url: string) => up("avatar_url", url)}
-          />
-          <div className="min-w-0 flex-1">
-            <p className="text-base font-extrabold text-foreground truncate leading-snug">{displayName}</p>
-            <p className="text-xs text-muted-foreground truncate mt-0.5">{profile.email}</p>
-            <div className="flex items-center gap-2 mt-2">
-              <span className="text-[11px] font-semibold text-slate-400">JPG, PNG, WEBP · Max 2 MB</span>
-            </div>
-          </div>
-        </div>
+        <AvatarUpload
+          variant="profile-card"
+          currentAvatarUrl={profile.avatar_url}
+          email={profile.email}
+          onUploadComplete={(url: string) => up("avatar_url", url)}
+          onDelete={() => {
+            up("avatar_url", null)
+            toast.success("Photo de profil réinitialisée")
+          }}
+        />
       </SectionCard>
 
       {/* ── Identité personnelle ────────────────────────────────────────── */}
