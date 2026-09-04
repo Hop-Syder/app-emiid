@@ -100,6 +100,10 @@ export interface Database {
           card_variant: string
           has_profile: boolean
           followers_count: number
+          latitude: number | null
+          longitude: number | null
+          is_nomad: boolean
+          commune_id: string | null
           created_at: string
           updated_at: string
         }
@@ -136,6 +140,10 @@ export interface Database {
           card_variant?: string
           has_profile?: boolean
           followers_count?: number
+          latitude?: number | null
+          longitude?: number | null
+          is_nomad?: boolean
+          commune_id?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -172,6 +180,10 @@ export interface Database {
           card_variant?: string
           has_profile?: boolean
           followers_count?: number
+          latitude?: number | null
+          longitude?: number | null
+          is_nomad?: boolean
+          commune_id?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -470,7 +482,15 @@ export interface Database {
         Row: { id: string; name: string; department_id: string; created_at: string }
         Insert: { name: string; department_id: string }
         Update: { name?: string; department_id?: string }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "communes_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       profile_boosts: {
         Row: {
@@ -805,6 +825,11 @@ export interface Database {
           followers_count: number | null
           created_at: string | null
           slug: string | null
+          latitude: number | null
+          longitude: number | null
+          is_nomad: boolean | null
+          updated_at: string | null
+          commune_id: string | null
         }
         Relationships: []
       }
