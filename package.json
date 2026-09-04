@@ -10,6 +10,7 @@
     "dev:admin-old": "npm run dev --prefix admin",
     "dev:admin": "npm run dev --prefix frontend-admin",
     "dev:commercial": "npm run dev --prefix frontend-commercial",
+    "gen:types": "npm run gen:types --prefix frontend-user && npm run gen:types --prefix backend",
     "postinstall": "echo 'Please run npm install in each subdirectory if needed, or use a workspace manager.'"
   },
   "devDependencies": {
