@@ -1,62 +1,129 @@
+# ==============================================================================
+# EmiID — Git Ignore Policy
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
 # Dependencies
+# ------------------------------------------------------------------------------
 node_modules/
 **/node_modules/
+.pnp
+.pnp.js
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
 
-# Next.js
-.next/
-**/.next/
-out/
-
-# Env / secrets
+# ------------------------------------------------------------------------------
+# Environment Variables & Secrets (CRITICAL)
+# ------------------------------------------------------------------------------
 .env
-.env.local
-frontend-user/.env.local
-backend/.env.local
 .env.*
 *.env
-.env.local
-**/.env.local
+**/.env
+**/.env.*
+**/*.env
+# Exceptions : toujours versionner les modèles d'environnements
+!.env.example
+!**/.env.example
+!.env*.example
+!**/.env*.example
+
+# Clés privées, certificats & credentials
 credentials.json
+.credentials
 *.pem
 *.key
-.credentials
+*.cert
+*.crt
+*.pfx
+*.p12
+service-account*.json
 
-# Logs
+# ------------------------------------------------------------------------------
+# Production & Build Artifacts
+# ------------------------------------------------------------------------------
+dist/
+build/
+out/
+.next/
+**/.next/
+.turbo/
+*.tsbuildinfo
+**/*.tsbuildinfo
+
+# ------------------------------------------------------------------------------
+# Testing & Coverage
+# ------------------------------------------------------------------------------
+coverage/
+**/coverage/
+*.lcov
+.nyc_output/
+
+# ------------------------------------------------------------------------------
+# Logs & Debugging
+# ------------------------------------------------------------------------------
 *.log
+logs/
+**/logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+lerna-debug.log*
 eslint-report.txt*
 
-# Build artifacts
-dist/
-build/
-coverage/
-.turbo/
-
-# OS / editor
+# ------------------------------------------------------------------------------
+# OS & Editor Files
+# ------------------------------------------------------------------------------
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
-.vscode/
 
-# Local tooling / agents
-.agent-frontend/
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ------------------------------------------------------------------------------
+# Temporary Files & Caches
+# ------------------------------------------------------------------------------
+tmp/
+temp/
+.cache/
+.parcel-cache/
+.eslintcache
+
+# ------------------------------------------------------------------------------
+# Vercel & Cloud
+# ------------------------------------------------------------------------------
+.vercel/
+
+# ------------------------------------------------------------------------------
+# Local Tooling & AI Assistants
+# ------------------------------------------------------------------------------
+.agent/
 .agents/
+.agent-frontend/
 .agent-saas/
+.claude/
 .codex/
 .cursor/
 .cursorrules
+.gemini/
 .skills/
 skills-lock.json
-.gemini/
 .herozionignore/
+design-system/
+.venv/
 
-# Project specific
-design-system
-skills-lock.json
-.venv
-.dexty
-.vercel
-.env*
-.agent/
+# Mémoire DEXTY : ignorer les fichiers temporaires mais conserver la mémoire projet
+.dexty/*
+!.dexty/temp-memory-projet.md
