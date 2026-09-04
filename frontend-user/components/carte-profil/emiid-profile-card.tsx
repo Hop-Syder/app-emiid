@@ -136,9 +136,11 @@ const SIZE_STYLES = {
     statValue: "text-base",
     divider: "h-8",
     button: "h-10 text-[11px]",
+    // La carte de visite montre le produit complet, actions comprises.
+    actions: true,
   },
   compact: {
-    frame: "max-w-[200px] min-h-[268px] rounded-3xl",
+    frame: "max-w-[200px] min-h-[212px] rounded-3xl",
     topPad: "pt-4 pb-1 px-4",
     avatar: "h-16 w-16 border-[3px]",
     avatarFallback: "text-lg",
@@ -150,6 +152,8 @@ const SIZE_STYLES = {
     statValue: "text-sm",
     divider: "h-6",
     button: "h-9 text-[10px]",
+    // En liste, la carte n'est qu'un aperçu : on ouvre le profil pour agir.
+    actions: false,
   },
 } as const
 
@@ -278,15 +282,17 @@ export function EmiIDProfileCard({
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="w-full flex gap-2 mt-auto">
-          <Button 
-            onClick={(e) => { e.stopPropagation(); onAction?.('follow') }}
-            className={cn(
-              "flex-1 px-2 rounded-2xl font-bold transition-all border-none shadow-lg", sizing.button,
-              isFollowed 
-                ? "bg-muted/50 dark:bg-slate-800/80 border border-slate-300/30 dark:border-slate-700/50 text-foreground dark:text-slate-300 shadow-none hover:bg-slate-350/50 dark:hover:bg-slate-750" 
-                : styles.btnPrimary
+        {/* Actions — absentes du gabarit compact : la carte entière reste
+            cliquable et mène au profil, où « Suivre » et « Message » figurent. */}
+        {sizing.actions && (
+          <div className="w-full flex gap-2 mt-auto">
+            <Button 
+              onClick={(e) => { e.stopPropagation(); onAction?.('follow') }}
+              className={cn(
+                "flex-1 px-2 rounded-2xl font-bold transition-all border-none shadow-lg", sizing.button,
+                isFollowed 
+                  ? "bg-muted/50 dark:bg-slate-800/80 border border-slate-300/30 dark:border-slate-700/50 text-foreground dark:text-slate-300 shadow-none hover:bg-slate-350/50 dark:hover:bg-slate-750" 
+                  : styles.btnPrimary
             )}
           >
             {isFollowed ? (
@@ -307,8 +313,9 @@ export function EmiIDProfileCard({
               <MessageSquare className={cn("h-3.5 w-3.5 shrink-0", styles.accent)} />
               <span className="truncate">Message</span>
             </Button>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
     </motion.div>
   )
