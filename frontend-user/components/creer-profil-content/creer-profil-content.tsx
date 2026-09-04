@@ -1,7 +1,7 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Point d'entrée de la création de profil — rend le tunnel d'onboarding
+ * @description Point d'entrée de la création de profil — rend le tunnel de création
  *              en 3 étapes (Qui / Que / Où). Les formulaires avancés (bio, portfolio,
  *              réseaux, horaires, sécurité, vérification) sont désormais dans /parametres.
  * @created 2026-01-16

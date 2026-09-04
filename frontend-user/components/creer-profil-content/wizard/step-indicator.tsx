@@ -1,7 +1,7 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Barre de progression du tunnel d'onboarding EmiID (3 étapes : Qui / Que / Où).
+ * @description Barre de progression du tunnel de création de profil EmiID (3 étapes : Qui / Que / Où).
  */
 
 "use client"

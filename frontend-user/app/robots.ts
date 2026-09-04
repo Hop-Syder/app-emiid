@@ -26,7 +26,6 @@ export default function robots(): MetadataRoute.Robots {
         '/parametres',
         '/portefeuille',
         '/creer-profil',
-        '/onboarding',
         // NB : /recherche n'est PAS bloquée ici. Elle est liée depuis la
         // navigation publique : la bloquer empêcherait Googlebot de lire son
         // noindex (app/recherche/layout.tsx), et l'URL pourrait finir indexée

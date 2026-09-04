@@ -114,7 +114,6 @@ export async function proxy(request: NextRequest) {
     '/parametres',
     '/portefeuille',
     '/creer-profil',
-    '/onboarding',
   ]
 
   const isExplicitPublic = publicRoutes.has(path) || publicPrefixes.some((prefix) => path.startsWith(prefix)) || isPublicProfileDetail
@@ -125,7 +124,6 @@ export async function proxy(request: NextRequest) {
   // CAS 1 : L'utilisateur est DÉJÀ CONNECTÉ (Connu)
   // S'il essaie de retourner sur la racine (/) ou le Login (/login)
   // -> On le force à aller sur le dashboard-user.
-  // /onboarding reste accessible même connecté (flow post-auth).
   if (user && (path === '/' || path === '/login')) {
     url.pathname = '/dashboard-user'
     return NextResponse.redirect(url)

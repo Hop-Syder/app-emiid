@@ -1,7 +1,8 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Tunnel d'onboarding EmiID en 3 étapes (Qui / Que / Où) + écran d'activation.
+ * @description Tunnel de création de profil EmiID en 3 étapes (Qui / Que / Où) + écran d'activation.
+ *              Premier écran après l'authentification d'un nouveau compte.
  *              Réutilise le hook useCreerProfil (état, upload avatar, référentiels) et
  *              publie le profil via buildProfilePayload + fetchWithAuth, puis redirige.
  */

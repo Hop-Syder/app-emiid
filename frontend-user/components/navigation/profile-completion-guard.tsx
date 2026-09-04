@@ -13,7 +13,7 @@ import { toast } from "sonner"
 import { useCurrentUserProfile } from "@/hooks/use-current-user-profile"
 
 // Pages où l'utilisateur DOIT pouvoir aller pour compléter/publier son profil.
-const ALLOWED_WHILE_INCOMPLETE = ["/creer-profil", "/parametres", "/onboarding"]
+const ALLOWED_WHILE_INCOMPLETE = ["/creer-profil", "/parametres"]
 
 export function ProfileCompletionGuard({ children }: { children: React.ReactNode }) {
     const router = useRouter()
