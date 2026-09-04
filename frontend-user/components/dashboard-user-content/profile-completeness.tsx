@@ -24,7 +24,8 @@
 import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
-import { ArrowRight, ChevronDown } from "lucide-react"
+import { ArrowRight, Bell, ChevronDown } from "lucide-react"
+import { useUnreadNotifications } from "@/hooks/use-unread-notifications"
 
 interface ProfileCompletenessProps {
   completion: number
@@ -33,6 +34,7 @@ interface ProfileCompletenessProps {
 }
 
 export function ProfileCompleteness({ completion, loading, nextAction }: ProfileCompletenessProps) {
+  const unreadCount = useUnreadNotifications()
   const isComplete = completion >= 100
 
   // Un profil complet n'a plus rien à révéler : ni explication, ni action.
@@ -134,11 +136,31 @@ export function ProfileCompleteness({ completion, loading, nextAction }: Profile
           <div className="flex flex-1 items-center gap-3 min-w-0">{headerContent}</div>
         )}
 
-        {/* L'accès aux notifications qui vivait ici a été retiré : en mobile,
-            le dock affiche déjà le compteur de non-lus sur l'onglet « Espace ».
-            Deux badges pour la même information se contredisaient à l'œil dès
-            qu'un décalage de rafraîchissement survenait. Le dock, visible en
-            permanence, est le bon porteur. */}
+        {/* Accès aux notifications — mobile uniquement, à droite de l'en-tête.
+            Il occupe l'espace laissé libre par le titre, et double
+            volontairement le compteur du dock : ici, il est à portée de pouce
+            au moment où l'utilisateur consulte l'état de son profil. */}
+        <Link
+          href="/notifications"
+          aria-label={
+            unreadCount > 0
+              ? `Voir mes notifications, ${unreadCount} non lue${unreadCount > 1 ? "s" : ""}`
+              : "Voir mes notifications"
+          }
+          className="lg:hidden shrink-0 p-2.5 rounded-2xl bg-card border border-border/70 text-foreground hover:text-[#013ff4] hover:bg-[#013ff4]/10 active:scale-90 transition-all shadow-sm"
+        >
+          <span className="relative flex items-center justify-center">
+            <Bell className="w-5 h-5" />
+            {unreadCount > 0 && (
+              <span
+                aria-hidden
+                className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-black flex items-center justify-center ring-2 ring-white shadow-sm"
+              >
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </span>
+            )}
+          </span>
+        </Link>
       </div>
 
       {/* ── Détail : explication + action suivante ────────────────────────── */}
