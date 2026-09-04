@@ -5,12 +5,12 @@
  *
  *              Refonte du 04/09 : le bloc a été allégé pour aller à l'essentiel.
  *              Retirés — le tag « Espace Membre » (qui n'apprenait rien à un
- *              utilisateur déjà connecté) et l'image de fond (poids de
- *              chargement et contraste à gérer, pour un simple décor). Le fond
- *              se limite désormais à la couleur de charte et à deux halos.
- *              La salutation cède la place au seul prénom, en plus petit.
- *              À la place : une barre de recherche de profils, au clavier ou à
- *              la voix — l'action la plus fréquente devient la plus accessible.
+ *              utilisateur déjà connecté), l'image de fond (poids de chargement
+ *              et contraste à gérer, pour un simple décor) et l'encart BAGBE.
+ *              Le fond se limite désormais à la couleur de charte et deux halos.
+ *              Restent la salutation « Bonsoir, Prénom » en corps réduit, puis
+ *              une barre de recherche de profils, au clavier ou à la voix —
+ *              l'action la plus fréquente devient la plus accessible.
  * @created 2026-05-31
  * @updated 2026-09-04
  * 🌐 ceo.nexuspartners.xyz
@@ -23,16 +23,26 @@ import { motion, type Variants } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import { ArrowRight, Briefcase, Mic, Search } from "lucide-react"
-import { useCallback, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useCurrentUserProfile } from "@/hooks/use-current-user-profile"
 import { useVoiceSearch } from "@/hooks/use-voice-search"
-import Image from "next/image"
 
 export function DashboardBentoHeader() {
     const router = useRouter()
     const { session } = useCurrentUserProfile()
     const [query, setQuery] = useState("")
     const inputRef = useRef<HTMLInputElement>(null)
+
+    // Salutation selon l'heure. Calculée après montage : l'heure du serveur
+    // n'est pas celle du visiteur, la figer au rendu produirait un décalage
+    // d'hydratation — et un « Bonjour » à 21 h.
+    const [greeting, setGreeting] = useState("Bonjour")
+    useEffect(() => {
+        const hour = new Date().getHours()
+        if (hour < 12) setGreeting("Bonjour")
+        else if (hour < 18) setGreeting("Bon après-midi")
+        else setGreeting("Bonsoir")
+    }, [])
 
     const userName =
         session?.user?.user_metadata?.first_name ||
@@ -93,31 +103,16 @@ export function DashboardBentoHeader() {
                     <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-[#03b3f8]/15 rounded-full blur-[100px]" />
                 </div>
 
-                <div className="relative z-10 flex flex-col p-5 sm:p-6 md:p-7 gap-4 sm:gap-5">
+                <div className="relative z-10 flex flex-col justify-center min-h-[210px] sm:min-h-[230px] p-6 sm:p-7 md:p-8 gap-5 sm:gap-6">
 
-                    {/* ── Ligne haute : prénom + badge ─────────────────────── */}
-                    <div className="flex items-center justify-between gap-3">
-                        <h1 className="text-lg sm:text-xl md:text-2xl font-black tracking-tight leading-tight truncate">
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#03b3f8] via-sky-200 to-white">
-                                {userName || "Talent"}
-                            </span>
-                        </h1>
-
-                        <div className="flex items-center gap-2 bg-card/[0.04] border border-white/10 px-2.5 py-1 rounded-xl backdrop-blur-md shrink-0">
-                            <span className="text-[10px] sm:text-[11px] font-extrabold tracking-widest uppercase text-slate-300">
-                                BAGBE
-                            </span>
-                            <span className="text-white/30 text-xs">·</span>
-                            <Image
-                                src="/svg/Badge-fondateur.svg"
-                                alt="Badge Fondateur"
-                                title="Fondateur"
-                                width={16}
-                                height={16}
-                                className="w-4 h-4 object-contain"
-                            />
-                        </div>
-                    </div>
+                    {/* ── Salutation ───────────────────────────────────────── */}
+                    <h1 className="text-lg sm:text-xl md:text-2xl font-black tracking-tight leading-tight text-white truncate">
+                        {greeting}
+                        {userName ? "," : ""}{" "}
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#03b3f8] via-sky-200 to-white">
+                            {userName || "Talent"}
+                        </span>
+                    </h1>
 
                     {/* ── Recherche de profils : clavier ou voix ───────────── */}
                     <form
