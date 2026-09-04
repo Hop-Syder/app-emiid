@@ -160,7 +160,7 @@ export async function GET(request: NextRequest) {
                 if (queryVec) {
                     const { data: sem, error: semErr } = await supabase.rpc(
                         'match_profiles_semantic',
-                        { query_embedding: queryVec, match_count: 100, min_similarity: 0.3 }
+                        { query_embedding: JSON.stringify(queryVec), match_count: 100, min_similarity: 0.3 }
                     )
                     if (semErr) {
                         console.error('match_profiles_semantic RPC error:', semErr)

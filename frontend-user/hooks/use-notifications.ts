@@ -12,6 +12,9 @@
 
 import { useEffect, useMemo, useState, useCallback } from "react"
 import { createClient } from "@/lib/supabase/client"
+import type { Database } from "@/types/database.types"
+
+type NotificationRow = Database["public"]["Tables"]["notifications"]["Row"]
 
 const PAGE_SIZE = 15
 
@@ -33,6 +36,21 @@ export interface Notification {
     created_at: string
     sender_id?: string | null
     sender?: NotificationSender | null
+}
+
+function mapDbNotification(
+    n: Partial<NotificationRow> & { id: string; type: string; title: string; sender_id?: string | null }
+): Notification {
+    return {
+        id: n.id,
+        type: n.type,
+        title: n.title,
+        content: n.content ?? "",
+        link: n.link,
+        is_read: Boolean(n.is_read),
+        created_at: n.created_at ?? new Date().toISOString(),
+        sender_id: n.sender_id ?? null,
+    }
 }
 
 export function useNotifications() {
@@ -118,7 +136,7 @@ export function useNotifications() {
                 setNotifications([])
                 setUnreadCount(0)
             } else {
-                const notifs = data || []
+                const notifs = (data || []).map(mapDbNotification)
                 const enrichedNotifs = await enrichNotificationsWithSender(notifs)
                 if (!isMounted) return
                 
@@ -161,7 +179,7 @@ export function useNotifications() {
                     filter: `user_id=eq.${userId}`,
                 },
                 async (payload) => {
-                    const newNotif = payload.new as Notification
+                    const newNotif = mapDbNotification(payload.new as NotificationRow)
                     
                     // Enrichir avec les infos sender
                     const [enrichedNotif] = await enrichNotificationsWithSender([newNotif])
@@ -208,7 +226,7 @@ export function useNotifications() {
             return
         }
 
-        const notifs = data || []
+        const notifs = (data || []).map(mapDbNotification)
         const enrichedNotifs = await enrichNotificationsWithSender(notifs)
         
         setNotifications(prev => [...prev, ...enrichedNotifs])
