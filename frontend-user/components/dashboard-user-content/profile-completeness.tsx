@@ -11,7 +11,8 @@
  *
  *              Le pli par défaut suit l'état du profil : ouverte tant qu'il
  *              reste quelque chose à compléter (il y a une action à proposer),
- *              fermée une fois à 100 % (il n'y a plus rien à faire).
+ *              fermée une fois à 100 % — où la carte n'est même plus repliable,
+ *              faute de contenu à révéler.
  * @created 2026-07-13
  * @updated 2026-09-04
  * 🌐 ceo.nexuspartners.xyz
@@ -34,8 +35,11 @@ interface ProfileCompletenessProps {
 export function ProfileCompleteness({ completion, loading, nextAction }: ProfileCompletenessProps) {
   const isComplete = completion >= 100
 
-  // Ouverte tant que le profil est incomplet : c'est là qu'il y a une action à
-  // proposer. Une fois complet, la carte se fait discrète.
+  // Un profil complet n'a plus rien à révéler : ni explication, ni action.
+  // La carte cesse alors d'être repliable — un chevron qui ouvre sur du vide
+  // serait une promesse non tenue.
+  const hasDetails = !isComplete
+
   const [open, setOpen] = useState(true)
 
   // `completion` vaut 0 au premier rendu (données non chargées) : figer le pli
@@ -59,61 +63,76 @@ export function ProfileCompleteness({ completion, loading, nextAction }: Profile
   const C = 2 * Math.PI * R
   const dash = C - (completion / 100) * C
 
+  // Contenu de l'en-tête, identique qu'il soit cliquable ou non.
+  const headerContent = (
+    <>
+      <span className="relative shrink-0" aria-hidden>
+        <svg width="52" height="52" className="-rotate-90">
+          <circle
+            cx="26"
+            cy="26"
+            r={R}
+            fill="none"
+            strokeWidth="5"
+            // currentColor + classe : l'anneau de fond suivait une couleur
+            // figée (#e2e8f0), invisible en thème sombre.
+            stroke="currentColor"
+            className="text-border"
+          />
+          <circle
+            cx="26"
+            cy="26"
+            r={R}
+            fill="none"
+            stroke={isComplete ? "#10b981" : "#013ff4"}
+            strokeWidth="5"
+            strokeLinecap="round"
+            strokeDasharray={C}
+            strokeDashoffset={loading ? C : dash}
+            className="transition-[stroke-dashoffset] duration-700 ease-out"
+          />
+        </svg>
+        <span className="absolute inset-0 flex items-center justify-center text-xs font-black text-foreground">
+          {loading ? "…" : `${completion}%`}
+        </span>
+      </span>
+
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-black text-foreground truncate">
+          {isComplete ? "Profil complet 🎉" : "Complétez votre profil"}
+        </span>
+      </span>
+
+      {hasDetails && (
+        <ChevronDown
+          className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-300 ${
+            open ? "rotate-180" : ""
+          }`}
+          aria-hidden
+        />
+      )}
+    </>
+  )
+
   return (
     <div className="rounded-2xl border border-border bg-muted/30 lg:w-[300px] shrink-0 overflow-hidden">
-      {/* ── En-tête : toujours visible, plie et déplie la carte ───────────── */}
+      {/* ── En-tête ───────────────────────────────────────────────────────
+          Cliquable seulement quand il y a quelque chose à déplier. À 100 %,
+          c'est une simple ligne de statut, sans interaction inutile. */}
       <div className="flex items-center gap-3 p-3">
-        <button
-          type="button"
-          onClick={toggle}
-          aria-expanded={open}
-          aria-controls="profile-completeness-details"
-          className="flex flex-1 items-center gap-3 min-w-0 text-left rounded-xl transition-colors hover:bg-muted/60 -m-1 p-1"
-        >
-          <span className="relative shrink-0" aria-hidden>
-            <svg width="52" height="52" className="-rotate-90">
-              <circle
-                cx="26"
-                cy="26"
-                r={R}
-                fill="none"
-                strokeWidth="5"
-                // currentColor + classe : l'anneau de fond suivait une couleur
-                // figée (#e2e8f0), invisible en thème sombre.
-                stroke="currentColor"
-                className="text-border"
-              />
-              <circle
-                cx="26"
-                cy="26"
-                r={R}
-                fill="none"
-                stroke={isComplete ? "#10b981" : "#013ff4"}
-                strokeWidth="5"
-                strokeLinecap="round"
-                strokeDasharray={C}
-                strokeDashoffset={loading ? C : dash}
-                className="transition-[stroke-dashoffset] duration-700 ease-out"
-              />
-            </svg>
-            <span className="absolute inset-0 flex items-center justify-center text-xs font-black text-foreground">
-              {loading ? "…" : `${completion}%`}
-            </span>
-          </span>
-
-          <span className="min-w-0 flex-1">
-            <span className="block text-sm font-black text-foreground truncate">
-              {isComplete ? "Profil complet 🎉" : "Complétez votre profil"}
-            </span>
-          </span>
-
-          <ChevronDown
-            className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-300 ${
-              open ? "rotate-180" : ""
-            }`}
-            aria-hidden
-          />
-        </button>
+        {hasDetails ? (
+          <button
+            type="button"
+            onClick={toggle}
+            aria-expanded={open}
+            aria-controls="profile-completeness-details"
+            className="flex flex-1 items-center gap-3 min-w-0 text-left rounded-xl transition-colors hover:bg-muted/60 -m-1 p-1"
+          >
+            {headerContent}
+          </button>
+        ) : (
+          <div className="flex flex-1 items-center gap-3 min-w-0">{headerContent}</div>
+        )}
 
         {/* L'accès aux notifications qui vivait ici a été retiré : en mobile,
             le dock affiche déjà le compteur de non-lus sur l'onglet « Espace ».
@@ -124,7 +143,7 @@ export function ProfileCompleteness({ completion, loading, nextAction }: Profile
 
       {/* ── Détail : explication + action suivante ────────────────────────── */}
       <AnimatePresence initial={false}>
-        {open && (
+        {hasDetails && open && (
           <motion.div
             id="profile-completeness-details"
             key="details"
@@ -136,12 +155,10 @@ export function ProfileCompleteness({ completion, loading, nextAction }: Profile
           >
             <div className="px-3 pb-3 pt-0">
               <p className="text-xs text-muted-foreground">
-                {isComplete
-                  ? "Vous apparaissez au mieux dans les recherches."
-                  : "Un profil complet apparaît bien plus haut dans l'annuaire."}
+                Un profil complet apparaît bien plus haut dans l&apos;annuaire.
               </p>
 
-              {!isComplete && nextAction && (
+              {nextAction && (
                 <Link
                   href={nextAction.href}
                   className="inline-flex items-center gap-1 mt-2 text-xs font-bold text-[#013ff4] hover:gap-2 transition-all"
