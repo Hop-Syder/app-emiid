@@ -7,6 +7,7 @@ import type { PublicProfile } from "@/types"
 import { DashboardBentoHeader } from "./dashboard-bento-header"
 import { InlineActivityFeed } from "./inline-activity-feed"
 import { ProximitySection } from "./proximity-section"
+import { CommuneSection } from "./commune-section"
 import { HubContextualCta } from "./hub-contextual-cta"
 import { HubCommunities } from "./hub-communities"
 import { PersonalHero } from "./personal-hero"
@@ -68,6 +69,14 @@ export function DashboardHubContent({
             SECTION 3 : TALENTS À PROXIMITÉ
             ========================================= */}
         <ProximitySection fallbackLocation={userLocation} initialProfiles={initialProximityProfiles} />
+
+        {/* =========================================
+            SECTION 3 bis : TALENTS DE LA COMMUNE
+            Échelle plus fine que la section ci-dessus (commune administrative
+            plutôt que ville/GPS) et vitrine des boosts communaux. Se masque
+            d'elle-même si le profil n'a pas de commune rattachée.
+            ========================================= */}
+        <CommuneSection />
 
         {/* =========================================
             SECTION 4 : EXPLORER (Premium / Nouveaux / Catégories — onglets)
