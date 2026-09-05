@@ -128,7 +128,7 @@ export function AnnuairePublicContent({
                         retiré : il ne disait rien que le titre ne dise déjà, et
                         son lien « Réinitialiser » fait doublon avec celui de la
                         barre de filtres. */}
-                    <div className="space-y-4 border-b border-border pb-4">
+                    <div className="space-y-3 border-b border-border pb-3">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                             {/* h1 et non h2 : le bandeau supprimé portait le seul
                                 titre de premier niveau des trois routes /annuaire. */}
