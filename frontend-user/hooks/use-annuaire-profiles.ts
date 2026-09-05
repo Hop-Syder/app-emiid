@@ -20,6 +20,9 @@ interface FiltersState {
   category: string
   country: string
   city: string
+  /** Découpage administratif (Bénin) — identifiants, pas des libellés. */
+  department: string
+  commune: string
   tags: string
   status: string
   activity_domain: string
@@ -45,6 +48,8 @@ function hasNoActiveFilter(filters?: FiltersState): boolean {
       (!filters.activity_domain || filters.activity_domain === "all") &&
       (!filters.country || filters.country === "all") &&
       !filters.city &&
+      !filters.department &&
+      !filters.commune &&
       !filters.tags)
   )
 }
@@ -130,6 +135,8 @@ export function useAnnuaireProfiles({
         }
         if (filters?.country && filters.country !== "all") params.append("country", filters.country)
         if (filters?.city) params.append("city", filters.city)
+        if (filters?.department) params.append("department", filters.department)
+        if (filters?.commune) params.append("commune", filters.commune)
         if (filters?.tags) params.append("tags", filters.tags)
         if (filters?.lat && filters?.lng) {
           params.append("lat", filters.lat)

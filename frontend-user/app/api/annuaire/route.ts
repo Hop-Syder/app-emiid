@@ -25,6 +25,9 @@ export async function GET(request: NextRequest) {
         const activity_domain = searchParams.get('activity_domain')
         const country = searchParams.get('country')
         const city = searchParams.get('city')?.trim()
+        // Découpage administratif (Bénin) — voir /api/annuaire/geo.
+        const department = searchParams.get('department')?.trim()
+        const commune = searchParams.get('commune')?.trim()
         const tags = searchParams.get('tags')?.trim()
         const onlyPremium = searchParams.get('onlyPremium') === 'true'
         const onlyVerified = searchParams.get('onlyVerified') === 'true'
@@ -69,6 +72,32 @@ export async function GET(request: NextRequest) {
             query = query.ilike('city', `%${city}%`)
         }
 
+        // 2 bis. Filtrage administratif. La commune prime : c'est le grain le
+        //        plus fin, et elle appartient forcément au département choisi.
+        //        `public_profiles.commune_id` est exposé depuis la migration
+        //        20260904 ; `departments` n'apparaît pas dans la vue, on résout
+        //        donc le département en sa liste de communes.
+        if (commune) {
+            query = query.eq('commune_id', commune)
+        } else if (department) {
+            const { data: communeRows, error: communeError } = await supabase
+                .from('communes')
+                .select('id')
+                .eq('department_id', department)
+
+            if (communeError) {
+                console.error('[annuaire] communes du département :', communeError.message)
+            }
+
+            const communeIds = (communeRows || []).map((c: { id: string }) => c.id)
+            // Département vide ou inconnu : aucun profil ne peut correspondre.
+            // Renvoyer la liste entière serait mentir sur le filtre appliqué.
+            if (communeIds.length === 0) {
+                return NextResponse.json({ profiles: [], count: 0 })
+            }
+            query = query.in('commune_id', communeIds)
+        }
+
         // 3. Filtrage par pays (via country_id de public_profiles)
         if (country && country !== 'all') {
             // Trouver le country_id à partir de l'iso_code
@@ -109,17 +138,23 @@ export async function GET(request: NextRequest) {
         //    commune. Résolution tolérante aux accents/casse via resolve_commune_id.
         //    Deux portées : boost sur la commune exacte (Score 4) et boost sur son
         //    département (Score 3), pondérés différemment.
+        //    Le filtre Commune fournit déjà l'identifiant : inutile de le
+        //    redeviner depuis un libellé. Sans cela, sélectionner une commune
+        //    dans les filtres court-circuiterait la mise en avant payante — le
+        //    bug même que 20260905_fix_boost_profile_join vient de réparer.
         const boostedCommune: Set<string> = new Set()
         const boostedDepartment: Set<string> = new Set()
-        if (city) {
-            const { data: communeId } = await supabase.rpc('resolve_commune_id', { p_label: city })
-            if (communeId) {
-                const { data: boosted } = await supabase
-                    .rpc('active_boosted_profile_ids', { p_commune_id: communeId as string })
-                for (const b of (boosted as { profile_id: string; scope: string }[] | null) || []) {
-                    if (b.scope === 'COMMUNE') boostedCommune.add(b.profile_id)
-                    else boostedDepartment.add(b.profile_id)
-                }
+        let targetCommuneId: string | null = commune || null
+        if (!targetCommuneId && city) {
+            const { data: resolved } = await supabase.rpc('resolve_commune_id', { p_label: city })
+            targetCommuneId = (resolved as string | null) || null
+        }
+        if (targetCommuneId) {
+            const { data: boosted } = await supabase
+                .rpc('active_boosted_profile_ids', { p_commune_id: targetCommuneId })
+            for (const b of (boosted as { profile_id: string; scope: string }[] | null) || []) {
+                if (b.scope === 'COMMUNE') boostedCommune.add(b.profile_id)
+                else boostedDepartment.add(b.profile_id)
             }
         }
         // Un profil boosté au niveau communal l'emporte : on ne cumule pas.
