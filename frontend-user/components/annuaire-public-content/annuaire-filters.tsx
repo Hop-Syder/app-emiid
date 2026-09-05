@@ -3,11 +3,20 @@
  * @organization Nexus Partners
  * @description Barre de filtres de l'Annuaire, sur deux lignes.
  *
- *              Refonte du 05/09. Les six contrôles se répartissaient au hasard
- *              sur une rangée qui débordait sur mobile. Ils forment désormais
- *              deux lignes porteuses de sens :
- *                ① OÙ   — Pays, Département, Commune, Autour de moi
- *                ② QUOI — Type, Secteur, Vérifié, Premium
+ *              Refonte du 06/09 : une seule barre segmentée.
+ *
+ *              Les cinq listes étaient cinq pastilles indépendantes réparties
+ *              sur deux rangées — donc dix bordures, dix marges intérieures et
+ *              deux fois la hauteur, pour cinq contrôles qui posent la même
+ *              question. Elles partagent maintenant UN cadre, séparées par de
+ *              simples filets : la hauteur passe de ~90 px à 36 px, et l'ordre
+ *              de lecture reste celui du sens — du plus large au plus fin
+ *              (Pays → Département → Commune), puis la nature (Type, Secteur).
+ *
+ *              Les trois bascules (Autour de moi, Vérifié, Premium) forment un
+ *              second groupe, volontairement HORS de la zone défilante : sur
+ *              mobile la barre défile horizontalement, mais ces trois-là — les
+ *              plus utilisées — restent toujours visibles.
  *
  *              La ligne géographique est une cascade : le département restreint
  *              les communes. `departments` ne porte aucun rattachement à un pays
@@ -59,7 +68,11 @@ interface AnnuaireFiltersProps {
   onReset: () => void
 }
 
-function Select({ value, onChange, options, placeholder, disabled = false, title }: {
+/**
+ * Un segment de la barre. Sans bordure propre : le cadre et les filets
+ * appartiennent au conteneur, c'est là tout le gain de place.
+ */
+function Segment({ value, onChange, options, placeholder, disabled = false, title }: {
   value: string
   onChange: (v: string) => void
   options: { id: string; label: string }[]
@@ -67,25 +80,34 @@ function Select({ value, onChange, options, placeholder, disabled = false, title
   disabled?: boolean
   title?: string
 }) {
+  const active = !!value && value !== "all"
   return (
-    <div className="relative">
+    <div
+      className={cn(
+        "relative shrink-0 transition-colors",
+        active && "bg-[#013ff4]/[0.07]",
+        disabled && "opacity-40",
+      )}
+    >
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
         title={title}
-        className={cn(
-          "appearance-none h-10 pl-3.5 pr-9 rounded-xl border text-sm font-semibold cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-[#013ff4]/25",
-          value && value !== "all"
-            ? "bg-[#013ff4]/[0.06] border-[#013ff4]/30 text-[#013ff4]"
-            : "bg-card border-border text-muted-foreground hover:bg-muted",
-          disabled && "opacity-50 cursor-not-allowed hover:bg-card",
-        )}
         aria-label={placeholder}
+        className={cn(
+          // max-w : un nom de commune ou « Tous les secteurs » étirerait sinon
+          // le segment bien au-delà de ce que la barre peut offrir.
+          "appearance-none h-9 max-w-[9.5rem] truncate bg-transparent pl-3 pr-7",
+          "text-sm font-semibold cursor-pointer outline-none",
+          "focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#013ff4]/30",
+          active ? "text-[#013ff4]" : "text-muted-foreground",
+          disabled && "cursor-not-allowed",
+        )}
       >
         {options.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
       </select>
-      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+      <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
     </div>
   )
 }
@@ -193,42 +215,66 @@ export function AnnuaireFilters({ filters, onFilterChange, onReset }: AnnuaireFi
     }
   }
 
-  const iconButton = "inline-flex items-center justify-center w-10 h-10 shrink-0 rounded-xl border transition-colors"
-  const iconIdle = "bg-card border-border text-muted-foreground hover:bg-muted"
+  // Bascule du groupe d'icônes : carrée, sans étiquette, toujours visible.
+  const toggle = "inline-flex items-center justify-center w-9 h-9 shrink-0 transition-colors"
+  const toggleIdle = "text-muted-foreground hover:bg-muted hover:text-foreground"
 
   return (
-    <div className="space-y-2.5">
-      {/* ── Ligne ① : OÙ ─────────────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
-        <Select
-          value={filters.country}
-          onChange={setCountry}
-          options={countryOptions}
-          placeholder="Pays"
-        />
-        <Select
-          value={filters.department || ""}
-          onChange={setDepartment}
-          options={departmentOptions}
-          placeholder="Département"
-          disabled={!geoAvailable}
-          title={geoAvailable ? undefined : "Découpage disponible pour le Bénin uniquement"}
-        />
-        <Select
-          value={filters.commune || ""}
-          onChange={(v) => onFilterChange("commune", v)}
-          options={communeOptions}
-          placeholder="Commune"
-          disabled={!geoAvailable || !filters.department}
-          title={
-            !geoAvailable
-              ? "Découpage disponible pour le Bénin uniquement"
-              : !filters.department
-                ? "Choisissez d'abord un département"
-                : undefined
-          }
-        />
+    <div className="flex items-center gap-2">
+      {/* ── Barre segmentée ────────────────────────────────────────────────
+          Un seul cadre pour cinq listes, séparées par des filets. Sur mobile
+          elle défile horizontalement plutôt que de se replier sur trois
+          rangées : la hauteur reste constante quelle que soit la largeur. */}
+      <div className="min-w-0 flex-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="inline-flex items-stretch divide-x divide-border overflow-hidden rounded-xl border border-border bg-card">
+          <Segment
+            value={filters.country}
+            onChange={setCountry}
+            options={countryOptions}
+            placeholder="Pays"
+          />
+          <Segment
+            value={filters.department || ""}
+            onChange={setDepartment}
+            options={departmentOptions}
+            placeholder="Département"
+            disabled={!geoAvailable}
+            title={geoAvailable ? undefined : "Découpage disponible pour le Bénin uniquement"}
+          />
+          <Segment
+            value={filters.commune || ""}
+            onChange={(v) => onFilterChange("commune", v)}
+            options={communeOptions}
+            placeholder="Commune"
+            disabled={!geoAvailable || !filters.department}
+            title={
+              !geoAvailable
+                ? "Découpage disponible pour le Bénin uniquement"
+                : !filters.department
+                  ? "Choisissez d'abord un département"
+                  : undefined
+            }
+          />
+          <Segment
+            value={filters.category}
+            onChange={(v) => onFilterChange("category", v)}
+            options={PROFILE_TYPES}
+            placeholder="Type de profil"
+          />
+          <Segment
+            value={filters.activity_domain}
+            onChange={(v) => onFilterChange("activity_domain", v)}
+            options={SECTORS}
+            placeholder="Secteur"
+          />
+        </div>
+      </div>
 
+      {/* ── Bascules ───────────────────────────────────────────────────────
+          Hors de la zone défilante : ce sont les trois filtres d'un geste, ils
+          ne doivent jamais sortir de l'écran. Groupés dans un cadre unique,
+          comme la barre, pour la même raison d'encombrement. */}
+      <div className="flex items-stretch shrink-0 divide-x divide-border overflow-hidden rounded-xl border border-border bg-card">
         <button
           onClick={toggleLocation}
           disabled={isLocating}
@@ -236,32 +282,15 @@ export function AnnuaireFilters({ filters, onFilterChange, onReset }: AnnuaireFi
           aria-label="Autour de moi"
           aria-pressed={!!filters.lat}
           className={cn(
-            "inline-flex items-center justify-center gap-1.5 h-10 px-2.5 sm:px-3 rounded-xl text-xs sm:text-sm font-semibold border transition-colors shrink-0",
+            toggle,
             filters.lat
-              ? "bg-emerald-100 dark:bg-emerald-900/40 border-emerald-300 dark:border-emerald-700/50 text-emerald-700 dark:text-emerald-300"
-              : iconIdle,
-            isLocating && "opacity-70 cursor-not-allowed"
+              ? "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300"
+              : toggleIdle,
+            isLocating && "opacity-70 cursor-not-allowed",
           )}
         >
           {isLocating ? <Loader2 className="h-4 w-4 animate-spin" /> : <MapPin className="h-4 w-4" />}
-          <span className="hidden sm:inline">Autour de moi</span>
         </button>
-      </div>
-
-      {/* ── Ligne ② : QUOI ───────────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
-        <Select
-          value={filters.category}
-          onChange={(v) => onFilterChange("category", v)}
-          options={PROFILE_TYPES}
-          placeholder="Type de profil"
-        />
-        <Select
-          value={filters.activity_domain}
-          onChange={(v) => onFilterChange("activity_domain", v)}
-          options={SECTORS}
-          placeholder="Secteur"
-        />
 
         <button
           onClick={() => setStatus("verified")}
@@ -269,11 +298,11 @@ export function AnnuaireFilters({ filters, onFilterChange, onReset }: AnnuaireFi
           aria-label="Profils vérifiés"
           aria-pressed={filters.status === "verified"}
           className={cn(
-            iconButton,
-            filters.status === "verified" ? "bg-[#03b3f8]/10 border-[#03b3f8]/40 text-[#03b3f8]" : iconIdle,
+            toggle,
+            filters.status === "verified" ? "bg-[#03b3f8]/10 text-[#03b3f8]" : toggleIdle,
           )}
         >
-          <BadgeCheck className="h-5 w-5" />
+          <BadgeCheck className="h-[18px] w-[18px]" />
         </button>
 
         <button
@@ -282,24 +311,30 @@ export function AnnuaireFilters({ filters, onFilterChange, onReset }: AnnuaireFi
           aria-label="Profils Premium"
           aria-pressed={filters.status === "premium"}
           className={cn(
-            iconButton,
+            toggle,
             filters.status === "premium"
-              ? "bg-amber-100 dark:bg-amber-900/40 border-amber-300 dark:border-amber-700/50 text-amber-700 dark:text-amber-300"
-              : iconIdle,
+              ? "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300"
+              : toggleIdle,
           )}
         >
-          <Crown className="h-5 w-5" />
+          <Crown className="h-[18px] w-[18px]" />
         </button>
-
-        {activeCount > 0 && (
-          <button
-            onClick={onReset}
-            className="inline-flex items-center gap-1 h-10 px-3 rounded-xl text-sm font-semibold text-muted-foreground hover:text-rose-600 hover:bg-rose-50 transition-colors"
-          >
-            <X className="h-4 w-4" /> Réinitialiser ({activeCount})
-          </button>
-        )}
       </div>
+
+      {/* Réinitialiser : n'apparaît qu'en cas de filtre actif, et se réduit à
+          une croix suivie du compte — « Réinitialiser (2) » coûtait à lui seul
+          la largeur d'une liste entière. */}
+      {activeCount > 0 && (
+        <button
+          onClick={onReset}
+          title={`Réinitialiser ${activeCount} filtre${activeCount > 1 ? "s" : ""}`}
+          aria-label={`Réinitialiser ${activeCount} filtre${activeCount > 1 ? "s" : ""}`}
+          className="inline-flex items-center gap-1 h-9 px-2.5 shrink-0 rounded-xl border border-border bg-card text-sm font-bold text-muted-foreground hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50 transition-colors"
+        >
+          <X className="h-4 w-4" />
+          {activeCount}
+        </button>
+      )}
     </div>
   )
 }
