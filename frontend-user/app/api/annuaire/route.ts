@@ -15,6 +15,15 @@ import { embedQuery } from '@/lib/embeddings'
 import { extractSearchTerms } from '@/lib/search-terms'
 
 export async function GET(request: NextRequest) {
+    // Chronométrage des phases, renvoyé en en-tête `Server-Timing`. Visible
+    // dans l'onglet Réseau du navigateur, colonne « Timing » : on sait alors
+    // si la lenteur vient des requêtes préalables, de la requête principale ou
+    // du réseau, au lieu de le deviner.
+    const t0 = performance.now()
+    const marks: string[] = []
+    const mark = (name: string, from: number) =>
+        marks.push(`${name};dur=${(performance.now() - from).toFixed(1)}`)
+
     try {
         const { searchParams } = new URL(request.url)
         
@@ -38,12 +47,26 @@ export async function GET(request: NextRequest) {
 
         const supabase = await createClient()
 
-        // 1. Initialisation de la requête principale sur public_profiles
+        // 1. Initialisation de la requête principale sur public_profiles.
+        //    Colonnes explicites, et non `*` : la vue expose bio, cover_url,
+        //    industry, website, latitude/longitude, updated_at… dont AUCUNE
+        //    n'est lue par la mise en forme plus bas. `bio` seule pouvait peser
+        //    plusieurs kilo-octets par profil, transportés puis jetés.
+        //
+        //    `countries!inner` quand un pays est filtré : la jointure devient
+        //    filtrante, ce qui permet de poser le critère sur l'iso_code
+        //    directement — une requête préalable de moins (voir §3).
+        const PROFILE_COLUMNS =
+            'id, user_id, first_name, last_name, avatar_url, role, job_title, ' +
+            'specialty, category, activity_domain, city, slug, is_verified, ' +
+            'is_premium, is_nomad, followers_count, created_at'
+        const countryJoin = (country && country !== 'all') ? 'countries!inner' : 'countries'
+
         let query = supabase
             .from('public_profiles')
             .select(`
-                *,
-                countries(name, iso_code),
+                ${PROFILE_COLUMNS},
+                ${countryJoin}(name, iso_code),
                 profile_tags(tags(name))
             `, { count: 'exact' })
             
@@ -98,21 +121,12 @@ export async function GET(request: NextRequest) {
             query = query.in('commune_id', communeIds)
         }
 
-        // 3. Filtrage par pays (via country_id de public_profiles)
+        // 3. Filtrage par pays. Le critère porte sur la jointure `!inner`
+        //    déclarée ci-dessus : plus besoin de résoudre l'iso_code en
+        //    country_id par une requête séparée, qui coûtait un aller-retour
+        //    complet vers la base à chaque changement de filtre.
         if (country && country !== 'all') {
-            // Trouver le country_id à partir de l'iso_code
-            const { data: countryData } = await supabase
-                .from('countries')
-                .select('id')
-                .eq('iso_code', country)
-                .single()
-                
-            if (countryData) {
-                query = query.eq('country_id', countryData.id)
-            } else {
-                // Si le pays n'existe pas, on retourne vide
-                return NextResponse.json({ profiles: [], count: 0 })
-            }
+            query = query.eq('countries.iso_code', country)
         }
 
         // 4. Filtrage par Tags côté serveur
@@ -318,8 +332,13 @@ export async function GET(request: NextRequest) {
             query = query.range(from, to)
         }
 
+        // Fin des requêtes préalables (communes, tags, boosts, embedding…).
+        mark('prep', t0)
+
         // Execution de la requête
+        const tQuery = performance.now()
         const { data, count, error } = await query
+        mark('db', tQuery)
 
         if (error) {
             console.error('Supabase query error:', error)
@@ -421,13 +440,14 @@ export async function GET(request: NextRequest) {
             }
         })
 
+        mark('total', t0)
         return NextResponse.json({
             profiles: (rankMap || proximityMap) ? formattedProfiles.slice(from, to + 1) : formattedProfiles,
             count: (rankMap || proximityMap) ? formattedProfiles.length : (count || 0),
             // Signale au client que le classement par pertinence était indisponible
             // et que ces résultats viennent du filet lexical (couche ③).
             ...(searchDegraded ? { degraded: true } : {}),
-        })
+        }, { headers: { 'Server-Timing': marks.join(', ') } })
 
     } catch (error) {
         console.error('Annuaire route critical error:', error)
