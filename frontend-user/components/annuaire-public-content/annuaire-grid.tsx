@@ -62,29 +62,27 @@ export function AnnuaireGrid({
     onlyPremium,
   })
 
+  // Squelette calé sur la carte compacte : mêmes proportions et mêmes repères
+  // (catégorie, avatar centré, nom, rôle, deux compteurs), pour que le passage
+  // au contenu réel ne fasse pas sauter la mise en page.
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full">
-        {Array.from({ length: 8 }).map((_, i) => (
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-4 w-full">
+        {Array.from({ length: 12 }).map((_, i) => (
           <motion.div
             key={`skeleton-${i}`}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05, duration: 0.3 }}
-            className="w-full aspect-[1/1.4] bg-card rounded-3xl border border-border shadow-sm overflow-hidden flex flex-col"
+            className="w-full max-w-[200px] min-h-[212px] mx-auto bg-card rounded-3xl border border-border shadow-sm overflow-hidden flex flex-col items-center p-4"
           >
-            <div className="h-[100px] w-full bg-muted/50 animate-pulse" />
-            <div className="flex-1 p-5 relative">
-              <div className="absolute -top-12 left-5 w-20 h-20 rounded-full bg-slate-300/50 animate-pulse border-4 border-white" />
-              <div className="mt-10 space-y-3">
-                <div className="h-5 w-3/4 bg-muted/60 rounded-md animate-pulse" />
-                <div className="h-4 w-1/2 bg-muted/40 rounded-md animate-pulse" />
-              </div>
-              <div className="mt-6 space-y-2">
-                <div className="h-3 w-full bg-muted rounded-md animate-pulse" />
-                <div className="h-3 w-full bg-muted rounded-md animate-pulse" />
-                <div className="h-3 w-2/3 bg-muted rounded-md animate-pulse" />
-              </div>
+            <div className="h-4 w-20 self-start rounded-full bg-muted/60 animate-pulse" />
+            <div className="mt-3 h-16 w-16 rounded-full bg-slate-300/50 animate-pulse" />
+            <div className="mt-3 h-4 w-24 rounded-md bg-muted/60 animate-pulse" />
+            <div className="mt-2 h-3 w-16 rounded-md bg-muted/40 animate-pulse" />
+            <div className="mt-4 flex items-center gap-4">
+              <div className="h-6 w-8 rounded-md bg-muted animate-pulse" />
+              <div className="h-6 w-8 rounded-md bg-muted animate-pulse" />
             </div>
           </motion.div>
         ))}

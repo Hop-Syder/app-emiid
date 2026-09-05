@@ -72,7 +72,7 @@ export function ProfileRow({ profiles, theme }: ProfileRowProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: Math.min(index, 8) * 0.04 }}
-            className="min-w-[280px] max-w-[300px] w-[280px] shrink-0 snap-start"
+            className="min-w-[200px] max-w-[220px] w-[200px] shrink-0 snap-start"
           >
             <AnnuaireCard profile={profile} theme={theme} />
           </motion.div>

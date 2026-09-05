@@ -123,6 +123,7 @@ export function AnnuaireCard({ profile, theme = 'default' }: AnnuaireCardProps) 
         <EmiIDProfileCard 
             user={userData}
             variant={activeVariant}
+            size="compact"
             isFollowed={isFollowed}
             onAction={handleAction}
             isLoggedIn={!!session}
@@ -133,12 +134,12 @@ export function AnnuaireCard({ profile, theme = 'default' }: AnnuaireCardProps) 
     // On enveloppe la carte plutôt que d'en modifier les variantes.
     if (profile.boosted) {
         return (
-            <div className="relative rounded-[1.6rem] p-[2px] bg-[linear-gradient(135deg,#F59E0B,#FBBF24)] shadow-[0_12px_32px_-10px_rgba(245,158,11,0.55)]">
+            <div className="relative rounded-[1.625rem] p-[2px] bg-[linear-gradient(135deg,#F59E0B,#FBBF24)] shadow-[0_12px_32px_-10px_rgba(245,158,11,0.55)]">
                 <span className="absolute -top-2.5 left-4 z-10 inline-flex items-center gap-1 rounded-full bg-[#F59E0B] px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-white shadow-sm">
                     <MapPin className="h-3 w-3" />
                     En vedette
                 </span>
-                <div className="overflow-hidden rounded-[1.5rem] bg-card">{card}</div>
+                <div className="overflow-hidden rounded-3xl bg-card">{card}</div>
             </div>
         )
     }
