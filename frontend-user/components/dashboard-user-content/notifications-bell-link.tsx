@@ -15,6 +15,7 @@
  *              Sur desktop il s'efface, la barre latérale faisant déjà ce
  *              travail.
  * @created 2026-09-05
+ * @updated 2026-09-06
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -23,9 +24,18 @@
 
 import Link from "next/link"
 import { Bell } from "lucide-react"
+import { cn } from "@/lib/utils"
 import { useUnreadNotifications } from "@/hooks/use-unread-notifications"
 
-export function NotificationsBellLink() {
+/**
+ * `dark` : posé sur le bandeau sombre du tableau de bord, où les couleurs de
+ * carte du thème clair seraient illisibles.
+ */
+interface NotificationsBellLinkProps {
+  tone?: "card" | "dark"
+}
+
+export function NotificationsBellLink({ tone = "card" }: NotificationsBellLinkProps) {
   const unreadCount = useUnreadNotifications()
 
   return (
@@ -36,14 +46,22 @@ export function NotificationsBellLink() {
           ? `Voir mes notifications, ${unreadCount} non lue${unreadCount > 1 ? "s" : ""}`
           : "Voir mes notifications"
       }
-      className="lg:hidden shrink-0 p-2.5 rounded-2xl bg-card border border-border/70 text-foreground hover:text-[#013ff4] hover:bg-[#013ff4]/10 active:scale-90 transition-all shadow-sm"
+      className={cn(
+        "lg:hidden shrink-0 p-2.5 rounded-2xl active:scale-90 transition-all shadow-sm",
+        tone === "dark"
+          ? "bg-card/[0.08] border border-white/15 text-white hover:bg-card/[0.16] backdrop-blur-md"
+          : "bg-card border border-border/70 text-foreground hover:text-[#013ff4] hover:bg-[#013ff4]/10",
+      )}
     >
       <span className="relative flex items-center justify-center">
         <Bell className="w-5 h-5" />
         {unreadCount > 0 && (
           <span
             aria-hidden
-            className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-black flex items-center justify-center ring-2 ring-white shadow-sm"
+            className={cn(
+              "absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-black flex items-center justify-center ring-2 shadow-sm",
+              tone === "dark" ? "ring-[#000616]" : "ring-white",
+            )}
           >
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>

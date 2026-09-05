@@ -16,7 +16,7 @@
  *              signaux qui appellent une action. Le composant ne rend donc rien
  *              et laisse le reste du cockpit s'étendre.
  * @created 2026-07-13
- * @updated 2026-09-05
+ * @updated 2026-09-06
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -27,7 +27,6 @@ import Link from "next/link"
 import { useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import { ArrowRight, ChevronDown } from "lucide-react"
-import { NotificationsBellLink } from "./notifications-bell-link"
 
 interface ProfileCompletenessProps {
   completion: number
@@ -108,11 +107,6 @@ export function ProfileCompleteness({ completion, loading, nextAction }: Profile
             aria-hidden
           />
         </button>
-
-        {/* Accès aux notifications — mobile uniquement, à droite de l'en-tête.
-            Le même bouton est rendu par personal-hero quand cette carte
-            disparaît : l'accès survit à un profil complet. */}
-        <NotificationsBellLink />
       </div>
 
       {/* ── Détail : explication + action suivante ────────────────────────── */}

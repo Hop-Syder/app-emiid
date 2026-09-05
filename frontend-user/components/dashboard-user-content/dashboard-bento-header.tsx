@@ -26,6 +26,7 @@ import { ArrowRight, Briefcase, Mic, Search } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useCurrentUserProfile } from "@/hooks/use-current-user-profile"
 import { useVoiceSearch } from "@/hooks/use-voice-search"
+import { NotificationsBellLink } from "./notifications-bell-link"
 
 export function DashboardBentoHeader() {
     const router = useRouter()
@@ -106,13 +107,22 @@ export function DashboardBentoHeader() {
                 <div className="relative z-10 flex flex-col justify-center min-h-[210px] sm:min-h-[230px] p-6 sm:p-7 md:p-8 gap-5 sm:gap-6">
 
                     {/* ── Salutation ───────────────────────────────────────── */}
-                    <h1 className="text-lg sm:text-xl md:text-2xl font-black tracking-tight leading-tight text-white truncate">
-                        {greeting}
-                        {userName ? "," : ""}{" "}
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#03b3f8] via-sky-200 to-white">
-                            {userName || "Talent"}
-                        </span>
-                    </h1>
+                    <div className="flex items-center gap-3">
+                        <h1 className="min-w-0 flex-1 text-lg sm:text-xl md:text-2xl font-black tracking-tight leading-tight text-white truncate">
+                            {greeting}
+                            {userName ? "," : ""}{" "}
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#03b3f8] via-sky-200 to-white">
+                                {userName || "Talent"}
+                            </span>
+                        </h1>
+
+                        {/* Accès aux notifications, mobile uniquement. Il vivait
+                            dans le cockpit personnel, désormais masqué sur petit
+                            écran : sans ce relais, l'accès d'un geste
+                            disparaissait avec lui. Le dock ne le propose qu'au
+                            fond de son menu. */}
+                        <NotificationsBellLink tone="dark" />
+                    </div>
 
                     {/* ── Recherche de profils : clavier ou voix ───────────── */}
                     <form
