@@ -9,7 +9,16 @@
  *              Leaflet est chargé depuis un CDN au runtime (aucune dépendance npm,
  *              donc aucun risque de lockfile désynchronisé au déploiement). Les
  *              tuiles proviennent d'OpenStreetMap (gratuit, sans clé d'API).
+ *              Correctif du 06/09 : la carte se recadrait à CHAQUE changement de
+ *              coordonnées — y compris ceux qu'elle émet elle-même. Déplacer le
+ *              marqueur remontait au parent, revenait en props, et déclenchait un
+ *              setView qui recentrait la vue et forçait le zoom à 16 sous le doigt
+ *              de l'utilisateur. Placer un point en étant dézoomé était impossible :
+ *              la carte sautait au premier clic. Elle ne se recadre plus que sur un
+ *              changement VENU DE L'EXTÉRIEUR (bouton « Détecter ma position »,
+ *              saisie manuelle, réinitialisation).
  * @created 2026-08-30
+ * @updated 2026-09-06
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -82,8 +91,22 @@ export function LocationMapPicker({ latitude, longitude, onChange }: LocationMap
   const onChangeRef = useRef(onChange)
   onChangeRef.current = onChange
 
+  // Dernières coordonnées émises PAR la carte. Elles reviennent en props après
+  // un aller-retour par l'état du parent : sans ce repère, impossible de
+  // distinguer « l'utilisateur a bougé le marqueur » de « la position a changé
+  // ailleurs », et la carte se recadrait dans les deux cas.
+  const selfEmitted = useRef<{ lat: number; lng: number } | null>(null)
+
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading")
   const [locating, setLocating] = useState(false)
+
+  /** Remonte une position en la marquant comme venant de la carte. */
+  const emit = (lat: number, lng: number) => {
+    selfEmitted.current = { lat, lng }
+    onChangeRef.current(lat, lng)
+  }
+  const emitRef = useRef(emit)
+  emitRef.current = emit
 
   // ── Initialisation de la carte (une seule fois) ────────────────────────────
   useEffect(() => {
@@ -97,7 +120,7 @@ export function LocationMapPicker({ latitude, longitude, onChange }: LocationMap
         const hasCoords = latitude != null && longitude != null
         const start = hasCoords ? { lat: latitude as number, lng: longitude as number } : DEFAULT_CENTER
 
-        const map = L.map(containerRef.current, { zoomControl: true }).setView(
+        const map = L.map(containerRef.current, { zoomControl: true, scrollWheelZoom: false }).setView(
           [start.lat, start.lng],
           hasCoords ? 16 : 12,
         )
@@ -120,11 +143,15 @@ export function LocationMapPicker({ latitude, longitude, onChange }: LocationMap
 
         marker.on("dragend", () => {
           const { lat, lng } = marker.getLatLng()
-          onChangeRef.current(lat, lng)
+          emitRef.current(lat, lng)
         })
         map.on("click", (e: any) => {
           marker.setLatLng(e.latlng)
-          onChangeRef.current(e.latlng.lat, e.latlng.lng)
+          emitRef.current(e.latlng.lat, e.latlng.lng)
+          // Premier contact avec la carte : la molette lui est confiée. Avant
+          // cela, elle fait défiler la page — une carte au milieu d'un long
+          // formulaire ne doit pas piéger le défilement au survol.
+          map.scrollWheelZoom.enable()
         })
 
         // La carte est souvent montée dans un conteneur dont la taille se stabilise
@@ -151,7 +178,24 @@ export function LocationMapPicker({ latitude, longitude, onChange }: LocationMap
   // (bouton « Détecter ma position », réinitialisation, saisie manuelle).
   useEffect(() => {
     if (!mapRef.current || !markerRef.current || latitude == null || longitude == null) return
+
+    // Le parent arrondit à 6 décimales avant de renvoyer la valeur : la
+    // comparaison se fait donc à la tolérance de cet arrondi, pas à l'identique.
+    const self = selfEmitted.current
+    const isOwn =
+      self != null &&
+      Math.abs(self.lat - latitude) < 2e-6 &&
+      Math.abs(self.lng - longitude) < 2e-6
+
+    // Le marqueur suit toujours ; la VUE, elle, ne bouge que si le changement
+    // vient d'ailleurs. C'est tout le correctif : recadrer sur son propre geste
+    // faisait sauter la carte sous le doigt et interdisait de placer un point
+    // en vue large.
     markerRef.current.setLatLng([latitude, longitude])
+    if (isOwn) {
+      selfEmitted.current = null
+      return
+    }
     mapRef.current.setView([latitude, longitude], Math.max(mapRef.current.getZoom() || 16, 16))
   }, [latitude, longitude])
 
@@ -162,6 +206,7 @@ export function LocationMapPicker({ latitude, longitude, onChange }: LocationMap
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setLocating(false)
+        // Volontairement PAS emit() : une localisation demandée doit recadrer.
         onChangeRef.current(pos.coords.latitude, pos.coords.longitude)
       },
       () => setLocating(false),
@@ -173,7 +218,7 @@ export function LocationMapPicker({ latitude, longitude, onChange }: LocationMap
     <div className="relative">
       <div
         ref={containerRef}
-        className="h-56 w-full rounded-xl overflow-hidden border border-border bg-muted z-0"
+        className="h-72 sm:h-80 w-full rounded-2xl overflow-hidden border border-border bg-muted z-0"
       />
 
       {/* Bouton flottant « me localiser » */}

@@ -5,6 +5,11 @@
  *
  *              Sans paramètre : la liste des départements.
  *              Avec ?department=<uuid> : les communes de ce département.
+ *              Avec ?commune=<uuid> : le département auquel elle appartient.
+ *
+ *              Ce dernier cas sert aux paramètres du profil : le profil ne
+ *              mémorise que la commune, il faut donc retrouver son département
+ *              pour préremplir la liste au chargement du formulaire.
  *
  *              `departments` ne porte AUCUN rattachement à un pays (cf. la
  *              migration 20260824) : ce sont les douze départements du Bénin,
@@ -34,8 +39,27 @@ export async function GET(request: Request) {
     try {
         const { searchParams } = new URL(request.url)
         const departmentId = searchParams.get('department')?.trim()
+        const communeId = searchParams.get('commune')?.trim()
 
         const supabase = await createClient()
+
+        // ── Département d'une commune (remontée) ───────────────────────────
+        if (communeId) {
+            const { data, error } = await supabase
+                .from('communes')
+                .select('department_id')
+                .eq('id', communeId)
+                .maybeSingle()
+
+            if (error) {
+                console.error('[annuaire/geo] département de la commune :', error.message)
+                return NextResponse.json({ department_id: null })
+            }
+            return NextResponse.json(
+                { department_id: data?.department_id ?? null },
+                { headers: CACHE_HEADERS },
+            )
+        }
 
         // ── Communes d'un département ──────────────────────────────────────
         if (departmentId) {

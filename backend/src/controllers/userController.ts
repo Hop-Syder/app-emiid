@@ -139,7 +139,7 @@ export const updateMyProfile = async (req: any, res: Response) => {
     const {
       first_name, last_name, business_name, bio, avatar_url,
       role, specialty, category, activity_domain,
-      country_id, country_code, country_name, city, district,
+      country_id, country_code, country_name, city, district, commune_id,
       job_title, industry, pin_enabled, pin_code,
       phone, website, is_published, tags, card_variant, slug,
       show_contact, latitude, longitude, is_nomad,
@@ -215,6 +215,12 @@ export const updateMyProfile = async (req: any, res: Response) => {
         country_id: finalCountryId,
         city: city !== undefined ? city : undefined,
         district: district !== undefined ? district : undefined,
+        // Choisi explicitement dans les paramètres depuis le 06/09. La
+        // migration 20260824 ne l'avait rattaché qu'une fois, par
+        // correspondance de nom sur `city` : tout profil créé ensuite restait
+        // sans commune, donc invisible dans « Talents de votre commune » et
+        // hors de portée des mises en avant communales.
+        commune_id: commune_id !== undefined ? commune_id : undefined,
         latitude: latitude !== undefined ? latitude : undefined,
         longitude: longitude !== undefined ? longitude : undefined,
         is_nomad: is_nomad !== undefined ? is_nomad : undefined,

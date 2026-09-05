@@ -47,6 +47,8 @@ export interface UserProfileData {
   business_name: string
   avatar_url: string
   district: string | null
+  /** Commune administrative choisie explicitement (Bénin). */
+  commune_id: string | null
   latitude: number | null
   longitude: number | null
   is_nomad: boolean
@@ -158,6 +160,7 @@ export function useSettings() {
     country_name: "",
     city: "",
     district: null,
+    commune_id: null,
     latitude: null,
     longitude: null,
     is_nomad: false,
@@ -212,6 +215,7 @@ export function useSettings() {
           country_name: data.country_name || "",
           city: data.city || "",
           district: data.district ?? null,
+          commune_id: data.commune_id ?? null,
           latitude: data.latitude ?? null,
           longitude: data.longitude ?? null,
           is_nomad: data.is_nomad ?? false,

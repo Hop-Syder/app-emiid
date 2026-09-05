@@ -1,9 +1,18 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Section Profil de la page de paramètres — Refonte avec les patterns SwiftUI (Grouped Inset, SettingToggle, SettingRow).
+ * @description Section Profil des paramètres — identité, localisation, métier,
+ *              coordonnées.
+ *
+ *              Refonte du 06/09 : six cartes ramenées à cinq, et surtout la
+ *              localisation extraite dans son propre composant. Deux cartes ont
+ *              disparu — « Statut de vérification du compte », qui répétait le
+ *              statut du téléphone et affirmait l'email « Vérifié » sans jamais
+ *              le vérifier ; et « Confidentialité & Visibilité », une carte
+ *              entière pour une bascule, désormais posée au contact des champs
+ *              qu'elle gouverne.
  * @created 2026-06-13
- * @updated 2026-09-04
+ * @updated 2026-09-06
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -21,13 +30,9 @@ import {
   CheckCircle2,
   AlertCircle,
   Loader2,
-  MapPin,
-  Compass,
   Briefcase,
   Eye,
   Lock,
-  ExternalLink,
-  RotateCcw,
 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -37,7 +42,7 @@ import { toast } from "sonner"
 import { PROFILE_CATEGORIES, ACTIVITY_DOMAINS } from "@/lib/profile-options"
 import type { UserProfileData } from "@/hooks/use-settings"
 import { BioSection } from "./bio-section"
-import { LocationMapPicker } from "./location-map-picker"
+import { LocationSection } from "./location-section"
 import {
   SectionCard,
   SettingRow,
@@ -68,52 +73,9 @@ export function ProfileSection({
   const [verifyMethod, setVerifyMethod] = useState<"whatsapp" | "sms" | null>(null)
   const [otpCode, setOtpCode] = useState("")
   const [verifying, setVerifying] = useState(false)
-  const [locating, setLocating] = useState(false)
 
   const up = (key: keyof UserProfileData, value: string | boolean | number | null) =>
     setProfile({ ...profile, [key]: value })
-
-  // 6 décimales ≈ 0,11 m de précision
-  const round6 = (n: number) => Math.round(n * 1e6) / 1e6
-
-  const handleGetLocation = () => {
-    if (!navigator.geolocation) {
-      toast.error("La géolocalisation n'est pas supportée par votre navigateur")
-      return
-    }
-    setLocating(true)
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setProfile({
-          ...profile,
-          latitude: round6(position.coords.latitude),
-          longitude: round6(position.coords.longitude),
-        })
-        setLocating(false)
-        toast.success("Position récupérée avec succès")
-      },
-      () => {
-        setLocating(false)
-        toast.error("Impossible de récupérer la position. Assurez-vous d'avoir autorisé l'accès.")
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-    )
-  }
-
-  /** Vide les coordonnées enregistrées. */
-  const clearLocation = () => setProfile({ ...profile, latitude: null, longitude: null })
-
-  const hasCoords = profile.latitude != null && profile.longitude != null
-
-  /** Au blur d'une saisie manuelle : borne la valeur au domaine valide et arrondit. */
-  const commitCoord = (key: "latitude" | "longitude", min: number, max: number) =>
-    (e: React.FocusEvent<HTMLInputElement>) => {
-      const raw = e.target.value
-      if (raw === "") { up(key, null); return }
-      const n = parseFloat(raw)
-      if (Number.isNaN(n)) { up(key, null); return }
-      up(key, Math.min(max, Math.max(min, round6(n))))
-    }
 
   const handleVerifyRequest = async (method: "whatsapp" | "sms") => {
     if (!profile.phone) {
@@ -203,30 +165,6 @@ export function ProfileSection({
             />
           </Field>
         </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
-          <Field label="Nom commercial / Nom d'atelier">
-            <Input
-              id="business_name"
-              name="business_name"
-              autoComplete="organization"
-              value={profile.business_name || ""}
-              onChange={(e) => up("business_name", e.target.value)}
-              className={INPUT}
-              placeholder="Ex: Menuiserie Dupont"
-            />
-          </Field>
-          <Field label="Arrondissement / quartier">
-            <Input
-              id="district"
-              name="district"
-              value={profile.district || ""}
-              onChange={(e) => up("district", e.target.value)}
-              className={INPUT}
-              placeholder="Ex: Akpakpa"
-            />
-          </Field>
-        </div>
       </SectionCard>
 
       {/* ── À propos & Bio ──────────────────────────────────────────────── */}
@@ -239,129 +177,11 @@ export function ProfileSection({
         hideActions
       />
 
-      {/* ── Localisation GPS ────────────────────────────────────────────── */}
-      <SectionCard
-        title="Localisation GPS"
-        icon={MapPin}
-        footerHint="La position GPS permet aux clients situés à proximité de découvrir votre atelier ou vos services via le filtre « Autour de moi »."
-      >
-        <div className="space-y-4">
-          {/* Action principale : bouton géolocalisation */}
-          <div className="flex flex-col sm:flex-row items-end gap-3.5">
-            <div className="grid grid-cols-2 gap-3.5 flex-1 w-full">
-              <Field label="Latitude">
-                <Input
-                  id="latitude"
-                  name="latitude"
-                  type="number"
-                  step="any"
-                  min={-90}
-                  max={90}
-                  inputMode="decimal"
-                  value={profile.latitude ?? ""}
-                  onChange={(e) => up("latitude", e.target.value ? parseFloat(e.target.value) : null)}
-                  onBlur={commitCoord("latitude", -90, 90)}
-                  className={INPUT}
-                  placeholder="Ex: 6.36536"
-                />
-              </Field>
-              <Field label="Longitude">
-                <Input
-                  id="longitude"
-                  name="longitude"
-                  type="number"
-                  step="any"
-                  min={-180}
-                  max={180}
-                  inputMode="decimal"
-                  value={profile.longitude ?? ""}
-                  onChange={(e) => up("longitude", e.target.value ? parseFloat(e.target.value) : null)}
-                  onBlur={commitCoord("longitude", -180, 180)}
-                  className={INPUT}
-                  placeholder="Ex: 2.41833"
-                />
-              </Field>
-            </div>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleGetLocation}
-              disabled={locating}
-              className="h-11 px-4 rounded-2xl border-border font-bold shrink-0 w-full sm:w-auto hover:bg-muted transition-all text-foreground disabled:opacity-60"
-            >
-              {locating ? (
-                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Détection…</>
-              ) : (
-                <><MapPin className="w-4 h-4 mr-2 text-[#013ff4]" /> {hasCoords ? "Actualiser ma position" : "Détecter ma position"}</>
-              )}
-            </Button>
-          </div>
-
-          {/* État de la position & carte Google Maps */}
-          {hasCoords ? (
-            <div className="p-3.5 rounded-2xl border border-emerald-200 bg-emerald-50/50 dark:border-emerald-800/50 dark:bg-emerald-950/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <CheckCircle2 className="w-4.5 h-4.5 text-emerald-600 shrink-0" />
-                <div className="min-w-0">
-                  <p className="text-xs font-bold text-foreground leading-snug">Position GPS enregistrée</p>
-                  <p className="text-[11px] text-muted-foreground font-mono mt-0.5 truncate">
-                    {Number(profile.latitude).toFixed(6)}, {Number(profile.longitude).toFixed(6)}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 shrink-0 self-end sm:self-auto">
-                <a
-                  href={`https://www.google.com/maps?q=${profile.latitude},${profile.longitude}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs font-bold text-[#013ff4] hover:underline"
-                >
-                  Voir sur la carte <ExternalLink className="w-3 h-3" />
-                </a>
-                <button
-                  type="button"
-                  onClick={clearLocation}
-                  className="inline-flex items-center gap-1 text-xs font-bold text-muted-foreground hover:text-rose-600 transition-colors"
-                >
-                  <RotateCcw className="w-3 h-3" /> Effacer
-                </button>
-              </div>
-            </div>
-          ) : (
-            <p className="text-xs text-slate-400 flex items-center gap-1.5 px-1">
-              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-              Aucune position GPS enregistrée pour le moment.
-            </p>
-          )}
-
-          {/* Carte interactive : affiner la position au marqueur (précis au mètre) */}
-          <div>
-            <LocationMapPicker
-              latitude={profile.latitude}
-              longitude={profile.longitude}
-              onChange={(lat, lng) => setProfile({ ...profile, latitude: round6(lat), longitude: round6(lng) })}
-            />
-            <p className="mt-2 text-xs text-slate-400 flex items-center gap-1.5 px-1">
-              <MapPin className="w-3.5 h-3.5 shrink-0" />
-              Déplacez le marqueur ou tapez sur la carte pour ajuster précisément votre position.
-            </p>
-          </div>
-
-          {/* Mode nomade */}
-          <div className="pt-2 border-t border-border">
-            <SettingToggle
-              id="is_nomad"
-              icon={Compass}
-              iconBg="bg-indigo-50 dark:bg-indigo-950/40"
-              iconColor="text-indigo-600"
-              title="Professionnel en déplacement (Nomade)"
-              description="Indique aux visiteurs que votre activité est itinérante et que votre zone géographique peut varier."
-              checked={!!profile.is_nomad}
-              onCheckedChange={(checked) => up("is_nomad", checked)}
-            />
-          </div>
-        </div>
-      </SectionCard>
+      {/* ── Localisation ────────────────────────────────────────────────
+          Pays, département, commune, ville, quartier, adresse et point GPS.
+          Extraite ici le 06/09 : c'est une matière à part entière, et elle
+          était jusque-là réduite à deux champs de coordonnées. */}
+      <LocationSection profile={profile} setProfile={setProfile} />
 
       {/* ── Profil professionnel ────────────────────────────────────────── */}
       <SectionCard title="Profil professionnel" icon={Briefcase}>
@@ -406,6 +226,19 @@ export function ProfileSection({
               onChange={(e) => up("specialty", e.target.value)}
               className={INPUT}
               placeholder="Ex: Ébénisterie fine, Électricité industrielle"
+            />
+          </Field>
+          {/* Rapatrié depuis « Informations personnelles » : un nom d'atelier
+              relève du professionnel, pas de l'état civil. */}
+          <Field label="Nom commercial / Nom d'atelier">
+            <Input
+              id="business_name"
+              name="business_name"
+              autoComplete="organization"
+              value={profile.business_name || ""}
+              onChange={(e) => up("business_name", e.target.value)}
+              className={INPUT}
+              placeholder="Ex : Menuiserie Dupont"
             />
           </Field>
         </div>
@@ -525,51 +358,31 @@ export function ProfileSection({
             )}
           </div>
         )}
-      </SectionCard>
 
-      {/* ── Statuts de vérification ─────────────────────────────────────── */}
-      <SectionCard title="Statut de vérification du compte" icon={Shield}>
-        <div className="divide-y divide-border">
-          <SettingRow
-            icon={Mail}
-            iconBg="bg-emerald-50 dark:bg-emerald-950/40"
-            iconColor="text-emerald-600"
-            title="Adresse Email"
-            subtitle={profile.email}
-            rightElement={
-              <span className="inline-flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800/50">
-                <Shield className="h-2.5 w-2.5" />
-                Vérifié
-              </span>
-            }
+        {/* Ce que les visiteurs voient de tout cela. La bascule vit désormais
+            au contact des champs qu'elle gouverne, plutôt que dans une carte
+            séparée en fin de page. */}
+        <div className="pt-2 border-t border-border">
+          <SettingToggle
+            id="show_contact"
+            icon={Eye}
+            iconBg="bg-[#03b3f8]/10"
+            iconColor="text-[#03b3f8]"
+            title="Afficher mes coordonnées sur mon profil public"
+            description="Décochez pour masquer votre email et votre téléphone aux visiteurs."
+            checked={profile.show_contact !== false}
+            onCheckedChange={(checked) => up("show_contact", checked)}
           />
+        </div>
 
+        {/* Seul rescapé de l'ancienne carte « Statut de vérification » : les
+            deux autres lignes répétaient ce qui est affiché plus haut. */}
+        <div className="pt-2 border-t border-border">
           <SettingRow
-            icon={Smartphone}
-            iconBg={profile.phone_verified ? "bg-emerald-50 dark:bg-emerald-950/40" : "bg-muted"}
-            iconColor={profile.phone_verified ? "text-emerald-600" : "text-slate-400"}
-            title="Numéro de Téléphone"
-            subtitle={profile.phone || "Aucun numéro renseigné"}
-            rightElement={
-              profile.phone_verified ? (
-                <span className="inline-flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800/50">
-                  <Shield className="h-2.5 w-2.5" />
-                  Vérifié
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1 bg-muted text-muted-foreground text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border border-border">
-                  <AlertCircle className="h-2.5 w-2.5" />
-                  En attente
-                </span>
-              )
-            }
-          />
-
-          <SettingRow
-            icon={User}
+            icon={Shield}
             iconBg="bg-violet-50 dark:bg-violet-950/40"
             iconColor="text-violet-600"
-            title="Identité & Documents officiels"
+            title="Identité & documents officiels"
             subtitle="Badge vérifié, CNI, IFU, RCCM"
             onClick={() => {
               if (typeof window !== "undefined") window.location.href = "/parametres?tab=verification"
@@ -581,28 +394,21 @@ export function ProfileSection({
                   Certifié
                 </span>
               ) : (
-                <span className="text-xs font-bold text-[#013ff4] hover:underline">
-                  Vérifier
-                </span>
+                <span className="text-xs font-bold text-[#013ff4] hover:underline">Vérifier</span>
               )
             }
           />
         </div>
       </SectionCard>
 
-      {/* ── Confidentialité ─────────────────────────────────────────────── */}
-      <SectionCard title="Confidentialité & Visibilité" icon={Eye}>
-        <SettingToggle
-          id="show_contact"
-          icon={Eye}
-          iconBg="bg-[#03b3f8]/10"
-          iconColor="text-[#03b3f8]"
-          title="Afficher mes coordonnées publiques"
-          description="Votre adresse email et votre numéro de téléphone sont visibles sur votre profil public. Désactivez pour les masquer aux visiteurs."
-          checked={profile.show_contact !== false}
-          onCheckedChange={(checked) => up("show_contact", checked)}
-        />
-      </SectionCard>
+      {/* La carte « Statut de vérification du compte » a été supprimée le
+          06/09. Elle répétait le statut du téléphone affiché juste au-dessus,
+          affichait l'email comme « Vérifié » SANS jamais le vérifier — une
+          affirmation fausse — et son troisième élément n'était qu'un lien vers
+          l'onglet Vérification. Ce lien seul a survécu, ci-dessus. La carte
+          « Confidentialité & Visibilité » ne portait qu'une bascule sur les
+          coordonnées : elle a rejoint les coordonnées, à côté de ce qu'elle
+          gouverne. */}
 
       {/* ── Barre d'enregistrement ──────────────────────────────────────── */}
       {!hideActions && (
