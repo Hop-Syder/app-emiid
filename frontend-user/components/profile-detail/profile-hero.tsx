@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button"
 import { getOptimizedImageUrl } from "@/lib/image-optimization"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
+import { ProfileNoteButton } from "./profile-note-button"
 
 // ---------------------------------------------------------------------------
 // TYPES DES PROPS DU HERO
@@ -178,7 +179,7 @@ export function ProfileHero({
                     </div>
 
                     {/* Actions : pleine largeur sur mobile, alignées à droite sur desktop */}
-                    <div className="flex items-center gap-2.5 sm:gap-3 w-full lg:w-auto shrink-0">
+                    <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 w-full lg:w-auto shrink-0">
                         <Button
                             size="default"
                             disabled={followLoading}
@@ -206,6 +207,11 @@ export function ProfileHero({
                                 </Link>
                             </Button>
                         )}
+                        {/* Bouton Note côte à côte avec Message */}
+                        <ProfileNoteButton
+                            profileId={profile.id}
+                            profileName={profile.name}
+                        />
                         <Button
                             variant="outline"
                             size="default"

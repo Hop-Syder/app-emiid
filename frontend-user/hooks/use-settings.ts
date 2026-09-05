@@ -83,6 +83,14 @@ export interface UserProfileData {
   address: string
   opening_hours: OpeningHour[]
   services: ServiceItem[]
+  gender?: "male" | "female" | "other" | string
+  birth_date?: string
+  department_id?: string
+  department_name?: string
+  commune_name?: string
+  arrondissement?: string
+  neighborhood?: string
+  slug?: string
 }
 
 export const defaultNotificationSettings = {
@@ -201,7 +209,7 @@ export function useSettings() {
 
       if (response.ok) {
         const data = await response.json()
-        setProfile({
+        const loaded: UserProfileData = {
           id: data.id || authUser?.id || "",
           first_name: data.first_name || authUser?.user_metadata?.first_name || authUser?.user_metadata?.given_name || "",
           last_name: data.last_name || authUser?.user_metadata?.last_name || authUser?.user_metadata?.family_name || "",
@@ -214,23 +222,23 @@ export function useSettings() {
           specialty: data.specialty || "",
           activity_domain: data.activity_domain || "",
           country_id: data.country_id || "",
-          country_code: data.country_code || "",
-          country_name: data.country_name || "",
+          country_code: data.country_code || "BJ",
+          country_name: data.country_name || "Bénin",
           city: data.city || "",
           district: data.district ?? null,
           commune_id: data.commune_id ?? null,
           tags: Array.isArray(data.tags) ? data.tags : [],
-          latitude: data.latitude ?? null,
-          longitude: data.longitude ?? null,
+          latitude: typeof data.latitude === "number" ? data.latitude : null,
+          longitude: typeof data.longitude === "number" ? data.longitude : null,
           is_nomad: data.is_nomad ?? false,
-          pin_enabled: data.pin_enabled || false,
+          pin_enabled: !!data.pin_enabled,
           phone: data.phone || authUser?.phone || "",
-          is_published: data.is_published || false,
-          is_verified: data.is_verified || false,
-          is_premium: data.is_premium || false,
-          show_contact: data.show_contact ?? true,
-          phone_verified: data.phone_verified || false,
-          has_password: data.has_password || false,
+          is_published: !!data.is_published,
+          is_verified: !!data.is_verified,
+          is_premium: !!data.is_premium,
+          show_contact: data.show_contact !== false,
+          phone_verified: !!data.phone_verified,
+          has_password: !!data.has_password,
           slogan: data.slogan || "",
           years_experience: typeof data.years_experience === "number" ? data.years_experience : null,
           website: data.website || "",
@@ -243,7 +251,16 @@ export function useSettings() {
           address: data.address || "",
           opening_hours: Array.isArray(data.opening_hours) ? data.opening_hours : [],
           services: Array.isArray(data.services) ? data.services : [],
-        })
+          gender: data.gender || "male",
+          birth_date: data.birth_date || "",
+          department_id: data.department_id || "",
+          department_name: data.department_name || "",
+          commune_name: data.commune_name || "",
+          arrondissement: data.arrondissement || "",
+          neighborhood: data.neighborhood || "",
+          slug: data.slug || "",
+        }
+        setProfile(loaded)
         setNotificationSettings({ ...defaultNotificationSettings, ...(data.notification_preferences || {}) })
         setPreferences({
           ...defaultPreferences,

@@ -8,11 +8,13 @@
  * 📧 daoudaabassichristian@gmail.com
  */
 
-import { Award } from "lucide-react"
+import { Award, Briefcase, MessageSquareQuote, Sparkles, Tag } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
 import { PortfolioGallery } from "./portfolio-gallery"
+import { ProfileServicesSection } from "./profile-services-section"
+import { ProfileReviewsSection } from "./profile-reviews-section"
 
 const getSkillBadgeStyles = (idx: number) => {
     const presets = [
@@ -32,9 +34,12 @@ interface ExperienceItem {
 }
 
 interface ProfileData {
+    id?: string
+    name?: string
     bio: string | null
     skills: string[]
     experiences: ExperienceItem[]
+    services?: Array<{ title: string; price: number | null; description?: string }>
 }
 
 interface GalleryItem {
@@ -54,6 +59,18 @@ interface ProfileMainContentProps {
 export function ProfileMainContent({ profile, gallery, loadingGallery }: ProfileMainContentProps) {
     return (
         <div className="lg:col-span-8 min-w-0 space-y-6">
+            {/* ── Section SERVICES & TARIFS (Image 2) ── */}
+            <ProfileServicesSection
+                services={profile.services}
+                professionName={profile.name}
+            />
+
+            {/* ── Section AVIS (Image 2) ── */}
+            <ProfileReviewsSection
+                profileId={profile.id || ""}
+                profileName={profile.name}
+            />
+
             {/* About card */}
             <div className="bg-card border border-border rounded-3xl p-5 sm:p-8 shadow-[0_4px_24px_rgb(15,23,42,0.05)] relative overflow-hidden group">
                 {/* Decorative element */}

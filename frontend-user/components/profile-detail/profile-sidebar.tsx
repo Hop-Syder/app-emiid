@@ -9,7 +9,7 @@
  */
 
 import Link from "next/link"
-import { ArrowRight, Calendar, Check, Copy, Download, ExternalLink, Globe, Lock, Mail, MessageCircle, Phone, Share, Share2 } from "lucide-react"
+import { ArrowRight, Calendar, Check, Clock, Copy, Download, ExternalLink, FileText, Globe, Lock, Mail, MessageCircle, Phone, Share, Share2 } from "lucide-react"
 import { trackProfileMetric } from "@/lib/track-profile"
 import { trackProfileContact } from "@/lib/analytics"
 import { Button } from "@/components/ui/button"
@@ -24,6 +24,7 @@ interface ProfileSidebarProps {
         website?: string | null
         /** Un contact existe et serait visible une fois connecté (H2). */
         hasContact?: boolean
+        opening_hours?: Array<{ day: number; open: string; close: string; closed: boolean }>
     }
     joinedDate: string
     profileUrl: string
@@ -104,6 +105,64 @@ export function ProfileSidebar({
 }: ProfileSidebarProps) {
     return (
         <aside className="lg:col-span-4 min-w-0 space-y-6">
+            {/* Actions rapides Contacter / Demander un devis (Image 2) */}
+            <div className="bg-card border border-border rounded-3xl p-4 sm:p-5 shadow-[0_4px_24px_rgb(15,23,42,0.05)] space-y-2.5">
+                <Button
+                    size="lg"
+                    className="w-full rounded-2xl h-12 bg-[#013ff4] hover:bg-[#013ff4]/90 text-white font-bold text-sm shadow-md shadow-[#013ff4]/20 transition-all hover:-translate-y-0.5"
+                    asChild
+                >
+                    {isLoggedIn && profile.id ? (
+                        <Link href={`/messages?contact=${profile.id}`}>
+                            Contacter
+                        </Link>
+                    ) : (
+                        <Link href="/login">
+                            Contacter
+                        </Link>
+                    )}
+                </Button>
+                <Button
+                    variant="outline"
+                    size="lg"
+                    className="w-full rounded-2xl h-12 border-border bg-card hover:bg-muted text-foreground font-bold text-sm shadow-xs transition-all hover:-translate-y-0.5"
+                    asChild
+                >
+                    {isLoggedIn && profile.id ? (
+                        <Link href={`/messages?contact=${profile.id}&topic=devis`}>
+                            Demander un devis
+                        </Link>
+                    ) : (
+                        <Link href="/login">
+                            Demander un devis
+                        </Link>
+                    )}
+                </Button>
+            </div>
+
+            {/* Carte Horaires (Image 2) */}
+            <div className="bg-card border border-border rounded-3xl p-5 sm:p-6 shadow-[0_4px_24px_rgb(15,23,42,0.05)] relative overflow-hidden">
+                <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-[#03b3f8] shrink-0" />
+                    <span>HORAIRES</span>
+                </h3>
+
+                <div className="mt-5 space-y-3.5 text-xs sm:text-sm">
+                    <div className="flex items-center justify-between py-1 border-b border-border/50">
+                        <span className="font-semibold text-muted-foreground">Lun – Ven</span>
+                        <span className="font-black text-foreground">08 h – 18 h</span>
+                    </div>
+                    <div className="flex items-center justify-between py-1 border-b border-border/50">
+                        <span className="font-semibold text-muted-foreground">Samedi</span>
+                        <span className="font-black text-foreground">08 h – 13 h</span>
+                    </div>
+                    <div className="flex items-center justify-between py-1">
+                        <span className="font-semibold text-muted-foreground">Dimanche</span>
+                        <span className="font-semibold text-slate-400">Fermé</span>
+                    </div>
+                </div>
+            </div>
+
             {/* Coordinates card */}
             <div className="bg-card border border-border rounded-3xl p-5 sm:p-6 shadow-[0_4px_24px_rgb(15,23,42,0.05)] relative overflow-hidden">
                 <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
