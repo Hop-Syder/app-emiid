@@ -157,7 +157,7 @@ export function PublicHeroMatrix({ stats }: PublicHeroMatrixProps) {
                             rotateY,
                             transformStyle: "preserve-3d",
                         }}
-                        className="relative w-full max-w-sm cursor-pointer transition-transform duration-200 ease-out"
+                        className="relative w-full max-w-[200px] mx-auto cursor-pointer transition-transform duration-200 ease-out"
                     >
                         {/* Halo lumineux sous la carte */}
                         <div className="absolute -inset-4 rounded-2xl bg-gradient-to-tr from-[#013ff4]/30 to-[#03b3f8]/30 blur-2xl opacity-60 group-hover:opacity-100 transition-opacity" />
@@ -166,6 +166,7 @@ export function PublicHeroMatrix({ stats }: PublicHeroMatrixProps) {
                         <div className="relative z-10 transform-gpu transition-all">
                             <EmiIDProfileCard
                                 variant="glass-blue"
+                                size="compact"
                                 user={{
                                     id: "demo-showcase",
                                     name: "Calbert VITO",
