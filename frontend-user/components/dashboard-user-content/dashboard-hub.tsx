@@ -56,11 +56,20 @@ export function DashboardHubContent({
             SECTION 1.5 + 2 : COCKPIT PERSONNEL (bento desktop)
             Complétude/stats + activité récente côte à côte sur ≥ lg.
             ========================================= */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-6 xl:gap-8">
+        {/* Desktop uniquement depuis le 06/09. Sur mobile, le cockpit empilait
+            complétude, compteurs et relances sous un bandeau qui porte déjà la
+            salutation, la recherche et deux actions : l'utilisateur devait
+            franchir tout cela avant d'atteindre les profils, seule raison de sa
+            venue. Son accès aux notifications a été remonté dans le bandeau.
+
+            C'est la GRILLE entière qui est masquée, pas seulement ses colonnes :
+            un conteneur vide continuerait de recevoir l'espacement du parent
+            (`space-y-12`) et laisserait un trou sur mobile. */}
+        <div className="hidden lg:grid lg:grid-cols-12 gap-8 lg:gap-6 xl:gap-8">
           <div className="lg:col-span-7">
             <PersonalHero />
           </div>
-          <div className="hidden lg:block lg:col-span-5">
+          <div className="lg:col-span-5">
             <InlineActivityFeed />
           </div>
         </div>
