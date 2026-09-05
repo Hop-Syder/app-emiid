@@ -4,7 +4,7 @@
  * @description Cockpit personnel du dashboard — complétude du profil, vues/abonnés (preuve
  *              sociale personnalisée) et upsell Premium. Conversion-first.
  * @created 2026-07-10
- * @updated 2026-07-13
+ * @updated 2026-09-05
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -15,7 +15,8 @@ import Link from "next/link"
 import { Eye, Users, Crown, ArrowRight, Sparkles, MessageSquare, Images } from "lucide-react"
 import { usePersonalHero } from "@/hooks/use-personal-hero"
 import { StatTile } from "./stat-tile"
-import { ProfileCompleteness } from "./profile-completeness"
+import { ProfileCompleteness, COMPLETE_THRESHOLD } from "./profile-completeness"
+import { NotificationsBellLink } from "./notifications-bell-link"
 
 export function PersonalHero() {
   const {
@@ -28,11 +29,23 @@ export function PersonalHero() {
     stats,
   } = usePersonalHero()
 
+  // À 100 %, ProfileCompleteness ne rend plus rien (cf. son en-tête). La
+  // cloche de notifications qu'elle hébergeait sur mobile doit alors être
+  // rendue ici, sans quoi un profil complet perdrait cet accès direct.
+  const isComplete = !loading && completion >= COMPLETE_THRESHOLD
+
   return (
     <div className="rounded-3xl bg-card border border-border p-4 sm:p-5 shadow-[0_4px_24px_rgb(15,23,42,0.05)]">
       <div className="flex flex-col lg:flex-row gap-4">
-        {/* Complétude */}
+        {/* Complétude — absente dès que le profil est complet */}
         <ProfileCompleteness completion={completion} loading={loading} nextAction={nextAction} />
+
+        {/* Relais de la cloche mobile quand la carte de complétude s'efface */}
+        {isComplete && (
+          <div className="flex justify-end lg:hidden">
+            <NotificationsBellLink />
+          </div>
+        )}
 
         {/* Stats perso (preuve sociale personnalisée) — desktop uniquement.
             Sur mobile, trois tuiles chiffrées poussaient les actions utiles

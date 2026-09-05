@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Page principale de l'Annuaire — barre de recherche universelle (nom, tags, compétences, description) + résultats.
  * @created 2026-06-03
- * @updated 2026-06-22
+ * @updated 2026-09-05
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -12,7 +12,7 @@
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { AnnuaireHero } from "./annuaire-hero"
+import { AnnuaireSearchField } from "./annuaire-search-field"
 import { AnnuaireGrid } from "./annuaire-grid"
 import { AnnuaireSpotlight } from "./annuaire-spotlight"
 import { AnnuaireFilters } from "./annuaire-filters"
@@ -101,14 +101,14 @@ export function AnnuairePublicContent({
             <div className="absolute top-[60%] right-0 w-96 h-96 bg-secondary/10 rounded-full blur-[120px] pointer-events-none" />
 
             <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-16 py-8">
-                
-                {/* --- SECTION 1: HERO COMPACT --- */}
-                <AnnuaireHero
-                    searchQuery={filters.search}
-                    onSearchChange={(v) => handleFilterChange("search", v)}
-                />
 
-                {/* --- SECTION 2: SPOTLIGHT --- */}
+                {/* Le bandeau d'en-tête a été retiré le 05/09 (desktop et mobile).
+                    Ce qu'il portait de fonctionnel — le titre de page et le champ
+                    de recherche libre — a été redescendu dans l'en-tête des
+                    résultats, plus bas : sans cela, la page perdait son unique
+                    h1 et son unique saisie texte. */}
+
+                {/* --- SECTION 1: SPOTLIGHT --- */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -126,9 +126,11 @@ export function AnnuairePublicContent({
                 >
                     <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-border pb-4">
                         <div>
-                            <h2 className="text-3xl md:text-4xl font-black text-foreground tracking-tight">
+                            {/* h1 et non h2 : le bandeau supprimé portait le seul
+                                titre de premier niveau des trois routes /annuaire. */}
+                            <h1 className="text-3xl md:text-4xl font-black text-foreground tracking-tight">
                                 Tous les <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0150fd] to-blue-600">Profils</span>
-                            </h2>
+                            </h1>
                             <p className="text-muted-foreground font-medium mt-1 flex items-center gap-2">
                                 {(filters.search || filters.activity_domain !== "all" || filters.country !== "all" || filters.tags || filters.status !== "all") 
                                     ? (
@@ -145,6 +147,14 @@ export function AnnuairePublicContent({
                                     : "Explorez l'ensemble de notre réseau."}
                             </p>
                         </div>
+
+                        {/* Recherche libre — recueillie du bandeau supprimé. Les
+                            filtres facettés ci-dessous ne sont que des listes :
+                            c'est ici, et nulle part ailleurs, qu'on tape un mot. */}
+                        <AnnuaireSearchField
+                            searchQuery={filters.search}
+                            onSearchChange={(v) => handleFilterChange("search", v)}
+                        />
                     </div>
 
                     {/* --- BARRE DE FILTRES FACETTÉS --- */}
