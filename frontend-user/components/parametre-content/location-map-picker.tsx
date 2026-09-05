@@ -90,7 +90,12 @@ export function LocationMapPicker({
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<any>(null)
   const markerRef = useRef<any>(null)
+  // Conservée hors de l'effet : ensureMarker en a besoin bien après le montage.
+  const iconRef = useRef<any>(null)
   const leafletRef = useRef<any>(null)
+
+  /** Une position n'existe que si les DEUX coordonnées sont là. */
+  const hasCoords = latitude != null && longitude != null
 
   const onChangeRef = useRef(onChange)
   onChangeRef.current = onChange
@@ -111,6 +116,36 @@ export function LocationMapPicker({
   }
   const emitRef = useRef(emit)
   emitRef.current = emit
+
+  /**
+   * Pose le marqueur, ou le déplace s'il existe déjà.
+   *
+   * Il n'est PLUS créé au montage quand aucune position n'est enregistrée : un
+   * marqueur posé d'office au centre de Cotonou ferait croire à une position
+   * choisie. Il naît donc au premier geste — clic sur la carte, « Me localiser »,
+   * saisie manuelle — et ce point d'entrée unique évite d'avoir à le créer à
+   * trois endroits.
+   */
+  const ensureMarker = (lat: number, lng: number) => {
+    const L = leafletRef.current
+    const map = mapRef.current
+    if (!L || !map) return null
+
+    if (markerRef.current) {
+      markerRef.current.setLatLng([lat, lng])
+      return markerRef.current
+    }
+
+    const marker = L.marker([lat, lng], { draggable: true, icon: iconRef.current }).addTo(map)
+    marker.on("dragend", () => {
+      const p = marker.getLatLng()
+      emitRef.current(p.lat, p.lng)
+    })
+    markerRef.current = marker
+    return marker
+  }
+  const ensureMarkerRef = useRef(ensureMarker)
+  ensureMarkerRef.current = ensureMarker
 
   // ── Initialisation de la carte (une seule fois) ────────────────────────────
   useEffect(() => {
@@ -136,24 +171,20 @@ export function LocationMapPicker({
           attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         }).addTo(map)
 
-        const icon = L.divIcon({
+        iconRef.current = L.divIcon({
           html: MARKER_HTML,
           className: "",
           iconSize: [36, 36],
           iconAnchor: [18, 34],
         })
 
-        // N'ajoute le marqueur que si des coordonnées réelles existent
-        if (hasCoords) {
-          const marker = L.marker([start.lat, start.lng], { draggable: true, icon }).addTo(map)
-          markerRef.current = marker
+        // Pas de marqueur tant qu'aucune position n'est enregistrée : la carte
+        // s'ouvre vide, et l'appelant affiche « aucun point posé ».
+        if (hasCoords) ensureMarkerRef.current(start.lat, start.lng)
 
-        marker.on("dragend", () => {
-          const { lat, lng } = marker.getLatLng()
-          emitRef.current(lat, lng)
-        })
+        // Le clic pose le marqueur s'il n'existe pas encore, sinon le déplace.
         map.on("click", (e: any) => {
-          marker.setLatLng(e.latlng)
+          ensureMarkerRef.current(e.latlng.lat, e.latlng.lng)
           emitRef.current(e.latlng.lat, e.latlng.lng)
           // Premier contact avec la carte : la molette lui est confiée. Avant
           // cela, elle fait défiler la page — une carte au milieu d'un long
@@ -181,7 +212,10 @@ export function LocationMapPicker({
 
   // ── Synchronisation externe du marqueur ────────────────────────────────────
   useEffect(() => {
-    if (!mapRef.current || !markerRef.current || latitude == null || longitude == null) return
+    // Volontairement PAS de garde sur markerRef : « Me localiser » ou une saisie
+    // manuelle arrivent alors qu'aucun marqueur n'existe encore, et doivent le
+    // faire apparaître — sinon la position est enregistrée sans rien à l'écran.
+    if (!mapRef.current || latitude == null || longitude == null) return
 
     // Le parent arrondit à 6 décimales avant de renvoyer la valeur : la
     // comparaison se fait donc à la tolérance de cet arrondi, pas à l'identique.
@@ -195,7 +229,7 @@ export function LocationMapPicker({
     // vient d'ailleurs. C'est tout le correctif : recadrer sur son propre geste
     // faisait sauter la carte sous le doigt et interdisait de placer un point
     // en vue large.
-    markerRef.current.setLatLng([latitude, longitude])
+    ensureMarkerRef.current(latitude, longitude)
     if (isOwn) {
       selfEmitted.current = null
       return
@@ -219,11 +253,16 @@ export function LocationMapPicker({
   }
 
   return (
-    <div className="relative">
-      <div
-        ref={containerRef}
-        className="h-72 sm:h-80 w-full rounded-2xl overflow-hidden border border-border bg-muted z-0"
-      />
+    // Deux étages : la carte et ses surcouches dans un conteneur `relative` —
+    // les surcouches se positionnent par rapport à LUI, pas à la page — puis la
+    // barre d'informations en dessous. Sans cet étage supplémentaire, le
+    // `</div>` de la carte refermait la racine et la barre tombait hors du JSX.
+    <div className="flex flex-col gap-2.5">
+      <div className="relative">
+        <div
+          ref={containerRef}
+          className="h-72 sm:h-80 w-full rounded-2xl overflow-hidden border border-border bg-muted z-0"
+        />
 
         {/* Overlay « Touchez la carte pour poser le marqueur » (quand aucun point posé) */}
         {status === "ready" && !hasCoords && (
@@ -297,7 +336,7 @@ export function LocationMapPicker({
       ) : (
         <p className="text-[11px] text-slate-400 px-1 flex items-center gap-1.5">
           <MapPin className="w-3 h-3 shrink-0" />
-          Posez un repère sur votre atelier, bureau ou lieu habituel d'intervention.
+          Posez un repère sur votre atelier, bureau ou lieu habituel d&apos;intervention.
         </p>
       )}
     </div>
