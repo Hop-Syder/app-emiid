@@ -83,8 +83,8 @@ describe('useNotifications', () => {
     })
 
     it('should load notifications on mount', async () => {
-        // Setup: Return mock notifications
-        mockSupabaseInstance.from = jest.fn().mockReturnValue({
+        // Setup: Return mock notifications for list, count 1 for unread count
+        const chain: Record<string, unknown> = {
             select: jest.fn().mockReturnThis(),
             eq: jest.fn().mockReturnThis(),
             order: jest.fn().mockReturnThis(),
@@ -92,7 +92,10 @@ describe('useNotifications', () => {
                 data: mockNotifications,
                 error: null
             }),
-        })
+            then: (resolve: (val: unknown) => unknown) =>
+                Promise.resolve({ count: 1, data: null, error: null }).then(resolve),
+        }
+        mockSupabaseInstance.from = jest.fn().mockReturnValue(chain)
 
         const { result } = renderHook(() => useNotifications())
 
@@ -113,6 +116,8 @@ describe('useNotifications', () => {
             eq: jest.fn().mockReturnThis(),
             order: jest.fn().mockReturnThis(),
             limit: jest.fn().mockResolvedValue({ data: [], error: null }),
+            then: (resolve: (val: unknown) => unknown) =>
+                Promise.resolve({ count: 0, data: null, error: null }).then(resolve),
         })
 
         const { result } = renderHook(() => useNotifications())
@@ -134,6 +139,13 @@ describe('useNotifications', () => {
             }),
         }
 
+        const countQuery = {
+            select: jest.fn().mockReturnThis(),
+            eq: jest.fn().mockReturnThis(),
+            then: (resolve: (val: unknown) => unknown) =>
+                Promise.resolve({ count: 1, data: null, error: null }).then(resolve),
+        }
+
         const updateQuery = {
             update: jest.fn().mockReturnThis(),
             eq: jest.fn().mockResolvedValue({ error: null }),
@@ -141,6 +153,7 @@ describe('useNotifications', () => {
 
         mockSupabaseInstance.from = jest.fn()
             .mockReturnValueOnce(loadQuery)
+            .mockReturnValueOnce(countQuery)
             .mockReturnValueOnce(updateQuery)
 
         const { result } = renderHook(() => useNotifications())

@@ -25,7 +25,11 @@ export interface PublicProfileJoined {
     is_nomad?: boolean | null
     card_variant?: string | null
     followers_count?: number | null
+    commune_id?: string | null
     created_at?: string | null
+    updated_at?: string | null
+    latitude?: number | null
+    longitude?: number | null
     country_id?: string | null
     countries?: CountryJoin | CountryJoin[] | null
     profile_tags?: ProfileTagJoin[] | null

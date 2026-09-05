@@ -143,7 +143,12 @@ export function useProfileActions(
         setReportSubmitting(true)
         try {
             const supabase = createClient()
-            const { error } = await supabase.from("content_reports").insert({
+            type GenericTableClient = {
+                from: (relation: string) => {
+                    insert: (data: Record<string, unknown>) => Promise<{ error: { code?: string; message?: string } | null }>
+                }
+            }
+            const { error } = await (supabase as unknown as GenericTableClient).from("content_reports").insert({
                 subject_type: "profile",
                 subject_id: profile.id,
                 reporter_id: currentUserId,

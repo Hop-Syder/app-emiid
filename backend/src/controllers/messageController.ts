@@ -455,10 +455,12 @@ export const requestMediation = async (req: Request, res: Response) => {
             return res.status(403).json({ error: "Accès refusé à cette conversation" });
         }
 
-        const profileLookup = await getProfilesByUserIds([conv.participant1_id, conv.participant2_id]);
-        const requesterProfile = userId === conv.participant1_id
-            ? profileLookup[conv.participant1_id]
-            : profileLookup[conv.participant2_id];
+        const participantIds = [conv.participant1_id, conv.participant2_id].filter(
+            (id): id is string => typeof id === "string" && id.length > 0
+        );
+        const profileLookup = await getProfilesByUserIds(participantIds);
+        const requesterId = userId === conv.participant1_id ? conv.participant1_id : conv.participant2_id;
+        const requesterProfile = requesterId ? profileLookup[requesterId] : undefined;
         const requesterName = requesterProfile?.first_name || formatParticipantName(requesterProfile);
 
         // 2. Envoyer le message système de médiation

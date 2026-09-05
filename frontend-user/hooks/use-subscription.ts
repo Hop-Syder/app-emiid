@@ -158,7 +158,8 @@ export function useSubscription() {
         const supabase = createClient()
         setManaging(true)
         try {
-            const { error: rpcError } = await supabase.rpc("set_auto_renew", { p_enabled: enabled })
+            type DynamicRpc = (fn: string, args?: Record<string, unknown>) => Promise<{ error: { message?: string } | null }>
+            const { error: rpcError } = await (supabase.rpc as unknown as DynamicRpc)("set_auto_renew", { p_enabled: enabled })
             if (rpcError) throw rpcError
             setSubscription((prev) => (prev ? { ...prev, autoRenew: enabled } : prev))
             return true
@@ -175,7 +176,8 @@ export function useSubscription() {
         const supabase = createClient()
         setManaging(true)
         try {
-            const { error: rpcError } = await supabase.rpc("cancel_my_subscription")
+            type DynamicRpc = (fn: string, args?: Record<string, unknown>) => Promise<{ error: { message?: string } | null }>
+            const { error: rpcError } = await (supabase.rpc as unknown as DynamicRpc)("cancel_my_subscription")
             if (rpcError) throw rpcError
             await load()
             return true
