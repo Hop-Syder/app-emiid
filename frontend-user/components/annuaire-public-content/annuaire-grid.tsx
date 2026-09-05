@@ -25,6 +25,9 @@ interface AnnuaireGridProps {
     category: string
     country: string
     city: string
+    /** Découpage administratif (Bénin) : identifiants, pas des libellés. */
+    department: string
+    commune: string
     tags: string
     status: string
     activity_domain: string

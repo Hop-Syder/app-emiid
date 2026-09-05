@@ -42,6 +42,9 @@ export function AnnuairePublicContent({
         category: initialCategory,
         country: "all",
         city: initialCity,
+        // Découpage administratif (Bénin) : identifiants, pas des libellés.
+        department: "",
+        commune: "",
         tags: "",
         status: "all",
         activity_domain: initialActivityDomain,
@@ -57,6 +60,8 @@ export function AnnuairePublicContent({
                 category: params.get("category") || prev.category,
                 country: params.get("country") || prev.country,
                 city: params.get("city") || prev.city,
+                department: params.get("department") || prev.department,
+                commune: params.get("commune") || prev.commune,
                 tags: params.get("tags") || prev.tags,
                 status: params.get("status") || prev.status,
                 activity_domain: params.get("activity_domain") || prev.activity_domain,
@@ -88,7 +93,7 @@ export function AnnuairePublicContent({
     }
 
     const resetFilters = () => {
-        setFilters({ search: "", category: "all", country: "all", city: "", tags: "", status: "all", activity_domain: "all", lat: "", lng: "" })
+        setFilters({ search: "", category: "all", country: "all", city: "", department: "", commune: "", tags: "", status: "all", activity_domain: "all", lat: "", lng: "" })
         if (typeof window !== "undefined") {
             window.history.replaceState({}, "", window.location.pathname)
         }
@@ -124,41 +129,32 @@ export function AnnuairePublicContent({
                     transition={{ duration: 0.6, delay: 0.4 }}
                     className="space-y-6 pt-4"
                 >
-                    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-border pb-4">
-                        <div>
+                    {/* En-tête compact : le titre et la recherche partagent une
+                        ligne — le titre est court, l'espace à sa droite était
+                        perdu. Les filtres suivent, sur deux rangées porteuses de
+                        sens (où / quoi). Le paragraphe d'introduction a été
+                        retiré : il ne disait rien que le titre ne dise déjà, et
+                        son lien « Réinitialiser » fait doublon avec celui de la
+                        barre de filtres. */}
+                    <div className="space-y-4 border-b border-border pb-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                             {/* h1 et non h2 : le bandeau supprimé portait le seul
                                 titre de premier niveau des trois routes /annuaire. */}
                             <h1 className="text-3xl md:text-4xl font-black text-foreground tracking-tight">
                                 Tous les <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0150fd] to-blue-600">Profils</span>
                             </h1>
-                            <p className="text-muted-foreground font-medium mt-1 flex items-center gap-2">
-                                {(filters.search || filters.activity_domain !== "all" || filters.country !== "all" || filters.tags || filters.status !== "all") 
-                                    ? (
-                                        <>
-                                            Résultats de votre recherche filtrée.
-                                            <button 
-                                                onClick={resetFilters}
-                                                className="text-xs font-bold text-blue-500 hover:text-blue-600 underline cursor-pointer"
-                                            >
-                                                Réinitialiser
-                                            </button>
-                                        </>
-                                    )
-                                    : "Explorez l'ensemble de notre réseau."}
-                            </p>
+
+                            {/* Recueillie du bandeau supprimé : les filtres ne
+                                sont que des listes, c'est ici et nulle part
+                                ailleurs qu'on tape un mot. */}
+                            <AnnuaireSearchField
+                                searchQuery={filters.search}
+                                onSearchChange={(v) => handleFilterChange("search", v)}
+                            />
                         </div>
 
-                        {/* Recherche libre — recueillie du bandeau supprimé. Les
-                            filtres facettés ci-dessous ne sont que des listes :
-                            c'est ici, et nulle part ailleurs, qu'on tape un mot. */}
-                        <AnnuaireSearchField
-                            searchQuery={filters.search}
-                            onSearchChange={(v) => handleFilterChange("search", v)}
-                        />
+                        <AnnuaireFilters filters={filters} onFilterChange={handleFilterChange} onReset={resetFilters} />
                     </div>
-
-                    {/* --- BARRE DE FILTRES FACETTÉS --- */}
-                    <AnnuaireFilters filters={filters} onFilterChange={handleFilterChange} onReset={resetFilters} />
 
                     <div className="pt-4">
                         <AnnuaireGrid
