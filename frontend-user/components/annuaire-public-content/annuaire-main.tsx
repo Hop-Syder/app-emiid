@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Page principale de l'Annuaire — barre de recherche universelle (nom, tags, compétences, description) + résultats.
  * @created 2026-06-03
- * @updated 2026-09-05
+ * @updated 2026-09-06
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -109,25 +109,17 @@ export function AnnuairePublicContent({
 
                 {/* Le bandeau d'en-tête a été retiré le 05/09 (desktop et mobile).
                     Ce qu'il portait de fonctionnel — le titre de page et le champ
-                    de recherche libre — a été redescendu dans l'en-tête des
-                    résultats, plus bas : sans cela, la page perdait son unique
-                    h1 et son unique saisie texte. */}
+                    de recherche libre — vit désormais dans l'en-tête des
+                    résultats, remonté en tête de page le 06/09 : le visiteur
+                    arrive sur le titre, la recherche et les filtres, sans avoir
+                    à passer la vitrine. */}
 
-                {/* --- SECTION 1: SPOTLIGHT --- */}
+                {/* --- SECTION 1: RESULTATS (titre, recherche, filtres, grille) --- */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.1 }}
-                >
-                    <AnnuaireSpotlight />
-                </motion.div>
-
-                {/* --- SECTION 5: RESULTATS (Grille Verticale) --- */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.4 }}
-                    className="space-y-6 pt-4"
+                    className="space-y-6"
                 >
                     {/* En-tête compact : le titre et la recherche partagent une
                         ligne — le titre est court, l'espace à sa droite était
@@ -164,6 +156,15 @@ export function AnnuairePublicContent({
                             onSearch={(q) => handleFilterChange("search", q)}
                         />
                     </div>
+                </motion.div>
+
+                {/* --- SECTION 2: SPOTLIGHT --- */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.3 }}
+                >
+                    <AnnuaireSpotlight />
                 </motion.div>
 
             </div>
