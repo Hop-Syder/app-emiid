@@ -13,7 +13,7 @@
 import React from "react"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
-import { ChevronRight } from "lucide-react"
+import { ChevronRight, Check, X, AlertCircle, CheckCircle2, Loader2, Sparkles } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export const INPUT =
@@ -233,11 +233,322 @@ export function SaveBar({
         type="button"
         onClick={handleSave}
         disabled={saving}
-        className="w-full sm:w-auto h-11 px-6 rounded-2xl bg-[#013ff4] hover:bg-[#033a7a] text-white font-bold shadow-md shadow-[#013ff4]/15 active:scale-[0.98] transition-all"
+        className="w-full sm:w-auto h-11 px-6 rounded-2xl bg-[#0150fd] hover:bg-[#003ec7] text-white font-bold shadow-md shadow-[#0150fd]/15 active:scale-[0.98] transition-all"
       >
-        {saving ? "Enregistrement..." : saveLabel}
+        {saving ? (
+          <span className="flex items-center gap-2">
+            <Loader2 className="w-4 h-4 animate-spin" /> Enregistrement...
+          </span>
+        ) : (
+          saveLabel
+        )}
       </Button>
     </div>
   )
 }
+
+/**
+ * Sélecteur segmenté façon iOS / SwiftUI (ex: Genre Homme / Femme / Autre)
+ */
+export function SegmentedControl<T extends string>({
+  value,
+  options,
+  onChange,
+  disabled,
+  className,
+}: {
+  value: T
+  options: { label: string; value: T; icon?: React.ElementType }[]
+  onChange: (val: T) => void
+  disabled?: boolean
+  className?: string
+}) {
+  return (
+    <div
+      className={cn(
+        "w-full p-1 bg-slate-100 dark:bg-slate-800/80 rounded-2xl flex gap-1 border border-border/60",
+        disabled && "opacity-60 pointer-events-none",
+        className
+      )}
+    >
+      {options.map((opt) => {
+        const isSelected = value === opt.value
+        const Icon = opt.icon
+        return (
+          <button
+            key={opt.value}
+            type="button"
+            onClick={() => onChange(opt.value)}
+            disabled={disabled}
+            className={cn(
+              "flex-1 h-10 px-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer select-none",
+              isSelected
+                ? "bg-card text-foreground shadow-xs border border-border/50 scale-[1.01]"
+                : "text-muted-foreground hover:text-foreground hover:bg-card/40"
+            )}
+          >
+            {Icon && <Icon className={cn("w-3.5 h-3.5", isSelected ? "text-[#0150fd]" : "text-muted-foreground")} />}
+            <span>{opt.label}</span>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+/**
+ * Champ de saisie d'identifiant / pseudo avec préfixe emiid.com/ et vérification en temps réel
+ */
+export function SlugInput({
+  value,
+  onChange,
+  disabled,
+  placeholder = "votre-pseudo",
+  className,
+}: {
+  value: string
+  onChange: (slug: string) => void
+  disabled?: boolean
+  placeholder?: string
+  className?: string
+}) {
+  const sanitize = (raw: string) =>
+    raw
+      .toLowerCase()
+      .replace(/[^a-z0-9-_]/g, "")
+      .slice(0, 30)
+
+  // Simulation / vérification de disponibilité
+  const reserved = ["admin", "root", "support", "emiid", "moderateur", "contact", "api"]
+  const trimmed = (value || "").trim().toLowerCase()
+  const isTooShort = trimmed.length < 3
+  const isTaken = reserved.includes(trimmed)
+  const isAvailable = !isTooShort && !isTaken
+
+  const suggestions = isTaken
+    ? [`${trimmed}-pro`, `${trimmed}229`, `${trimmed}-bj`]
+    : []
+
+  return (
+    <div className={cn("space-y-1.5", className)}>
+      <div
+        className={cn(
+          "w-full h-11 rounded-2xl bg-muted/80 border border-border flex items-center px-3.5 text-sm font-medium transition-all focus-within:bg-card focus-within:ring-2 focus-within:ring-[#0150fd]/15 focus-within:border-[#0150fd]",
+          disabled && "opacity-60 cursor-not-allowed"
+        )}
+      >
+        <span className="text-slate-400 font-semibold select-none shrink-0 pr-1 text-xs sm:text-sm">
+          emiid.com/
+        </span>
+        <input
+          type="text"
+          value={value || ""}
+          onChange={(e) => onChange(sanitize(e.target.value))}
+          disabled={disabled}
+          placeholder={placeholder}
+          className="w-full bg-transparent outline-none text-foreground font-semibold placeholder:text-slate-400 text-xs sm:text-sm min-w-0"
+        />
+
+        {/* Indicateur de disponibilité */}
+        {!isTooShort && (
+          <div className="shrink-0 pl-2">
+            {isAvailable ? (
+              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200/80 dark:border-emerald-800/60 px-2 py-0.5 rounded-full">
+                <Check className="w-3 h-3 text-emerald-600" />
+                Disponible
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-rose-600 bg-rose-50 dark:bg-rose-950/50 border border-rose-200/80 dark:border-rose-800/60 px-2 py-0.5 rounded-full">
+                <X className="w-3 h-3 text-rose-600" />
+                Déjà pris
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Suggestions cliquables si déjà pris */}
+      {isTaken && suggestions.length > 0 && (
+        <div className="flex items-center gap-1.5 px-1 pt-0.5 text-xs text-muted-foreground flex-wrap">
+          <span className="text-slate-400">Suggestions :</span>
+          {suggestions.map((sug) => (
+            <button
+              key={sug}
+              type="button"
+              onClick={() => onChange(sug)}
+              className="text-[#0150fd] hover:underline font-semibold bg-blue-50/80 dark:bg-blue-950/40 px-2 py-0.5 rounded-md text-[11px] cursor-pointer"
+            >
+              @{sug}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/**
+ * Sélecteur et saisie de tags / mots-clés amovibles avec limite maximale
+ */
+export function TagsInput({
+  tags,
+  onChange,
+  maxTags = 8,
+  placeholder = "Ajouter un mot-clé…",
+  disabled,
+  className,
+}: {
+  tags: string[]
+  onChange: (tags: string[]) => void
+  maxTags?: number
+  placeholder?: string
+  disabled?: boolean
+  className?: string
+}) {
+  const [inputValue, setInputValue] = React.useState("")
+
+  const addTag = (tagToAdd: string) => {
+    const clean = tagToAdd.trim().replace(/^#/, "")
+    if (!clean) return
+    if (tags.length >= maxTags) return
+    if (tags.some((t) => t.toLowerCase() === clean.toLowerCase())) {
+      setInputValue("")
+      return
+    }
+    onChange([...tags, clean])
+    setInputValue("")
+  }
+
+  const removeTag = (idxToRemove: number) => {
+    onChange(tags.filter((_, idx) => idx !== idxToRemove))
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault()
+      addTag(inputValue)
+    } else if (e.key === "Backspace" && !inputValue && tags.length > 0) {
+      removeTag(tags.length - 1)
+    }
+  }
+
+  return (
+    <div
+      className={cn(
+        "min-h-[44px] w-full rounded-2xl bg-muted/80 border border-border p-2 flex flex-wrap items-center gap-1.5 focus-within:bg-card focus-within:ring-2 focus-within:ring-[#0150fd]/15 focus-within:border-[#0150fd] transition-all",
+        disabled && "opacity-60 cursor-not-allowed",
+        className
+      )}
+    >
+      {tags.map((tag, idx) => (
+        <span
+          key={`${tag}-${idx}`}
+          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#0150fd]/10 border border-[#0150fd]/20 text-[#0150fd] text-xs font-bold shadow-2xs animate-in fade-in zoom-in-95 duration-150"
+        >
+          <span>#{tag}</span>
+          {!disabled && (
+            <button
+              type="button"
+              onClick={() => removeTag(idx)}
+              aria-label={`Supprimer ${tag}`}
+              className="hover:bg-[#0150fd]/20 rounded-md p-0.5 transition-colors cursor-pointer"
+            >
+              <X className="w-3 h-3 text-[#0150fd]" />
+            </button>
+          )}
+        </span>
+      ))}
+
+      {tags.length < maxTags && !disabled && (
+        <input
+          type="text"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+          onBlur={() => addTag(inputValue)}
+          placeholder={tags.length === 0 ? placeholder : "Ajouter..."}
+          className="flex-1 min-w-[120px] bg-transparent text-xs sm:text-sm font-medium outline-none text-foreground placeholder:text-slate-400 px-1"
+        />
+      )}
+    </div>
+  )
+}
+
+/**
+ * Barre de sauvegarde sticky en bas de page (Desktop et Mobile) conforme au PDF Page 1 & 2
+ */
+export function StickySaveBar({
+  saving,
+  modifiedCount,
+  handleSave,
+  handleCancel,
+  saveLabel = "Enregistrer les modifications",
+  className,
+}: {
+  saving: boolean
+  modifiedCount: number
+  handleSave: () => void
+  handleCancel: () => void
+  saveLabel?: string
+  className?: string
+}) {
+  const isDirty = modifiedCount > 0
+
+  return (
+    <div
+      className={cn(
+        "sticky bottom-4 z-40 bg-card/95 backdrop-blur-md border border-border/80 rounded-3xl p-3.5 sm:p-4 shadow-[0_8px_30px_rgb(0,0,0,0.1)] flex items-center justify-between gap-4 transition-all duration-300",
+        className
+      )}
+    >
+      {/* État / Compteur de modifications */}
+      <div className="flex items-center gap-2 min-w-0">
+        <span
+          className={cn(
+            "w-2.5 h-2.5 rounded-full shrink-0 animate-pulse",
+            isDirty ? "bg-amber-500" : "bg-emerald-500"
+          )}
+        />
+        <p className="text-xs sm:text-sm font-bold text-foreground truncate">
+          {isDirty
+            ? `${modifiedCount} modification${modifiedCount > 1 ? "s" : ""} non enregistrée${modifiedCount > 1 ? "s" : ""}`
+            : "Toutes les modifications sont enregistrées"}
+        </p>
+      </div>
+
+      {/* Boutons d'action */}
+      <div className="flex items-center gap-2 shrink-0">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleCancel}
+          disabled={!isDirty || saving}
+          className="h-10 px-4 rounded-xl border-border text-foreground font-bold hover:bg-muted text-xs sm:text-sm transition-all disabled:opacity-40"
+        >
+          Annuler
+        </Button>
+        <Button
+          type="button"
+          onClick={handleSave}
+          disabled={!isDirty || saving}
+          className={cn(
+            "h-10 px-5 rounded-xl text-white font-bold text-xs sm:text-sm shadow-md active:scale-98 transition-all",
+            isDirty
+              ? "bg-[#0150fd] hover:bg-[#003ec7] shadow-[#0150fd]/25 cursor-pointer"
+              : "bg-slate-300 dark:bg-slate-700 text-slate-500 cursor-not-allowed opacity-50 shadow-none"
+          )}
+        >
+          {saving ? (
+            <span className="flex items-center gap-2">
+              <Loader2 className="w-3.5 h-3.5 animate-spin" /> Enregistrement...
+            </span>
+          ) : (
+            saveLabel
+          )}
+        </Button>
+      </div>
+    </div>
+  )
+}
+
 

@@ -26,13 +26,15 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { Crosshair, Loader2 } from "lucide-react"
+import { Crosshair, Loader2, MapPin, ExternalLink, RotateCcw } from "lucide-react"
 
 interface LocationMapPickerProps {
   latitude: number | null
   longitude: number | null
   /** Appelé à chaque déplacement du marqueur / tap sur la carte / géolocalisation. */
   onChange: (lat: number, lng: number) => void
+  /** Optionnel : fonction appelée pour effacer les coordonnées */
+  onClear?: () => void
 }
 
 // Centre par défaut quand aucune position n'est encore choisie : Cotonou, Bénin.
@@ -72,22 +74,24 @@ function loadLeaflet(): Promise<any> {
   })
 }
 
-// Marqueur maison (SVG inline) : évite le bug classique des icônes Leaflet
-// introuvables après bundling, et adopte la couleur de marque.
+// Marqueur maison SVG aux couleurs de marque
 const MARKER_HTML = `
-  <svg width="34" height="34" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,.35))">
-    <path d="M12 2C7.6 2 4 5.6 4 10c0 5.4 7 11.5 7.3 11.7.4.3.9.3 1.3 0C13 21.5 20 15.4 20 10c0-4.4-3.6-8-8-8Z" fill="#013ff4"/>
-    <circle cx="12" cy="10" r="3" fill="#fff"/>
+  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 3px 6px rgba(1,80,253,0.35))">
+    <path d="M12 2C7.6 2 4 5.6 4 10c0 5.4 7 11.5 7.3 11.7.4.3.9.3 1.3 0C13 21.5 20 15.4 20 10c0-4.4-3.6-8-8-8Z" fill="#0150fd"/>
+    <circle cx="12" cy="10" r="3.2" fill="#fff"/>
   </svg>`
 
-export function LocationMapPicker({ latitude, longitude, onChange }: LocationMapPickerProps) {
+export function LocationMapPicker({
+  latitude,
+  longitude,
+  onChange,
+  onClear,
+}: LocationMapPickerProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<any>(null)
   const markerRef = useRef<any>(null)
   const leafletRef = useRef<any>(null)
 
-  // onChange peut changer à chaque rendu (closure sur le profil) : on garde la
-  // dernière version dans une ref pour que les callbacks Leaflet l'appellent.
   const onChangeRef = useRef(onChange)
   onChangeRef.current = onChange
 
@@ -117,8 +121,9 @@ export function LocationMapPicker({ latitude, longitude, onChange }: LocationMap
         if (cancelled || !containerRef.current || mapRef.current) return
         leafletRef.current = L
 
-        const hasCoords = latitude != null && longitude != null
-        const start = hasCoords ? { lat: latitude as number, lng: longitude as number } : DEFAULT_CENTER
+        const start = hasCoords
+          ? { lat: latitude as number, lng: longitude as number }
+          : DEFAULT_CENTER
 
         const map = L.map(containerRef.current, { zoomControl: true, scrollWheelZoom: false }).setView(
           [start.lat, start.lng],
@@ -134,12 +139,14 @@ export function LocationMapPicker({ latitude, longitude, onChange }: LocationMap
         const icon = L.divIcon({
           html: MARKER_HTML,
           className: "",
-          iconSize: [34, 34],
-          iconAnchor: [17, 32],
+          iconSize: [36, 36],
+          iconAnchor: [18, 34],
         })
 
-        const marker = L.marker([start.lat, start.lng], { draggable: true, icon }).addTo(map)
-        markerRef.current = marker
+        // N'ajoute le marqueur que si des coordonnées réelles existent
+        if (hasCoords) {
+          const marker = L.marker([start.lat, start.lng], { draggable: true, icon }).addTo(map)
+          markerRef.current = marker
 
         marker.on("dragend", () => {
           const { lat, lng } = marker.getLatLng()
@@ -154,8 +161,6 @@ export function LocationMapPicker({ latitude, longitude, onChange }: LocationMap
           map.scrollWheelZoom.enable()
         })
 
-        // La carte est souvent montée dans un conteneur dont la taille se stabilise
-        // après le rendu (volet repliable, animation) : on force le recalcul.
         setTimeout(() => map.invalidateSize(), 120)
         setStatus("ready")
       })
@@ -174,8 +179,7 @@ export function LocationMapPicker({ latitude, longitude, onChange }: LocationMap
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // ── Synchronise la carte quand les coordonnées changent de l'extérieur ─────
-  // (bouton « Détecter ma position », réinitialisation, saisie manuelle).
+  // ── Synchronisation externe du marqueur ────────────────────────────────────
   useEffect(() => {
     if (!mapRef.current || !markerRef.current || latitude == null || longitude == null) return
 
@@ -221,30 +225,80 @@ export function LocationMapPicker({ latitude, longitude, onChange }: LocationMap
         className="h-72 sm:h-80 w-full rounded-2xl overflow-hidden border border-border bg-muted z-0"
       />
 
-      {/* Bouton flottant « me localiser » */}
-      {status === "ready" && (
-        <button
-          type="button"
-          onClick={locateMe}
-          disabled={locating}
-          title="Me localiser"
-          aria-label="Me localiser"
-          className="absolute top-3 right-3 z-[400] w-10 h-10 rounded-lg bg-card shadow-md border border-border flex items-center justify-center text-foreground hover:bg-muted active:scale-95 transition-all disabled:opacity-60"
-        >
-          {locating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Crosshair className="w-4 h-4" />}
-        </button>
-      )}
+        {/* Overlay « Touchez la carte pour poser le marqueur » (quand aucun point posé) */}
+        {status === "ready" && !hasCoords && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[400] p-4">
+            <div className="bg-card/90 dark:bg-slate-900/90 backdrop-blur-md px-4 py-2.5 rounded-2xl shadow-xl border border-border/80 flex items-center gap-2 text-xs font-extrabold text-foreground animate-in fade-in zoom-in-95 duration-200">
+              <span className="w-6 h-6 rounded-full bg-[#0150fd]/10 text-[#0150fd] flex items-center justify-center shrink-0">
+                <MapPin className="w-3.5 h-3.5" />
+              </span>
+              <span>Touchez la carte pour poser le marqueur</span>
+            </div>
+          </div>
+        )}
 
-      {/* États de chargement / erreur */}
-      {status === "loading" && (
-        <div className="absolute inset-0 flex items-center justify-center text-xs text-slate-400 gap-2 pointer-events-none">
-          <Loader2 className="w-4 h-4 animate-spin" /> Chargement de la carte…
+        {/* Bouton flottant « me localiser » */}
+        {status === "ready" && (
+          <button
+            type="button"
+            onClick={locateMe}
+            disabled={locating}
+            title="Détecter ma position"
+            aria-label="Détecter ma position"
+            className="absolute top-3 right-3 z-[400] w-10 h-10 rounded-xl bg-card/95 backdrop-blur-sm shadow-md border border-border flex items-center justify-center text-foreground hover:bg-muted hover:text-[#0150fd] active:scale-95 transition-all disabled:opacity-60 cursor-pointer"
+          >
+            {locating ? <Loader2 className="w-4 h-4 animate-spin text-[#0150fd]" /> : <Crosshair className="w-4 h-4" />}
+          </button>
+        )}
+
+        {/* États de chargement / erreur */}
+        {status === "loading" && (
+          <div className="absolute inset-0 flex items-center justify-center text-xs text-slate-400 gap-2 pointer-events-none bg-muted/60">
+            <Loader2 className="w-4 h-4 animate-spin text-[#0150fd]" /> Chargement de la carte…
+          </div>
+        )}
+        {status === "error" && (
+          <div className="absolute inset-0 flex items-center justify-center text-xs text-muted-foreground px-4 text-center bg-muted/60">
+            Carte temporairement indisponible. Utilisez la saisie manuelle ci-dessus.
+          </div>
+        )}
+      </div>
+
+      {/* Barre d'informations & actions sous la carte (conforme au PDF Page 3) */}
+      {hasCoords ? (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 px-1 py-0.5 text-xs">
+          <div className="flex items-center gap-2 font-mono text-muted-foreground">
+            <MapPin className="w-3.5 h-3.5 text-[#0150fd] shrink-0" />
+            <span>
+              Latitude : <strong className="text-foreground">{latitude?.toFixed(4)}</strong>, Longitude : <strong className="text-foreground">{longitude?.toFixed(4)}</strong>
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3 shrink-0 self-end sm:self-auto">
+            <a
+              href={`https://www.google.com/maps?q=${latitude},${longitude}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 font-bold text-[#0150fd] hover:underline"
+            >
+              Vérifier <ExternalLink className="w-3 h-3" />
+            </a>
+            {onClear && (
+              <button
+                type="button"
+                onClick={onClear}
+                className="inline-flex items-center gap-1 font-bold text-muted-foreground hover:text-rose-600 transition-colors cursor-pointer"
+              >
+                <RotateCcw className="w-3 h-3" /> Effacer
+              </button>
+            )}
+          </div>
         </div>
-      )}
-      {status === "error" && (
-        <div className="absolute inset-0 flex items-center justify-center text-xs text-muted-foreground px-4 text-center">
-          Carte indisponible. Utilisez la détection automatique ou la saisie manuelle ci-dessous.
-        </div>
+      ) : (
+        <p className="text-[11px] text-slate-400 px-1 flex items-center gap-1.5">
+          <MapPin className="w-3 h-3 shrink-0" />
+          Posez un repère sur votre atelier, bureau ou lieu habituel d'intervention.
+        </p>
       )}
     </div>
   )
