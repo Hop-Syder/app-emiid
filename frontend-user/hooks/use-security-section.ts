@@ -31,7 +31,6 @@ export type PendingActionType = "enable" | "disable" | "change" | "disable2fa" |
 export function useSecuritySection({
   profile,
   setProfile,
-  securitySettings,
   setSecuritySettings,
   saveSettings,
 }: SecuritySectionHookProps) {

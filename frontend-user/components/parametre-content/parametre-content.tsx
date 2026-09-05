@@ -45,6 +45,13 @@ const TABS: TabConfig[] = [
   { id: "plan",         label: "Abonnement",          icon: Star,        desc: "Offre EmiID Premium et mise en avant",             color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-950/40" },
 ]
 
+/**
+ * Sections rendues avec `hideActions` : leur bouton « Enregistrer » n'est pas
+ * affiché, la sauvegarde ne peut donc jamais être déclenchée depuis elles. La
+ * prop reste requise par le contrat, d'où ce substitut explicite.
+ */
+const noActionNeeded = () => undefined
+
 export function ParametresContent() {
   const {
     activeTab,
@@ -130,7 +137,7 @@ export function ParametresContent() {
     securite:     <SecuritySection profile={profile} setProfile={setProfile} securitySettings={securitySettings} setSecuritySettings={setSecuritySettings} saveSettings={saveSettings} />,
     preferences: (
       <div className="space-y-4">
-        <PreferencesSection settings={preferences} setSettings={setPreferences} saving={saving} handleSave={() => {}} handleCancel={handleCancel} hideActions />
+        <PreferencesSection settings={preferences} setSettings={setPreferences} saving={saving} handleSave={noActionNeeded} handleCancel={handleCancel} hideActions />
         <NotificationsSection
           settings={notificationSettings}
           setSettings={setNotificationSettings}

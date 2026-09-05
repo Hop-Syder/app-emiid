@@ -40,7 +40,6 @@ export const IconShell = forwardRef<AnimatedIconHandle, IconShellProps>(
             onMouseLeave,
             className,
             size = 24,
-            duration = 1,
             isAnimated = true,
             color,
             strokeWidth = 2,

@@ -25,10 +25,6 @@ import {
   Crown,
   Sparkles,
   ArrowRight,
-  ShieldCheck,
-  Compass,
-  CreditCard,
-  Briefcase,
   X
 } from "lucide-react"
 

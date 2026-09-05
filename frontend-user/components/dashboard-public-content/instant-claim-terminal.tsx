@@ -15,7 +15,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Sparkles, ArrowRight, ShieldCheck, CreditCard } from "lucide-react"
+import { ArrowRight, ShieldCheck, CreditCard } from "lucide-react"
 
 export function InstantClaimTerminal() {
   const router = useRouter()

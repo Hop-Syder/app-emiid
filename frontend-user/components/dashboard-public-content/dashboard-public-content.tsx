@@ -98,10 +98,10 @@ interface DashboardPublicContentProps {
 
 export function DashboardPublicContent({ initialStats = null, initialProfiles = [] }: DashboardPublicContentProps) {
     const reduceMotion = useReducedMotion()
-    const [loading, setLoading] = useState(initialProfiles.length === 0)
+    const [, setLoading] = useState(initialProfiles.length === 0)
     const [entrepreneursList, setEntrepreneursList] = useState<EntrepreneurProfile[]>(initialProfiles)
     const [profilesWarning, setProfilesWarning] = useState<string | null>(null)
-    const { stats, statsLoading, statsError } = useDashboardStats({
+    const { stats, statsError } = useDashboardStats({
         endpoint: "/api/public/stats",
         fetcher: fetchPublic,
         refreshIntervalMs: 30000,
@@ -109,14 +109,6 @@ export function DashboardPublicContent({ initialStats = null, initialProfiles = 
     })
 
     const supabase = useMemo(() => createClient(), [])
-
-    // ExplorerHub attend deux listes distinctes. La requête ramène les profils
-    // les plus récents, d'où « nouveaux » = la liste entière ; l'onglet Premium
-    // ne s'affiche que s'il y a effectivement des profils premium dedans.
-    const premiumProfiles = useMemo(
-        () => entrepreneursList.filter((e) => e.premium),
-        [entrepreneursList],
-    )
 
     useEffect(() => {
         let isMounted = true

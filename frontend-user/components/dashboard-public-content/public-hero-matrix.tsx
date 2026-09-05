@@ -16,7 +16,7 @@ import { motion, useMotionValue, useSpring, useTransform } from "framer-motion"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { ArrowRight, ShieldCheck, Award, Users, Globe, Crown } from "lucide-react"
+import { ArrowRight, ShieldCheck } from "lucide-react"
 import { EmiIDProfileCard } from "../carte-profil/emiid-profile-card"
 
 interface PublicHeroMatrixProps {
@@ -28,7 +28,7 @@ interface PublicHeroMatrixProps {
     } | null
 }
 
-export function PublicHeroMatrix({ stats }: PublicHeroMatrixProps) {
+export function PublicHeroMatrix(_props: PublicHeroMatrixProps) {
     const router = useRouter()
     const [claimName, setClaimName] = useState("")
 

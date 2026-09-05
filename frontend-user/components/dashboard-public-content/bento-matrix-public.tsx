@@ -24,7 +24,7 @@ import { useEffect, useState, useMemo } from "react"
 import { motion, useReducedMotion } from "framer-motion"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
-import { Sparkles, ArrowRight, ShieldCheck } from "lucide-react"
+import { ArrowRight, ShieldCheck } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 
 export interface PublicCategoryItem {

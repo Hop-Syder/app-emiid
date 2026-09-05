@@ -14,7 +14,7 @@ import { useRouter } from "next/navigation"
 import { ArrowLeft, MoreHorizontal, Gavel, Trash2, MessageSquare, Search, X, UsersRound } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useMessages } from "@/hooks/use-messages"
-import type { Conversation, Message } from "./messages/types"
+import type { Conversation } from "./messages/types"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ConfirmActionDialog } from "@/components/ui/confirm-action-dialog"

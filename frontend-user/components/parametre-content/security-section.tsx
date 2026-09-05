@@ -10,9 +10,8 @@
 
 "use client"
 
-import { Fingerprint, KeyRound, LogOut, Shield, Trash2, UserX } from "lucide-react"
+import { Fingerprint, KeyRound, Shield, Trash2, UserX } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Switch } from "@/components/ui/switch"
 import { ConfirmActionDialog } from "@/components/ui/confirm-action-dialog"
 import { PinDialog, MfaDialog, ReauthDialog } from "./security-dialogs"
 import { useSecuritySection } from "@/hooks/use-security-section"

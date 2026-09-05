@@ -75,7 +75,8 @@ export function useBoost() {
                     .select("id, name, department_id, departments(name)")
                     .order("name", { ascending: true }),
                 user
-                    ? supabase.from("user_profiles").select("commune_id").eq("id", user.id).maybeSingle()
+                    // eslint-disable-next-line no-restricted-syntax -- accès authentifié à SA PROPRE ligne (filtre user_id = user.id) : la RLS l'autorise
+                    ? supabase.from("user_profiles").select("commune_id").eq("user_id", user.id).maybeSingle()
                     : Promise.resolve({ data: null }),
                 user
                     ? supabase

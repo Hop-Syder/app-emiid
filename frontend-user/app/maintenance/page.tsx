@@ -93,7 +93,7 @@ export default function MaintenancePage() {
       const pingMs = Math.round(endTime - startTime)
 
       if (res.ok) {
-        const data = await res.json()
+        await res.json()
         setServices((prev) =>
           prev.map((s) =>
             s.key === "backend"

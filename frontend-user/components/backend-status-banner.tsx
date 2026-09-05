@@ -14,7 +14,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
-import { AlertTriangle, ServerOff, ArrowRight, X } from "lucide-react"
+import { ServerOff, ArrowRight, X } from "lucide-react"
 
 export function BackendStatusBanner() {
   const [isBackendDown, setIsBackendDown] = useState(false)

@@ -46,6 +46,7 @@ export function usePortefeuille() {
         }
 
         const [profileRes, galleryRes] = await Promise.all([
+          // eslint-disable-next-line no-restricted-syntax -- accès authentifié à SA PROPRE ligne (filtre user_id = user.id) : la RLS l'autorise
           supabase
             .from("user_profiles")
             .select("id, is_published")

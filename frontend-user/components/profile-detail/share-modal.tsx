@@ -11,9 +11,8 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { Check, Copy, Download, Share2, QrCode, ExternalLink, Mail, FolderOpen, User } from "lucide-react"
+import { Check, Copy, Download, Share2, QrCode } from "lucide-react"
 import { toast } from "sonner"
-import { motion } from "framer-motion"
 import Image from "next/image"
 import { trackProfileMetric } from "@/lib/track-profile"
 import { trackProfileContact } from "@/lib/analytics"
