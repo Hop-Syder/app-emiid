@@ -3,7 +3,22 @@
  * @organization Nexus Partners
  * @description Index de tri pour le listing de l'annuaire.
  *
- *   ── Le problème ─────────────────────────────────────────────────────────
+ *   ⚠️  NE PAS JOUER POUR L'INSTANT — mesuré sur la base réelle le 06/09.
+ *   Le projet compte 19 profils visibles (33 en base). La requête de listing
+ *   s'y exécute en 0,241 ms, la planification en coûtant 2,862 ms à elle
+ *   seule : la base n'est pas le facteur limitant, et cet index n'apporterait
+ *   qu'un coût d'écriture supplémentaire. Supabase signale d'ailleurs déjà 29
+ *   index inutilisés et 4 doublons sur ce projet.
+ *
+ *   La lenteur ressentie vient d'ailleurs : les fonctions Vercel (plan Hobby,
+ *   région unique, us-east par défaut) dialoguent avec une base à Paris —
+ *   ~100 ms par aller-retour, contre 0,24 ms de calcul.
+ *
+ *   Ce fichier reste valable et vérifié ; le jouer le jour où la table
+ *   dépassera quelques milliers de profils publiés. Le gain mesuré sur un jeu
+ *   de 50 000 profils était alors de 17,5 ms → 0,21 ms.
+ *
+ *   ── Le problème (à l'échelle où il se pose) ─────────────────────────────
  *   /api/annuaire ordonne TOUJOURS le listing par
  *       is_premium DESC, is_verified DESC, created_at DESC
  *   et demande un `count: 'exact'`. Aucun index ne couvrait cet ordre : à
