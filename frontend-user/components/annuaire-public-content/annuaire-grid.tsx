@@ -68,7 +68,12 @@ export function AnnuaireGrid({
   // Squelette calé sur la carte compacte : mêmes proportions et mêmes repères
   // (catégorie, avatar centré, nom, rôle, deux compteurs), pour que le passage
   // au contenu réel ne fasse pas sauter la mise en page.
-  if (loading) {
+  //
+  // Il n'apparaît QUE lorsqu'il n'y a rien à montrer. Au changement de filtre,
+  // effacer une grille déjà remplie pour la remplacer par douze rectangles gris
+  // fait paraître l'attente bien plus longue qu'elle ne l'est : on garde les
+  // résultats précédents, estompés, jusqu'à l'arrivée des nouveaux.
+  if (loading && profiles.length === 0) {
     return (
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-4 w-full">
         {Array.from({ length: 12 }).map((_, i) => (
@@ -93,7 +98,7 @@ export function AnnuaireGrid({
     )
   }
 
-  if (profiles.length === 0) {
+  if (!loading && profiles.length === 0) {
     const searchTerm = filters?.search?.trim() || ""
     return (
       <div className="max-w-md mx-auto py-10">
@@ -114,7 +119,12 @@ export function AnnuaireGrid({
   }
 
   return (
-    <div className="space-y-8">
+    <div
+      className={`space-y-8 transition-opacity duration-200 ${
+        loading ? "opacity-50 pointer-events-none" : "opacity-100"
+      }`}
+      aria-busy={loading}
+    >
       {/* Repli lexical actif : les profils affichés sont pertinents, mais l'ordre
           n'est pas celui du moteur de pertinence. On le dit franchement plutôt
           que de laisser croire à un classement fiable. */}
