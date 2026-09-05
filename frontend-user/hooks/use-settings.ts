@@ -49,6 +49,8 @@ export interface UserProfileData {
   district: string | null
   /** Commune administrative choisie explicitement (Bénin). */
   commune_id: string | null
+  /** Mots-clés — aplatis par l'API depuis profile_tags(tags(name)). */
+  tags: string[]
   latitude: number | null
   longitude: number | null
   is_nomad: boolean
@@ -161,6 +163,7 @@ export function useSettings() {
     city: "",
     district: null,
     commune_id: null,
+    tags: [],
     latitude: null,
     longitude: null,
     is_nomad: false,
@@ -216,6 +219,7 @@ export function useSettings() {
           city: data.city || "",
           district: data.district ?? null,
           commune_id: data.commune_id ?? null,
+          tags: Array.isArray(data.tags) ? data.tags : [],
           latitude: data.latitude ?? null,
           longitude: data.longitude ?? null,
           is_nomad: data.is_nomad ?? false,
@@ -250,6 +254,9 @@ export function useSettings() {
         })
         setSecuritySettings({ ...defaultSecuritySettings, ...(data.security_preferences || {}) })
         setLoadingStatus("success")
+        // Le profil rendu par le serveur devient le point de comparaison :
+        // à partir d'ici, tout écart est une modification de l'utilisateur.
+        setProfile((fresh) => { savedSnapshot.current = JSON.stringify(fresh); return fresh })
       } else if (authUser) {
         setProfile(prev => ({
           ...prev,
@@ -300,6 +307,11 @@ export function useSettings() {
       const res = await fetchWithAuth("/api/users/me", { method: "PUT", body: JSON.stringify(profile) })
       if (!isMountedRef.current) return
       if (res.ok) {
+        // Ce qui vient d'être envoyé devient le nouveau repère : sans cela, la
+        // barre « modifications non enregistrées » resterait affichée après un
+        // enregistrement réussi.
+        savedSnapshot.current = JSON.stringify(profile)
+        setProfile((p) => ({ ...p }))
         toast.success("Profil mis à jour !")
       } else {
         const d = await res.json().catch(() => null)
@@ -313,6 +325,11 @@ export function useSettings() {
       }
     }
   }, [profile])
+
+  // Copie figée du profil tel que le serveur l'a rendu. Sans elle, impossible
+  // de dire si l'utilisateur a modifié quoi que ce soit : le seul fait de taper
+  // puis d'effacer laisserait croire à des changements en attente.
+  const savedSnapshot = useRef<string>("")
 
   const handleCancel = useCallback(() => {
     void loadUserProfile()
@@ -373,7 +390,21 @@ export function useSettings() {
     }
   }, [supabase, router])
 
+  // Comparaison structurelle, pas par référence : setProfile recrée l'objet à
+  // chaque frappe, une égalité d'identité serait toujours fausse.
+  const modifiedCount = useMemo(() => {
+    if (!savedSnapshot.current) return 0
+    let base: Record<string, unknown>
+    try { base = JSON.parse(savedSnapshot.current) } catch { return 0 }
+    const current = profile as unknown as Record<string, unknown>
+    return Object.keys(current).filter(
+      (k) => JSON.stringify(current[k]) !== JSON.stringify(base[k]),
+    ).length
+  }, [profile])
+
   return {
+    modifiedCount,
+    isDirty: modifiedCount > 0,
     activeTab,
     setActiveTab,
     loadingStatus,

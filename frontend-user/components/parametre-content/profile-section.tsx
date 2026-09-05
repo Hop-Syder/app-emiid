@@ -33,6 +33,7 @@ import {
   Briefcase,
   Eye,
   Lock,
+  Sparkles,
 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -46,6 +47,7 @@ import { BioSection } from "./bio-section"
 import { LocationSection } from "./location-section"
 import {
   SectionCard,
+  SettingRow,
   SettingToggle,
   Field,
   SegmentedControl,
@@ -80,6 +82,10 @@ export function ProfileSection({
   const [verifyMethod, setVerifyMethod] = useState<"whatsapp" | "sms" | null>(null)
   const [otpCode, setOtpCode] = useState("")
   const [verifying, setVerifying] = useState(false)
+  // Quel bouton (WhatsApp / SMS) est en cours d'envoi. Distinct de
+  // `verifyMethod`, qui signifie « le code est parti, on attend la saisie » :
+  // sans lui, les deux boutons resteraient actifs pendant l'appel réseau.
+  const [sendingMethod, setSendingMethod] = useState<"whatsapp" | "sms" | null>(null)
 
   const up = <K extends keyof UserProfileData>(key: K, value: UserProfileData[K]) =>
     setProfile({ ...profile, [key]: value })

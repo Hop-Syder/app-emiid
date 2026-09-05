@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Sélecteur de pays et de villes intelligent utilisant country-state-city
  * @created 2026-01-05
- * @updated 2026-06-05
+ * @updated 2026-09-06
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
 */
@@ -32,13 +32,34 @@ interface LocationSelectorProps {
     onLocationSelect: (country: { name: string, isoCode: string }, city: string) => void
     defaultCountryCode?: string
     defaultCity?: string
+    /**
+     * Habillage. `wizard` (défaut) : celui de l'assistant de création, inchangé.
+     * `settings` : celui des cartes de paramètres — micro-libellé capitales et
+     *   champ h-11 arrondi sur fond `muted`, pour que le sélecteur ne détonne
+     *   pas au milieu des autres champs de la section.
+     */
+    variant?: "wizard" | "settings"
 }
+
+/** Les deux habillages, au même endroit plutôt qu'en classes passées de l'extérieur. */
+const VARIANTS = {
+    wizard: {
+        label: "",
+        trigger: "h-10 rounded-xl bg-card dark:bg-slate-900 border-muted px-3 font-normal",
+    },
+    settings: {
+        label: "text-[11px] font-bold text-muted-foreground uppercase tracking-wider",
+        trigger: "h-11 rounded-2xl bg-muted/80 border-border px-3.5 text-sm font-medium text-foreground hover:bg-muted/80",
+    },
+} as const
 
 export const LocationSelector = React.memo(function LocationSelector({
     onLocationSelect,
     defaultCountryCode,
-    defaultCity
+    defaultCity,
+    variant = "wizard",
 }: LocationSelectorProps) {
+    const skin = VARIANTS[variant]
     const [selectedCountry, setSelectedCountry] = useState<ICountry | null>(null)
     const [selectedCity, setSelectedCity] = useState<string>("")
     const [cities, setCities] = useState<ICity[]>([])
@@ -96,10 +117,10 @@ export const LocationSelector = React.memo(function LocationSelector({
     }
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className={cn("grid grid-cols-1 gap-4", variant === "wizard" ? "md:grid-cols-2" : "sm:grid-cols-2")}>
             {/* PAYS */}
             <div className="space-y-2">
-                <Label htmlFor="country-select-trigger">Pays</Label>
+                <Label htmlFor="country-select-trigger" className={skin.label}>Pays</Label>
                 <Popover open={countryOpen} onOpenChange={setCountryOpen}>
                     <PopoverTrigger asChild>
                         <Button
@@ -108,7 +129,7 @@ export const LocationSelector = React.memo(function LocationSelector({
                             variant="outline"
                             role="combobox"
                             aria-expanded={countryOpen}
-                            className="h-10 w-full justify-between rounded-xl bg-card dark:bg-slate-900 border-muted px-3 font-normal"
+                            className={cn("w-full justify-between", skin.trigger)}
                         >
                             <span className="truncate text-left">
                                 {selectedCountry ? `${selectedCountry.flag} ${selectedCountry.name}` : "Sélectionner un pays..."}
@@ -168,7 +189,7 @@ export const LocationSelector = React.memo(function LocationSelector({
 
             {/* VILLE */}
             <div className="space-y-2">
-                <Label htmlFor="city-select-trigger">Ville</Label>
+                <Label htmlFor="city-select-trigger" className={skin.label}>Ville</Label>
                 <Popover open={cityOpen} onOpenChange={setCityOpen}>
                     <PopoverTrigger asChild>
                         <Button
@@ -178,7 +199,7 @@ export const LocationSelector = React.memo(function LocationSelector({
                             role="combobox"
                             aria-expanded={cityOpen}
                             disabled={!selectedCountry}
-                            className="h-10 w-full justify-between rounded-xl bg-card dark:bg-slate-900 border-muted px-3 font-normal disabled:opacity-50"
+                            className={cn("w-full justify-between disabled:opacity-50", skin.trigger)}
                         >
                             <span className="truncate text-left">
                                 {selectedCity || (selectedCountry ? "Sélectionner une ville..." : "Choisir un pays d'abord")}
