@@ -1,9 +1,9 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Composant d'upload d'avatar vers Supabase Storage avec support variante luxury profile-card
+ * @description Composant d'upload d'avatar vers Supabase Storage avec support anneau circulaire SVG (%) et design PDF
  * @created 2026-01-05
- * @updated 2026-09-04
+ * @updated 2026-09-05
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -12,7 +12,7 @@
 
 import React, { useState, useEffect, useRef } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { Camera, Loader2, User, Mail, Trash2 } from "lucide-react"
+import { Camera, Loader2, User, Mail, RotateCcw } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
@@ -25,6 +25,7 @@ interface AvatarUploadProps {
     disabled?: boolean
     onDelete?: () => void
     email?: string | null
+    fullName?: string | null
     variant?: "default" | "profile-card"
     className?: string
 }
@@ -35,10 +36,12 @@ export const AvatarUpload = React.memo(function AvatarUpload({
     disabled,
     onDelete,
     email,
+    fullName,
     variant = "default",
     className,
 }: AvatarUploadProps) {
     const [uploading, setUploading] = useState(false)
+    const [uploadProgress, setUploadProgress] = useState(0)
     const [preview, setPreview] = useState<string | null>(currentAvatarUrl || "/profil/avatar.jpg")
     const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -66,7 +69,7 @@ export const AvatarUpload = React.memo(function AvatarUpload({
             return "Espace de stockage introuvable. Contactez le support."
         }
         if (msg.includes("payload too large") || msg.includes("entity too large") || msg.includes("413")) {
-            return "L'image dépasse la taille autorisée par le serveur (Max 2MB)."
+            return "L'image dépasse la taille autorisée par le serveur (Max 5 Mo)."
         }
         if (msg.includes("network") || msg.includes("fetch") || msg.includes("failed to fetch")) {
             return "Connexion instable : l'envoi a échoué. Vérifiez votre réseau puis réessayez."
@@ -79,6 +82,8 @@ export const AvatarUpload = React.memo(function AvatarUpload({
 
     const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const input = event.target
+        let progressInterval: NodeJS.Timeout | null = null
+
         try {
             if (!input.files || input.files.length === 0) {
                 return
@@ -88,17 +93,26 @@ export const AvatarUpload = React.memo(function AvatarUpload({
 
             // Validation : image uniquement
             if (!file.type.startsWith("image/")) {
-                toast.error("Veuillez sélectionner une image valide.")
+                toast.error("Veuillez sélectionner une image valide (JPG, PNG ou WebP).")
                 return
             }
 
-            // Validation : Taille Max 2MB
-            if (file.size > 2 * 1024 * 1024) {
-                toast.error("L'image est trop lourde (Max 2MB) !")
+            // Validation : Taille Max 5 Mo (Spécification PDF)
+            if (file.size > 5 * 1024 * 1024) {
+                toast.error("L'image est trop volumineuse (5 Mo maximum) !")
                 return
             }
 
             setUploading(true)
+            setUploadProgress(15)
+
+            // Animation fluide de la progression
+            progressInterval = setInterval(() => {
+                setUploadProgress((prev) => {
+                    if (prev >= 90) return prev
+                    return prev + Math.floor(Math.random() * 15) + 5
+                })
+            }, 200)
 
             // Session requise : le chemin d'upload est scopé au dossier de l'utilisateur
             const { data: { session } } = await supabase.auth.getSession()
@@ -107,7 +121,7 @@ export const AvatarUpload = React.memo(function AvatarUpload({
                 return
             }
 
-            // Extension dérivée du type MIME (le nom de fichier n'est pas fiable)
+            // Extension dérivée du type MIME
             const extByMime: Record<string, string> = {
                 "image/jpeg": "jpg", "image/png": "png", "image/gif": "gif", "image/webp": "webp",
             }
@@ -134,16 +148,20 @@ export const AvatarUpload = React.memo(function AvatarUpload({
                 .from("avatars")
                 .getPublicUrl(filePath)
 
+            setUploadProgress(100)
             setPreview(publicUrl)
             onUploadComplete(publicUrl)
-            toast.success("Photo de profil mise à jour avec succès !")
+            toast.success("Photo de profil mise à jour !")
 
         } catch (error: unknown) {
             console.error("Erreur upload:", error)
             toast.error(uploadErrorMessage(error))
         } finally {
-            setUploading(false)
-            // Permet de re-sélectionner le même fichier après un échec
+            if (progressInterval) clearInterval(progressInterval)
+            setTimeout(() => {
+                setUploading(false)
+                setUploadProgress(0)
+            }, 300)
             input.value = ""
         }
     }
@@ -155,15 +173,25 @@ export const AvatarUpload = React.memo(function AvatarUpload({
     )
 
     /* ═════════════════════════════════════════════════════════════════════════
-       VARIANTE 1 : PROFILE-CARD (Paramètres Profil — Luxury Bento & Glass)
+       VARIANTE 1 : PROFILE-CARD (Paramètres Profil — PDF Design & Luxury)
        ═════════════════════════════════════════════════════════════════════════ */
     if (variant === "profile-card") {
+        const circumference = 2 * Math.PI * 44 // r = 44 => ~276.46
+        const strokeDashoffset = circumference - (circumference * uploadProgress) / 100
+
         return (
             <div className={cn("flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left", className)}>
-                {/* Cadre Avatar avec anneau Luxury & déclencheur Caméra */}
+                {/* Cadre Avatar avec gestion anneau éteint ou progression circulaire SVG */}
                 <div className="relative group shrink-0">
-                    <div className="relative p-1 rounded-full bg-gradient-to-tr from-[#013ff4]/20 via-transparent to-[#03b3f8]/25 ring-1 ring-black/5 dark:ring-white/10 shadow-[0_8px_25px_rgba(1,63,244,0.14)]">
-                        <Avatar className="h-24 w-24 sm:h-26 sm:w-26 border-2 border-white dark:border-slate-800 shadow-inner">
+                    <div
+                        className={cn(
+                            "relative p-1 rounded-full transition-all duration-300",
+                            hasCustomPhoto
+                                ? "ring-2 ring-[#0150fd]/30 shadow-[0_8px_25px_rgba(1,80,253,0.15)]"
+                                : "ring-1 ring-border/80 shadow-xs" // Anneau éteint conforme PDF Page 3
+                        )}
+                    >
+                        <Avatar className="h-24 w-24 sm:h-28 sm:w-28 border-2 border-white dark:border-slate-800 shadow-inner">
                             <AvatarImage
                                 src={getOptimizedImageUrl(preview || "/profil/avatar.jpg", { width: 256, height: 256 })}
                                 alt="Photo de profil"
@@ -174,44 +202,67 @@ export const AvatarUpload = React.memo(function AvatarUpload({
                             </AvatarFallback>
                         </Avatar>
 
-                        {/* Overlay au survol */}
-                        <button
-                            type="button"
-                            onClick={triggerFileInput}
-                            disabled={uploading || disabled}
-                            aria-label="Changer la photo de profil"
-                            className={cn(
-                                "absolute inset-1 flex items-center justify-center bg-black/40 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer",
-                                uploading && "opacity-100 cursor-wait",
-                                disabled && "cursor-not-allowed hidden"
-                            )}
-                        >
-                            {uploading ? (
-                                <Loader2 className="h-7 w-7 animate-spin" />
-                            ) : (
+                        {/* Anneau circulaire SVG de progression pendant l'upload (PDF Page 3) */}
+                        {uploading ? (
+                            <div className="absolute inset-0 rounded-full bg-black/60 backdrop-blur-[2px] flex items-center justify-center z-20">
+                                <svg className="w-full h-full -rotate-90 p-1" viewBox="0 0 100 100">
+                                    <circle
+                                        cx="50"
+                                        cy="50"
+                                        r="44"
+                                        stroke="rgba(255, 255, 255, 0.2)"
+                                        strokeWidth="6"
+                                        fill="transparent"
+                                    />
+                                    <circle
+                                        cx="50"
+                                        cy="50"
+                                        r="44"
+                                        stroke="#0150fd"
+                                        strokeWidth="6"
+                                        strokeDasharray={circumference}
+                                        strokeDashoffset={strokeDashoffset}
+                                        strokeLinecap="round"
+                                        fill="transparent"
+                                        className="transition-all duration-200 ease-linear"
+                                    />
+                                </svg>
+                                <span className="absolute inset-0 flex items-center justify-center font-black text-sm text-white tracking-wider">
+                                    {uploadProgress}%
+                                </span>
+                            </div>
+                        ) : (
+                            /* Overlay au survol */
+                            <button
+                                type="button"
+                                onClick={triggerFileInput}
+                                disabled={uploading || disabled}
+                                aria-label="Changer la photo de profil"
+                                className={cn(
+                                    "absolute inset-1 flex items-center justify-center bg-black/40 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer",
+                                    disabled && "cursor-not-allowed hidden"
+                                )}
+                            >
                                 <Camera className="h-7 w-7" />
-                            )}
-                        </button>
+                            </button>
+                        )}
 
                         {/* Badge Caméra flottant en bas à droite */}
-                        <button
-                            type="button"
-                            onClick={triggerFileInput}
-                            disabled={uploading || disabled}
-                            aria-label="Changer la photo"
-                            className={cn(
-                                "absolute bottom-0 right-0 p-2 rounded-full shadow-md border-2 border-white dark:border-slate-900 transition-all duration-200 cursor-pointer",
-                                "bg-[#013ff4] text-white hover:bg-[#013ff4]/90 hover:scale-110 active:scale-95",
-                                uploading && "opacity-80 cursor-wait",
-                                disabled && "cursor-not-allowed opacity-50"
-                            )}
-                        >
-                            {uploading ? (
-                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                            ) : (
+                        {!uploading && (
+                            <button
+                                type="button"
+                                onClick={triggerFileInput}
+                                disabled={disabled}
+                                aria-label="Changer la photo"
+                                className={cn(
+                                    "absolute bottom-0 right-0 p-2 rounded-full shadow-md border-2 border-white dark:border-slate-900 transition-all duration-200 cursor-pointer",
+                                    "bg-[#0150fd] text-white hover:bg-[#003ec7] hover:scale-110 active:scale-95",
+                                    disabled && "cursor-not-allowed opacity-50"
+                                )}
+                            >
                                 <Camera className="h-3.5 w-3.5" />
-                            )}
-                        </button>
+                            </button>
+                        )}
                     </div>
 
                     <input
@@ -219,36 +270,40 @@ export const AvatarUpload = React.memo(function AvatarUpload({
                         id="avatar-input"
                         name="avatar_file"
                         type="file"
-                        accept="image/jpeg,image/png,image/webp,image/gif"
+                        accept="image/jpeg,image/png,image/webp"
                         onChange={handleFileChange}
                         disabled={uploading || disabled}
                         style={{ display: "none" }}
                     />
                 </div>
 
-                {/* Colonne informations & actions — Uniquement l'email, aucun nom */}
+                {/* Informations utilisateur & Actions */}
                 <div className="min-w-0 flex-1 space-y-2.5">
+                    {/* Nom complet si disponible */}
+                    {fullName && (
+                        <p className="text-base sm:text-lg font-black text-foreground truncate leading-tight">
+                            {fullName}
+                        </p>
+                    )}
+
                     {/* Badge Email exclusif */}
                     {email && (
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100/90 dark:bg-slate-800/70 border border-slate-200/70 dark:border-slate-700/60 max-w-full">
-                            <Mail className="w-3.5 h-3.5 text-[#013ff4] shrink-0" />
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100/90 dark:bg-slate-800/80 border border-slate-200/70 dark:border-slate-700/60 max-w-full">
+                            <Mail className="w-3.5 h-3.5 text-[#0150fd] shrink-0" />
                             <span className="text-xs font-semibold text-foreground truncate">{email}</span>
                         </div>
                     )}
 
-                    {/* Groupe d'actions : Changer + Supprimer */}
+                    {/* Actions : Changer la photo (bleu) + Réinitialiser (neutre) */}
                     <div className="flex items-center justify-center sm:justify-start gap-2.5 pt-0.5">
                         <Button
                             type="button"
                             onClick={triggerFileInput}
                             disabled={uploading || disabled}
-                            className="h-9 px-4 rounded-xl bg-[#013ff4] hover:bg-[#013ff4]/90 text-white font-bold text-xs shadow-sm shadow-blue-500/20 active:scale-95 transition-all"
+                            className="h-9 px-4 rounded-xl bg-[#0150fd] hover:bg-[#003ec7] text-white font-bold text-xs shadow-sm shadow-blue-500/20 active:scale-95 transition-all cursor-pointer"
                         >
-                            {uploading ? (
-                                <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> Envoi en cours...</>
-                            ) : (
-                                <><Camera className="w-3.5 h-3.5 mr-1.5" /> Changer la photo</>
-                            )}
+                            <Camera className="w-3.5 h-3.5 mr-1.5" />
+                            Changer la photo
                         </Button>
 
                         {hasCustomPhoto && onDelete && (
@@ -257,17 +312,17 @@ export const AvatarUpload = React.memo(function AvatarUpload({
                                 variant="outline"
                                 onClick={onDelete}
                                 disabled={uploading || disabled}
-                                className="h-9 px-3 rounded-xl border-border/80 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/30 text-muted-foreground font-semibold text-xs active:scale-95 transition-all"
+                                className="h-9 px-3.5 rounded-xl border-border hover:bg-muted text-muted-foreground font-semibold text-xs active:scale-95 transition-all cursor-pointer"
                             >
-                                <Trash2 className="w-3.5 h-3.5 mr-1.5" />
-                                Supprimer
+                                <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
+                                Réinitialiser
                             </Button>
                         )}
                     </div>
 
-                    {/* Mention technique */}
+                    {/* Mention technique exacte du PDF */}
                     <p className="text-[11px] text-muted-foreground/80 font-medium">
-                        JPG, PNG ou WEBP · Max 2 Mo · Format carré recommandé
+                        JPG, PNG ou WebP. 5 Mo maximum.
                     </p>
                 </div>
             </div>
@@ -275,7 +330,7 @@ export const AvatarUpload = React.memo(function AvatarUpload({
     }
 
     /* ═════════════════════════════════════════════════════════════════════════
-       VARIANTE 2 : DEFAULT (Rétrocompatibilité Wizard & Formulaires)
+       VARIANTE 2 : DEFAULT (Rétrocompatibilité)
        ═════════════════════════════════════════════════════════════════════════ */
     return (
         <div className={cn("flex items-center gap-6", className)}>
@@ -329,7 +384,7 @@ export const AvatarUpload = React.memo(function AvatarUpload({
                     {uploading ? "Chargement..." : "Changer la photo"}
                 </Button>
                 <p className="text-xs text-muted-foreground">
-                    JPG, PNG ou GIF. Max 2MB.
+                    JPG, PNG ou WebP. 5 Mo maximum.
                 </p>
             </div>
         </div>

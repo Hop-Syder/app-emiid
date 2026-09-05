@@ -70,6 +70,8 @@ export function ParametresContent() {
     handleCancel,
     saveSettings,
     handleLogout,
+    modifiedCount,
+    isDirty,
   } = useSettings()
 
   // Navigation mobile à deux écrans : null = Écran 1 (Liste), TabId = Écran 2 (Rubrique)
@@ -129,6 +131,7 @@ export function ParametresContent() {
         saving={saving}
         handleSave={handleSave}
         handleCancel={handleCancel}
+        modifiedCount={modifiedCount}
       />
     ),
     reseaux:      <SocialLinksSection profile={profile} setProfile={setProfile} saving={saving} handleSave={handleSave} handleCancel={handleCancel} />,
@@ -271,26 +274,36 @@ export function ParametresContent() {
                 transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
                 className="space-y-4 pb-8"
               >
-                {/* Barre de retour sticky en haut */}
-                <div className="sticky top-0 z-30 bg-muted/95 backdrop-blur-md border-b border-border/80 -mx-4 px-4 py-3 sm:-mx-6 sm:px-6 flex items-center justify-between gap-3 shadow-xs">
+                {/* Barre de retour sticky en haut conforme au PDF Page 2 */}
+                <div className="sticky top-0 z-30 bg-card/95 backdrop-blur-md border-b border-border/80 -mx-4 px-4 py-2.5 sm:-mx-6 sm:px-6 flex items-center justify-between gap-2 shadow-xs">
                   <button
                     onClick={closeMobileTab}
                     className="inline-flex items-center gap-1 text-sm font-bold text-foreground hover:text-foreground active:scale-95 transition-all"
                   >
-                    <ChevronLeft className="w-5 h-5 text-[#013ff4] -ml-1" />
+                    <ChevronLeft className="w-5 h-5 text-[#0150fd] -ml-1" />
                     <span>Retour</span>
                   </button>
 
-                  <div className="flex items-center gap-2 min-w-0">
-                    {currentMobileConfig && (
-                      <span className={`w-2 h-2 rounded-full ${currentMobileConfig.color.replace("text-", "bg-")}`} />
-                    )}
+                  <div className="flex flex-col items-center min-w-0 flex-1 text-center">
                     <h2 className="text-sm sm:text-base font-extrabold text-foreground truncate">
                       {currentMobileConfig?.label}
                     </h2>
+                    {isDirty && (
+                      <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 leading-none mt-0.5">
+                        {modifiedCount} non enregistrée{modifiedCount > 1 ? "s" : ""}
+                      </span>
+                    )}
                   </div>
 
-                  <div className="w-12 shrink-0" aria-hidden />
+                  {/* Bouton rapide Enregistrer en haut à droite (PDF Page 2) */}
+                  <button
+                    type="button"
+                    onClick={handleSave}
+                    disabled={!isDirty || saving}
+                    className="h-8 px-3.5 rounded-xl bg-[#0150fd] hover:bg-[#003ec7] text-white font-bold text-xs shadow-sm active:scale-95 transition-all shrink-0 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    {saving ? "..." : "Enregistrer"}
+                  </button>
                 </div>
 
                 {/* Contenu de la rubrique */}
@@ -379,14 +392,28 @@ export function ParametresContent() {
 
           {/* Main content */}
           <div className="min-w-0">
-            {/* Desktop section title */}
-            <div className="mb-6">
-              <h1 className="text-xl font-black text-foreground tracking-tight">
-                {TABS.find(t => t.id === activeTab)?.label}
-              </h1>
-              <p className="text-sm text-muted-foreground mt-0.5">
-                {TABS.find(t => t.id === activeTab)?.desc}
-              </p>
+            {/* Desktop section title & indicator conforme au PDF Page 1 */}
+            <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h1 className="text-2xl font-black text-foreground tracking-tight">
+                  {TABS.find(t => t.id === activeTab)?.label}
+                </h1>
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  {activeTab === "profil"
+                    ? "Gérez votre identité publique, votre localisation et vos coordonnées visibles sur la plateforme."
+                    : TABS.find(t => t.id === activeTab)?.desc}
+                </p>
+              </div>
+
+              {/* Indicateur de modifications non enregistrées Desktop (PDF Page 1) */}
+              {isDirty && (
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/60 text-amber-800 dark:text-amber-200 text-xs font-bold shrink-0 self-start sm:self-auto animate-in fade-in duration-150">
+                  <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                  <span>
+                    {modifiedCount} modification{modifiedCount > 1 ? "s" : ""} non enregistrée{modifiedCount > 1 ? "s" : ""}
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Section content with animation */}

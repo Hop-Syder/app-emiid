@@ -19,7 +19,7 @@
 
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import Image from "next/image"
 import {
   Mail,
@@ -40,17 +40,21 @@ import { AvatarUpload } from "@/components/AvatarUpload"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { toast } from "sonner"
 import { PROFILE_CATEGORIES, ACTIVITY_DOMAINS } from "@/lib/profile-options"
+import { BENIN_DEPARTMENTS, getCommunesByDepartmentId } from "@/lib/benin-geo"
 import type { UserProfileData } from "@/hooks/use-settings"
 import { BioSection } from "./bio-section"
 import { LocationSection } from "./location-section"
 import {
   SectionCard,
-  SettingRow,
   SettingToggle,
   Field,
-  SaveBar,
+  SegmentedControl,
+  SlugInput,
+  TagsInput,
+  StickySaveBar,
   INPUT,
   SELECT,
+  TEXTAREA,
 } from "./settings-primitives"
 
 interface ProfileSectionProps {
@@ -60,6 +64,7 @@ interface ProfileSectionProps {
   handleSave: () => void
   handleCancel: () => void
   hideActions?: boolean
+  modifiedCount?: number
 }
 
 export function ProfileSection({
@@ -69,19 +74,22 @@ export function ProfileSection({
   handleSave,
   handleCancel,
   hideActions = false,
+  modifiedCount = 0,
 }: ProfileSectionProps) {
+  // États de vérification du téléphone (3 états : Non certifié / Code envoyé / Certifié)
   const [verifyMethod, setVerifyMethod] = useState<"whatsapp" | "sms" | null>(null)
   const [otpCode, setOtpCode] = useState("")
   const [verifying, setVerifying] = useState(false)
 
-  const up = (key: keyof UserProfileData, value: string | boolean | number | null) =>
+  const up = <K extends keyof UserProfileData>(key: K, value: UserProfileData[K]) =>
     setProfile({ ...profile, [key]: value })
 
   const handleVerifyRequest = async (method: "whatsapp" | "sms") => {
-    if (!profile.phone) {
-      toast.error("Saisissez votre numéro d'abord")
+    if (!profile.phone || profile.phone.trim().length < 6) {
+      toast.error("Veuillez d'abord renseigner un numéro de téléphone valide.")
       return
     }
+    setSendingMethod(method)
     try {
       const res = await fetchWithAuth("/api/users/phone/request", {
         method: "POST",
@@ -89,18 +97,23 @@ export function ProfileSection({
       })
       if (res.ok) {
         setVerifyMethod(method)
-        toast.success(`Code envoyé par ${method}`)
+        toast.success(`Code de vérification envoyé par ${method === "whatsapp" ? "WhatsApp" : "SMS"} !`)
       } else {
-        const e = await res.json()
-        toast.error(e.error || "Erreur lors de l'envoi")
+        const e = await res.json().catch(() => null)
+        toast.error(e?.error || "Erreur lors de l'envoi du code")
       }
     } catch {
-      toast.error("Erreur de connexion")
+      toast.error("Erreur de connexion avec le serveur")
+    } finally {
+      setSendingMethod(null)
     }
   }
 
   const handleVerifySubmit = async () => {
-    if (otpCode.length < 6) return
+    if (otpCode.length < 6) {
+      toast.error("Veuillez saisir le code à 6 chiffres.")
+      return
+    }
     setVerifying(true)
     try {
       const res = await fetchWithAuth("/api/users/phone/verify", {
@@ -111,21 +124,28 @@ export function ProfileSection({
         setProfile({ ...profile, phone_verified: true })
         setVerifyMethod(null)
         setOtpCode("")
-        toast.success("Téléphone vérifié !")
+        toast.success("Numéro de téléphone vérifié et certifié !")
       } else {
-        const e = await res.json()
-        toast.error(e.error || "Code incorrect ou expiré")
+        const e = await res.json().catch(() => null)
+        toast.error(e?.error || "Code incorrect ou expiré")
       }
     } catch {
-      toast.error("Erreur technique")
+      toast.error("Erreur technique lors de la validation")
     } finally {
       setVerifying(false)
     }
   }
 
+  const sloganLen = (profile.slogan || "").length
+  const bioLen = (profile.bio || "").length
+  const tagsList = Array.isArray(profile.tags) ? profile.tags : []
+
   return (
-    <div className="space-y-4">
-      {/* ── Photo de profil ─────────────────────────────────────────────── */}
+    <div className="space-y-6 pb-6">
+
+      {/* ═════════════════════════════════════════════════════════════════════
+          CARTE 1 : PHOTO DE PROFIL (PDF Page 1)
+          ═════════════════════════════════════════════════════════════════════ */}
       <SectionCard title="Photo de profil" icon={User}>
         <AvatarUpload
           variant="profile-card"
@@ -133,35 +153,38 @@ export function ProfileSection({
           email={profile.email}
           onUploadComplete={(url: string) => up("avatar_url", url)}
           onDelete={() => {
-            up("avatar_url", null)
+            up("avatar_url", "/profil/avatar.jpg")
             toast.success("Photo de profil réinitialisée")
           }}
         />
       </SectionCard>
 
-      {/* ── Identité personnelle ────────────────────────────────────────── */}
+      {/* ═════════════════════════════════════════════════════════════════════
+          CARTE 2 : INFORMATIONS PERSONNELLES (PDF Page 1 & 2)
+          ═════════════════════════════════════════════════════════════════════ */}
       <SectionCard title="Informations personnelles" icon={User}>
+        {/* Prénom & Nom */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="Prénom">
             <Input
-              id="prenom"
-              name="given-name"
+              id="first_name"
+              name="first_name"
               autoComplete="given-name"
               value={profile.first_name || ""}
               onChange={(e) => up("first_name", e.target.value)}
               className={INPUT}
-              placeholder="Votre prénom"
+              placeholder="Ex: Christian"
             />
           </Field>
           <Field label="Nom">
             <Input
-              id="nom"
-              name="family-name"
+              id="last_name"
+              name="last_name"
               autoComplete="family-name"
               value={profile.last_name || ""}
               onChange={(e) => up("last_name", e.target.value)}
               className={INPUT}
-              placeholder="Votre nom"
+              placeholder="Ex: Daouda"
             />
           </Field>
         </div>
@@ -183,22 +206,88 @@ export function ProfileSection({
           était jusque-là réduite à deux champs de coordonnées. */}
       <LocationSection profile={profile} setProfile={setProfile} />
 
-      {/* ── Profil professionnel ────────────────────────────────────────── */}
+      {/* ═════════════════════════════════════════════════════════════════════
+          CARTE 4 : À PROPOS (PDF Page 1)
+          ═════════════════════════════════════════════════════════════════════ */}
+      <SectionCard
+        title="À propos"
+        icon={Sparkles}
+        description="Présentez votre proposition de valeur, votre philosophie et vos points forts."
+      >
+        <div className="space-y-4">
+          <Field
+            label="Slogan / Phrase d'accroche"
+            counter={`${sloganLen}/160`}
+            hint="Courte phrase percutante visible sous votre nom sur votre profil et dans l'annuaire."
+          >
+            <Input
+              value={profile.slogan || ""}
+              onChange={(e) => up("slogan", e.target.value)}
+              className={INPUT}
+              maxLength={160}
+              placeholder="Ex : L'excellence artisanale au service de vos projets durables"
+            />
+          </Field>
+
+          <Field
+            label="Bio / Description détaillée"
+            counter={`${bioLen}/1000`}
+            hint="Détaillez vos prestations, vos réalisations passées et vos engagements qualité."
+          >
+            <textarea
+              value={profile.bio || ""}
+              onChange={(e) => up("bio", e.target.value)}
+              rows={5}
+              maxLength={1000}
+              className={TEXTAREA}
+              placeholder="Partagez votre histoire professionnelle, votre parcours et vos expertises clés..."
+            />
+          </Field>
+        </div>
+      </SectionCard>
+
+      {/* ═════════════════════════════════════════════════════════════════════
+          CARTE 5 : PROFIL PROFESSIONNEL (PDF Page 1)
+          ═════════════════════════════════════════════════════════════════════ */}
       <SectionCard title="Profil professionnel" icon={Briefcase}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Field label="Catégorie de profil">
+          <Field label="Métier / Titre professionnel">
+            <Input
+              id="role"
+              name="role"
+              value={profile.role || ""}
+              onChange={(e) => up("role", e.target.value)}
+              className={INPUT}
+              placeholder="Ex: Ébéniste d'art, Développeur Web"
+            />
+          </Field>
+
+          <Field label="Années d'expérience professionnelle">
+            <Input
+              type="number"
+              min={0}
+              max={70}
+              value={profile.years_experience ?? ""}
+              onChange={(e) => up("years_experience", e.target.value === "" ? null : Number(e.target.value))}
+              className={INPUT}
+              placeholder="Ex : 7"
+            />
+          </Field>
+
+          <Field label="Catégorie de profil EmiID">
             <select
               id="category"
               value={profile.category || ""}
               onChange={(e) => up("category", e.target.value)}
               className={SELECT}
             >
-              <option value="" disabled>Choisir un type...</option>
+              <option value="" disabled>Sélectionner une catégorie...</option>
               {PROFILE_CATEGORIES.map((opt) => (
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
               ))}
             </select>
           </Field>
+
           <Field label="Secteur d'activité">
             <select
               id="activity_domain"
@@ -206,26 +295,35 @@ export function ProfileSection({
               onChange={(e) => up("activity_domain", e.target.value)}
               className={SELECT}
             >
-              <option value="" disabled>Choisir un secteur...</option>
+              <option value="" disabled>Sélectionner un secteur...</option>
               {ACTIVITY_DOMAINS.map((opt) => (
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
               ))}
             </select>
           </Field>
-          <Field label="Rôle / Titre officiel">
-            <Input
-              value={profile.role || ""}
-              onChange={(e) => up("role", e.target.value)}
-              className={INPUT}
-              placeholder="Ex: Directeur Général, Maître Artisan"
-            />
-          </Field>
-          <Field label="Spécialité principale">
-            <Input
-              value={profile.specialty || ""}
-              onChange={(e) => up("specialty", e.target.value)}
-              className={INPUT}
-              placeholder="Ex: Ébénisterie fine, Électricité industrielle"
+        </div>
+
+        <Field label="Spécialité principale" className="pt-1">
+          <Input
+            value={profile.specialty || ""}
+            onChange={(e) => up("specialty", e.target.value)}
+            className={INPUT}
+            placeholder="Ex: Menuiserie aluminium sur mesure, Domotique"
+          />
+        </Field>
+
+        {/* Mots-clés avec limite 8 (PDF Page 1) */}
+        <div className="pt-1">
+          <Field
+            label="Mots-clés / Compétences clés"
+            counter={`${tagsList.length}/8`}
+            hint="Ajoutez jusqu'à 8 mots-clés pour optimiser votre référencement dans le moteur de recherche."
+          >
+            <TagsInput
+              tags={tagsList}
+              maxTags={8}
+              onChange={(newTags) => up("tags", newTags)}
+              placeholder="Ajouter un mot-clé (ex: Sur-mesure)..."
             />
           </Field>
           {/* Rapatrié depuis « Informations personnelles » : un nom d'atelier
@@ -244,75 +342,91 @@ export function ProfileSection({
         </div>
       </SectionCard>
 
-      {/* ── Coordonnées & vérification directe ──────────────────────────── */}
+      {/* ═════════════════════════════════════════════════════════════════════
+          CARTE 6 : COORDONNÉES & SÉCURITÉ CONTACT (PDF Page 1 & 3)
+          ═════════════════════════════════════════════════════════════════════ */}
       <SectionCard title="Coordonnées & Sécurité contact" icon={Smartphone}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Email principal (verrouillé) */}
           <Field label="Adresse email principale">
             <div className="relative">
               <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input
                 id="email"
                 name="email"
-                autoComplete="email"
                 type="email"
                 value={profile.email || ""}
-                className={`${INPUT} pl-10 pr-9`}
                 disabled
+                className={`${INPUT} pl-10 pr-9`}
               />
               <Lock className="absolute right-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
             </div>
           </Field>
 
+          {/* Téléphone avec statut CERTIFIÉ (PDF Page 3) */}
           <Field label="Numéro de téléphone principal">
             <div className="relative">
               <Smartphone className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input
-                id="telephone"
-                name="tel"
-                autoComplete="tel"
+                id="phone"
+                name="phone"
                 type="tel"
                 value={profile.phone || ""}
-                onChange={(e) => up("phone", e.target.value)}
-                className={`${INPUT} pl-10`}
+                onChange={(e) => {
+                  up("phone", e.target.value)
+                  if (profile.phone_verified) up("phone_verified", false)
+                }}
+                className={`${INPUT} pl-10 pr-24`}
                 placeholder="+229 01XXXXXXXX"
               />
+              {/* Badge CERTIFIÉ vert intégré dans le champ */}
+              {profile.phone_verified && (
+                <div className="absolute right-2.5 top-1/2 -translate-y-1/2">
+                  <span className="inline-flex items-center gap-1 bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border border-emerald-300/80">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                    Certifié
+                  </span>
+                </div>
+              )}
             </div>
           </Field>
         </div>
 
-        {/* Validation SMS / WhatsApp si téléphone renseigné */}
-        {profile.phone && profile.phone.length > 5 && (
-          <div className="pt-2 border-t border-border">
-            {profile.phone_verified ? (
-              <div className="flex items-center gap-2.5 text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 w-fit px-3.5 py-2 rounded-2xl border border-emerald-200 dark:border-emerald-800/50 text-xs sm:text-sm font-bold shadow-xs">
-                <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
-                <span>Numéro certifié et protégé</span>
-              </div>
-            ) : verifyMethod ? (
-              <div className="p-4.5 bg-[#013ff4]/5 border border-[#013ff4]/20 rounded-3xl space-y-3">
-                <div>
-                  <p className="text-sm font-bold text-[#013ff4]">Code de confirmation envoyé</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Saisissez le code à 6 chiffres reçu sur <strong>{profile.phone}</strong>.
-                  </p>
+        {/* ── Gestion des 3 états téléphone (PDF Page 3) ───────────────── */}
+        {!profile.phone_verified && profile.phone && profile.phone.length > 5 && (
+          <div className="pt-2">
+            {verifyMethod ? (
+              /* ÉTAT B : Code envoyé (Encart bleu) */
+              <div className="p-4 bg-blue-50/90 dark:bg-blue-950/40 border border-blue-200/90 dark:border-blue-800/60 rounded-2xl space-y-3 animate-in fade-in duration-200">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <p className="text-xs sm:text-sm font-black text-[#0150fd]">
+                      Code de confirmation envoyé par {verifyMethod === "whatsapp" ? "WhatsApp" : "SMS"}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Saisissez le code à 6 chiffres reçu sur <strong className="text-foreground">{profile.phone}</strong>.
+                    </p>
+                  </div>
                 </div>
-                <div className="flex flex-col sm:flex-row gap-2.5">
+
+                <div className="flex flex-col sm:flex-row items-center gap-2.5">
                   <Input
-                    id="phone-verification-code"
-                    name="phone_verification_code"
-                    autoComplete="one-time-code"
+                    id="otpCode"
                     value={otpCode}
-                    onChange={(e) => setOtpCode(e.target.value.replace(/[^0-9]/g, ""))}
+                    onChange={(e) => setOtpCode(e.target.value.replace(/[^0-9]/g, "").slice(0, 6))}
                     placeholder="000000"
                     maxLength={6}
-                    className="h-11 text-center text-xl tracking-[0.4em] font-black rounded-2xl border-[#013ff4]/30 bg-card flex-1"
+                    className="h-11 text-center font-mono text-lg tracking-[0.3em] font-black rounded-xl border-[#0150fd]/40 bg-card w-full sm:w-48"
                   />
-                  <div className="flex gap-2 shrink-0">
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
                     <Button
                       type="button"
                       variant="ghost"
-                      onClick={() => { setVerifyMethod(null); setOtpCode("") }}
-                      className="h-11 px-4 rounded-2xl text-muted-foreground hover:bg-card"
+                      onClick={() => {
+                        setVerifyMethod(null)
+                        setOtpCode("")
+                      }}
+                      className="h-11 px-4 rounded-xl text-muted-foreground hover:bg-card flex-1 sm:flex-initial"
                     >
                       Annuler
                     </Button>
@@ -320,38 +434,56 @@ export function ProfileSection({
                       type="button"
                       onClick={handleVerifySubmit}
                       disabled={otpCode.length < 6 || verifying}
-                      className="h-11 px-5 rounded-2xl bg-[#013ff4] hover:bg-[#033a7a] text-white font-bold shadow-sm"
+                      className="h-11 px-5 rounded-xl bg-[#0150fd] hover:bg-[#003ec7] text-white font-bold shadow-sm flex-1 sm:flex-initial"
                     >
-                      {verifying ? <Loader2 className="h-4 w-4 animate-spin" /> : "Confirmer"}
+                      {verifying ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : null}
+                      Confirmer
                     </Button>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="p-4 bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/50 rounded-3xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              /* ÉTAT A : Non certifié (Encart ambré avec WhatsApp et SMS) */
+              <div className="p-4 bg-amber-50/90 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/60 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-start gap-3">
                   <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-sm font-bold text-amber-900 dark:text-amber-300">Numéro non certifié</p>
-                    <p className="text-xs text-amber-700/90 dark:text-amber-300 mt-0.5">Recevez vos notifications et sécurisez votre accès.</p>
+                    <p className="text-xs sm:text-sm font-black text-amber-900 dark:text-amber-200">
+                      Numéro non certifié
+                    </p>
+                    <p className="text-xs text-amber-800/80 dark:text-amber-300 mt-0.5">
+                      La certification renforce la confiance des clients et débloque le badge de vérification.
+                    </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
+
+                <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
                   <button
                     type="button"
                     onClick={() => handleVerifyRequest("whatsapp")}
-                    className="flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-2xl bg-card border border-emerald-300 dark:border-emerald-700/50 text-emerald-800 dark:text-emerald-300 text-xs font-bold hover:bg-emerald-50 active:scale-95 transition-all shadow-xs"
+                    disabled={sendingMethod !== null}
+                    className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs active:scale-95 transition-all cursor-pointer disabled:opacity-60"
                   >
-                    <Image src="/svg/whatsapp-logo.svg" width={14} height={14} alt="WhatsApp" />
-                    WhatsApp
+                    {sendingMethod === "whatsapp" ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Image src="/svg/whatsapp-logo.svg" width={14} height={14} alt="WhatsApp" className="brightness-200" />
+                    )}
+                    <span>WhatsApp</span>
                   </button>
+
                   <button
                     type="button"
                     onClick={() => handleVerifyRequest("sms")}
-                    className="flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-2xl bg-card border border-blue-300 dark:border-blue-700/50 text-blue-800 dark:text-blue-300 text-xs font-bold hover:bg-blue-50 active:scale-95 transition-all shadow-xs"
+                    disabled={sendingMethod !== null}
+                    className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0150fd] hover:bg-[#003ec7] text-white text-xs font-bold shadow-xs active:scale-95 transition-all cursor-pointer disabled:opacity-60"
                   >
-                    <MessageSquare className="h-3.5 w-3.5 text-blue-600" />
-                    SMS
+                    {sendingMethod === "sms" ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <MessageSquare className="w-3.5 h-3.5" />
+                    )}
+                    <span>SMS</span>
                   </button>
                 </div>
               </div>
@@ -412,8 +544,14 @@ export function ProfileSection({
 
       {/* ── Barre d'enregistrement ──────────────────────────────────────── */}
       {!hideActions && (
-        <SaveBar saving={saving} handleSave={handleSave} handleCancel={handleCancel} />
+        <StickySaveBar
+          saving={saving}
+          modifiedCount={modifiedCount}
+          handleSave={handleSave}
+          handleCancel={handleCancel}
+        />
       )}
+
     </div>
   )
 }
