@@ -22,19 +22,6 @@ import { PublicProfileJoined, ProfileTagJoin, countryName, errorMessage } from '
 
 const LIMIT = 12
 
-/**
- * `user_profiles.commune_id` existe en base depuis la migration 20260824, mais
- * types/database.types.ts n'a pas été régénéré depuis : le typage l'ignore
- * encore, ainsi que la colonne fraîchement exposée par la vue (20260904).
- * On décrit donc localement ce qu'on lit, plutôt que d'éditer un fichier
- * généré — qu'un `npm run gen:types` écraserait. À supprimer une fois les
- * types régénérés.
- */
-interface OwnCommuneRow {
-    id: string
-    commune_id: string | null
-}
-
 /** Réponse vide, mais explicite : le client sait pourquoi il n'a rien. */
 function empty(reason: string) {
     return NextResponse.json({ profiles: [], commune: null, reason })
@@ -49,12 +36,11 @@ export async function GET() {
 
         // 1. Commune de l'utilisateur — sa propre ligne, autorisée par la RLS.
         // eslint-disable-next-line no-restricted-syntax -- accès authentifié à SA propre ligne
-        const { data: meRow, error: meError } = await supabase
+        const { data: me, error: meError } = await supabase
             .from('user_profiles')
             .select('id, commune_id')
             .eq('user_id', user.id)
             .maybeSingle()
-        const me = meRow as unknown as OwnCommuneRow | null
 
         if (meError) {
             console.error('[commune] lecture du profil courant :', meError.message)
@@ -89,7 +75,7 @@ export async function GET() {
         const { data, error } = await supabase
             .from('public_profiles')
             .select('*, countries(name, iso_code), profile_tags(tags(name))')
-            .filter('commune_id', 'eq', me.commune_id)
+            .eq('commune_id', me.commune_id)
             .neq('id', me.id)
             .order('created_at', { ascending: false })
             .limit(60)
