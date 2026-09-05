@@ -34,13 +34,13 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import type { UserProfileData } from "@/hooks/use-settings"
+import { LocationSelector } from "@/components/LocationSelector"
 import { LocationMapPicker } from "./location-map-picker"
 import { SectionCard, SettingToggle, Field, INPUT, SELECT } from "./settings-primitives"
 
 /** Seul pays dont le découpage administratif est en base (cf. 20260824). */
 const GEO_COUNTRY_ISO = "BJ"
 
-interface Country { iso_code: string; name: string }
 interface GeoUnit { id: string; name: string }
 
 interface LocationSectionProps {
@@ -52,7 +52,6 @@ interface LocationSectionProps {
 const round6 = (n: number) => Math.round(n * 1e6) / 1e6
 
 export function LocationSection({ profile, setProfile }: LocationSectionProps) {
-  const [countries, setCountries] = useState<Country[]>([])
   const [departments, setDepartments] = useState<GeoUnit[]>([])
   const [communes, setCommunes] = useState<GeoUnit[]>([])
   const [departmentId, setDepartmentId] = useState("")
@@ -64,17 +63,17 @@ export function LocationSection({ profile, setProfile }: LocationSectionProps) {
   const geoAvailable = !profile.country_code || profile.country_code === GEO_COUNTRY_ISO
   const hasCoords = profile.latitude != null && profile.longitude != null
 
-  // ── Référentiels ──────────────────────────────────────────────────────────
+  // ── Référentiel des départements ──────────────────────────────────────────
+  // Les pays et les villes viennent de LocationSelector (paquet
+  // country-state-city, hors ligne) : plus d'appel à stats-countries, qui ne
+  // listait QUE les pays comptant déjà des profils — un utilisateur du premier
+  // pays inscrit n'y trouvait pas le sien.
   useEffect(() => {
     let active = true
-    Promise.all([
-      fetch("/api/annuaire/stats-countries").then((r) => r.json()).catch(() => ({})),
-      fetch("/api/annuaire/geo").then((r) => r.json()).catch(() => ({})),
-    ]).then(([c, g]) => {
-      if (!active) return
-      setCountries(c.countries || [])
-      setDepartments(g.departments || [])
-    })
+    fetch("/api/annuaire/geo")
+      .then((r) => r.json())
+      .then((g) => { if (active) setDepartments(g.departments || []) })
+      .catch(() => undefined)
     return () => { active = false }
   }, [])
 
@@ -103,15 +102,19 @@ export function LocationSection({ profile, setProfile }: LocationSectionProps) {
   }, [profile.commune_id, departmentId])
 
   // ── Actions ───────────────────────────────────────────────────────────────
-  const onCountry = (iso: string) => {
-    const c = countries.find((x) => x.iso_code === iso)
-    // Quitter le Bénin vide le découpage : ses départements n'y existent pas.
-    const leavesGeo = iso !== "" && iso !== GEO_COUNTRY_ISO
+  /**
+   * LocationSelector remonte le pays ET la ville d'un seul geste (changer de
+   * pays y remet la ville à vide, c'est voulu). Quitter le Bénin vide en plus
+   * le découpage administratif : ses départements n'existent nulle part ailleurs.
+   */
+  const onLocation = (country: { name: string; isoCode: string }, city: string) => {
+    const leavesGeo = country.isoCode !== GEO_COUNTRY_ISO
     if (leavesGeo) setDepartmentId("")
     setProfile({
       ...profile,
-      country_code: iso,
-      country_name: c?.name || "",
+      country_code: country.isoCode,
+      country_name: country.name,
+      city,
       ...(leavesGeo ? { commune_id: null } : {}),
     })
   }
@@ -153,22 +156,21 @@ export function LocationSection({ profile, setProfile }: LocationSectionProps) {
       footerHint="La commune détermine votre présence dans « Talents de votre commune » et la portée des mises en avant. Le point GPS, lui, alimente le filtre « Autour de moi » de l'annuaire."
     >
       <div className="space-y-4">
-        {/* ── Découpage administratif, du plus large au plus fin ──────────── */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <Field label="Pays">
-            <select
-              id="country_code"
-              value={profile.country_code || ""}
-              onChange={(e) => onCountry(e.target.value)}
-              className={SELECT}
-            >
-              <option value="">Non renseigné</option>
-              {countries.map((c) => (
-                <option key={c.iso_code} value={c.iso_code}>{c.name}</option>
-              ))}
-            </select>
-          </Field>
+        {/* ── Pays & ville ────────────────────────────────────────────────
+            Recherche parmi tous les pays et toutes leurs villes, hors ligne
+            (country-state-city) — le même sélecteur que l'assistant de création,
+            simplement rhabillé aux codes des paramètres. */}
+        <LocationSelector
+          variant="settings"
+          defaultCountryCode={profile.country_code || undefined}
+          defaultCity={profile.city || undefined}
+          onLocationSelect={onLocation}
+        />
 
+        {/* ── Découpage administratif béninois ────────────────────────────
+            Deux niveaux en cascade sous la ville : le département restreint les
+            communes, et la commune est ce qui rattache réellement le profil. */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="Département">
             <select
               id="department"
@@ -208,29 +210,16 @@ export function LocationSection({ profile, setProfile }: LocationSectionProps) {
           </Field>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Field label="Ville">
-            <Input
-              id="city"
-              name="address-level2"
-              autoComplete="address-level2"
-              value={profile.city || ""}
-              onChange={(e) => up("city", e.target.value)}
-              className={INPUT}
-              placeholder="Ex : Cotonou"
-            />
-          </Field>
-          <Field label="Quartier / arrondissement">
-            <Input
-              id="district"
-              name="district"
-              value={profile.district || ""}
-              onChange={(e) => up("district", e.target.value)}
-              className={INPUT}
-              placeholder="Ex : Akpakpa"
-            />
-          </Field>
-        </div>
+        <Field label="Quartier / arrondissement">
+          <Input
+            id="district"
+            name="district"
+            value={profile.district || ""}
+            onChange={(e) => up("district", e.target.value)}
+            className={INPUT}
+            placeholder="Ex : Akpakpa"
+          />
+        </Field>
 
         <Field label="Adresse">
           <Input
