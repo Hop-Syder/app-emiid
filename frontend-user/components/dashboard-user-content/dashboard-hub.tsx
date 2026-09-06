@@ -14,14 +14,12 @@ import { PersonalHero } from "./personal-hero"
 import { ExplorerHub } from "./explorer-hub"
 
 interface DashboardHubContentProps {
-  initialPremiumProfiles: PublicProfile[]
   initialNewProfiles: PublicProfile[]
   initialProximityProfiles?: PublicProfile[]
   userLocation?: { city: string | null; country_id: string | null; country_name: string | null } | null
 }
 
 export function DashboardHubContent({
-  initialPremiumProfiles,
   initialNewProfiles,
   initialProximityProfiles = [],
   userLocation
@@ -88,10 +86,9 @@ export function DashboardHubContent({
         <CommuneSection />
 
         {/* =========================================
-            SECTION 4 : EXPLORER (Premium / Nouveaux / Catégories — onglets)
+            SECTION 4 : EXPLORER (Nouveaux / Réalisations / Catégories — onglets)
             ========================================= */}
         <ExplorerHub
-          premiumProfiles={initialPremiumProfiles}
           newProfiles={initialNewProfiles}
           categoryCounts={stats?.categoryCounts}
         />

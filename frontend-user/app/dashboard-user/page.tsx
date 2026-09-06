@@ -165,19 +165,11 @@ export default async function DashboardPage() {
     // On peut mélanger le fallback de proximité, mais on prend d'abord les plus proches
     const initialProximityProfiles = mapProfiles(proximityProfiles.slice(0, 8))
 
-    // Requêtes en parallèle pour les autres sections (sans bloquer)
-    const [
-        initialPremiumProfiles,
-        initialNewProfiles
-    ] = await Promise.all([
-        fetchCuratedProfiles(supabase, 'premium', 8),
-        fetchCuratedProfiles(supabase, 'new', 8)
-    ])
+    const initialNewProfiles = await fetchCuratedProfiles(supabase, 'new', 8)
 
     return (
         <div className="min-h-screen bg-muted">
-            <DashboardHubContent 
-                initialPremiumProfiles={initialPremiumProfiles} 
+            <DashboardHubContent
                 initialNewProfiles={initialNewProfiles}
                 initialProximityProfiles={initialProximityProfiles}
                 userLocation={userLocation}

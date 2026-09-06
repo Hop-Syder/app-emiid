@@ -129,17 +129,25 @@ export function RealisationsSection({ userId, profileId }: RealisationsSectionPr
   }
 
   const handleDelete = async (item: GalleryItem) => {
-    // Remove from Storage
-    const bucketMarker = "/project_gallery/"
-    const markerIdx = item.image_url.indexOf(bucketMarker)
-    if (markerIdx !== -1) {
-      const storagePath = item.image_url.slice(markerIdx + bucketMarker.length)
-      await supabase.storage.from("project_gallery").remove([storagePath])
+    try {
+      // Remove from Storage
+      const bucketMarker = "/project_gallery/"
+      const markerIdx = item.image_url.indexOf(bucketMarker)
+      if (markerIdx !== -1) {
+        const storagePath = item.image_url.slice(markerIdx + bucketMarker.length)
+        await supabase.storage.from("project_gallery").remove([storagePath])
+      }
+      const { error } = await supabase.from("project_gallery").delete().eq("id", item.id)
+      if (error) throw error
+
+      toast.success("Réalisation supprimée")
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : "Erreur lors de la suppression"
+      toast.error(errorMsg)
+    } finally {
+      setDeleteTarget(null)
+      void load()
     }
-    await supabase.from("project_gallery").delete().eq("id", item.id)
-    toast.success("Réalisation supprimée")
-    setDeleteTarget(null)
-    void load()
   }
 
   if (loading) {

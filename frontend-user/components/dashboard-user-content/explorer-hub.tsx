@@ -23,7 +23,6 @@ import { RealisationsShowcase } from "./realisations-showcase"
 type TabId = "new" | "categories" | "realisations"
 
 interface ExplorerHubProps {
-  premiumProfiles?: PublicProfile[]
   newProfiles: PublicProfile[]
   categoryCounts?: Record<string, number>
   /**

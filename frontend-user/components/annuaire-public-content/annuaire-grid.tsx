@@ -15,7 +15,7 @@ import { ProfileRow } from "./profile-row"
 import { SearchAssistant } from "./search-assistant"
 import { EmptyState } from "@/components/EmptyState"
 import { Button } from "@/components/ui/button"
-import { Search, ChevronLeft, ChevronRight } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, WifiOff } from "lucide-react"
 import type { PublicProfile } from "@/types"
 import { useAnnuaireProfiles } from "@/hooks/use-annuaire-profiles"
 
@@ -58,6 +58,7 @@ export function AnnuaireGrid({
     setPage,
     totalPages,
     degraded,
+    fetchError,
     handleResetFilters,
   } = useAnnuaireProfiles({
     filters,
@@ -94,6 +95,21 @@ export function AnnuaireGrid({
             </div>
           </motion.div>
         ))}
+      </div>
+    )
+  }
+
+  if (!loading && profiles.length === 0 && fetchError) {
+    return (
+      <div className="max-w-md mx-auto py-10">
+        <EmptyState
+          icon={WifiOff}
+          title="Impossible de charger l'annuaire"
+          description="Une erreur réseau est survenue. Vérifiez votre connexion et réessayez."
+          actionText="Réessayer"
+          onAction={() => window.location.reload()}
+          colorTheme={theme}
+        />
       </div>
     )
   }

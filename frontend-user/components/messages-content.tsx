@@ -43,6 +43,7 @@ export function MessagesContent() {
     groupPanelOpen,
     setGroupPanelOpen,
     loadingConv,
+    conversationsError,
     loadingMsgs,
     searchQuery,
     setSearchQuery,
@@ -111,6 +112,7 @@ export function MessagesContent() {
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           isLoading={loadingConv}
+          hasError={conversationsError}
           onlineUserIds={onlineUserIds}
           onPin={handleTogglePin}
           onArchive={handleToggleArchive}
@@ -255,9 +257,15 @@ export function MessagesContent() {
               />
             )}
 
+            {!realtimeConnected && (
+              <p className="text-xs text-rose-500 flex items-center justify-center gap-2 py-1.5 bg-rose-50 dark:bg-rose-950/30 font-medium shrink-0">
+                <span className="inline-block h-2 w-2 rounded-full bg-rose-500 animate-pulse" />
+                Connexion en direct interrompue — les nouveaux messages peuvent tarder à s&apos;afficher
+              </p>
+            )}
             <MessageInput
               onSend={handleSendMessage}
-              isDisabled={!realtimeConnected}
+              isDisabled={false}
               editingMessage={editingMessage}
               onCancelEdit={() => setEditingMessage(null)}
               onEditSubmit={handleEditMessage}

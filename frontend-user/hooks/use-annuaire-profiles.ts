@@ -78,6 +78,10 @@ export function useAnnuaireProfiles({
   // les résultats proviennent du repli lexical : l'écran doit le dire plutôt que
   // de faire passer une liste approximative pour un classement fiable.
   const [degraded, setDegraded] = useState(false)
+  // Distingue une vraie panne réseau/API (message dédié + retry) d'une recherche
+  // légitimement sans résultat ("Aucun résultat trouvé") : les deux vidaient
+  // `profiles` de la même façon et étaient donc indiscernables pour l'utilisateur.
+  const [fetchError, setFetchError] = useState(false)
   const limit = 30
 
   // Réinitialiser la page au changement de filtres
@@ -128,6 +132,7 @@ export function useAnnuaireProfiles({
 
     const loadProfiles = async () => {
       setLoading(true)
+      setFetchError(false)
       try {
         const params = new URLSearchParams()
         params.append("page", page.toString())
@@ -181,6 +186,7 @@ export function useAnnuaireProfiles({
         // Une requête annulée n'est pas une panne : c'est le comportement voulu.
         if ((error as Error)?.name === "AbortError") return
         console.error("Erreur chargement annuaire:", error)
+        if (active) setFetchError(true)
       } finally {
         if (active) {
           setLoading(false)
@@ -217,6 +223,7 @@ export function useAnnuaireProfiles({
     totalPages,
     totalCount,
     degraded,
+    fetchError,
     handleResetFilters,
   }
 }

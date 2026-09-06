@@ -30,6 +30,7 @@ export function usePortefeuille() {
   const [activeTab, setActiveTab] = useState<TabId>("realisations")
   const [stats, setStats] = useState<PortefeuilleStats | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
 
   // Source unique des vues/abonnés — partagée avec le Dashboard (évite deux chiffres divergents).
   const { stats: impact, isLoading: impactLoading } = useImpactStats()
@@ -38,6 +39,7 @@ export function usePortefeuille() {
     let active = true
     const load = async () => {
       try {
+        setError(false)
         const { data: { user } } = await supabase.auth.getUser()
         if (!active) return
         if (!user) {
@@ -69,6 +71,7 @@ export function usePortefeuille() {
         })
       } catch (err) {
         console.error("Error loading portfolio stats", err)
+        if (active) setError(true)
       } finally {
         if (active) {
           setLoading(false)
@@ -88,6 +91,7 @@ export function usePortefeuille() {
     setActiveTab,
     stats,
     loading: loading || impactLoading,
+    error,
     impact,
   }
 }

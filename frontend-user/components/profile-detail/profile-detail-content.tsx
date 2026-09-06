@@ -51,6 +51,7 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
         gallery,
         loadingGallery,
         currentUserId,
+        loadError,
     } = useProfileData(profileId)
 
     // Lien de partage : domaine public officiel si défini (SEO/branding),
@@ -115,6 +116,29 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
     }, [profile?.name])
 
     if (loading) return <ProfileSkeleton />
+
+    if (!profile && loadError) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[85vh] gap-6 p-6 text-center animate-in fade-in duration-500">
+                <div className="w-20 h-20 bg-card border border-border rounded-3xl flex items-center justify-center mb-2 shadow-sm">
+                    <Users className="h-9 w-9 text-slate-300" />
+                </div>
+                <div className="space-y-1.5">
+                    <h2 className="text-xl font-extrabold text-foreground tracking-tight">Impossible de charger ce profil</h2>
+                    <p className="text-muted-foreground text-sm max-w-xs mx-auto">
+                        Une erreur réseau est survenue. Vérifiez votre connexion et réessayez.
+                    </p>
+                </div>
+                <Button
+                    onClick={() => window.location.reload()}
+                    size="lg"
+                    className="rounded-2xl gap-2 font-bold bg-[#013ff4] hover:bg-[#013ff4]/95 shadow-lg shadow-[#013ff4]/20 transition-all active:scale-95"
+                >
+                    Réessayer
+                </Button>
+            </div>
+        )
+    }
 
     if (!profile) {
         return (

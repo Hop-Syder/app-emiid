@@ -11,7 +11,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { Eye, Users, Images, Globe, Lock, Briefcase, Tag, Network } from "lucide-react"
+import { Eye, Users, Images, Globe, Lock, Briefcase, Tag, Network, X } from "lucide-react"
 import { Preloader } from "@/components/Preloader"
 import { RealisationsSection } from "./realisations-section"
 import { CompetencesSection } from "./competences-section"
@@ -28,7 +28,27 @@ const TABS: { id: TabId; label: string; icon: React.ElementType }[] = [
 
 export function PortefeuilleContent() {
   const router = useRouter()
-  const { activeTab, setActiveTab, stats, loading, impact } = usePortefeuille()
+  const { activeTab, setActiveTab, stats, loading, error, impact } = usePortefeuille()
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh] px-4">
+        <div className="bg-card border border-red-100 rounded-none p-8 text-center max-w-sm w-full shadow-sm">
+          <div className="w-14 h-14 bg-red-50 dark:bg-red-950/40 rounded-full flex items-center justify-center mx-auto mb-4">
+            <X className="h-7 w-7 text-red-500" />
+          </div>
+          <h2 className="text-lg font-black text-foreground mb-2">Impossible de charger</h2>
+          <p className="text-sm text-muted-foreground mb-6">Vérifiez votre connexion et réessayez.</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="w-full h-11 bg-slate-900 text-white rounded-none text-sm font-bold hover:bg-slate-800 transition-colors active:scale-[0.98]"
+          >
+            Réessayer
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   if (loading || !stats) {
     return <Preloader text="Chargement de votre portefeuille" subtext="Un instant…" minHeight="min-h-[60vh]" />
