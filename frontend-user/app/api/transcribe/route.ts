@@ -71,41 +71,53 @@ export async function POST(request: NextRequest) {
         const controller = new AbortController()
         const timer = setTimeout(() => controller.abort(), TIMEOUT_MS)
 
-        let res: Response
+        const candidateModels = Array.from(new Set([MODEL, 'gemini-3.1-flash-lite', 'gemini-flash-lite-latest']))
+        let text = ''
+        let succeeded = false
+
         try {
-            res = await fetch(ENDPOINT(MODEL), {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
-                signal: controller.signal,
-                body: JSON.stringify({
-                    contents: [{
-                        role: 'user',
-                        parts: [
-                            { text: PROMPT },
-                            { inline_data: { mime_type: mimeType, data: base64 } },
-                        ],
-                    }],
-                    generationConfig: { temperature: 0, maxOutputTokens: 2048 },
-                }),
-            })
-        } catch (e) {
+            for (const model of candidateModels) {
+                try {
+                    const res = await fetch(ENDPOINT(model), {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
+                        signal: controller.signal,
+                        body: JSON.stringify({
+                            contents: [{
+                                role: 'user',
+                                parts: [
+                                    { text: PROMPT },
+                                    { inline_data: { mime_type: mimeType, data: base64 } },
+                                ],
+                            }],
+                            generationConfig: { temperature: 0, maxOutputTokens: 2048 },
+                        }),
+                    })
+
+                    if (!res.ok) {
+                        const errText = await res.text().catch(() => '')
+                        console.warn(`[transcription] Modèle ${model} a répondu ${res.status}: ${errText.slice(0, 120)}`)
+                        continue
+                    }
+
+                    const data = await res.json()
+                    text = (data?.candidates?.[0]?.content?.parts ?? [])
+                        .map((p: { text?: string }) => p?.text || '')
+                        .join('')
+                        .trim()
+                    succeeded = true
+                    break
+                } catch (modelErr) {
+                    console.warn(`[transcription] Échec modèle ${model}:`, errorMessage(modelErr))
+                }
+            }
+        } finally {
             clearTimeout(timer)
-            // Délai dépassé ou réseau : la note reste enregistrable sans texte.
-            console.error('[transcription] appel Gemini :', errorMessage(e))
-            return NextResponse.json({ text: '', degraded: true })
-        }
-        clearTimeout(timer)
-
-        if (!res.ok) {
-            console.error('[transcription] Gemini a répondu', res.status, (await res.text()).slice(0, 300))
-            return NextResponse.json({ text: '', degraded: true })
         }
 
-        const data = await res.json()
-        const text: string = (data?.candidates?.[0]?.content?.parts ?? [])
-            .map((p: { text?: string }) => p?.text || '')
-            .join('')
-            .trim()
+        if (!succeeded) {
+            return NextResponse.json({ text: '', degraded: true })
+        }
 
         if (!text || text === '(inaudible)') {
             return NextResponse.json({ text: '', inaudible: true })
