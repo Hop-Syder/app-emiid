@@ -40,29 +40,6 @@ export async function GET(request: Request) {
         return NextResponse.redirect(`${origin}${next}`)
       }
 
-      // Détection nouvel utilisateur : pas de profil ou has_profile = false.
-      // Il est envoyé DIRECTEMENT à la création de profil. Le carrousel de
-      // présentation (/onboarding) qui s'intercalait ici a été retiré : trois
-      // écrans qui ne collectaient rien, entre l'authentification et le seul
-      // écran qui compte. Le compte se crée d'autant plus vite.
-      //
-      // `has_profile` reste posé — updateMyProfile (backend) l'écrit en dur à
-      // chaque enregistrement de profil, donc dès la première sauvegarde du
-      // tunnel. Le marquage que faisait le carrousel était redondant.
-      if (user) {
-        // eslint-disable-next-line no-restricted-syntax -- accès authentifié à SA propre ligne (RLS OK)
-        const { data: profile } = await supabase
-          .from("user_profiles")
-          .select("has_profile")
-          .eq("user_id", user.id)
-          .maybeSingle()
-
-        const isNewUser = !profile || !profile.has_profile
-        if (isNewUser) {
-          return NextResponse.redirect(`${origin}/creer-profil`)
-        }
-      }
-
       return NextResponse.redirect(`${origin}${next}`)
     }
   }

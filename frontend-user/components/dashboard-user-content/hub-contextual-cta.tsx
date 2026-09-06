@@ -22,7 +22,9 @@ export function HubContextualCta() {
     return <div className="h-28 rounded-3xl bg-muted/50 animate-pulse" />
   }
 
-  const needsProfile = currentUser && (!currentUser.has_profile || currentUser.is_published === false)
+  const hasNoProfile = currentUser && !currentUser.has_profile
+  const isUnpublished = currentUser && currentUser.has_profile && currentUser.is_published === false
+  const needsProfile = hasNoProfile || isUnpublished
 
   if (needsProfile) {
     return (
@@ -38,19 +40,18 @@ export function HubContextualCta() {
               <span>Visibilité</span>
             </div>
             <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight">
-              Rendez votre profil{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#013ff4] via-[#03b3f8] to-sky-300">
-                visible
-              </span>
+              {hasNoProfile ? "Créez votre carte de visite" : "Rendez votre profil visible"}
             </h2>
             <p className="text-slate-300 text-xs sm:text-sm font-normal">
-              Publiez votre carte pour recevoir des opportunités et être contacté.
+              {hasNoProfile
+                ? "Configurez votre profil professionnel en 2 minutes pour intégrer l'annuaire."
+                : "Publiez votre carte pour recevoir des opportunités et être contacté."}
             </p>
           </div>
 
-          <Link href="/parametres" className="shrink-0">
+          <Link href={hasNoProfile ? "/creer-profil" : "/parametres"} className="shrink-0">
             <Button className="w-full sm:w-auto h-11 px-6 rounded-2xl bg-gradient-to-r from-[#013ff4] to-[#03b3f8] hover:from-[#0135d0] hover:to-[#029ad7] text-white font-bold text-sm shadow-lg shadow-blue-500/25 transition-all hover:scale-[1.02]">
-              Compléter mon profil
+              {hasNoProfile ? "Créer mon profil" : "Publier mon profil"}
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </Link>
