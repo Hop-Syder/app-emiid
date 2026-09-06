@@ -109,11 +109,13 @@ export function LocationSection({ profile, setProfile }: LocationSectionProps) {
    */
   const onLocation = (country: { name: string; isoCode: string }) => {
     const leavesGeo = country.isoCode !== GEO_COUNTRY_ISO
+    const countryChanged = country.isoCode !== profile.country_code
     if (leavesGeo) setDepartmentId("")
     setProfile({
       ...profile,
       country_code: country.isoCode,
       country_name: country.name,
+      ...(countryChanged ? { city: "" } : {}),
       ...(leavesGeo ? { commune_id: null } : {}),
     })
   }

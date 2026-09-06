@@ -43,9 +43,6 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
-/** Largeurs partagées avec le shell et l'app bar, pour qu'ils s'accordent. */
-export const SIDEBAR_WIDTH = 260
-export const SIDEBAR_WIDTH_COLLAPSED = 76
 export const SIDEBAR_STORAGE_KEY = "emiid:sidebar-collapsed"
 
 const NAV_ITEMS = [

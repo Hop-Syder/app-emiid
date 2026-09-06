@@ -73,7 +73,10 @@ export const LocationSelector = React.memo(function LocationSelector({
 
     const allCountries = useMemo(() => getAllCountriesCached(), [])
     const filteredCountries = useMemo(() => filterCountries(countrySearch), [countrySearch])
-    const filteredCities = useMemo(() => filterCities(cities, citySearch), [cities, citySearch])
+    const filteredCities = useMemo(
+        () => (hideCity ? [] : filterCities(cities, citySearch)),
+        [cities, citySearch, hideCity]
+    )
 
     // Sync state with props when they change (initial load)
     useEffect(() => {
@@ -83,19 +86,20 @@ export const LocationSelector = React.memo(function LocationSelector({
     }, [defaultCountryCode])
 
     useEffect(() => {
+        if (hideCity) return
         const nextCity = defaultCity || ""
         setSelectedCity(nextCity)
         setCitySearch(nextCity)
-    }, [defaultCity])
+    }, [defaultCity, hideCity])
 
-    // Charger les villes quand le pays change
+    // Charger les villes quand le pays change (ignoré si hideCity)
     useEffect(() => {
-        if (selectedCountry) {
-            setCities(getCitiesByCountryCached(selectedCountry.isoCode))
-        } else {
+        if (hideCity || !selectedCountry) {
             setCities([])
+            return
         }
-    }, [selectedCountry])
+        setCities(getCitiesByCountryCached(selectedCountry.isoCode))
+    }, [selectedCountry, hideCity])
 
     const handleCountryChange = (countryCode: string) => {
         const country = allCountries.find(c => c.isoCode === countryCode)
