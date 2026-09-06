@@ -91,6 +91,10 @@ export function useProfileData(profileId: string) {
     const [gallery, setGallery] = useState<GalleryItem[]>([])
     const [loadingGallery, setLoadingGallery] = useState(false)
     const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+    // Distingue une vraie panne réseau/API (le profil peut exister) d'un profil
+    // réellement introuvable (PGRST116) : les deux laissaient `profile` à `null`,
+    // affichant à tort "Ce compte n'existe pas..." lors d'une simple coupure réseau.
+    const [loadError, setLoadError] = useState(false)
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -105,6 +109,7 @@ export function useProfileData(profileId: string) {
         const fetchProfile = async () => {
             if (!profileId) return
             setLoading(true)
+            setLoadError(false)
             try {
                 const supabase = createClient()
                 await supabase.auth.getSession()
@@ -268,6 +273,7 @@ export function useProfileData(profileId: string) {
                 }
             } catch (e) {
                 console.error("Erreur chargement profil:", e)
+                setLoadError(true)
             } finally {
                 setLoading(false)
             }
@@ -308,5 +314,6 @@ export function useProfileData(profileId: string) {
         gallery,
         loadingGallery,
         currentUserId,
+        loadError,
     }
 }

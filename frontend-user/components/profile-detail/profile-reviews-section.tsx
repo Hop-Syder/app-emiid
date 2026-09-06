@@ -134,7 +134,7 @@ export function ProfileReviewsSection({
 
         try {
             const supabase = createClient()
-            let { data: { session } } = await supabase.auth.getSession()
+            const { data: { session } } = await supabase.auth.getSession()
             if (!session) {
                 const { data: { user } } = await supabase.auth.getUser()
                 if (!user) {

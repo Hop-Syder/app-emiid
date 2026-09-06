@@ -9,7 +9,7 @@
  */
 
 import React, { useMemo } from 'react'
-import { Search, Plus, MessageSquareDot, ArrowLeft, Archive } from 'lucide-react'
+import { Search, Plus, MessageSquareDot, ArrowLeft, Archive, WifiOff } from 'lucide-react'
 import { Conversation } from './types'
 import { ConversationItem } from './conversation-item'
 import { Input } from '@/components/ui/input'
@@ -26,6 +26,7 @@ interface ChatSidebarProps {
   searchQuery: string
   onSearchChange: (query: string) => void
   isLoading: boolean
+  hasError?: boolean
   onlineUserIds?: Set<string>
   onPin?: (convId: string) => void
   onArchive?: (convId: string) => void
@@ -40,6 +41,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
   searchQuery,
   onSearchChange,
   isLoading,
+  hasError = false,
   onlineUserIds = new Set(),
   onPin,
   onArchive,
@@ -200,6 +202,21 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
               ))}
             </AnimatePresence>
           </motion.div>
+        ) : hasError ? (
+          <div className="flex flex-col items-center justify-center p-12 gap-3 text-center">
+            <div className="w-12 h-12 rounded-2xl bg-red-50 dark:bg-red-950/40 flex items-center justify-center">
+              <WifiOff className="h-5 w-5 text-red-500" />
+            </div>
+            <p className="text-sm text-slate-400 font-medium">
+              Impossible de charger vos conversations.
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="text-xs text-primary font-semibold hover:underline"
+            >
+              Réessayer
+            </button>
+          </div>
         ) : (
           <div className="flex flex-col items-center justify-center p-12 gap-3 text-center">
             <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center">

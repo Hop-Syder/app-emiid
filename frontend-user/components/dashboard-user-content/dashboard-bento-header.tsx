@@ -179,7 +179,7 @@ export function DashboardBentoHeader() {
                             size="sm"
                             className="flex-1 sm:flex-initial h-10 rounded-xl bg-card/[0.08] hover:bg-card/[0.15] border border-white/15 text-white font-semibold px-4 text-xs sm:text-sm backdrop-blur-md transition-all hover:border-white/30 shadow-sm"
                             onClick={() =>
-                                router.push(session?.user?.id ? `/profil/${session.user.id}` : "/profil/me")
+                                router.push(session?.user?.id ? `/profil/${session.user.id}` : "/profil")
                             }
                         >
                             Mon Profil

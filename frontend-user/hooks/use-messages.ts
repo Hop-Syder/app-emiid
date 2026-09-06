@@ -41,6 +41,10 @@ export function useMessages() {
 
   const [messages, setMessages] = useState<Message[]>([])
   const [loadingConv, setLoadingConv] = useState(true)
+  // Distingue une panne réseau/API réelle d'une boîte de réception légitimement
+  // vide : les deux laissaient `conversations` à [], donc le même message
+  // « Aucune conversation pour le moment » s'affichait dans les deux cas.
+  const [conversationsError, setConversationsError] = useState(false)
   const [loadingMsgs, setLoadingMsgs] = useState(false)
 
   const [searchQuery, setSearchQuery] = useState("")
@@ -164,6 +168,7 @@ export function useMessages() {
     const load = async () => {
       if (!currentUserId) return
       setLoadingConv(true)
+      setConversationsError(false)
       try {
         const data = await fetchConversations()
         if (!active) return
@@ -211,6 +216,7 @@ export function useMessages() {
         }
       } catch (err) {
         captureError(err, { scope: "messages", action: "fetchConversations" })
+        if (active) setConversationsError(true)
       } finally {
         if (active) {
           setLoadingConv(false)
@@ -371,6 +377,7 @@ export function useMessages() {
     setGroupPanelOpen,
     messages,
     loadingConv,
+    conversationsError,
     loadingMsgs,
     searchQuery,
     setSearchQuery,

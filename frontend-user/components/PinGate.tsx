@@ -20,6 +20,7 @@ import { Lock, Mail, KeyRound, Loader2, ShieldCheck } from "lucide-react"
 
 export function PinGate({ children }: { children: React.ReactNode }) {
     const [locked, setLocked] = useState(false)
+    const [checkError, setCheckError] = useState(false)
     const [isHardLocked, setIsHardLocked] = useState(false)
     const [pin, setPin] = useState("")
     const [error, setError] = useState("")
@@ -46,6 +47,7 @@ export function PinGate({ children }: { children: React.ReactNode }) {
 
         // 2. Vérification DB
         try {
+            setCheckError(false)
             const res = await fetchWithAuth("/api/users/me")
             if (res.ok) {
                 const user = await res.json()
@@ -57,9 +59,14 @@ export function PinGate({ children }: { children: React.ReactNode }) {
                 } else {
                     setLocked(false)
                 }
+            } else {
+                // Statut PIN indéterminé (backend indisponible, session expirée...) :
+                // on refuse fermé plutôt que d'accorder l'accès par défaut.
+                setCheckError(true)
             }
         } catch (error) {
             console.error("Erreur vérification PIN:", error)
+            setCheckError(true)
         } finally {
             setLoading(false)
         }
@@ -173,6 +180,44 @@ export function PinGate({ children }: { children: React.ReactNode }) {
         return (
             <div className="flex h-screen w-full items-center justify-center bg-card">
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#013ff4] border-t-transparent" />
+            </div>
+        )
+    }
+
+    if (checkError) {
+        return (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-card/80 backdrop-blur-md">
+                <div className="bg-card border border-red-100 shadow-2xl p-8 rounded-2xl flex flex-col items-center gap-6 max-w-sm w-full">
+                    <div className="h-16 w-16 rounded-full bg-red-50 flex items-center justify-center mb-2">
+                        <Lock className="h-7 w-7 text-red-600" />
+                    </div>
+                    <div className="text-center space-y-2">
+                        <h2 className="text-xl font-bold text-red-600">Vérification impossible</h2>
+                        <p className="text-sm text-gray-500">
+                            Impossible de confirmer votre sécurité pour le moment. Par précaution, l&apos;accès reste bloqué. Vérifiez votre connexion et réessayez.
+                        </p>
+                    </div>
+                    <div className="flex flex-col items-center gap-3 w-full">
+                        <Button
+                            className="w-full h-11 rounded-xl bg-[#013ff4] hover:bg-[#033a7a]"
+                            onClick={() => { setLoading(true); void checkPinStatus() }}
+                        >
+                            Réessayer
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            className="text-gray-400 hover:text-gray-600 font-normal text-xs mt-2"
+                            onClick={async () => {
+                                const supabase = createClient()
+                                await supabase.auth.signOut()
+                                sessionStorage.removeItem("emiid_pin_verified")
+                                router.push('/')
+                            }}
+                        >
+                            Retour à l&apos;accueil
+                        </Button>
+                    </div>
+                </div>
             </div>
         )
     }

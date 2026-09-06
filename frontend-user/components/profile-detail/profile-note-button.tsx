@@ -160,7 +160,7 @@ export function ProfileNoteButton({
     const handleStartRecording = async () => {
         try {
             const supabase = createClient()
-            let { data: { session } } = await supabase.auth.getSession()
+            const { data: { session } } = await supabase.auth.getSession()
             if (!session) {
                 const { data: { user } } = await supabase.auth.getUser()
                 if (!user) {
@@ -261,7 +261,7 @@ export function ProfileNoteButton({
 
         try {
             const supabase = createClient()
-            let { data: { session } } = await supabase.auth.getSession()
+            const { data: { session } } = await supabase.auth.getSession()
             if (!session) {
                 const { data: { user } } = await supabase.auth.getUser()
                 if (!user) {
