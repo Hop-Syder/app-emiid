@@ -47,7 +47,6 @@ import { BioSection } from "./bio-section"
 import { LocationSection } from "./location-section"
 import {
   SectionCard,
-  SettingRow,
   SettingToggle,
   SettingRow,
   Field,
@@ -81,7 +80,6 @@ export function ProfileSection({
 }: ProfileSectionProps) {
   // États de vérification du téléphone (3 états : Non certifié / Code envoyé / Certifié)
   const [verifyMethod, setVerifyMethod] = useState<"whatsapp" | "sms" | null>(null)
-  const [sendingMethod, setSendingMethod] = useState<"whatsapp" | "sms" | null>(null)
   const [otpCode, setOtpCode] = useState("")
   const [verifying, setVerifying] = useState(false)
   // Quel bouton (WhatsApp / SMS) est en cours d'envoi. Distinct de
