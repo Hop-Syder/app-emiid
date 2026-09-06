@@ -39,6 +39,8 @@ interface LocationSelectorProps {
      *   pas au milieu des autres champs de la section.
      */
     variant?: "wizard" | "settings"
+    /** Si true, n'affiche que le sélecteur de pays. */
+    hideCity?: boolean
 }
 
 /** Les deux habillages, au même endroit plutôt qu'en classes passées de l'extérieur. */
@@ -58,6 +60,7 @@ export const LocationSelector = React.memo(function LocationSelector({
     defaultCountryCode,
     defaultCity,
     variant = "wizard",
+    hideCity = false,
 }: LocationSelectorProps) {
     const skin = VARIANTS[variant]
     const [selectedCountry, setSelectedCountry] = useState<ICountry | null>(null)
@@ -117,7 +120,7 @@ export const LocationSelector = React.memo(function LocationSelector({
     }
 
     return (
-        <div className={cn("grid grid-cols-1 gap-4", variant === "wizard" ? "md:grid-cols-2" : "sm:grid-cols-2")}>
+        <div className={cn("grid grid-cols-1 gap-4", hideCity ? "grid-cols-1" : (variant === "wizard" ? "md:grid-cols-2" : "sm:grid-cols-2"))}>
             {/* PAYS */}
             <div className="space-y-2">
                 <Label htmlFor="country-select-trigger" className={skin.label}>Pays</Label>
@@ -188,74 +191,76 @@ export const LocationSelector = React.memo(function LocationSelector({
             </div>
 
             {/* VILLE */}
-            <div className="space-y-2">
-                <Label htmlFor="city-select-trigger" className={skin.label}>Ville</Label>
-                <Popover open={cityOpen} onOpenChange={setCityOpen}>
-                    <PopoverTrigger asChild>
-                        <Button
-                            id="city-select-trigger"
-                            type="button"
-                            variant="outline"
-                            role="combobox"
-                            aria-expanded={cityOpen}
-                            disabled={!selectedCountry}
-                            className={cn("w-full justify-between disabled:opacity-50", skin.trigger)}
-                        >
-                            <span className="truncate text-left">
-                                {selectedCity || (selectedCountry ? "Sélectionner une ville..." : "Choisir un pays d'abord")}
-                            </span>
-                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                        </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[var(--radix-popover-trigger-width)] rounded-xl p-0" align="start">
-                        <div className="border-b p-3">
-                            <div className="relative">
-                                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                                <Input
-                                    id="city-search-input"
-                                    name="city_search"
-                                    autoComplete="off"
-                                    autoFocus
-                                    value={citySearch}
-                                    onChange={(event) => setCitySearch(event.target.value)}
-                                    placeholder={selectedCountry ? "Rechercher une ville..." : "Choisir un pays d'abord"}
-                                    disabled={!selectedCountry}
-                                    className="h-10 rounded-lg pl-9"
-                                />
+            {!hideCity && (
+                <div className="space-y-2">
+                    <Label htmlFor="city-select-trigger" className={skin.label}>Ville</Label>
+                    <Popover open={cityOpen} onOpenChange={setCityOpen}>
+                        <PopoverTrigger asChild>
+                            <Button
+                                id="city-select-trigger"
+                                type="button"
+                                variant="outline"
+                                role="combobox"
+                                aria-expanded={cityOpen}
+                                disabled={!selectedCountry}
+                                className={cn("w-full justify-between disabled:opacity-50", skin.trigger)}
+                            >
+                                <span className="truncate text-left">
+                                    {selectedCity || (selectedCountry ? "Sélectionner une ville..." : "Choisir un pays d'abord")}
+                                </span>
+                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[var(--radix-popover-trigger-width)] rounded-xl p-0" align="start">
+                            <div className="border-b p-3">
+                                <div className="relative">
+                                    <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                    <Input
+                                        id="city-search-input"
+                                        name="city_search"
+                                        autoComplete="off"
+                                        autoFocus
+                                        value={citySearch}
+                                        onChange={(event) => setCitySearch(event.target.value)}
+                                        placeholder={selectedCountry ? "Rechercher une ville..." : "Choisir un pays d'abord"}
+                                        disabled={!selectedCountry}
+                                        className="h-10 rounded-lg pl-9"
+                                    />
+                                </div>
                             </div>
-                        </div>
-                        <ScrollArea className="h-72">
-                            <div className="p-2">
-                                {filteredCities.length > 0 ? (
-                                    filteredCities.map((city) => (
-                                        <button
-                                            key={city.name}
-                                            type="button"
-                                            onClick={() => handleCityChange(city.name)}
-                                            className={cn(
-                                                "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-accent hover:text-accent-foreground",
-                                                selectedCity === city.name && "bg-accent text-accent-foreground",
-                                            )}
-                                        >
-                                            <Check
+                            <ScrollArea className="h-72">
+                                <div className="p-2">
+                                    {filteredCities.length > 0 ? (
+                                        filteredCities.map((city) => (
+                                            <button
+                                                key={city.name}
+                                                type="button"
+                                                onClick={() => handleCityChange(city.name)}
                                                 className={cn(
-                                                    "h-4 w-4 text-primary",
-                                                    selectedCity === city.name ? "opacity-100" : "opacity-0",
+                                                    "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-accent hover:text-accent-foreground",
+                                                    selectedCity === city.name && "bg-accent text-accent-foreground",
                                                 )}
-                                            />
-                                            <span className="truncate">{city.name}</span>
-                                        </button>
-                                    ))
-                                ) : (
-                                    <p className="px-3 py-6 text-center text-sm text-muted-foreground">
-                                        {selectedCountry ? "Aucune ville trouvée." : "Choisissez un pays d'abord."}
-                                    </p>
-                                )}
-                            </div>
-                        </ScrollArea>
-                    </PopoverContent>
-                </Popover>
-            </div>
+                                            >
+                                                <Check
+                                                    className={cn(
+                                                        "h-4 w-4 text-primary",
+                                                        selectedCity === city.name ? "opacity-100" : "opacity-0",
+                                                    )}
+                                                />
+                                                <span className="truncate">{city.name}</span>
+                                            </button>
+                                        ))
+                                    ) : (
+                                        <p className="px-3 py-6 text-center text-sm text-muted-foreground">
+                                            {selectedCountry ? "Aucune ville trouvée." : "Choisissez un pays d'abord."}
+                                        </p>
+                                    )}
+                                </div>
+                            </ScrollArea>
+                        </PopoverContent>
+                    </Popover>
+                </div>
+            )}
         </div>
     )
 })

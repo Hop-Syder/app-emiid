@@ -49,12 +49,7 @@ function pageTitle(pathname: string): string {
   return parent ? PAGE_TITLES[parent] : ""
 }
 
-interface DesktopAppBarAuthProps {
-  /** Largeur occupée par la barre latérale, pour que la barre démarre après. */
-  offset: number
-}
-
-export function DesktopAppBarAuth({ offset }: DesktopAppBarAuthProps) {
+export function DesktopAppBarAuth() {
   const pathname = usePathname()
   const { setOpen } = useCommandPalette()
   const unreadCount = useUnreadNotifications()
@@ -62,8 +57,7 @@ export function DesktopAppBarAuth({ offset }: DesktopAppBarAuthProps) {
 
   return (
     <header
-      style={{ left: offset }}
-      className="hidden lg:flex fixed inset-x-0 top-0 z-40 h-16 items-center gap-4 border-b border-border bg-card/85 px-6 backdrop-blur-xl transition-[left] duration-300 ease-out dark:border-slate-800 dark:bg-slate-950/85"
+      className="hidden lg:flex fixed inset-x-0 left-[var(--sidebar-w)] top-0 z-40 h-16 items-center gap-4 border-b border-border bg-card/85 px-6 2xl:px-8 backdrop-blur-xl transition-[left] duration-300 ease-out dark:border-slate-800 dark:bg-slate-950/85"
     >
       <h1 className="shrink-0 text-base font-black tracking-tight text-foreground dark:text-white">
         {title}
@@ -73,7 +67,7 @@ export function DesktopAppBarAuth({ offset }: DesktopAppBarAuthProps) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="group ml-auto relative flex h-10 w-full max-w-md items-center gap-2.5 rounded-2xl border border-border/80 bg-slate-100/70 hover:bg-card px-3.5 text-left outline-none transition-all duration-200 hover:border-[#013ff4]/50 hover:shadow-[0_0_20px_-5px_rgba(1,63,244,0.15)] focus-visible:ring-2 focus-visible:ring-[#013ff4] dark:border-slate-800 dark:bg-slate-900/90 dark:hover:bg-slate-900 dark:hover:border-[#03b3f8]/50 dark:hover:shadow-[0_0_20px_-5px_rgba(3,179,248,0.2)]"
+        className="group mx-auto relative flex h-10 w-full max-w-md 2xl:max-w-xl items-center gap-2.5 rounded-2xl border border-border/80 bg-slate-100/70 hover:bg-card px-3.5 text-left outline-none transition-all duration-200 hover:border-[#013ff4]/50 hover:shadow-[0_0_20px_-5px_rgba(1,63,244,0.15)] focus-visible:ring-2 focus-visible:ring-[#013ff4] dark:border-slate-800 dark:bg-slate-900/90 dark:hover:bg-slate-900 dark:hover:border-[#03b3f8]/50 dark:hover:shadow-[0_0_20px_-5px_rgba(3,179,248,0.2)]"
       >
         <div className="flex items-center justify-center w-5 h-5 rounded-lg bg-slate-200/50 group-hover:bg-[#013ff4]/10 group-hover:text-[#013ff4] text-slate-400 transition-colors dark:bg-slate-800 dark:group-hover:bg-[#013ff4]/20 dark:group-hover:text-[#03b3f8]">
           <Search className="h-3.5 w-3.5 shrink-0 transition-transform group-hover:scale-110" />

@@ -107,14 +107,13 @@ export function LocationSection({ profile, setProfile }: LocationSectionProps) {
    * pays y remet la ville à vide, c'est voulu). Quitter le Bénin vide en plus
    * le découpage administratif : ses départements n'existent nulle part ailleurs.
    */
-  const onLocation = (country: { name: string; isoCode: string }, city: string) => {
+  const onLocation = (country: { name: string; isoCode: string }) => {
     const leavesGeo = country.isoCode !== GEO_COUNTRY_ISO
     if (leavesGeo) setDepartmentId("")
     setProfile({
       ...profile,
       country_code: country.isoCode,
       country_name: country.name,
-      city,
       ...(leavesGeo ? { commune_id: null } : {}),
     })
   }
@@ -156,19 +155,17 @@ export function LocationSection({ profile, setProfile }: LocationSectionProps) {
       footerHint="La commune détermine votre présence dans « Talents de votre commune » et la portée des mises en avant. Le point GPS, lui, alimente le filtre « Autour de moi » de l'annuaire."
     >
       <div className="space-y-4">
-        {/* ── Pays & ville ────────────────────────────────────────────────
-            Recherche parmi tous les pays et toutes leurs villes, hors ligne
-            (country-state-city) — le même sélecteur que l'assistant de création,
-            simplement rhabillé aux codes des paramètres. */}
+        {/* ── Pays ────────────────────────────────────────────────
+            Recherche du pays (Bénin et international, country-state-city). */}
         <LocationSelector
           variant="settings"
+          hideCity
           defaultCountryCode={profile.country_code || undefined}
-          defaultCity={profile.city || undefined}
           onLocationSelect={onLocation}
         />
 
         {/* ── Découpage administratif béninois ────────────────────────────
-            Deux niveaux en cascade sous la ville : le département restreint les
+            Deux niveaux en cascade : le département restreint les
             communes, et la commune est ce qui rattache réellement le profil. */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="Département">
@@ -218,18 +215,6 @@ export function LocationSection({ profile, setProfile }: LocationSectionProps) {
             onChange={(e) => up("district", e.target.value)}
             className={INPUT}
             placeholder="Ex : Akpakpa"
-          />
-        </Field>
-
-        <Field label="Adresse">
-          <Input
-            id="address"
-            name="street-address"
-            autoComplete="street-address"
-            value={profile.address || ""}
-            onChange={(e) => up("address", e.target.value)}
-            className={INPUT}
-            placeholder="Rue, repère, immeuble…"
           />
         </Field>
 

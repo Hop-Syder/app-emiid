@@ -17,8 +17,6 @@ import { DesktopAppBarGuest } from "./desktop-appbar-guest"
 import { DesktopAppBarAuth } from "./desktop-appbar-auth"
 import {
   DesktopSidebarAuth,
-  SIDEBAR_WIDTH,
-  SIDEBAR_WIDTH_COLLAPSED,
   SIDEBAR_STORAGE_KEY,
 } from "./desktop-sidebar-auth"
 import { MobileDockGuest } from "./mobile-dock-guest"
@@ -100,18 +98,26 @@ export function NavigationShell({ children, isPublic = false }: NavigationShellP
   }, [])
 
   const isMessagePage = pathname === "/messages"
-  // Sur le site public, aucune barre latérale : le contenu part du bord.
-  const sidebarWidth = effectiveIsPublic
-    ? 0
+
+  // `--sidebar-w` est LA source unique de la largeur : la barre latérale s'y
+  // dimensionne, l'app bar y démarre, le contenu s'en décale. Trois lecteurs,
+  // une seule valeur — auparavant une constante JS et deux styles en ligne
+  // pouvaient diverger et se chevaucher.
+  //
+  // Elle grandit sur les grands écrans (≥ 1536 px, soit un portable 17 pouces
+  // ou un écran de bureau) : 260 px y laissaient les libellés à l'étroit alors
+  // que la place ne manquait pas. Repliée, elle reste un rail d'icônes — le
+  // faire grossir n'apporterait rien.
+  const sidebarWidthClass = effectiveIsPublic
+    ? "[--sidebar-w:0px]"
     : sidebarCollapsed
-      ? SIDEBAR_WIDTH_COLLAPSED
-      : SIDEBAR_WIDTH
+      ? "[--sidebar-w:76px]"
+      : "[--sidebar-w:260px] 2xl:[--sidebar-w:296px]"
 
   return (
     <CommandPaletteProvider>
     <div
-      style={{ "--sidebar-w": `${sidebarWidth}px` } as React.CSSProperties}
-      className={`relative bg-muted w-full flex ${isMessagePage ? "h-screen max-h-screen overflow-hidden" : "min-h-screen"}`}
+      className={`${sidebarWidthClass} relative bg-muted w-full flex ${isMessagePage ? "h-screen max-h-screen overflow-hidden" : "min-h-screen"}`}
     >
       <Suspense fallback={null}>
         <ChatActiveWatcher pathname={pathname} onChange={setIsMessageChatActive} />
@@ -123,7 +129,7 @@ export function NavigationShell({ children, isPublic = false }: NavigationShellP
       ) : (
         <>
           <DesktopSidebarAuth collapsed={sidebarCollapsed} onToggle={toggleSidebar} />
-          <DesktopAppBarAuth offset={sidebarWidth} />
+          <DesktopAppBarAuth />
         </>
       )}
 

@@ -94,7 +94,10 @@ export function DesktopSidebarAuth({ collapsed, onToggle }: DesktopSidebarAuthPr
   return (
     <aside
       aria-label="Navigation principale"
-      style={{ width: collapsed ? SIDEBAR_WIDTH_COLLAPSED : SIDEBAR_WIDTH }}
+      // La largeur vient de `--sidebar-w`, posée par NavigationShell : c'est
+      // elle qui décale aussi l'app bar et le contenu. Un nombre en dur ici
+      // les ferait diverger dès que la variable change de valeur.
+      style={{ width: "var(--sidebar-w)" }}
       className="hidden lg:flex fixed inset-y-0 left-0 z-50 flex-col border-r border-border bg-card transition-[width] duration-300 ease-out dark:border-slate-800 dark:bg-slate-950"
     >
       {/* ── Marque ─────────────────────────────────────────────────────── */}
@@ -112,7 +115,7 @@ export function DesktopSidebarAuth({ collapsed, onToggle }: DesktopSidebarAuthPr
       </div>
 
       {/* ── Rubriques ──────────────────────────────────────────────────── */}
-      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
+      <nav className="flex-1 space-y-1 2xl:space-y-1.5 overflow-y-auto px-3 2xl:px-4 py-4">
         {NAV_ITEMS.map((item) => {
           const active = isActive(item.href)
           const Icon = item.icon
@@ -127,8 +130,11 @@ export function DesktopSidebarAuth({ collapsed, onToggle }: DesktopSidebarAuthPr
               title={collapsed ? item.name : undefined}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "group relative flex h-11 items-center rounded-2xl text-sm font-bold outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[#013ff4]",
-                collapsed ? "justify-center px-0" : "gap-3 px-3",
+                // Les hauteurs et l'espacement suivent la place disponible :
+                // sur un écran large, 44 px de haut et 12 px de gouttière
+                // tassent une liste qui a de quoi s'étendre.
+                "group relative flex h-11 2xl:h-12 items-center rounded-2xl text-[13.5px] 2xl:text-sm font-bold outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[#013ff4]",
+                collapsed ? "justify-center px-0" : "gap-3 2xl:gap-3.5 px-3 2xl:px-3.5",
                 active
                   ? "text-[#013ff4]"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white",
