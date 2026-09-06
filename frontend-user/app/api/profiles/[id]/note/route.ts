@@ -2,12 +2,9 @@
  * @author @hopsyder
  * @organization Nexus Partners
  * @description Note privée d'un visiteur sur un profil — lecture et écriture.
- *
- *              Un pense-bête, pas un avis : personne d'autre que son auteur ne
- *              la lit, le professionnel concerné pas davantage. La RLS de
- *              `profile_notes` l'impose (author_id = auth.uid() sur TOUS les
- *              verbes) ; cette route n'ajoute que la validation et les messages.
+ *              Supporte les identifiants sous forme de UUID ou de slug public.
  * @created 2026-09-06
+ * @updated 2026-09-06
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -20,20 +17,59 @@ export const dynamic = 'force-dynamic'
 
 const MAX = 4000
 
+/** Résout un identifiant (slug ou UUID) vers le user_id UUID requis par profile_notes */
+async function resolveProfileOwnerId(supabase: any, identifier: string): Promise<string | null> {
+    const cleanId = (identifier || '').trim().toLowerCase()
+    if (!cleanId) return null
+
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(cleanId)
+    if (isUUID) return cleanId
+
+    // 1. Recherche dans public_profiles par slug
+    const { data: bySlug } = await supabase
+        .from('public_profiles')
+        .select('user_id')
+        .eq('slug', cleanId)
+        .maybeSingle()
+
+    if (bySlug?.user_id) return bySlug.user_id
+
+    // 2. Fallback via RPC get_public_profile
+    try {
+        const { data: rpcData } = await supabase.rpc('get_public_profile', { identifier: cleanId })
+        if (rpcData && typeof rpcData === 'object') {
+            const row = rpcData as { user_id?: string; id?: string }
+            if (row.user_id) return row.user_id
+            if (row.id && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(row.id)) {
+                return row.id
+            }
+        }
+    } catch {
+        // Silencieux
+    }
+
+    return null
+}
+
 export async function GET(request: NextRequest, ctx: { params: Promise<{ id: string }> }) {
     try {
-        const { id: profileId } = await ctx.params
+        const { id: rawProfileId } = await ctx.params
         const { user, supabase } = await getAuthenticatedUser(request)
 
         // Pas connecté : pas de note, et surtout aucune erreur — le bouton
         // s'affiche simplement dans son état neutre.
         if (!user) return NextResponse.json({ note: null, canWrite: false })
 
+        const targetUserId = await resolveProfileOwnerId(supabase, rawProfileId)
+        if (!targetUserId) {
+            return NextResponse.json({ note: null, canWrite: false })
+        }
+
         const { data, error } = await supabase
             .from('profile_notes')
             .select('content, is_voice, updated_at')
             .eq('author_id', user.id)
-            .eq('profile_id', profileId)
+            .eq('profile_id', targetUserId)
             .maybeSingle()
 
         if (error) {
@@ -53,10 +89,15 @@ export async function GET(request: NextRequest, ctx: { params: Promise<{ id: str
 
 export async function PUT(request: NextRequest, ctx: { params: Promise<{ id: string }> }) {
     try {
-        const { id: profileId } = await ctx.params
+        const { id: rawProfileId } = await ctx.params
         const { user, supabase } = await getAuthenticatedUser(request)
         if (!user) {
             return NextResponse.json({ error: 'Connectez-vous pour enregistrer une note.' }, { status: 401 })
+        }
+
+        const targetUserId = await resolveProfileOwnerId(supabase, rawProfileId)
+        if (!targetUserId) {
+            return NextResponse.json({ error: 'Profil introuvable.' }, { status: 404 })
         }
 
         const body = await request.json().catch(() => null)
@@ -74,7 +115,7 @@ export async function PUT(request: NextRequest, ctx: { params: Promise<{ id: str
                 .from('profile_notes')
                 .delete()
                 .eq('author_id', user.id)
-                .eq('profile_id', profileId)
+                .eq('profile_id', targetUserId)
             if (error) {
                 console.error('[note] suppression :', error.message)
                 return NextResponse.json({ error: 'Impossible de supprimer la note.' }, { status: 400 })
@@ -85,7 +126,7 @@ export async function PUT(request: NextRequest, ctx: { params: Promise<{ id: str
         const { data, error } = await supabase
             .from('profile_notes')
             .upsert(
-                { author_id: user.id, profile_id: profileId, content, is_voice: isVoice, updated_at: new Date().toISOString() },
+                { author_id: user.id, profile_id: targetUserId, content, is_voice: isVoice, updated_at: new Date().toISOString() },
                 { onConflict: 'author_id,profile_id' },
             )
             .select('content, is_voice, updated_at')
@@ -105,3 +146,4 @@ export async function PUT(request: NextRequest, ctx: { params: Promise<{ id: str
         return NextResponse.json({ error: errorMessage(error) }, { status: 500 })
     }
 }
+

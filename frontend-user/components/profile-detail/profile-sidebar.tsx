@@ -105,6 +105,25 @@ export function ProfileSidebar({
 }: ProfileSidebarProps) {
     return (
         <aside className="lg:col-span-4 min-w-0 space-y-6">
+            {/* Action rapide : Message */}
+            <Button
+                size="lg"
+                className="w-full rounded-2xl h-12 bg-[#013ff4] hover:bg-[#013ff4]/90 text-white font-bold text-sm shadow-md shadow-[#013ff4]/20 transition-all hover:-translate-y-0.5 gap-2"
+                asChild
+            >
+                {isLoggedIn && profile.id ? (
+                    <Link href={`/messages?contact=${profile.id}`}>
+                        <MessageCircle className="h-4 w-4" />
+                        Message
+                    </Link>
+                ) : (
+                    <Link href="/login">
+                        <MessageCircle className="h-4 w-4" />
+                        Message
+                    </Link>
+                )}
+            </Button>
+
             {/* Carte Horaires (Image 2) */}
             <div className="bg-card border border-border rounded-3xl p-5 sm:p-6 shadow-[0_4px_24px_rgb(15,23,42,0.05)] relative overflow-hidden">
                 <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">

@@ -2,6 +2,7 @@
  * @author @hopsyder
  * @organization Nexus Partners
  * @description Avis publics d'un profil — lecture, dépôt, réponse du professionnel.
+ *              Supporte les identifiants sous forme de UUID ou de slug public.
  *
  *              Le droit de déposer un avis n'est PAS une affaire d'interface :
  *              il est vérifié ici ET dans la politique RLS (can_review_profile).
@@ -12,6 +13,7 @@
  *              messages avec le professionnel, avec au moins un message de
  *              chaque côté.
  * @created 2026-09-06
+ * @updated 2026-09-06
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -30,6 +32,40 @@ interface ReviewRow {
     owner_reply: string | null
     replied_at: string | null
     created_at: string
+}
+
+/** Résout un identifiant (slug ou UUID) vers le user_id UUID requis par profile_reviews */
+async function resolveProfileOwnerId(supabase: any, identifier: string): Promise<string | null> {
+    const cleanId = (identifier || '').trim().toLowerCase()
+    if (!cleanId) return null
+
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(cleanId)
+    if (isUUID) return cleanId
+
+    // 1. Recherche dans public_profiles par slug
+    const { data: bySlug } = await supabase
+        .from('public_profiles')
+        .select('user_id')
+        .eq('slug', cleanId)
+        .maybeSingle()
+
+    if (bySlug?.user_id) return bySlug.user_id
+
+    // 2. Fallback via RPC get_public_profile
+    try {
+        const { data: rpcData } = await supabase.rpc('get_public_profile', { identifier: cleanId })
+        if (rpcData && typeof rpcData === 'object') {
+            const row = rpcData as { user_id?: string; id?: string }
+            if (row.user_id) return row.user_id
+            if (row.id && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(row.id)) {
+                return row.id
+            }
+        }
+    } catch {
+        // Silencieux
+    }
+
+    return null
 }
 
 /** « Il y a 3 semaines » plutôt qu'une date brute : c'est ce que lit l'écran. */
@@ -67,17 +103,22 @@ function shortName(first?: string | null, last?: string | null): string {
 // ─── GET : la liste, la synthèse, et le droit du visiteur à déposer ────────
 export async function GET(request: NextRequest, ctx: { params: Promise<{ id: string }> }) {
     try {
-        const { id: profileId } = await ctx.params
+        const { id: rawProfileId } = await ctx.params
         const { user: viewer, supabase } = await getAuthenticatedUser(request)
+
+        const targetUserId = await resolveProfileOwnerId(supabase, rawProfileId)
+        if (!targetUserId) {
+            return NextResponse.json({ reviews: [], stats: null, canReview: false })
+        }
 
         const [{ data: rows, error }, { data: stats }] = await Promise.all([
             supabase
                 .from('profile_reviews')
                 .select('id, reviewer_id, rating, comment, owner_reply, replied_at, created_at')
-                .eq('profile_id', profileId)
+                .eq('profile_id', targetUserId)
                 .eq('is_hidden', false)
                 .order('created_at', { ascending: false }),
-            supabase.rpc('get_profile_review_stats', { p_profile_id: profileId }),
+            supabase.rpc('get_profile_review_stats', { p_profile_id: targetUserId }),
         ])
 
         if (error) {
@@ -104,11 +145,11 @@ export async function GET(request: NextRequest, ctx: { params: Promise<{ id: str
         let canReview = false
         let ownReviewId: string | null = null
 
-        if (viewer && viewer.id !== profileId) {
+        if (viewer && viewer.id !== targetUserId) {
             ownReviewId = list.find((r) => r.reviewer_id === viewer.id)?.id ?? null
             const { data: eligible } = await supabase.rpc('can_review_profile', {
                 p_reviewer_id: viewer.id,
-                p_profile_owner_id: profileId,
+                p_profile_owner_id: targetUserId,
             })
             canReview = eligible === true
         }
@@ -135,7 +176,7 @@ export async function GET(request: NextRequest, ctx: { params: Promise<{ id: str
             stats: stats ?? { count: 0, average: 0, distribution: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 } },
             canReview,
             ownReviewId,
-            isOwner: viewer?.id === profileId,
+            isOwner: viewer?.id === targetUserId,
         })
     } catch (error) {
         console.error('[avis] erreur critique :', errorMessage(error))
@@ -146,13 +187,19 @@ export async function GET(request: NextRequest, ctx: { params: Promise<{ id: str
 // ─── POST : déposer ou mettre à jour son propre avis ───────────────────────
 export async function POST(request: NextRequest, ctx: { params: Promise<{ id: string }> }) {
     try {
-        const { id: profileId } = await ctx.params
+        const { id: rawProfileId } = await ctx.params
         const { user, supabase } = await getAuthenticatedUser(request)
 
         if (!user) {
             return NextResponse.json({ error: 'Connectez-vous pour laisser un avis.' }, { status: 401 })
         }
-        if (user.id === profileId) {
+
+        const targetUserId = await resolveProfileOwnerId(supabase, rawProfileId)
+        if (!targetUserId) {
+            return NextResponse.json({ error: 'Profil introuvable.' }, { status: 404 })
+        }
+
+        if (user.id === targetUserId) {
             return NextResponse.json({ error: 'On ne note pas son propre profil.' }, { status: 403 })
         }
 
@@ -171,7 +218,7 @@ export async function POST(request: NextRequest, ctx: { params: Promise<{ id: st
         // rejouera de toute façon : c'est elle qui fait autorité.
         const { data: eligible } = await supabase.rpc('can_review_profile', {
             p_reviewer_id: user.id,
-            p_profile_owner_id: profileId,
+            p_profile_owner_id: targetUserId,
         })
         if (eligible !== true) {
             return NextResponse.json({
@@ -183,7 +230,7 @@ export async function POST(request: NextRequest, ctx: { params: Promise<{ id: st
         const { data, error } = await supabase
             .from('profile_reviews')
             .upsert(
-                { profile_id: profileId, reviewer_id: user.id, rating, comment },
+                { profile_id: targetUserId, reviewer_id: user.id, rating, comment },
                 { onConflict: 'profile_id,reviewer_id' },
             )
             .select('id')
@@ -204,10 +251,19 @@ export async function POST(request: NextRequest, ctx: { params: Promise<{ id: st
 // ─── PATCH : réponse du professionnel à un avis reçu ───────────────────────
 export async function PATCH(request: NextRequest, ctx: { params: Promise<{ id: string }> }) {
     try {
-        const { id: profileId } = await ctx.params
+        const { id: rawProfileId } = await ctx.params
         const { user, supabase } = await getAuthenticatedUser(request)
 
-        if (!user || user.id !== profileId) {
+        if (!user) {
+            return NextResponse.json({ error: 'Connectez-vous pour répondre.' }, { status: 401 })
+        }
+
+        const targetUserId = await resolveProfileOwnerId(supabase, rawProfileId)
+        if (!targetUserId) {
+            return NextResponse.json({ error: 'Profil introuvable.' }, { status: 404 })
+        }
+
+        if (user.id !== targetUserId) {
             return NextResponse.json({ error: 'Seul le professionnel concerné peut répondre.' }, { status: 403 })
         }
 
@@ -238,3 +294,4 @@ export async function PATCH(request: NextRequest, ctx: { params: Promise<{ id: s
         return NextResponse.json({ error: errorMessage(error) }, { status: 500 })
     }
 }
+

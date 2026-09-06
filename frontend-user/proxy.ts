@@ -7,22 +7,25 @@ export async function proxy(request: NextRequest) {
     request: { headers: request.headers },
   })
 
-  // 2. Configuration du client Supabase (Lecture des Cookies)
+  // 2. Configuration du client Supabase (Lecture et rafraîchissement des Cookies)
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) { return request.cookies.get(name)?.value },
-        set(name: string, value: string, options: CookieOptions) {
-          request.cookies.set({ name, value, ...options })
-          response = NextResponse.next({ request: { headers: request.headers } })
-          response.cookies.set({ name, value, ...options })
+        getAll() {
+          return request.cookies.getAll()
         },
-        remove(name: string, options: CookieOptions) {
-          request.cookies.set({ name, value: '', ...options })
-          response = NextResponse.next({ request: { headers: request.headers } })
-          response.cookies.set({ name, value: '', ...options })
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            request.cookies.set({ name, value, ...options })
+          )
+          response = NextResponse.next({
+            request: { headers: request.headers },
+          })
+          cookiesToSet.forEach(({ name, value, options }) =>
+            response.cookies.set(name, value, options)
+          )
         },
       },
     }
@@ -148,7 +151,7 @@ export async function proxy(request: NextRequest) {
 // comme non authentifiée et redirigée vers /login, renvoyant du HTML → « Failed to decode font ».
 export const config = {
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|sw.js|manifest.webmanifest|site.webmanifest|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico|webmanifest|json|js|woff|woff2|ttf|otf|eot)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|sw.js|manifest.webmanifest|site.webmanifest|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico|webmanifest|json|js|woff|woff2|ttf|otf|eot)$).*)',
   ],
 }
 

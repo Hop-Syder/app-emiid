@@ -36,7 +36,15 @@ async function getAuthHeaders(includeJson = false): Promise<Record<string, strin
     }
     try {
         const supabase = createClient()
-        const { data: { session } } = await supabase.auth.getSession()
+        let { data: { session } } = await supabase.auth.getSession()
+        if (!session?.access_token) {
+            // Tenter getUser() qui réveille le refresh token si l'access_token a expiré
+            const { data: { user } } = await supabase.auth.getUser()
+            if (user) {
+                const res = await supabase.auth.getSession()
+                session = res.data.session
+            }
+        }
         if (session?.access_token) {
             headers["Authorization"] = `Bearer ${session.access_token}`
         }
@@ -152,10 +160,13 @@ export function ProfileNoteButton({
     const handleStartRecording = async () => {
         try {
             const supabase = createClient()
-            const { data: { session } } = await supabase.auth.getSession()
+            let { data: { session } } = await supabase.auth.getSession()
             if (!session) {
-                toast.error("Connectez-vous pour dicter une note.")
-                return
+                const { data: { user } } = await supabase.auth.getUser()
+                if (!user) {
+                    toast.error("Connectez-vous pour dicter une note.")
+                    return
+                }
             }
         } catch {
             // Continuation si Supabase indisponible
@@ -250,10 +261,13 @@ export function ProfileNoteButton({
 
         try {
             const supabase = createClient()
-            const { data: { session } } = await supabase.auth.getSession()
+            let { data: { session } } = await supabase.auth.getSession()
             if (!session) {
-                toast.error("Connectez-vous pour enregistrer une note.")
-                return
+                const { data: { user } } = await supabase.auth.getUser()
+                if (!user) {
+                    toast.error("Connectez-vous pour enregistrer une note.")
+                    return
+                }
             }
         } catch {
             // Continuation

@@ -33,7 +33,14 @@ async function getAuthHeaders(includeJson = false): Promise<Record<string, strin
     }
     try {
         const supabase = createClient()
-        const { data: { session } } = await supabase.auth.getSession()
+        let { data: { session } } = await supabase.auth.getSession()
+        if (!session?.access_token) {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (user) {
+                const res = await supabase.auth.getSession()
+                session = res.data.session
+            }
+        }
         if (session?.access_token) {
             headers["Authorization"] = `Bearer ${session.access_token}`
         }
@@ -127,10 +134,13 @@ export function ProfileReviewsSection({
 
         try {
             const supabase = createClient()
-            const { data: { session } } = await supabase.auth.getSession()
+            let { data: { session } } = await supabase.auth.getSession()
             if (!session) {
-                toast.error("Connectez-vous pour laisser un avis.")
-                return
+                const { data: { user } } = await supabase.auth.getUser()
+                if (!user) {
+                    toast.error("Connectez-vous pour laisser un avis.")
+                    return
+                }
             }
         } catch {
             // Continuation
