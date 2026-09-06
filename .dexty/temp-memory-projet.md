@@ -8,7 +8,7 @@
 - **Nom** : EmiID
 - **Type** : SaaS (Web App + Backend API + Admin + Commercial)
 - **Initialisé le** : 2026-05-27
-- **Dernière mise à jour** : 2026-09-04
+- **Dernière mise à jour** : 2026-09-06
 
 ## 🛠️ Stack détectée
 
@@ -230,5 +230,7 @@
 - [2026-09-04] Git & Base de données : Merge réussi de la branche `claude/commune-section` vers `main` et push sur `origin/main`. Synchronisation complète des types Supabase (`types/database.types.ts` et `types/supabase-rows.ts`) avec la migration `20260904_expose_commune_for_directory.sql` : exposition de `commune_id` dans `public_profiles` et `user_profiles`, typage des relations foreignKey avec `communes` et `departments`. Modernisation du script `npm run gen:types` pour utiliser `npx supabase` avec repli automatique sur le project ID.
 - [2026-09-04] Types & Tests Supabase CLI : Régénération des types Supabase via `npm run gen:types` effectuée. Résolution chirurgicale de tous les écarts post-génération (serialisation pgvector string pour `match_profiles_semantic`, sécurisation des IDs participants dans `messageController`, mapping `mapDbNotification` pour les champs nullables de notifications, typage dynamique strict sans `any` pour les tables/fonctions hors schéma public, ajout de `@testing-library/dom` et `@swc/core`). Compilation TypeScript à 100% (frontend & backend) et 31/31 tests unitaires validés avec succès.
 - [2026-09-04] Git & Sécurité : Refonte intégrale et modernisation du `.gitignore` racine (élimination des doublons, masquage récursif des secrets `.env*`, `.pem`, `.key`, `service-account*.json`, des caches `.tsbuildinfo`, `.next/`, `dist/`, `.idea/`), protection des templates `!.env.example` et versionnement de `frontend-user/.env.example`. Préservation de la mémoire projet `.dexty/temp-memory-projet.md`.
+- [2026-09-06] Portfolio & Profil public (`frontend-user`) : Ajout du bouton Note privée (5 états successifs : Repos, Accordéon Déployé Texte, Enregistrement vocal avec carré rouge stop et waveform animée, Transcription en cours modifiable, Enregistrée avec teinte marque et contour 2px) placé côte à côte avec le bouton Message, avec persistance rémanente dans `localStorage`. Ajout de la section « Services & Tarifs » (cartes de prestations, prix FCFA/Gratuit) et « Avis clients » (score 4.7/5, distribution étoiles, badge Client vérifié, encart de réponse officielle d'artisan). Intégration de la carte « Horaires » et des boutons rapides « Contacter » / « Demander un devis » dans la sidebar.
+- [2026-09-06] Qualité & Git : Nettoyage chirurgical des doublons d'imports et de variables consécutifs au rebase dans `use-settings.ts` et `location-map-picker.tsx`. Validation intégrale : 0 erreur TypeScript (`tsc --noEmit`), 31/31 tests Jest au vert, 27/27 pages compilées avec succès (`npm run build`). Commit et push sur `origin/main` (`5df9678`).
 
 
