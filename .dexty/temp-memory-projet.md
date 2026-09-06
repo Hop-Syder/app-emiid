@@ -251,6 +251,8 @@
   - **Client & Composants Profil** : Injection automatique du token de session active `session.access_token` dans les requêtes client de `profile-note-button.tsx` et `profile-reviews-section.tsx` (`/api/transcribe`, `/api/profiles/[id]/note`, `/api/profiles/[id]/reviews`).
   - **UX & Retours Utilisateur** : Vérification proactive de l'état connecté avant activation du microphone ou enregistrement de la note/avis avec toasts guidant l'utilisateur.
   - **Next.js 16 Proxy** : Élimination du fichier conflictuel `middleware.ts` pour préserver le gestionnaire officiel Next.js 16 `proxy.ts`.
-  - **Validation** : 0 erreur TypeScript (`npm run typecheck`), serveur Next.js en écoute et réponses API HTTP 200/401 validées.
+  - **Résolution d'Identifiant Slug & UUID** : Les routes API `/api/profiles/[id]/note` et `/api/profiles/[id]/reviews` supportent désormais de manière transparente aussi bien les slugs textuels (ex: `/api/profiles/abraham/note`) que les UUIDs bruts. La fonction `resolveProfileOwnerId` interroge `public_profiles` ou la RPC `get_public_profile` pour obtenir le `user_id` PostgreSQL requis par `profile_notes` et `profile_reviews`, éliminant les erreurs SQL de syntaxe UUID (22P02).
+  - **Repli Multi-Modèle Gemini** : Dans `/api/transcribe/route.ts`, mise en place d'une cascade de secours (`gemini-3.6-flash` -> `gemini-3.1-flash-lite` -> `gemini-flash-lite-latest`) pour garantir la transcription en cas de pic de charge temporaire (HTTP 503) sur un modèle.
+  - **Singleton Client Supabase & Proxy SSR** : `lib/supabase/client.ts` adopte un pattern singleton navigateur évitant les pertes d'état de session dans les handlers d'événements. `proxy.ts` passe à l'API officielle `@supabase/ssr` `getAll()` / `setAll()` pour persister le rafraîchissement des tokens d'authentification sur toutes les requêtes.
 
 
