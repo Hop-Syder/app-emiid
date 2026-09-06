@@ -15,7 +15,7 @@ export const runtime = 'edge'
 
 export async function GET(request: Request) {
   try {
-    const { searchParams } = new URL(request.url)
+    const { searchParams, origin } = new URL(request.url)
     const id = searchParams.get('id')
 
     if (!id) {
@@ -32,14 +32,14 @@ export async function GET(request: Request) {
     // Lecture via la VUE public_profiles (lisible par anon) : user_profiles est
     // protégée par la RLS → en anon, la carte OG ne se générait jamais (fallback).
     let query = supabase
-        .from('public_profiles')
-        .select('first_name, last_name, specialty, role, avatar_url, bio, city')
-        .eq('is_published', true)
+      .from('public_profiles')
+      .select('first_name, last_name, specialty, role, avatar_url, bio, city')
+      .eq('is_published', true)
 
     if (isUUID) {
-        query = query.or(`slug.eq.${id},user_id.eq.${id}`)
+      query = query.or(`slug.eq.${id},user_id.eq.${id},id.eq.${id}`)
     } else {
-        query = query.eq('slug', id)
+      query = query.eq('slug', id)
     }
 
     const { data: profile, error: _error } = await query.single()
@@ -52,7 +52,14 @@ export async function GET(request: Request) {
     const role = profile.role || 'Professionnel'
     const specialty = profile.specialty || 'Réseau Pan-Africain'
     const location = profile.city ? `${profile.city}, Afrique` : 'Afrique'
-    const avatarUrl = profile.avatar_url || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=256&auto=format&fit=crop'
+
+    // Satori (ImageResponse) exige impérativement une URL absolue (http/https) pour fetcher les images
+    const baseUrl = process.env.NEXT_PUBLIC_PUBLIC_URL || process.env.NEXT_PUBLIC_APP_URL || origin
+    let avatarUrl = (profile.avatar_url || '').trim() || '/profil/avatar.jpg'
+    if (!avatarUrl.startsWith('http://') && !avatarUrl.startsWith('https://')) {
+      const cleanPath = avatarUrl.startsWith('/') ? avatarUrl : `/${avatarUrl}`
+      avatarUrl = `${baseUrl}${cleanPath}`
+    }
 
     return new ImageResponse(
       (
@@ -82,7 +89,7 @@ export async function GET(request: Request) {
             borderRadius: '50%',
             filter: 'blur(80px)',
           }} />
-          
+
           <div style={{
             display: 'flex',
             alignItems: 'center',
@@ -90,11 +97,11 @@ export async function GET(request: Request) {
             width: '100%',
             marginBottom: '40px',
           }} >
-            <div style={{ 
-              display: 'flex', 
-              color: 'white', 
-              fontSize: '48px', 
-              fontWeight: 900, 
+            <div style={{
+              display: 'flex',
+              color: 'white',
+              fontSize: '48px',
+              fontWeight: 900,
               letterSpacing: '2px',
               textTransform: 'uppercase'
             }}>
@@ -143,7 +150,7 @@ export async function GET(request: Request) {
               }}>
                 {fullName}
               </h1>
-              
+
               <p style={{
                 fontSize: '36px',
                 fontWeight: 700,
@@ -162,7 +169,7 @@ export async function GET(request: Request) {
               }}>
                 Expertise en {specialty}
               </p>
-              
+
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -182,7 +189,7 @@ export async function GET(request: Request) {
               </div>
             </div>
           </div>
-          
+
           <div style={{
             position: 'absolute',
             bottom: '40px',
