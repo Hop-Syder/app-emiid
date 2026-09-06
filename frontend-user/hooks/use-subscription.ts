@@ -62,7 +62,8 @@ export function useSubscription() {
     const load = useCallback(async () => {
         const supabase = createClient()
         try {
-            const { data: { user } } = await supabase.auth.getUser()
+            const authRes = await supabase?.auth?.getUser?.()
+            const user = authRes?.data?.user
             if (!user) {
                 setLoading(false)
                 return

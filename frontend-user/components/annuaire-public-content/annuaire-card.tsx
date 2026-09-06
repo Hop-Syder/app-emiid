@@ -71,10 +71,13 @@ export function AnnuaireCard({ profile, theme = 'default' }: AnnuaireCardProps) 
         }
 
         if (!session) {
+            const redirectUrl = type === 'message' && profile.id
+                ? `/messages?contact=${profile.id}`
+                : `/profil/${profile.slug || profile.id}`
             toast.info("Veuillez vous connecter pour interagir avec ce membre", {
                 action: {
                     label: "Connexion",
-                    onClick: () => router.push("/login")
+                    onClick: () => router.push(`/login?redirect=${encodeURIComponent(redirectUrl)}`)
                 }
             })
             return

@@ -8,7 +8,7 @@
  * 📧 daoudaabassichristian@gmail.com
  */
 
-import { Camera, Check, Loader2, MapPin, MessageCircle, Share2, Star, UserPlus, Users } from "lucide-react"
+import { Camera, Check, Loader2, MapPin, MessageCircle, Settings, Share2, Star, UserPlus, Users } from "lucide-react"
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -180,47 +180,74 @@ export function ProfileHero({
 
                     {/* Actions : pleine largeur sur mobile, alignées à droite sur desktop */}
                     <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 w-full lg:w-auto shrink-0">
-                        <Button
-                            size="default"
-                            disabled={followLoading}
-                            className={cn(
-                                "rounded-xl h-11 text-xs px-5 gap-2 font-semibold tracking-wide transition-all hover:-translate-y-0.5 active:translate-y-0 flex-1 lg:flex-none min-w-[112px]",
-                                isFollowed
-                                    ? "bg-muted dark:bg-slate-800 text-foreground dark:text-slate-300 hover:bg-muted dark:hover:bg-slate-700 border border-border/60 dark:border-slate-700/50"
-                                    : "bg-[#013ff4] hover:bg-[#013ff4]/90 shadow-lg shadow-[#013ff4]/25 text-white border-none"
-                            )}
-                            onClick={handleFollow}
-                        >
-                            {followLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : isFollowed ? <Check className="h-4 w-4 text-emerald-500" /> : <UserPlus className="h-4 w-4" />}
-                            {isFollowed ? "Abonné" : "Suivre"}
-                        </Button>
-                        {isLoggedIn && (
-                            <Button
-                                variant="outline"
-                                size="default"
-                                className="rounded-xl h-11 text-xs px-5 gap-2 font-semibold tracking-wide border-border bg-card hover:bg-muted shadow-sm transition-all hover:-translate-y-0.5 active:translate-y-0 text-foreground flex-1 lg:flex-none min-w-[112px]"
-                                asChild
-                            >
-                                <Link href={`/messages?contact=${profile.id}`}>
-                                    <MessageCircle className="h-4 w-4" />
-                                    Message
-                                </Link>
-                            </Button>
+                        {isOwnProfile ? (
+                            <>
+                                <Button
+                                    size="default"
+                                    className="rounded-xl h-11 text-xs px-5 gap-2 font-semibold tracking-wide bg-[#013ff4] hover:bg-[#013ff4]/90 shadow-lg shadow-[#013ff4]/25 text-white border-none transition-all hover:-translate-y-0.5 active:translate-y-0 flex-1 lg:flex-none"
+                                    asChild
+                                >
+                                    <Link href="/parametres">
+                                        <Settings className="h-4 w-4" />
+                                        Modifier mon profil
+                                    </Link>
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    size="default"
+                                    aria-label="Partager mon profil"
+                                    className="rounded-xl h-11 px-4 gap-2 border-border bg-card hover:bg-muted shadow-sm transition-all hover:-translate-y-0.5 active:translate-y-0 text-foreground"
+                                    onClick={handleShare}
+                                >
+                                    <Share2 className="h-4 w-4" />
+                                    <span>Partager</span>
+                                </Button>
+                            </>
+                        ) : (
+                            <>
+                                <Button
+                                    size="default"
+                                    disabled={followLoading}
+                                    className={cn(
+                                        "rounded-xl h-11 text-xs px-5 gap-2 font-semibold tracking-wide transition-all hover:-translate-y-0.5 active:translate-y-0 flex-1 lg:flex-none min-w-[112px]",
+                                        isFollowed
+                                            ? "bg-muted dark:bg-slate-800 text-foreground dark:text-slate-300 hover:bg-muted dark:hover:bg-slate-700 border border-border/60 dark:border-slate-700/50"
+                                            : "bg-[#013ff4] hover:bg-[#013ff4]/90 shadow-lg shadow-[#013ff4]/25 text-white border-none"
+                                    )}
+                                    onClick={handleFollow}
+                                >
+                                    {followLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : isFollowed ? <Check className="h-4 w-4 text-emerald-500" /> : <UserPlus className="h-4 w-4" />}
+                                    {isFollowed ? "Abonné" : "Suivre"}
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    size="default"
+                                    className="rounded-xl h-11 text-xs px-5 gap-2 font-semibold tracking-wide border-border bg-card hover:bg-muted shadow-sm transition-all hover:-translate-y-0.5 active:translate-y-0 text-foreground flex-1 lg:flex-none min-w-[112px]"
+                                    asChild
+                                >
+                                    <Link href={isLoggedIn ? `/messages?contact=${profile.id}` : `/login?redirect=/messages?contact=${profile.id}`}>
+                                        <MessageCircle className="h-4 w-4" />
+                                        Message
+                                    </Link>
+                                </Button>
+                                {/* Bouton Note pour les profils suivis ou contactés */}
+                                {isLoggedIn && (
+                                    <ProfileNoteButton
+                                        profileId={profile.id}
+                                        profileName={profile.name}
+                                    />
+                                )}
+                                <Button
+                                    variant="outline"
+                                    size="default"
+                                    aria-label="Partager le profil"
+                                    className="rounded-xl h-11 w-11 p-0 flex items-center justify-center shrink-0 border-border bg-card hover:bg-muted shadow-sm transition-all hover:-translate-y-0.5 active:translate-y-0 text-foreground"
+                                    onClick={handleShare}
+                                >
+                                    <Share2 className="h-4 w-4" />
+                                </Button>
+                            </>
                         )}
-                        {/* Bouton Note côte à côte avec Message */}
-                        <ProfileNoteButton
-                            profileId={profile.id}
-                            profileName={profile.name}
-                        />
-                        <Button
-                            variant="outline"
-                            size="default"
-                            aria-label="Partager le profil"
-                            className="rounded-xl h-11 w-11 p-0 flex items-center justify-center shrink-0 border-border bg-card hover:bg-muted shadow-sm transition-all hover:-translate-y-0.5 active:translate-y-0 text-foreground"
-                            onClick={handleShare}
-                        >
-                            <Share2 className="h-4 w-4" />
-                        </Button>
                     </div>
                 </div>
 

@@ -117,7 +117,7 @@ export function ProfileSidebar({
                         Message
                     </Link>
                 ) : (
-                    <Link href="/login">
+                    <Link href={profile.id ? `/login?redirect=/messages?contact=${profile.id}` : "/login"}>
                         <MessageCircle className="h-4 w-4" />
                         Message
                     </Link>

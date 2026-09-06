@@ -33,7 +33,7 @@ export function PortefeuilleContent() {
   if (error) {
     return (
       <div className="flex items-center justify-center min-h-[60vh] px-4">
-        <div className="bg-card border border-red-100 rounded-none p-8 text-center max-w-sm w-full shadow-sm">
+        <div className="bg-card border border-red-200 dark:border-red-900/40 rounded-3xl p-8 text-center max-w-sm w-full shadow-lg">
           <div className="w-14 h-14 bg-red-50 dark:bg-red-950/40 rounded-full flex items-center justify-center mx-auto mb-4">
             <X className="h-7 w-7 text-red-500" />
           </div>
@@ -41,7 +41,7 @@ export function PortefeuilleContent() {
           <p className="text-sm text-muted-foreground mb-6">Vérifiez votre connexion et réessayez.</p>
           <button
             onClick={() => window.location.reload()}
-            className="w-full h-11 bg-slate-900 text-white rounded-none text-sm font-bold hover:bg-slate-800 transition-colors active:scale-[0.98]"
+            className="w-full h-11 bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-slate-800 transition-colors active:scale-[0.98]"
           >
             Réessayer
           </button>

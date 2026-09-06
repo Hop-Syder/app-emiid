@@ -156,7 +156,11 @@ export default function LoginPage() {
       } catch {
         // localStorage indisponible : le badge « Dernier utilisé » restera simplement absent.
       }
-      const callbackUrl = `${location.origin}/auth/callback`
+      const urlParams = new URLSearchParams(window.location.search)
+      const nextTarget = urlParams.get("redirect") || urlParams.get("next")
+      const callbackUrl = nextTarget
+        ? `${location.origin}/auth/callback?next=${encodeURIComponent(nextTarget)}`
+        : `${location.origin}/auth/callback`
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: { redirectTo: callbackUrl },
