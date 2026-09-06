@@ -10,7 +10,7 @@
 
 "use client"
 
-import { useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import {
     Star,
     MessageSquareQuote,
@@ -46,102 +46,90 @@ interface ProfileReviewsSectionProps {
     className?: string
 }
 
-// Avis de référence fidèles à l'Image 2
-const INITIAL_REVIEWS: ReviewItem[] = [
-    {
-        id: "rev-1",
-        authorName: "Adjoua K.",
-        authorInitials: "AK",
-        rating: 5,
-        date: "Il y a 3 semaines",
-        comment:
-            "Bibliothèque livrée en trois semaines comme annoncé. Les mesures étaient au millimètre, le montage fait sur place sans dégâts. Le devis n'a pas bougé.",
-        isVerifiedClient: true,
-        avatarColor: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300"
-    },
-    {
-        id: "rev-2",
-        authorName: "Sylvain H.",
-        authorInitials: "SH",
-        rating: 5,
-        date: "Il y a 2 mois",
-        comment:
-            "Très bon travail sur la restauration d'une commode. Un peu de retard au démarrage, prévenu à l'avance.",
-        isVerifiedClient: false,
-        avatarColor: "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-200",
-        artisanResponse: {
-            authorName: "Christian",
-            comment:
-                "Merci Sylvain. Le retard venait d'un lot de teck arrivé hors délai chez le fournisseur — j'ai changé depuis."
-        }
-    }
-]
-
-// Distribution des étoiles fidèle à l'Image 2 (Total 23 avis)
-const RATING_DISTRIBUTION = [
-    { star: 5, count: 18, percentage: 78 },
-    { star: 4, count: 3, percentage: 13 },
-    { star: 3, count: 2, percentage: 9 },
-    { star: 2, count: 0, percentage: 0 },
-    { star: 1, count: 0, percentage: 0 }
-]
+/** Synthèse renvoyée par /api/profiles/[id]/reviews. */
+interface ReviewStats {
+    count: number
+    average: number
+    distribution: Record<string, number>
+}
 
 export function ProfileReviewsSection({
     profileId,
     profileName,
     className
 }: ProfileReviewsSectionProps) {
-    const [reviews, setReviews] = useState<ReviewItem[]>(INITIAL_REVIEWS)
+    const [reviews, setReviews] = useState<ReviewItem[]>([])
+    const [stats, setStats] = useState<ReviewStats>({ count: 0, average: 0, distribution: {} })
+    const [loading, setLoading] = useState(true)
+    // Décidé par la base, jamais par l'écran : plus de dix messages échangés
+    // avec ce professionnel, dans les deux sens.
+    const [canReview, setCanReview] = useState(false)
     const [isAddReviewOpen, setIsAddReviewOpen] = useState(false)
     const [newRating, setNewRating] = useState(5)
-    const [newAuthor, setNewAuthor] = useState("")
     const [newComment, setNewComment] = useState("")
     const [submitting, setSubmitting] = useState(false)
     const [showAll, setShowAll] = useState(false)
+
+    const loadReviews = useCallback(async () => {
+        if (!profileId) { setLoading(false); return }
+        try {
+            const res = await fetch(`/api/profiles/${encodeURIComponent(profileId)}/reviews`)
+            if (!res.ok) throw new Error("chargement impossible")
+            const data = await res.json()
+            setReviews(Array.isArray(data.reviews) ? data.reviews : [])
+            if (data.stats) setStats(data.stats)
+            setCanReview(data.canReview === true)
+        } catch {
+            // Silencieux : une section d'avis indisponible ne doit pas couvrir
+            // le profil d'un message d'erreur.
+            setReviews([])
+        } finally {
+            setLoading(false)
+        }
+    }, [profileId])
+
+    useEffect(() => { void loadReviews() }, [loadReviews])
 
     const professionalFirstName = profileName
         ? profileName.split(" ")[0]?.toUpperCase()
         : "L'ARTISAN"
 
-    const handleSubmitReview = (e: React.FormEvent) => {
+    const handleSubmitReview = async (e: React.FormEvent) => {
         e.preventDefault()
-        if (!newAuthor.trim()) {
-            toast.error("Veuillez renseigner votre nom.")
-            return
-        }
-        if (!newComment.trim()) {
-            toast.error("Veuillez rédiger votre retour d'expérience.")
+        const comment = newComment.trim()
+        // Le nom n'est plus saisi : il vient du compte connecté. Un champ libre
+        // laissait signer un avis sous n'importe quelle identité.
+        if (comment.length < 10) {
+            toast.error("Votre retour doit faire au moins 10 caractères.")
             return
         }
 
         setSubmitting(true)
-        setTimeout(() => {
-            const initials = newAuthor
-                .split(" ")
-                .filter(Boolean)
-                .slice(0, 2)
-                .map((p) => p[0]?.toUpperCase())
-                .join("")
+        try {
+            const res = await fetch(`/api/profiles/${encodeURIComponent(profileId)}/reviews`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ rating: newRating, comment }),
+            })
+            const data = await res.json().catch(() => null)
 
-            const newRev: ReviewItem = {
-                id: `rev-${Date.now()}`,
-                authorName: newAuthor.trim(),
-                authorInitials: initials || "CL",
-                rating: newRating,
-                date: "À l'instant",
-                comment: newComment.trim(),
-                isVerifiedClient: true,
-                avatarColor: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200"
+            if (!res.ok) {
+                toast.error(data?.error || "Impossible de publier votre avis.")
+                return
             }
 
-            setReviews([newRev, ...reviews])
-            setNewAuthor("")
             setNewComment("")
             setNewRating(5)
             setIsAddReviewOpen(false)
+            // On relit la liste plutôt que d'y insérer une ligne devinée : le
+            // nom affiché, la date et le rang viennent du serveur.
+            await loadReviews()
+            toast.success("Merci ! Votre avis est publié.")
+        } catch {
+            toast.error("Erreur réseau.")
+        } finally {
             setSubmitting(false)
-            toast.success("Merci ! Votre avis a été publié avec succès.")
-        }, 600)
+        }
     }
 
     return (
@@ -158,15 +146,19 @@ export function ProfileReviewsSection({
                     <span>AVIS</span>
                 </h2>
 
-                <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsAddReviewOpen(true)}
-                    className="rounded-xl h-9 text-xs px-4 font-bold border-border bg-card hover:bg-muted shadow-sm transition-all hover:-translate-y-0.5 text-foreground"
-                >
-                    Laisser un avis
-                </Button>
+                {/* Proposer un bouton qui sera refusé serait une promesse non
+                    tenue : il n'apparaît que si le droit est acquis. */}
+                {canReview && (
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setIsAddReviewOpen(true)}
+                        className="rounded-xl h-9 text-xs px-4 font-bold border-border bg-card hover:bg-muted shadow-sm transition-all hover:-translate-y-0.5 text-foreground"
+                    >
+                        Laisser un avis
+                    </Button>
+                )}
             </div>
 
             {/* ── Formulaire Modal « Laisser un avis » ── */}
@@ -215,14 +207,6 @@ export function ProfileReviewsSection({
                             </span>
                         </div>
 
-                        <Input
-                            value={newAuthor}
-                            onChange={(e) => setNewAuthor(e.target.value)}
-                            placeholder="Votre nom ou prénom (ex: Mireille T.)"
-                            className="bg-card text-xs font-semibold"
-                            required
-                        />
-
                         <textarea
                             value={newComment}
                             onChange={(e) => setNewComment(e.target.value)}
@@ -261,24 +245,35 @@ export function ProfileReviewsSection({
                 {/* Note géante */}
                 <div className="flex flex-col items-center justify-center shrink-0 min-w-[130px] text-center">
                     <div className="text-5xl font-black text-foreground tracking-tight leading-none">
-                        4,7
+                        {stats.average.toLocaleString("fr-FR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
                     </div>
                     <div className="flex items-center gap-1 mt-2.5">
                         {[1, 2, 3, 4, 5].map((star) => (
                             <Star
                                 key={star}
-                                className="h-4 w-4 text-amber-400 fill-amber-400"
+                                className={cn(
+                                    "h-4 w-4",
+                                    star <= Math.round(stats.average)
+                                        ? "text-amber-400 fill-amber-400"
+                                        : "text-slate-300 dark:text-slate-700",
+                                )}
                             />
                         ))}
                     </div>
                     <div className="text-xs text-muted-foreground font-semibold mt-1.5">
-                        23 avis
+                        {stats.count} avis
                     </div>
                 </div>
 
                 {/* Barres horizontales de distribution (Image 2) */}
                 <div className="flex-1 w-full space-y-2">
-                    {RATING_DISTRIBUTION.map((item) => (
+                    {[5, 4, 3, 2, 1].map((star) => {
+                        const count = stats.distribution?.[String(star)] ?? 0
+                        // Pourcentage rapporté au total : à zéro avis, toutes
+                        // les barres restent vides plutôt que de diviser par 0.
+                        const percentage = stats.count > 0 ? (count / stats.count) * 100 : 0
+                        return { star, count, percentage }
+                    }).map((item) => (
                         <div key={item.star} className="flex items-center gap-3 text-xs">
                             <span className="w-2.5 font-bold text-slate-500 text-right">
                                 {item.star}

@@ -26,37 +26,20 @@ interface ProfileServicesSectionProps {
     className?: string
 }
 
-// Prestations exemplaires par défaut fidèles à la maquette (Image 2)
-const DEFAULT_SAMPLE_SERVICES: ServiceItemData[] = [
-    {
-        title: "Mobilier sur mesure",
-        price: 180000,
-        description:
-            "Bibliothèques, plans de travail, agencement de boutique. Relevé sur place, plan 3D, pose comprise."
-    },
-    {
-        title: "Restauration de meuble ancien",
-        price: 45000,
-        description:
-            "Décapage, reprise d'assemblages, finition à l'huile ou au vernis gomme-laque."
-    },
-    {
-        title: "Devis & relevé à domicile",
-        price: 0,
-        description:
-            "Déplacement dans le Littoral, mesures et estimation chiffrée sous 48 h."
-    }
-]
-
 export function ProfileServicesSection({
     services,
     professionName,
     onContactClick,
     className
 }: ProfileServicesSectionProps) {
-    // Si des services réels sont renseignés, on les utilise ; sinon on affiche la démonstration fidèle
-    const displayServices =
-        services && services.length > 0 ? services : DEFAULT_SAMPLE_SERVICES
+    // Les vrais services, ou rien. Le repli sur des tarifs d'exemple faisait
+    // afficher « 180 000 FCFA » sur des profils qui n'ont jamais rien saisi :
+    // un visiteur y lisait une offre ferme, le professionnel découvrait des
+    // prix qu'il n'avait pas fixés.
+    const displayServices = services ?? []
+
+    // Rien à montrer : la section disparaît plutôt que d'exhiber un cadre vide.
+    if (displayServices.length === 0) return null
 
     const formatPrice = (price: number | null) => {
         if (price === 0 || price === null) {

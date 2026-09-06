@@ -23,6 +23,8 @@ import { useCallback, useEffect, useRef, useState } from "react"
 interface UseVoiceSearchOptions {
     /** Appelé avec la phrase reconnue, une fois la dictée terminée. */
     onResult: (transcript: string) => void
+    /** Appelé en continu avec la transcription temporaire pendant que l'utilisateur parle. */
+    onInterim?: (interim: string) => void
     /** Langue de reconnaissance (par défaut le français). */
     lang?: string
 }
@@ -34,10 +36,15 @@ interface UseVoiceSearchResult {
     listening: boolean
     /** Démarre ou arrête la dictée. */
     toggle: () => void
+    /** Force le démarrage de la dictée. */
+    start: () => void
+    /** Force l'arrêt de la dictée. */
+    stop: () => void
 }
 
 export function useVoiceSearch({
     onResult,
+    onInterim,
     lang = "fr-FR",
 }: UseVoiceSearchOptions): UseVoiceSearchResult {
     const [available, setAvailable] = useState(false)
@@ -45,12 +52,16 @@ export function useVoiceSearch({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- API navigateur non typée
     const recognitionRef = useRef<any>(null)
 
-    // Le callback est gardé dans un ref : la reconnaissance n'est instanciée
-    // qu'une fois, et ne doit pas capturer une version périmée du gestionnaire.
+    // Les callbacks sont gardés dans des refs pour ne pas capturer de versions périmées.
     const onResultRef = useRef(onResult)
     useEffect(() => {
         onResultRef.current = onResult
     }, [onResult])
+
+    const onInterimRef = useRef(onInterim)
+    useEffect(() => {
+        onInterimRef.current = onInterim
+    }, [onInterim])
 
     useEffect(() => {
         if (typeof window === "undefined") return
@@ -62,15 +73,31 @@ export function useVoiceSearch({
         setAvailable(true)
         const recognition = new SR()
         recognition.lang = lang
-        recognition.interimResults = false
+        recognition.interimResults = Boolean(onInterimRef.current)
         recognition.maxAlternatives = 1
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any -- API navigateur non typée
         recognition.onresult = (event: any) => {
-            const transcript = event?.results?.[0]?.[0]?.transcript || ""
-            setListening(false)
-            const clean = transcript.trim()
-            if (clean) onResultRef.current(clean)
+            let interim = ""
+            let final = ""
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                const item = event.results[i]
+                if (item?.isFinal) {
+                    final += item[0]?.transcript || ""
+                } else {
+                    interim += item[0]?.transcript || ""
+                }
+            }
+
+            if (interim && onInterimRef.current) {
+                onInterimRef.current(interim.trim())
+            }
+
+            if (final) {
+                setListening(false)
+                const clean = final.trim()
+                if (clean) onResultRef.current(clean)
+            }
         }
         recognition.onend = () => setListening(false)
         recognition.onerror = () => setListening(false)
@@ -85,22 +112,35 @@ export function useVoiceSearch({
         }
     }, [lang])
 
-    const toggle = useCallback(() => {
+    const start = useCallback(() => {
         const recognition = recognitionRef.current
         if (!recognition) return
-        if (listening) {
-            recognition.stop()
-            setListening(false)
-            return
-        }
         try {
             recognition.start()
             setListening(true)
         } catch {
-            // start() lève si une session est déjà en cours : on se resynchronise.
             setListening(false)
         }
-    }, [listening])
+    }, [])
 
-    return { available, listening, toggle }
+    const stop = useCallback(() => {
+        const recognition = recognitionRef.current
+        if (!recognition) return
+        try {
+            recognition.stop()
+        } catch {
+            /* déjà arrêtée */
+        }
+        setListening(false)
+    }, [])
+
+    const toggle = useCallback(() => {
+        if (listening) {
+            stop()
+        } else {
+            start()
+        }
+    }, [listening, start, stop])
+
+    return { available, listening, toggle, start, stop }
 }

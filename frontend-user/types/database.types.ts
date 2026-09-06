@@ -113,6 +113,47 @@ export type Database = {
         }
         Relationships: []
       }
+      boost_compensations: {
+        Row: {
+          boost_id: string
+          granted_at: string
+          id: string
+          lost_duration: string
+          new_expires_at: string
+          previous_expires_at: string
+          previous_status: Database["public"]["Enums"]["boost_status"]
+          reason: string
+        }
+        Insert: {
+          boost_id: string
+          granted_at?: string
+          id?: string
+          lost_duration: string
+          new_expires_at: string
+          previous_expires_at: string
+          previous_status: Database["public"]["Enums"]["boost_status"]
+          reason?: string
+        }
+        Update: {
+          boost_id?: string
+          granted_at?: string
+          id?: string
+          lost_duration?: string
+          new_expires_at?: string
+          previous_expires_at?: string
+          previous_status?: Database["public"]["Enums"]["boost_status"]
+          reason?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "boost_compensations_boost_id_fkey"
+            columns: ["boost_id"]
+            isOneToOne: true
+            referencedRelation: "profile_boosts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campaign_links: {
         Row: {
           campaign_id: string
@@ -843,6 +884,75 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      profile_notes: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string
+          id: string
+          is_voice: boolean
+          profile_id: string
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          content?: string
+          created_at?: string
+          id?: string
+          is_voice?: boolean
+          profile_id: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          is_voice?: boolean
+          profile_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profile_reviews: {
+        Row: {
+          comment: string
+          created_at: string
+          id: string
+          is_hidden: boolean
+          owner_reply: string | null
+          profile_id: string
+          rating: number
+          replied_at: string | null
+          reviewer_id: string
+          updated_at: string
+        }
+        Insert: {
+          comment: string
+          created_at?: string
+          id?: string
+          is_hidden?: boolean
+          owner_reply?: string | null
+          profile_id: string
+          rating: number
+          replied_at?: string | null
+          reviewer_id: string
+          updated_at?: string
+        }
+        Update: {
+          comment?: string
+          created_at?: string
+          id?: string
+          is_hidden?: boolean
+          owner_reply?: string | null
+          profile_id?: string
+          rating?: number
+          replied_at?: string | null
+          reviewer_id?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       profile_tags: {
         Row: {
@@ -1611,6 +1721,10 @@ export type Database = {
           total: number
         }[]
       }
+      can_review_profile: {
+        Args: { p_profile_owner_id: string; p_reviewer_id: string }
+        Returns: boolean
+      }
       count_demo_profiles: { Args: never; Returns: number }
       expire_boosts: { Args: never; Returns: number }
       expire_subscriptions: { Args: never; Returns: number }
@@ -1629,6 +1743,10 @@ export type Database = {
           id: string
           name: string
         }[]
+      }
+      get_profile_review_stats: {
+        Args: { p_profile_id: string }
+        Returns: Json
       }
       get_public_profile: { Args: { identifier: string }; Returns: Json }
       get_top_countries: {

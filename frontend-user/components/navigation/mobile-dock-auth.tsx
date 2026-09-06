@@ -17,12 +17,13 @@ import { usePathname, useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   User,
-  Wallet, SquarePen, Bell, Settings, LogOut, ChevronRight, type LucideIcon,
+  Wallet, SquarePen, Bell, Settings, LogOut, ChevronRight, Mic, type LucideIcon,
 } from "lucide-react"
 import {
-  HouseIcon, CompassIcon, MessageIcon, UserIcon, SearchIcon,
+  HouseIcon, CompassIcon, MessageIcon, UserIcon,
   type AnimatedIconHandle,
 } from "@/components/icons/animated"
+import { VoiceSearchModal } from "./voice-search-modal"
 import { useState, useEffect, useRef } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useUnreadNotifications } from "@/hooks/use-unread-notifications"
@@ -83,12 +84,12 @@ export function MobileDockAuth() {
   const router = useRouter()
   const supabase = createClient()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [isVoiceOpen, setIsVoiceOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
 
   const unreadCount = useUnreadNotifications()
   const { session, currentUser } = useCurrentUserProfile()
 
-  const searchRef = useRef<AnimatedIconHandle>(null)
   const userRef = useRef<AnimatedIconHandle>(null)
 
   const displayName = [currentUser?.first_name, currentUser?.last_name].filter(Boolean).join(" ") || "Mon compte"
@@ -112,7 +113,10 @@ export function MobileDockAuth() {
   }, [])
 
   // Fermeture au changement de route
-  useEffect(() => { setMenuOpen(false) }, [pathname])
+  useEffect(() => {
+    setMenuOpen(false)
+    setIsVoiceOpen(false)
+  }, [pathname])
 
   return (
     <div className="lg:hidden">
@@ -129,6 +133,9 @@ export function MobileDockAuth() {
           />
         )}
       </AnimatePresence>
+
+      {/* Modal d'écoute vocale intelligente */}
+      <VoiceSearchModal open={isVoiceOpen} onClose={() => setIsVoiceOpen(false)} />
 
       <div
         ref={rootRef}
@@ -237,18 +244,17 @@ export function MobileDockAuth() {
             />
           </svg>
 
-          {/* Bouton de recherche encastré dans la courbure concave (FAB) */}
+          {/* Bouton Micro Vocal IA encastré dans la courbure concave (FAB) */}
           <div className="absolute left-1/2 -top-4 -translate-x-1/2 z-20 flex items-center justify-center pointer-events-auto">
-            <Link
-              href="/recherche"
-              aria-label="Rechercher"
-              onMouseEnter={() => searchRef.current?.startAnimation()}
-              onClick={() => searchRef.current?.startAnimation()}
-              className="group relative flex h-13 w-13 h-[52px] w-[52px] items-center justify-center rounded-full bg-gradient-to-tr from-[#013ff4] to-[#1e61ff] text-white shadow-[0_8px_24px_-2px_rgba(1,63,244,0.65)] ring-[3.5px] ring-white transition-all active:scale-95 hover:scale-105"
+            <button
+              type="button"
+              onClick={() => setIsVoiceOpen(true)}
+              aria-label="Recherche vocale intelligente"
+              className="group relative flex h-[52px] w-[52px] items-center justify-center rounded-full bg-gradient-to-tr from-[#013ff4] via-[#0b4bff] to-[#03b3f8] text-white shadow-[0_8px_24px_-2px_rgba(1,63,244,0.65)] ring-[3.5px] ring-white dark:ring-slate-900 transition-all active:scale-95 hover:scale-105"
             >
-              <span className="pointer-events-none absolute -inset-1 rounded-full bg-[#03b3f8]/30 blur-md opacity-80 group-hover:opacity-100 transition-opacity" />
-              <SearchIcon ref={searchRef} size={22} color="#ffffff" className="relative" />
-            </Link>
+              <span className="pointer-events-none absolute -inset-1.5 rounded-full bg-[#03b3f8]/35 blur-md opacity-80 group-hover:opacity-100 transition-opacity" />
+              <Mic className="relative h-5 w-5 text-white transition-transform group-hover:scale-110" />
+            </button>
           </div>
 
           {/* Navigation Items (4 items répartis autour de l'encoche centrale) */}

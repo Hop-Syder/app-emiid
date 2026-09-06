@@ -48,7 +48,9 @@ export function ProfileNoteButton({
     profileName,
     className
 }: ProfileNoteButtonProps) {
-    const storageKey = `emiid_private_note_${profileId}`
+    // La note vit désormais en base (profile_notes), pas dans le navigateur :
+    // le localStorage la perdait au changement d'appareil et la laissait
+    // lisible par n'importe quel script de la page.
 
     // États principaux
     const [isOpen, setIsOpen] = useState(false)
@@ -63,23 +65,40 @@ export function ProfileNoteButton({
     const [transcribedText, setTranscribedText] = useState("")
     const timerRef = useRef<NodeJS.Timeout | null>(null)
 
-    // Chargement de la note existante depuis le localStorage
+    // Enregistrement audio réel : flux micro, morceaux, envoi à la transcription.
+    const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+    const chunksRef = useRef<Blob[]>([])
+    const streamRef = useRef<MediaStream | null>(null)
+    const [saving, setSaving] = useState(false)
+
+    // Chargement de la note existante depuis le serveur.
     useEffect(() => {
-        if (!profileId || typeof window === "undefined") return
-        try {
-            const raw = localStorage.getItem(storageKey)
-            if (raw) {
-                const parsed: SavedNoteData = JSON.parse(raw)
-                if (parsed && typeof parsed.content === "string" && parsed.content.trim().length > 0) {
-                    setNoteContent(parsed.content)
-                    setHasSavedNote(true)
-                    setSavedNoteMeta(parsed)
-                }
+        if (!profileId) return
+        let active = true
+        ;(async () => {
+            try {
+                const res = await fetch(`/api/profiles/${encodeURIComponent(profileId)}/note`)
+                if (!res.ok) return
+                const data = await res.json()
+                if (!active || !data?.note?.content) return
+                setNoteContent(data.note.content)
+                setHasSavedNote(true)
+                setSavedNoteMeta({ content: data.note.content, updatedAt: data.note.updatedAt })
+            } catch {
+                // Lecture silencieuse : une note indisponible ne doit pas
+                // bloquer la consultation du profil.
             }
-        } catch {
-            // Lecture silencieuse
-        }
-    }, [profileId, storageKey])
+        })()
+        return () => { active = false }
+    }, [profileId])
+
+    // Le micro et le minuteur doivent être relâchés si le composant disparaît
+    // en cours d'enregistrement — sinon la pastille rouge du navigateur reste
+    // allumée après avoir quitté la page.
+    useEffect(() => () => {
+        streamRef.current?.getTracks().forEach((t) => t.stop())
+        if (timerRef.current) clearInterval(timerRef.current)
+    }, [])
 
     // Gestion du timer pendant l'enregistrement
     useEffect(() => {
@@ -105,56 +124,138 @@ export function ProfileNoteButton({
         return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
     }
 
-    // Démarrage de l'enregistrement audio
-    const handleStartRecording = () => {
-        setVoicePhase("recording")
+    // Démarrage de l'enregistrement : on demande le micro AVANT de basculer
+    // l'affichage, sinon un refus laisserait l'écran en « enregistrement » sans
+    // que rien ne soit capté.
+    const handleStartRecording = async () => {
+        if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
+            toast.error("Votre navigateur ne permet pas l'enregistrement audio.")
+            return
+        }
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+            streamRef.current = stream
+            chunksRef.current = []
+
+            const recorder = new MediaRecorder(stream)
+            recorder.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data) }
+            recorder.onstop = () => { void transcribe() }
+            mediaRecorderRef.current = recorder
+            recorder.start()
+            setVoicePhase("recording")
+        } catch {
+            toast.error("Micro inaccessible. Autorisez l'accès pour dicter votre note.")
+        }
     }
 
-    // Arrêt de l'enregistrement -> bascule automatique sur Transcription
+    /** Envoie l'audio capté à Gemini et récupère le texte prononcé. */
+    const transcribe = async () => {
+        const blob = new Blob(chunksRef.current, { type: chunksRef.current[0]?.type || "audio/webm" })
+        chunksRef.current = []
+        if (blob.size === 0) {
+            setVoicePhase("idle")
+            toast.error("Rien n'a été enregistré.")
+            return
+        }
+
+        try {
+            const form = new FormData()
+            form.append("audio", blob, "note.webm")
+            const res = await fetch("/api/transcribe", { method: "POST", body: form })
+            const data = await res.json().catch(() => null)
+
+            if (!res.ok) {
+                setVoicePhase("idle")
+                toast.error(data?.error || "Transcription impossible.")
+                return
+            }
+            if (data?.inaudible) {
+                setVoicePhase("idle")
+                toast.error("Enregistrement inaudible — réessayez.")
+                return
+            }
+            if (data?.degraded || !data?.text) {
+                // La transcription a échoué mais la note reste utilisable :
+                // l'utilisateur peut écrire lui-même ce qu'il voulait dicter.
+                setVoicePhase("idle")
+                toast.error("Transcription indisponible. Saisissez votre note au clavier.")
+                return
+            }
+
+            const text: string = data.text
+            setTranscribedText(text)
+            setNoteContent((prev) => (prev ? `${prev}\n${text}` : text))
+            setVoicePhase("completed")
+        } catch {
+            setVoicePhase("idle")
+            toast.error("Erreur réseau pendant la transcription.")
+        }
+    }
+
+    // Arrêt de l'enregistrement : la transcription part depuis onstop, une fois
+    // le dernier morceau reçu.
     const handleStopRecording = () => {
         setVoicePhase("transcribing")
-        // Simulation d'une transcription intelligente ultra-fluide
-        setTimeout(() => {
-            const defaultTranscription =
-                "Relevé gratuit sur place, devis sous quarante-huit heures pour agencement sur mesure."
-            setTranscribedText(defaultTranscription)
-            setNoteContent((prev) =>
-                prev ? `${prev}\n${defaultTranscription}` : defaultTranscription
-            )
-            setVoicePhase("completed")
-        }, 1300)
+        mediaRecorderRef.current?.stop()
+        streamRef.current?.getTracks().forEach((t) => t.stop())
+        streamRef.current = null
     }
 
-    // Enregistrement définitif de la note
-    const handleSaveNote = () => {
-        if (!noteContent.trim()) {
+    // Enregistrement définitif : la note part en base, où elle survit au
+    // rechargement et au changement d'appareil.
+    const handleSaveNote = async () => {
+        const content = noteContent.trim()
+        if (!content) {
             toast.error("Veuillez saisir un pense-bête avant d'enregistrer.")
             return
         }
 
-        const noteData: SavedNoteData = {
-            content: noteContent.trim(),
-            updatedAt: new Date().toISOString(),
-            hasAudio: voicePhase === "completed",
-            audioDuration: formatTimer(recordSeconds || 12)
-        }
-
+        setSaving(true)
         try {
-            localStorage.setItem(storageKey, JSON.stringify(noteData))
+            const res = await fetch(`/api/profiles/${encodeURIComponent(profileId)}/note`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ content, isVoice: voicePhase === "completed" }),
+            })
+            const data = await res.json().catch(() => null)
+
+            if (!res.ok) {
+                toast.error(data?.error || "Impossible d'enregistrer la note.")
+                return
+            }
+
             setHasSavedNote(true)
-            setSavedNoteMeta(noteData)
+            setSavedNoteMeta({
+                content,
+                updatedAt: data?.note?.updatedAt || new Date().toISOString(),
+                hasAudio: voicePhase === "completed",
+                audioDuration: formatTimer(recordSeconds),
+            })
             setIsOpen(false)
             setVoicePhase("idle")
-            toast.success("Note privée enregistrée avec succès.")
+            toast.success("Note privée enregistrée.")
         } catch {
-            toast.error("Impossible d'enregistrer la note sur cet appareil.")
+            toast.error("Erreur réseau — la note n'a pas été enregistrée.")
+        } finally {
+            setSaving(false)
         }
     }
 
-    // Suppression de la note
-    const handleDeleteNote = () => {
+    // Suppression : une note vidée est supprimée côté serveur, la ligne ne
+    // reste pas en base avec un contenu vide — sinon le bouton resterait
+    // allumé pour une note qui n'existe plus.
+    const handleDeleteNote = async () => {
+        setSaving(true)
         try {
-            localStorage.removeItem(storageKey)
+            const res = await fetch(`/api/profiles/${encodeURIComponent(profileId)}/note`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ content: "" }),
+            })
+            if (!res.ok) {
+                toast.error("Impossible de supprimer la note.")
+                return
+            }
             setNoteContent("")
             setHasSavedNote(false)
             setSavedNoteMeta(null)
@@ -163,7 +264,9 @@ export function ProfileNoteButton({
             setIsOpen(false)
             toast.info("Note privée supprimée.")
         } catch {
-            // Silencieux
+            toast.error("Erreur réseau — la note n'a pas été supprimée.")
+        } finally {
+            setSaving(false)
         }
     }
 
@@ -391,6 +494,7 @@ export function ProfileNoteButton({
                                     variant="ghost"
                                     size="sm"
                                     onClick={handleDeleteNote}
+                                    disabled={saving}
                                     className="h-8 px-2.5 rounded-lg text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-xs font-bold"
                                     title="Supprimer la note"
                                 >
@@ -403,10 +507,11 @@ export function ProfileNoteButton({
                                 type="button"
                                 size="sm"
                                 onClick={handleSaveNote}
-                                className="h-8 px-3.5 rounded-lg bg-[#013ff4] hover:bg-[#013ff4]/90 text-white text-xs font-bold gap-1.5 shadow-sm"
+                                disabled={saving}
+                                className="h-8 px-3.5 rounded-lg bg-[#013ff4] hover:bg-[#013ff4]/90 text-white text-xs font-bold gap-1.5 shadow-sm disabled:opacity-60"
                             >
                                 <Check className="h-3.5 w-3.5" />
-                                {hasSavedNote ? "Mettre à jour" : "Enregistrer"}
+                                {saving ? "Enregistrement…" : hasSavedNote ? "Mettre à jour" : "Enregistrer"}
                             </Button>
                         </div>
                     </div>
