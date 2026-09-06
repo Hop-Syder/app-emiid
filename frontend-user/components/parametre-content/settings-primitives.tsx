@@ -17,13 +17,13 @@ import { ChevronRight, Check, X, AlertCircle, CheckCircle2, Loader2, Sparkles } 
 import { cn } from "@/lib/utils"
 
 export const INPUT =
-  "h-11 rounded-2xl bg-muted/80 border-border text-sm font-medium text-foreground focus:bg-card focus:ring-2 focus:ring-[#013ff4]/15 focus:border-[#013ff4] transition-all placeholder:text-slate-400 disabled:opacity-60 disabled:cursor-not-allowed"
+  "h-11 rounded-none bg-muted/80 border-border text-sm font-medium text-foreground focus:bg-card focus:ring-2 focus:ring-[#013ff4]/15 focus:border-[#013ff4] transition-all placeholder:text-slate-400 disabled:opacity-60 disabled:cursor-not-allowed"
 
 export const SELECT =
-  "w-full h-11 px-3.5 rounded-2xl bg-muted/80 border border-border text-sm font-medium text-foreground focus:bg-card focus:outline-none focus:ring-2 focus:ring-[#013ff4]/15 focus:border-[#013ff4] transition-all cursor-pointer"
+  "w-full h-11 px-3.5 rounded-none bg-muted/80 border border-border text-sm font-medium text-foreground focus:bg-card focus:outline-none focus:ring-2 focus:ring-[#013ff4]/15 focus:border-[#013ff4] transition-all cursor-pointer"
 
 export const TEXTAREA =
-  "w-full rounded-2xl bg-muted/80 border border-border px-3.5 py-3 text-sm font-medium text-foreground focus:bg-card focus:outline-none focus:ring-2 focus:ring-[#013ff4]/15 focus:border-[#013ff4] transition-all resize-y placeholder:text-slate-400"
+  "w-full rounded-none bg-muted/80 border border-border px-3.5 py-3 text-sm font-medium text-foreground focus:bg-card focus:outline-none focus:ring-2 focus:ring-[#013ff4]/15 focus:border-[#013ff4] transition-all resize-y placeholder:text-slate-400"
 
 /**
  * Conteneur de section façon SwiftUI Grouped Inset Card
@@ -47,20 +47,29 @@ export function SectionCard({
 }) {
   return (
     <div className="space-y-1.5">
-      {title && (
-        <div className="flex items-center justify-between px-1">
-          <div className="flex items-center gap-2">
-            {Icon && <Icon className="w-3.5 h-3.5 text-slate-400" />}
-            <h2 className="text-[11px] font-black text-slate-400 uppercase tracking-wider">{title}</h2>
+      <div className={cn("bg-card border border-border", className)}>
+        {/* En-tête intégré, séparé par un filet plutôt que flottant au-dessus.
+            À angles droits, un titre détaché laissait la carte orpheline : ici
+            l'ensemble se lit comme un seul bloc. L'icône prend la couleur de
+            marque — seule touche de couleur d'un en-tête par ailleurs gris. */}
+        {title && (
+          <div className="flex items-center justify-between gap-3 border-b border-border px-4 sm:px-5 py-3">
+            <div className="flex items-center gap-2.5 min-w-0">
+              {Icon && <Icon className="w-4 h-4 text-[#0150fd] shrink-0" />}
+              <h2 className="text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.09em] truncate">
+                {title}
+              </h2>
+            </div>
+            {badge}
           </div>
-          {badge}
+        )}
+
+        <div className="p-4 sm:p-5 space-y-4">
+          {description && <p className="text-xs text-muted-foreground leading-relaxed">{description}</p>}
+          {children}
         </div>
-      )}
-      <div className={cn("bg-card border border-border/70 rounded-3xl p-4.5 sm:p-6 shadow-[0_4px_20px_rgb(0,0,0,0.02)] space-y-4", className)}>
-        {description && <p className="text-xs text-muted-foreground -mt-1 mb-2">{description}</p>}
-        {children}
       </div>
-      {footerHint && <p className="text-[11px] text-slate-400 px-2 leading-relaxed">{footerHint}</p>}
+      {footerHint && <p className="text-[11px] text-slate-400 px-1 leading-relaxed">{footerHint}</p>}
     </div>
   )
 }
@@ -124,13 +133,13 @@ export function SettingRow({
       onClick={onClick}
       className={cn(
         "w-full flex items-center justify-between gap-3.5 py-3 first:pt-0 last:pb-0 text-left transition-colors",
-        isClickable && "hover:bg-muted/80 active:bg-muted rounded-2xl px-2 -mx-2",
+        isClickable && "hover:bg-muted/80 active:bg-muted rounded-none px-2 -mx-2",
         className
       )}
     >
       <div className="flex items-center gap-3.5 min-w-0 flex-1">
         {Icon && (
-          <div className={cn("w-9 h-9 rounded-2xl flex items-center justify-center shrink-0", iconBg)}>
+          <div className={cn("w-9 h-9 rounded-none flex items-center justify-center shrink-0", iconBg)}>
             <Icon className={cn("w-4.5 h-4.5", iconColor)} />
           </div>
         )}
@@ -185,7 +194,7 @@ export function SettingToggle({
     >
       <div className="flex items-start gap-3.5 min-w-0 flex-1">
         {Icon && (
-          <div className={cn("w-9 h-9 rounded-2xl flex items-center justify-center shrink-0 mt-0.5", iconBg)}>
+          <div className={cn("w-9 h-9 rounded-none flex items-center justify-center shrink-0 mt-0.5", iconBg)}>
             <Icon className={cn("w-4.5 h-4.5", iconColor)} />
           </div>
         )}
@@ -225,7 +234,7 @@ export function SaveBar({
         type="button"
         variant="outline"
         onClick={handleCancel}
-        className="w-full sm:w-auto h-11 px-5 rounded-2xl border-border text-foreground font-bold hover:bg-muted transition-all"
+        className="w-full sm:w-auto h-11 px-5 rounded-none border-border text-foreground font-bold hover:bg-muted transition-all"
       >
         Annuler
       </Button>
@@ -233,7 +242,7 @@ export function SaveBar({
         type="button"
         onClick={handleSave}
         disabled={saving}
-        className="w-full sm:w-auto h-11 px-6 rounded-2xl bg-[#0150fd] hover:bg-[#003ec7] text-white font-bold shadow-md shadow-[#0150fd]/15 active:scale-[0.98] transition-all"
+        className="w-full sm:w-auto h-11 px-6 rounded-none bg-[#0150fd] hover:bg-[#003ec7] text-white font-bold shadow-md shadow-[#0150fd]/15 active:scale-[0.98] transition-all"
       >
         {saving ? (
           <span className="flex items-center gap-2">
@@ -266,7 +275,7 @@ export function SegmentedControl<T extends string>({
   return (
     <div
       className={cn(
-        "w-full p-1 bg-slate-100 dark:bg-slate-800/80 rounded-2xl flex gap-1 border border-border/60",
+        "w-full p-1 bg-slate-100 dark:bg-slate-800/80 rounded-none flex gap-1 border border-border/60",
         disabled && "opacity-60 pointer-events-none",
         className
       )}
@@ -281,7 +290,7 @@ export function SegmentedControl<T extends string>({
             onClick={() => onChange(opt.value)}
             disabled={disabled}
             className={cn(
-              "flex-1 h-10 px-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer select-none",
+              "flex-1 h-10 px-3 rounded-none text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer select-none",
               isSelected
                 ? "bg-card text-foreground shadow-xs border border-border/50 scale-[1.01]"
                 : "text-muted-foreground hover:text-foreground hover:bg-card/40"
@@ -333,7 +342,7 @@ export function SlugInput({
     <div className={cn("space-y-1.5", className)}>
       <div
         className={cn(
-          "w-full h-11 rounded-2xl bg-muted/80 border border-border flex items-center px-3.5 text-sm font-medium transition-all focus-within:bg-card focus-within:ring-2 focus-within:ring-[#0150fd]/15 focus-within:border-[#0150fd]",
+          "w-full h-11 rounded-none bg-muted/80 border border-border flex items-center px-3.5 text-sm font-medium transition-all focus-within:bg-card focus-within:ring-2 focus-within:ring-[#0150fd]/15 focus-within:border-[#0150fd]",
           disabled && "opacity-60 cursor-not-allowed"
         )}
       >
@@ -376,7 +385,7 @@ export function SlugInput({
               key={sug}
               type="button"
               onClick={() => onChange(sug)}
-              className="text-[#0150fd] hover:underline font-semibold bg-blue-50/80 dark:bg-blue-950/40 px-2 py-0.5 rounded-md text-[11px] cursor-pointer"
+              className="text-[#0150fd] hover:underline font-semibold bg-blue-50/80 dark:bg-blue-950/40 px-2 py-0.5 rounded-none text-[11px] cursor-pointer"
             >
               @{sug}
             </button>
@@ -435,7 +444,7 @@ export function TagsInput({
   return (
     <div
       className={cn(
-        "min-h-[44px] w-full rounded-2xl bg-muted/80 border border-border p-2 flex flex-wrap items-center gap-1.5 focus-within:bg-card focus-within:ring-2 focus-within:ring-[#0150fd]/15 focus-within:border-[#0150fd] transition-all",
+        "min-h-[44px] w-full rounded-none bg-muted/80 border border-border p-2 flex flex-wrap items-center gap-1.5 focus-within:bg-card focus-within:ring-2 focus-within:ring-[#0150fd]/15 focus-within:border-[#0150fd] transition-all",
         disabled && "opacity-60 cursor-not-allowed",
         className
       )}
@@ -443,7 +452,7 @@ export function TagsInput({
       {tags.map((tag, idx) => (
         <span
           key={`${tag}-${idx}`}
-          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#0150fd]/10 border border-[#0150fd]/20 text-[#0150fd] text-xs font-bold shadow-2xs animate-in fade-in zoom-in-95 duration-150"
+          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-none bg-[#0150fd]/10 border border-[#0150fd]/20 text-[#0150fd] text-xs font-bold shadow-2xs animate-in fade-in zoom-in-95 duration-150"
         >
           <span>#{tag}</span>
           {!disabled && (
@@ -451,7 +460,7 @@ export function TagsInput({
               type="button"
               onClick={() => removeTag(idx)}
               aria-label={`Supprimer ${tag}`}
-              className="hover:bg-[#0150fd]/20 rounded-md p-0.5 transition-colors cursor-pointer"
+              className="hover:bg-[#0150fd]/20 rounded-none p-0.5 transition-colors cursor-pointer"
             >
               <X className="w-3 h-3 text-[#0150fd]" />
             </button>
@@ -497,7 +506,7 @@ export function StickySaveBar({
   return (
     <div
       className={cn(
-        "sticky bottom-4 z-40 bg-card/95 backdrop-blur-md border border-border/80 rounded-3xl p-3.5 sm:p-4 shadow-[0_8px_30px_rgb(0,0,0,0.1)] flex items-center justify-between gap-4 transition-all duration-300",
+        "sticky bottom-4 z-40 bg-card/95 backdrop-blur-md border border-border p-3.5 sm:p-4 shadow-[0_2px_0_0_rgb(0,0,0,0.06)] flex items-center justify-between gap-4 transition-all duration-300",
         className
       )}
     >
@@ -523,7 +532,7 @@ export function StickySaveBar({
           variant="outline"
           onClick={handleCancel}
           disabled={!isDirty || saving}
-          className="h-10 px-4 rounded-xl border-border text-foreground font-bold hover:bg-muted text-xs sm:text-sm transition-all disabled:opacity-40"
+          className="h-10 px-4 rounded-none border-border text-foreground font-bold hover:bg-muted text-xs sm:text-sm transition-all disabled:opacity-40"
         >
           Annuler
         </Button>
@@ -532,7 +541,7 @@ export function StickySaveBar({
           onClick={handleSave}
           disabled={!isDirty || saving}
           className={cn(
-            "h-10 px-5 rounded-xl text-white font-bold text-xs sm:text-sm shadow-md active:scale-98 transition-all",
+            "h-10 px-5 rounded-none text-white font-bold text-xs sm:text-sm shadow-md active:scale-98 transition-all",
             isDirty
               ? "bg-[#0150fd] hover:bg-[#003ec7] shadow-[#0150fd]/25 cursor-pointer"
               : "bg-slate-300 dark:bg-slate-700 text-slate-500 cursor-not-allowed opacity-50 shadow-none"

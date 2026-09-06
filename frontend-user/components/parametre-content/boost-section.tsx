@@ -49,7 +49,7 @@ export function BoostSection() {
     const target = scope === "COMMUNE" ? selected : selectedDept
 
     return (
-        <div className="bg-card rounded-2xl border border-border p-6 sm:p-8 space-y-8">
+        <div className="bg-card rounded-none border border-border p-6 sm:p-8 space-y-8">
             <div>
                 <h3 className="text-lg font-bold text-foreground">Boost de visibilité</h3>
                 <p className="text-muted-foreground text-xs mt-1">
@@ -59,10 +59,10 @@ export function BoostSection() {
 
             {/* ── Boost actif ───────────────────────────────────────────────── */}
             {activeBoost && (
-                <div className="relative overflow-hidden rounded-2xl border border-[#F59E0B]/30 bg-[#F59E0B]/[0.06] p-5">
+                <div className="relative overflow-hidden rounded-none border border-[#F59E0B]/30 bg-[#F59E0B]/[0.06] p-5">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                         <div className="flex items-center gap-3">
-                            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#F59E0B]/15 text-[#B45309]">
+                            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-none bg-[#F59E0B]/15 text-[#B45309]">
                                 <Rocket className="h-5 w-5" />
                             </span>
                             <div>
@@ -75,7 +75,7 @@ export function BoostSection() {
                                 </p>
                             </div>
                         </div>
-                        <span className="inline-flex items-center gap-1.5 rounded-xl border border-[#F59E0B]/40 bg-card px-3 py-1.5 text-xs font-bold text-[#B45309]">
+                        <span className="inline-flex items-center gap-1.5 rounded-none border border-[#F59E0B]/40 bg-card px-3 py-1.5 text-xs font-bold text-[#B45309]">
                             <Check className="h-3.5 w-3.5" />
                             Boost actif
                         </span>
@@ -85,7 +85,7 @@ export function BoostSection() {
 
             {/* ── Erreur ────────────────────────────────────────────────────── */}
             {error && (
-                <div className="flex items-start gap-3 rounded-2xl border border-rose-200 dark:border-rose-800/50 bg-rose-50 dark:bg-rose-950/40 px-4 py-3">
+                <div className="flex items-start gap-3 rounded-none border border-rose-200 dark:border-rose-800/50 bg-rose-50 dark:bg-rose-950/40 px-4 py-3">
                     <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-rose-500" />
                     <div>
                         <p className="text-sm font-bold text-rose-900 dark:text-rose-300">Paiement impossible</p>
@@ -108,7 +108,7 @@ export function BoostSection() {
                             <button
                                 key={opt.id}
                                 onClick={() => setScope(opt.id)}
-                                className={`flex items-start gap-2.5 rounded-2xl border p-3.5 text-left transition-colors ${
+                                className={`flex items-start gap-2.5 rounded-none border p-3.5 text-left transition-colors ${
                                     active
                                         ? "border-[#013ff4] bg-[#013ff4]/[0.05]"
                                         : "border-border hover:bg-muted"
@@ -132,10 +132,10 @@ export function BoostSection() {
                 </h5>
 
                 {loading ? (
-                    <div className="h-11 w-full animate-pulse rounded-xl bg-muted" />
+                    <div className="h-11 w-full animate-pulse rounded-none bg-muted" />
                 ) : scope === "COMMUNE" ? (
                     <>
-                        <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3">
+                        <div className="flex items-center gap-2 rounded-none border border-border bg-card px-3">
                             <Search className="h-4 w-4 shrink-0 text-slate-400" />
                             <input
                                 value={filter}
@@ -150,7 +150,7 @@ export function BoostSection() {
                             value={selected}
                             onChange={(e) => setSelected(e.target.value)}
                             aria-label="Commune à cibler"
-                            className="w-full rounded-xl border border-border bg-card px-3 py-2.5 text-sm font-semibold text-foreground focus:border-[#013ff4]/40 focus:outline-none"
+                            className="w-full rounded-none border border-border bg-card px-3 py-2.5 text-sm font-semibold text-foreground focus:border-[#013ff4]/40 focus:outline-none"
                         >
                             <option value="">— Choisir une commune —</option>
                             {visible.map((c) => (
@@ -172,7 +172,7 @@ export function BoostSection() {
                         value={selectedDept}
                         onChange={(e) => setSelectedDept(e.target.value)}
                         aria-label="Département à cibler"
-                        className="w-full rounded-xl border border-border bg-card px-3 py-2.5 text-sm font-semibold text-foreground focus:border-[#013ff4]/40 focus:outline-none"
+                        className="w-full rounded-none border border-border bg-card px-3 py-2.5 text-sm font-semibold text-foreground focus:border-[#013ff4]/40 focus:outline-none"
                     >
                         <option value="">— Choisir un département —</option>
                         {departments.map((d) => (
@@ -194,7 +194,7 @@ export function BoostSection() {
                                 key={planId}
                                 initial={{ opacity: 0, y: 6 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className={`relative rounded-2xl border p-5 flex flex-col justify-between gap-4 ${
+                                className={`relative rounded-none border p-5 flex flex-col justify-between gap-4 ${
                                     best ? "border-[#013ff4]/30 bg-[#013ff4]/[0.03]" : "border-border"
                                 }`}
                             >
@@ -211,7 +211,7 @@ export function BoostSection() {
                                 <button
                                     onClick={() => startBoostCheckout(planId, target)}
                                     disabled={busy || !target || loading}
-                                    className={`w-full rounded-xl px-4 py-3 text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+                                    className={`w-full rounded-none px-4 py-3 text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${
                                         best
                                             ? "bg-[#013ff4] text-white shadow-lg shadow-[#013ff4]/25 hover:bg-[#0135d0]"
                                             : "bg-card border border-border text-foreground hover:bg-muted"

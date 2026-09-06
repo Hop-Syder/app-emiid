@@ -132,14 +132,14 @@ export function HoursPricingSection({ profile, setProfile, saving, handleSave, h
       >
         <div className="space-y-3">
           {services.length === 0 && (
-            <div className="p-6 text-center rounded-2xl bg-muted/60 border border-dashed border-border">
+            <div className="p-6 text-center rounded-none bg-muted/60 border border-dashed border-border">
               <p className="text-xs text-muted-foreground font-medium">Aucune prestation configurée pour le moment.</p>
               <p className="text-[11px] text-slate-400 mt-1">Ajoutez vos offres pour valoriser votre profil dans l&apos;annuaire.</p>
             </div>
           )}
 
           {services.map((service, index) => (
-            <div key={index} className="rounded-2xl border border-border/80 bg-muted/50 p-4 space-y-3 shadow-xs">
+            <div key={index} className="rounded-none border border-border/80 bg-muted/50 p-4 space-y-3 shadow-xs">
               <div className="flex items-center gap-2.5">
                 <Input
                   value={service.title}
@@ -164,7 +164,7 @@ export function HoursPricingSection({ profile, setProfile, saving, handleSave, h
                   type="button"
                   variant="ghost"
                   onClick={() => removeService(index)}
-                  className="h-11 w-11 p-0 shrink-0 text-rose-500 hover:bg-rose-50 hover:text-rose-600 rounded-2xl"
+                  className="h-11 w-11 p-0 shrink-0 text-rose-500 hover:bg-rose-50 hover:text-rose-600 rounded-none"
                   aria-label="Supprimer"
                 >
                   <Trash2 className="h-4.5 w-4.5" />
@@ -184,7 +184,7 @@ export function HoursPricingSection({ profile, setProfile, saving, handleSave, h
             type="button"
             variant="outline"
             onClick={addService}
-            className="rounded-2xl h-11 gap-2 border-dashed border-slate-300 text-muted-foreground w-full font-bold hover:bg-muted transition-all"
+            className="rounded-none h-11 gap-2 border-dashed border-slate-300 text-muted-foreground w-full font-bold hover:bg-muted transition-all"
           >
             <Plus className="h-4 w-4 text-[#013ff4]" />
             Ajouter une prestation

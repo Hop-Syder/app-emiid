@@ -149,7 +149,7 @@ export function SecuritySection({
         <div className="divide-y divide-red-100/60 dark:divide-red-900/40">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-3.5 first:pt-0">
             <div className="flex items-start gap-3.5 min-w-0 flex-1">
-              <div className="w-9 h-9 rounded-2xl bg-amber-100/80 dark:bg-amber-900/40 flex items-center justify-center shrink-0 mt-0.5">
+              <div className="w-9 h-9 rounded-none bg-amber-100/80 dark:bg-amber-900/40 flex items-center justify-center shrink-0 mt-0.5">
                 <UserX className="h-4.5 w-4.5 text-amber-700 dark:text-amber-300" />
               </div>
               <div className="min-w-0">
@@ -164,7 +164,7 @@ export function SecuritySection({
               variant="outline"
               onClick={handleDeactivateAccount}
               disabled={accountLoading}
-              className="w-full sm:w-auto shrink-0 h-10 px-4 rounded-2xl border-amber-200 dark:border-amber-800/50 text-amber-800 dark:text-amber-300 bg-card hover:bg-amber-50 text-xs font-bold shadow-xs transition-all"
+              className="w-full sm:w-auto shrink-0 h-10 px-4 rounded-none border-amber-200 dark:border-amber-800/50 text-amber-800 dark:text-amber-300 bg-card hover:bg-amber-50 text-xs font-bold shadow-xs transition-all"
             >
               Désactiver
             </Button>
@@ -172,7 +172,7 @@ export function SecuritySection({
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-3.5 last:pb-0">
             <div className="flex items-start gap-3.5 min-w-0 flex-1">
-              <div className="w-9 h-9 rounded-2xl bg-rose-100/80 dark:bg-rose-900/40 flex items-center justify-center shrink-0 mt-0.5">
+              <div className="w-9 h-9 rounded-none bg-rose-100/80 dark:bg-rose-900/40 flex items-center justify-center shrink-0 mt-0.5">
                 <Trash2 className="h-4.5 w-4.5 text-rose-600" />
               </div>
               <div className="min-w-0">
@@ -187,7 +187,7 @@ export function SecuritySection({
               variant="destructive"
               onClick={handleDeleteAccount}
               disabled={accountLoading}
-              className="w-full sm:w-auto shrink-0 h-10 px-4 rounded-2xl text-xs font-bold shadow-xs transition-all"
+              className="w-full sm:w-auto shrink-0 h-10 px-4 rounded-none text-xs font-bold shadow-xs transition-all"
             >
               Supprimer
             </Button>

@@ -104,7 +104,7 @@ export function ParametresContent() {
   if (loadingStatus === "error") {
     return (
       <div className="flex items-center justify-center min-h-[60vh] px-4">
-        <div className="bg-card border border-red-100 rounded-2xl p-8 text-center max-w-sm w-full shadow-sm">
+        <div className="bg-card border border-red-100 rounded-none p-8 text-center max-w-sm w-full shadow-sm">
           <div className="w-14 h-14 bg-red-50 dark:bg-red-950/40 rounded-full flex items-center justify-center mx-auto mb-4">
             <X className="h-7 w-7 text-red-500" />
           </div>
@@ -112,7 +112,7 @@ export function ParametresContent() {
           <p className="text-sm text-muted-foreground mb-6">Vérifiez votre connexion et réessayez.</p>
           <button
             onClick={() => window.location.reload()}
-            className="w-full h-11 bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-slate-800 transition-colors active:scale-[0.98]"
+            className="w-full h-11 bg-slate-900 text-white rounded-none text-sm font-bold hover:bg-slate-800 transition-colors active:scale-[0.98]"
           >
             Réessayer
           </button>
@@ -190,7 +190,7 @@ export function ParametresContent() {
                 </div>
 
                 {/* Carte d'identité du compte */}
-                <div className="bg-card border border-border/70 rounded-3xl p-4.5 sm:p-5 shadow-sm flex items-center gap-4">
+                <div className="bg-card border border-border/70 rounded-none p-4.5 sm:p-5 shadow-sm flex items-center gap-4">
                   <div className="relative shrink-0">
                     {profile.avatar_url ? (
                       <Image
@@ -233,7 +233,7 @@ export function ParametresContent() {
                 </div>
 
                 {/* Liste des rubriques tapables */}
-                <div className="bg-card border border-border/70 rounded-3xl overflow-hidden divide-y divide-border shadow-sm">
+                <div className="bg-card border border-border/70 rounded-none overflow-hidden divide-y divide-border shadow-sm">
                   {TABS.map(({ id, label, icon: Icon, desc, color, bg }) => (
                     <button
                       key={id}
@@ -241,7 +241,7 @@ export function ParametresContent() {
                       className="w-full flex items-center justify-between p-4 text-left hover:bg-muted/80 active:bg-muted transition-colors"
                     >
                       <div className="flex items-center gap-3.5 min-w-0 flex-1 pr-2">
-                        <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 ${bg}`}>
+                        <div className={`w-10 h-10 rounded-none flex items-center justify-center shrink-0 ${bg}`}>
                           <Icon className={`w-5 h-5 ${color}`} />
                         </div>
                         <div className="min-w-0 flex-1">
@@ -257,7 +257,7 @@ export function ParametresContent() {
                 {/* Déconnexion */}
                 <button
                   onClick={handleLogout}
-                  className="w-full h-12 rounded-2xl bg-card border border-rose-200/80 dark:border-rose-800/50 text-rose-600 font-bold text-sm flex items-center justify-center gap-2.5 hover:bg-rose-50 active:scale-[0.98] transition-all shadow-sm"
+                  className="w-full h-12 rounded-none bg-card border border-rose-200/80 dark:border-rose-800/50 text-rose-600 font-bold text-sm flex items-center justify-center gap-2.5 hover:bg-rose-50 active:scale-[0.98] transition-all shadow-sm"
                 >
                   <LogOut className="h-4 w-4 shrink-0" />
                   Se déconnecter
@@ -300,7 +300,7 @@ export function ParametresContent() {
                     type="button"
                     onClick={handleSave}
                     disabled={!isDirty || saving}
-                    className="h-8 px-3.5 rounded-xl bg-[#0150fd] hover:bg-[#003ec7] text-white font-bold text-xs shadow-sm active:scale-95 transition-all shrink-0 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="h-8 px-3.5 rounded-none bg-[#0150fd] hover:bg-[#003ec7] text-white font-bold text-xs shadow-sm active:scale-95 transition-all shrink-0 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     {saving ? "..." : "Enregistrer"}
                   </button>
@@ -324,7 +324,7 @@ export function ParametresContent() {
           <aside className="flex flex-col gap-3 sticky top-24">
 
             {/* User identity card */}
-            <div className="bg-card/80 backdrop-blur-md border border-border/60 rounded-2xl p-5 text-center shadow-[0_8px_30px_rgb(0,0,0,0.02)]">
+            <div className="bg-card/80 backdrop-blur-md border border-border rounded-none p-5 text-center">
               <div className="relative inline-flex mb-3">
                 {profile.avatar_url ? (
                   <Image
@@ -356,7 +356,7 @@ export function ParametresContent() {
             </div>
 
             {/* Navigation */}
-            <nav className="bg-card/80 backdrop-blur-md border border-border/60 rounded-2xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.02)]">
+            <nav className="bg-card/80 backdrop-blur-md border border-border rounded-none overflow-hidden">
               {TABS.map(({ id, label, icon: Icon }) => (
                 <button
                   key={id}
@@ -383,7 +383,7 @@ export function ParametresContent() {
             {/* Logout */}
             <button
               onClick={handleLogout}
-              className="flex items-center gap-3 px-4 py-3.5 bg-card border border-border rounded-2xl text-sm font-semibold text-red-500 hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-all shadow-[0_8px_30px_rgb(0,0,0,0.02)]"
+              className="flex items-center gap-3 px-4 py-3.5 bg-card border border-border rounded-none text-sm font-semibold text-red-500 hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-all"
             >
               <LogOut className="h-4 w-4 shrink-0" />
               Se déconnecter

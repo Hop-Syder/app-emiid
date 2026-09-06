@@ -242,7 +242,7 @@ export function LocationSection({ profile, setProfile }: LocationSectionProps) {
               variant="outline"
               onClick={detectPosition}
               disabled={locating}
-              className="h-9 px-3 rounded-xl border-border font-bold text-xs shrink-0 hover:bg-muted text-foreground disabled:opacity-60"
+              className="h-9 px-3 rounded-none border-border font-bold text-xs shrink-0 hover:bg-muted text-foreground disabled:opacity-60"
             >
               {locating
                 ? <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> Détection…</>

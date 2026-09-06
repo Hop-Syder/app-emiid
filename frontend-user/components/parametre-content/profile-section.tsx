@@ -403,7 +403,7 @@ export function ProfileSection({
           <div className="pt-2">
             {verifyMethod ? (
               /* ÉTAT B : Code envoyé (Encart bleu) */
-              <div className="p-4 bg-blue-50/90 dark:bg-blue-950/40 border border-blue-200/90 dark:border-blue-800/60 rounded-2xl space-y-3 animate-in fade-in duration-200">
+              <div className="p-4 bg-blue-50/90 dark:bg-blue-950/40 border border-blue-200/90 dark:border-blue-800/60 rounded-none space-y-3 animate-in fade-in duration-200">
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <p className="text-xs sm:text-sm font-black text-[#0150fd]">
@@ -422,7 +422,7 @@ export function ProfileSection({
                     onChange={(e) => setOtpCode(e.target.value.replace(/[^0-9]/g, "").slice(0, 6))}
                     placeholder="000000"
                     maxLength={6}
-                    className="h-11 text-center font-mono text-lg tracking-[0.3em] font-black rounded-xl border-[#0150fd]/40 bg-card w-full sm:w-48"
+                    className="h-11 text-center font-mono text-lg tracking-[0.3em] font-black rounded-none border-[#0150fd]/40 bg-card w-full sm:w-48"
                   />
                   <div className="flex items-center gap-2 w-full sm:w-auto">
                     <Button
@@ -432,7 +432,7 @@ export function ProfileSection({
                         setVerifyMethod(null)
                         setOtpCode("")
                       }}
-                      className="h-11 px-4 rounded-xl text-muted-foreground hover:bg-card flex-1 sm:flex-initial"
+                      className="h-11 px-4 rounded-none text-muted-foreground hover:bg-card flex-1 sm:flex-initial"
                     >
                       Annuler
                     </Button>
@@ -440,7 +440,7 @@ export function ProfileSection({
                       type="button"
                       onClick={handleVerifySubmit}
                       disabled={otpCode.length < 6 || verifying}
-                      className="h-11 px-5 rounded-xl bg-[#0150fd] hover:bg-[#003ec7] text-white font-bold shadow-sm flex-1 sm:flex-initial"
+                      className="h-11 px-5 rounded-none bg-[#0150fd] hover:bg-[#003ec7] text-white font-bold shadow-sm flex-1 sm:flex-initial"
                     >
                       {verifying ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : null}
                       Confirmer
@@ -450,7 +450,7 @@ export function ProfileSection({
               </div>
             ) : (
               /* ÉTAT A : Non certifié (Encart ambré avec WhatsApp et SMS) */
-              <div className="p-4 bg-amber-50/90 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/60 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="p-4 bg-amber-50/90 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/60 rounded-none flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-start gap-3">
                   <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
                   <div>
@@ -468,7 +468,7 @@ export function ProfileSection({
                     type="button"
                     onClick={() => handleVerifyRequest("whatsapp")}
                     disabled={sendingMethod !== null}
-                    className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs active:scale-95 transition-all cursor-pointer disabled:opacity-60"
+                    className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-none bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs active:scale-95 transition-all cursor-pointer disabled:opacity-60"
                   >
                     {sendingMethod === "whatsapp" ? (
                       <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -482,7 +482,7 @@ export function ProfileSection({
                     type="button"
                     onClick={() => handleVerifyRequest("sms")}
                     disabled={sendingMethod !== null}
-                    className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0150fd] hover:bg-[#003ec7] text-white text-xs font-bold shadow-xs active:scale-95 transition-all cursor-pointer disabled:opacity-60"
+                    className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-none bg-[#0150fd] hover:bg-[#003ec7] text-white text-xs font-bold shadow-xs active:scale-95 transition-all cursor-pointer disabled:opacity-60"
                   >
                     {sendingMethod === "sms" ? (
                       <Loader2 className="w-3.5 h-3.5 animate-spin" />
