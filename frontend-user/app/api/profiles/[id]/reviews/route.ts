@@ -17,7 +17,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { getAuthenticatedUser } from '@/lib/supabase/server'
 import { errorMessage } from '@/types/supabase-rows'
 
 export const dynamic = 'force-dynamic'
@@ -68,9 +68,9 @@ function shortName(first?: string | null, last?: string | null): string {
 export async function GET(request: NextRequest, ctx: { params: Promise<{ id: string }> }) {
     try {
         const { id: profileId } = await ctx.params
-        const supabase = await createClient()
+        const { user: viewer, supabase } = await getAuthenticatedUser(request)
 
-        const [{ data: rows, error }, { data: stats }, { data: auth }] = await Promise.all([
+        const [{ data: rows, error }, { data: stats }] = await Promise.all([
             supabase
                 .from('profile_reviews')
                 .select('id, reviewer_id, rating, comment, owner_reply, replied_at, created_at')
@@ -78,7 +78,6 @@ export async function GET(request: NextRequest, ctx: { params: Promise<{ id: str
                 .eq('is_hidden', false)
                 .order('created_at', { ascending: false }),
             supabase.rpc('get_profile_review_stats', { p_profile_id: profileId }),
-            supabase.auth.getUser(),
         ])
 
         if (error) {
@@ -102,7 +101,6 @@ export async function GET(request: NextRequest, ctx: { params: Promise<{ id: str
             }
         }
 
-        const viewer = auth?.user ?? null
         let canReview = false
         let ownReviewId: string | null = null
 
@@ -149,9 +147,8 @@ export async function GET(request: NextRequest, ctx: { params: Promise<{ id: str
 export async function POST(request: NextRequest, ctx: { params: Promise<{ id: string }> }) {
     try {
         const { id: profileId } = await ctx.params
-        const supabase = await createClient()
+        const { user, supabase } = await getAuthenticatedUser(request)
 
-        const { data: { user } } = await supabase.auth.getUser()
         if (!user) {
             return NextResponse.json({ error: 'Connectez-vous pour laisser un avis.' }, { status: 401 })
         }
@@ -208,9 +205,8 @@ export async function POST(request: NextRequest, ctx: { params: Promise<{ id: st
 export async function PATCH(request: NextRequest, ctx: { params: Promise<{ id: string }> }) {
     try {
         const { id: profileId } = await ctx.params
-        const supabase = await createClient()
+        const { user, supabase } = await getAuthenticatedUser(request)
 
-        const { data: { user } } = await supabase.auth.getUser()
         if (!user || user.id !== profileId) {
             return NextResponse.json({ error: 'Seul le professionnel concerné peut répondre.' }, { status: 403 })
         }

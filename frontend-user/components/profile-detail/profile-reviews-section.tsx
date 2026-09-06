@@ -24,6 +24,24 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
+import { createClient } from "@/lib/supabase/client"
+
+async function getAuthHeaders(includeJson = false): Promise<Record<string, string>> {
+    const headers: Record<string, string> = {}
+    if (includeJson) {
+        headers["Content-Type"] = "application/json"
+    }
+    try {
+        const supabase = createClient()
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session?.access_token) {
+            headers["Authorization"] = `Bearer ${session.access_token}`
+        }
+    } catch {
+        // En cas d'erreur locale, les cookies restent transmis
+    }
+    return headers
+}
 
 export interface ReviewItem {
     id: string
@@ -73,7 +91,10 @@ export function ProfileReviewsSection({
     const loadReviews = useCallback(async () => {
         if (!profileId) { setLoading(false); return }
         try {
-            const res = await fetch(`/api/profiles/${encodeURIComponent(profileId)}/reviews`)
+            const headers = await getAuthHeaders(false)
+            const res = await fetch(`/api/profiles/${encodeURIComponent(profileId)}/reviews`, {
+                headers,
+            })
             if (!res.ok) throw new Error("chargement impossible")
             const data = await res.json()
             setReviews(Array.isArray(data.reviews) ? data.reviews : [])
@@ -104,11 +125,23 @@ export function ProfileReviewsSection({
             return
         }
 
+        try {
+            const supabase = createClient()
+            const { data: { session } } = await supabase.auth.getSession()
+            if (!session) {
+                toast.error("Connectez-vous pour laisser un avis.")
+                return
+            }
+        } catch {
+            // Continuation
+        }
+
         setSubmitting(true)
         try {
+            const headers = await getAuthHeaders(true)
             const res = await fetch(`/api/profiles/${encodeURIComponent(profileId)}/reviews`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers,
                 body: JSON.stringify({ rating: newRating, comment }),
             })
             const data = await res.json().catch(() => null)

@@ -26,6 +26,25 @@ import {
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
+import { createClient } from "@/lib/supabase/client"
+
+/** Récupère les en-têtes nécessaires, y compris le token Bearer si connecté */
+async function getAuthHeaders(includeJson = false): Promise<Record<string, string>> {
+    const headers: Record<string, string> = {}
+    if (includeJson) {
+        headers["Content-Type"] = "application/json"
+    }
+    try {
+        const supabase = createClient()
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session?.access_token) {
+            headers["Authorization"] = `Bearer ${session.access_token}`
+        }
+    } catch {
+        // En cas d'exception locale, les cookies restent envoyés par défaut
+    }
+    return headers
+}
 
 interface ProfileNoteButtonProps {
     profileId: string
@@ -77,7 +96,10 @@ export function ProfileNoteButton({
         let active = true
         ;(async () => {
             try {
-                const res = await fetch(`/api/profiles/${encodeURIComponent(profileId)}/note`)
+                const headers = await getAuthHeaders(false)
+                const res = await fetch(`/api/profiles/${encodeURIComponent(profileId)}/note`, {
+                    headers,
+                })
                 if (!res.ok) return
                 const data = await res.json()
                 if (!active || !data?.note?.content) return
@@ -128,6 +150,17 @@ export function ProfileNoteButton({
     // l'affichage, sinon un refus laisserait l'écran en « enregistrement » sans
     // que rien ne soit capté.
     const handleStartRecording = async () => {
+        try {
+            const supabase = createClient()
+            const { data: { session } } = await supabase.auth.getSession()
+            if (!session) {
+                toast.error("Connectez-vous pour dicter une note.")
+                return
+            }
+        } catch {
+            // Continuation si Supabase indisponible
+        }
+
         if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
             toast.error("Votre navigateur ne permet pas l'enregistrement audio.")
             return
@@ -159,9 +192,14 @@ export function ProfileNoteButton({
         }
 
         try {
+            const headers = await getAuthHeaders(false)
             const form = new FormData()
             form.append("audio", blob, "note.webm")
-            const res = await fetch("/api/transcribe", { method: "POST", body: form })
+            const res = await fetch("/api/transcribe", {
+                method: "POST",
+                headers,
+                body: form,
+            })
             const data = await res.json().catch(() => null)
 
             if (!res.ok) {
@@ -210,11 +248,23 @@ export function ProfileNoteButton({
             return
         }
 
+        try {
+            const supabase = createClient()
+            const { data: { session } } = await supabase.auth.getSession()
+            if (!session) {
+                toast.error("Connectez-vous pour enregistrer une note.")
+                return
+            }
+        } catch {
+            // Continuation
+        }
+
         setSaving(true)
         try {
+            const headers = await getAuthHeaders(true)
             const res = await fetch(`/api/profiles/${encodeURIComponent(profileId)}/note`, {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
+                headers,
                 body: JSON.stringify({ content, isVoice: voicePhase === "completed" }),
             })
             const data = await res.json().catch(() => null)
@@ -247,9 +297,10 @@ export function ProfileNoteButton({
     const handleDeleteNote = async () => {
         setSaving(true)
         try {
+            const headers = await getAuthHeaders(true)
             const res = await fetch(`/api/profiles/${encodeURIComponent(profileId)}/note`, {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
+                headers,
                 body: JSON.stringify({ content: "" }),
             })
             if (!res.ok) {

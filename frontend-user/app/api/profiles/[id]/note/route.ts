@@ -13,7 +13,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { getAuthenticatedUser } from '@/lib/supabase/server'
 import { errorMessage } from '@/types/supabase-rows'
 
 export const dynamic = 'force-dynamic'
@@ -23,9 +23,8 @@ const MAX = 4000
 export async function GET(request: NextRequest, ctx: { params: Promise<{ id: string }> }) {
     try {
         const { id: profileId } = await ctx.params
-        const supabase = await createClient()
+        const { user, supabase } = await getAuthenticatedUser(request)
 
-        const { data: { user } } = await supabase.auth.getUser()
         // Pas connecté : pas de note, et surtout aucune erreur — le bouton
         // s'affiche simplement dans son état neutre.
         if (!user) return NextResponse.json({ note: null, canWrite: false })
@@ -55,9 +54,7 @@ export async function GET(request: NextRequest, ctx: { params: Promise<{ id: str
 export async function PUT(request: NextRequest, ctx: { params: Promise<{ id: string }> }) {
     try {
         const { id: profileId } = await ctx.params
-        const supabase = await createClient()
-
-        const { data: { user } } = await supabase.auth.getUser()
+        const { user, supabase } = await getAuthenticatedUser(request)
         if (!user) {
             return NextResponse.json({ error: 'Connectez-vous pour enregistrer une note.' }, { status: 401 })
         }

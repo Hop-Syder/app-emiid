@@ -22,7 +22,7 @@
 // des appels courts et ponctuels — exactement le profil de cet assistant, qui
 // n'est sollicité que sur une recherche à 0 résultat. Surchargeable par env
 // pour suivre le catalogue Google sans redéploiement de code.
-const MODEL = process.env.GEMINI_ASSISTANT_MODEL || 'gemini-3.5-flash-lite'
+const MODEL = process.env.GEMINI_ASSISTANT_MODEL || 'gemini-3.6-flash'
 
 const ENDPOINT = (model: string) =>
     `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`

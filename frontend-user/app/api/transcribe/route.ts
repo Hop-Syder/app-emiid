@@ -17,12 +17,12 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { getAuthenticatedUser } from '@/lib/supabase/server'
 import { errorMessage } from '@/types/supabase-rows'
 
 export const dynamic = 'force-dynamic'
 
-const MODEL = process.env.GEMINI_TRANSCRIBE_MODEL || 'gemini-3.5-flash-lite'
+const MODEL = process.env.GEMINI_TRANSCRIBE_MODEL || 'gemini-3.6-flash'
 const ENDPOINT = (model: string) =>
     `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`
 
@@ -40,10 +40,8 @@ const PROMPT = [
 
 export async function POST(request: NextRequest) {
     try {
-        // Réservé aux personnes connectées : une transcription coûte un appel
-        // facturé, elle n'a pas à être offerte au premier venu.
-        const supabase = await createClient()
-        const { data: { user } } = await supabase.auth.getUser()
+        // Réservé aux personnes connectées (vérifié via Bearer token ou cookie)
+        const { user } = await getAuthenticatedUser(request)
         if (!user) {
             return NextResponse.json({ error: 'Connectez-vous pour dicter une note.' }, { status: 401 })
         }
@@ -87,7 +85,7 @@ export async function POST(request: NextRequest) {
                             { inline_data: { mime_type: mimeType, data: base64 } },
                         ],
                     }],
-                    generationConfig: { temperature: 0, maxOutputTokens: 1024 },
+                    generationConfig: { temperature: 0, maxOutputTokens: 2048 },
                 }),
             })
         } catch (e) {

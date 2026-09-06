@@ -245,6 +245,12 @@
   - **Tarification** : Harmonisation de la carte « Pro » (fond équilibré en mode clair, lueur cyan en dark mode), mise en avant des tarifs en FCFA et paiements Mobile Money.
   - **Pages FAQ, À Propos & Légal** : Recherche en direct dans la FAQ, mise en lumière du CEO @hopsyder (Daouda Abassi Christian) et section recrutement (« Rejoindre l'aventure ») remplaçant les profils placeholder, mise en page épurée des mentions légales et politique de confidentialité.
   - **Page Explorer (`/explore`)** : Création de la vitrine d'exploration avec recherche, filtre de pays et catégories, reliant vers les profils certifiés de l'application utilisateur (`app.emiid.com/profil/[slug]`).
-  - **Validation** : 0 erreur TypeScript (`npx tsc --noEmit`), compilation et rendu HTTP 200 validés sur toutes les routes (`/`, `/explore`, `/about`, `/faq`, `/legal`, `/privacy`).
+- [2026-09-06] Profils Tiers — Résolution de la transcription vocale & de l'authentification (`frontend-user`) :
+  - **Transcription Gemini** : Ajout de la variable `GEMINI_API_KEY` dans `frontend-user/.env.local` et mise à jour du modèle par défaut vers `gemini-3.6-flash` (l'ancien `gemini-3.5-flash-lite` n'existait pas et retournait 404). Augmentation de `maxOutputTokens` à 2048 pour éviter la troncation due aux jetons de réflexion (`thoughtSignature`).
+  - **Authentification Double-Source Résiliente** : Refonte de `lib/supabase/server.ts` avec la fonction `getAuthenticatedUser(request)`. Prise en charge prioritaire de l'en-tête `Authorization: Bearer <token>` pour les requêtes API en complément des cookies SSR de session.
+  - **Client & Composants Profil** : Injection automatique du token de session active `session.access_token` dans les requêtes client de `profile-note-button.tsx` et `profile-reviews-section.tsx` (`/api/transcribe`, `/api/profiles/[id]/note`, `/api/profiles/[id]/reviews`).
+  - **UX & Retours Utilisateur** : Vérification proactive de l'état connecté avant activation du microphone ou enregistrement de la note/avis avec toasts guidant l'utilisateur.
+  - **Next.js 16 Proxy** : Élimination du fichier conflictuel `middleware.ts` pour préserver le gestionnaire officiel Next.js 16 `proxy.ts`.
+  - **Validation** : 0 erreur TypeScript (`npm run typecheck`), serveur Next.js en écoute et réponses API HTTP 200/401 validées.
 
 
