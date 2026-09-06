@@ -265,10 +265,18 @@ export function useMessages() {
         setMessages((prev) => (prev.some((m) => m.id === newMsg.id) ? prev : [...prev, newMsg]))
         markMessagesAsRead(selectedConv.id)
       }
+      // Un message qu'on vient d'envoyer soi-même ne doit jamais compter comme
+      // non lu pour soi, quel que soit `isCurrent` : la conversation peut encore
+      // porter son id temporaire "new-…" pendant la résolution de l'id réel
+      // (course avec le fetchConversations() de handleSendMessage), ce qui faisait
+      // passer isCurrent à faux et incrémentait le compteur sur son propre envoi.
+      const isOwnMessage = newMsg.sender_id === currentUserId
       setConversations((prev) => {
         const index = prev.findIndex((c) => c.id === newMsg.conversation_id)
         if (index === -1) {
-          fetchConversations().then((data) => setConversations(data)).catch(console.error)
+          if (!isOwnMessage) {
+            fetchConversations().then((data) => setConversations(data)).catch(console.error)
+          }
           return prev
         }
         const next = [...prev]
@@ -277,7 +285,7 @@ export function useMessages() {
           ...next[index],
           last_message: newMsg.content,
           last_message_at: newMsg.created_at,
-          unread_count: isCurrent ? 0 : next[index].unread_count + 1,
+          unread_count: isCurrent || isOwnMessage ? 0 : next[index].unread_count + 1,
         }
         return next
       })
