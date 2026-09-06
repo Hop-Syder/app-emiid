@@ -1,10 +1,18 @@
+/**
+ * @author @hopsyder
+ * @organization Nexus Partners
+ * @description Accordéon FAQ dynamique avec recherche en temps réel et Dark Mode #000616
+ * @created 2026-06-13
+ * @updated 2026-09-06
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+ */
+
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, Globe2, UserCircle2, CreditCard, ShieldCheck } from "lucide-react";
-
-const USER_APP_URL = process.env.NEXT_PUBLIC_USER_APP_URL || "https://app.emiid.com";
+import { ChevronDown, Globe2, UserCircle2, CreditCard, ShieldCheck, Search, HelpCircle, X } from "lucide-react";
 
 interface Faq {
   question: string;
@@ -12,220 +20,225 @@ interface Faq {
 }
 
 interface Category {
+  id: string;
   title: string;
   icon: React.ComponentType<{ className?: string }>;
-  color: string;
   faqs: Faq[];
 }
 
 const categories: Category[] = [
   {
-    title: "Comprendre Emiid",
+    id: "general",
+    title: "Comprendre EmiID",
     icon: Globe2,
-    color: "text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10",
     faqs: [
       {
-        question: "Qu'est-ce qu'Emiid exactement ?",
+        question: "Qu'est-ce qu'EmiID exactement ?",
         answer:
-          "Emiid est la première plateforme africaine de profils professionnels certifiés. Concrètement, c'est l'endroit où vous créez une carte d'identité professionnelle en ligne — validée par vos pairs, visible par les recruteurs, entreprises et partenaires d'affaires. Contrairement aux réseaux généralistes, Emiid est conçu pour valoriser aussi bien le développeur senior que l'artisan talentueux ou le fondateur de startup, en tenant compte des réalités économiques et technologiques du continent.",
+          "EmiID est la plateforme de référence pour l'identité numérique professionnelle en Afrique. Elle vous permet de créer une vitrine professionnelle certifiée — vérifiée par vos pairs et accessible aux recruteurs, partenaires et clients d'affaires. Contrairement aux réseaux saturés, EmiID valorise aussi bien les experts tech que les artisans d'art, consultants et entrepreneurs, avec une accessibilité technique adaptée au continent.",
       },
       {
-        question: "Pour qui est conçu Emiid ?",
+        question: "Pour qui est conçu EmiID ?",
         answer:
-          "Emiid s'adresse à trois grandes cibles :\n\n• **Les Talents & Freelancers** — développeurs, designers, artisans, consultants — qui veulent être trouvés et contactés sans passer par des intermédiaires.\n• **Les Fondateurs & Entrepreneurs** — qui cherchent à crédibiliser leur startup, exposer leur vision et attirer des entreprises ou des talents.\n• **Les Entreprises** — qui veulent identifier et contacter des profils vérifiés en Afrique, sans friction ni faux comptes.",
+          "EmiID s'adresse à 3 profils clés :\n• Les Talents & Freelances — développeurs, designers, juristes, artisans — désireux d'être découverts sans intermédiaires prédateurs.\n• Les Fondateurs & PME — qui souhaitent certifier leur entreprise, partager une vitrine moderne et asseoir leur crédibilité commerciale.\n• Les Institutions & Recruteurs — qui recherchent des compétences authentiques et vérifiées en Afrique sans faux comptes.",
       },
       {
-        question: "En quoi êtes-vous différents de LinkedIn ou WhatsApp Business ?",
+        question: "En quoi êtes-vous différents de LinkedIn ou WhatsApp ?",
         answer:
-          "LinkedIn est pensé pour le marché occidental : ses tarifs en dollars sont inaccessibles pour la plupart des professionnels africains, il ne valorise pas l'économie informelle, et il est souvent trop lent sur des connexions mobiles instables.\n\nWhatsApp permet la messagerie, mais n'offre aucune crédibilisation de profil, aucune découvrabilité, aucune vérification.\n\nEmiid combine les deux : un profil professionnel structuré et certifié + une messagerie directe, le tout optimisé pour l'Afrique — tarifs en FCFA, paiement Mobile Money, interface ultra-légère, et support en français par une équipe locale.",
+          "LinkedIn facture des abonnements coûteux en devises étrangères sans intégrer le Mobile Money, et pénalise les connexions mobiles lentes.\n\nWhatsApp permet l'échange direct mais n'offre aucune vérification formelle, aucun annuaire public et aucune protection de profil.\n\nEmiID réunit le meilleur des deux mondes : profil vérifié, lien court, QR Code professionnel, messagerie sécurisée, paiement natif en FCFA par Mobile Money (Wave, MTN, Orange, Moov) et support en français sur fuseau africain.",
       },
       {
-        question: "Dans quels pays est disponible Emiid ?",
+        question: "Dans quels pays EmiID est-il disponible ?",
         answer:
-          "Emiid est disponible partout dans le monde, mais conçu en priorité pour l'Afrique subsaharienne francophone : Côte d'Ivoire, Sénégal, Mali, Burkina Faso, Guinée, Bénin, Togo, Cameroun, Congo, Gabon et bien d'autres. Les paiements Mobile Money (Wave, Orange Money, MTN MoMo) sont activés dans les pays où ces services opèrent. Des membres internationaux (Europe, Canada, États-Unis) rejoignent également la plateforme pour accéder aux profils africains.",
+          "EmiID est accessible dans le monde entier, avec une priorité pour l'Afrique subsaharienne : Côte d'Ivoire, Sénégal, Bénin, Togo, Mali, Cameroun, Burkina Faso, Guinée, Gabon, Congo. Les membres de la diaspora en Europe et Amérique du Nord l'utilisent également pour collaborer avec des partenaires du continent.",
       },
     ],
   },
   {
+    id: "profile",
     title: "Profil & Compte",
     icon: UserCircle2,
-    color: "text-purple-500 bg-purple-50 dark:bg-purple-500/10",
     faqs: [
       {
-        question: "Comment créer mon profil Emiid ?",
+        question: "Comment créer mon profil EmiID ?",
         answer:
-          "La création de profil prend moins de 5 minutes en 5 étapes guidées :\n\n1. **Identité** — Photo, nom complet et titre professionnel.\n2. **Expertise** — Votre catégorie (Talent, Fondateur, Entreprise...) et secteur d'activité.\n3. **Histoire** — Votre bio et lien personnalisé (emiid.com/votrenom).\n4. **Localisation** — Pays et ville.\n5. **Compétences** — Tags qui vous rendent trouvable dans l'annuaire.\n\nVous pouvez sauvegarder en cours de route et compléter plus tard. Aucune carte bancaire requise.",
+          "La création prend moins de 3 minutes :\n1. Identité — Nom, titre professionnel et photo de profil.\n2. Catégorie — Talent, Fondateur ou Entreprise.\n3. Histoire & Lien — Biographie synthétique et choix de votre lien (emiid.com/votrenom).\n4. Localisation & Métier — Ville, pays et tags de compétences pour être indexé dans l'annuaire.\n\nAucune carte bancaire n'est exigée à l'inscription.",
       },
       {
-        question: "Quel type de profil dois-je choisir ?",
+        question: "Comment fonctionne le lien court personnalisé ?",
         answer:
-          "Lors de la création, vous sélectionnez votre catégorie principale :\n\n• **Talent** : développeur, designer, comptable, juriste, artisan, prestataire de service.\n• **Fondateur** : vous avez lancé ou co-fondé une startup, une entreprise, une association.\n• **Entreprise** : vous investissez, accompagnez ou financez des projets (business angels, fonds, VC), ou recrutez des profils.\n• **Recruteur / Entreprise** : vous cherchez à embaucher ou à sous-traiter.\n\nVous pouvez compléter avec plusieurs secteurs d'activité. Le profil reste modifiable à tout moment.",
-      },
-      {
-        question: "Comment personnaliser mon lien de profil ?",
-        answer:
-          `Avec un compte gratuit, votre profil est accessible via un URL avec votre identifiant unique. Avec le plan Pro (2 000 FCFA/mois), vous choisissez un pseudo personnalisé : emiid.com/votrenom. Ce lien est ensuite utilisable sur votre CV, votre carte de visite ou vos signatures d'email. Si le pseudo est déjà pris, le système vous propose des alternatives. Vous pouvez le modifier une fois tous les 60 jours.`,
-      },
-      {
-        question: "Mon profil est-il visible immédiatement après inscription ?",
-        answer:
-          "Oui, dès que vous publiez votre profil, il est visible dans l'annuaire public. Cependant, votre visibilité dans les résultats de recherche dépend de la complétude de votre profil : un profil à 80%+ remonte bien plus haut qu'un profil vide. Les réalisations ajoutées à votre portfolio passent par une modération légère (généralement sous 24h) avant d'apparaître publiquement, pour éviter les contenus inappropriés.",
-      },
-      {
-        question: "Comment ajouter des réalisations à mon portfolio ?",
-        answer:
-          "Depuis votre espace Portefeuille (accessible dans le menu une fois connecté), cliquez sur « Ajouter une réalisation ». Vous uploadez une image, ajoutez un titre et une courte description de la mission ou du projet. La réalisation passe en statut « En attente » le temps de la modération (sous 24h en général), puis elle est visible sur votre profil public avec le badge « Publié ». En cas de refus, la raison vous est communiquée pour corriger et renvoyer.",
+          "Avec la formule Gratuite, vous bénéficiez d'une URL directe. Avec le plan Pro (2 000 FCFA/mois), vous réservez votre pseudo exclusif (ex: emiid.com/amadou-traore). Ce lien est idéal pour vos cartes de visite, signatures d'email et bio WhatsApp.",
       },
       {
         question: "Comment obtenir le Badge Fondateur Numéroté ?",
         answer:
-          "Le Badge Fondateur est réservé aux 1 000 premiers inscrits (700 places en Afrique, 300 à l'international) qui remplissent ces 4 conditions :\n\n1. **Être dans les 1 000 premiers** profils validés, en temps réel.\n2. **Compléter son profil à au moins 80%** (bio, compétences, photo, localisation).\n3. **Parrainer 3 amis actifs** (inscrits + profil complété à 30% minimum).\n4. **Avoir un compte de plus de 48h** (anti-spam).\n\nEn bonus : faites valider au moins une compétence par un pair pour booster votre crédibilité. Le badge vous donne accès à 1 an de Plan Pro offert — valeur de 24 000 FCFA.",
+          "Le Badge Fondateur est strictement réservé aux 1 000 premiers inscrits (700 en Afrique, 300 à l'international) qui satisfont 4 critères :\n1. Être dans les 1 000 premiers inscrits horodatés.\n2. Profil complété à 80% minimum.\n3. Parrainer 3 confrères actifs sur la plateforme.\n4. Compte vérifié sous 48h.\n\nCe badge offre à vie la gratuité pendant 1 an sur le plan Pro (valeur 24 000 FCFA) et une priorité dans l'annuaire.",
       },
     ],
   },
   {
-    title: "Abonnements & Paiement",
+    id: "pricing",
+    title: "Abonnements & Paiements",
     icon: CreditCard,
-    color: "text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10",
     faqs: [
       {
-        question: "Est-ce qu'Emiid est gratuit ?",
+        question: "EmiID est-il gratuit ?",
         answer:
-          "La création de profil et l'accès à l'annuaire de base sont **entièrement gratuits et le restent**. Le plan Gratuit inclut un profil public, l'apparition dans l'annuaire, jusqu'à 3 compétences et la messagerie basique (10 messages/jour).\n\nPour aller plus loin, nous proposons 3 plans payants :\n• **Pro** — 2 000 FCFA/mois (portfolio illimité, messagerie illimitée, stats de visibilité, lien personnalisé)\n• **Entreprise** — 5 000 FCFA/mois (page entreprise vérifiée, gestion d'équipe, offres d'emploi, CRM)\n• **Entreprise+** — 10 000 FCFA/mois (profils illimités, API, account manager dédié)\n\nLa facturation annuelle offre 20% de réduction sur tous les plans.",
+          "Oui, la version de base est gratuite et sans limitation de durée. Elle inclut votre profil certifiable, l'apparition dans l'annuaire et la messagerie directe.\n\nLe plan Pro à 2 000 FCFA/mois débloque le portfolio illimité, le lien personnalisé, les statistiques d'audience et le référencement prioritaire.",
       },
       {
-        question: "Quels modes de paiement acceptez-vous ?",
+        question: "Quels sont les moyens de paiement acceptés ?",
         answer:
-          "Nous acceptons :\n• **Wave** (Côte d'Ivoire, Sénégal, Mali, Burkina Faso...)\n• **Orange Money** (multi-pays)\n• **MTN MoMo** (Côte d'Ivoire, Cameroun, Bénin...)\n• **Cartes bancaires Visa / Mastercard** (via FedaPay)\n• **Virement bancaire** (plans Entreprise+ sur devis)\n\nTous les paiements sont en **FCFA**, sans conversion ni frais de change. Aucune carte de crédit étrangère n'est requise pour commencer.",
+          "Nous intégrons directement FedaPay pour les paiements locaux :\n• Wave (Côte d'Ivoire, Sénégal...)\n• MTN Mobile Money & Moov Money\n• Orange Money\n• Cartes Visa & Mastercard sécurisées\n\nTous les paiements sont libellés en FCFA sans frais de conversion bancaire.",
       },
       {
-        question: "Y a-t-il une réduction pour l'abonnement annuel ?",
+        question: "Puis-je annuler mon abonnement à tout moment ?",
         answer:
-          "Oui, chaque plan payant bénéficie de **20% de réduction** en choisissant la facturation annuelle :\n• Pro : 2 000 → 1 600 FCFA/mois (19 200 FCFA facturés une fois par an)\n• Entreprise : 5 000 → 4 000 FCFA/mois (48 000 FCFA/an)\n• Entreprise+ : 10 000 → 8 000 FCFA/mois (96 000 FCFA/an)\n\nVous pouvez basculer entre mensuel et annuel à tout moment depuis votre tableau de bord.",
-      },
-      {
-        question: "Puis-je changer ou annuler mon abonnement à tout moment ?",
-        answer:
-          "Oui, sans frais et sans conditions. Vous pouvez upgrader, downgrader ou annuler depuis votre espace Paramètres → Abonnement. En cas d'annulation, vous conservez l'accès aux fonctionnalités payantes jusqu'à la fin de la période déjà réglée. Aucun remboursement prorata n'est proposé pour les périodes mensuelles, mais les abonnements annuels font l'objet d'un remboursement au prorata si l'annulation intervient dans les 7 premiers jours.",
+          "Absolument. Aucun engagement de durée : vous pouvez suspendre ou résilier votre abonnement Pro directement depuis vos paramètres de compte en un clic.",
       },
     ],
   },
   {
-    title: "Fonctionnalités & Sécurité",
+    id: "security",
+    title: "Sécurité & Protection des Données",
     icon: ShieldCheck,
-    color: "text-blue-500 bg-blue-50 dark:bg-blue-500/10",
     faqs: [
-      {
-        question: "Comment fonctionne le système de vérification et de confiance ?",
-        answer:
-          "Emiid utilise plusieurs couches de confiance :\n\n• **Vérification d'identité légère** : à l'inscription, votre adresse email ou numéro de téléphone est confirmé.\n• **Validation par les pairs** : vos contacts sur la plateforme peuvent endorser vos compétences, ce qui ajoute un badge de crédibilité sur chaque compétence validée.\n• **Badge Entreprise Certifiée** : les comptes Entreprise fournissent leur registre de commerce pour obtenir le badge officiel.\n• **Signalement communautaire** : chaque profil peut être signalé par les utilisateurs. Notre équipe examine sous 48h et peut suspendre un compte frauduleux.\n\nCette approche progressive nous permet d'équilibrer accessibilité et fiabilité.",
-      },
-      {
-        question: "Comment fonctionne la messagerie EmiID ?",
-        answer:
-          "La messagerie d'Emiid permet de contacter n'importe quel profil directement depuis la plateforme, sans partager votre numéro de téléphone. Elle supporte :\n• Texte et emojis\n• Envoi de fichiers et d'images (plan Pro et supérieurs)\n• Lecture confirmée (vu)\n• Chiffrement en transit\n\nLe plan Gratuit est limité à 10 messages envoyés par jour. Le plan Pro lève cette limite. La messagerie est accessible depuis la version web et sera bientôt disponible via une application mobile.",
-      },
       {
         question: "Mes données personnelles sont-elles protégées ?",
         answer:
-          "Oui. Emiid est construit sur Supabase avec une architecture de sécurité Row-Level Security (RLS) : chaque utilisateur n'accède qu'aux données qui lui sont destinées. Vos données ne sont jamais vendues à des tiers.\n\nDe plus :\n• Votre profil peut être masqué de l'annuaire public à tout moment depuis Paramètres.\n• Vous pouvez activer un **code PIN** pour protéger l'accès à votre compte.\n• Vous pouvez activer la **vérification en 2 étapes (2FA)** via SMS ou WhatsApp.\n• Les données sont hébergées sur des serveurs situés en Europe (conformité RGPD).",
+          "Oui. EmiID utilise Supabase avec une politique stricte de Row-Level Security (RLS). Vos coordonnées sensibles peuvent être protégées par code PIN, et aucune donnée n'est cédée à des régies publicitaires.",
       },
       {
-        question: "Comment fonctionne la médiation intégrée dans les conversations ?",
+        question: "Comment fonctionne la médiation en cas de litige ?",
         answer:
-          "Emiid intègre un système de médiation directement dans chaque conversation. Si un échange tourne au conflit — litige sur une prestation, désaccord sur un paiement, malentendu professionnel — l'une ou l'autre des parties peut déclencher une demande de médiation sans quitter la messagerie.\n\nConcrètement :\n• Un bouton « Demander une médiation » est disponible dans les options de la conversation.\n• Une fois la demande envoyée, un message de médiation officiel apparaît dans le fil de discussion, visible par les deux parties.\n• Un médiateur Emiid est notifié et rejoint la conversation pour faciliter la résolution à l'amiable.\n• Les échanges dans ce cadre sont tracés et conservés pour servir de référence en cas d'escalade.\n\nCette fonctionnalité est disponible sur tous les plans, y compris le plan Gratuit. Elle vise à protéger aussi bien le prestataire que le client, sans avoir à recourir à des voies extérieures.",
-      },
-      {
-        question: "Comment signaler un faux profil ou un contenu abusif ?",
-        answer:
-          "Sur chaque profil public, un bouton « Signaler » est accessible dans le menu des options (icône ⋯). Vous choisissez la catégorie de signalement (faux profil, arnaque, contenu inapproprié, usurpation d'identité) et ajoutez un commentaire optionnel. Notre équipe de modération examine le signalement sous 24 à 48h et prend les mesures appropriées (avertissement, suspension temporaire ou bannissement définitif). Les signalements abusifs sont également traçables pour protéger les profils légitimes.",
+          "Directement dans la messagerie, chaque membre peut cliquer sur « Demander une médiation ». Un modérateur EmiID intervient alors en tiers neutre pour clarifier la situation et assurer la traçabilité des engagements professionnels.",
       },
     ],
   },
 ];
 
-// Données structurées FAQPage (rich results Google). Le markdown (**, \n) est nettoyé.
-const faqJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  mainEntity: categories.flatMap((cat) =>
-    cat.faqs.map((f) => ({
-      "@type": "Question",
-      name: f.question,
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: f.answer.replace(/\*\*/g, "").replace(/\s*\n+\s*/g, " ").trim(),
-      },
-    })),
-  ),
-};
-
 export function FaqAccordion() {
-  const [openKey, setOpenKey] = useState<string | null>("0-0");
+  const [openKey, setOpenKey] = useState<string | null>("general-0");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   const toggle = (key: string) => setOpenKey(openKey === key ? null : key);
 
+  // Filtrage combiné recherche + catégorie
+  const filteredCategories = useMemo(() => {
+    return categories
+      .filter((cat) => selectedCategory === "all" || cat.id === selectedCategory)
+      .map((cat) => {
+        if (!searchQuery.trim()) return cat;
+        const q = searchQuery.toLowerCase();
+        const filteredFaqs = cat.faqs.filter(
+          (f) => f.question.toLowerCase().includes(q) || f.answer.toLowerCase().includes(q)
+        );
+        return { ...cat, faqs: filteredFaqs };
+      })
+      .filter((cat) => cat.faqs.length > 0);
+  }, [searchQuery, selectedCategory]);
+
   return (
-    <div className="w-full max-w-4xl mx-auto mt-12 space-y-10">
-      {/* JSON-LD FAQPage — rendu SSR, lu par les moteurs de recherche */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd).replace(/</g, "\\u003c") }}
-      />
-      {categories.map((cat, catIdx) => {
+    <div className="w-full max-w-4xl mx-auto space-y-8">
+      
+      {/* Barre de recherche en direct */}
+      <div className="relative">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Rechercher une réponse (ex: Mobile Money, Badge Fondateur, Sécurité, Prix...)"
+          className="w-full pl-12 pr-10 py-3.5 rounded-2xl bg-white dark:bg-[#000616] border border-gray-200/80 dark:border-white/10 text-gray-900 dark:text-white placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-[#013ff4] shadow-sm transition-all"
+        />
+        {searchQuery && (
+          <button
+            onClick={() => setSearchQuery("")}
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+            aria-label="Effacer la recherche"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
+      </div>
+
+      {/* Filtres par catégorie */}
+      <div className="flex flex-wrap gap-2">
+        <button
+          onClick={() => setSelectedCategory("all")}
+          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors ${
+            selectedCategory === "all"
+              ? "bg-[#013ff4] text-white shadow-sm"
+              : "bg-gray-100 dark:bg-white/[0.04] text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/[0.08]"
+          }`}
+        >
+          Toutes ({categories.reduce((acc, c) => acc + c.faqs.length, 0)})
+        </button>
+        {categories.map((cat) => (
+          <button
+            key={cat.id}
+            onClick={() => setSelectedCategory(cat.id)}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors ${
+              selectedCategory === cat.id
+                ? "bg-[#013ff4] text-white shadow-sm"
+                : "bg-gray-100 dark:bg-white/[0.04] text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/[0.08]"
+            }`}
+          >
+            {cat.title}
+          </button>
+        ))}
+      </div>
+
+      {/* Résultat vide */}
+      {filteredCategories.length === 0 && (
+        <div className="text-center py-12 px-6 rounded-2xl bg-gray-50 dark:bg-white/[0.02] border border-dashed border-gray-200 dark:border-white/10">
+          <HelpCircle className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+          <p className="text-sm font-bold text-gray-900 dark:text-white">Aucune réponse ne correspond à votre recherche.</p>
+          <p className="text-xs text-gray-500 mt-1">Essayez avec d&apos;autres mots-clés ou écrivez-nous directement.</p>
+        </div>
+      )}
+
+      {/* Liste des catégories & questions */}
+      {filteredCategories.map((cat) => {
         const Icon = cat.icon;
         return (
-          <div key={catIdx}>
-            {/* Category header */}
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.05 }}
-              className="flex items-center gap-3 mb-4"
-            >
-              <div className={`p-2 rounded-xl ${cat.color}`}>
+          <div key={cat.id} className="space-y-4">
+            <div className="flex items-center gap-2.5 pt-2">
+              <div className="p-1.5 rounded-lg bg-[#013ff4]/10 text-[#013ff4] dark:text-[#03b3f8]">
                 <Icon className="w-4 h-4" />
               </div>
-              <h3 className="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-600">
+              <h3 className="text-xs font-black uppercase tracking-wider text-gray-500 dark:text-gray-400">
                 {cat.title}
               </h3>
-              <div className="flex-1 h-px bg-gray-100 dark:bg-gray-800" />
-            </motion.div>
+              <div className="flex-1 h-px bg-gray-200/60 dark:bg-white/10 ml-2" />
+            </div>
 
-            {/* Questions */}
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {cat.faqs.map((faq, faqIdx) => {
-                const key = `${catIdx}-${faqIdx}`;
+                const key = `${cat.id}-${faqIdx}`;
                 const isOpen = openKey === key;
 
                 return (
-                  <motion.div
+                  <div
                     key={key}
-                    initial={{ opacity: 0, y: 16 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-40px" }}
-                    transition={{ delay: faqIdx * 0.07 }}
-                    className={`border rounded-2xl overflow-hidden transition-colors duration-300 ${
+                    className={`border rounded-2xl overflow-hidden transition-all duration-200 ${
                       isOpen
-                        ? "bg-white/70 dark:bg-white/[0.05] border-indigo-500/50 shadow-lg shadow-indigo-500/10"
-                        : "bg-white/30 dark:bg-[#0a0a0a]/60 border-gray-200/50 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20"
-                    } backdrop-blur-xl`}
+                        ? "bg-white dark:bg-[#000616] border-[#013ff4]/40 dark:border-[#03b3f8]/40 shadow-sm"
+                        : "bg-white dark:bg-white/[0.02] border-gray-200/80 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20"
+                    }`}
                   >
                     <button
                       onClick={() => toggle(key)}
-                      className="w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none"
+                      className="w-full px-5 sm:px-6 py-4 flex items-center justify-between text-left focus:outline-none"
+                      aria-expanded={isOpen}
                     >
-                      <span className={`text-base font-bold leading-snug pr-4 ${isOpen ? "text-indigo-600 dark:text-indigo-400" : "text-gray-900 dark:text-white"}`}>
+                      <span className={`text-sm sm:text-base font-bold leading-snug pr-4 ${isOpen ? "text-[#013ff4] dark:text-[#03b3f8]" : "text-gray-900 dark:text-white"}`}>
                         {faq.question}
                       </span>
-                      <motion.div
-                        animate={{ rotate: isOpen ? 180 : 0 }}
-                        transition={{ duration: 0.25, ease: "easeInOut" }}
-                        className={`flex-shrink-0 p-2 rounded-full transition-colors ${isOpen ? "bg-indigo-500/10 text-indigo-500" : "bg-gray-100 dark:bg-white/5 text-gray-400"}`}
-                      >
+                      <div className={`p-1.5 rounded-full transition-transform duration-200 shrink-0 ${isOpen ? "rotate-180 text-[#013ff4] dark:text-[#03b3f8] bg-[#013ff4]/10" : "text-gray-400"}`}>
                         <ChevronDown className="w-4 h-4" />
-                      </motion.div>
+                      </div>
                     </button>
 
                     <AnimatePresence initial={false}>
@@ -234,15 +247,15 @@ export function FaqAccordion() {
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: "auto", opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.28, ease: "easeInOut" }}
+                          transition={{ duration: 0.2 }}
                         >
-                          <div className="px-6 pb-6 text-gray-600 dark:text-gray-400 text-sm leading-relaxed whitespace-pre-line">
+                          <div className="px-5 sm:px-6 pb-5 text-gray-600 dark:text-gray-300 text-xs sm:text-sm leading-relaxed whitespace-pre-line border-t border-gray-100 dark:border-white/5 pt-3">
                             {faq.answer}
                           </div>
                         </motion.div>
                       )}
                     </AnimatePresence>
-                  </motion.div>
+                  </div>
                 );
               })}
             </div>
@@ -250,23 +263,19 @@ export function FaqAccordion() {
         );
       })}
 
-      {/* Contact CTA at bottom */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        className="mt-8 text-center py-8 border border-dashed border-gray-200 dark:border-gray-800 rounded-2xl"
-      >
-        <p className="text-gray-500 dark:text-gray-400 text-sm mb-3">
-          Vous ne trouvez pas la réponse à votre question ?
+      {/* Bloc de contact */}
+      <div className="text-center py-8 px-6 border border-dashed border-gray-200 dark:border-white/10 rounded-2xl bg-gray-50/50 dark:bg-white/[0.01]">
+        <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm mb-2 font-medium">
+          Vous avez une question spécifique ou un besoin d&apos;accompagnement ?
         </p>
         <a
           href="mailto:contact@emiid.com"
-          className="inline-flex items-center gap-2 text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
+          className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#013ff4] dark:text-[#03b3f8] hover:underline"
         >
-          Contactez notre équipe →
+          Écrire directement à notre équipe à contact@emiid.com →
         </a>
-      </motion.div>
+      </div>
+
     </div>
   );
 }

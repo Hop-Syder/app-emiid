@@ -105,41 +105,6 @@ export function ProfileSidebar({
 }: ProfileSidebarProps) {
     return (
         <aside className="lg:col-span-4 min-w-0 space-y-6">
-            {/* Actions rapides Contacter / Demander un devis (Image 2) */}
-            <div className="bg-card border border-border rounded-3xl p-4 sm:p-5 shadow-[0_4px_24px_rgb(15,23,42,0.05)] space-y-2.5">
-                <Button
-                    size="lg"
-                    className="w-full rounded-2xl h-12 bg-[#013ff4] hover:bg-[#013ff4]/90 text-white font-bold text-sm shadow-md shadow-[#013ff4]/20 transition-all hover:-translate-y-0.5"
-                    asChild
-                >
-                    {isLoggedIn && profile.id ? (
-                        <Link href={`/messages?contact=${profile.id}`}>
-                            Contacter
-                        </Link>
-                    ) : (
-                        <Link href="/login">
-                            Contacter
-                        </Link>
-                    )}
-                </Button>
-                <Button
-                    variant="outline"
-                    size="lg"
-                    className="w-full rounded-2xl h-12 border-border bg-card hover:bg-muted text-foreground font-bold text-sm shadow-xs transition-all hover:-translate-y-0.5"
-                    asChild
-                >
-                    {isLoggedIn && profile.id ? (
-                        <Link href={`/messages?contact=${profile.id}&topic=devis`}>
-                            Demander un devis
-                        </Link>
-                    ) : (
-                        <Link href="/login">
-                            Demander un devis
-                        </Link>
-                    )}
-                </Button>
-            </div>
-
             {/* Carte Horaires (Image 2) */}
             <div className="bg-card border border-border rounded-3xl p-5 sm:p-6 shadow-[0_4px_24px_rgb(15,23,42,0.05)] relative overflow-hidden">
                 <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">

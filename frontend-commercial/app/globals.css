@@ -1,9 +1,10 @@
+@import url('https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700,800,900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ── Mitsuha (titres, charte EmiID) — auto-hébergée (public/fonts/).
- * Une seule graisse : déclarée sur toute la plage, le navigateur synthétise le gras. */
+/* ── Mitsuha (wordmark EmiID) — auto-hébergée (public/fonts/) ── */
 @font-face {
   font-family: 'Mitsuha';
   src: url('/fonts/Mitsuha-Regular.woff2') format('woff2'),
@@ -15,7 +16,7 @@
 
 @layer base {
   :root {
-    /* Hex officiels de la charte */
+    /* Hex officiels de la charte EmiID */
     --brand-blue: #013ff4;
     --brand-cyan: #03b3f8;
     --brand-navy: #000616;
@@ -25,9 +26,8 @@
     --primary: #013ff4;
     --primary-foreground: #ffffff;
 
-    /* Corps : Inter (next/font). Titres : Inter aussi — Mitsuha ne couvre pas les
-     * accents FR, elle est donc réservée au wordmark (.font-wordmark). */
-    --font-heading: var(--font-sans), sans-serif;
+    /* Corps : Inter (next/font). Titres : Satoshi (charte EmiID) */
+    --font-heading: 'Satoshi', var(--font-sans), sans-serif;
   }
 
   .dark {
@@ -39,24 +39,57 @@
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
+    letter-spacing: -0.025em;
   }
 }
 
 @layer utilities {
-  /* Dégradé de marque EmiID (charte) */
+  /* Dégradés officiels de marque EmiID */
   .bg-brand-gradient {
     background-image: linear-gradient(45deg, #013ff4 0%, #000616 150%);
   }
   .text-brand-gradient {
-    background-image: linear-gradient(45deg, #013ff4, #03b3f8);
+    background-image: linear-gradient(45deg, #013ff4 0%, #03b3f8 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
   }
 
-  /* Wordmark de marque uniquement (Mitsuha = glyphes ASCII, pas d'accents). */
+  /* Wordmark EmiID officiel */
   .font-wordmark {
     font-family: 'Mitsuha', var(--font-heading);
+  }
+
+  /* Glassmorphism haute fidélité */
+  .glass-panel {
+    background-color: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(0, 6, 22, 0.08);
+  }
+  .dark .glass-panel {
+    background-color: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  /* Liseré lumineux EmiID */
+  .glow-border {
+    position: relative;
+  }
+  .glow-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(1, 63, 244, 0.4), rgba(3, 179, 248, 0.2), transparent 70%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
   }
 }
 
@@ -64,4 +97,5 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
 }

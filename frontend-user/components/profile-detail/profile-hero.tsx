@@ -67,7 +67,7 @@ export function ProfileHero({
     handleShare
 }: ProfileHeroProps) {
     return (
-        <section className="bg-card border border-border shadow-[0_4px_24px_rgb(15,23,42,0.05)] rounded-3xl overflow-hidden relative">
+        <section className="bg-card border border-border shadow-[0_4px_24px_rgb(15,23,42,0.05)] rounded-3xl relative">
             {/* Bannière encartée à coins arrondis (dégradé navy/acier par défaut) */}
             <div className="p-2.5 sm:p-3">
                 <div

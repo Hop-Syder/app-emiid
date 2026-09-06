@@ -1,46 +1,38 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Page Questions / Réponses (FAQ) remplaçant l'ancien annuaire
+ * @description Page Questions / Réponses (FAQ) avec Dark Mode #000616 et tokens EmiID
  * @created 2026-06-13
- * @updated 2026-06-13
+ * @updated 2026-09-06
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
 
 import { Metadata } from "next";
 import { FaqAccordion } from "@/components/home/faq-accordion";
+import { HelpCircle, ArrowRight, ShieldCheck } from "lucide-react";
+import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Questions Fréquentes (FAQ) | Emiid",
+  title: "Centre d'Aide & Questions Fréquentes (FAQ) | EmiID",
   description:
-    "Trouvez les réponses à toutes vos questions sur Emiid : création de profil professionnel, abonnements FCFA, sécurité des données et messagerie.",
+    "Toutes les réponses sur EmiID : création d'empreinte numérique, abonnements FCFA, Mobile Money, badge Fondateur et sécurité.",
   alternates: { canonical: "/faq" },
   openGraph: {
-    title: "Questions Fréquentes (FAQ) | Emiid",
+    title: "Centre d'Aide & Questions Fréquentes (FAQ) | EmiID",
     description:
-      "Toutes les réponses sur Emiid : profils vérifiés, abonnements FCFA, sécurité, mise en relation et messagerie.",
+      "Toutes les réponses sur EmiID : profils vérifiés, abonnements FCFA, sécurité, mise en relation et messagerie.",
     url: "https://emiid.com/faq",
-    siteName: "Emiid",
+    siteName: "EmiID",
     locale: "fr_FR",
     type: "website",
-    images: [
-      {
-        url: "/logo-emiid-bleu-blanc.png",
-        width: 500,
-        height: 500,
-        alt: "Questions Fréquentes - Emiid",
-        type: "image/png",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Questions Fréquentes (FAQ) | Emiid",
+    title: "Questions Fréquentes (FAQ) | EmiID",
     description:
-      "Toutes les réponses à vos questions sur la plateforme professionnelle Emiid.",
+      "Toutes les réponses à vos questions sur la plateforme professionnelle EmiID.",
     creator: "@hopsyder",
-    images: ["/logo-emiid-bleu-blanc.png"],
   },
 };
 
@@ -48,52 +40,63 @@ const USER_APP_URL = process.env.NEXT_PUBLIC_USER_APP_URL || "https://app.emiid.
 
 export default function FAQPage() {
   return (
-    <main className="min-h-screen bg-white dark:bg-[#050505] relative overflow-hidden py-24 sm:py-32">
-      
+    <main className="min-h-screen bg-background relative overflow-hidden py-24 sm:py-32">
       {/* Background Ambient Glows */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/4 w-[1000px] h-[500px] bg-indigo-500/10 rounded-[100%] blur-[120px] pointer-events-none"></div>
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/4 w-[900px] h-[500px] bg-[#013ff4]/10 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute top-1/2 right-0 w-[500px] h-[500px] bg-[#03b3f8]/8 rounded-full blur-[140px] pointer-events-none" />
 
       <div className="mx-auto max-w-[1440px] px-6 md:px-12 lg:px-16 relative z-10">
         
         {/* Header Section */}
-        <div className="text-center max-w-3xl mx-auto mb-12">
-          <div className="inline-block px-4 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-sm font-bold tracking-widest uppercase mb-6">
-            Centre d'aide
+        <div className="text-center max-w-3xl mx-auto mb-14">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#013ff4]/10 dark:bg-[#013ff4]/20 border border-[#013ff4]/25 text-[#013ff4] dark:text-[#03b3f8] text-xs font-bold uppercase tracking-wider mb-5">
+            <HelpCircle className="w-4 h-4" />
+            <span>Centre d&apos;Aide & Support</span>
           </div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-6xl mb-6">
-            Questions <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500">Fréquentes</span>
+
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-gray-900 dark:text-white mb-5">
+            Questions <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#013ff4] to-[#03b3f8]">Fréquentes</span>
           </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400">
-            Tout ce que vous devez savoir sur Emiid, le premier réseau professionnel B2B pensé pour nos réalités.
+
+          <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+            Tout ce que vous devez savoir pour démarrer, certifier votre profil et développer vos opportunités avec <span className="font-wordmark font-bold text-gray-900 dark:text-white">EmiID</span>.
           </p>
         </div>
 
-        {/* The Animated Accordion */}
+        {/* L'accordéon FAQ avec recherche en direct */}
         <FaqAccordion />
 
-        {/* CTA Footer */}
-        <div className="mt-32 max-w-4xl mx-auto bg-gradient-to-br from-indigo-900 to-purple-900 rounded-[2.5rem] p-10 sm:p-16 text-center relative overflow-hidden shadow-2xl">
-          {/* Subtle noise and glow inside CTA */}
-          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+        {/* Bannière CTA Finale */}
+        <div className="mt-28 max-w-4xl mx-auto bg-gradient-to-br from-[#013ff4] to-[#000616] rounded-[2.5rem] p-8 sm:p-14 text-center relative overflow-hidden shadow-2xl border border-[#013ff4]/30">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-[#03b3f8]/20 rounded-full blur-3xl pointer-events-none" />
           
           <div className="relative z-10">
-            <h2 className="text-3xl font-bold text-white mb-6">Vous avez d'autres questions ?</h2>
-            <p className="text-indigo-200 mb-10 text-lg max-w-2xl mx-auto">
-              Notre équipe est là pour vous accompagner. Créez votre compte gratuitement et découvrez par vous-même la puissance du réseau.
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-white text-xs font-bold mb-4 backdrop-blur-sm">
+              <ShieldCheck className="w-3.5 h-3.5 text-[#03b3f8]" />
+              Réseau certifié sans carte bancaire requise
+            </div>
+
+            <h2 className="text-2xl sm:text-3xl font-black text-white mb-4">
+              Prêt à créer votre empreinte numérique ?
+            </h2>
+
+            <p className="text-blue-100/90 mb-8 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
+              Rejoignez dès aujourd&apos;hui les premiers fondateurs et talents certifiés de l&apos;écosystème.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <a 
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5">
+              <Link
                 href={`${USER_APP_URL}/creer-profil`} 
-                className="w-full sm:w-auto bg-white text-indigo-900 font-bold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all"
+                className="w-full sm:w-auto bg-white text-[#013ff4] font-bold py-3.5 px-7 rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all text-sm flex items-center justify-center gap-2"
               >
-                Créer mon profil gratuit
-              </a>
+                <span>Créer mon profil gratuit</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
               <a 
                 href="mailto:contact@emiid.com" 
-                className="w-full sm:w-auto bg-indigo-800/50 text-white font-bold py-4 px-8 rounded-xl border border-indigo-400/30 hover:bg-indigo-800 transition-colors"
+                className="w-full sm:w-auto bg-white/10 text-white font-bold py-3.5 px-7 rounded-xl border border-white/20 hover:bg-white/20 transition-colors text-sm"
               >
-                Contacter le support
+                Écrire à l&apos;assistance
               </a>
             </div>
           </div>

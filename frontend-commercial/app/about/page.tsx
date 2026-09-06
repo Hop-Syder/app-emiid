@@ -1,126 +1,113 @@
+/**
+ * @author @hopsyder
+ * @organization Nexus Partners
+ * @description Page À propos (Vision, Fondateur, Valeurs & Recrutement) avec Dark Mode #000616
+ * @created 2026-06-13
+ * @updated 2026-09-06
+ * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
+ */
+
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
-import { Sparkles, Target, Lightbulb, Users, Rocket, Globe2, ArrowRight, Linkedin, Twitter, Github, ChevronRight, CheckCircle2 } from "lucide-react";
+import { motion } from "framer-motion";
+import { Sparkles, Target, Lightbulb, Users, Rocket, Globe2, ArrowRight, Linkedin, Twitter, CheckCircle2, ShieldCheck, Briefcase } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRef } from "react";
 
 const USER_APP_URL = process.env.NEXT_PUBLIC_USER_APP_URL || "https://app.emiid.com";
 
-const team = [
+const founder = {
+  name: "Daouda Abassi Ismael Christian",
+  handle: "@hopsyder",
+  role: "Fondateur & CEO",
+  bio: "Entrepreneur tech et bâtisseur d'écosystèmes numériques en Afrique. Fondateur de Nexus Partners. Obsédé par la création d'infrastructures souveraines, durables et à haute valeur ajoutée permettant aux talents du continent d'accéder aux marchés mondiaux.",
+  initials: "DC",
+  image: "/ceo.jpg",
+  links: {
+    linkedin: "https://linkedin.com",
+    twitter: "https://twitter.com",
+    website: "https://ceo.nexuspartners.xyz",
+  },
+};
+
+const openRoles = [
   {
-    name: "Daouda Abassi Ismael Christian",
-    role: "CEO & Co-fondateur",
-    bio: "Entrepreneur tech passionné par l'Afrique numérique. Fondateur de Nexus Partners. Vision : faire d'Emiid la référence du profil professionnel africain.",
-    initials: "DC",
-    gradient: "from-indigo-500 to-purple-600",
-    image: "/ceo.jpg",
-    links: {
-      linkedin: "https://linkedin.com",
-      twitter: "https://twitter.com",
-      website: "https://ceo.nexus-partners.xyz",
-    },
+    role: "Lead Fullstack Engineer",
+    type: "CDI / Partenariat",
+    location: "Cotonou / Remote Afrique",
+    description: "Next.js 15, TypeScript, Supabase, architectures distribuées et sécurité RLS.",
   },
   {
-    name: "Votre nom ici",
-    role: "CTO & Co-fondateur",
-    bio: "Architecture backend, scalabilité et sécurité. Passionné par les systèmes distribués et les produits qui tiennent sous charge.",
-    initials: "??",
-    gradient: "from-cyan-500 to-blue-600",
-    links: {},
-    placeholder: true,
+    role: "Head of Growth & Partenariats",
+    type: "Plein temps",
+    location: "Abidjan / Dakar / Remote",
+    description: "Expansion écosystèmes PME, partenariats institutionnels et adoption Mobile Money.",
   },
   {
-    name: "Votre nom ici",
-    role: "Lead Design & Produit",
-    bio: "UX centré utilisateur, design system et expérience mobile-first. Conçoit des interfaces qui parlent à l'Afrique.",
-    initials: "??",
-    gradient: "from-pink-500 to-rose-600",
-    links: {},
-    placeholder: true,
-  },
-  {
-    name: "Votre nom ici",
-    role: "Business Development",
-    bio: "Partenariats, croissance et développement commercial. Ouvre les portes des écosystèmes francophones.",
-    initials: "??",
-    gradient: "from-amber-500 to-orange-600",
-    links: {},
-    placeholder: true,
+    role: "Product & Brand Designer",
+    type: "Freelance ou CDI",
+    location: "Remote Afrique & Diaspora",
+    description: "Design system mobile-first, micro-interactions, ergonomie adaptée aux réseaux 3G.",
   },
 ];
 
 const values = [
   {
     icon: Globe2,
-    title: "Africanité d'abord",
-    description: "Chaque décision produit tient compte des réalités locales : connexion instable, paiement Mobile Money, diversité des langues et des cultures.",
-    color: "from-indigo-500 to-purple-500",
-    bg: "bg-indigo-50 dark:bg-indigo-500/10",
-    text: "text-indigo-600 dark:text-indigo-400"
+    title: "Africanité Souveraine",
+    description: "Chaque choix d'architecture respecte les réalités locales : connectivité frugale, Mobile Money natif, tarification en FCFA et support local.",
+    gradient: "from-[#013ff4] to-[#03b3f8]",
   },
   {
-    icon: Users,
-    title: "Communauté avant tout",
-    description: "Emiid n'est pas un outil. C'est un écosystème vivant où la confiance se construit par les pairs, pas par les algorithmes.",
-    color: "from-emerald-500 to-teal-500",
-    bg: "bg-emerald-50 dark:bg-emerald-500/10",
-    text: "text-emerald-600 dark:text-emerald-400"
+    icon: ShieldCheck,
+    title: "Confiance & Traçabilité",
+    description: "La réputation ne doit pas dépendre d'un algorithme opaque, mais de validations réelles par les pairs et d'une vérification d'identité infalsifiable.",
+    gradient: "from-emerald-500 to-teal-400",
   },
   {
     icon: Lightbulb,
-    title: "Accessibilité radicale",
-    description: "Un artisan de Bouaké doit pouvoir créer un profil aussi crédible qu'un développeur de Dakar. L'excellence n'a pas de code postal.",
-    color: "from-amber-500 to-orange-500",
-    bg: "bg-amber-50 dark:bg-amber-500/10",
-    text: "text-amber-600 dark:text-amber-400"
+    title: "Inclusion Radicale",
+    description: "Un artisan ferronnier d'art ou un couturier d'Abidjan a autant droit à une empreinte numérique prestigieuse qu'un ingénieur IA de Paris ou Dakar.",
+    gradient: "from-amber-400 to-amber-600",
   },
 ];
 
 const roadmap = [
-  { quarter: "Q2 2026", label: "Lancement public", done: true, description: "Profils, annuaire, messagerie, offre Fondateur." },
-  { quarter: "Q3 2026", label: "Application mobile", done: false, description: "iOS & Android — expérience native optimisée pour l'Afrique." },
-  { quarter: "Q4 2026", label: "Plans Entreprise", done: false, description: "Pages entreprise vérifiées, gestion d'équipe et CRM." },
-  { quarter: "Q1 2027", label: "Matchmaking IA", done: false, description: "Suggestions intelligentes de connexions et d'opportunités." },
-  { quarter: "Q2 2027", label: "Paiements intégrés", done: false, description: "Facturation entre membres et contrats sécurisés on-platform." },
+  { quarter: "Q2 2026", label: "Lancement public & Mur des Fondateurs", done: true, description: "Profils certifiables, annuaire public, messagerie directe, intégration FedaPay." },
+  { quarter: "Q3 2026", label: "Application Mobile Native", done: false, description: "Expérience ultra-rapide iOS & Android avec notifications push et mode hors-ligne." },
+  { quarter: "Q4 2026", label: "Pages Entreprises & Multi-comptes", done: false, description: "Gestion d'équipes, annuaires corporate et publication de missions B2B." },
+  { quarter: "Q1 2027", label: "Matchmaking Intelligent & IA", done: false, description: "Recommandation d'opportunités d'affaires basée sur la complémentarité des expertises." },
 ];
 
 export default function AboutPage() {
-  const containerRef = useRef(null);
-
   return (
-    <main ref={containerRef} className="min-h-screen bg-[#fafafa] dark:bg-[#050505] overflow-hidden selection:bg-indigo-500/30">
+    <main className="min-h-screen bg-background relative overflow-hidden py-24 sm:py-32">
+      {/* Background Ambient Glows */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/4 w-[1000px] h-[600px] bg-[#013ff4]/10 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute top-1/2 right-0 w-[600px] h-[600px] bg-[#03b3f8]/8 rounded-full blur-[140px] pointer-events-none" />
 
-      {/* ── Background Elements ── */}
-      <div className="fixed inset-0 pointer-events-none z-0 flex justify-center">
-        <div className="absolute top-[-20%] w-[1000px] h-[600px] rounded-full bg-gradient-to-b from-indigo-500/20 via-purple-500/10 to-transparent blur-[100px] opacity-50 dark:opacity-20 animate-pulse-slow" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:24px_24px] dark:bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)]" />
-      </div>
+      <div className="mx-auto max-w-[1440px] px-6 md:px-12 lg:px-16 relative z-10">
 
-      {/* ── Hero ── */}
-      <section className="relative pt-40 pb-24 sm:pt-48 sm:pb-32 z-10 border-b border-gray-200/50 dark:border-white/5">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 text-center">
+        {/* Hero Section */}
+        <div className="text-center max-w-4xl mx-auto mb-20 sm:mb-28">
           <motion.div
-            initial={{ opacity: 0, y: 30, filter: "blur(10px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="flex justify-center"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#013ff4]/10 dark:bg-[#013ff4]/20 border border-[#013ff4]/25 text-[#013ff4] dark:text-[#03b3f8] text-xs font-bold uppercase tracking-wider mb-6"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/60 dark:bg-white/5 backdrop-blur-md border border-gray-200/50 dark:border-white/10 text-sm font-medium text-gray-900 dark:text-gray-200 shadow-sm mb-8 hover:bg-white/80 dark:hover:bg-white/10 transition-colors cursor-default">
-              <Sparkles className="w-4 h-4 text-indigo-500" />
-              <span>Notre vision pour l'Afrique</span>
-            </div>
+            <Sparkles className="w-4 h-4" />
+            <span>Notre Mission & Engagement</span>
           </motion.div>
 
           <motion.h1
-            initial={{ opacity: 0, y: 40, filter: "blur(10px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
-            className="text-5xl sm:text-7xl md:text-8xl font-black tracking-tighter text-gray-900 dark:text-white mb-8"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight text-gray-900 dark:text-white mb-6"
           >
-            Façonner l&apos;avenir du<br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500">
+            Bâtir l&apos;empreinte numérique du{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#013ff4] to-[#03b3f8]">
               professionnel africain
             </span>
           </motion.h1>
@@ -128,401 +115,267 @@ export default function AboutPage() {
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="max-w-2xl mx-auto text-lg sm:text-xl text-gray-600 dark:text-gray-400 leading-relaxed mb-16"
+            transition={{ delay: 0.2 }}
+            className="max-w-2xl mx-auto text-base sm:text-xl text-gray-600 dark:text-gray-400 leading-relaxed"
           >
-            Emiid est né d&apos;un constat simple : l&apos;Afrique regorge de talents extraordinaires, mais leur visibilité reste trop souvent confinée à des cercles restreints. Nous construisons l&apos;infrastructure qui change ça.
+            <span className="font-wordmark font-bold text-gray-900 dark:text-white">EmiID</span> est né d&apos;un constat sans appel : les talents et entreprises d&apos;Afrique méritent une vitrine crédible, certifiée et connectée aux réalités de leur marché.
           </motion.p>
 
-          {/* Stats Grid */}
+          {/* 3 Métriques clés */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-4xl mx-auto"
+            transition={{ delay: 0.3 }}
+            className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto mt-12"
           >
             {[
-              { value: "2026", label: "Lancement", icon: Rocket, color: "text-indigo-500", bg: "bg-indigo-500/10" },
-              { value: "500+", label: "Profils vérifiés", icon: Users, color: "text-purple-500", bg: "bg-purple-500/10" },
-              { value: "12+", label: "Pays", icon: Globe2, color: "text-cyan-500", bg: "bg-cyan-500/10" },
+              { value: "2026", label: "Lancement Officiel", icon: Rocket, color: "from-[#013ff4] to-[#03b3f8]" },
+              { value: "500+", label: "Membres Vérifiés", icon: Users, color: "from-blue-600 to-cyan-400" },
+              { value: "14+", label: "Pays Couverts", icon: Globe2, color: "from-[#03b3f8] to-teal-400" },
             ].map((stat, i) => (
-              <div key={i} className="group relative p-8 rounded-3xl bg-white/40 dark:bg-white/[0.02] backdrop-blur-xl border border-gray-200/50 dark:border-white/5 hover:bg-white/60 dark:hover:bg-white/[0.04] transition-all duration-300 overflow-hidden text-left shadow-sm">
-                <div className={`absolute top-0 right-0 -mr-4 -mt-4 w-24 h-24 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${stat.bg}`} />
-                <div className={`w-12 h-12 rounded-2xl ${stat.bg} ${stat.color} flex items-center justify-center mb-6`}>
-                  <stat.icon className="w-6 h-6" />
+              <div
+                key={i}
+                className="p-6 rounded-2xl bg-white dark:bg-white/[0.03] border border-gray-200/80 dark:border-white/10 shadow-sm text-center"
+              >
+                <div className={`w-10 h-10 mx-auto rounded-xl bg-gradient-to-r ${stat.color} text-white flex items-center justify-center mb-3 shadow-sm`}>
+                  <stat.icon className="w-5 h-5" />
                 </div>
-                <p className="text-4xl font-black text-gray-900 dark:text-white mb-2">{stat.value}</p>
-                <p className="text-sm font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">{stat.label}</p>
+                <p className="text-3xl font-black text-gray-900 dark:text-white">{stat.value}</p>
+                <p className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mt-1">{stat.label}</p>
               </div>
             ))}
           </motion.div>
         </div>
-      </section>
 
-      {/* ── Histoire & Défis ── */}
-      <section className="relative py-24 sm:py-32 z-10">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.8 }}
-              className="space-y-8"
-            >
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 text-sm font-bold uppercase tracking-widest border border-rose-100 dark:border-rose-500/20">
-                <Target className="w-4 h-4" /> Genèse
+        {/* Genèse & Vision */}
+        <section className="py-16 sm:py-24 border-t border-gray-100 dark:border-white/5">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            <div className="space-y-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#013ff4]/10 text-[#013ff4] dark:text-[#03b3f8] text-xs font-bold uppercase tracking-wider">
+                <Target className="w-4 h-4" /> La Genèse
               </div>
-              <h2 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tight">
-                Une solution née d'une <span className="text-transparent bg-clip-text bg-gradient-to-br from-rose-500 to-orange-500">frustration</span>.
+              <h2 className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight">
+                Une infrastructure conçue par et pour l&apos;Afrique
               </h2>
-              <div className="prose prose-lg dark:prose-invert text-gray-600 dark:text-gray-400">
-                <p>
-                  Emiid est né à Cotonou en 2026, dans un bureau de Nexus Partners. Le fondateur, après avoir cherché pendant des semaines un développeur senior de confiance pour un projet, réalise que le problème n&apos;est pas l&apos;absence de talents — c&apos;est l&apos;absence d&apos;un lieu pour les trouver, les vérifier et les contacter sans friction.
-                </p>
-                <p>
-                  En six mois de développement intensif, la première version d&apos;Emiid est lancée avec un objectif clair : devenir le réseau de confiance que l&apos;Afrique aurait construit pour elle-même.
-                </p>
-              </div>
-            </motion.div>
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed">
+                Pendant trop longtemps, les indépendants, créateurs et entreprises du continent ont dû se contenter de plateformes occidentales inaccessibles, facturées en dollars sans intégration Mobile Money, ou d&apos;échanges informels non vérifiés sur WhatsApp.
+              </p>
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed">
+                Incubé chez <strong>Nexus Partners</strong>, EmiID offre la réponse : une identité numérique vérifiée, infalsifiable, consultable via un lien court ou un QR Code officiel, protégée par des normes de sécurité rigoureuses et accessible à tous les budgets.
+              </p>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.8 }}
-              className="relative"
-            >
-              <div className="absolute inset-0 bg-gradient-to-tr from-rose-500 to-orange-500 rounded-[2.5rem] blur-3xl opacity-20 dark:opacity-30" />
-              <div className="relative bg-white/60 dark:bg-[#0a0a0a]/80 backdrop-blur-xl border border-gray-200/50 dark:border-white/10 rounded-[2.5rem] p-8 sm:p-12 shadow-2xl">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-8 flex items-center gap-4">
-                  <span className="w-12 h-12 rounded-2xl bg-gradient-to-br from-rose-500 to-orange-500 flex items-center justify-center text-white shadow-lg">
-                    <Lightbulb className="w-6 h-6" />
-                  </span>
-                  Les défis que nous relevons
-                </h3>
-                <ul className="space-y-6">
-                  {[
-                    "Manque de vitrine crédible pour les talents.",
-                    "Difficulté pour les recruteurs de vérifier les compétences.",
-                    "Plateformes occidentales inadaptées aux réalités locales.",
-                    "L'économie informelle totalement ignorée.",
-                  ].map((item, i) => (
-                    <li key={i} className="flex items-start gap-4 group">
-                      <div className="mt-1 w-6 h-6 rounded-full bg-rose-100 dark:bg-rose-500/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                        <ChevronRight className="w-3 h-3 text-rose-600 dark:text-rose-400" />
-                      </div>
-                      <span className="text-gray-700 dark:text-gray-300 font-medium leading-relaxed">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </motion.div>
+            <div className="p-8 sm:p-10 rounded-3xl bg-white dark:bg-[#000616] border border-gray-200/80 dark:border-white/10 shadow-xl relative">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
+                <span className="w-9 h-9 rounded-xl bg-[#013ff4]/10 text-[#013ff4] dark:text-[#03b3f8] flex items-center justify-center">
+                  <Lightbulb className="w-5 h-5" />
+                </span>
+                Les 4 piliers EmiID
+              </h3>
+              <ul className="space-y-4">
+                {[
+                  "Certification d'identité réelle anti-usurpation",
+                  "Paiement Mobile Money natif en FCFA (Wave, MTN, Orange, Moov)",
+                  "Vitrine ultra-rapide optimisée pour les débits mobiles 3G/4G",
+                  "Protection des coordonnées confidentielles par code PIN",
+                ].map((item, i) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+                    <span className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 font-medium">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ── Nos valeurs ── */}
-      <section className="relative py-24 sm:py-32 z-10 border-t border-b border-gray-200/50 dark:border-white/5 bg-white/30 dark:bg-white/[0.01]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center max-w-2xl mx-auto mb-20"
-          >
-            <h2 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tight mb-6">
+        {/* Nos Valeurs */}
+        <section className="py-16 sm:py-24 border-t border-gray-100 dark:border-white/5">
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <h2 className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight mb-4">
               Ce qui nous guide
             </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-400">
-              Nos principes fondateurs, pensés pour répondre aux réalités de notre continent.
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+              Des principes inébranlables pour créer un produit d&apos;utilité publique à fort impact.
             </p>
-          </motion.div>
+          </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {values.map((value, i) => {
-              const Icon = value.icon;
+          <div className="grid md:grid-cols-3 gap-6">
+            {values.map((v, i) => {
+              const Icon = v.icon;
               return (
-                <motion.div
+                <div
                   key={i}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: i * 0.1 }}
-                  className="group relative bg-white/60 dark:bg-[#0a0a0a]/60 backdrop-blur-xl border border-gray-200/50 dark:border-white/10 rounded-[2rem] p-10 hover:border-gray-300 dark:hover:border-white/20 transition-all shadow-sm hover:shadow-xl"
+                  className="p-8 rounded-2xl bg-white dark:bg-white/[0.03] border border-gray-200/80 dark:border-white/10 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow"
                 >
-                  <div className={`absolute top-0 right-0 w-32 h-32 rounded-bl-full ${value.bg} opacity-50 group-hover:opacity-100 transition-opacity duration-500`} />
-                  <div className={`relative w-14 h-14 rounded-2xl bg-gradient-to-br ${value.color} flex items-center justify-center mb-8 shadow-lg group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300`}>
-                    <Icon className="w-7 h-7 text-white" />
+                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${v.gradient} text-white flex items-center justify-center mb-6 shadow-sm`}>
+                    <Icon className="w-6 h-6" />
                   </div>
-                  <h3 className="relative text-xl font-black text-gray-900 dark:text-white mb-4">{value.title}</h3>
-                  <p className="relative text-base text-gray-600 dark:text-gray-400 leading-relaxed">{value.description}</p>
-                </motion.div>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3">{v.title}</h3>
+                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{v.description}</p>
+                </div>
               );
             })}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ── Notre équipe (Alternate Design) ── */}
-      <section className="relative py-24 sm:py-32 z-10 overflow-hidden">
-        <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/3 w-[800px] h-[800px] bg-purple-500/10 rounded-full blur-[120px] pointer-events-none" />
-
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          {/* Section Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16"
-          >
-            <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 text-sm font-bold uppercase tracking-widest border border-purple-100 dark:border-purple-500/20 mb-6">
-                <Users className="w-4 h-4" /> L'équipe
-              </div>
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 dark:text-white tracking-tight">
-                Les <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-indigo-500">visages</span> derrière Emiid
-              </h2>
+        {/* Le Fondateur (Spotlight CEO Nexus Partners) */}
+        <section className="py-16 sm:py-24 border-t border-gray-100 dark:border-white/5">
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#013ff4]/10 text-[#013ff4] dark:text-[#03b3f8] text-xs font-bold uppercase tracking-wider mb-4">
+              <Users className="w-4 h-4" /> Leadership
             </div>
-            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-sm">
-              Une équipe compacte, ambitieuse et profondément convaincue que l'Afrique mérite ses propres outils.
-            </p>
-          </motion.div>
-
-          <div className="flex flex-col gap-8">
-            {/* CEO Card - Full width premium showcase */}
-            {team.filter(m => m.name === "Daouda Abassi Ismael Christian").map((ceo, i) => (
-              <motion.div
-                key={`ceo-${i}`}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="group relative rounded-[2.5rem] bg-white dark:bg-[#0a0a0a] border border-gray-200/50 dark:border-white/10 shadow-2xl overflow-hidden"
-              >
-                {/* Background effects */}
-                <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 via-indigo-500/5 to-purple-500/5 opacity-50" />
-                <div className="absolute right-0 top-0 w-1/2 h-full bg-gradient-to-l from-indigo-500/10 to-transparent blur-3xl group-hover:from-indigo-500/20 transition-colors duration-700 pointer-events-none" />
-                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay pointer-events-none" />
-
-                <div className="relative p-8 md:p-12 flex flex-col md:flex-row items-center md:items-start gap-10">
-                  {/* Avatar */}
-                  <div className="relative shrink-0">
-                    <div className="absolute -inset-4 bg-gradient-to-tr from-amber-400 to-indigo-500 rounded-full blur-xl opacity-30 group-hover:opacity-60 animate-pulse-slow transition-opacity" />
-                    <div className="w-48 h-48 sm:w-64 sm:h-64 rounded-[2rem] sm:rounded-[3rem] overflow-hidden shadow-2xl relative z-10 ring-4 ring-white dark:ring-[#0a0a0a] group-hover:scale-105 transition-transform duration-500">
-                      {ceo.image ? (
-                        <Image
-                          src={ceo.image}
-                          alt={ceo.name}
-                          fill
-                          className="object-cover"
-                          sizes="(max-width: 640px) 192px, 256px"
-                          priority
-                        />
-                      ) : (
-                        <div className={`w-full h-full bg-gradient-to-br ${ceo.gradient} flex items-center justify-center text-white font-black text-6xl sm:text-8xl`}>
-                          {ceo.initials}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Content */}
-                  <div className="flex-1 text-center md:text-left mt-4 md:mt-0">
-                    <div className="flex flex-wrap justify-center md:justify-start items-center gap-4 mb-4">
-                      <h3 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white">
-                        {ceo.name}
-                      </h3>
-                      <span className="inline-flex items-center px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-black uppercase tracking-widest shadow-sm">
-                        Fondateur & CEO
-                      </span>
-                    </div>
-                    <p className="text-xl font-medium text-indigo-600 dark:text-indigo-400 mb-6">
-                      L'architecte de la vision
-                    </p>
-                    <p className="text-lg text-gray-600 dark:text-gray-400 leading-relaxed max-w-2xl mb-8">
-                      {ceo.bio}
-                    </p>
-
-                    {/* Socials */}
-                    <div className="flex items-center justify-center md:justify-start gap-4">
-                      {ceo.links.linkedin && (
-                        <a href={ceo.links.linkedin} className="w-12 h-12 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center text-gray-500 hover:text-[#0A66C2] hover:bg-white dark:hover:bg-[#0a0a0a] hover:shadow-md transition-all"><Linkedin className="w-5 h-5" /></a>
-                      )}
-                      {ceo.links.twitter && (
-                        <a href={ceo.links.twitter} className="w-12 h-12 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center text-gray-500 hover:text-[#1DA1F2] hover:bg-white dark:hover:bg-[#0a0a0a] hover:shadow-md transition-all"><Twitter className="w-5 h-5" /></a>
-                      )}
-                      {ceo.links.website && (
-                        <a href={ceo.links.website} className="w-12 h-12 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center text-gray-500 hover:text-indigo-500 hover:bg-white dark:hover:bg-[#0a0a0a] hover:shadow-md transition-all"><Globe2 className="w-5 h-5" /></a>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-
-            {/* Rest of the team - 3 columns */}
-            <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
-              {team.filter(m => m.name !== "Daouda Abassi Ismael Christian").map((member, i) => (
-                <motion.div
-                  key={`member-${i}`}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: i * 0.1 }}
-                  className="group relative"
-                >
-                  <div className={`absolute inset-0 bg-gradient-to-b ${member.gradient} rounded-[2rem] blur-xl opacity-0 group-hover:opacity-10 transition-opacity duration-500`} />
-
-                  <div className={`relative h-full flex flex-col p-8 rounded-[2rem] border transition-all duration-300 ${member.placeholder
-                      ? "bg-white/30 dark:bg-[#0a0a0a]/30 border-dashed border-gray-200 dark:border-white/10"
-                      : "bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-xl border-gray-200/50 dark:border-white/10 shadow-lg hover:-translate-y-2 hover:border-gray-300 dark:hover:border-white/20"
-                    }`}>
-                    <div className="flex items-center gap-5 mb-6">
-                      <div className={`shrink-0 w-16 h-16 rounded-[1.25rem] bg-gradient-to-br ${member.gradient} flex items-center justify-center text-white font-black text-xl shadow-inner group-hover:rotate-6 group-hover:scale-105 transition-transform duration-500`}>
-                        {member.initials}
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-gray-900 dark:text-white text-lg leading-tight mb-1">{member.name}</h3>
-                        <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">{member.role}</p>
-                      </div>
-                    </div>
-
-                    <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed flex-1">
-                      {member.bio}
-                    </p>
-
-                    {member.placeholder && (
-                      <div className="mt-6 pt-6 border-t border-gray-100 dark:border-white/5">
-                        <span className="text-xs font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest bg-gray-100 dark:bg-white/5 px-3 py-1.5 rounded-full">
-                          Poste à pourvoir
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-
-          {/* Join the team CTA */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="mt-16 text-center"
-          >
-            <a
-              href="mailto:contact@emiid.com"
-              className="inline-flex items-center gap-2 text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-all bg-indigo-50 dark:bg-indigo-500/10 px-6 py-3 rounded-full hover:scale-105 border border-indigo-100 dark:border-indigo-500/20"
-            >
-              Vous voulez rejoindre l'équipe ? Écrivez-nous <ArrowRight className="w-4 h-4" />
-            </a>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ── Roadmap ── */}
-      <section className="relative py-24 sm:py-32 z-10 border-t border-gray-200/50 dark:border-white/5 bg-white/30 dark:bg-white/[0.01]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center max-w-2xl mx-auto mb-20"
-          >
-            <h2 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tight mb-6">
-              Où nous allons
+            <h2 className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight">
+              À la barre du projet
             </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-400">
-              Notre feuille de route pour les prochains mois.
-            </p>
-          </motion.div>
+          </div>
 
-          <div className="max-w-3xl mx-auto relative">
-            {/* Vertical line */}
-            <div className="absolute left-[20px] top-4 bottom-4 w-0.5 bg-gray-200 dark:bg-gray-800 rounded-full" />
-
-            <div className="space-y-12">
-              {roadmap.map((item, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true, margin: "-100px" }}
-                  transition={{ duration: 0.5, delay: i * 0.1 }}
-                  className="relative flex items-start gap-8 group"
-                >
-                  <div className={`relative z-10 mt-1 w-10 h-10 rounded-full shrink-0 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 ${item.done
-                      ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/30"
-                      : "bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 text-gray-400"
-                    }`}>
-                    {item.done
-                      ? <CheckCircle2 className="w-5 h-5" />
-                      : <span className="w-2.5 h-2.5 rounded-full bg-gray-300 dark:bg-gray-600" />
-                    }
-                  </div>
-                  <div className="flex-1 bg-white/60 dark:bg-[#0a0a0a]/80 backdrop-blur-md border border-gray-200/50 dark:border-white/10 rounded-3xl p-6 md:p-8 hover:border-gray-300 dark:hover:border-white/20 transition-colors shadow-sm">
-                    <div className="flex flex-wrap items-center gap-3 mb-2">
-                      <span className={`text-sm font-black uppercase tracking-widest ${item.done ? "text-indigo-600 dark:text-indigo-400" : "text-gray-400"}`}>
-                        {item.quarter}
-                      </span>
-                      {item.done && (
-                        <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 px-2 py-0.5 rounded-full uppercase tracking-wide">
-                          Lancé
-                        </span>
-                      )}
+          <div className="max-w-4xl mx-auto rounded-3xl bg-white dark:bg-[#000616] border border-gray-200/80 dark:border-white/10 p-8 sm:p-12 shadow-xl">
+            <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
+              {/* Photo ou initiales */}
+              <div className="relative shrink-0">
+                <div className="w-36 h-36 sm:w-44 sm:h-44 rounded-2xl overflow-hidden shadow-lg border-2 border-[#013ff4]/20 relative">
+                  {founder.image ? (
+                    <Image
+                      src={founder.image}
+                      alt={founder.name}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 640px) 144px, 176px"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-[#013ff4] to-[#03b3f8] flex items-center justify-center text-white font-black text-4xl">
+                      {founder.initials}
                     </div>
-                    <h3 className="font-black text-gray-900 dark:text-white text-xl mb-2">{item.label}</h3>
-                    <p className="text-base text-gray-600 dark:text-gray-400">{item.description}</p>
-                  </div>
-                </motion.div>
-              ))}
+                  )}
+                </div>
+              </div>
+
+              {/* Infos */}
+              <div className="flex-1 text-center md:text-left">
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-2">
+                  <h3 className="text-2xl font-black text-gray-900 dark:text-white">
+                    {founder.name}
+                  </h3>
+                  <span className="px-2.5 py-0.5 rounded-full bg-[#013ff4]/10 text-[#013ff4] dark:text-[#03b3f8] text-xs font-bold">
+                    {founder.role}
+                  </span>
+                </div>
+                <p className="text-xs font-bold text-[#013ff4] dark:text-[#03b3f8] uppercase tracking-wider mb-4">
+                  Nexus Partners · {founder.handle}
+                </p>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-6">
+                  {founder.bio}
+                </p>
+
+                <div className="flex items-center justify-center md:justify-start gap-3">
+                  <a
+                    href={founder.links.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/15 text-xs font-bold text-gray-800 dark:text-white transition-colors"
+                  >
+                    <Globe2 className="w-3.5 h-3.5" />
+                    <span>ceo.nexuspartners.xyz</span>
+                  </a>
+                  <a
+                    href="mailto:daoudaabassichristian@gmail.com"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#013ff4]/10 text-[#013ff4] dark:text-[#03b3f8] hover:bg-[#013ff4]/20 text-xs font-bold transition-colors"
+                  >
+                    <span>Contacter le CEO</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ── CTA final ── */}
-      <section className="relative py-24 sm:py-32 z-10">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="relative rounded-[3rem] overflow-hidden bg-gray-900 shadow-2xl"
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-900 via-purple-900 to-indigo-950 opacity-90" />
-            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay" />
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/30 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-500/30 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/3 pointer-events-none" />
+        {/* Nous Recrutons / Rejoindre l'aventure */}
+        <section className="py-16 sm:py-24 border-t border-gray-100 dark:border-white/5">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider mb-4">
+              <Briefcase className="w-4 h-4" /> Talents recherchés
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight mb-3">
+              Rejoindre l&apos;aventure EmiID
+            </h2>
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+              Nous réunissons les meilleurs bâtisseurs pour accélérer la révolution de l&apos;identité professionnelle africaine.
+            </p>
+          </div>
 
-            <div className="relative p-12 md:p-24 text-center z-10">
-              <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-6">
-                Faites partie de l&apos;histoire
-              </h2>
-              <p className="text-xl text-indigo-100 max-w-2xl mx-auto mb-10 leading-relaxed">
-                Rejoignez les 500+ professionnels qui construisent déjà leur réputation sur Emiid. C&apos;est gratuit pour commencer.
-              </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Link
-                  href={`${USER_APP_URL}/creer-profil`}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white text-indigo-900 font-bold py-4 px-8 rounded-full shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all"
-                >
-                  Créer mon profil gratuit
-                  <ArrowRight className="w-5 h-5" />
-                </Link>
+          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-10">
+            {openRoles.map((role, idx) => (
+              <div
+                key={idx}
+                className="p-6 rounded-2xl bg-white dark:bg-white/[0.03] border border-gray-200/80 dark:border-white/10 shadow-sm flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-400">
+                      {role.type}
+                    </span>
+                    <span className="text-[11px] text-gray-500">{role.location}</span>
+                  </div>
+                  <h3 className="text-base font-bold text-gray-900 dark:text-white mb-2">{role.role}</h3>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-6">{role.description}</p>
+                </div>
+
                 <a
-                  href="mailto:contact@emiid.com"
-                  className="w-full sm:w-auto inline-flex items-center justify-center text-white font-bold py-4 px-8 rounded-full border border-indigo-400/30 bg-indigo-800/20 hover:bg-indigo-800/40 backdrop-blur-md transition-colors"
+                  href={`mailto:contact@emiid.com?subject=Candidature - ${encodeURIComponent(role.role)}`}
+                  className="inline-flex items-center justify-center gap-1.5 w-full py-2.5 px-4 rounded-xl bg-gray-100 dark:bg-white/10 hover:bg-[#013ff4] hover:text-white dark:hover:bg-[#013ff4] text-xs font-bold transition-all text-gray-800 dark:text-white"
                 >
-                  Contacter l&apos;équipe
+                  <span>Postuler pour ce rôle</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </a>
               </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+            ))}
+          </div>
+        </section>
+
+        {/* Roadmap */}
+        <section className="py-16 sm:py-24 border-t border-gray-100 dark:border-white/5">
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <h2 className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight mb-3">
+              Feuille de Route
+            </h2>
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+              Nos étapes de déploiement pour les prochains trimestres.
+            </p>
+          </div>
+
+          <div className="max-w-2xl mx-auto space-y-4">
+            {roadmap.map((step, i) => (
+              <div
+                key={i}
+                className="flex items-start gap-4 p-5 rounded-2xl bg-white dark:bg-white/[0.03] border border-gray-200/80 dark:border-white/10 shadow-sm"
+              >
+                <div className={`mt-0.5 w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                  step.done ? "bg-emerald-500 text-white" : "bg-gray-100 dark:bg-white/10 text-gray-400"
+                }`}>
+                  {step.done ? <CheckCircle2 className="w-4 h-4" /> : <span className="w-2 h-2 rounded-full bg-gray-400" />}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs font-black text-[#013ff4] dark:text-[#03b3f8] uppercase tracking-wider">
+                      {step.quarter}
+                    </span>
+                    {step.done && (
+                      <span className="px-2 py-0.2 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                        Opérationnel
+                      </span>
+                    )}
+                  </div>
+                  <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-1">{step.label}</h4>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">{step.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+      </div>
     </main>
   );
 }

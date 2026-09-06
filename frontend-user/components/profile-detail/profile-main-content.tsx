@@ -65,12 +65,6 @@ export function ProfileMainContent({ profile, gallery, loadingGallery }: Profile
                 professionName={profile.name}
             />
 
-            {/* ── Section AVIS (Image 2) ── */}
-            <ProfileReviewsSection
-                profileId={profile.id || ""}
-                profileName={profile.name}
-            />
-
             {/* About card */}
             <div className="bg-card border border-border rounded-3xl p-5 sm:p-8 shadow-[0_4px_24px_rgb(15,23,42,0.05)] relative overflow-hidden group">
                 {/* Decorative element */}
@@ -165,6 +159,12 @@ export function ProfileMainContent({ profile, gallery, loadingGallery }: Profile
                     </TabsContent>
                 </Tabs>
             </div>
+
+            {/* ── Section AVIS (déplacée tout en bas, après Compétences) ── */}
+            <ProfileReviewsSection
+                profileId={profile.id || ""}
+                profileName={profile.name}
+            />
         </div>
     )
 }

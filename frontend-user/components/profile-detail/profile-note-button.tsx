@@ -303,7 +303,7 @@ export function ProfileNoteButton({
             {isOpen && (
                 <div
                     className={cn(
-                        "mt-3 w-full sm:min-w-[340px] md:min-w-[380px] bg-card border border-border/90 rounded-2xl p-4 sm:p-5 shadow-[0_10px_30px_rgb(15,23,42,0.12)] z-30 transition-all duration-300 animate-in fade-in slide-in-from-top-2",
+                        "mt-3 w-full sm:min-w-[340px] md:min-w-[380px] bg-card border border-border/90 rounded-2xl p-4 sm:p-5 shadow-[0_10px_30px_rgb(15,23,42,0.12)] z-[60] transition-all duration-300 animate-in fade-in slide-in-from-top-2",
                         "lg:absolute lg:right-0 lg:top-full lg:mt-2"
                     )}
                 >

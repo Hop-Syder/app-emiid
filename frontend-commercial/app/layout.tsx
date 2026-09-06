@@ -21,12 +21,11 @@ const inter = Inter({
   variable: "--font-sans",
 });
 
-// Charte EmiID : fonds officiels (blanc en clair, slate-950 en sombre).
-// La couleur de marque #013ff4 reste l'accent/symbole, pas le fond du chrome mobile.
+// Charte EmiID : fonds officiels (blanc en clair, Bleu Nuit #000616 en sombre).
 export const viewport: Viewport = {
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#020617" },
+    { media: "(prefers-color-scheme: dark)", color: "#000616" },
   ],
 };
 
