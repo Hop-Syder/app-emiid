@@ -45,6 +45,7 @@ import { BENIN_DEPARTMENTS, getCommunesByDepartmentId } from "@/lib/benin-geo"
 import type { UserProfileData } from "@/hooks/use-settings"
 import { BioSection } from "./bio-section"
 import { LocationSection } from "./location-section"
+import { ExperienceSection } from "./experience-section"
 import {
   SectionCard,
   SettingToggle,
@@ -347,6 +348,9 @@ export function ProfileSection({
           </Field>
         </div>
       </SectionCard>
+
+      {/* ── Parcours & Expériences ──────────────────────────────────────── */}
+      <ExperienceSection profile={profile} setProfile={setProfile} />
 
       {/* ═════════════════════════════════════════════════════════════════════
           CARTE 6 : COORDONNÉES & SÉCURITÉ CONTACT (PDF Page 1 & 3)

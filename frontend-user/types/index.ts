@@ -48,6 +48,21 @@ export interface PublicProfile {
     tags?: string[];
 }
 
+// ==================== TYPES PARCOURS & EXPÉRIENCES ====================
+
+export interface ExperienceItem {
+    /** Identifiant client (crypto.randomUUID) — clé React/édition, pas une PK DB. */
+    id: string;
+    title: string;
+    company: string;
+    /** Format "YYYY-MM". */
+    startDate: string;
+    /** Format "YYYY-MM", ou null si `current`. */
+    endDate: string | null;
+    current: boolean;
+    description?: string;
+}
+
 // ==================== TYPES AUTHENTIFICATION ====================
 
 export interface AuthSession {

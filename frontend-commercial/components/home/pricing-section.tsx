@@ -28,6 +28,8 @@ interface Tier {
   icon: React.ComponentType<{ className?: string }>;
   priceMonthly: number;
   priceAnnual: number;
+  /** Montant total réellement facturé pour l'offre annuelle, s'il diffère de priceAnnual*12 (arrondi). */
+  priceAnnualTotal?: number;
   currency: string;
   perMonthLabel: string;
   target: string;
@@ -68,8 +70,11 @@ const tiers: Tier[] = [
     name: "Pro",
     id: "tier-pro",
     icon: Crown,
-    priceMonthly: 2000,
-    priceAnnual: 1600,
+    // Doit rester aligné avec PLANS.PRO_MONTHLY/PRO_ANNUAL (backend/src/controllers/paymentController.ts) —
+    // c'est le seul palier réellement activable via le paiement, contrairement aux paliers "comingSoon" ci-dessous.
+    priceMonthly: 1000,
+    priceAnnual: 833,
+    priceAnnualTotal: 10000,
     currency: "FCFA",
     perMonthLabel: "/ mois",
     target: "Freelances & Indépendants",
@@ -348,7 +353,7 @@ export function PricingSection() {
                   {/* Total annuel */}
                   {isAnnual && tier.priceAnnual > 0 && (
                     <p className="text-[11px] mb-4 text-gray-500 dark:text-gray-400">
-                      Soit <strong className="text-gray-900 dark:text-white">{formatPrice(tier.priceAnnual * 12)} FCFA</strong> facturés par an
+                      Soit <strong className="text-gray-900 dark:text-white">{formatPrice(tier.priceAnnualTotal ?? tier.priceAnnual * 12)} FCFA</strong> facturés par an
                     </p>
                   )}
 

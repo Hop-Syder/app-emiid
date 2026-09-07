@@ -49,7 +49,7 @@ const features: ComparisonFeature[] = [
     whatsapp: "yes",
     linkedin: "no",
     emiid: "yes",
-    details: "Formule gratuite complète et plan Pro accessible dès 2 000 FCFA/mois sans surprise de change.",
+    details: "Formule gratuite complète et plan Pro accessible dès 1 000 FCFA/mois sans surprise de change.",
   },
   {
     name: "Messagerie instantanée & Sécurité RLS",

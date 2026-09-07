@@ -175,7 +175,7 @@ export const updateMyProfile = async (req: any, res: Response) => {
       // Paramètres avancés (onglets À propos / Réseaux / Horaires & Services)
       slogan, years_experience, facebook_url, instagram_url, tiktok_url,
       linkedin_url, secondary_phone, public_email, address,
-      opening_hours, services, two_factor_enabled
+      opening_hours, services, experiences, two_factor_enabled
     } = body;
 
     let finalCountryId = country_id;
@@ -271,6 +271,7 @@ export const updateMyProfile = async (req: any, res: Response) => {
         address,
         opening_hours,
         services,
+        experiences,
         two_factor_enabled,
         updated_at: new Date().toISOString()
     };

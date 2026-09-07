@@ -15,6 +15,7 @@ import { createClient } from "@/lib/supabase/client"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { getReferenceCountriesCached } from "@/lib/location-cache"
 import { toast } from "sonner"
+import type { ExperienceItem } from "@/types"
 
 export type TabId =
   | "profil"
@@ -83,6 +84,7 @@ export interface UserProfileData {
   address: string
   opening_hours: OpeningHour[]
   services: ServiceItem[]
+  experiences: ExperienceItem[]
   gender?: "male" | "female" | "other" | string
   birth_date?: string
   department_id?: string
@@ -195,6 +197,7 @@ export function useSettings() {
     address: "",
     opening_hours: [],
     services: [],
+    experiences: [],
   })
 
   const loadUserProfile = useCallback(async () => {
@@ -251,6 +254,7 @@ export function useSettings() {
           address: data.address || "",
           opening_hours: Array.isArray(data.opening_hours) ? data.opening_hours : [],
           services: Array.isArray(data.services) ? data.services : [],
+          experiences: Array.isArray(data.experiences) ? data.experiences : [],
           gender: data.gender || "male",
           birth_date: data.birth_date || "",
           department_id: data.department_id || "",

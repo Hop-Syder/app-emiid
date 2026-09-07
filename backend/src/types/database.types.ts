@@ -1344,6 +1344,7 @@ export type Database = {
           email: string | null
           embedding: string | null
           embedding_stale: boolean
+          experiences: Json | null
           facebook_url: string | null
           first_name: string | null
           followers_count: number | null
@@ -1409,6 +1410,7 @@ export type Database = {
           email?: string | null
           embedding?: string | null
           embedding_stale?: boolean
+          experiences?: Json | null
           facebook_url?: string | null
           first_name?: string | null
           followers_count?: number | null
@@ -1474,6 +1476,7 @@ export type Database = {
           email?: string | null
           embedding?: string | null
           embedding_stale?: boolean
+          experiences?: Json | null
           facebook_url?: string | null
           first_name?: string | null
           followers_count?: number | null

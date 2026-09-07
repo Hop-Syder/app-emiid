@@ -10,8 +10,6 @@
 
 import { HeroSection } from "@/components/home/hero-section";
 import { FomoSection } from "@/components/home/fomo-section";
-import { FomoSectionConcept2 } from "@/components/home/fomo-section-concept-2";
-import { FomoSectionConcept3 } from "@/components/home/fomo-section-concept-3";
 import { ComparisonSection } from "@/components/home/comparison-section";
 import { SocialProofSection } from "@/components/home/social-proof-section";
 import { PricingSection } from "@/components/home/pricing-section";

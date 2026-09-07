@@ -15,6 +15,22 @@ import { cn } from "@/lib/utils"
 import { PortfolioGallery } from "./portfolio-gallery"
 import { ProfileServicesSection } from "./profile-services-section"
 import { ProfileReviewsSection } from "./profile-reviews-section"
+import type { ExperienceItem } from "@/types"
+
+/** "2022-03" -> "Mars 2022" */
+function formatMonthYear(value: string): string {
+    const [year, month] = value.split("-")
+    const monthNames = ["Janv.", "Févr.", "Mars", "Avr.", "Mai", "Juin", "Juil.", "Août", "Sept.", "Oct.", "Nov.", "Déc."]
+    const idx = Number(month) - 1
+    return idx >= 0 && idx < 12 ? `${monthNames[idx]} ${year}` : year
+}
+
+function formatExperiencePeriod(exp: ExperienceItem): string {
+    const start = exp.startDate ? formatMonthYear(exp.startDate) : ""
+    if (exp.current) return start ? `Depuis ${start}` : "En cours"
+    const end = exp.endDate ? formatMonthYear(exp.endDate) : ""
+    return [start, end].filter(Boolean).join(" – ")
+}
 
 const getSkillBadgeStyles = (idx: number) => {
     const presets = [
@@ -25,12 +41,6 @@ const getSkillBadgeStyles = (idx: number) => {
         "from-slate-500/10 to-slate-600/10 text-foreground border-border hover:bg-muted",
     ]
     return presets[idx % presets.length]
-}
-
-interface ExperienceItem {
-    title: string
-    company: string
-    period: string
 }
 
 interface ProfileData {
@@ -133,19 +143,26 @@ export function ProfileMainContent({ profile, gallery, loadingGallery }: Profile
                         <div className="space-y-4">
                             {profile.experiences.length > 0 ? (
                                 <div className="relative border-l-2 border-border pl-6 ml-3 space-y-6 py-2">
-                                    {profile.experiences.map((exp: ExperienceItem, idx: number) => (
-                                        <div key={idx} className="relative group">
-                                            <div className="absolute -left-[31px] top-1 h-3.5 w-3.5 rounded-full bg-card border-2 border-[#013ff4] flex items-center justify-center transition-all duration-300 group-hover:scale-110">
-                                                <div className="h-1 w-1 rounded-full bg-[#013ff4]" />
+                                    {[...profile.experiences]
+                                        .sort((a, b) => (b.startDate || "").localeCompare(a.startDate || ""))
+                                        .map((exp) => (
+                                            <div key={exp.id} className="relative group">
+                                                <div className="absolute -left-[31px] top-1 h-3.5 w-3.5 rounded-full bg-card border-2 border-[#013ff4] flex items-center justify-center transition-all duration-300 group-hover:scale-110">
+                                                    <div className="h-1 w-1 rounded-full bg-[#013ff4]" />
+                                                </div>
+                                                <div className="transition-all duration-300 group-hover:translate-x-1">
+                                                    <h4 className="text-sm font-extrabold text-foreground">{exp.title}</h4>
+                                                    <p className="text-xs font-bold text-muted-foreground mt-1">
+                                                        {exp.company} • {formatExperiencePeriod(exp)}
+                                                    </p>
+                                                    {exp.description && (
+                                                        <p className="text-xs text-muted-foreground/90 mt-2 leading-relaxed">
+                                                            {exp.description}
+                                                        </p>
+                                                    )}
+                                                </div>
                                             </div>
-                                            <div className="transition-all duration-300 group-hover:translate-x-1">
-                                                <h4 className="text-sm font-extrabold text-foreground">{exp.title}</h4>
-                                                <p className="text-xs font-bold text-muted-foreground mt-1">
-                                                    {exp.company} • {exp.period}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    ))}
+                                        ))}
                                 </div>
                             ) : (
                                 <div className="rounded-2xl border border-border bg-muted/40 p-5">

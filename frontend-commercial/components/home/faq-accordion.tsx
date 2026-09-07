@@ -67,12 +67,12 @@ const categories: Category[] = [
       {
         question: "Comment fonctionne le lien court personnalisé ?",
         answer:
-          "Avec la formule Gratuite, vous bénéficiez d'une URL directe. Avec le plan Pro (2 000 FCFA/mois), vous réservez votre pseudo exclusif (ex: emiid.com/amadou-traore). Ce lien est idéal pour vos cartes de visite, signatures d'email et bio WhatsApp.",
+          "Avec la formule Gratuite, vous bénéficiez d'une URL directe. Avec le plan Pro (1 000 FCFA/mois), vous réservez votre pseudo exclusif (ex: emiid.com/amadou-traore). Ce lien est idéal pour vos cartes de visite, signatures d'email et bio WhatsApp.",
       },
       {
         question: "Comment obtenir le Badge Fondateur Numéroté ?",
         answer:
-          "Le Badge Fondateur est strictement réservé aux 1 000 premiers inscrits (700 en Afrique, 300 à l'international) qui satisfont 4 critères :\n1. Être dans les 1 000 premiers inscrits horodatés.\n2. Profil complété à 80% minimum.\n3. Parrainer 3 confrères actifs sur la plateforme.\n4. Compte vérifié sous 48h.\n\nCe badge offre à vie la gratuité pendant 1 an sur le plan Pro (valeur 24 000 FCFA) et une priorité dans l'annuaire.",
+          "Le Badge Fondateur est strictement réservé aux 1 000 premiers inscrits (700 en Afrique, 300 à l'international) qui satisfont 4 critères :\n1. Être dans les 1 000 premiers inscrits horodatés.\n2. Profil complété à 80% minimum.\n3. Parrainer 3 confrères actifs sur la plateforme.\n4. Compte vérifié sous 48h.\n\nCe badge offre à vie la gratuité pendant 1 an sur le plan Pro (valeur 12 000 FCFA) et une priorité dans l'annuaire.",
       },
     ],
   },
@@ -84,7 +84,7 @@ const categories: Category[] = [
       {
         question: "EmiID est-il gratuit ?",
         answer:
-          "Oui, la version de base est gratuite et sans limitation de durée. Elle inclut votre profil certifiable, l'apparition dans l'annuaire et la messagerie directe.\n\nLe plan Pro à 2 000 FCFA/mois débloque le portfolio illimité, le lien personnalisé, les statistiques d'audience et le référencement prioritaire.",
+          "Oui, la version de base est gratuite et sans limitation de durée. Elle inclut votre profil certifiable, l'apparition dans l'annuaire et la messagerie directe.\n\nLe plan Pro à 1 000 FCFA/mois débloque le portfolio illimité, le lien personnalisé, les statistiques d'audience et le référencement prioritaire.",
       },
       {
         question: "Quels sont les moyens de paiement acceptés ?",

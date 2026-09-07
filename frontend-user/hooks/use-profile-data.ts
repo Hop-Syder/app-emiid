@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { isFollowingUser } from "@/lib/follows"
+import type { ExperienceItem } from "@/types"
 
 export interface ProfileData {
     id: string
@@ -32,7 +33,7 @@ export interface ProfileData {
     hasContact?: boolean
     website?: string
     skills: string[]
-    experiences: { title: string; company: string; period: string; current: boolean }[]
+    experiences: ExperienceItem[]
     services?: Array<{ title: string; price: number | null; description?: string }>
     opening_hours?: Array<{ day: number; open: string; close: string; closed: boolean }>
 }
@@ -63,6 +64,7 @@ interface ProfileQueryResult {
     role: string | null
     services?: Array<{ title: string; price: number | null; description?: string }> | null
     opening_hours?: Array<{ day: number; open: string; close: string; closed: boolean }> | null
+    experiences?: ExperienceItem[] | null
     countries: { name: string } | { name: string }[] | null
     profile_tags: Array<{
         tags: { name: string | null } | null
@@ -124,7 +126,7 @@ export function useProfileData(profileId: string) {
                 // eslint-disable-next-line no-restricted-syntax -- tentative authentifiée (SON profil) ; fallback RPC get_public_profile pour l'anonyme/cross-user
                 let query = supabase
                     .from("user_profiles")
-                    .select("id, user_id, first_name, last_name, bio, business_name, district, city, avatar_url, cover_url, specialty, category, slug, is_published, is_verified, is_premium, followers_count, created_at, website, role, services, opening_hours, countries(name), profile_tags(tags(name))")
+                    .select("id, user_id, first_name, last_name, bio, business_name, district, city, avatar_url, cover_url, specialty, category, slug, is_published, is_verified, is_premium, followers_count, created_at, website, role, services, opening_hours, experiences, countries(name), profile_tags(tags(name))")
 
                 if (isUUID) {
                     query = query.or(`slug.eq.${cleanProfileId},user_id.eq.${cleanProfileId},id.eq.${cleanProfileId}`)
@@ -260,7 +262,7 @@ export function useProfileData(profileId: string) {
                             data.profile_tags
                                 ?.map((pt) => pt.tags?.name)
                                 .filter((name): name is string => typeof name === "string" && name.trim().length > 0) || [],
-                        experiences: [],
+                        experiences: Array.isArray(data.experiences) ? data.experiences : [],
                         services: Array.isArray(data.services) ? data.services : [],
                         opening_hours: Array.isArray(data.opening_hours) ? data.opening_hours : [],
                     }
