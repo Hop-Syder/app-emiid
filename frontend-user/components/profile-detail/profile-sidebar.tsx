@@ -14,6 +14,7 @@ import { trackProfileMetric } from "@/lib/track-profile"
 import { trackProfileContact } from "@/lib/analytics"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { cn } from "@/lib/utils"
 
 interface ProfileSidebarProps {
     profile: {
@@ -80,6 +81,18 @@ function LockedContact() {
     )
 }
 
+// Même ordre/libellés que la section paramètres (hours-pricing-section.tsx)
+const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0]
+const DAY_LABELS: Record<number, string> = {
+    1: "Lundi", 2: "Mardi", 3: "Mercredi", 4: "Jeudi", 5: "Vendredi", 6: "Samedi", 0: "Dimanche",
+}
+
+/** "08:00" -> "08 h" ; "08:30" -> "08 h 30" */
+function formatHour(time: string): string {
+    const [h, m] = time.split(":")
+    return m && m !== "00" ? `${h} h ${m}` : `${h} h`
+}
+
 /**
  * Normalise un numero pour wa.me / tel:.
  * Regle : un numero deja international (prefixe « + ») est conserve tel quel ;
@@ -103,6 +116,11 @@ export function ProfileSidebar({
     downloadVCard,
     isLoggedIn
 }: ProfileSidebarProps) {
+    const hoursByDay = new Map((profile.opening_hours || []).map((h) => [h.day, h]))
+    const orderedHours = DAY_ORDER
+        .map((day) => hoursByDay.get(day))
+        .filter((h): h is NonNullable<typeof h> => Boolean(h))
+
     return (
         <aside className="lg:col-span-4 min-w-0 space-y-6">
             {/* Action rapide : Message */}
@@ -132,18 +150,28 @@ export function ProfileSidebar({
                 </h3>
 
                 <div className="mt-5 space-y-3.5 text-xs sm:text-sm">
-                    <div className="flex items-center justify-between py-1 border-b border-border/50">
-                        <span className="font-semibold text-muted-foreground">Lun – Ven</span>
-                        <span className="font-black text-foreground">08 h – 18 h</span>
-                    </div>
-                    <div className="flex items-center justify-between py-1 border-b border-border/50">
-                        <span className="font-semibold text-muted-foreground">Samedi</span>
-                        <span className="font-black text-foreground">08 h – 13 h</span>
-                    </div>
-                    <div className="flex items-center justify-between py-1">
-                        <span className="font-semibold text-muted-foreground">Dimanche</span>
-                        <span className="font-semibold text-slate-400">Fermé</span>
-                    </div>
+                    {orderedHours.length > 0 ? (
+                        orderedHours.map((h, index) => (
+                            <div
+                                key={h.day}
+                                className={cn(
+                                    "flex items-center justify-between py-1",
+                                    index < orderedHours.length - 1 && "border-b border-border/50"
+                                )}
+                            >
+                                <span className="font-semibold text-muted-foreground">{DAY_LABELS[h.day]}</span>
+                                {h.closed ? (
+                                    <span className="font-semibold text-slate-400">Fermé</span>
+                                ) : (
+                                    <span className="font-black text-foreground">
+                                        {formatHour(h.open)} – {formatHour(h.close)}
+                                    </span>
+                                )}
+                            </div>
+                        ))
+                    ) : (
+                        <p className="text-muted-foreground font-semibold">Horaires non renseignés</p>
+                    )}
                 </div>
             </div>
 

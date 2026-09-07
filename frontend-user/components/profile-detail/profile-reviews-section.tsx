@@ -26,6 +26,8 @@ import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
 
+const INITIAL_VISIBLE_REVIEWS = 5
+
 async function getAuthHeaders(includeJson = false): Promise<Record<string, string>> {
     const headers: Record<string, string> = {}
     if (includeJson) {
@@ -337,7 +339,7 @@ export function ProfileReviewsSection({
 
             {/* ── Liste des avis (Image 2) ── */}
             <div className="mt-8 divide-y divide-border/60 space-y-6">
-                {reviews.map((rev) => (
+                {(showAll ? reviews : reviews.slice(0, INITIAL_VISIBLE_REVIEWS)).map((rev) => (
                     <article key={rev.id} className="pt-6 first:pt-0 space-y-2.5">
                         {/* En-tête de l'avis : Avatar, Nom, Étoiles, Badge vérifié, Date */}
                         <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
@@ -401,21 +403,20 @@ export function ProfileReviewsSection({
                 ))}
             </div>
 
-            {/* ── Bouton centré : Voir les 23 avis (Image 2) ── */}
-            <div className="mt-8 text-center pt-2">
-                <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                        setShowAll(!showAll)
-                        toast.info("Affichage des avis complets.")
-                    }}
-                    className="rounded-2xl border-border bg-card hover:bg-muted font-extrabold text-xs px-6 py-2.5 shadow-xs text-foreground transition-all hover:-translate-y-0.5"
-                >
-                    Voir les 23 avis
-                </Button>
-            </div>
+            {/* ── Bouton centré : Voir plus / moins d'avis ── */}
+            {reviews.length > INITIAL_VISIBLE_REVIEWS && (
+                <div className="mt-8 text-center pt-2">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowAll(!showAll)}
+                        className="rounded-2xl border-border bg-card hover:bg-muted font-extrabold text-xs px-6 py-2.5 shadow-xs text-foreground transition-all hover:-translate-y-0.5"
+                    >
+                        {showAll ? "Voir moins" : `Voir les ${stats.count} avis`}
+                    </Button>
+                </div>
+            )}
         </section>
     )
 }

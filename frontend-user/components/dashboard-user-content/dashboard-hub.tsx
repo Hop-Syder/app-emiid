@@ -28,6 +28,9 @@ export function DashboardHubContent({
     endpoint: "/api/dashboard-user/stats",
     fetcher: fetchWithAuth,
     refreshIntervalMs: 30000,
+    // Pas de faux chiffres de secours ici : contrairement au hub public, cette
+    // page n'a pas vocation à afficher des stats globales "crédibles" inventées.
+    fallbackStats: null,
   })
 
   return (

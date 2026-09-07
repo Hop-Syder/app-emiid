@@ -41,7 +41,6 @@ export const AvatarUpload = React.memo(function AvatarUpload({
     className,
 }: AvatarUploadProps) {
     const [uploading, setUploading] = useState(false)
-    const [uploadProgress, setUploadProgress] = useState(0)
     const [preview, setPreview] = useState<string | null>(currentAvatarUrl || "/profil/avatar.jpg")
     const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -82,7 +81,6 @@ export const AvatarUpload = React.memo(function AvatarUpload({
 
     const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const input = event.target
-        let progressInterval: NodeJS.Timeout | null = null
 
         try {
             if (!input.files || input.files.length === 0) {
@@ -104,15 +102,6 @@ export const AvatarUpload = React.memo(function AvatarUpload({
             }
 
             setUploading(true)
-            setUploadProgress(15)
-
-            // Animation fluide de la progression
-            progressInterval = setInterval(() => {
-                setUploadProgress((prev) => {
-                    if (prev >= 90) return prev
-                    return prev + Math.floor(Math.random() * 15) + 5
-                })
-            }, 200)
 
             // Session requise : le chemin d'upload est scopé au dossier de l'utilisateur
             const { data: { session } } = await supabase.auth.getSession()
@@ -148,7 +137,6 @@ export const AvatarUpload = React.memo(function AvatarUpload({
                 .from("avatars")
                 .getPublicUrl(filePath)
 
-            setUploadProgress(100)
             setPreview(publicUrl)
             onUploadComplete(publicUrl)
             toast.success("Photo de profil mise à jour !")
@@ -157,10 +145,8 @@ export const AvatarUpload = React.memo(function AvatarUpload({
             console.error("Erreur upload:", error)
             toast.error(uploadErrorMessage(error))
         } finally {
-            if (progressInterval) clearInterval(progressInterval)
             setTimeout(() => {
                 setUploading(false)
-                setUploadProgress(0)
             }, 300)
             input.value = ""
         }
@@ -176,9 +162,6 @@ export const AvatarUpload = React.memo(function AvatarUpload({
        VARIANTE 1 : PROFILE-CARD (Paramètres Profil — PDF Design & Luxury)
        ═════════════════════════════════════════════════════════════════════════ */
     if (variant === "profile-card") {
-        const circumference = 2 * Math.PI * 44 // r = 44 => ~276.46
-        const strokeDashoffset = circumference - (circumference * uploadProgress) / 100
-
         return (
             <div className={cn("flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left", className)}>
                 {/* Cadre Avatar avec gestion anneau éteint ou progression circulaire SVG */}
@@ -202,10 +185,12 @@ export const AvatarUpload = React.memo(function AvatarUpload({
                             </AvatarFallback>
                         </Avatar>
 
-                        {/* Anneau circulaire SVG de progression pendant l'upload (PDF Page 3) */}
+                        {/* Anneau circulaire SVG indéterminé pendant l'upload (PDF Page 3) —
+                            l'API Storage n'expose pas d'événement de progression réel, donc
+                            pas de pourcentage affiché (il serait inventé). */}
                         {uploading ? (
                             <div className="absolute inset-0 rounded-full bg-black/60 backdrop-blur-[2px] flex items-center justify-center z-20">
-                                <svg className="w-full h-full -rotate-90 p-1" viewBox="0 0 100 100">
+                                <svg className="w-full h-full -rotate-90 p-1 animate-spin" viewBox="0 0 100 100">
                                     <circle
                                         cx="50"
                                         cy="50"
@@ -220,16 +205,12 @@ export const AvatarUpload = React.memo(function AvatarUpload({
                                         r="44"
                                         stroke="#0150fd"
                                         strokeWidth="6"
-                                        strokeDasharray={circumference}
-                                        strokeDashoffset={strokeDashoffset}
+                                        strokeDasharray={2 * Math.PI * 44}
+                                        strokeDashoffset={2 * Math.PI * 44 * 0.75}
                                         strokeLinecap="round"
                                         fill="transparent"
-                                        className="transition-all duration-200 ease-linear"
                                     />
                                 </svg>
-                                <span className="absolute inset-0 flex items-center justify-center font-black text-sm text-white tracking-wider">
-                                    {uploadProgress}%
-                                </span>
                             </div>
                         ) : (
                             /* Overlay au survol */

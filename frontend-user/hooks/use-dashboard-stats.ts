@@ -30,6 +30,8 @@ interface UseDashboardStatsOptions {
     refreshIntervalMs?: number
     errorMessage?: string
     initialData?: DashboardStats | null
+    /** Valeurs affichées si la première tentative échoue. Défaut : CREDIBLE_FALLBACK_STATS. */
+    fallbackStats?: DashboardStats | null
 }
 
 export function useDashboardStats({
@@ -38,6 +40,7 @@ export function useDashboardStats({
     refreshIntervalMs = 30000,
     errorMessage = "Impossible de charger les statistiques pour le moment.",
     initialData = null,
+    fallbackStats = CREDIBLE_FALLBACK_STATS,
 }: UseDashboardStatsOptions) {
     const [stats, setStats] = useState<DashboardStats | null>(initialData)
     const [statsLoaded, setStatsLoaded] = useState(Boolean(initialData))
@@ -82,7 +85,7 @@ export function useDashboardStats({
                 }
 
                 if (!hasSuccessfulStatsRef.current) {
-                    setStats(CREDIBLE_FALLBACK_STATS)
+                    setStats(fallbackStats)
                     setStatsLoaded(true)
                     setStatsError(errorMessage)
                 } else {
@@ -105,7 +108,7 @@ export function useDashboardStats({
             isMounted = false
             window.clearInterval(intervalId)
         }
-    }, [endpoint, errorMessage, fetcher, refreshIntervalMs])
+    }, [endpoint, errorMessage, fetcher, refreshIntervalMs, fallbackStats])
 
     return { stats, statsLoaded, statsLoading, statsError, isSyncing }
 }

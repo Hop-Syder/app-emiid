@@ -10,11 +10,12 @@
 
 "use client"
 
-import React from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { ChevronRight, Check, X, AlertCircle, CheckCircle2, Loader2, Sparkles } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { fetchWithAuth } from "@/lib/apiClient"
 
 export const INPUT =
   "h-11 rounded-none bg-muted/80 border-border text-sm font-medium text-foreground focus:bg-card focus:ring-2 focus:ring-[#013ff4]/15 focus:border-[#013ff4] transition-all placeholder:text-slate-400 disabled:opacity-60 disabled:cursor-not-allowed"
@@ -327,12 +328,48 @@ export function SlugInput({
       .replace(/[^a-z0-9-_]/g, "")
       .slice(0, 30)
 
-  // Simulation / vérification de disponibilité
+  // Filtre local instantané (évite un aller-retour réseau pour les cas triviaux)
   const reserved = ["admin", "root", "support", "emiid", "moderateur", "contact", "api"]
   const trimmed = (value || "").trim().toLowerCase()
   const isTooShort = trimmed.length < 3
-  const isTaken = reserved.includes(trimmed)
-  const isAvailable = !isTooShort && !isTaken
+  const isReserved = reserved.includes(trimmed)
+
+  // Vérification réelle d'unicité en base (debounced), via la même requête
+  // que la sauvegarde serveur (updateMyProfile) — plus de liste en dur seule.
+  const [checking, setChecking] = useState(false)
+  const [remoteAvailable, setRemoteAvailable] = useState<boolean | null>(null)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    if (isTooShort || isReserved) {
+      setRemoteAvailable(null)
+      setChecking(false)
+      return
+    }
+
+    setChecking(true)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const res = await fetchWithAuth(`/api/users/check-slug?slug=${encodeURIComponent(trimmed)}`)
+        const data = await res.json()
+        setRemoteAvailable(res.ok ? Boolean(data.available) : null)
+      } catch {
+        setRemoteAvailable(null)
+      } finally {
+        setChecking(false)
+      }
+    }, 300)
+
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trimmed, isTooShort, isReserved])
+
+  const isTaken = isReserved || remoteAvailable === false
+  const isAvailable = !isTooShort && !checking && !isTaken
 
   const suggestions = isTaken
     ? [`${trimmed}-pro`, `${trimmed}229`, `${trimmed}-bj`]
@@ -361,7 +398,12 @@ export function SlugInput({
         {/* Indicateur de disponibilité */}
         {!isTooShort && (
           <div className="shrink-0 pl-2">
-            {isAvailable ? (
+            {checking ? (
+              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-400 bg-muted border border-border px-2 py-0.5 rounded-full">
+                <Loader2 className="w-3 h-3 animate-spin" />
+                Vérification...
+              </span>
+            ) : isAvailable ? (
               <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200/80 dark:border-emerald-800/60 px-2 py-0.5 rounded-full">
                 <Check className="w-3 h-3 text-emerald-600" />
                 Disponible

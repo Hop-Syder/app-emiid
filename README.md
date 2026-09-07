@@ -22,7 +22,7 @@ Pour une immersion profonde dans les différentes couches du projet, consultez l
 
 ```bash
 .
-├── docs/                 # Documentation centralisée (MAJ 2026-08-22)
+├── docs/                 # Documentation centralisée (MAJ 2026-09-02)
 ├── frontend-user/        # App Utilisateur (Next.js 16 + React 19 + Supabase SSR)
 ├── frontend-admin/       # Cockpit Admin (Next.js 16 + Tailwind 4)
 ├── frontend-commercial/  # Site Vitrine & Commercial (Next.js 16)
@@ -36,8 +36,8 @@ Pour une immersion profonde dans les différentes couches du projet, consultez l
 ## ⚙️ État des Fonctionnalités (Core Features)
 
 - 🔐 **Auth & Sécurité** : Authentification sécurisée (Email/OTP), protection par PIN et RLS granulaire.
-- 👥 **Profils & Réalisations** : Profils professionnels avec portfolio Bento, QR Code, vCard et badges vérifiés.
-- 🤖 **Recherche Intelligente & Vocale** : Moteur IA avec recherche sémantique (Gemini), FTS avec ranking et dictée vocale.
+- 👥 **Profils & Réalisations** : Profils professionnels avec portfolio Bento, Services & Tarifs, Avis clients, Horaires, note (5 états), QR Code, vCard et badges vérifiés.
+- 🤖 **Recherche Intelligente & Vocale** : Moteur IA avec recherche sémantique (Gemini), FTS avec ranking et Micro Vocal IA (dictée vocale intégrée à la navigation).
 - 💳 **Monétisation & Boosts** : Abonnements Pro mensuels/annuels, boosts communaux/départementaux et FedaPay Mobile Money.
 - 💬 **Messagerie & Médiation** : Chat temps réel, partage de pièces jointes et médiation de litiges admin.
 - 🗺️ **Annuaire & Référentiel** : Annuaire avec géolocalisation et filtres sectoriels (77 communes du Bénin).

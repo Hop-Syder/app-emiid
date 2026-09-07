@@ -11,11 +11,13 @@
 import { Router } from 'express';
 import {
   getMyProfile,
+  checkSlugAvailability,
   updateMyProfile,
   updateMySettings,
   deactivateMyAccount,
   deleteMyAccount,
   verifyPin,
+  requestPinReset,
   resetMyPin,
   requestPhoneVerification,
   verifyPhone,
@@ -34,7 +36,7 @@ import {
   verifyPhoneSchema,
   updateFollowNoteSchema,
 } from '../validations/userValidations';
-import { pinLimiter, phoneVerificationLimiter, phoneVerifyLimiter } from '../../middlewares/rateLimiter';
+import { pinLimiter, pinResetRequestLimiter, pinResetVerifyLimiter, phoneVerificationLimiter, phoneVerifyLimiter } from '../../middlewares/rateLimiter';
 
 const router = Router();
 
@@ -44,6 +46,10 @@ router.use(requireAuth);
 // @route   GET /api/users/me
 // @desc    Récupérer le profil connecté
 router.get('/me', getMyProfile);
+
+// @route   GET /api/users/check-slug
+// @desc    Vérifier la disponibilité réelle d'un slug (unicité DB)
+router.get('/check-slug', checkSlugAvailability);
 
 // @route   PUT /api/users/me
 // @desc    Mettre à jour le profil connecté
@@ -65,9 +71,13 @@ router.delete('/account', deleteMyAccount);
 // @desc    Vérifier le code PIN
 router.post('/verify-pin', pinLimiter, verifyPin);
 
+// @route   POST /api/users/pin/request-reset
+// @desc    Demander un OTP par e-mail pour réinitialiser le code PIN
+router.post('/pin/request-reset', pinResetRequestLimiter, requestPinReset);
+
 // @route   POST /api/users/reset-pin
-// @desc    Réinitialiser le code PIN (après vérification d'identité par OTP email)
-router.post('/reset-pin', resetMyPin);
+// @desc    Vérifier l'OTP email et définir un nouveau code PIN
+router.post('/reset-pin', pinResetVerifyLimiter, resetMyPin);
 
 
 

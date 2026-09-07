@@ -30,6 +30,7 @@ import {
   Clock,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { createClient } from "@/lib/supabase/client"
 
 interface ServiceStatus {
   name: string
@@ -57,15 +58,14 @@ export default function MaintenancePage() {
       key: "supabase",
       description: "Stockage PostgreSQL & authentification principale",
       icon: Database,
-      status: "online",
-      pingTimeMs: 42,
+      status: "checking",
     },
     {
       name: "Messagerie & Temps Réel",
       key: "realtime",
       description: "WebSockets & relais de messages instantanés",
       icon: Activity,
-      status: "degraded",
+      status: "checking",
     },
   ])
 
@@ -95,13 +95,7 @@ export default function MaintenancePage() {
       if (res.ok) {
         await res.json()
         setServices((prev) =>
-          prev.map((s) =>
-            s.key === "backend"
-              ? { ...s, status: "online", pingTimeMs: pingMs }
-              : s.key === "realtime"
-                ? { ...s, status: "online", pingTimeMs: pingMs + 10 }
-                : s
-          )
+          prev.map((s) => (s.key === "backend" ? { ...s, status: "online", pingTimeMs: pingMs } : s))
         )
         setDiagnosticLog((prev) => [
           `[${timestamp}] ✅ Backend accessible (HTTP ${res.status}) - Latence: ${pingMs}ms`,
@@ -114,13 +108,7 @@ export default function MaintenancePage() {
         }
       } else {
         setServices((prev) =>
-          prev.map((s) =>
-            s.key === "backend"
-              ? { ...s, status: "offline", pingTimeMs: pingMs }
-              : s.key === "realtime"
-                ? { ...s, status: "degraded" }
-                : s
-          )
+          prev.map((s) => (s.key === "backend" ? { ...s, status: "offline", pingTimeMs: pingMs } : s))
         )
         setDiagnosticLog((prev) => [
           `[${timestamp}] ❌ Backend indisponible (HTTP ${res.status})`,
@@ -132,13 +120,7 @@ export default function MaintenancePage() {
       const endTime = performance.now()
       const pingMs = Math.round(endTime - startTime)
       setServices((prev) =>
-        prev.map((s) =>
-          s.key === "backend"
-            ? { ...s, status: "offline", pingTimeMs: pingMs }
-            : s.key === "realtime"
-              ? { ...s, status: "offline" }
-              : s
-        )
+        prev.map((s) => (s.key === "backend" ? { ...s, status: "offline", pingTimeMs: pingMs } : s))
       )
       setDiagnosticLog((prev) => [
         `[${timestamp}] ⚠️ Erreur de réseau : impossible de joindre le serveur API`,
@@ -151,15 +133,70 @@ export default function MaintenancePage() {
     }
   }, [autoRedirectCountdown])
 
+  // Vérifie réellement Supabase (au lieu du statut "online (42ms)" codé en dur)
+  const checkSupabaseHealth = useCallback(async () => {
+    const startTime = performance.now()
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.from("countries").select("id").limit(1)
+      if (error) throw error
+      const pingMs = Math.round(performance.now() - startTime)
+      setServices((prev) =>
+        prev.map((s) => (s.key === "supabase" ? { ...s, status: "online", pingTimeMs: pingMs } : s))
+      )
+    } catch {
+      setServices((prev) =>
+        prev.map((s) => (s.key === "supabase" ? { ...s, status: "offline", pingTimeMs: undefined } : s))
+      )
+    }
+  }, [])
+
+  // Vérifie réellement Supabase Realtime via un canal éphémère (au lieu du
+  // statut "degraded" codé en dur, jamais mesuré)
+  const checkRealtimeHealth = useCallback(async () => {
+    const supabase = createClient()
+    const startTime = performance.now()
+
+    await new Promise<void>((resolve) => {
+      const channel = supabase.channel(`healthcheck-${Date.now()}`)
+      let settled = false
+
+      const settle = (status: "online" | "offline", pingTimeMs?: number) => {
+        if (settled) return
+        settled = true
+        clearTimeout(timeout)
+        setServices((prev) =>
+          prev.map((s) => (s.key === "realtime" ? { ...s, status, pingTimeMs } : s))
+        )
+        supabase.removeChannel(channel)
+        resolve()
+      }
+
+      const timeout = setTimeout(() => settle("offline"), 3000)
+
+      channel.subscribe((status) => {
+        if (status === "SUBSCRIBED") {
+          settle("online", Math.round(performance.now() - startTime))
+        } else if (status === "CHANNEL_ERROR" || status === "CLOSED" || status === "TIMED_OUT") {
+          settle("offline")
+        }
+      })
+    })
+  }, [])
+
   // Lancer la première vérification au chargement + intervalle automatique de 12s
   useEffect(() => {
     checkBackendHealth()
+    checkSupabaseHealth()
+    checkRealtimeHealth()
     const interval = setInterval(() => {
       checkBackendHealth()
+      checkSupabaseHealth()
+      checkRealtimeHealth()
     }, 12000)
 
     return () => clearInterval(interval)
-  }, [checkBackendHealth])
+  }, [checkBackendHealth, checkSupabaseHealth, checkRealtimeHealth])
 
   // Décompte de redirection automatique lorsque le serveur revient en ligne
   useEffect(() => {

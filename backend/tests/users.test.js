@@ -1,8 +1,9 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Tests pour les routes d'utilisateurs (Mode Hybrid: Register + Bypass Auth)
+ * @description Tests pour les routes d'utilisateurs
  * @created 2026-03-26
+ * @updated 2026-09-07
  */
 
 require('ts-node/register/transpile-only');
@@ -12,41 +13,28 @@ const assert = require('node:assert/strict');
 const request = require('supertest');
 
 const { app } = require('../src/app.ts');
-
-let testUserId;
-let testUserEmail;
-
-// On s'assure que le bypass est activé pour les tests
-process.env.DEV_AUTH_BYPASS = 'true';
+const { createTestUser, deleteTestUser, supabaseAdmin } = require('./helpers/testAuth');
 
 test.describe('User Routes', () => {
+    let user;
 
     test.before(async () => {
-        // 1. Créer un vrai utilisateur via l'API de register (pour avoir un profil en DB)
-        testUserEmail = `test_${Date.now()}@emiid.local`;
-        const response = await request(app)
-            .post('/api/auth/register')
-            .send({
-                email: testUserEmail,
-                password: 'Password123!',
-                first_name: 'Test',
-                last_name: 'User'
-            })
-            .expect(201);
-        
-        testUserId = response.body.user.id;
+        user = await createTestUser({ emailPrefix: 'user' });
+    });
+
+    test.after(async () => {
+        await deleteTestUser(user.userId);
     });
 
     test.describe('GET /api/users/me', () => {
-        test('should return user profile', async () => {
+        test('should return the authenticated user profile', async () => {
             const response = await request(app)
                 .get('/api/users/me')
-                .set('x-dev-user-id', testUserId)
-                .set('x-dev-user-email', testUserEmail)
+                .set('Authorization', `Bearer ${user.token}`)
                 .expect(200);
 
             assert.ok(response.body);
-            assert.equal(response.body.email, testUserEmail);
+            assert.equal(response.body.email, user.email);
         });
 
         test('should return 401 without authentication', async () => {
@@ -61,13 +49,12 @@ test.describe('User Routes', () => {
             const updateData = {
                 bio: 'Test bio updated',
                 specialty: 'Developer',
-                city: 'Paris'
+                city: 'Cotonou',
             };
 
             const response = await request(app)
                 .put('/api/users/me')
-                .set('x-dev-user-id', testUserId)
-                .set('x-dev-user-email', testUserEmail)
+                .set('Authorization', `Bearer ${user.token}`)
                 .send(updateData)
                 .expect(200);
 
@@ -80,10 +67,16 @@ test.describe('User Routes', () => {
         test('should return followers list', async () => {
             const response = await request(app)
                 .get('/api/users/followers')
-                .set('x-dev-user-id', testUserId)
+                .set('Authorization', `Bearer ${user.token}`)
                 .expect(200);
 
             assert.ok(Array.isArray(response.body));
+        });
+
+        test('should return 401 without authentication', async () => {
+            await request(app)
+                .get('/api/users/followers')
+                .expect(401);
         });
     });
 
@@ -91,7 +84,7 @@ test.describe('User Routes', () => {
         test('should return following list', async () => {
             const response = await request(app)
                 .get('/api/users/follows')
-                .set('x-dev-user-id', testUserId)
+                .set('Authorization', `Bearer ${user.token}`)
                 .expect(200);
 
             assert.ok(Array.isArray(response.body));
@@ -100,25 +93,64 @@ test.describe('User Routes', () => {
 
     test.describe('POST /api/users/follow/:id', () => {
         test('should follow another user', async () => {
-            // Créer un deuxième utilisateur
-            const targetResponse = await request(app)
-                .post('/api/auth/register')
-                .send({
-                    email: `target_${Date.now()}@emiid.local`,
-                    password: 'Password123!',
-                    first_name: 'Target',
-                    last_name: 'User'
-                })
-                .expect(201);
-            
-            const targetUserId = targetResponse.body.user.id;
+            const target = await createTestUser({ emailPrefix: 'follow-target' });
+            try {
+                const response = await request(app)
+                    .post(`/api/users/follow/${target.userId}`)
+                    .set('Authorization', `Bearer ${user.token}`)
+                    .expect(200);
 
+                assert.equal(typeof response.body.followed, 'boolean');
+            } finally {
+                await deleteTestUser(target.userId);
+            }
+        });
+    });
+
+    test.describe('POST /api/users/pin/request-reset + POST /api/users/reset-pin', () => {
+        test('should reject reset-pin with an invalid OTP', async () => {
             const response = await request(app)
-                .post(`/api/users/follow/${targetUserId}`)
-                .set('x-dev-user-id', testUserId)
+                .post('/api/users/reset-pin')
+                .set('Authorization', `Bearer ${user.token}`)
+                .send({ otp: '000000', newPin: '123456' })
+                .expect(400);
+
+            assert.ok(response.body.error);
+        });
+
+        test('should reject reset-pin without authentication', async () => {
+            await request(app)
+                .post('/api/users/reset-pin')
+                .send({ otp: '000000', newPin: '123456' })
+                .expect(401);
+        });
+
+        test('should set a new PIN after requesting a real OTP', async () => {
+            const requestResponse = await request(app)
+                .post('/api/users/pin/request-reset')
+                .set('Authorization', `Bearer ${user.token}`)
                 .expect(200);
 
-            assert.equal(typeof response.body.followed, 'boolean');
+            assert.equal(requestResponse.body.success, true);
+
+            const { data: verification, error } = await supabaseAdmin
+                .from('pin_reset_verifications')
+                .select('otp_code')
+                .eq('user_id', user.userId)
+                .order('created_at', { ascending: false })
+                .limit(1)
+                .single();
+
+            assert.equal(error, null);
+            assert.ok(verification?.otp_code);
+
+            const resetResponse = await request(app)
+                .post('/api/users/reset-pin')
+                .set('Authorization', `Bearer ${user.token}`)
+                .send({ otp: verification.otp_code, newPin: '654321' })
+                .expect(200);
+
+            assert.equal(resetResponse.body.success, true);
         });
     });
 });

@@ -29,12 +29,20 @@ const requiredKeys = exampleContent
 
 console.log('📋 Vérification des variables requises...\n');
 
+// Variables listées dans .env.example mais non bloquantes si absentes : leur
+// fonctionnalité dégrade proprement (ex. FedaPay → 502 géré, pas de crash).
+const optionalVars = ['CORS_ORIGIN', 'SMTP_SECURE', 'VAPID_SUBJECT', 'FEDAPAY_SECRET_KEY', 'FEDAPAY_WEBHOOK_SECRET', 'FEDAPAY_BASE_URL'];
+
 requiredKeys.forEach(key => {
     const value = process.env[key];
-    
+
     if (!value) {
-        console.error(`❌ MANQUANT: ${key}`);
-        hasErrors = true;
+        if (optionalVars.includes(key)) {
+            console.warn(`⚠️  Optionnel non configuré: ${key}`);
+        } else {
+            console.error(`❌ MANQUANT: ${key}`);
+            hasErrors = true;
+        }
     } else {
         console.log(`✅ Présent: ${key}`);
     }
@@ -47,7 +55,6 @@ requiredKeys.forEach(key => {
     if (!value) return;
 
     // Ignorer les valeurs vides pour les variables optionnelles si nécessaire
-    const optionalVars = ['CORS_ORIGIN', 'SMTP_SECURE', 'VAPID_SUBJECT'];
     if (optionalVars.includes(key)) return;
 
     if (value.trim() === '') {

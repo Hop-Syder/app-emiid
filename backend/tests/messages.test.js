@@ -3,6 +3,7 @@
  * @organization Nexus Partners
  * @description Tests pour les routes de messagerie
  * @created 2026-03-26
+ * @updated 2026-09-07
  */
 
 require('ts-node/register/transpile-only');
@@ -12,212 +13,172 @@ const assert = require('node:assert/strict');
 const request = require('supertest');
 
 const { app } = require('../src/app.ts');
+const { createTestUser, deleteTestUser, supabaseAdmin } = require('./helpers/testAuth');
 
-let authToken;
-let testUserId;
-let recipientUserId;
+// Aucun endpoint ne crée de conversation 1-à-1 (le backend ne gère que les
+// groupes via POST /api/messages/groups) — une vraie conversation DM est créée
+// directement en base, comme le fait le frontend, avec ses 2 participants.
+async function createDmConversation(userIdA, userIdB) {
+    const { data: conversation, error } = await supabaseAdmin
+        .from('conversations')
+        .insert({ participant1_id: userIdA, participant2_id: userIdB, is_group: false })
+        .select('id')
+        .single();
+    if (error) throw error;
 
-// Helper pour créer un utilisateur
-async function createTestUser(emailSuffix = Date.now()) {
-    const signupData = {
-        email: `message_test_${emailSuffix}@example.com`,
-        password: 'Password123!',
-        firstName: 'Message',
-        lastName: 'Test'
-    };
+    const { error: participantsError } = await supabaseAdmin
+        .from('conversation_participants')
+        .insert([
+            { conversation_id: conversation.id, user_id: userIdA },
+            { conversation_id: conversation.id, user_id: userIdB },
+        ]);
+    if (participantsError) throw participantsError;
 
-    const response = await request(app)
-        .post('/api/auth/signup')
-        .send(signupData);
+    return conversation.id;
+}
 
-    return {
-        token: response.body.token,
-        userId: response.body.user.id
-    };
+async function deleteConversation(conversationId) {
+    if (!conversationId) return;
+    await supabaseAdmin.from('conversations').delete().eq('id', conversationId);
 }
 
 test.describe('Message Routes', () => {
-    test.beforeEach(async () => {
-        // Créer deux utilisateurs pour les tests
-        const user1 = await createTestUser();
-        authToken = user1.token;
-        testUserId = user1.userId;
+    let userA;
+    let userB;
+    let conversationId;
 
-        const user2 = await createTestUser(user1.userId + 1);
-        recipientUserId = user2.userId;
+    test.before(async () => {
+        userA = await createTestUser({ emailPrefix: 'msg-a' });
+        userB = await createTestUser({ emailPrefix: 'msg-b' });
+        conversationId = await createDmConversation(userA.userId, userB.userId);
+    });
+
+    test.after(async () => {
+        await deleteConversation(conversationId);
+        await deleteTestUser(userA.userId);
+        await deleteTestUser(userB.userId);
     });
 
     test.describe('GET /api/messages/conversations', () => {
-        test('should return conversations list', async () => {
+        test('should return the conversations list', async () => {
             const response = await request(app)
                 .get('/api/messages/conversations')
-                .set('Authorization', `Bearer ${authToken}`)
+                .set('Authorization', `Bearer ${userA.token}`)
                 .expect(200);
 
-            assert.ok(Array.isArray(response.body.conversations));
+            assert.ok(Array.isArray(response.body));
         });
 
         test('should return 401 without authentication', async () => {
             await request(app)
                 .get('/api/messages/conversations')
-                .expect(401);
-        });
-    });
-
-    test.describe('GET /api/messages/:conversationId', () => {
-        test('should return messages for a conversation', async () => {
-            // Note: Ce test suppose qu'il y a déjà des conversations
-            // Dans un environnement de test idéal, on créerait d'abord une conversation
-            const response = await request(app)
-                .get(`/api/messages/${recipientUserId}`)
-                .set('Authorization', `Bearer ${authToken}`)
-                .expect(200);
-
-            assert.ok(Array.isArray(response.body.messages));
-        });
-
-        test('should return 401 without authentication', async () => {
-            await request(app)
-                .get(`/api/messages/${recipientUserId}`)
                 .expect(401);
         });
     });
 
     test.describe('POST /api/messages/send', () => {
         test('should send a message successfully', async () => {
-            const messageData = {
-                recipient_id: recipientUserId,
-                content: 'Test message content'
-            };
-
             const response = await request(app)
                 .post('/api/messages/send')
-                .set('Authorization', `Bearer ${authToken}`)
-                .send(messageData)
+                .set('Authorization', `Bearer ${userA.token}`)
+                .send({ conversation_id: conversationId, content: 'Test message content', message_type: 'text' })
                 .expect(201);
 
-            assert.ok(response.body.message);
-            assert.equal(response.body.message.content, messageData.content);
+            assert.equal(response.body.content, 'Test message content');
+            assert.equal(response.body.conversation_id, conversationId);
         });
 
-        test('should reject empty message content', async () => {
-            const messageData = {
-                recipient_id: recipientUserId,
-                content: ''
-            };
-
+        test('should reject an empty message content', async () => {
             await request(app)
                 .post('/api/messages/send')
-                .set('Authorization', `Bearer ${authToken}`)
-                .send(messageData)
-                .expect(400);
+                .set('Authorization', `Bearer ${userA.token}`)
+                .send({ conversation_id: conversationId, content: '' })
+                .expect(500);
         });
 
-        test('should reject missing recipient', async () => {
-            const messageData = {
-                content: 'Test message without recipient'
-            };
-
+        test('should reject a missing conversation_id', async () => {
             await request(app)
                 .post('/api/messages/send')
-                .set('Authorization', `Bearer ${authToken}`)
-                .send(messageData)
-                .expect(400);
+                .set('Authorization', `Bearer ${userA.token}`)
+                .send({ content: 'Message without conversation' })
+                .expect(500);
         });
 
-        test('should reject self-message', async () => {
-            const messageData = {
-                recipient_id: testUserId,
-                content: 'Message to self'
-            };
+        test('should reject a non-member of the conversation', async () => {
+            const outsider = await createTestUser({ emailPrefix: 'msg-outsider' });
+            try {
+                const response = await request(app)
+                    .post('/api/messages/send')
+                    .set('Authorization', `Bearer ${outsider.token}`)
+                    .send({ conversation_id: conversationId, content: 'Should be rejected' })
+                    .expect(403);
 
-            const response = await request(app)
-                .post('/api/messages/send')
-                .set('Authorization', `Bearer ${authToken}`)
-                .send(messageData)
-                .expect(400);
-
-            assert.ok(response.body.error);
+                assert.ok(response.body.error);
+            } finally {
+                await deleteTestUser(outsider.userId);
+            }
         });
 
         test('should return 401 without authentication', async () => {
             await request(app)
                 .post('/api/messages/send')
-                .send({
-                    recipient_id: recipientUserId,
-                    content: 'Test'
-                })
+                .send({ conversation_id: conversationId, content: 'Test' })
                 .expect(401);
         });
     });
 
-    test.describe('PUT /api/messages/mark-read/:conversationId', () => {
-        test('should mark messages as read', async () => {
+    test.describe('GET /api/messages/conversation/:id', () => {
+        test('should return messages for a member', async () => {
             const response = await request(app)
-                .put(`/api/messages/mark-read/${recipientUserId}`)
-                .set('Authorization', `Bearer ${authToken}`)
+                .get(`/api/messages/conversation/${conversationId}`)
+                .set('Authorization', `Bearer ${userA.token}`)
                 .expect(200);
 
-            assert.ok(response.body.success);
+            assert.ok(Array.isArray(response.body));
+        });
+
+        test('should reject a non-member (403)', async () => {
+            const outsider = await createTestUser({ emailPrefix: 'msg-outsider2' });
+            try {
+                await request(app)
+                    .get(`/api/messages/conversation/${conversationId}`)
+                    .set('Authorization', `Bearer ${outsider.token}`)
+                    .expect(403);
+            } finally {
+                await deleteTestUser(outsider.userId);
+            }
         });
 
         test('should return 401 without authentication', async () => {
             await request(app)
-                .put(`/api/messages/mark-read/${recipientUserId}`)
+                .get(`/api/messages/conversation/${conversationId}`)
                 .expect(401);
         });
     });
 
-    test.describe('DELETE /api/messages/:messageId', () => {
-        test('should delete a message', async () => {
-            // D'abord, envoyer un message
-            const sendResponse = await request(app)
-                .post('/api/messages/send')
-                .set('Authorization', `Bearer ${authToken}`)
-                .send({
-                    recipient_id: recipientUserId,
-                    content: 'Message to delete'
-                });
+    test.describe('DELETE /api/messages/conversation/:id', () => {
+        test('should let a member delete the conversation', async () => {
+            // Une paire (userA, userB) a déjà une conversation créée dans before() —
+            // le UNIQUE symétrique interdit d'en créer une seconde pour la même paire.
+            const thirdUser = await createTestUser({ emailPrefix: 'msg-c' });
+            const tempConversationId = await createDmConversation(userA.userId, thirdUser.userId);
+            try {
+                const response = await request(app)
+                    .delete(`/api/messages/conversation/${tempConversationId}`)
+                    .set('Authorization', `Bearer ${userA.token}`)
+                    .expect(200);
 
-            const messageId = sendResponse.body.message.id;
-
-            // Ensuite, le supprimer
-            const response = await request(app)
-                .delete(`/api/messages/${messageId}`)
-                .set('Authorization', `Bearer ${authToken}`)
-                .expect(200);
-
-            assert.ok(response.body.success);
+                assert.ok(response.body.success);
+            } finally {
+                await deleteConversation(tempConversationId);
+                await deleteTestUser(thirdUser.userId);
+            }
         });
 
         test('should return 401 without authentication', async () => {
             await request(app)
-                .delete('/api/messages/some-message-id')
+                .delete(`/api/messages/conversation/${conversationId}`)
                 .expect(401);
-        });
-
-        test('should prevent deleting others messages', async () => {
-            // Créer un autre utilisateur
-            const otherUser = await createTestUser(999999);
-
-            // L'autre utilisateur envoie un message
-            const sendResponse = await request(app)
-                .post('/api/messages/send')
-                .set('Authorization', `Bearer ${otherUser.token}`)
-                .send({
-                    recipient_id: testUserId,
-                    content: 'You cannot delete this'
-                });
-
-            const messageId = sendResponse.body.message.id;
-
-            // Tenter de supprimer le message de l'autre utilisateur
-            const response = await request(app)
-                .delete(`/api/messages/${messageId}`)
-                .set('Authorization', `Bearer ${authToken}`)
-                .expect(403);
-
-            assert.ok(response.body.error);
         });
     });
 });

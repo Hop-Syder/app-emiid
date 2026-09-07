@@ -127,3 +127,5 @@ design-system/
 # Mémoire DEXTY : ignorer les fichiers temporaires mais conserver la mémoire projet
 .dexty/*
 !.dexty/temp-memory-projet.md
+project-audit/
+evaluation/

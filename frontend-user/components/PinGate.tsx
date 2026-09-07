@@ -1,7 +1,7 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Composant PinGate pour la protection par code PIN avec récupération par OTP email (Reauthentication Supabase)
+ * @description Composant PinGate pour la protection par code PIN avec récupération par OTP email vérifié côté serveur
  * @created 2025-12-24
  * @updated 2026-05-27
  * 🌐 ceo.nexuspartners.xyz
@@ -30,6 +30,7 @@ export function PinGate({ children }: { children: React.ReactNode }) {
     const [recoveryStep, setRecoveryStep] = useState<"none" | "request" | "otp" | "success">("none")
     const [recoveryLoading, setRecoveryLoading] = useState(false)
     const [otpCode, setOtpCode] = useState("")
+    const [newPinCode, setNewPinCode] = useState("")
 
     const router = useRouter()
     const pathname = usePathname()
@@ -105,24 +106,24 @@ export function PinGate({ children }: { children: React.ReactNode }) {
         }
     }
 
-    // Étape 1 : Envoyer un OTP par email via supabase.auth.reauthenticate()
+    // Étape 1 : Demander l'envoi d'un OTP par email (généré et vérifié côté serveur)
     const handleRequestRecovery = async () => {
         setRecoveryLoading(true)
         setError("")
         try {
-            const supabase = createClient()
+            const res = await fetchWithAuth("/api/users/pin/request-reset", {
+                method: "POST"
+            })
 
-            // reauthenticate() envoie un code OTP 6 chiffres à l'email de l'utilisateur connecté
-            const { error: reauthError } = await supabase.auth.reauthenticate()
-
-            if (reauthError) {
-                setError("Impossible d'envoyer le code de vérification. Réessayez.")
-                console.error("Reauthenticate error:", reauthError)
+            if (!res.ok) {
+                const data = await res.json()
+                setError(data.error || "Impossible d'envoyer le code de vérification. Réessayez.")
                 return
             }
 
             setRecoveryStep("otp")
             setOtpCode("")
+            setNewPinCode("")
         } catch {
             setError("Erreur inattendue. Veuillez réessayer.")
         } finally {
@@ -130,37 +131,22 @@ export function PinGate({ children }: { children: React.ReactNode }) {
         }
     }
 
-    // Étape 2 : Vérifier le nonce OTP et réinitialiser le PIN
-    const handleVerifyOtpAndResetPin = async (code: string) => {
-        setOtpCode(code)
-        if (code.length !== 8) return
+    // Étape 2 : Vérifier l'OTP et définir le nouveau PIN (validation côté serveur)
+    const handleResetPin = async () => {
+        if (otpCode.length !== 6 || newPinCode.length !== 6) return
 
         setRecoveryLoading(true)
         setError("")
         try {
-            const supabase = createClient()
-
-            // Le nonce est passé via updateUser pour prouver l'identité
-            // On utilise un champ quelconque qui ne change rien pour valider le nonce
-            const { error: verifyError } = await supabase.auth.updateUser({
-                nonce: code,
-                data: { pin_reset_verified: true }
-            })
-
-            if (verifyError) {
-                setError("Code incorrect ou expiré. Veuillez réessayer.")
-                setOtpCode("")
-                return
-            }
-
-            // Nonce vérifié → appeler l'API backend pour réinitialiser le PIN
             const res = await fetchWithAuth("/api/users/reset-pin", {
-                method: "POST"
+                method: "POST",
+                body: JSON.stringify({ otp: otpCode, newPin: newPinCode })
             })
 
             if (!res.ok) {
                 const data = await res.json()
                 setError(data.error || "Erreur lors de la réinitialisation du PIN")
+                setOtpCode("")
                 return
             }
 
@@ -168,7 +154,7 @@ export function PinGate({ children }: { children: React.ReactNode }) {
             sessionStorage.setItem("emiid_pin_verified", "true")
             setRecoveryStep("success")
         } catch (err) {
-            console.error("Erreur détaillée lors de la vérification:", err)
+            console.error("Erreur détaillée lors de la réinitialisation:", err)
             setError(`Erreur inattendue: ${err instanceof Error ? err.message : "Veuillez réessayer."}`)
         } finally {
             setRecoveryLoading(false)
@@ -355,37 +341,52 @@ export function PinGate({ children }: { children: React.ReactNode }) {
                                     Vérification par e-mail
                                 </h2>
                                 <p className="text-sm text-gray-500 px-2 leading-relaxed">
-                                    Un code de vérification a été envoyé sur votre adresse e-mail. Saisissez-le ci-dessous pour réinitialiser votre PIN.
+                                    Un code de vérification a été envoyé sur votre adresse e-mail. Saisissez-le, puis choisissez votre nouveau code PIN.
                                 </p>
                             </div>
 
                             <div className="w-full flex flex-col items-center gap-4">
-                                <InputOTP
-                                    id="recovery-otp-code"
-                                    name="recovery_otp_code"
-                                    autoComplete="one-time-code"
-                                    maxLength={8}
-                                    value={otpCode}
-                                    onChange={handleVerifyOtpAndResetPin}
-                                >
-                                    <InputOTPGroup className="gap-1">
-                                        <InputOTPSlot index={0} className="w-9 h-12 rounded-lg border-indigo-200 focus:border-indigo-500" />
-                                        <InputOTPSlot index={1} className="w-9 h-12 rounded-lg border-indigo-200 focus:border-indigo-500" />
-                                        <InputOTPSlot index={2} className="w-9 h-12 rounded-lg border-indigo-200 focus:border-indigo-500" />
-                                        <InputOTPSlot index={3} className="w-9 h-12 rounded-lg border-indigo-200 focus:border-indigo-500" />
-                                        <InputOTPSlot index={4} className="w-9 h-12 rounded-lg border-indigo-200 focus:border-indigo-500" />
-                                        <InputOTPSlot index={5} className="w-9 h-12 rounded-lg border-indigo-200 focus:border-indigo-500" />
-                                        <InputOTPSlot index={6} className="w-9 h-12 rounded-lg border-indigo-200 focus:border-indigo-500" />
-                                        <InputOTPSlot index={7} className="w-9 h-12 rounded-lg border-indigo-200 focus:border-indigo-500" />
-                                    </InputOTPGroup>
-                                </InputOTP>
+                                <div className="w-full flex flex-col items-center gap-2">
+                                    <p className="text-xs font-medium text-gray-500 self-start px-1">Code reçu par e-mail</p>
+                                    <InputOTP
+                                        id="recovery-otp-code"
+                                        name="recovery_otp_code"
+                                        autoComplete="one-time-code"
+                                        maxLength={6}
+                                        value={otpCode}
+                                        onChange={setOtpCode}
+                                    >
+                                        <InputOTPGroup className="gap-2">
+                                            <InputOTPSlot index={0} className="w-10 h-12 rounded-lg border-indigo-200 focus:border-indigo-500" />
+                                            <InputOTPSlot index={1} className="w-10 h-12 rounded-lg border-indigo-200 focus:border-indigo-500" />
+                                            <InputOTPSlot index={2} className="w-10 h-12 rounded-lg border-indigo-200 focus:border-indigo-500" />
+                                            <InputOTPSlot index={3} className="w-10 h-12 rounded-lg border-indigo-200 focus:border-indigo-500" />
+                                            <InputOTPSlot index={4} className="w-10 h-12 rounded-lg border-indigo-200 focus:border-indigo-500" />
+                                            <InputOTPSlot index={5} className="w-10 h-12 rounded-lg border-indigo-200 focus:border-indigo-500" />
+                                        </InputOTPGroup>
+                                    </InputOTP>
+                                </div>
 
-                                {recoveryLoading && (
-                                    <div className="flex items-center gap-2 text-sm text-indigo-600">
-                                        <Loader2 className="h-4 w-4 animate-spin" />
-                                        Vérification en cours...
-                                    </div>
-                                )}
+                                <div className="w-full flex flex-col items-center gap-2">
+                                    <p className="text-xs font-medium text-gray-500 self-start px-1">Nouveau code PIN</p>
+                                    <InputOTP
+                                        id="recovery-new-pin"
+                                        name="recovery_new_pin"
+                                        autoComplete="off"
+                                        maxLength={6}
+                                        value={newPinCode}
+                                        onChange={setNewPinCode}
+                                    >
+                                        <InputOTPGroup className="gap-2">
+                                            <InputOTPSlot index={0} className="w-10 h-12 rounded-lg border-gray-200" />
+                                            <InputOTPSlot index={1} className="w-10 h-12 rounded-lg border-gray-200" />
+                                            <InputOTPSlot index={2} className="w-10 h-12 rounded-lg border-gray-200" />
+                                            <InputOTPSlot index={3} className="w-10 h-12 rounded-lg border-gray-200" />
+                                            <InputOTPSlot index={4} className="w-10 h-12 rounded-lg border-gray-200" />
+                                            <InputOTPSlot index={5} className="w-10 h-12 rounded-lg border-gray-200" />
+                                        </InputOTPGroup>
+                                    </InputOTP>
+                                </div>
 
                                 <div className="h-6">
                                     {error && (
@@ -397,6 +398,20 @@ export function PinGate({ children }: { children: React.ReactNode }) {
                             </div>
 
                             <div className="w-full flex flex-col gap-2">
+                                <Button
+                                    onClick={() => void handleResetPin()}
+                                    disabled={recoveryLoading || otpCode.length !== 6 || newPinCode.length !== 6}
+                                    className="w-full h-11 rounded-xl bg-[#013ff4] hover:bg-[#033a7a]"
+                                >
+                                    {recoveryLoading ? (
+                                        <div className="flex items-center gap-2">
+                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                            Vérification en cours...
+                                        </div>
+                                    ) : (
+                                        "Réinitialiser mon PIN"
+                                    )}
+                                </Button>
                                 <Button
                                     variant="ghost"
                                     className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 text-xs font-semibold"
@@ -411,6 +426,7 @@ export function PinGate({ children }: { children: React.ReactNode }) {
                                         setRecoveryStep("none")
                                         setError("")
                                         setOtpCode("")
+                                        setNewPinCode("")
                                     }}
                                     className="text-xs text-gray-500"
                                 >
@@ -430,7 +446,7 @@ export function PinGate({ children }: { children: React.ReactNode }) {
                                     PIN réinitialisé !
                                 </h2>
                                 <p className="text-sm text-gray-500 px-2 leading-relaxed">
-                                    Votre code PIN a été désactivé avec succès. Vous pouvez en créer un nouveau depuis vos paramètres de sécurité.
+                                    Votre nouveau code PIN a été défini avec succès.
                                 </p>
                             </div>
 

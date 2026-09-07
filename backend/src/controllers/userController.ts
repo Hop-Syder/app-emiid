@@ -13,12 +13,15 @@ import { supabase, supabaseAdmin } from '../config/supabase';
 import bcrypt from 'bcrypt';
 import { logger } from '../utils/logger';
 import { UserProfile } from '../types/models';
-import { 
-  updateProfileSchema, 
-  updateSettingsSchema, 
-  verifyPinSchema, 
-  requestPhoneVerificationSchema, 
-  verifyPhoneSchema 
+import { sendEmail } from '../services/mailService';
+import { sendSms } from '../services/smsService';
+import {
+  updateProfileSchema,
+  updateSettingsSchema,
+  verifyPinSchema,
+  resetPinSchema,
+  requestPhoneVerificationSchema,
+  verifyPhoneSchema
 } from '../api/validations/userValidations';
 
 const DEFAULT_NOTIFICATION_PREFERENCES = {
@@ -67,6 +70,32 @@ const buildUserSettings = (authUser: any, isPublished = false) => {
  * Récupère le profil de l'utilisateur actuellement connecté (via Token Relay)
  * GET /api/users/me
  */
+/**
+ * Vérifie la disponibilité réelle d'un slug (même requête que updateMyProfile)
+ * GET /api/users/check-slug?slug=...
+ */
+export const checkSlugAvailability = async (req: any, res: Response) => {
+  const userId = req.user?.id;
+  if (!userId) return res.status(401).json({ error: "Non authentifié" });
+
+  const slug = String(req.query.slug || '').toLowerCase().replace(/[^a-z0-9-]/g, '');
+  if (!slug) return res.status(400).json({ error: "Slug requis" });
+
+  try {
+    const { data: existingSlugProfile } = await supabaseAdmin
+      .from('user_profiles')
+      .select('user_id')
+      .eq('slug', slug)
+      .neq('user_id', userId)
+      .maybeSingle();
+
+    res.json({ available: !existingSlugProfile });
+  } catch (err) {
+    logger.error('Erreur checkSlugAvailability', err);
+    res.status(500).json({ error: "Impossible de vérifier la disponibilité du slug" });
+  }
+};
+
 export const getMyProfile = async (req: Request, res: Response) => {
   const userId = req.user?.id;
   const authUser = req.user;
@@ -653,8 +682,44 @@ export const unlockUserPin = async (req: Request, res: Response) => {
 };
 
 /**
- * Réinitialise le code PIN de l'utilisateur connecté
- * Appelé après vérification d'identité via Supabase reauthenticate (OTP par email)
+ * Demande un OTP par email pour réinitialiser le code PIN
+ * POST /api/users/pin/request-reset
+ */
+export const requestPinReset = async (req: any, res: Response) => {
+  const userId = req.user?.id;
+  const email = req.user?.email;
+  if (!userId || !email) return res.status(401).json({ error: "Non authentifié" });
+
+  try {
+    const otp = randomInt(100000, 1000000).toString();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    const { error } = await supabaseAdmin
+      .from('pin_reset_verifications')
+      .insert({
+        user_id: userId,
+        otp_code: otp,
+        expires_at: expiresAt.toISOString()
+      });
+
+    if (error) throw error;
+
+    await sendEmail({
+      to: email,
+      subject: "Code de réinitialisation de votre code PIN EmiID",
+      html: `<p>Voici votre code de vérification pour réinitialiser votre code PIN&nbsp;: <strong>${otp}</strong></p><p>Ce code expire dans 10 minutes. Si vous n'êtes pas à l'origine de cette demande, ignorez cet e-mail.</p>`,
+      text: `Votre code de vérification EmiID : ${otp} (expire dans 10 minutes).`
+    });
+
+    res.json({ success: true, message: "Code envoyé par e-mail" });
+  } catch (err) {
+    logger.error('Erreur requestPinReset', err);
+    res.status(500).json({ error: "Impossible d'envoyer le code" });
+  }
+};
+
+/**
+ * Vérifie l'OTP email et définit un nouveau code PIN
  * POST /api/users/reset-pin
  */
 export const resetMyPin = async (req: Request, res: Response) => {
@@ -662,11 +727,36 @@ export const resetMyPin = async (req: Request, res: Response) => {
   if (!userId) return res.status(401).json({ error: "Non authentifié" });
 
   try {
+    const { body: { otp, newPin } } = resetPinSchema.parse(req);
+
+    const { data: verification, error: verifError } = await supabaseAdmin
+      .from('pin_reset_verifications')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('otp_code', otp)
+      .eq('verified', false)
+      .gt('expires_at', new Date().toISOString())
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (verifError || !verification) {
+      return res.status(400).json({ error: "Code invalide ou expiré" });
+    }
+
+    await supabaseAdmin
+      .from('pin_reset_verifications')
+      .update({ verified: true })
+      .eq('id', verification.id);
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPin = await bcrypt.hash(newPin, salt);
+
     const { error } = await supabaseAdmin
       .from('user_profiles')
       .update({
-        pin_enabled: false,
-        pin_code: null,
+        pin_enabled: true,
+        pin_code: hashedPin,
         pin_attempts: 0,
         is_locked: false,
         locked_at: null,
@@ -680,8 +770,11 @@ export const resetMyPin = async (req: Request, res: Response) => {
     }
 
     logger.info(`PIN réinitialisé pour l'utilisateur ${userId}`);
-    return res.json({ success: true, message: "Code PIN désactivé et réinitialisé avec succès" });
+    return res.json({ success: true, message: "Nouveau code PIN défini avec succès" });
   } catch (err) {
+    if (err instanceof z.ZodError) {
+      return res.status(400).json({ error: "Code OTP et nouveau PIN requis" });
+    }
     logger.error("Erreur serveur réinitialisation PIN:", err);
     res.status(500).json({ error: "Erreur lors de la réinitialisation du PIN" });
   }
@@ -714,11 +807,13 @@ export const requestPhoneVerification = async (req: any, res: Response) => {
 
     if (error) throw error;
 
-    // Simulation d'envoi (On ne log que les 3 premiers chiffres par sécurité)
-    logger.info(`[OTP ${method.toUpperCase()}] Pour ${phone}: ${otp.substring(0, 3)}***`);
-    
-    // Si method === 'whatsapp', on pourrait appeler une API WhatsApp ici
-    
+    const smsResult = await sendSms(phone, `Votre code de vérification EmiID : ${otp}`);
+    if (!smsResult.success) {
+      // Honnête : aucun fournisseur SMS/WhatsApp n'est branché, ne pas prétendre
+      // que le code a été livré (cf. NoopSmsProvider dans services/smsService.ts).
+      return res.status(503).json({ error: "Envoi du code impossible pour le moment. Réessayez plus tard." });
+    }
+
     res.json({ success: true, message: "Code envoyé" });
   } catch (err) {
     logger.error('Erreur requestPhoneVerification', err);
