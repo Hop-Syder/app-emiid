@@ -71,6 +71,24 @@ export function VoiceSearchModal({ open, onClose }: VoiceSearchModalProps) {
     onInterim: handleInterim,
   })
 
+  // Un nouveau clic micro vaut nouvelle recherche : on efface la
+  // transcription précédente dès l'appui, avant même que la dictée ne
+  // démarre, plutôt que d'attendre le résultat final pour la remplacer.
+  const handleMicToggle = useCallback(() => {
+    if (listening) {
+      stop()
+      return
+    }
+    if (submitTimerRef.current) {
+      clearTimeout(submitTimerRef.current)
+      submitTimerRef.current = null
+    }
+    setInterimText("")
+    setConfirmedText("")
+    setIsSubmitting(false)
+    start()
+  }, [listening, start, stop])
+
   // Démarrage automatique du micro à l'ouverture si supporté
   useEffect(() => {
     if (open) {
@@ -153,7 +171,7 @@ export function VoiceSearchModal({ open, onClose }: VoiceSearchModalProps) {
               listening={listening}
               isSubmitting={isSubmitting}
               available={available}
-              onClick={() => (listening ? stop() : start())}
+              onClick={handleMicToggle}
             />
 
             {/* Statut / Retours vocaux */}

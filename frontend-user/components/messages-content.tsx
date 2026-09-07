@@ -87,15 +87,15 @@ export function MessagesContent() {
 
       {/* Left column: conversation list */}
       <div className={cn("relative h-full w-full shrink-0 md:w-[360px] md:block md:shrink-0", showChatMobile && "hidden md:block")}>
-        {/* FAB — Nouveau groupe */}
-        <button
+        {/* FAB Nouveau groupe masqué pour le lancement MVP (reporté V1.1 — focalisation 1-to-1) */}
+        {/* <button
           onClick={() => setShowNewGroup(true)}
           title="Nouveau groupe"
           aria-label="Nouveau groupe"
           className="absolute bottom-5 right-5 z-30 h-12 w-12 rounded-2xl bg-[#013ff4] text-white shadow-lg shadow-[#013ff4]/30 flex items-center justify-center hover:bg-[#012fc0] active:scale-95 transition-all"
         >
           <UsersRound className="h-5 w-5" />
-        </button>
+        </button> */}
         <ChatSidebar
           conversations={filteredConversations}
           activeId={selectedConv?.id || null}
@@ -201,9 +201,10 @@ export function MessagesContent() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-52 rounded-xl shadow-xl border-border">
-                    <DropdownMenuItem className="text-amber-600 focus:text-amber-700 focus:bg-amber-50 rounded-lg" onClick={() => setIsMediationOpen(true)}>
+                    {/* Demander médiation masqué pour le MVP (reporté V1.1) */}
+                    {/* <DropdownMenuItem className="text-amber-600 focus:text-amber-700 focus:bg-amber-50 rounded-lg" onClick={() => setIsMediationOpen(true)}>
                       <Gavel className="mr-2 h-4 w-4" /> Demander médiation
-                    </DropdownMenuItem>
+                    </DropdownMenuItem> */}
                     <DropdownMenuItem className="text-red-600 focus:text-red-700 focus:bg-red-50 rounded-lg animate-none cursor-pointer" onClick={() => handleDeleteConversation()}>
                       <Trash2 className="mr-2 h-4 w-4" /> Supprimer discussion
                     </DropdownMenuItem>

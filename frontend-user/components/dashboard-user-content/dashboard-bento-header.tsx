@@ -81,6 +81,14 @@ export function DashboardBentoHeader() {
         onResult: handleVoiceResult,
     })
 
+    // Un nouveau clic micro vaut nouvelle recherche : on efface la saisie
+    // précédente dès l'appui, avant même que la dictée ne démarre, plutôt que
+    // d'attendre le résultat final pour remplacer l'ancien texte.
+    const handleMicClick = useCallback(() => {
+        if (!listening) setQuery("")
+        toggleMic()
+    }, [listening, toggleMic])
+
     const containerVariants: Variants = {
         hidden: { opacity: 0 },
         show: { opacity: 1, transition: { staggerChildren: 0.08 } },
@@ -151,7 +159,7 @@ export function DashboardBentoHeader() {
                         {micAvailable && (
                             <button
                                 type="button"
-                                onClick={toggleMic}
+                                onClick={handleMicClick}
                                 aria-label={listening ? "Arrêter la dictée" : "Rechercher à la voix"}
                                 aria-pressed={listening}
                                 className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-all ${

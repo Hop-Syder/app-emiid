@@ -143,6 +143,13 @@ export default function RecherchePage() {
             recognition.stop()
             setListening(false)
         } else {
+            // Un nouveau clic micro vaut nouvelle recherche : on efface la
+            // saisie et les pistes de l'assistant précédentes avant même que
+            // la dictée ne démarre, plutôt que d'attendre le résultat final.
+            setQuery("")
+            setDictated(null)
+            setAssistantMessage(null)
+            setAssistantSuggestions([])
             try {
                 recognition.start()
                 setListening(true)
