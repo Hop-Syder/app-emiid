@@ -11,6 +11,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import { motion } from "framer-motion"
 import { AnnuaireSearchField } from "./annuaire-search-field"
 import { AnnuaireGrid } from "./annuaire-grid"
@@ -51,25 +52,35 @@ export function AnnuairePublicContent({
         lat: "",
         lng: ""
     })
+    const searchParams = useSearchParams()
+
+    // Se resynchronise à CHAQUE navigation vers /annuaire avec de nouveaux
+    // paramètres (recherche vocale, liens externes, suggestions de l'assistant…),
+    // y compris quand ce composant est déjà monté : Next.js réutilise l'instance
+    // au lieu de la remonter pour une navigation vers la même route, donc un
+    // effet à dépendances vides (ancien code) ne se redéclenchait qu'une fois et
+    // la deuxième recherche vocale restait bloquée sur la première requête.
+    // useSearchParams() est réactif au routeur Next — contrairement à une lecture
+    // de window.location.search — d'où son usage ici. Les modifications LOCALES
+    // (barre de recherche, filtres) passent volontairement par history.replaceState
+    // et non par le routeur (édition à chaque frappe sans re-fetch serveur) : elles
+    // ne déclenchent donc jamais cet effet, pas de boucle ni de conflit.
     useEffect(() => {
-        if (typeof window !== "undefined") {
-            const params = new URLSearchParams(window.location.search)
-            setFilters(prev => ({
-                ...prev,
-                search: params.get("search") || prev.search,
-                category: params.get("category") || prev.category,
-                country: params.get("country") || prev.country,
-                city: params.get("city") || prev.city,
-                department: params.get("department") || prev.department,
-                commune: params.get("commune") || prev.commune,
-                tags: params.get("tags") || prev.tags,
-                status: params.get("status") || prev.status,
-                activity_domain: params.get("activity_domain") || prev.activity_domain,
-                lat: params.get("lat") || prev.lat,
-                lng: params.get("lng") || prev.lng
-            }))
-        }
-    }, [])
+        setFilters(prev => ({
+            ...prev,
+            search: searchParams.get("search") || prev.search,
+            category: searchParams.get("category") || prev.category,
+            country: searchParams.get("country") || prev.country,
+            city: searchParams.get("city") || prev.city,
+            department: searchParams.get("department") || prev.department,
+            commune: searchParams.get("commune") || prev.commune,
+            tags: searchParams.get("tags") || prev.tags,
+            status: searchParams.get("status") || prev.status,
+            activity_domain: searchParams.get("activity_domain") || prev.activity_domain,
+            lat: searchParams.get("lat") || prev.lat,
+            lng: searchParams.get("lng") || prev.lng
+        }))
+    }, [searchParams])
 
     const handleFilterChange = (key: string, value: string) => {
         setFilters(prev => {
