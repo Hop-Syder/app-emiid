@@ -7,19 +7,60 @@
  */
 
 import nodemailer from "nodemailer"
+import dns from "dns"
+import net from "net"
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT) || 587,
-  secure: process.env.SMTP_SECURE === "true", // 465 = SSL, 587 = STARTTLS
-  auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-  // IPv4 forcé : la résolution IPv6 de mail91.lwspanel.com échoue en
-  // ENETUNREACH sur Render (pas de route sortante) — cf. backend/mailService.ts.
-  family: 4,
-  connectionTimeout: 10000,
-  greetingTimeout: 10000,
-  socketTimeout: 15000,
-})
+/**
+ * Résolution IPv4 forcée du serveur SMTP.
+ *
+ * Nodemailer (>=8) résout lui-même A et AAAA puis choisit une adresse AU
+ * HASARD entre les deux (lib/shared/index.js, resolveHostname) — il n'existe
+ * aucune option `family` lue par createTransport() pour l'en empêcher. Sur
+ * Render, l'AAAA de mail91.lwspanel.com échoue en ENETUNREACH (conteneur
+ * avec interface IPv6 mais sans route sortante réelle) — confirmé en prod le
+ * 2026-09-09. Seule solution fiable : résoudre nous-mêmes puis passer l'IP
+ * littérale comme `host` (resolveHostname() la laisse alors telle quelle).
+ * `tls.servername` restaure le nom d'hôte pour que le certificat STARTTLS
+ * reste validé correctement.
+ */
+const SMTP_HOSTNAME = process.env.SMTP_HOST || ""
+const IP_CACHE_MS = 5 * 60 * 1000
+let cachedIp: string | null = null
+let cachedAt = 0
+
+function resolveSmtpHost(): Promise<string> {
+  if (!SMTP_HOSTNAME || net.isIP(SMTP_HOSTNAME)) {
+    return Promise.resolve(SMTP_HOSTNAME)
+  }
+  if (cachedIp && Date.now() - cachedAt < IP_CACHE_MS) {
+    return Promise.resolve(cachedIp)
+  }
+  return new Promise((resolve) => {
+    dns.resolve4(SMTP_HOSTNAME, (err, addresses) => {
+      if (err || !addresses.length) {
+        resolve(SMTP_HOSTNAME)
+        return
+      }
+      cachedIp = addresses[0]
+      cachedAt = Date.now()
+      resolve(cachedIp)
+    })
+  })
+}
+
+async function createSmtpTransporter() {
+  const host = await resolveSmtpHost()
+  return nodemailer.createTransport({
+    host,
+    port: Number(process.env.SMTP_PORT) || 587,
+    secure: process.env.SMTP_SECURE === "true", // 465 = SSL, 587 = STARTTLS
+    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+    tls: { servername: SMTP_HOSTNAME || undefined },
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
+  })
+}
 
 export function isSmtpConfigured(): boolean {
   return !!(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS)
@@ -28,6 +69,7 @@ export function isSmtpConfigured(): boolean {
 /** Teste la connexion + l'authentification SMTP (erreur descriptive si échec). */
 export async function verifyTransport(): Promise<{ ok: boolean; error?: string }> {
   try {
+    const transporter = await createSmtpTransporter()
     await transporter.verify()
     return { ok: true }
   } catch (e) {
@@ -107,6 +149,7 @@ export async function sendBulkEmails(
 ): Promise<{ sent: number; failed: number; firstError?: string }> {
   const from = buildSender()
   const unique = dedupeRecipients(recipients)
+  const transporter = await createSmtpTransporter()
 
   let sent = 0
   let failed = 0

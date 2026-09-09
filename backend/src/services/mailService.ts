@@ -10,26 +10,73 @@
  */
 
 import nodemailer from 'nodemailer';
+import dns from 'dns';
+import net from 'net';
 import { logger } from '../utils/logger';
 
-// Configuration du transporteur
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT) || 587,
-  secure: process.env.SMTP_SECURE === 'true', // true pour le port 465 (SSL implicite), false pour 587 (STARTTLS)
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-  // IPv4 forcé : sur Render, la résolution de mail91.lwspanel.com en IPv6
-  // échoue en ENETUNREACH (pas de route sortante) avant même la tentative
-  // IPv4 — confirmé par les logs de prod du 2026-09-09.
-  family: 4,
-  // Timeouts : échouer vite si le port est filtré (évite de bloquer le webhook).
-  connectionTimeout: 10000,
-  greetingTimeout: 10000,
-  socketTimeout: 15000,
-});
+/**
+ * Résolution IPv4 forcée du serveur SMTP.
+ *
+ * Nodemailer (>=8) résout lui-même A et AAAA puis choisit une adresse AU
+ * HASARD parmi les deux (lib/shared/index.js, resolveHostname) — son option
+ * `family` documentée par le type SMTPConnection.Options n'existe pas, et
+ * même en la passant à createTransport() elle n'est jamais lue par ce code.
+ * Sur Render, l'AAAA de mail91.lwspanel.com échoue en ENETUNREACH (le
+ * conteneur expose une interface IPv6 mais n'a pas de route sortante réelle)
+ * — confirmé par les logs de prod du 2026-09-09. La seule façon fiable de
+ * forcer IPv4 est de résoudre nous-mêmes puis de passer l'IP littérale comme
+ * `host` : resolveHostname() court-circuite toute résolution DNS dès que
+ * `net.isIP(host)` est vrai. `tls.servername` restaure le nom d'hôte
+ * d'origine pour que la validation du certificat STARTTLS reste correcte.
+ */
+const SMTP_HOSTNAME = process.env.SMTP_HOST || '';
+const IP_CACHE_MS = 5 * 60 * 1000;
+let cachedIp: string | null = null;
+let cachedAt = 0;
+
+const resolveSmtpHost = (): Promise<string> => {
+  if (!SMTP_HOSTNAME || net.isIP(SMTP_HOSTNAME)) {
+    return Promise.resolve(SMTP_HOSTNAME);
+  }
+
+  if (cachedIp && Date.now() - cachedAt < IP_CACHE_MS) {
+    return Promise.resolve(cachedIp);
+  }
+
+  return new Promise((resolve) => {
+    dns.resolve4(SMTP_HOSTNAME, (err, addresses) => {
+      if (err || !addresses.length) {
+        // Résolution IPv4 impossible : on retombe sur le nom d'hôte (laisse
+        // nodemailer gérer, comme avant ce correctif) plutôt que d'échouer.
+        logger.error('Résolution IPv4 SMTP échouée, repli sur le hostname', err);
+        resolve(SMTP_HOSTNAME);
+        return;
+      }
+      cachedIp = addresses[0];
+      cachedAt = Date.now();
+      resolve(cachedIp);
+    });
+  });
+};
+
+const createSmtpTransporter = async () => {
+  const host = await resolveSmtpHost();
+
+  return nodemailer.createTransport({
+    host,
+    port: Number(process.env.SMTP_PORT) || 587,
+    secure: process.env.SMTP_SECURE === 'true', // true pour le port 465 (SSL implicite), false pour 587 (STARTTLS)
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+    tls: { servername: SMTP_HOSTNAME || undefined },
+    // Timeouts : échouer vite si le port est filtré (évite de bloquer le webhook).
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
+  });
+};
 
 interface EmailOptions {
   to: string;
@@ -66,6 +113,7 @@ export const sendEmail = async ({ to, subject, html, text }: EmailOptions) => {
   const from = buildSender();
 
   try {
+    const transporter = await createSmtpTransporter();
     const info = await transporter.sendMail({
       from,
       to,
