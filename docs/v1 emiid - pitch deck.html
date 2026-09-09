@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="auto-designer-preview-device" content="slide">
+<title>EmiID · Pitch Deck Seed — Nexus Partners</title>
+<!--
+  Discovery:
+    deliverable: pitch deck investisseurs (levée seed), 14 slides 1920×1080
+    audience: fonds & business angels — confiance, preuve, trajectoire
+    direction: Bold/Campaign + Editorial — afro-tech premium (fond chaud sombre, terracotta/or)
+    differentiation: moment éditorial "conviction du fondateur" + palette africaine chaleureuse
+    tokens: fallback schema (aucune marque fournie) — palette oklch-anchor terracotta #e08a3c / or #d9a441
+    fonts: Bricolage Grotesque (display) + Instrument Serif (citations) + JetBrains Mono (data) — blacklist respectée
+  Content source: EMIID_PITCH.md + discours fondateur + README produit v1.2 (aucune donnée inventée)
+-->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root{
+  --bg:#191410;--bg-soft:#201913;--surface:#241c15;--surface-2:#2d231a;
+  --ink:#f4ecdf;--ink-muted:#b8a48d;--ink-faint:#8a7663;
+  --border:rgba(244,236,223,.13);--border-strong:rgba(244,236,223,.26);
+  --accent:#e08a3c;--accent-deep:#b4592b;--gold:#d9a441;--good:#6aae7f;
+  --grad:linear-gradient(115deg,#e08a3c 10%,#d9a441 90%);
+  --font-display:'Bricolage Grotesque',-apple-system,sans-serif;
+  --font-serif:'Instrument Serif',Georgia,serif;
+  --font-mono:'JetBrains Mono',ui-monospace,monospace;
+  --ease:cubic-bezier(.4,0,.2,1);
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:#0e0b08;height:100vh;overflow:hidden;font-family:var(--font-display);color:var(--ink);-webkit-font-smoothing:antialiased}
+.deck{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform:translate(-50%,-50%) scale(var(--deck-scale,1));transform-origin:center center;background:var(--bg)}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;padding:72px 96px 108px;opacity:0;pointer-events:none;transform:translateX(28px);transition:opacity .5s var(--ease),transform .5s var(--ease);overflow:hidden}
+.slide.is-active{opacity:1;pointer-events:auto;transform:none;z-index:2}
+
+/* chrome */
+.s-head{display:flex;justify-content:space-between;align-items:center;position:absolute;top:40px;left:96px;right:96px}
+.wordmark{font-weight:700;font-size:21px;letter-spacing:.14em}
+.wordmark i{display:inline-block;width:11px;height:11px;border-radius:50%;background:var(--grad);margin-right:12px;font-style:normal;vertical-align:2px}
+.s-tag{font-family:var(--font-mono);font-size:17px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint)}
+.s-foot{position:absolute;bottom:34px;left:96px;right:96px;display:flex;align-items:center;gap:26px;color:var(--ink-faint);font-family:var(--font-mono);font-size:18px;letter-spacing:.06em}
+.s-foot .rule{flex:1;height:1px;background:var(--border)}
+.progress-bar{position:fixed;left:0;right:0;bottom:0;height:4px;z-index:40}
+.progress-bar span{display:block;height:100%;width:0;background:var(--grad);transition:width .35s var(--ease)}
+
+/* type */
+.kicker{display:flex;align-items:center;gap:16px;font-family:var(--font-mono);font-size:20px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--accent)}
+.kicker::before{content:"";width:34px;height:3px;background:var(--grad);border-radius:2px}
+.h1{font-size:148px;line-height:.98;font-weight:800;letter-spacing:-.03em;margin:0}
+.h2{font-size:64px;line-height:1.06;font-weight:800;letter-spacing:-.02em;margin:0}
+.lede{font-size:28px;line-height:1.5;color:var(--ink-muted);max-width:66ch;margin:0}
+.grad-t{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.mono{font-family:var(--font-mono)}
+.serif-i{font-family:var(--font-serif);font-style:italic;font-weight:400}
+.s-body{flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0}
+
+/* components */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:34px 36px}
+.grid{display:grid;gap:26px}
+.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.card h4{font-size:27px;font-weight:700;margin:0 0 12px;letter-spacing:-.01em}
+.card p{font-size:24px;line-height:1.45;color:var(--ink-muted);margin:0}
+.pill{display:inline-flex;align-items:center;gap:10px;padding:8px 18px;border-radius:999px;border:1px solid var(--border-strong);font-family:var(--font-mono);font-size:19px;color:var(--ink-muted)}
+.pill-accent{background:rgba(224,138,60,.12);border-color:rgba(224,138,60,.4);color:var(--accent)}
+.step-num{font-family:var(--font-mono);font-size:22px;font-weight:700;color:var(--accent);letter-spacing:.12em}
+.metric .n{font-size:92px;font-weight:800;letter-spacing:-.03em;line-height:1}
+.metric .l{font-size:24px;line-height:1.4;color:var(--ink-muted);margin-top:14px}
+.ic{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;vertical-align:-5px}
+.yes{color:var(--good)}.no{color:var(--ink-faint)}
+
+/* cover / closing texture */
+.tex{background:
+  radial-gradient(1000px 640px at 86% 16%,rgba(224,138,60,.17),transparent 62%),
+  radial-gradient(760px 540px at 8% 94%,rgba(217,164,65,.10),transparent 62%),var(--bg)}
+.arcs{position:absolute;right:-190px;bottom:-190px;width:760px;height:760px;opacity:.5;z-index:0}
+.arcs circle{fill:none;stroke:rgba(224,138,60,.22);stroke-width:1.5}
+.slide>*:not(.arcs){position:relative;z-index:1}
+
+/* quote */
+.bigq{font-family:var(--font-serif);font-style:italic;font-size:76px;line-height:1.18;font-weight:400;letter-spacing:-.01em;max-width:24ch;margin:0}
+.bigq .mark{color:var(--accent);font-style:normal}
+.attrib{display:flex;align-items:center;gap:22px;margin-top:52px}
+.attrib .av{width:64px;height:64px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:23px;color:#191410;flex:none}
+.attrib .who{font-size:25px;font-weight:700}
+.attrib .role{font-size:21px;color:var(--ink-muted);margin-top:3px}
+
+/* table */
+table{border-collapse:collapse;width:100%}
+th,td{text-align:left;padding:19px 26px;border-bottom:1px solid var(--border);font-size:24px}
+th{font-family:var(--font-mono);font-size:19px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);font-weight:500}
+td.us,th.us{background:rgba(224,138,60,.09)}
+th.us{color:var(--accent)}
+.col-em{font-weight:700;color:var(--ink)}
+td.c,th.c{text-align:center}
+
+/* pricing */
+.price{font-size:58px;font-weight:800;letter-spacing:-.02em;line-height:1;margin:18px 0 6px}
+.price small{font-size:24px;font-weight:500;color:var(--ink-muted);letter-spacing:0}
+.plist{list-style:none;margin:18px 0 0;padding:0}
+.plist li{font-size:24px;line-height:1.4;color:var(--ink-muted);padding:7px 0 7px 30px;position:relative}
+.plist li::before{content:"";position:absolute;left:2px;top:17px;width:14px;height:2px;background:var(--accent)}
+.card.feat{background:linear-gradient(180deg,rgba(224,138,60,.13),rgba(224,138,60,.04)) ,var(--surface);border-color:rgba(224,138,60,.45)}
+
+/* chart */
+.chart{display:flex;align-items:flex-end;gap:90px;height:430px;margin-top:26px}
+.ccol{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+.cval{font-size:46px;font-weight:800;letter-spacing:-.02em;margin-bottom:14px}
+.cbar{width:200px;background:var(--grad);border-radius:10px 10px 0 0}
+.cylab{font-family:var(--font-mono);font-size:21px;letter-spacing:.14em;color:var(--ink-muted);margin-top:16px}
+.cmeta{font-size:21px;color:var(--ink-faint);margin-top:6px;text-align:center}
+.baseline{height:1px;background:var(--border-strong);margin-top:0}
+
+/* roadmap */
+.phase-tag{font-family:var(--font-mono);font-size:19px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.rlist{list-style:none;margin:16px 0 0;padding:0}
+.rlist li{font-size:24px;line-height:1.42;color:var(--ink-muted);padding:6px 0 6px 26px;position:relative}
+.rlist li::before{content:"";position:absolute;left:0;top:17px;width:12px;height:2px;background:var(--border-strong)}
+
+/* ask */
+.ask-num{font-family:var(--font-mono);font-size:23px;font-weight:700;color:var(--accent);letter-spacing:.14em}
+.contact-line{display:flex;gap:56px;align-items:center;margin-top:54px;font-family:var(--font-mono);font-size:22px;color:var(--ink-muted);flex-wrap:wrap}
+.contact-line b{color:var(--ink);font-weight:700}
+
+/* notes overlay */
+.notes{display:none!important}
+.notes-overlay{position:fixed;left:0;right:0;bottom:0;max-height:40vh;background:rgba(16,12,9,.97);border-top:2px solid rgba(224,138,60,.5);color:#efe6d8;padding:26px 48px;font-size:20px;line-height:1.6;font-family:var(--font-display);transform:translateY(101%);transition:transform .3s var(--ease);z-index:60;overflow:auto}
+.notes-overlay.open{transform:none}
+.notes-overlay .nl{font-family:var(--font-mono);font-size:15px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+
+@media print{
+  @page{size:1920px 1080px;margin:0}
+  body{overflow:visible;height:auto;background:var(--bg)}
+  .deck{position:static;transform:none;width:auto;height:auto}
+  .slide{position:relative;inset:auto;opacity:1!important;pointer-events:auto;transform:none!important;height:1080px;page-break-after:always}
+  .progress-bar,.notes-overlay{display:none!important}
+}
+</style>
+</head>
+<body>
+<main class="deck" data-deck>
+
+<!-- 1 · COVER -->
+<section class="slide tex is-active" data-slide="1" data-screen-label="Couverture">
+  <header class="s-head"><span class="wordmark"><i></i>EMIID</span><span class="s-tag">Nexus Partners</span></header>
+  <div class="s-body">
+    <p class="kicker">Levée Seed · 2026</p>
+    <h1 class="h1" style="margin-top:36px">EmiID</h1>
+    <p class="lede" style="font-size:34px;color:var(--ink);margin-top:26px;max-width:24ch">La première plateforme de <span class="grad-t" style="font-weight:700">sourcing certifié</span> de proximité.</p>
+    <p class="lede" style="margin-top:22px">Votre empreinte numérique professionnelle — vérifiée, connectée, ancrée dans les réalités africaines.</p>
+  </div>
+  <footer class="s-foot"><span>01 / 14</span><span class="rule"></span><span>Ismaël Christian DAOUDA ABASSI · Fondateur</span></footer>
+  <aside class="notes">Bonjour à tous. Je suis Ismaël Christian Daouda Abassi, fondateur d'EmiID, chez Nexus Partners. Ce soir, je vais vous parler de quelque chose de simple : en Afrique, trouver le bon professionnel pour le bon projet reste un parcours du combattant. EmiID est notre réponse — la première plateforme de sourcing certifié de proximité. Dans les prochaines minutes, je vais vous montrer le problème, la solution que nous avons déjà construite, le marché, et pourquoi le moment d'investir, c'est maintenant.</aside>
+</section>
+
+<!-- 2 · CONVICTION -->
+<section class="slide" data-slide="2" data-screen-label="Conviction">
+  <header class="s-head"><span class="wordmark"><i></i>EMIID</span><span class="s-tag">Notre conviction</span></header>
+  <div class="s-body">
+    <p class="kicker">Avant les chiffres</p>
+    <p class="bigq" style="margin-top:44px"><span class="mark">«</span> Un territoire ne se développe pas seulement avec des projets. Il se développe lorsqu'on connecte les bons projets aux bonnes compétences. <span class="mark">»</span></p>
+    <div class="attrib">
+      <span class="av">ID</span>
+      <span><span class="who">Ismaël Christian DAOUDA ABASSI</span><br><span class="role">Fondateur · Nexus Partners</span></span>
+    </div>
+    <p class="lede" style="margin-top:44px">Moins d'une minute pour identifier et contacter la bonne compétence certifiée, juste à côté de chez soi.</p>
+  </div>
+  <footer class="s-foot"><span>02 / 14</span><span class="rule"></span><span>EmiID · Seed 2026</span></footer>
+  <aside class="notes">Avant les chiffres, une conviction. Un territoire ne se développe pas seulement avec des projets — il se développe quand on sait connecter les bons projets aux bonnes compétences, rapidement. C'est exactement ce qu'EmiID fait : moins d'une minute pour identifier et contacter la bonne compétence certifiée, à côté de chez soi. Gardez cette phrase en tête pendant toute la présentation : chaque fonctionnalité que vous allez voir sert cette idée, et rien d'autre.</aside>
+</section>
+
+<!-- 3 · PROBLÈME -->
+<section class="slide" data-slide="3" data-screen-label="Le problème">
+  <header class="s-head"><span class="wordmark"><i></i>EMIID</span><span class="s-tag">Le problème</span></header>
+  <div class="s-body">
+    <p class="kicker">Le problème</p>
+    <h2 class="h2" style="margin-top:30px">Un continent riche en talents,<br>pauvre en <span class="grad-t">confiance</span>.</h2>
+    <div class="grid g3" style="margin-top:56px">
+      <div class="card"><span class="step-num">CAS 01</span><h4 style="margin-top:14px">Le recruteur</h4><p>Il cherche un développeur sur WhatsApp. 30 profils contactés, 2 retenus. Deux semaines perdues — et aucun moyen de vérifier.</p></div>
+      <div class="card"><span class="step-num">CAS 02</span><h4 style="margin-top:14px">L'artisan</h4><p>Un électricien expert perd les contrats face à un concurrent plus visible. Son excellence est réelle — mais invisible.</p></div>
+      <div class="card"><span class="step-num">CAS 03</span><h4 style="margin-top:14px">La PME</h4><p>Elle veut recruter localement, sans vivier structuré. Elle finit par payer une agence internationale pour trouver près d'elle.</p></div>
+    </div>
+    <p class="lede" style="margin-top:52px">Le problème n'est pas le manque de talents. C'est l'absence d'infrastructure pour les rendre <b style="color:var(--ink)">visibles, vérifiables, connectables</b>.</p>
+  </div>
+  <footer class="s-foot"><span>03 / 14</span><span class="rule"></span><span>EmiID · Seed 2026</span></footer>
+  <aside class="notes">Regardons le terrain, trois situations que vous connaissez. Un recruteur cherche un développeur : il passe par WhatsApp, contacte trente personnes, en retient deux — deux semaines perdues, sans jamais pouvoir vérifier. Un artisan électricien excellent perd les contrats face à un concurrent simplement plus visible : il n'a aucun moyen de prouver son excellence. Et une PME ivoirienne qui veut recruter localement n'a accès à aucun vivier structuré : elle finit par payer une agence internationale. Le problème n'est pas le manque de talents — c'est l'absence d'infrastructure de confiance.</aside>
+</section>
+
+<!-- 4 · CHIFFRES -->
+<section class="slide" data-slide="4" data-screen-label="Les chiffres">
+  <header class="s-head"><span class="wordmark"><i></i>EMIID</span><span class="s-tag">État du marché</span></header>
+  <div class="s-body">
+    <p class="kicker">Les chiffres qui font mal</p>
+    <h2 class="h2" style="margin-top:30px">La demande existe. La confiance, non.</h2>
+    <div class="grid g4" style="margin-top:70px">
+      <div class="metric"><div class="n grad-t">+350M</div><div class="l">actifs dans l'économie informelle en Afrique</div></div>
+      <div class="metric"><div class="n grad-t">&lt;4%</div><div class="l">de pénétration de LinkedIn en Afrique subsaharienne</div></div>
+      <div class="metric"><div class="n grad-t">+85%</div><div class="l">des PME sans outil de recrutement digital structuré</div></div>
+      <div class="metric"><div class="n grad-t">+70%</div><div class="l">des jeunes diplômés sans visibilité professionnelle en ligne</div></div>
+    </div>
+  </div>
+  <footer class="s-foot"><span>04 / 14</span><span class="rule"></span><span>EmiID · Seed 2026</span></footer>
+  <aside class="notes">Quatre chiffres pour mesurer l'ampleur. Plus de trois cent cinquante millions de personnes travaillent dans l'économie informelle en Afrique. LinkedIn — l'outil de référence ailleurs — pénètre moins de quatre pour cent de l'Afrique subsaharienne. Plus de quatre-vingt-cinq pour cent des PME n'ont aucun outil de recrutement digital structuré, et plus de soixante-dix pour cent des jeunes diplômés restent invisibles en ligne. Autrement dit : les talents sont là, la demande est là — il manque l'infrastructure de confiance. C'est exactement l'espace qu'EmiID vient occuper.</aside>
+</section>
+
+<!-- 5 · SOLUTION -->
+<section class="slide" data-slide="5" data-screen-label="La solution">
+  <header class="s-head"><span class="wordmark"><i></i>EMIID</span><span class="s-tag">La solution</span></header>
+  <div class="s-body">
+    <p class="kicker">La solution</p>
+    <h2 class="h2" style="margin-top:30px">EmiID, en trois étapes.</h2>
+    <div class="grid g3" style="margin-top:56px">
+      <div class="card" style="padding:40px 38px"><span class="step-num">01</span><h4 style="margin-top:16px">Créez votre profil</h4><p>Compétences, secteur, ville, histoire. Un slug unique : <span class="mono" style="font-size:21px;color:var(--ink)">app.emiid.com/@tonnom</span></p></div>
+      <div class="card" style="padding:40px 38px"><span class="step-num">02</span><h4 style="margin-top:16px">Rejoignez l'écosystème</h4><p>Annuaire intelligent. Pairs, clients, recruteurs, mentors. Messagerie en temps réel.</p></div>
+      <div class="card" style="padding:40px 38px"><span class="step-num">03</span><h4 style="margin-top:16px">Prouvez votre valeur</h4><p>Certification par les pairs, badge vérifié. Vous devenez une référence de votre secteur.</p></div>
+    </div>
+    <p class="lede" style="margin-top:52px">Simple pour l'utilisateur. <b style="color:var(--ink)">Puissant pour le réseau.</b> Chaque profil validé renforce la valeur de tous les autres.</p>
+  </div>
+  <footer class="s-foot"><span>05 / 14</span><span class="rule"></span><span>EmiID · Seed 2026</span></footer>
+  <aside class="notes">Notre solution tient en trois étapes. Un : vous créez votre profil professionnel — compétences, secteur, ville, histoire — avec un slug unique, app point emiid point com slash at votre nom. Deux : vous rejoignez l'écosystème — l'annuaire intelligent, vos pairs, vos clients, les recruteurs et les mentors — et vous échangez en temps réel. Trois : vous prouvez votre valeur — vos pairs et vos clients certifient vos compétences et vous obtenez un badge vérifié. Simple pour l'utilisateur, puissant pour le réseau : chaque profil validé renforce la valeur de tous les autres.</aside>
+</section>
+
+<!-- 6 · POSITIONNEMENT -->
+<section class="slide" data-slide="6" data-screen-label="Positionnement">
+  <header class="s-head"><span class="wordmark"><i></i>EMIID</span><span class="s-tag">Positionnement</span></header>
+  <div class="s-body">
+    <p class="kicker">Ni WhatsApp, ni LinkedIn</p>
+    <h2 class="h2" style="margin-top:26px">Ce qu'aucun acteur existant n'offre.</h2>
+    <table style="margin-top:44px">
+      <thead><tr><th style="width:46%"></th><th class="c">WhatsApp</th><th class="c">LinkedIn</th><th class="c us">EmiID</th></tr></thead>
+      <tbody>
+        <tr><td>Profils professionnels vérifiés</td><td class="c no"><svg class="ic" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></td><td class="c yes"><svg class="ic" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></td><td class="c us col-em yes"><svg class="ic" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></td></tr>
+        <tr><td>Conçu pour les réalités africaines</td><td class="c no"><svg class="ic" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></td><td class="c no"><svg class="ic" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></td><td class="c us col-em yes"><svg class="ic" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></td></tr>
+        <tr><td>Artisans &amp; indépendants</td><td class="c no"><svg class="ic" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></td><td class="c no"><svg class="ic" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></td><td class="c us col-em yes"><svg class="ic" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></td></tr>
+        <tr><td>Tarification locale accessible</td><td class="c no"><svg class="ic" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></td><td class="c no"><svg class="ic" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></td><td class="c us col-em yes"><svg class="ic" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></td></tr>
+        <tr><td>Certification par les pairs</td><td class="c no"><svg class="ic" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></td><td class="c" style="color:var(--ink-muted)">Partielle</td><td class="c us col-em yes"><svg class="ic" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></td></tr>
+        <tr><td>Messagerie + médiation intégrée</td><td class="c no"><svg class="ic" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></td><td class="c no"><svg class="ic" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></td><td class="c us col-em yes"><svg class="ic" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></td></tr>
+        <tr><td>Données hébergées localement <span class="mono" style="font-size:19px;color:var(--ink-faint)">(roadmap)</span></td><td class="c no"><svg class="ic" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></td><td class="c no"><svg class="ic" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></td><td class="c us col-em yes"><svg class="ic" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <footer class="s-foot"><span>06 / 14</span><span class="rule"></span><span>EmiID · Seed 2026</span></footer>
+  <aside class="notes">On nous demande souvent : pourquoi pas WhatsApp ou LinkedIn ? Parce que ni l'un ni l'autre n'a été pensé pour ces réalités. WhatsApp ne vérifie rien. LinkedIn exclut de fait les artisans et les indépendants, avec une tarification inadaptée au pouvoir d'achat local. EmiID combine ce qu'aucun des deux n'offre : profils vérifiés, certification par les pairs, messagerie avec médiation intégrée, tarification locale — et à terme, des données hébergées en Afrique. Ce tableau, c'est notre douve stratégique : difficile à copier rapidement.</aside>
+</section>
+
+<!-- 7 · MARCHÉ -->
+<section class="slide" data-slide="7" data-screen-label="Le marché">
+  <header class="s-head"><span class="wordmark"><i></i>EMIID</span><span class="s-tag">Le marché</span></header>
+  <div class="s-body">
+    <p class="kicker">Le marché</p>
+    <h2 class="h2" style="margin-top:26px">Une opportunité de génération.</h2>
+    <div class="grid g3" style="margin-top:48px">
+      <div class="metric"><div class="n grad-t">+600M</div><div class="l"><b style="color:var(--ink)">TAM</b> — professionnels actifs sur le continent d'ici 2030</div></div>
+      <div class="metric"><div class="n grad-t">+120M</div><div class="l"><b style="color:var(--ink)">SAM</b> — professionnels connectés, Afrique francophone</div></div>
+      <div class="metric"><div class="n grad-t">500K</div><div class="l"><b style="color:var(--ink)">SOM · 3 ans</b> — utilisateurs actifs, 5 marchés prioritaires</div></div>
+    </div>
+    <p class="mono" style="font-size:21px;letter-spacing:.1em;color:var(--ink-faint);margin:26px 0 0">CÔTE D'IVOIRE · SÉNÉGAL · CAMEROUN · BÉNIN · TOGO</p>
+    <div class="grid g3" style="margin-top:44px">
+      <div class="card" style="padding:26px 30px"><p><b style="color:var(--ink)">+300M smartphones</b> attendus en Afrique d'ici 2027</p></div>
+      <div class="card" style="padding:26px 30px"><p><b style="color:var(--ink)">+4 Mds USD</b> investis chaque année dans la tech africaine</p></div>
+      <div class="card" style="padding:26px 30px"><p><b style="color:var(--ink)">Aucun acteur dominant</b> en networking professionnel francophone</p></div>
+    </div>
+  </div>
+  <footer class="s-foot"><span>07 / 14</span><span class="rule"></span><span>EmiID · Seed 2026</span></footer>
+  <aside class="notes">Le marché est immense. Six cents millions de professionnels actifs sur le continent d'ici 2030 — c'est notre TAM. Cent vingt millions de professionnels connectés en Afrique francophone — notre SAM. Et notre cible à trois ans : cinq cent mille utilisateurs actifs sur cinq marchés prioritaires, de la Côte d'Ivoire au Togo. Pourquoi maintenant ? Trois cents millions de smartphones supplémentaires d'ici 2027, quatre milliards de dollars investis chaque année dans la tech africaine, et aucun acteur dominant en networking professionnel francophone. La fenêtre est ouverte — et nous la prenons maintenant.</aside>
+</section>
+
+<!-- 8 · PRODUIT -->
+<section class="slide" data-slide="8" data-screen-label="Le produit">
+  <header class="s-head"><span class="wordmark"><i></i>EMIID</span><span class="s-tag">Déjà construit · v1.2</span></header>
+  <div class="s-body">
+    <p class="kicker">Ce qui tourne aujourd'hui</p>
+    <h2 class="h2" style="margin-top:26px">EmiID n'est pas une idée. <span class="grad-t">C'est un produit.</span></h2>
+    <div class="grid g3" style="margin-top:46px">
+      <div class="card" style="padding:28px 30px"><h4>Auth &amp; sécurité</h4><p>OTP, protection PIN, sécurité granulaire au niveau des données.</p></div>
+      <div class="card" style="padding:28px 30px"><h4>Profils &amp; portfolio</h4><p>Services, tarifs, avis clients, QR code, vCard, badges vérifiés.</p></div>
+      <div class="card" style="padding:28px 30px"><h4>Annuaire intelligent</h4><p>Géolocalisation, filtres sectoriels, recherche multi-critères.</p></div>
+      <div class="card" style="padding:28px 30px"><h4>Messagerie temps réel</h4><p>Fichiers joints, marquage de lecture, médiation de litiges.</p></div>
+      <div class="card" style="padding:28px 30px"><h4>Recherche IA &amp; vocale</h4><p>Sémantique par IA, ranking FTS, dictée vocale intégrée.</p></div>
+      <div class="card" style="padding:28px 30px"><h4>Monétisation active</h4><p>Abonnements, boosts territoriaux, FedaPay &amp; Mobile Money.</p></div>
+    </div>
+    <p class="mono" style="font-size:20px;letter-spacing:.08em;color:var(--ink-faint);margin:40px 0 0">STACK — Next.js 15/16 · TypeScript · Supabase SSR · PostgreSQL · RLS · i18n FR/EN</p>
+  </div>
+  <footer class="s-foot"><span>08 / 14</span><span class="rule"></span><span>EmiID · Seed 2026</span></footer>
+  <aside class="notes">Point clé de cette présentation : EmiID n'est pas une idée, c'est un produit. En version un point deux, tout ce que vous voyez ici fonctionne. Authentification sécurisée. Profils riches avec portfolio, services, avis, QR code et badges vérifiés. Annuaire intelligent avec géolocalisation. Messagerie temps réel avec médiation intégrée. Recherche sémantique par intelligence artificielle et dictée vocale. Et une monétisation déjà active via FedaPay et le Mobile Money. La stack est moderne et sécurisée. Là où la plupart des projets en phase d'amorçage arrivent avec un slide d'intentions, nous arrivons avec une infrastructure en production.</aside>
+</section>
+
+<!-- 9 · MODÈLE -->
+<section class="slide" data-slide="9" data-screen-label="Modèle économique">
+  <header class="s-head"><span class="wordmark"><i></i>EMIID</span><span class="s-tag">Modèle économique</span></header>
+  <div class="s-body">
+    <p class="kicker">Freemium SaaS</p>
+    <h2 class="h2" style="margin-top:26px">Des revenus dès le jour 1.</h2>
+    <div class="grid g4" style="margin-top:46px">
+      <div class="card" style="padding:30px 30px">
+        <span class="phase-tag">Starter</span>
+        <div class="price">Gratuit</div>
+        <ul class="plist"><li>Profil complet + slug</li><li>Annuaire public</li><li>Messagerie de base</li><li>Connexions illimitées</li></ul>
+      </div>
+      <div class="card feat" style="padding:30px 30px">
+        <span class="phase-tag">Pro</span>
+        <div class="price grad-t">9 900 <small>FCFA/mois</small></div>
+        <p class="mono" style="font-size:19px;color:var(--ink-faint)">≈ 15 € · le choix des talents</p>
+        <ul class="plist"><li>Badge vérifié</li><li>Mise en avant annuaire</li><li>Statistiques de profil</li><li>Messagerie illimitée</li></ul>
+      </div>
+      <div class="card" style="padding:30px 30px">
+        <span class="phase-tag">Business</span>
+        <div class="price">29 900 <small>FCFA/mois</small></div>
+        <p class="mono" style="font-size:19px;color:var(--ink-faint)">≈ 45 € · PME &amp; ONG</p>
+        <ul class="plist"><li>Page organisation</li><li>Recrutement ciblé</li><li>10 comptes liés</li><li>Dashboard analytics</li></ul>
+      </div>
+      <div class="card" style="padding:30px 30px">
+        <span class="phase-tag">Enterprise</span>
+        <div class="price">Sur devis</div>
+        <p class="mono" style="font-size:19px;color:var(--ink-faint)">dès 150 €/mois</p>
+        <ul class="plist"><li>API complète</li><li>Intégrations ATS/SIRH</li><li>SLA + support 24/7</li><li>White-label</li></ul>
+      </div>
+    </div>
+  </div>
+  <footer class="s-foot"><span>09 / 14</span><span class="rule"></span><span>EmiID · Seed 2026</span></footer>
+  <aside class="notes">Le modèle économique : du freemium SaaS, un modèle éprouvé mondialement. Starter, gratuit pour toujours, pour construire le réseau. Pro à neuf mille neuf cents francs CFA par mois — environ quinze euros — pour les talents qui veulent se démarquer : badge vérifié, mise en avant, statistiques. Business à vingt-neuf mille neuf cents francs CFA pour les PME, startups et ONG qui recrutent. Et Enterprise sur devis, dès cent cinquante euros par mois, avec API complète et intégrations. Des revenus possibles dès le premier jour, sur une tarification calibrée pour les réalités locales.</aside>
+</section>
+
+<!-- 10 · PROJECTIONS -->
+<section class="slide" data-slide="10" data-screen-label="Projections">
+  <header class="s-head"><span class="wordmark"><i></i>EMIID</span><span class="s-tag">Projections</span></header>
+  <div class="s-body">
+    <p class="kicker">Trajectoire de revenus</p>
+    <h2 class="h2" style="margin-top:26px">~5 M€ d'ARR en année 3.</h2>
+    <div class="chart">
+      <div class="ccol"><div class="cval">270 K€</div><div class="cbar" style="height:6%"></div><div class="cylab">FIN ANNÉE 1</div><div class="cmeta">50 000 utilisateurs · 5% de conversion</div></div>
+      <div class="ccol"><div class="cval">1,4 M€</div><div class="cbar" style="height:28%"></div><div class="cylab">FIN ANNÉE 2</div><div class="cmeta">200 000 utilisateurs · 8% de conversion</div></div>
+      <div class="ccol"><div class="cval grad-t">5 M€</div><div class="cbar" style="height:100%"></div><div class="cylab">FIN ANNÉE 3</div><div class="cmeta">500 000 utilisateurs · 12% de conversion</div></div>
+    </div>
+    <p class="baseline"></p>
+    <p class="lede" style="font-size:23px;margin-top:20px">Hypothèses conservatrices — mix : 70% Pro · 25% Business · 5% Enterprise.</p>
+  </div>
+  <footer class="s-foot"><span>10 / 14</span><span class="rule"></span><span>EmiID · Seed 2026</span></footer>
+  <aside class="notes">La trajectoire de revenus. Fin d'année un : cinquante mille utilisateurs, cinq pour cent de conversion payante, deux cent soixante-dix mille euros d'ARR. Fin d'année deux : deux cent mille utilisateurs, huit pour cent, un virgule quatre million d'euros. Fin d'année trois : cinq cent mille utilisateurs, douze pour cent, cinq millions d'euros d'ARR. Ces hypothèses sont volontairement conservatrices — un mix de soixante-dix pour cent Pro, vingt-cinq pour cent Business et cinq pour cent Enterprise. La courbe est celle d'un modèle réseau qui s'accélère à mesure que la densité du réseau augmente.</aside>
+</section>
+
+<!-- 11 · KPIs -->
+<section class="slide" data-slide="11" data-screen-label="KPIs investisseur">
+  <header class="s-head"><span class="wordmark"><i></i>EMIID</span><span class="s-tag">Engagements</span></header>
+  <div class="s-body">
+    <p class="kicker">Ce qu'on s'engage à atteindre</p>
+    <h2 class="h2" style="margin-top:26px">Des indicateurs, pas des promesses.</h2>
+    <table style="margin-top:40px">
+      <thead><tr><th style="width:46%">Métrique</th><th class="c">Année 1</th><th class="c">Année 2</th><th class="c us">Année 3</th></tr></thead>
+      <tbody>
+        <tr><td>Utilisateurs actifs</td><td class="c">50 000</td><td class="c">200 000</td><td class="c us col-em">500 000</td></tr>
+        <tr><td>Rétention M1</td><td class="c">55%</td><td class="c">65%</td><td class="c us col-em">70%</td></tr>
+        <tr><td>Conversion freemium → payant</td><td class="c">5%</td><td class="c">8%</td><td class="c us col-em">12%</td></tr>
+        <tr><td>ARR</td><td class="c">270 K€</td><td class="c">1,4 M€</td><td class="c us col-em">5 M€</td></tr>
+        <tr><td>Pays couverts</td><td class="c">3</td><td class="c">6</td><td class="c us col-em">12</td></tr>
+        <tr><td>NPS utilisateur</td><td class="c">&gt;50</td><td class="c">&gt;60</td><td class="c us col-em">&gt;70</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <footer class="s-foot"><span>11 / 14</span><span class="rule"></span><span>EmiID · Seed 2026</span></footer>
+  <aside class="notes">Voici nos engagements chiffrés, année par année. Utilisateurs actifs : cinquante mille, deux cent mille, puis cinq cent mille. Rétention à un mois : de cinquante-cinq à soixante-dix pour cent. Conversion du freemium vers le payant : de cinq à douze pour cent. ARR : de deux cent soixante-dix mille à cinq millions d'euros. Couverture géographique : de trois à douze pays. Et un NPS qui monte au-dessus de soixante-dix. Ce ne sont pas des promesses floues : ce sont les indicateurs sur lesquels vous pouvez nous mesurer, trimestre après trimestre.</aside>
+</section>
+
+<!-- 12 · ROADMAP -->
+<section class="slide" data-slide="12" data-screen-label="Roadmap">
+  <header class="s-head"><span class="wordmark"><i></i>EMIID</span><span class="s-tag">Roadmap</span></header>
+  <div class="s-body">
+    <p class="kicker">Feuille de route</p>
+    <h2 class="h2" style="margin-top:26px">Trois phases de conquête.</h2>
+    <div class="grid g3" style="margin-top:50px">
+      <div class="card" style="padding:36px 34px">
+        <span class="phase-tag">Phase 1 · Fondations</span>
+        <div style="margin-top:14px"><span class="pill" style="border-color:rgba(106,174,127,.5);color:var(--good)">80% complétée</span></div>
+        <ul class="rlist"><li>Auth, profils, annuaire, messagerie</li><li>Cockpit admin de modération</li><li>Reste : stabilisation, tests, RBAC admin</li></ul>
+      </div>
+      <div class="card" style="padding:36px 34px">
+        <span class="phase-tag">Phase 2 · Q3 2026</span>
+        <h4 style="margin-top:16px">Confiance &amp; croissance</h4>
+        <ul class="rlist"><li>Certification par les pairs</li><li>Pages organisations &amp; notifications</li><li>Application mobile</li></ul>
+      </div>
+      <div class="card" style="padding:36px 34px">
+        <span class="phase-tag">Phase 3 · Q1 2027</span>
+        <h4 style="margin-top:16px">Écosystème &amp; leadership</h4>
+        <ul class="rlist"><li>Matching IA &amp; marketplace de services</li><li>Intégrations ATS/SIRH, 4 nouveaux pays</li><li>Hébergement 100% africain</li></ul>
+      </div>
+    </div>
+  </div>
+  <footer class="s-foot"><span>12 / 14</span><span class="rule"></span><span>EmiID · Seed 2026</span></footer>
+  <aside class="notes">La feuille de route, en trois phases. Phase un, les fondations — complétée à quatre-vingts pour cent : authentification, profils, annuaire, messagerie et cockpit d'administration tournent déjà ; il reste la stabilisation et les droits administrateurs. Phase deux, au troisième trimestre deux mille vingt-six : la confiance et la croissance — certification par les pairs, pages organisations, notifications et application mobile. Phase trois, au premier trimestre deux mille vingt-sept : l'écosystème — matching par intelligence artificielle, marketplace de services, intégrations ATS, expansion sur quatre nouveaux pays et hébergement de données cent pour cent africain.</aside>
+</section>
+
+<!-- 13 · ÉQUIPE -->
+<section class="slide" data-slide="13" data-screen-label="L'équipe">
+  <header class="s-head"><span class="wordmark"><i></i>EMIID</span><span class="s-tag">L'équipe</span></header>
+  <div class="s-body">
+    <p class="kicker">Qui porte le projet</p>
+    <h2 class="h2" style="margin-top:26px">Nexus Partners — du terrain,<br>pas de la théorie.</h2>
+    <div class="grid g4" style="margin-top:50px">
+      <div class="card" style="padding:30px 30px"><span class="step-num">PÔLE 01</span><h4 style="margin-top:14px">Tech &amp; Développement</h4><p>Full stack, architecture, IA/ML, DevOps.</p></div>
+      <div class="card" style="padding:30px 30px"><span class="step-num">PÔLE 02</span><h4 style="margin-top:14px">Design &amp; UX</h4><p>Interfaces premium, mobile-first, accessibilité.</p></div>
+      <div class="card" style="padding:30px 30px"><span class="step-num">PÔLE 03</span><h4 style="margin-top:14px">Business &amp; Stratégie</h4><p>Recrutement tech, commercial, partenariats.</p></div>
+      <div class="card" style="padding:30px 30px"><span class="step-num">PÔLE 04</span><h4 style="margin-top:14px">Systèmes &amp; IoT</h4><p>Installations intelligentes, domotique.</p></div>
+    </div>
+    <p class="serif-i" style="font-size:36px;color:var(--ink);margin-top:56px">« Excellence = Standard. Pas une aspiration, une obligation. »</p>
+    <p class="lede" style="font-size:23px;margin-top:16px">Spécialisée en recrutement tech, développement digital et solutions IA — l'équipe évolue dans l'écosystème professionnel africain depuis des années.</p>
+  </div>
+  <footer class="s-foot"><span>13 / 14</span><span class="rule"></span><span>EmiID · Seed 2026</span></footer>
+  <aside class="notes">Qui porte tout cela ? Nexus Partners. Une organisation pluridisciplinaire spécialisée en recrutement tech, développement digital et solutions intelligentes. Quatre pôles complémentaires : technologie — full stack, architecture, intelligence artificielle ; design — interfaces premium mobile-first ; business — recrutement, développement commercial et partenariats ; et systèmes intelligents — domotique et IoT. Nous ne découvrons pas le terrain professionnel africain : nous y évoluons depuis des années. Notre philosophie tient en trois mots : l'excellence est un standard, pas une aspiration.</aside>
+</section>
+
+<!-- 14 · ASK -->
+<section class="slide tex" data-slide="14" data-screen-label="Notre demande">
+  <header class="s-head"><span class="wordmark"><i></i>EMIID</span><span class="s-tag">Notre demande</span></header>
+  <svg class="arcs" viewBox="0 0 760 760"><circle cx="380" cy="380" r="180"/><circle cx="380" cy="380" r="260"/><circle cx="380" cy="380" r="340"/></svg>
+  <div class="s-body">
+    <p class="kicker">Levée Seed</p>
+    <h2 class="h2" style="margin-top:30px;font-size:76px;max-width:22ch">Rejoignez la prochaine infrastructure professionnelle du continent.</h2>
+    <div class="grid g3" style="margin-top:54px;max-width:1300px">
+      <div class="card" style="padding:30px 32px"><span class="ask-num">AXE 01</span><h4 style="margin-top:12px">Équipe</h4><p>3 développeurs + 1 growth hacker.</p></div>
+      <div class="card" style="padding:30px 32px"><span class="ask-num">AXE 02</span><h4 style="margin-top:12px">Marketing</h4><p>Acquisition sur les 3 marchés prioritaires.</p></div>
+      <div class="card" style="padding:30px 32px"><span class="ask-num">AXE 03</span><h4 style="margin-top:12px">Infrastructure</h4><p>Hébergement, sécurité, certifications.</p></div>
+    </div>
+    <div class="contact-line">
+      <span><b>Ismaël Christian DAOUDA ABASSI</b> · Fondateur</span>
+      <span>daoudaabassichristian@gmail.com</span>
+      <span>ceo.nexuspartners.xyz</span>
+    </div>
+    <p class="mono" style="font-size:18px;color:var(--ink-faint);margin-top:34px">Document confidentiel · Projections basées sur des scénarios conservateurs</p>
+  </div>
+  <footer class="s-foot"><span>14 / 14</span><span class="rule"></span><span>EmiID · Seed 2026</span></footer>
+  <aside class="notes">Notre demande : rejoignez la prochaine infrastructure professionnelle du continent. La levée seed finance trois axes. L'équipe : trois développeurs et un growth hacker. Le marketing : l'acquisition sur les trois marchés prioritaires. L'infrastructure : hébergement, sécurité et certifications. Vous investissez dans un produit déjà fonctionnel, un marché de six cents millions de personnes et un modèle économique éprouvé — pas dans une promesse. Parlons-en : mes coordonnées sont à l'écran. Merci.</aside>
+</section>
+
+</main>
+
+<div class="progress-bar"><span></span></div>
+<div class="notes-overlay" id="notes-overlay"><div class="nl">Notes orateur — touche N pour masquer</div><p id="notes-text" style="margin:0"></p></div>
+
+<noscript><style>.slide{position:relative;opacity:1;pointer-events:auto;transform:none;height:1080px}.deck{position:static;transform:none;width:auto;height:auto}body{overflow:auto;height:auto}.progress-bar{display:none}</style></noscript>
+
+<script>
+(function(){
+  var slides=Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var total=slides.length,cur=0;
+  var bar=document.querySelector('.progress-bar span');
+  var overlay=document.getElementById('notes-overlay'),ntext=document.getElementById('notes-text');
+  function go(n){
+    cur=Math.max(0,Math.min(total-1,n));
+    slides.forEach(function(s,i){s.classList.toggle('is-active',i===cur);});
+    bar.style.width=((cur+1)/total*100)+'%';
+    var a=slides[cur].querySelector('.notes');
+    ntext.textContent=a?a.textContent.trim():'';
+    if(history.replaceState){try{history.replaceState(null,'','#'+(cur+1));}catch(e){}}
+  }
+  function fit(){
+    var s=Math.min(window.innerWidth/1920,window.innerHeight/1080);
+    document.documentElement.style.setProperty('--deck-scale',s);
+  }
+  document.addEventListener('keydown',function(e){
+    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){e.preventDefault();go(cur+1);}
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();go(cur-1);}
+    else if(e.key==='Home'){e.preventDefault();go(0);}
+    else if(e.key==='End'){e.preventDefault();go(total-1);}
+    else if(e.key==='n'||e.key==='N'){overlay.classList.toggle('open');}
+  });
+  window.addEventListener('resize',fit);
+  fit();
+  var h=parseInt(location.hash.slice(1),10);
+  go(isNaN(h)?0:h-1);
+  try{if(history.replaceState)history.replaceState(null,'','#'+(cur+1));}catch(e){}
+})();
+</script>
+</body>
+</html>

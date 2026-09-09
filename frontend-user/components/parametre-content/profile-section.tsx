@@ -195,6 +195,14 @@ export function ProfileSection({
             />
           </Field>
         </div>
+
+        <Field
+          label="Lien personnalisé de votre profil"
+          hint="Visible dans l'annuaire et sur votre carte de profil public."
+          className="pt-1"
+        >
+          <SlugInput value={profile.slug || ""} onChange={(v) => up("slug", v)} />
+        </Field>
       </SectionCard>
 
       {/* ── À propos & Bio ──────────────────────────────────────────────── */}

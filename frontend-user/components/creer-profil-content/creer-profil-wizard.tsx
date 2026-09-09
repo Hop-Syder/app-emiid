@@ -23,6 +23,7 @@ import { StepIdentity } from "./wizard/step-identity"
 import { StepActivity } from "./wizard/step-activity"
 import { StepLocation } from "./wizard/step-location"
 import { CreerProfilPreview } from "./creer-profil-preview"
+import { SlugInput } from "@/components/parametre-content/settings-primitives"
 
 const TOTAL_STEPS = WIZARD_STEPS.length // 3
 
@@ -192,9 +193,16 @@ export function CreerProfilWizard() {
 
                                 <CreerProfilPreview formData={formData} />
 
-                                <div className="flex items-center gap-2 rounded-xl border border-border bg-muted px-3.5 py-3">
-                                    <Link2 className="h-4 w-4 text-[#013ff4] shrink-0" />
-                                    <span className="text-sm font-medium text-foreground truncate">{profileUrl}</span>
+                                <div className="space-y-1.5">
+                                    <label className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-400">
+                                        <Link2 className="h-3.5 w-3.5 text-[#013ff4]" />
+                                        Ton lien personnalisé
+                                    </label>
+                                    <SlugInput
+                                        value={formData.slug}
+                                        onChange={(v) => handleInputChange("slug", v)}
+                                        placeholder="ton-lien"
+                                    />
                                 </div>
                             </div>
                         )}
