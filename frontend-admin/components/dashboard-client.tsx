@@ -199,7 +199,7 @@ export function DashboardClient({ initialStats }: DashboardClientProps) {
         <button
           onClick={handleRefresh}
           disabled={refreshing}
-          className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-850/50 transition-colors disabled:opacity-50 shrink-0 cursor-pointer"
+          className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors disabled:opacity-50 shrink-0 cursor-pointer"
         >
           <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
           Rafraîchir
@@ -552,7 +552,7 @@ export function DashboardClient({ initialStats }: DashboardClientProps) {
                     <span className={`text-[11px] font-bold px-2 py-1 rounded-lg ${
                       user.is_published 
                         ? "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-500" 
-                        : "bg-amber-50 dark:bg-amber-950/20 text-amber-650 dark:text-amber-550"
+                        : "bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-500"
                     }`}>
                       {user.is_published ? "Publié" : "En attente"}
                     </span>
@@ -639,7 +639,7 @@ export function DashboardClient({ initialStats }: DashboardClientProps) {
                 </div>
               </DialogHeader>
 
-              <div className="space-y-5 py-4 border-t border-b border-slate-100 dark:border-slate-850">
+              <div className="space-y-5 py-4 border-t border-b border-slate-100 dark:border-slate-800">
                 {/* Métadonnées */}
                 <div className="grid grid-cols-2 gap-4 bg-slate-50/70 dark:bg-slate-950/20 p-4 rounded-2xl border border-slate-100 dark:border-slate-900">
                   <div>
@@ -686,7 +686,7 @@ export function DashboardClient({ initialStats }: DashboardClientProps) {
                       disabled={actionLoading}
                       className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border text-xs font-semibold cursor-pointer transition-all active:scale-95 disabled:opacity-50 ${
                         selectedUser.is_published
-                          ? "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-350 border-slate-200 dark:border-slate-700 hover:bg-slate-250/50"
+                          ? "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-200/70"
                           : "bg-emerald-600 text-white border-transparent hover:bg-emerald-700"
                       }`}
                     >
@@ -699,7 +699,7 @@ export function DashboardClient({ initialStats }: DashboardClientProps) {
                       disabled={actionLoading}
                       className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border text-xs font-semibold cursor-pointer transition-all active:scale-95 disabled:opacity-50 ${
                         selectedUser.is_verified
-                          ? "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-350 border-slate-200 dark:border-slate-700 hover:bg-slate-250/50"
+                          ? "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-200/70"
                           : "bg-cyan-600 text-white border-transparent hover:bg-cyan-700"
                       }`}
                     >
@@ -713,7 +713,7 @@ export function DashboardClient({ initialStats }: DashboardClientProps) {
                       disabled={actionLoading}
                       className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border text-xs font-semibold cursor-pointer transition-all active:scale-95 disabled:opacity-50 ${
                         selectedUser.is_premium
-                          ? "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-350 border-slate-200 dark:border-slate-700 hover:bg-slate-250/50"
+                          ? "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-200/70"
                           : "bg-amber-500 text-white border-transparent hover:bg-amber-600"
                       }`}
                     >

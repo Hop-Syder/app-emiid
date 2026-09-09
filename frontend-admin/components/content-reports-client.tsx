@@ -162,14 +162,14 @@ export function ContentReportsClient({ initialReports }: ContentReportsClientPro
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Rechercher par motif, auteur, contenu..."
             data-testid="reports-search-input"
-            className="w-full rounded-xl bg-slate-50 dark:bg-slate-950 border border-transparent dark:border-slate-850 pl-10 pr-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-white text-sm"
+            className="w-full rounded-xl bg-slate-50 dark:bg-slate-950 border border-transparent dark:border-slate-800 pl-10 pr-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-white text-sm"
           />
         </div>
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value as FilterStatus)}
           data-testid="reports-status-filter"
-          className="rounded-xl bg-slate-50 dark:bg-slate-950 border border-transparent dark:border-slate-850 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-700 dark:text-slate-300 text-sm cursor-pointer"
+          className="rounded-xl bg-slate-50 dark:bg-slate-950 border border-transparent dark:border-slate-800 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-700 dark:text-slate-300 text-sm cursor-pointer"
         >
           <option value="open">Ouverts</option>
           <option value="resolved">Résolus</option>
@@ -180,7 +180,7 @@ export function ContentReportsClient({ initialReports }: ContentReportsClientPro
           value={subjectType}
           onChange={(e) => setSubjectType(e.target.value as FilterType)}
           data-testid="reports-type-filter"
-          className="rounded-xl bg-slate-50 dark:bg-slate-950 border border-transparent dark:border-slate-850 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-700 dark:text-slate-300 text-sm cursor-pointer"
+          className="rounded-xl bg-slate-50 dark:bg-slate-950 border border-transparent dark:border-slate-800 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-700 dark:text-slate-300 text-sm cursor-pointer"
         >
           <option value="all">Tous types</option>
           <option value="gallery">Galerie</option>
@@ -209,7 +209,7 @@ export function ContentReportsClient({ initialReports }: ContentReportsClientPro
                 className="bg-white dark:bg-slate-900/30 rounded-2xl border border-slate-100 dark:border-slate-800/80 p-5 flex flex-col lg:flex-row gap-4 shadow-sm"
               >
                 <div className="flex items-start gap-4 flex-1 min-w-0">
-                  <div className={`h-12 w-12 rounded-xl flex items-center justify-center flex-shrink-0 ${meta.tone} dark:bg-slate-850`}>
+                  <div className={`h-12 w-12 rounded-xl flex items-center justify-center flex-shrink-0 ${meta.tone} dark:bg-slate-800`}>
                     <Icon className="h-5 w-5" />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -225,18 +225,18 @@ export function ContentReportsClient({ initialReports }: ContentReportsClientPro
                         {r.status === "open" ? <Clock className="h-3 w-3" /> : r.status === "resolved" ? <CheckCircle2 className="h-3 w-3" /> : <XCircle className="h-3 w-3" />}
                         {r.status === "open" ? "Ouvert" : r.status === "resolved" ? "Résolu" : "Écarté"}
                       </span>
-                      <span className="text-xs text-slate-400 dark:text-slate-555">{new Date(r.created_at).toLocaleString("fr-FR")}</span>
+                      <span className="text-xs text-slate-400 dark:text-slate-500">{new Date(r.created_at).toLocaleString("fr-FR")}</span>
                     </div>
                     <p className="text-sm font-semibold text-slate-900 dark:text-white truncate" data-testid={`report-preview-${r.id}`}>
                       {r.subject_preview || "(contenu indisponible)"}
                     </p>
-                    <p className="text-sm text-slate-650 dark:text-slate-300 mt-1 italic">« {r.reason} »</p>
+                    <p className="text-sm text-slate-600 dark:text-slate-300 mt-1 italic">« {r.reason} »</p>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
                       Signalé par <span className="font-semibold text-slate-700 dark:text-slate-300">{r.reporter_name}</span>
                       {r.reporter_email ? ` · ${r.reporter_email}` : ""}
                     </p>
                     {r.admin_note && (
-                      <div className="mt-2 rounded-lg bg-slate-50 dark:bg-slate-950/40 border border-slate-100 dark:border-slate-800/80 px-3 py-2 text-xs text-slate-650 dark:text-slate-400">
+                      <div className="mt-2 rounded-lg bg-slate-50 dark:bg-slate-950/40 border border-slate-100 dark:border-slate-800/80 px-3 py-2 text-xs text-slate-600 dark:text-slate-400">
                         <span className="font-semibold text-slate-800 dark:text-slate-200">Note admin :</span> {r.admin_note}
                       </div>
                     )}
@@ -311,13 +311,13 @@ export function ContentReportsClient({ initialReports }: ContentReportsClientPro
                 </div>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">{confirmModal.title}</h3>
               </div>
-              <p className="text-sm text-slate-600 dark:text-slate-350 leading-relaxed">
+              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                 {confirmModal.description}
               </p>
               <div className="flex items-center justify-end gap-3 mt-2">
                 <button
                   onClick={() => setConfirmModal(null)}
-                  className="px-4 py-2 bg-slate-50 dark:bg-slate-850 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                  className="px-4 py-2 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition-colors cursor-pointer"
                 >
                   Annuler
                 </button>
@@ -362,13 +362,13 @@ export function ContentReportsClient({ initialReports }: ContentReportsClientPro
                 value={promptValue}
                 onChange={(e) => setPromptValue(e.target.value)}
                 placeholder={promptModal.placeholder || "Saisir ici..."}
-                className="w-full rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 px-4 py-2.5 outline-none text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 text-sm"
+                className="w-full rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 px-4 py-2.5 outline-none text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 text-sm"
                 autoFocus
               />
               <div className="flex items-center justify-end gap-3 mt-2">
                 <button
                   onClick={() => setPromptModal(null)}
-                  className="px-4 py-2 bg-slate-50 dark:bg-slate-850 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                  className="px-4 py-2 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition-colors cursor-pointer"
                 >
                   Annuler
                 </button>

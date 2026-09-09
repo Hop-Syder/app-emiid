@@ -353,7 +353,7 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
     <TooltipProvider>
       {/* Layout scindé : tableau (gauche) + volet de détails (droite) */}
       <div className="flex flex-col lg:flex-row gap-4 relative w-full overflow-hidden">
-      <div className={`space-y-4 min-w-0 transition-all duration-300 ${showUserModal && selectedUser ? "w-full lg:w-[65%]" : "w-full"}`}>
+      <div className={`space-y-4 min-w-0 transition-all duration-300 ${showUserModal && selectedUser ? "hidden lg:block lg:w-[65%]" : "w-full"}`}>
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
@@ -385,7 +385,7 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {stats.map((stat) => (
           <div key={stat.label} className="bg-white dark:bg-slate-900/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800/80 flex items-center gap-4 shadow-sm">
             <div className={`w-2 h-10 rounded-full ${stat.color}`}></div>
@@ -451,7 +451,7 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
       </div>
 
       {/* Users Table */}
-      <div className="bg-white rounded-xl border border-slate-100 overflow-hidden">
+      <div className="bg-white dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-800/80 overflow-hidden">
         {/* Bulk Actions */}
         <AnimatePresence>
           {selectedUsers.length > 0 && (
@@ -459,31 +459,31 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className="bg-blue-50 border-b border-blue-100 px-6 py-3 flex items-center justify-between"
+              className="bg-blue-50 dark:bg-blue-950/20 border-b border-blue-100 dark:border-blue-900/40 px-4 sm:px-6 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2"
             >
-              <span className="text-sm font-medium text-[#013ff4] flex items-center gap-2">
+              <span className="text-sm font-medium text-[#013ff4] dark:text-[#3a6bff] flex items-center gap-2">
                 {isBulkPending && <Loader2 className="h-4 w-4 animate-spin" />}
                 {selectedUsers.length} utilisateur(s) sélectionné(s)
               </span>
               <div className="flex items-center gap-2 flex-wrap">
                 <button onClick={() => handleBulk("publish")} disabled={isBulkPending}
-                  className="px-3 py-1.5 text-xs font-semibold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors disabled:opacity-50">
+                  className="min-h-10 px-3 py-2 text-xs font-semibold text-emerald-600 dark:text-emerald-500 bg-emerald-50 dark:bg-emerald-950/30 hover:bg-emerald-100 dark:hover:bg-emerald-950/50 rounded-lg transition-colors disabled:opacity-50">
                   Publier
                 </button>
                 <button onClick={() => handleBulk("unpublish")} disabled={isBulkPending}
-                  className="px-3 py-1.5 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors disabled:opacity-50">
+                  className="min-h-10 px-3 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors disabled:opacity-50">
                   Dépublier
                 </button>
                 <button onClick={() => handleBulk("verify")} disabled={isBulkPending}
-                  className="px-3 py-1.5 text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors disabled:opacity-50">
+                  className="min-h-10 px-3 py-2 text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 hover:bg-blue-100 dark:hover:bg-blue-950/50 rounded-lg transition-colors disabled:opacity-50">
                   Vérifier
                 </button>
                 <button onClick={() => handleBulk("suspend")} disabled={isBulkPending}
-                  className="px-3 py-1.5 text-xs font-semibold text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors disabled:opacity-50">
+                  className="min-h-10 px-3 py-2 text-xs font-semibold text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-950/30 hover:bg-orange-100 dark:hover:bg-orange-950/50 rounded-lg transition-colors disabled:opacity-50">
                   Suspendre
                 </button>
                 <button onClick={() => setSelectedUsers([])} disabled={isBulkPending}
-                  className="px-3 py-1.5 text-xs font-semibold text-slate-500 hover:bg-slate-100 rounded-lg transition-colors disabled:opacity-50">
+                  className="min-h-10 px-3 py-2 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors disabled:opacity-50">
                   Annuler
                 </button>
               </div>
@@ -493,7 +493,7 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
 
         {/* Loading Overlay */}
         {isLoading && (
-          <div className="absolute inset-0 bg-white/50 flex items-center justify-center z-10">
+          <div className="absolute inset-0 bg-white/50 dark:bg-slate-950/50 flex items-center justify-center z-10">
             <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
           </div>
         )}
@@ -516,7 +516,7 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
         </div>
 
         {/* Table Body (Responsive Bento Cards & Rows) */}
-        <div className="divide-y divide-slate-50 dark:divide-slate-850 relative">
+        <div className="divide-y divide-slate-50 dark:divide-slate-800 relative">
           {users.length > 0 ? (
             users.map((user) => (
               <div
@@ -535,6 +535,16 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
 
                 {/* User Info */}
                 <div className="col-span-3 flex items-center gap-3 w-full lg:w-auto">
+                  <label className="flex items-center justify-center p-2 -m-2 lg:hidden shrink-0 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={selectedUsers.includes(user.id)}
+                      onChange={() => toggleSelectUser(user.id)}
+                      onClick={(e) => e.stopPropagation()}
+                      aria-label={`Sélectionner ${user.first_name || ""} ${user.last_name || ""}`.trim()}
+                      className="w-5 h-5 rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500 dark:bg-slate-900"
+                    />
+                  </label>
                   <div className="relative shrink-0">
                     {user.avatar_url ? (
                       <Image
@@ -560,7 +570,7 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
                         {user.is_admin && <span title="Administrateur"><UserCog className="h-4 w-4 text-[#013ff4] shrink-0" /></span>}
                         {user.is_locked && <span title="Compte verrouillé (PIN)"><ShieldX className="h-4 w-4 text-red-500 shrink-0" /></span>}
                       </p>
-                      {user.has_profile && !user.is_verified && <BadgeCheck className="h-4 w-4 text-slate-350 dark:text-slate-650 shrink-0" />}
+                      {user.has_profile && !user.is_verified && <BadgeCheck className="h-4 w-4 text-slate-400 dark:text-slate-600 shrink-0" />}
                       {user.is_suspended && (
                         <span className="inline-flex items-center gap-1 rounded bg-orange-100 dark:bg-orange-950/20 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-orange-700 dark:text-orange-500 shrink-0">
                           <Ban className="h-2.5 w-2.5" /> Suspendu
@@ -613,7 +623,7 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
                 <div className="col-span-2 mt-3 lg:mt-0 w-full lg:w-auto flex items-center justify-end gap-2 border-t lg:border-t-0 pt-3 lg:pt-0 border-slate-100 dark:border-slate-800 shrink-0">
                   <button
                     onClick={() => openUserDetail(user)}
-                    className="px-3.5 py-2 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 border border-slate-200/30 dark:border-slate-700/50"
+                    className="px-4 py-2.5 min-h-11 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 border border-slate-200/30 dark:border-slate-700/50"
                   >
                     <Eye className="h-4 w-4" />
                     <span>Détails</span>
@@ -621,11 +631,11 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
 
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <button className="p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-all cursor-pointer text-slate-500 dark:text-slate-400 border border-transparent hover:border-slate-200/30 dark:hover:border-slate-700/30 active:scale-95">
+                      <button className="p-2.5 min-h-11 min-w-11 flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-all cursor-pointer text-slate-500 dark:text-slate-400 border border-transparent hover:border-slate-200/30 dark:hover:border-slate-700/30 active:scale-95">
                         <MoreHorizontal className="h-4 w-4" />
                       </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-52 bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-2xl p-1.5 shadow-xl">
+                    <DropdownMenuContent align="end" className="w-52 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-1.5 shadow-xl">
                       <DropdownMenuLabel className="text-[9px] font-bold text-slate-400 dark:text-slate-500 px-2.5 py-1.5 uppercase tracking-wider">
                         Visibilité & Badges
                       </DropdownMenuLabel>
@@ -704,16 +714,16 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
         </div>
 
         {/* Pagination */}
-        <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-between">
-          <p className="text-sm text-slate-500">
+        <div className="px-4 sm:px-6 py-4 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             Page <span className="font-semibold">{currentPage}</span> sur{" "}
             <span className="font-semibold">{totalPages || 1}</span> ({total} utilisateurs)
           </p>
           <div className="flex items-center gap-2">
-            <button 
+            <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1 || isPending}
-              className="p-2 border border-slate-200 dark:border-slate-850 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors disabled:opacity-50 cursor-pointer"
+              className="p-2.5 min-h-11 min-w-11 flex items-center justify-center border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors disabled:opacity-50 cursor-pointer"
             >
               <ChevronLeft className="h-4 w-4 text-slate-500 dark:text-slate-400" />
             </button>
@@ -724,7 +734,7 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
                   key={page}
                   onClick={() => handlePageChange(page)}
                   disabled={isPending}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors cursor-pointer ${
+                  className={`min-h-11 min-w-11 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors cursor-pointer ${
                     currentPage === page
                       ? "bg-blue-600 text-white"
                       : "hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400"
@@ -734,10 +744,10 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
                 </button>
               )
             })}
-            <button 
+            <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages || isPending}
-              className="p-2 border border-slate-200 dark:border-slate-850 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors disabled:opacity-50 cursor-pointer"
+              className="p-2.5 min-h-11 min-w-11 flex items-center justify-center border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors disabled:opacity-50 cursor-pointer"
             >
               <ChevronRight className="h-4 w-4 text-slate-500 dark:text-slate-400" />
             </button>
@@ -754,14 +764,21 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: "100%", opacity: 0 }}
             transition={{ type: "spring", stiffness: 260, damping: 30 }}
-            className="w-full lg:w-[35%] shrink-0"
+            className="fixed inset-0 z-40 lg:relative lg:inset-auto lg:z-auto w-full lg:w-[35%] shrink-0"
           >
-            <div className="bg-white rounded-2xl border border-slate-100 lg:border-l shadow-2xl flex flex-col self-start max-h-[calc(100vh-3rem)] overflow-y-auto">
+            <div className="bg-white dark:bg-slate-900 rounded-none lg:rounded-2xl border-0 lg:border lg:border-slate-100 dark:lg:border-slate-800 lg:border-l shadow-2xl flex flex-col self-start h-full lg:h-auto max-h-none lg:max-h-[calc(100vh-3rem)] overflow-y-auto">
               {/* Modal Header */}
-              <div className="p-6 border-b border-slate-100">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="relative">
+              <div className="p-6 border-b border-slate-100 dark:border-slate-800 shrink-0">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-4 min-w-0">
+                    <button
+                      onClick={() => setShowUserModal(false)}
+                      className="lg:hidden flex items-center justify-center min-h-11 min-w-11 -ml-2 shrink-0 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                      aria-label="Retour à la liste"
+                    >
+                      <ChevronLeft className="h-5 w-5 text-slate-500 dark:text-slate-400" />
+                    </button>
+                    <div className="relative shrink-0">
                       {selectedUser.avatar_url ? (
                         <Image
                           src={selectedUser.avatar_url}
@@ -777,23 +794,24 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
                         </div>
                       )}
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2 truncate">
                           {selectedUser.first_name || ""} {selectedUser.last_name || ""}
-                          {selectedUser.is_verified && <BadgeCheck className="h-5 w-5 text-blue-500" />}
-                          {selectedUser.is_premium && <Crown className="h-5 w-5 text-amber-500" />}
-                          {selectedUser.is_admin && <span title="Administrateur"><UserCog className="h-5 w-5 text-[#013ff4]" /></span>}
-                          {selectedUser.is_locked && <span title="Compte verrouillé (PIN)"><ShieldX className="h-5 w-5 text-red-500" /></span>}
+                          {selectedUser.is_verified && <BadgeCheck className="h-5 w-5 text-blue-500 shrink-0" />}
+                          {selectedUser.is_premium && <Crown className="h-5 w-5 text-amber-500 shrink-0" />}
+                          {selectedUser.is_admin && <span title="Administrateur"><UserCog className="h-5 w-5 text-[#013ff4] shrink-0" /></span>}
+                          {selectedUser.is_locked && <span title="Compte verrouillé (PIN)"><ShieldX className="h-5 w-5 text-red-500 shrink-0" /></span>}
                         </h2>
-                        {selectedUser.has_profile && !selectedUser.is_verified && <BadgeCheck className="h-5 w-5 text-slate-300" />}
+                        {selectedUser.has_profile && !selectedUser.is_verified && <BadgeCheck className="h-5 w-5 text-slate-300 dark:text-slate-600 shrink-0" />}
                       </div>
-                      <p className="text-sm text-slate-500">{selectedUser.email || "Pas d'email"}</p>
+                      <p className="text-sm text-slate-500 dark:text-slate-400 truncate">{selectedUser.email || "Pas d'email"}</p>
                     </div>
                   </div>
                   <button
                     onClick={() => setShowUserModal(false)}
-                    className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                    className="hidden lg:flex items-center justify-center min-h-11 min-w-11 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors shrink-0"
+                    aria-label="Fermer"
                   >
                     <X className="h-5 w-5 text-slate-400" />
                   </button>
@@ -803,11 +821,11 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
               {/* Modal Body */}
               <div className="p-6 space-y-4">
                 {/* Status & Category */}
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                   <span className={`inline-flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg font-semibold ${
-                    selectedUser.is_published 
-                      ? "bg-emerald-50 text-emerald-600" 
-                      : "bg-amber-50 text-amber-600"
+                    selectedUser.is_published
+                      ? "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-500"
+                      : "bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-500"
                   }`}>
                     <span className={`w-2 h-2 rounded-full ${
                       selectedUser.is_published ? "bg-emerald-500" : "bg-amber-500"
@@ -815,11 +833,11 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
                     {selectedUser.is_published ? "Publie" : "En attente"}
                   </span>
                   <span className={`text-sm px-3 py-1.5 rounded-lg font-semibold ${
-                    selectedUser.category === "Investisseur" 
-                      ? "bg-emerald-50 text-emerald-600" 
+                    selectedUser.category === "Investisseur"
+                      ? "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-500"
                       : selectedUser.category === "Expert"
-                      ? "bg-violet-50 text-violet-600"
-                      : "bg-blue-50 text-blue-600"
+                      ? "bg-violet-50 dark:bg-violet-950/20 text-violet-600 dark:text-violet-400"
+                      : "bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400"
                   }`}>
                     {selectedUser.category || "Non defini"}
                   </span>
@@ -827,47 +845,47 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
 
                 {/* Bio */}
                 {selectedUser.bio && (
-                  <div className="p-4 bg-slate-50 rounded-xl">
-                    <p className="text-xs font-medium text-slate-400 mb-2">Bio</p>
-                    <p className="text-sm text-slate-700">{selectedUser.bio}</p>
+                  <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                    <p className="text-xs font-medium text-slate-400 dark:text-slate-500 mb-2">Bio</p>
+                    <p className="text-sm text-slate-700 dark:text-slate-300">{selectedUser.bio}</p>
                   </div>
                 )}
 
                 {/* Info Grid */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 bg-slate-50 rounded-xl">
-                    <div className="flex items-center gap-2 text-slate-400 mb-1">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                    <div className="flex items-center gap-2 text-slate-400 dark:text-slate-500 mb-1">
                       <MapPin className="h-4 w-4" />
                       <span className="text-xs font-medium">Localisation</span>
                     </div>
-                    <p className="text-sm font-semibold text-slate-900">
+                    <p className="text-sm font-semibold text-slate-900 dark:text-white">
                       {selectedUser.city || getCountryName(selectedUser.country_id)}
                     </p>
                   </div>
-                  <div className="p-4 bg-slate-50 rounded-xl">
-                    <div className="flex items-center gap-2 text-slate-400 mb-1">
+                  <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                    <div className="flex items-center gap-2 text-slate-400 dark:text-slate-500 mb-1">
                       <Calendar className="h-4 w-4" />
                       <span className="text-xs font-medium">Inscription</span>
                     </div>
-                    <p className="text-sm font-semibold text-slate-900">
+                    <p className="text-sm font-semibold text-slate-900 dark:text-white">
                       {formatDate(selectedUser.created_at)}
                     </p>
                   </div>
-                  <div className="p-4 bg-slate-50 rounded-xl">
-                    <div className="flex items-center gap-2 text-slate-400 mb-1">
+                  <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                    <div className="flex items-center gap-2 text-slate-400 dark:text-slate-500 mb-1">
                       <Users className="h-4 w-4" />
                       <span className="text-xs font-medium">Abonnes</span>
                     </div>
-                    <p className="text-sm font-semibold text-slate-900">
+                    <p className="text-sm font-semibold text-slate-900 dark:text-white">
                       {selectedUser.followers_count || 0} abonnes
                     </p>
                   </div>
-                  <div className="p-4 bg-slate-50 rounded-xl">
-                    <div className="flex items-center gap-2 text-slate-400 mb-1">
+                  <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                    <div className="flex items-center gap-2 text-slate-400 dark:text-slate-500 mb-1">
                       <Mail className="h-4 w-4" />
                       <span className="text-xs font-medium">Telephone</span>
                     </div>
-                    <p className="text-sm font-semibold text-slate-900">
+                    <p className="text-sm font-semibold text-slate-900 dark:text-white">
                       {selectedUser.phone || "Non renseigne"}
                     </p>
                   </div>
@@ -875,73 +893,73 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
 
                 {/* Bandeau suspension */}
                 {selectedUser.is_suspended && (
-                  <div className="rounded-xl bg-orange-50 border border-orange-200 px-4 py-3">
-                    <p className="text-xs font-black uppercase tracking-wide text-orange-700 flex items-center gap-1.5">
+                  <div className="rounded-xl bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-900/50 px-4 py-3">
+                    <p className="text-xs font-black uppercase tracking-wide text-orange-700 dark:text-orange-400 flex items-center gap-1.5">
                       <Ban className="h-3.5 w-3.5" /> Compte suspendu
                     </p>
-                    {selectedUser.suspended_reason && <p className="text-sm text-orange-800 mt-1">{selectedUser.suspended_reason}</p>}
-                    <p className="text-[11px] text-orange-600 mt-0.5">
+                    {selectedUser.suspended_reason && <p className="text-sm text-orange-800 dark:text-orange-300 mt-1">{selectedUser.suspended_reason}</p>}
+                    <p className="text-[11px] text-orange-600 dark:text-orange-500 mt-0.5">
                       {selectedUser.suspended_until ? `Jusqu'au ${formatDate(selectedUser.suspended_until)}` : "Suspension permanente"}
                     </p>
                   </div>
                 )}
 
                 {/* Fiche enrichie : activité, signalements, historique admin */}
-                <div className="rounded-xl border border-slate-100 divide-y divide-slate-100">
+                <div className="rounded-xl border border-slate-100 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800">
                   {/* Activité */}
                   <div className="p-4 grid grid-cols-3 gap-2 text-center">
                     <div>
-                      <p className="text-lg font-bold text-slate-900">{detailLoading ? "…" : detail?.galleryCount ?? 0}</p>
-                      <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wide">Galerie</p>
+                      <p className="text-lg font-bold text-slate-900 dark:text-white">{detailLoading ? "…" : detail?.galleryCount ?? 0}</p>
+                      <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold uppercase tracking-wide">Galerie</p>
                     </div>
                     <div>
-                      <p className="text-lg font-bold text-slate-900">{detailLoading ? "…" : detail?.reportsFiledCount ?? 0}</p>
-                      <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wide">Signalés</p>
+                      <p className="text-lg font-bold text-slate-900 dark:text-white">{detailLoading ? "…" : detail?.reportsFiledCount ?? 0}</p>
+                      <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold uppercase tracking-wide">Signalés</p>
                     </div>
                     <div>
-                      <p className="text-lg font-bold text-slate-900">{selectedUser.followers_count || 0}</p>
-                      <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wide">Abonnés</p>
+                      <p className="text-lg font-bold text-slate-900 dark:text-white">{selectedUser.followers_count || 0}</p>
+                      <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold uppercase tracking-wide">Abonnés</p>
                     </div>
                   </div>
 
                   {/* Abonnement & paiements (source de vérité de is_premium) */}
                   {!detailLoading && (
                     <div className="p-4">
-                      <p className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1.5 mb-2">
+                      <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide flex items-center gap-1.5 mb-2">
                         <Crown className="h-3.5 w-3.5 text-amber-500" /> Abonnement
                       </p>
                       {detail?.subscription ? (
                         <div className="flex flex-wrap items-center gap-2 text-xs">
-                          <span className="px-2 py-0.5 rounded-full font-bold bg-[#013ff4]/10 text-[#013ff4]">
+                          <span className="px-2 py-0.5 rounded-full font-bold bg-[#013ff4]/10 text-[#013ff4] dark:text-[#3a6bff]">
                             {detail.subscription.tier}
                           </span>
                           <span className={`px-2 py-0.5 rounded-full font-semibold ${
                             detail.subscription.status === "ACTIVE"
-                              ? "bg-emerald-100 text-emerald-700"
-                              : "bg-slate-100 text-slate-500"
+                              ? "bg-emerald-100 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-500"
+                              : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400"
                           }`}>{detail.subscription.status}</span>
-                          <span className="text-slate-500">
+                          <span className="text-slate-500 dark:text-slate-400">
                             {detail.subscription.end_date
                               ? `jusqu'au ${new Date(detail.subscription.end_date).toLocaleDateString("fr-FR")}`
                               : "sans échéance"}
                           </span>
                         </div>
                       ) : (
-                        <p className="text-xs text-slate-400">Offre gratuite — aucun abonnement.</p>
+                        <p className="text-xs text-slate-400 dark:text-slate-500">Offre gratuite — aucun abonnement.</p>
                       )}
 
                       {(detail?.payments?.length ?? 0) > 0 && (
                         <div className="mt-3 space-y-1.5 max-h-32 overflow-y-auto">
                           {detail!.payments.map((t) => (
                             <div key={t.id} className="flex items-center justify-between gap-2 text-xs">
-                              <span className="text-slate-600 truncate">
+                              <span className="text-slate-600 dark:text-slate-300 truncate">
                                 {new Date(t.created_at).toLocaleDateString("fr-FR")} · {t.provider} ·{" "}
                                 {t.amount.toLocaleString("fr-FR")} {t.currency}
                               </span>
                               <span className={`shrink-0 px-2 py-0.5 rounded-full font-semibold ${
-                                t.status === "SUCCESS" ? "bg-emerald-100 text-emerald-700"
-                                  : t.status === "PENDING" ? "bg-amber-100 text-amber-700"
-                                  : "bg-rose-100 text-rose-700"
+                                t.status === "SUCCESS" ? "bg-emerald-100 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-500"
+                                  : t.status === "PENDING" ? "bg-amber-100 dark:bg-amber-950/30 text-amber-700 dark:text-amber-500"
+                                  : "bg-rose-100 dark:bg-rose-950/30 text-rose-700 dark:text-rose-500"
                               }`}>{t.status}</span>
                             </div>
                           ))}
@@ -953,15 +971,15 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
                   {/* Signalements reçus */}
                   {(detail?.reportsAbout?.length ?? 0) > 0 && (
                     <div className="p-4">
-                      <p className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1.5 mb-2">
+                      <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide flex items-center gap-1.5 mb-2">
                         <Flag className="h-3.5 w-3.5 text-rose-500" /> Signalements reçus ({detail!.reportsAbout.length})
                       </p>
                       <div className="space-y-1.5 max-h-32 overflow-y-auto">
                         {detail!.reportsAbout.map((r) => (
                           <div key={r.id} className="flex items-center justify-between gap-2 text-xs">
-                            <span className="text-slate-600 truncate">« {r.reason} »</span>
+                            <span className="text-slate-600 dark:text-slate-300 truncate">« {r.reason} »</span>
                             <span className={`shrink-0 px-2 py-0.5 rounded-full font-semibold ${
-                              r.status === "open" ? "bg-rose-100 text-rose-700" : "bg-slate-100 text-slate-500"
+                              r.status === "open" ? "bg-rose-100 dark:bg-rose-950/30 text-rose-700 dark:text-rose-500" : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400"
                             }`}>{r.status === "open" ? "Ouvert" : r.status === "resolved" ? "Résolu" : "Écarté"}</span>
                           </div>
                         ))}
@@ -972,14 +990,14 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
                   {/* Historique admin */}
                   {(detail?.auditTrail?.length ?? 0) > 0 && (
                     <div className="p-4">
-                      <p className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1.5 mb-2">
+                      <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide flex items-center gap-1.5 mb-2">
                         <ScrollText className="h-3.5 w-3.5 text-[#013ff4]" /> Historique admin
                       </p>
                       <div className="space-y-1.5 max-h-32 overflow-y-auto">
                         {detail!.auditTrail.map((a) => (
                           <div key={a.id} className="flex items-center justify-between gap-2 text-xs">
-                            <span className="text-slate-600 truncate">{a.action}</span>
-                            <span className="shrink-0 text-slate-400">{formatDate(a.created_at)}</span>
+                            <span className="text-slate-600 dark:text-slate-300 truncate">{a.action}</span>
+                            <span className="shrink-0 text-slate-400 dark:text-slate-500">{formatDate(a.created_at)}</span>
                           </div>
                         ))}
                       </div>
@@ -987,35 +1005,37 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
                   )}
 
                   {detailLoading && (
-                    <div className="p-4 flex items-center gap-2 text-xs text-slate-400">
+                    <div className="p-4 flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500">
                       <Activity className="h-3.5 w-3.5 animate-pulse" /> Chargement de la fiche…
                     </div>
                   )}
                 </div>
 
                 {/* Actions */}
-                <div className="flex flex-col gap-3 pt-4 border-t border-slate-100">
+                <div className="flex flex-col gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
                   {/* Modération : suspension + rôle admin */}
                   <div className="flex items-center gap-3">
                     {selectedUser.is_suspended ? (
                       <button
                         onClick={() => handleReactivate(selectedUser.id)}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors"
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 min-h-11 rounded-xl text-sm font-semibold bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-500 hover:bg-emerald-100 dark:hover:bg-emerald-950/40 transition-colors"
                       >
                         <RotateCcw className="h-4 w-4" /> Réactiver
                       </button>
                     ) : (
                       <button
                         onClick={() => handleSuspend(selectedUser.id)}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-orange-50 text-orange-600 hover:bg-orange-100 transition-colors"
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 min-h-11 rounded-xl text-sm font-semibold bg-orange-50 dark:bg-orange-950/20 text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-950/40 transition-colors"
                       >
                         <Ban className="h-4 w-4" /> Suspendre
                       </button>
                     )}
                     <button
                       onClick={() => handleToggleAdmin(selectedUser.id, selectedUser.is_admin || false)}
-                      className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
-                        selectedUser.is_admin ? "bg-[#013ff4]/10 text-[#013ff4] hover:bg-[#013ff4]/20" : "bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200"
+                      className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 min-h-11 rounded-xl text-sm font-semibold transition-colors ${
+                        selectedUser.is_admin
+                          ? "bg-[#013ff4]/10 text-[#013ff4] dark:text-[#3a6bff] hover:bg-[#013ff4]/20"
+                          : "bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
                       }`}
                     >
                       <UserCog className="h-4 w-4" /> {selectedUser.is_admin ? "Admin" : "Rendre admin"}
@@ -1024,10 +1044,10 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
                   <div className="flex items-center gap-3">
                     <button
                       onClick={() => handleToggleVerified(selectedUser.id, selectedUser.is_verified || false)}
-                      className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
+                      className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 min-h-11 rounded-xl text-sm font-semibold transition-colors ${
                         selectedUser.is_verified
-                          ? "bg-blue-50 text-blue-600 hover:bg-blue-100"
-                          : "bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200"
+                          ? "bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-950/40"
+                          : "bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
                       }`}
                     >
                       <BadgeCheck className="h-4 w-4" />
@@ -1035,23 +1055,23 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
                     </button>
                     <button
                       onClick={() => handleTogglePremium(selectedUser.id, selectedUser.is_premium || false)}
-                      className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
+                      className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 min-h-11 rounded-xl text-sm font-semibold transition-colors ${
                         selectedUser.is_premium
-                          ? "bg-amber-50 text-amber-600 hover:bg-amber-100"
-                          : "bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200"
+                          ? "bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-950/40"
+                          : "bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
                       }`}
                     >
                       <Crown className="h-4 w-4" />
                       {selectedUser.is_premium ? "Premium" : "Rendre Premium"}
                     </button>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 flex-wrap">
                     <button
                       onClick={() => handleTogglePublished(selectedUser.id, selectedUser.is_published || false)}
-                      className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
+                      className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 min-h-11 rounded-xl text-sm font-semibold transition-colors ${
                         selectedUser.is_published
-                          ? "bg-amber-50 text-amber-600 hover:bg-amber-100"
-                          : "bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
+                          ? "bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-950/40"
+                          : "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-500 hover:bg-emerald-100 dark:hover:bg-emerald-950/40"
                       }`}
                     >
                       {selectedUser.is_published ? (
@@ -1069,7 +1089,7 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
                     {selectedUser.is_locked && (
                       <button
                         onClick={() => handleUnlockUserPin(selectedUser.id)}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-50 text-blue-600 rounded-xl text-sm font-semibold hover:bg-blue-100 transition-colors"
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 min-h-11 bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 rounded-xl text-sm font-semibold hover:bg-blue-100 dark:hover:bg-blue-950/40 transition-colors"
                       >
                         <ShieldCheck className="h-4 w-4" />
                         Débloquer PIN
@@ -1077,7 +1097,7 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
                     )}
                     <button
                       onClick={() => handleDeleteUser(selectedUser.id)}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-rose-50 text-rose-600 rounded-xl text-sm font-semibold hover:bg-rose-100 transition-colors"
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-3 min-h-11 bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-500 rounded-xl text-sm font-semibold hover:bg-rose-100 dark:hover:bg-rose-950/40 transition-colors"
                     >
                       <Trash2 className="h-4 w-4" />
                       Supprimer

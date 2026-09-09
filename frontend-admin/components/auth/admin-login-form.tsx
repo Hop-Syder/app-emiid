@@ -145,7 +145,7 @@ export function AdminLoginForm() {
 
   return (
     <div className="min-h-screen bg-[#000616] flex items-center justify-center px-6 py-12">
-      <Card className="w-full max-w-md rounded-3xl glass-dark border border-white/[0.06] shadow-2xl shadow-black/40">
+      <Card className="w-full max-w-md rounded-3xl glass-dark bg-transparent border border-white/10 shadow-2xl shadow-black/60 ring-1 ring-white/[0.08]">
         <CardHeader className="space-y-4 text-center">
           <div className="mx-auto h-16 w-16 rounded-2xl bg-gradient-to-tr from-[#013ff4] to-[#03b3f8] text-white flex items-center justify-center shadow-lg shadow-[#013ff4]/30">
             <ShieldCheck className="h-8 w-8" />

@@ -168,28 +168,28 @@ export function BroadcastClient() {
   return (
     <div className="space-y-4 max-w-5xl">
       <header className="flex items-center gap-3">
-        <div className="w-11 h-11 rounded-xl bg-[#013ff4]/10 flex items-center justify-center">
-          <Megaphone className="h-5 w-5 text-[#013ff4]" />
+        <div className="w-11 h-11 rounded-xl bg-[#013ff4]/10 flex items-center justify-center shrink-0">
+          <Megaphone className="h-5 w-5 text-[#013ff4] dark:text-[#3a6bff]" />
         </div>
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 tracking-tight">Annonces</h1>
-          <p className="text-slate-500 text-sm mt-0.5">Diffusez une notification à un segment d&apos;utilisateurs</p>
+          <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Annonces</h1>
+          <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Diffusez une notification à un segment d&apos;utilisateurs</p>
         </div>
       </header>
 
       {lastResult !== null && (
-        <div className="flex items-center gap-2 rounded-xl bg-emerald-50 border border-emerald-200 px-4 py-3 text-sm font-semibold text-emerald-700">
+        <div className="flex items-center gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/50 px-4 py-3 text-sm font-semibold text-emerald-700 dark:text-emerald-400">
           <CheckCircle2 className="h-4 w-4" /> Dernière annonce envoyée à {fmt(lastResult)} destinataire(s).
         </div>
       )}
 
       <div className="grid lg:grid-cols-[1fr_320px] gap-4 items-start">
         {/* Formulaire */}
-        <div className="glass-strong rounded-2xl border border-white/20 p-5 space-y-5">
+        <div className="glass-strong rounded-2xl border border-white/20 dark:border-white/[0.06] p-5 space-y-5">
           {/* Templates */}
           <div>
-            <label className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500">
-              <Sparkles className="h-3.5 w-3.5 text-[#013ff4]" /> Modèles
+            <label className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              <Sparkles className="h-3.5 w-3.5 text-[#013ff4] dark:text-[#3a6bff]" /> Modèles
             </label>
             <div className="flex flex-wrap gap-2 mt-2">
               {TEMPLATES.map((t) => (
@@ -197,7 +197,7 @@ export function BroadcastClient() {
                   key={t.id}
                   type="button"
                   onClick={() => applyTemplate(t)}
-                  className="text-xs font-semibold px-3 py-1.5 rounded-full border border-slate-200 text-slate-600 hover:border-[#013ff4] hover:text-[#013ff4] hover:bg-[#013ff4]/5 transition-colors"
+                  className="text-xs font-semibold px-3 py-2 min-h-9 rounded-full border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-[#013ff4] hover:text-[#013ff4] dark:hover:text-[#3a6bff] hover:bg-[#013ff4]/5 transition-colors"
                 >
                   {t.label}
                 </button>
@@ -207,7 +207,7 @@ export function BroadcastClient() {
 
           {/* Segment */}
           <div>
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Destinataires</label>
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Destinataires</label>
             <div className="grid sm:grid-cols-2 gap-2 mt-2">
               {SEGMENTS.map((s) => {
                 const active = segment === s.id
@@ -217,20 +217,20 @@ export function BroadcastClient() {
                     key={s.id}
                     onClick={() => setSegment(s.id)}
                     className={`flex items-start gap-3 rounded-xl border p-3 text-left transition-all ${
-                      active ? "border-[#013ff4] bg-[#013ff4]/5 ring-1 ring-[#013ff4]/20" : "border-slate-200 hover:bg-slate-50"
+                      active ? "border-[#013ff4] bg-[#013ff4]/5 ring-1 ring-[#013ff4]/20" : "border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/60"
                     }`}
                   >
-                    <s.icon className={`h-5 w-5 shrink-0 mt-0.5 ${active ? "text-[#013ff4]" : "text-slate-400"}`} />
+                    <s.icon className={`h-5 w-5 shrink-0 mt-0.5 ${active ? "text-[#013ff4] dark:text-[#3a6bff]" : "text-slate-400 dark:text-slate-500"}`} />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-2">
-                        <p className={`text-sm font-bold truncate ${active ? "text-[#013ff4]" : "text-slate-800"}`}>{s.label}</p>
+                        <p className={`text-sm font-bold truncate ${active ? "text-[#013ff4] dark:text-[#3a6bff]" : "text-slate-800 dark:text-slate-200"}`}>{s.label}</p>
                         <span className={`shrink-0 text-[11px] font-bold px-2 py-0.5 rounded-full ${
-                          active ? "bg-[#013ff4]/10 text-[#013ff4]" : "bg-slate-100 text-slate-500"
+                          active ? "bg-[#013ff4]/10 text-[#013ff4] dark:text-[#3a6bff]" : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400"
                         }`}>
                           {countsLoading ? "…" : c !== undefined ? fmt(c) : "—"}
                         </span>
                       </div>
-                      <p className="text-[11px] text-slate-400">{s.desc}</p>
+                      <p className="text-[11px] text-slate-400 dark:text-slate-500">{s.desc}</p>
                     </div>
                   </button>
                 )
@@ -240,48 +240,48 @@ export function BroadcastClient() {
 
           {/* Titre */}
           <div>
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Titre</label>
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Titre</label>
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               maxLength={120}
               placeholder="Ex. Nouvelle fonctionnalité disponible"
-              className="mt-2 w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#013ff4]/30"
+              className="mt-2 w-full px-4 py-2.5 min-h-11 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#013ff4]/30"
             />
-            <p className="text-[10px] text-slate-400 mt-1 text-right">{title.length}/120</p>
+            <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 text-right">{title.length}/120</p>
           </div>
 
           {/* Message */}
           <div>
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Message</label>
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Message</label>
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
               rows={4}
               maxLength={500}
               placeholder="Contenu de l'annonce…"
-              className="mt-2 w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 resize-none focus:outline-none focus:ring-2 focus:ring-[#013ff4]/30"
+              className="mt-2 w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white resize-none focus:outline-none focus:ring-2 focus:ring-[#013ff4]/30"
             />
-            <p className="text-[10px] text-slate-400 mt-1 text-right">{content.length}/500</p>
+            <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 text-right">{content.length}/500</p>
           </div>
 
           {/* Lien (optionnel) */}
           <div>
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Lien (optionnel)</label>
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Lien (optionnel)</label>
             <input
               value={link}
               onChange={(e) => setLink(e.target.value)}
               list="broadcast-internal-routes"
               placeholder="/premium ou https://…"
-              className={`mt-2 w-full px-4 py-2.5 bg-slate-50 border rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 ${
-                linkErr ? "border-red-300 focus:ring-red-300/40" : "border-slate-200 focus:ring-[#013ff4]/30"
+              className={`mt-2 w-full px-4 py-2.5 min-h-11 bg-slate-50 dark:bg-slate-900 border rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 ${
+                linkErr ? "border-red-300 dark:border-red-900 focus:ring-red-300/40" : "border-slate-200 dark:border-slate-800 focus:ring-[#013ff4]/30"
               }`}
             />
             <datalist id="broadcast-internal-routes">
               {INTERNAL_ROUTES.map((r) => <option key={r} value={r} />)}
             </datalist>
             {linkErr && (
-              <p className="flex items-center gap-1 text-[11px] font-semibold text-red-500 mt-1.5">
+              <p className="flex items-center gap-1 text-[11px] font-semibold text-red-500 dark:text-red-400 mt-1.5">
                 <XCircle className="h-3 w-3" /> {linkErr}
               </p>
             )}
@@ -289,12 +289,12 @@ export function BroadcastClient() {
 
           {/* Timing : envoi immédiat ou programmé */}
           <div>
-            <div className="inline-flex rounded-xl border border-slate-200 p-0.5 bg-slate-50">
+            <div className="inline-flex rounded-xl border border-slate-200 dark:border-slate-800 p-0.5 bg-slate-50 dark:bg-slate-900">
               <button
                 type="button"
                 onClick={() => setScheduleMode(false)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
-                  !scheduleMode ? "bg-white text-[#013ff4] shadow-sm" : "text-slate-500"
+                className={`flex items-center gap-1.5 px-3 py-2.5 min-h-10 rounded-lg text-xs font-bold transition-colors ${
+                  !scheduleMode ? "bg-white dark:bg-slate-800 text-[#013ff4] dark:text-[#3a6bff] shadow-sm" : "text-slate-500 dark:text-slate-400"
                 }`}
               >
                 <Send className="h-3.5 w-3.5" /> Immédiat
@@ -302,8 +302,8 @@ export function BroadcastClient() {
               <button
                 type="button"
                 onClick={() => setScheduleMode(true)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
-                  scheduleMode ? "bg-white text-[#013ff4] shadow-sm" : "text-slate-500"
+                className={`flex items-center gap-1.5 px-3 py-2.5 min-h-10 rounded-lg text-xs font-bold transition-colors ${
+                  scheduleMode ? "bg-white dark:bg-slate-800 text-[#013ff4] dark:text-[#3a6bff] shadow-sm" : "text-slate-500 dark:text-slate-400"
                 }`}
               >
                 <CalendarClock className="h-3.5 w-3.5" /> Programmer
@@ -315,7 +315,7 @@ export function BroadcastClient() {
                 value={scheduledFor}
                 min={new Date(Date.now() + 60_000).toISOString().slice(0, 16)}
                 onChange={(e) => setScheduledFor(e.target.value)}
-                className="mt-2 w-full sm:w-auto px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#013ff4]/30"
+                className="mt-2 w-full sm:w-auto px-4 py-2.5 min-h-11 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#013ff4]/30"
               />
             )}
           </div>
@@ -324,7 +324,7 @@ export function BroadcastClient() {
             <button
               onClick={() => setConfirmOpen(true)}
               disabled={!canSend}
-              className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#013ff4] text-white rounded-xl text-sm font-semibold hover:bg-[#012fc0] transition-colors disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 min-h-11 bg-[#013ff4] text-white rounded-xl text-sm font-semibold hover:bg-[#012fc0] transition-colors disabled:opacity-50"
             >
               {scheduleMode ? <CalendarClock className="h-4 w-4" /> : <Send className="h-4 w-4" />}
               {scheduleMode ? "Programmer l'envoi" : "Vérifier et envoyer"}
@@ -334,28 +334,28 @@ export function BroadcastClient() {
 
         {/* Aperçu live (glassmorphism) */}
         <aside className="lg:sticky lg:top-6">
-          <p className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Aperçu</p>
-          <div className="rounded-2xl border border-slate-200/70 bg-white/60 backdrop-blur-md p-4 shadow-sm">
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Aperçu</p>
+          <div className="rounded-2xl border border-slate-200/70 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60 backdrop-blur-md p-4 shadow-sm">
             <div className="flex items-start gap-3">
               <div className="w-9 h-9 rounded-xl bg-[#013ff4]/10 flex items-center justify-center shrink-0">
-                <Megaphone className="h-4 w-4 text-[#013ff4]" />
+                <Megaphone className="h-4 w-4 text-[#013ff4] dark:text-[#3a6bff]" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-bold text-slate-900 break-words">
-                  {title.trim() || <span className="text-slate-300">Titre de l&apos;annonce</span>}
+                <p className="text-sm font-bold text-slate-900 dark:text-white break-words">
+                  {title.trim() || <span className="text-slate-300 dark:text-slate-600">Titre de l&apos;annonce</span>}
                 </p>
-                <p className="text-xs text-slate-600 mt-1 whitespace-pre-line break-words">
-                  {content.trim() || <span className="text-slate-300">Le message apparaîtra ici…</span>}
+                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 whitespace-pre-line break-words">
+                  {content.trim() || <span className="text-slate-300 dark:text-slate-600">Le message apparaîtra ici…</span>}
                 </p>
                 {link.trim() && (
-                  <span className="mt-2 inline-flex items-center gap-1 text-[11px] font-semibold text-[#013ff4]">
+                  <span className="mt-2 inline-flex items-center gap-1 text-[11px] font-semibold text-[#013ff4] dark:text-[#3a6bff]">
                     <Link2 className="h-3 w-3" /> {link.trim()}
                   </span>
                 )}
               </div>
             </div>
           </div>
-          <p className="text-[11px] text-slate-400 mt-3">
+          <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-3">
             Tel qu&apos;affiché dans les notifications in-app. Chaque envoi est enregistré dans le journal d&apos;audit.
           </p>
         </aside>
@@ -364,37 +364,37 @@ export function BroadcastClient() {
       {/* Annonces programmées (P2 #11) */}
       {scheduled.length > 0 && (
         <div>
-          <h2 className="flex items-center gap-2 text-sm font-bold text-slate-700 mb-3">
-            <CalendarClock className="h-4 w-4 text-slate-400" /> Programmées
+          <h2 className="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">
+            <CalendarClock className="h-4 w-4 text-slate-400 dark:text-slate-500" /> Programmées
           </h2>
-          <ul className="divide-y divide-slate-100 rounded-2xl border border-slate-200 bg-white overflow-hidden">
+          <ul className="divide-y divide-slate-100 dark:divide-slate-800 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 overflow-hidden">
             {scheduled.map((s) => {
               const when = new Date(s.scheduled_for).toLocaleString("fr-FR", { dateStyle: "medium", timeStyle: "short" })
               const seg = SEGMENT_LABEL[s.segment] ?? s.segment
               const statusStyle =
-                s.status === "pending" ? "text-[#013ff4] bg-[#013ff4]/10"
-                : s.status === "sent" ? "text-emerald-600 bg-emerald-50"
-                : s.status === "failed" ? "text-red-600 bg-red-50"
-                : "text-slate-400 bg-slate-100"
+                s.status === "pending" ? "text-[#013ff4] dark:text-[#3a6bff] bg-[#013ff4]/10"
+                : s.status === "sent" ? "text-emerald-600 dark:text-emerald-500 bg-emerald-50 dark:bg-emerald-950/30"
+                : s.status === "failed" ? "text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30"
+                : "text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800"
               const statusLabel =
                 s.status === "pending" ? "en attente" : s.status === "sent" ? "envoyée" : s.status === "failed" ? "échouée" : "annulée"
               return (
                 <li key={s.id} className="flex items-start gap-3 p-4">
-                  <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
-                    <Clock className="h-4 w-4 text-slate-400" />
+                  <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
+                    <Clock className="h-4 w-4 text-slate-400 dark:text-slate-500" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-bold text-slate-900 truncate">{s.title}</p>
-                    <p className="text-[11px] text-slate-400 mt-0.5">{when} · {seg}{s.created_by_email ? ` · ${s.created_by_email}` : ""}</p>
+                    <p className="text-sm font-bold text-slate-900 dark:text-white truncate">{s.title}</p>
+                    <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">{when} · {seg}{s.created_by_email ? ` · ${s.created_by_email}` : ""}</p>
                     {s.status === "failed" && s.error && (
-                      <p className="text-[11px] text-red-500 mt-0.5 truncate">{s.error}</p>
+                      <p className="text-[11px] text-red-500 dark:text-red-400 mt-0.5 truncate">{s.error}</p>
                     )}
                   </div>
                   <span className={`shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full ${statusStyle}`}>{statusLabel}</span>
                   {s.status === "pending" && (
                     <button
                       onClick={() => doCancel(s.id)}
-                      className="shrink-0 p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                      className="shrink-0 p-2 min-h-9 min-w-9 flex items-center justify-center rounded-lg text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
                       aria-label="Annuler la programmation"
                     >
                       <X className="h-4 w-4" />
@@ -422,15 +422,15 @@ export function BroadcastClient() {
 
       {/* Historique des annonces (P1 #2) */}
       <div>
-        <h2 className="flex items-center gap-2 text-sm font-bold text-slate-700 mb-3">
-          <History className="h-4 w-4 text-slate-400" /> Dernières annonces
+        <h2 className="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">
+          <History className="h-4 w-4 text-slate-400 dark:text-slate-500" /> Dernières annonces
         </h2>
         {history.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-slate-200 p-6 text-center text-sm text-slate-400">
+          <div className="rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 p-6 text-center text-sm text-slate-400 dark:text-slate-500">
             Aucune annonce envoyée pour le moment.
           </div>
         ) : (
-          <ul className="divide-y divide-slate-100 rounded-2xl border border-slate-200 bg-white overflow-hidden">
+          <ul className="divide-y divide-slate-100 dark:divide-slate-800 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 overflow-hidden">
             {history.map((h) => {
               const d = h.details as { title?: string; segment?: string; count?: number; total?: number; partial?: boolean; broadcast_id?: string }
               const seg = d.segment ? (SEGMENT_LABEL[d.segment] ?? d.segment) : "—"
@@ -440,31 +440,31 @@ export function BroadcastClient() {
               return (
                 <li key={h.id} className="flex items-start gap-3 p-4">
                   <div className="w-8 h-8 rounded-lg bg-[#013ff4]/10 flex items-center justify-center shrink-0">
-                    <Megaphone className="h-4 w-4 text-[#013ff4]" />
+                    <Megaphone className="h-4 w-4 text-[#013ff4] dark:text-[#3a6bff]" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-bold text-slate-900 truncate">{d.title || "(sans titre)"}</p>
-                    <p className="text-[11px] text-slate-400 mt-0.5">
+                    <p className="text-sm font-bold text-slate-900 dark:text-white truncate">{d.title || "(sans titre)"}</p>
+                    <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
                       {timeAgo(h.created_at)} · {seg}
                       {h.admin_email ? ` · ${h.admin_email}` : ""}
                     </p>
                     {rate !== undefined && (
                       <div className="flex items-center gap-2 mt-1.5">
-                        <div className="h-1.5 w-24 rounded-full bg-slate-100 overflow-hidden">
-                          <div className="h-full rounded-full bg-[#013ff4]" style={{ width: `${rate}%` }} />
+                        <div className="h-1.5 w-24 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                          <div className="h-full rounded-full bg-[#013ff4] dark:bg-[#3a6bff]" style={{ width: `${rate}%` }} />
                         </div>
-                        <span className="text-[10px] font-bold text-slate-500">
+                        <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400">
                           {fmt(read ?? 0)} lue{(read ?? 0) > 1 ? "s" : ""}
-                          <span className="font-medium text-slate-400"> · {fmt(Math.max(0, sent - (read ?? 0)))} non lue{sent - (read ?? 0) > 1 ? "s" : ""} · {rate}%</span>
+                          <span className="font-medium text-slate-400 dark:text-slate-500"> · {fmt(Math.max(0, sent - (read ?? 0)))} non lue{sent - (read ?? 0) > 1 ? "s" : ""} · {rate}%</span>
                         </span>
                       </div>
                     )}
                   </div>
                   <div className="text-right shrink-0">
-                    <span className={`text-xs font-bold ${d.partial ? "text-amber-600" : "text-emerald-600"}`}>
+                    <span className={`text-xs font-bold ${d.partial ? "text-amber-600 dark:text-amber-400" : "text-emerald-600 dark:text-emerald-500"}`}>
                       {fmt(sent)}{d.total !== undefined && d.total !== sent ? `/${fmt(d.total)}` : ""}
                     </span>
-                    <p className="text-[10px] text-slate-400">{d.partial ? "partiel" : "envoyés"}</p>
+                    <p className="text-[10px] text-slate-400 dark:text-slate-500">{d.partial ? "partiel" : "envoyés"}</p>
                   </div>
                 </li>
               )
@@ -475,18 +475,18 @@ export function BroadcastClient() {
 
       {/* Modale de confirmation — portée + aperçu */}
       <Dialog open={confirmOpen} onOpenChange={(o) => { if (!sending) setConfirmOpen(o) }}>
-        <DialogContent className="sm:max-w-md rounded-2xl">
+        <DialogContent className="sm:max-w-md rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-2 text-slate-900 dark:text-white">
               {scheduleMode
-                ? <><CalendarClock className="h-5 w-5 text-[#013ff4]" /> Confirmer la programmation</>
+                ? <><CalendarClock className="h-5 w-5 text-[#013ff4] dark:text-[#3a6bff]" /> Confirmer la programmation</>
                 : <><AlertTriangle className="h-5 w-5 text-amber-500" /> Confirmer la diffusion</>}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-slate-500 dark:text-slate-400">
               {scheduleMode ? (
                 <>
                   Programmée pour le{" "}
-                  <strong className="text-slate-900">
+                  <strong className="text-slate-900 dark:text-white">
                     {scheduledFor ? new Date(scheduledFor).toLocaleString("fr-FR", { dateStyle: "long", timeStyle: "short" }) : "—"}
                   </strong>
                   {reach !== undefined ? <> · ~{fmt(reach)} destinataire(s)</> : null} du segment «&nbsp;{segLabel}&nbsp;».
@@ -494,7 +494,7 @@ export function BroadcastClient() {
               ) : (
                 <>
                   Vous allez notifier{" "}
-                  <strong className="text-slate-900">
+                  <strong className="text-slate-900 dark:text-white">
                     {reach !== undefined ? `${fmt(reach)} destinataire(s)` : "les utilisateurs"}
                   </strong>{" "}
                   du segment «&nbsp;{segLabel}&nbsp;». Cette action est irréversible.
@@ -503,11 +503,11 @@ export function BroadcastClient() {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-3.5">
-            <p className="text-sm font-bold text-slate-900 break-words">{title.trim()}</p>
-            <p className="text-xs text-slate-600 mt-1 whitespace-pre-line break-words">{content.trim()}</p>
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-3.5">
+            <p className="text-sm font-bold text-slate-900 dark:text-white break-words">{title.trim()}</p>
+            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 whitespace-pre-line break-words">{content.trim()}</p>
             {link.trim() && (
-              <span className="mt-2 inline-flex items-center gap-1 text-[11px] font-semibold text-[#013ff4]">
+              <span className="mt-2 inline-flex items-center gap-1 text-[11px] font-semibold text-[#013ff4] dark:text-[#3a6bff]">
                 <Link2 className="h-3 w-3" /> {link.trim()}
               </span>
             )}
@@ -517,14 +517,14 @@ export function BroadcastClient() {
             <button
               onClick={() => setConfirmOpen(false)}
               disabled={sending}
-              className="px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-colors disabled:opacity-50"
+              className="px-4 py-3 min-h-11 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
             >
               Annuler
             </button>
             <button
               onClick={doSend}
               disabled={sending}
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#013ff4] text-white rounded-xl text-sm font-semibold hover:bg-[#012fc0] transition-colors disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-2 px-5 py-3 min-h-11 bg-[#013ff4] text-white rounded-xl text-sm font-semibold hover:bg-[#012fc0] transition-colors disabled:opacity-50"
             >
               {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : (scheduleMode ? <CalendarClock className="h-4 w-4" /> : <Send className="h-4 w-4" />)}
               {scheduleMode ? "Programmer" : "Envoyer maintenant"}

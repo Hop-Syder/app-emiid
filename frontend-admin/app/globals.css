@@ -19,6 +19,17 @@
   --border: #e2e8f0;
   --ring: #013ff4;
 
+  /* ── Surfaces neutres (cartes, popovers, contrôles) ── */
+  --card: #ffffff;
+  --card-foreground: #000616;
+  --popover: #ffffff;
+  --popover-foreground: #000616;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --destructive: #e11d48;
+  --destructive-foreground: #ffffff;
+  --input: #e2e8f0;
+
   /* ── Hybride Premium theme tokens ── */
   --hybrid-frame-bg: #000616;
   --hybrid-content-bg: #f8fafc;
@@ -41,6 +52,15 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-border: var(--border);
   --color-ring: var(--ring);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-input: var(--input);
 
   /* Couleurs de marque brutes → utilitaires bg-brand-blue, text-brand-navy, … */
   --color-brand-blue: var(--brand-blue);
@@ -98,6 +118,34 @@
     --accent-foreground: #ededed;
     --border: #1b2440;
     --ring: #3a6bff;
+
+    --card: #0f172a;
+    --card-foreground: #ededed;
+    --popover: #0f172a;
+    --popover-foreground: #ededed;
+    --muted: #1b2440;
+    --muted-foreground: #94a3b8;
+    --destructive: #fb7185;
+    --destructive-foreground: #000616;
+    --input: #1b2440;
+  }
+
+  /* ── Surfaces "verre" claires (.glass/.glass-strong) réadaptées pour le contenu
+   * qui bascule en sombre — .glass-dark/-sidebar/-header restent volontairement
+   * toujours bleu nuit (chrome de marque), indépendants du thème. ── */
+  .glass {
+    background: rgba(15, 23, 42, 0.6);
+  }
+  .glass-strong {
+    background: rgba(15, 23, 42, 0.85);
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #334155;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #475569;
   }
 }
 

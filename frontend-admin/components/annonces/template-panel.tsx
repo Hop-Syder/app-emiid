@@ -109,10 +109,10 @@ export function TemplatePanel({ channel, current, onApply }: TemplatePanelProps)
     <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="flex items-center gap-2 text-sm font-black text-slate-900 dark:text-slate-100">
-          <FileText className="h-4 w-4 text-[#013ff4]" />
+          <FileText className="h-4 w-4 text-[#013ff4] dark:text-[#3a6bff]" />
           Mes modèles
           {templates.length > 0 && (
-            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-500 dark:bg-slate-800">
+            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-500 dark:bg-slate-800 dark:text-slate-400">
               {templates.length}
             </span>
           )}
@@ -122,7 +122,7 @@ export function TemplatePanel({ channel, current, onApply }: TemplatePanelProps)
           variant="outline"
           size="sm"
           onClick={() => setShowSave((v) => !v)}
-          className="h-8 rounded-xl text-xs font-bold"
+          className="h-9 rounded-xl text-xs font-bold"
         >
           <BookmarkPlus className="mr-1.5 h-3.5 w-3.5" />
           Enregistrer celui-ci
@@ -152,7 +152,7 @@ export function TemplatePanel({ channel, current, onApply }: TemplatePanelProps)
         {loading ? (
           <div className="h-9 animate-pulse rounded-xl bg-slate-100 dark:bg-slate-800" />
         ) : templates.length === 0 ? (
-          <p className="text-xs font-medium text-slate-400">
+          <p className="text-xs font-medium text-slate-400 dark:text-slate-500">
             Aucun modèle pour l&apos;instant. Rédigez une annonce, puis enregistrez-la
             pour la renvoyer plus tard sans tout retaper.
           </p>
@@ -164,7 +164,7 @@ export function TemplatePanel({ channel, current, onApply }: TemplatePanelProps)
             >
               <div className="min-w-0 flex-1">
                 <p className="truncate text-xs font-bold text-slate-800 dark:text-slate-200">{tpl.name}</p>
-                <p className="truncate text-[11px] text-slate-400">
+                <p className="truncate text-[11px] text-slate-400 dark:text-slate-500">
                   {tpl.subject}
                   {tpl.use_count > 0 && ` · utilisé ${tpl.use_count} fois`}
                 </p>
@@ -174,7 +174,7 @@ export function TemplatePanel({ channel, current, onApply }: TemplatePanelProps)
                 variant="ghost"
                 size="sm"
                 onClick={() => handleApply(tpl)}
-                className="h-7 shrink-0 rounded-lg text-[11px] font-bold text-[#013ff4]"
+                className="h-9 shrink-0 rounded-lg text-[11px] font-bold text-[#013ff4] dark:text-[#3a6bff]"
               >
                 <RotateCcw className="mr-1 h-3 w-3" />
                 Réutiliser
@@ -185,7 +185,7 @@ export function TemplatePanel({ channel, current, onApply }: TemplatePanelProps)
                 size="sm"
                 onClick={() => handleDelete(tpl)}
                 aria-label={`Supprimer ${tpl.name}`}
-                className="h-7 w-7 shrink-0 rounded-lg p-0 text-slate-300 hover:text-rose-500"
+                className="h-9 w-9 shrink-0 rounded-lg p-0 text-slate-300 dark:text-slate-600 hover:text-rose-500"
               >
                 <Trash2 className="h-3.5 w-3.5" />
               </Button>

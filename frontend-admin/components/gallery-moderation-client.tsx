@@ -194,14 +194,14 @@ export function GalleryModerationClient({ initialItems }: GalleryModerationClien
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Rechercher par titre, auteur ou description..."
             data-testid="gallery-search-input"
-            className="w-full rounded-xl bg-slate-50 dark:bg-slate-950 border border-transparent dark:border-slate-850 pl-10 pr-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-white text-sm"
+            className="w-full rounded-xl bg-slate-50 dark:bg-slate-950 border border-transparent dark:border-slate-800 pl-10 pr-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-white text-sm"
           />
         </div>
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value as ModerationStatus)}
           data-testid="gallery-filter-select"
-          className="rounded-xl bg-slate-50 dark:bg-slate-950 border border-transparent dark:border-slate-850 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-700 dark:text-slate-300 text-sm cursor-pointer"
+          className="rounded-xl bg-slate-50 dark:bg-slate-950 border border-transparent dark:border-slate-800 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-700 dark:text-slate-300 text-sm cursor-pointer"
         >
           <option value="all">Tous</option>
           <option value="pending">En attente</option>
@@ -231,7 +231,7 @@ export function GalleryModerationClient({ initialItems }: GalleryModerationClien
                     </div>
                   </>
                 ) : (
-                  <ImageIcon className="h-12 w-12 text-slate-350 dark:text-slate-700" />
+                  <ImageIcon className="h-12 w-12 text-slate-400 dark:text-slate-700" />
                 )}
               </div>
               <div className="p-5 space-y-4 flex-1 flex flex-col justify-between">
@@ -272,7 +272,7 @@ export function GalleryModerationClient({ initialItems }: GalleryModerationClien
                 </div>
 
                 <div className="space-y-3 pt-2">
-                  <div className="flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400 border-t border-slate-50 dark:border-slate-850 pt-2">
+                  <div className="flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400 border-t border-slate-50 dark:border-slate-800 pt-2">
                     <span className="truncate max-w-[150px]">
                       Soumis le {new Date(item.created_at).toLocaleDateString("fr-FR")}
                     </span>
@@ -386,13 +386,13 @@ export function GalleryModerationClient({ initialItems }: GalleryModerationClien
                 </div>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">{confirmModal.title}</h3>
               </div>
-              <p className="text-sm text-slate-600 dark:text-slate-350 leading-relaxed">
+              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                 {confirmModal.description}
               </p>
               <div className="flex items-center justify-end gap-3 mt-2">
                 <button
                   onClick={() => setConfirmModal(null)}
-                  className="px-4 py-2 bg-slate-50 dark:bg-slate-850 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                  className="px-4 py-2 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition-colors cursor-pointer"
                 >
                   Annuler
                 </button>
@@ -437,13 +437,13 @@ export function GalleryModerationClient({ initialItems }: GalleryModerationClien
                 value={promptValue}
                 onChange={(e) => setPromptValue(e.target.value)}
                 placeholder={promptModal.placeholder || "Saisir ici..."}
-                className="w-full rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 px-4 py-2.5 outline-none text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 text-sm"
+                className="w-full rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 px-4 py-2.5 outline-none text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 text-sm"
                 autoFocus
               />
               <div className="flex items-center justify-end gap-3 mt-2">
                 <button
                   onClick={() => setPromptModal(null)}
-                  className="px-4 py-2 bg-slate-50 dark:bg-slate-850 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                  className="px-4 py-2 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition-colors cursor-pointer"
                 >
                   Annuler
                 </button>

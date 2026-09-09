@@ -65,9 +65,9 @@ interface Message {
 
 // ─── Métadonnées de statut ───────────────────────────────────────────────────
 const STATUS_META: Record<MediationStatus, { label: string; short: string; icon: typeof CircleDot; dot: string; chip: string; btn: string }> = {
-  pending:     { label: "Médiation ouverte",     short: "Ouvert",   icon: CircleDot,     dot: "bg-amber-500",   chip: "bg-amber-100 text-amber-700",     btn: "data-[on=true]:bg-amber-500 data-[on=true]:text-white" },
-  in_progress: { label: "Médiation en cours",    short: "En cours", icon: Clock,         dot: "bg-blue-500",    chip: "bg-blue-100 text-blue-700",       btn: "data-[on=true]:bg-[#013ff4] data-[on=true]:text-white" },
-  resolved:    { label: "Médiation résolue",     short: "Résolu",   icon: CheckCircle2,  dot: "bg-emerald-500", chip: "bg-emerald-100 text-emerald-700", btn: "data-[on=true]:bg-emerald-500 data-[on=true]:text-white" },
+  pending:     { label: "Médiation ouverte",     short: "Ouvert",   icon: CircleDot,     dot: "bg-amber-500",   chip: "bg-amber-100 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400",     btn: "data-[on=true]:bg-amber-500 data-[on=true]:text-white" },
+  in_progress: { label: "Médiation en cours",    short: "En cours", icon: Clock,         dot: "bg-blue-500",    chip: "bg-blue-100 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400",       btn: "data-[on=true]:bg-[#013ff4] data-[on=true]:text-white" },
+  resolved:    { label: "Médiation résolue",     short: "Résolu",   icon: CheckCircle2,  dot: "bg-emerald-500", chip: "bg-emerald-100 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-500", btn: "data-[on=true]:bg-emerald-500 data-[on=true]:text-white" },
 }
 
 // ─── Réponses rapides (templates de médiation) ───────────────────────────────
@@ -256,18 +256,18 @@ export default function AdminMessagesContent() {
 
   // ─── Rendu ────────────────────────────────────────────────────────────────
   return (
-    <div className="flex h-full bg-slate-50">
+    <div className="flex h-full bg-slate-50 dark:bg-slate-950">
       {/* ───────── Liste des litiges ───────── */}
-      <aside className={cn("w-full lg:w-96 flex flex-col border-r bg-white", selectedConv ? "hidden lg:flex" : "flex")}>
-        <header className="p-5 border-b space-y-4">
+      <aside className={cn("w-full lg:w-96 flex flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900", selectedConv ? "hidden lg:flex" : "flex")}>
+        <header className="p-5 border-b border-slate-200 dark:border-slate-800 space-y-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-              <Gavel className="h-5 w-5 text-[#013ff4]" />
+            <h1 className="text-xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+              <Gavel className="h-5 w-5 text-[#013ff4] dark:text-[#3a6bff]" />
               Médiations
             </h1>
             <button
               onClick={loadConversations}
-              className="p-2 rounded-xl text-slate-400 hover:text-[#013ff4] hover:bg-slate-100 transition-colors"
+              className="flex items-center justify-center min-h-11 min-w-11 rounded-xl text-slate-400 dark:text-slate-500 hover:text-[#013ff4] dark:hover:text-[#3a6bff] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               title="Actualiser"
             >
               <RefreshCw className={cn("h-4 w-4", isLoading && "animate-spin")} />
@@ -275,12 +275,12 @@ export default function AdminMessagesContent() {
           </div>
 
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-slate-500" />
             <Input
               placeholder="Rechercher un litige, une partie…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 h-11 rounded-xl bg-slate-100 border-none focus-visible:ring-[#013ff4]/20 font-medium"
+              className="pl-10 h-11 rounded-xl bg-slate-100 dark:bg-slate-800 border-none focus-visible:ring-[#013ff4]/20 font-medium dark:text-white"
             />
           </div>
 
@@ -296,12 +296,12 @@ export default function AdminMessagesContent() {
                 key={key}
                 onClick={() => setStatusFilter(key)}
                 className={cn(
-                  "shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-colors",
-                  statusFilter === key ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200",
+                  "shrink-0 inline-flex items-center gap-1.5 px-3 py-2 min-h-9 rounded-full text-xs font-bold transition-colors",
+                  statusFilter === key ? "bg-slate-900 dark:bg-blue-600 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700",
                 )}
               >
                 {label}
-                <span className={cn("min-w-[18px] text-center rounded-full px-1 text-[10px]", statusFilter === key ? "bg-white/20" : "bg-white")}>{n}</span>
+                <span className={cn("min-w-[18px] text-center rounded-full px-1 text-[10px]", statusFilter === key ? "bg-white/20" : "bg-white dark:bg-slate-900")}>{n}</span>
               </button>
             ))}
           </div>
@@ -310,7 +310,7 @@ export default function AdminMessagesContent() {
         <ScrollArea className="flex-1">
           <div className="p-3 space-y-1">
             {isLoading ? (
-              Array(5).fill(0).map((_, i) => <div key={i} className="h-[76px] rounded-2xl bg-slate-50 animate-pulse m-1" />)
+              Array(5).fill(0).map((_, i) => <div key={i} className="h-[76px] rounded-2xl bg-slate-50 dark:bg-slate-800/50 animate-pulse m-1" />)
             ) : filteredConversations.length > 0 ? (
               filteredConversations.map((conv) => {
                 const active = selectedConv?.id === conv.id
@@ -321,33 +321,33 @@ export default function AdminMessagesContent() {
                     onClick={() => setSelectedConv(conv)}
                     className={cn(
                       "w-full p-3.5 rounded-2xl transition-all group border text-left",
-                      active ? "bg-slate-900 text-white border-slate-900 shadow-lg" : "hover:bg-slate-50 border-transparent",
+                      active ? "bg-slate-900 dark:bg-blue-600 text-white border-slate-900 dark:border-blue-600 shadow-lg" : "hover:bg-slate-50 dark:hover:bg-slate-800/60 border-transparent",
                     )}
                   >
                     <div className="flex gap-3 items-center">
                       <div className="flex -space-x-3 shrink-0">
-                        <Avatar className="h-10 w-10 border-2 border-white ring-1 ring-slate-100">
+                        <Avatar className="h-10 w-10 border-2 border-white dark:border-slate-900 ring-1 ring-slate-100 dark:ring-slate-800">
                           <AvatarImage src={conv.user1.avatar} />
                           <AvatarFallback>{conv.user1.name[0]}</AvatarFallback>
                         </Avatar>
-                        <Avatar className="h-10 w-10 border-2 border-white ring-1 ring-slate-100">
+                        <Avatar className="h-10 w-10 border-2 border-white dark:border-slate-900 ring-1 ring-slate-100 dark:ring-slate-800">
                           <AvatarImage src={conv.user2.avatar} />
                           <AvatarFallback>{conv.user2.name[0]}</AvatarFallback>
                         </Avatar>
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-2">
-                          <h3 className={cn("font-bold text-sm truncate", active ? "text-white" : "text-slate-900")}>
+                          <h3 className={cn("font-bold text-sm truncate", active ? "text-white" : "text-slate-900 dark:text-white")}>
                             {conv.user1.name} <span className="opacity-40">vs</span> {conv.user2.name}
                           </h3>
                           <span className={cn("shrink-0 text-[9px] px-2 py-0.5 rounded-full font-bold uppercase", st.chip)}>{st.short}</span>
                         </div>
                         <div className="flex items-center justify-between gap-2 mt-0.5">
-                          <p className={cn("text-xs truncate", active ? "text-slate-300" : "text-slate-500")}>
+                          <p className={cn("text-xs truncate", active ? "text-slate-300" : "text-slate-500 dark:text-slate-400")}>
                             {conv.lastMessage || "Pas encore de message"}
                           </p>
                           {conv.lastMessageAt && (
-                            <span className={cn("shrink-0 text-[10px]", active ? "text-slate-400" : "text-slate-400")}>
+                            <span className={cn("shrink-0 text-[10px]", active ? "text-slate-400" : "text-slate-400 dark:text-slate-500")}>
                               {formatDistanceToNow(new Date(conv.lastMessageAt), { locale: fr, addSuffix: false })}
                             </span>
                           )}
@@ -358,9 +358,9 @@ export default function AdminMessagesContent() {
                 )
               })
             ) : (
-              <div className="flex flex-col items-center justify-center py-20 text-center text-slate-300">
-                <div className="p-4 bg-slate-100 rounded-3xl mb-4"><CheckCheck className="h-9 w-9" /></div>
-                <p className="text-sm font-bold text-slate-400">Aucun litige {statusFilter !== "all" ? "dans ce filtre" : "en cours"}</p>
+              <div className="flex flex-col items-center justify-center py-20 text-center text-slate-300 dark:text-slate-700">
+                <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-3xl mb-4"><CheckCheck className="h-9 w-9" /></div>
+                <p className="text-sm font-bold text-slate-400 dark:text-slate-500">Aucun litige {statusFilter !== "all" ? "dans ce filtre" : "en cours"}</p>
               </div>
             )}
           </div>
@@ -368,32 +368,32 @@ export default function AdminMessagesContent() {
       </aside>
 
       {/* ───────── Zone de médiation ───────── */}
-      <main className={cn("flex-1 flex flex-col h-full bg-white relative", !selectedConv && "hidden lg:flex lg:items-center lg:justify-center bg-slate-50 border-l")}>
+      <main className={cn("flex-1 flex flex-col h-full bg-white dark:bg-slate-900 relative", !selectedConv && "hidden lg:flex lg:items-center lg:justify-center bg-slate-50 dark:bg-slate-950 border-l border-slate-200 dark:border-slate-800")}>
         {selectedConv ? (
           <>
             {/* En-tête */}
-            <header className="border-b bg-white/90 backdrop-blur-md sticky top-0 z-20">
+            <header className="border-b border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md sticky top-0 z-20">
               <div className="h-[68px] flex items-center justify-between px-4 lg:px-8">
                 <div className="flex items-center gap-3 min-w-0">
                   <Button variant="ghost" size="icon" className="lg:hidden rounded-xl shrink-0" onClick={() => setSelectedConv(null)}>
                     <ArrowLeft className="h-5 w-5" />
                   </Button>
                   <div className="flex -space-x-3 shrink-0">
-                    <Avatar className="h-11 w-11 border-2 border-white shadow-sm">
+                    <Avatar className="h-11 w-11 border-2 border-white dark:border-slate-900 shadow-sm">
                       <AvatarImage src={selectedConv.user1.avatar} />
                       <AvatarFallback>{selectedConv.user1.name[0]}</AvatarFallback>
                     </Avatar>
-                    <Avatar className="h-11 w-11 border-2 border-white shadow-sm">
+                    <Avatar className="h-11 w-11 border-2 border-white dark:border-slate-900 shadow-sm">
                       <AvatarImage src={selectedConv.user2.avatar} />
                       <AvatarFallback>{selectedConv.user2.name[0]}</AvatarFallback>
                     </Avatar>
                   </div>
                   <div className="min-w-0">
-                    <h2 className="font-black text-slate-900 truncate flex items-center gap-1.5">
-                      {selectedConv.user1.name} <span className="text-slate-300 font-normal">&amp;</span> {selectedConv.user2.name}
+                    <h2 className="font-black text-slate-900 dark:text-white truncate flex items-center gap-1.5">
+                      {selectedConv.user1.name} <span className="text-slate-300 dark:text-slate-600 font-normal">&amp;</span> {selectedConv.user2.name}
                       <Shield className="h-4 w-4 text-amber-500 shrink-0" />
                     </h2>
-                    <p className="text-[11px] font-bold uppercase tracking-widest flex items-center gap-1.5 text-slate-500">
+                    <p className="text-[11px] font-bold uppercase tracking-widest flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
                       <span className={cn("w-1.5 h-1.5 rounded-full", STATUS_META[selectedConv.status].dot, selectedConv.status !== "resolved" && "animate-pulse")} />
                       {STATUS_META[selectedConv.status].label}
                     </p>
@@ -401,12 +401,12 @@ export default function AdminMessagesContent() {
                 </div>
 
                 <div className="flex items-center gap-1 shrink-0">
-                  <button onClick={copyTranscript} title="Copier la conversation" className="hidden sm:flex p-2.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors">
+                  <button onClick={copyTranscript} title="Copier la conversation" className="hidden sm:flex items-center justify-center min-h-11 min-w-11 rounded-xl text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                     <Copy className="h-4 w-4" />
                   </button>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <button className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors text-sm font-semibold">
+                      <button className="flex items-center gap-1.5 px-3 py-2 min-h-11 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-sm font-semibold">
                         <User className="h-4 w-4" /> Parties <ChevronDown className="h-3.5 w-3.5" />
                       </button>
                     </DropdownMenuTrigger>
@@ -428,8 +428,8 @@ export default function AdminMessagesContent() {
               </div>
 
               {/* Barre d'actions de statut */}
-              <div className="flex items-center gap-2 px-4 lg:px-8 pb-3">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mr-1">Statut :</span>
+              <div className="flex items-center gap-2 px-4 lg:px-8 pb-3 overflow-x-auto no-scrollbar">
+                <span className="shrink-0 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mr-1">Statut :</span>
                 {(Object.keys(STATUS_META) as MediationStatus[]).map((s) => {
                   const meta = STATUS_META[s]
                   const on = selectedConv.status === s
@@ -441,8 +441,8 @@ export default function AdminMessagesContent() {
                       onClick={() => handleUpdateStatus(s)}
                       disabled={isUpdatingStatus || on}
                       className={cn(
-                        "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border transition-all disabled:cursor-default",
-                        on ? "border-transparent" : "border-slate-200 text-slate-500 hover:bg-slate-100",
+                        "shrink-0 inline-flex items-center gap-1.5 px-3 py-2 min-h-9 rounded-full text-xs font-bold border transition-all disabled:cursor-default",
+                        on ? "border-transparent" : "border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800",
                         meta.btn,
                       )}
                     >
@@ -450,15 +450,15 @@ export default function AdminMessagesContent() {
                     </button>
                   )
                 })}
-                {isUpdatingStatus && <Loader2 className="h-4 w-4 animate-spin text-slate-400 ml-1" />}
+                {isUpdatingStatus && <Loader2 className="h-4 w-4 animate-spin text-slate-400 dark:text-slate-500 ml-1 shrink-0" />}
               </div>
             </header>
 
             {/* Messages */}
-            <ScrollArea className="flex-1 px-4 lg:px-10 py-6 bg-slate-50/40">
+            <ScrollArea className="flex-1 px-4 lg:px-10 py-6 bg-slate-50/40 dark:bg-slate-950/40">
               {isMessagesLoading ? (
                 <div className="h-full flex items-center justify-center">
-                  <Loader2 className="h-7 w-7 animate-spin text-[#013ff4]" />
+                  <Loader2 className="h-7 w-7 animate-spin text-[#013ff4] dark:text-[#3a6bff]" />
                 </div>
               ) : (
                 <div className="space-y-4 max-w-3xl mx-auto">
@@ -477,7 +477,7 @@ export default function AdminMessagesContent() {
                       <div key={msg.id}>
                         {showDay && (
                           <div className="flex justify-center my-4">
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 bg-white border border-slate-200 rounded-full px-3 py-1">
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-full px-3 py-1">
                               {format(new Date(msg.created_at), "EEEE d MMMM", { locale: fr })}
                             </span>
                           </div>
@@ -485,11 +485,11 @@ export default function AdminMessagesContent() {
 
                         {isMediation ? (
                           <div className="flex justify-center my-4">
-                            <div className="bg-amber-50 border border-amber-200 rounded-2xl px-6 py-3.5 flex items-center gap-3 max-w-lg shadow-sm">
-                              <Shield className="h-5 w-5 text-amber-600 shrink-0" />
+                            <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 rounded-2xl px-6 py-3.5 flex items-center gap-3 max-w-lg shadow-sm">
+                              <Shield className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0" />
                               <div>
-                                <p className="text-[10px] font-black text-amber-900 uppercase tracking-wide mb-0.5">Alerte médiation</p>
-                                <p className="text-sm font-semibold text-amber-800 italic">
+                                <p className="text-[10px] font-black text-amber-900 dark:text-amber-300 uppercase tracking-wide mb-0.5">Alerte médiation</p>
+                                <p className="text-sm font-semibold text-amber-800 dark:text-amber-400 italic">
                                   {msg.content.replace(/⚠️ \[MÉDIATION DEMANDÉE\] Motif : .*?\. /, "")}
                                 </p>
                               </div>
@@ -497,7 +497,7 @@ export default function AdminMessagesContent() {
                           </div>
                         ) : isStatusUpdate ? (
                           <div className="flex justify-center my-3">
-                            <div className="bg-blue-50 border border-blue-200 rounded-full px-5 py-2 text-xs font-semibold text-blue-800">
+                            <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/50 rounded-full px-5 py-2 text-xs font-semibold text-blue-800 dark:text-blue-400">
                               {msg.content.toLowerCase().includes("resolved") ? "Médiation marquée comme résolue"
                                 : msg.content.toLowerCase().includes("in_progress") ? "Médiation prise en charge"
                                   : "Médiation rouverte"}
@@ -505,20 +505,20 @@ export default function AdminMessagesContent() {
                           </div>
                         ) : (
                           <div className={cn("flex gap-3 group", isOwn ? "flex-row-reverse" : "flex-row")}>
-                            <Avatar className="h-9 w-9 border-2 border-white shadow-sm shrink-0 mt-1">
+                            <Avatar className="h-9 w-9 border-2 border-white dark:border-slate-900 shadow-sm shrink-0 mt-1">
                               <AvatarImage src={sender.avatar} />
-                              <AvatarFallback className="text-xs bg-slate-100 font-bold">{sender.name[0]}</AvatarFallback>
+                              <AvatarFallback className="text-xs bg-slate-100 dark:bg-slate-800 dark:text-slate-300 font-bold">{sender.name[0]}</AvatarFallback>
                             </Avatar>
                             <div className={cn("flex flex-col gap-1 max-w-[78%]", isOwn ? "items-end" : "items-start")}>
                               <div className="flex items-center gap-2 px-1">
-                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{sender.name}</span>
-                                <span className="text-[10px] text-slate-300">{format(new Date(msg.created_at), "HH:mm", { locale: fr })}</span>
+                                <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{sender.name}</span>
+                                <span className="text-[10px] text-slate-300 dark:text-slate-600">{format(new Date(msg.created_at), "HH:mm", { locale: fr })}</span>
                               </div>
                               <div className={cn(
                                 "px-4 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm",
                                 isOwn ? "bg-[#013ff4] text-white rounded-tr-sm"
-                                  : sender.role === "admin" ? "bg-amber-100 text-amber-900 border border-amber-200 rounded-tl-sm font-semibold"
-                                    : "bg-white text-slate-700 border border-slate-100 rounded-tl-sm",
+                                  : sender.role === "admin" ? "bg-amber-100 dark:bg-amber-950/30 text-amber-900 dark:text-amber-300 border border-amber-200 dark:border-amber-900/50 rounded-tl-sm font-semibold"
+                                    : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-700 rounded-tl-sm",
                               )}>
                                 {msg.content}
                               </div>
@@ -534,7 +534,7 @@ export default function AdminMessagesContent() {
             </ScrollArea>
 
             {/* Saisie */}
-            <footer className="p-4 lg:px-10 border-t bg-white">
+            <footer className="p-4 lg:px-10 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
               <div className="max-w-3xl mx-auto">
                 <div className="flex items-end gap-2.5">
                   <div className="flex-1 relative">
@@ -546,22 +546,22 @@ export default function AdminMessagesContent() {
                       onKeyDown={(e) => {
                         if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSendAdminReply() }
                       }}
-                      className="min-h-[52px] max-h-[180px] py-3.5 pl-4 pr-12 rounded-2xl bg-slate-50 border border-slate-200 focus-visible:ring-1 focus-visible:ring-[#013ff4]/40 text-slate-800 placeholder:text-slate-400 resize-none"
+                      className="min-h-[52px] max-h-[180px] py-3.5 pl-4 pr-12 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus-visible:ring-1 focus-visible:ring-[#013ff4]/40 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 resize-none"
                       rows={1}
                     />
                     {/* Réponses rapides */}
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <button title="Réponses rapides" className="absolute right-2.5 bottom-2.5 p-1.5 rounded-lg text-slate-400 hover:text-[#013ff4] hover:bg-slate-200 transition-colors">
+                        <button title="Réponses rapides" className="absolute right-2.5 bottom-2.5 flex items-center justify-center h-9 w-9 rounded-lg text-slate-400 dark:text-slate-500 hover:text-[#013ff4] dark:hover:text-[#3a6bff] hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
                           <MessageSquareText className="h-4 w-4" />
                         </button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent side="top" align="end" className="w-80">
+                      <DropdownMenuContent side="top" align="end" className="w-[min(20rem,calc(100vw-2rem))]">
                         <DropdownMenuLabel>Réponses rapides</DropdownMenuLabel>
                         {QUICK_REPLIES.map((q) => (
                           <DropdownMenuItem key={q.label} onClick={() => insertTemplate(q.text)} className="flex-col items-start gap-0.5 py-2">
-                            <span className="text-xs font-bold text-slate-800">{q.label}</span>
-                            <span className="text-[11px] text-slate-400 line-clamp-2">{q.text}</span>
+                            <span className="text-xs font-bold text-slate-800 dark:text-slate-200">{q.label}</span>
+                            <span className="text-[11px] text-slate-400 dark:text-slate-500 line-clamp-2">{q.text}</span>
                           </DropdownMenuItem>
                         ))}
                       </DropdownMenuContent>
@@ -577,25 +577,25 @@ export default function AdminMessagesContent() {
                     {isSending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
                   </Button>
                 </div>
-                <p className="text-[10px] text-slate-400 mt-2 pl-1">Entrée pour envoyer · Maj+Entrée pour un saut de ligne</p>
+                <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-2 pl-1">Entrée pour envoyer · Maj+Entrée pour un saut de ligne</p>
               </div>
             </footer>
           </>
         ) : (
           <div className="flex flex-col items-center justify-center p-16 text-center space-y-4">
-            <div className="w-28 h-28 bg-white rounded-[36px] shadow-xl flex items-center justify-center text-slate-300 relative">
+            <div className="w-28 h-28 bg-white dark:bg-slate-900 rounded-[36px] shadow-xl flex items-center justify-center text-slate-300 dark:text-slate-700 relative">
               <Shield className="h-14 w-14" />
-              <div className="absolute -top-2 -right-2 w-8 h-8 bg-[#013ff4] rounded-full flex items-center justify-center text-white ring-8 ring-slate-50">
+              <div className="absolute -top-2 -right-2 w-8 h-8 bg-[#013ff4] rounded-full flex items-center justify-center text-white ring-8 ring-slate-50 dark:ring-slate-950">
                 <Gavel className="h-4 w-4" />
               </div>
             </div>
             <div className="space-y-1.5 max-w-sm">
-              <h2 className="text-xl font-black text-slate-900 tracking-tight">Centre de médiation</h2>
-              <p className="text-sm font-medium text-slate-400 leading-relaxed">
+              <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Centre de médiation</h2>
+              <p className="text-sm font-medium text-slate-400 dark:text-slate-500 leading-relaxed">
                 Sélectionnez un litige pour analyser les échanges, répondre aux parties et faire évoluer le statut de la médiation.
               </p>
             </div>
-            <Button variant="outline" className="rounded-2xl border-2 border-slate-200 h-11 px-6 font-bold text-slate-900" onClick={loadConversations}>
+            <Button variant="outline" className="rounded-2xl border-2 border-slate-200 dark:border-slate-700 h-11 px-6 font-bold text-slate-900 dark:text-white dark:hover:bg-slate-800" onClick={loadConversations}>
               <RefreshCw className={cn("mr-2 h-4 w-4", isLoading && "animate-spin")} /> Actualiser les litiges
             </Button>
           </div>

@@ -45,13 +45,13 @@ export function AdminSettingsClient({ initialSettings }: AdminSettingsClientProp
     <div className="space-y-4">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 tracking-tight">Paramètres</h1>
-          <p className="text-slate-500 text-sm mt-1">Profil admin, alertes et sécurité du cockpit</p>
+          <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Paramètres</h1>
+          <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Profil admin, alertes et sécurité du cockpit</p>
         </div>
         <button
           onClick={handleSave}
           disabled={isPending}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200 disabled:opacity-60"
+          className="inline-flex items-center justify-center gap-2 px-5 py-3 min-h-11 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200 dark:shadow-blue-950/40 disabled:opacity-60"
         >
           <Save className="h-4 w-4" />
           {isPending ? "Enregistrement..." : "Sauvegarder"}
@@ -59,35 +59,35 @@ export function AdminSettingsClient({ initialSettings }: AdminSettingsClientProp
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <section className="bg-white rounded-2xl border border-slate-100 p-6 space-y-4">
+        <section className="bg-white dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800 p-6 space-y-4">
           <div className="flex items-center gap-3">
-            <User className="h-5 w-5 text-blue-600" />
-            <h2 className="text-lg font-bold text-slate-900">Profil administrateur</h2>
+            <User className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Profil administrateur</h2>
           </div>
           <div className="grid gap-4 md:grid-cols-2">
-            <label className="space-y-2 text-sm font-medium text-slate-700">
+            <label className="space-y-2 text-sm font-medium text-slate-700 dark:text-slate-300">
               <span>Nom affiché</span>
-              <input value={settings.profile.name} onChange={(e) => updateProfile("name", e.target.value)} className="w-full rounded-xl border border-slate-200 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500/20" />
+              <input value={settings.profile.name} onChange={(e) => updateProfile("name", e.target.value)} className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-4 py-2.5 min-h-11 outline-none focus:ring-2 focus:ring-blue-500/20" />
             </label>
-            <label className="space-y-2 text-sm font-medium text-slate-700">
+            <label className="space-y-2 text-sm font-medium text-slate-700 dark:text-slate-300">
               <span>Rôle</span>
-              <input value={settings.profile.role} onChange={(e) => updateProfile("role", e.target.value)} className="w-full rounded-xl border border-slate-200 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500/20" />
+              <input value={settings.profile.role} onChange={(e) => updateProfile("role", e.target.value)} className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-4 py-2.5 min-h-11 outline-none focus:ring-2 focus:ring-blue-500/20" />
             </label>
-            <label className="space-y-2 text-sm font-medium text-slate-700">
+            <label className="space-y-2 text-sm font-medium text-slate-700 dark:text-slate-300">
               <span>Email</span>
-              <input value={settings.profile.email} onChange={(e) => updateProfile("email", e.target.value)} className="w-full rounded-xl border border-slate-200 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500/20" />
+              <input value={settings.profile.email} onChange={(e) => updateProfile("email", e.target.value)} className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-4 py-2.5 min-h-11 outline-none focus:ring-2 focus:ring-blue-500/20" />
             </label>
-            <label className="space-y-2 text-sm font-medium text-slate-700">
+            <label className="space-y-2 text-sm font-medium text-slate-700 dark:text-slate-300">
               <span>Téléphone</span>
-              <input value={settings.profile.phone} onChange={(e) => updateProfile("phone", e.target.value)} className="w-full rounded-xl border border-slate-200 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500/20" />
+              <input value={settings.profile.phone} onChange={(e) => updateProfile("phone", e.target.value)} className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-4 py-2.5 min-h-11 outline-none focus:ring-2 focus:ring-blue-500/20" />
             </label>
           </div>
         </section>
 
-        <section className="bg-white rounded-2xl border border-slate-100 p-6 space-y-4">
+        <section className="bg-white dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800 p-6 space-y-4">
           <div className="flex items-center gap-3">
-            <Bell className="h-5 w-5 text-violet-600" />
-            <h2 className="text-lg font-bold text-slate-900">Notifications admin</h2>
+            <Bell className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Notifications admin</h2>
           </div>
           <div className="space-y-3">
             {[
@@ -100,68 +100,68 @@ export function AdminSettingsClient({ initialSettings }: AdminSettingsClientProp
               ["dailyDigest", "Digest quotidien"],
               ["weeklyReport", "Rapport hebdomadaire"],
             ].map(([key, label]) => (
-              <label key={key} className="flex items-center justify-between rounded-xl border border-slate-100 px-4 py-3 text-sm font-medium text-slate-700">
+              <label key={key} className="flex items-center justify-between rounded-xl border border-slate-100 dark:border-slate-800 px-4 py-3 min-h-11 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
                 <span>{label}</span>
                 <input
                   type="checkbox"
                   checked={settings.notifications[key as keyof AdminSettings["notifications"]]}
                   onChange={(e) => updateNotifications(key as keyof AdminSettings["notifications"], e.target.checked)}
-                  className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                  className="h-5 w-5 rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500 dark:bg-slate-900"
                 />
               </label>
             ))}
           </div>
         </section>
 
-        <section className="bg-white rounded-2xl border border-slate-100 p-6 space-y-4">
+        <section className="bg-white dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800 p-6 space-y-4">
           <div className="flex items-center gap-3">
-            <Shield className="h-5 w-5 text-amber-600" />
-            <h2 className="text-lg font-bold text-slate-900">Sécurité admin</h2>
+            <Shield className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Sécurité admin</h2>
           </div>
           <div className="space-y-4">
-            <label className="flex items-center justify-between rounded-xl border border-slate-100 px-4 py-3 text-sm font-medium text-slate-700">
+            <label className="flex items-center justify-between rounded-xl border border-slate-100 dark:border-slate-800 px-4 py-3 min-h-11 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
               <span>Préférence 2FA</span>
               <input
                 type="checkbox"
                 checked={settings.security.twoFactor}
                 onChange={(e) => updateSecurity("twoFactor", e.target.checked)}
-                className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                className="h-5 w-5 rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500 dark:bg-slate-900"
               />
             </label>
-            <label className="space-y-2 text-sm font-medium text-slate-700 block">
+            <label className="space-y-2 text-sm font-medium text-slate-700 dark:text-slate-300 block">
               <span>Expiration de session (minutes)</span>
               <input
                 value={settings.security.sessionTimeout}
                 onChange={(e) => updateSecurity("sessionTimeout", e.target.value)}
-                className="w-full rounded-xl border border-slate-200 px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-4 py-2.5 min-h-11 outline-none focus:ring-2 focus:ring-blue-500/20"
               />
             </label>
-            <label className="flex items-center justify-between rounded-xl border border-slate-100 px-4 py-3 text-sm font-medium text-slate-700">
+            <label className="flex items-center justify-between rounded-xl border border-slate-100 dark:border-slate-800 px-4 py-3 min-h-11 text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer">
               <span>Liste blanche IP</span>
               <input
                 type="checkbox"
                 checked={settings.security.ipWhitelist}
                 onChange={(e) => updateSecurity("ipWhitelist", e.target.checked)}
-                className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                className="h-5 w-5 rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500 dark:bg-slate-900"
               />
             </label>
           </div>
         </section>
 
-        <section className="bg-white rounded-2xl border border-slate-100 p-6 space-y-4">
+        <section className="bg-white dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800 p-6 space-y-4">
           <div className="flex items-center gap-3">
-            <Database className="h-5 w-5 text-emerald-600" />
-            <h2 className="text-lg font-bold text-slate-900">Système</h2>
+            <Database className="h-5 w-5 text-emerald-600 dark:text-emerald-500" />
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Système</h2>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-xl bg-slate-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">API / Uptime</p>
-              <p className="mt-2 text-sm font-bold text-slate-900">{settings.systemStats.serverUptime}</p>
+            <div className="rounded-xl bg-slate-50 dark:bg-slate-800/50 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">API / Uptime</p>
+              <p className="mt-2 text-sm font-bold text-slate-900 dark:text-white">{settings.systemStats.serverUptime}</p>
             </div>
-            <div className="rounded-xl bg-slate-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Base de données</p>
-              <p className="mt-2 text-sm font-bold text-slate-900">{settings.systemStats.databaseStatus}</p>
-              <p className="mt-1 text-xs text-slate-500">{settings.systemStats.databaseDetail}</p>
+            <div className="rounded-xl bg-slate-50 dark:bg-slate-800/50 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Base de données</p>
+              <p className="mt-2 text-sm font-bold text-slate-900 dark:text-white">{settings.systemStats.databaseStatus}</p>
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{settings.systemStats.databaseDetail}</p>
             </div>
           </div>
         </section>

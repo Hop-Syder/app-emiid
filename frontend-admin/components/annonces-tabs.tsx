@@ -20,13 +20,15 @@ export function AnnoncesTabs() {
 
   return (
     <div className="space-y-6">
-      <div className="inline-flex rounded-xl border border-slate-200 p-1 bg-slate-50">
+      <div className="inline-flex flex-wrap rounded-xl border border-slate-200 dark:border-slate-800 p-1 bg-slate-50 dark:bg-slate-900/50">
         {([["inapp", "Annonce In-App", Megaphone], ["email", "Campagne Mailing", Mail]] as const).map(([id, label, Icon]) => (
           <button
             key={id}
             onClick={() => setTab(id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-colors ${
-              tab === id ? "bg-white text-[#013ff4] shadow-sm" : "text-slate-500 hover:text-slate-700"
+            className={`flex items-center gap-2 px-4 py-2.5 min-h-11 rounded-lg text-sm font-bold transition-colors ${
+              tab === id
+                ? "bg-white dark:bg-slate-800 text-[#013ff4] dark:text-[#3a6bff] shadow-sm"
+                : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
             }`}
           >
             <Icon className="h-4 w-4" /> {label}
