@@ -2,7 +2,6 @@ import { createServerClient } from '@supabase/ssr'
 import { supabaseUrl, supabaseAnonKey, supabaseServiceRoleKey } from './env';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
-import { verifyAdminAccess } from '@/lib/admin-auth'
 
 export interface AdminSessionProfile {
   userId: string
@@ -11,28 +10,6 @@ export interface AdminSessionProfile {
   lastName: string | null
   email: string | null
   avatarUrl: string | null
-}
-
-const ADMIN_ROLE_PATTERN = /^(admin|administrator|administrateur|superadmin)$/i
-
-function isAdminFromAuthMetadata(user: any) {
-  const metadata = user?.app_metadata || {}
-  const roles = [
-    metadata.role,
-    metadata.app_role,
-    ...(Array.isArray(metadata.roles) ? metadata.roles : []),
-  ].filter(Boolean)
-
-  return roles.some((role) => typeof role === 'string' && ADMIN_ROLE_PATTERN.test(role.trim()))
-}
-
-function isAdminFromAllowlist(email?: string | null) {
-  const configuredEmails = (process.env.ADMIN_EMAILS || '')
-    .split(',')
-    .map((item) => item.trim().toLowerCase())
-    .filter(Boolean)
-
-  return !!email && configuredEmails.includes(email.toLowerCase())
 }
 
 export async function createClient() {
@@ -72,16 +49,35 @@ export async function requireAdminSession(): Promise<AdminSessionProfile | null>
     return null
   }
 
+  // email n'est PAS demandée ici : cette colonne est verrouillée (REVOKE) pour
+  // authenticated depuis 20260830_fix_user_profiles_exposure.sql. Une seule
+  // colonne interdite fait échouer TOUTE la requête PostgREST — c'est resté
+  // invisible car requireAdminSession avalait l'erreur en la traitant comme
+  // "non admin", provoquant une redirection silencieuse vers /login pour
+  // TOUT administrateur (confirmé en testant le flux de bout en bout).
+  // L'email de session vient de auth.users (user.email), jamais de la table.
   const { data: profile, error } = await supabase
     .from('user_profiles')
-    .select('user_id, role, first_name, last_name, email, avatar_url')
+    .select('user_id, role, first_name, last_name, avatar_url')
     .eq('user_id', user.id)
     .single()
 
-  // Use centralized admin verification
-  const isAdmin = await verifyAdminAccess(user, profile)
+  if (error || !profile) {
+    return null
+  }
 
-  if (error || !profile || !isAdmin) {
+  // is_admin est verrouillée (REVOKE) pour authenticated : le client lié à la
+  // session ne peut pas la lire, même la sienne. On la vérifie via service
+  // role, exactement comme le backend Express (requireAdmin) — is_admin est
+  // la seule source de vérité pour l'autorisation admin, cohérente avec le
+  // bouton Accorder/Révoquer Admin du cockpit (toggleAdmin).
+  const { data: adminRow, error: adminError } = await createServiceRoleClient()
+    .from('user_profiles')
+    .select('is_admin')
+    .eq('user_id', user.id)
+    .single()
+
+  if (adminError || !adminRow?.is_admin) {
     return null
   }
 
@@ -90,7 +86,7 @@ export async function requireAdminSession(): Promise<AdminSessionProfile | null>
     role: profile.role,
     firstName: profile.first_name,
     lastName: profile.last_name,
-    email: profile.email,
+    email: user.email ?? null,
     avatarUrl: profile.avatar_url,
   }
 }

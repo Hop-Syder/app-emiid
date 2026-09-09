@@ -21,6 +21,10 @@ const transporter = nodemailer.createTransport({
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
+  // IPv4 forcé : sur Render, la résolution de mail91.lwspanel.com en IPv6
+  // échoue en ENETUNREACH (pas de route sortante) avant même la tentative
+  // IPv4 — confirmé par les logs de prod du 2026-09-09.
+  family: 4,
   // Timeouts : échouer vite si le port est filtré (évite de bloquer le webhook).
   connectionTimeout: 10000,
   greetingTimeout: 10000,

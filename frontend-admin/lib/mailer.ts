@@ -13,6 +13,9 @@ const transporter = nodemailer.createTransport({
   port: Number(process.env.SMTP_PORT) || 587,
   secure: process.env.SMTP_SECURE === "true", // 465 = SSL, 587 = STARTTLS
   auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+  // IPv4 forcé : la résolution IPv6 de mail91.lwspanel.com échoue en
+  // ENETUNREACH sur Render (pas de route sortante) — cf. backend/mailService.ts.
+  family: 4,
   connectionTimeout: 10000,
   greetingTimeout: 10000,
   socketTimeout: 15000,

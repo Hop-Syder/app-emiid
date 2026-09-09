@@ -63,8 +63,8 @@ export function useSecuritySection({
   const [reauthLoading, setReauthLoading] = useState(false)
   const [reauthError, setReauthError] = useState("")
   const [pendingAction, setPendingAction] = useState<PendingActionType>(null)
-  // Jeton Turnstile de la réauth par mot de passe — vérifié côté serveur
-  // (voir handleReauthSubmit) avant tout appel à signInWithPassword.
+  // Jeton Turnstile de la réauth par mot de passe — transmis à signInWithPassword,
+  // Supabase le vérifie lui-même côté serveur (protection captcha du projet).
   const [captchaToken, setCaptchaToken] = useState<string | null>(null)
 
   // Confirm dialog state
@@ -190,20 +190,13 @@ export function useSecuritySection({
     setReauthLoading(true)
     setReauthError("")
     try {
-      const captchaRes = await fetch("/api/security/verify-captcha", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: captchaToken }),
+      // Le jeton accompagne la requête : Supabase le vérifie côté serveur
+      // (protection captcha activée sur le projet, cf. admin-login-form.tsx).
+      const { error } = await supabase.auth.signInWithPassword({
+        email: profile.email || "",
+        password: reauthPassword,
+        options: { captchaToken },
       })
-      const captchaData = await captchaRes.json().catch(() => ({ success: false }))
-      if (!isMountedRef.current) return
-      if (!captchaRes.ok || !captchaData.success) {
-        setReauthError("Vérification anti-robot invalide, réessayez")
-        setCaptchaToken(null)
-        return
-      }
-
-      const { error } = await supabase.auth.signInWithPassword({ email: profile.email || "", password: reauthPassword })
       if (error) {
         setReauthError("Mot de passe incorrect")
         setCaptchaToken(null)

@@ -57,13 +57,14 @@ export function AdminLoginForm() {
 
     setHasSession(true)
 
-    const { data: profile, error } = await supabase
-      .from("user_profiles")
-      .select("role")
-      .eq("user_id", user.id)
-      .single()
+    // is_admin est verrouillée (REVOKE) pour authenticated : on ne peut pas la
+    // lire en direct sur user_profiles, même la sienne. Cette RPC ne révèle
+    // que le statut admin de l'appelant (auth.uid()) — seule source de vérité
+    // pour l'autorisation admin, cohérente avec le backend et le bouton
+    // Accorder/Révoquer Admin (qui modifient tous deux is_admin).
+    const { data: isAdmin, error } = await supabase.rpc("is_current_user_admin")
 
-    if (error || !profile?.role?.toLowerCase().includes("admin")) {
+    if (error || !isAdmin) {
       setSessionError("Ce compte existe, mais il n'a pas les droits administrateur.")
       return false
     }
