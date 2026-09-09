@@ -185,7 +185,7 @@ export function DashboardClient({ initialStats }: DashboardClientProps) {
   const systemIcons = [Server, Database, HardDrive]
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
@@ -208,7 +208,7 @@ export function DashboardClient({ initialStats }: DashboardClientProps) {
 
       {/* Inbox Opérationnelle (Bento Alertes) */}
       {(stats.pendingVerifications > 0 || stats.activeReports > 0) && (
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid md:grid-cols-2 gap-3">
           {stats.pendingVerifications > 0 && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
@@ -263,22 +263,22 @@ export function DashboardClient({ initialStats }: DashboardClientProps) {
       )}
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-8 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-8 gap-3">
         {statCards.map((stat, index) => (
           <motion.div
             key={stat.title}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.04 }}
-            className="bg-white dark:bg-slate-900/50 rounded-2xl p-4 border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-300"
+            className="glass rounded-2xl p-3 border border-white/20 shadow-sm hover:shadow-md transition-all duration-200"
           >
-            <div className={`w-10 h-10 ${stat.lightColor} dark:bg-slate-800 rounded-xl flex items-center justify-center mb-3`}>
+            <div className={`w-9 h-9 ${stat.lightColor} dark:bg-slate-800 rounded-lg flex items-center justify-center mb-3`}>
               <stat.icon className={`h-5 w-5 ${stat.textColor}`} />
             </div>
-            <p className="text-lg xl:text-xl font-bold text-slate-900 dark:text-white truncate" title={String(stat.value)}>
+            <p className="text-xl xl:text-2xl font-black text-slate-900 dark:text-white truncate" title={String(stat.value)}>
               {typeof stat.value === 'number' ? stat.value.toLocaleString() : stat.value}
             </p>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">{stat.title}</p>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">{stat.title}</p>
             {stat.sub && (
               <p className={`text-[10px] font-semibold mt-1.5 flex items-center gap-1 truncate ${
                 "up" in stat ? (stat.up ? "text-emerald-600 dark:text-emerald-500" : "text-rose-600 dark:text-rose-500") : "text-slate-400 dark:text-slate-500"
@@ -293,7 +293,7 @@ export function DashboardClient({ initialStats }: DashboardClientProps) {
 
       {/* Monétisation — chiffres réels, lus dans payment_transactions,
           subscriptions et profile_boosts (aucune estimation). */}
-      <div className="rounded-3xl border border-slate-200 bg-white p-5 sm:p-6 dark:border-slate-800 dark:bg-slate-900">
+      <div className="rounded-2xl border border-white/20 glass-strong p-4 sm:p-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h3 className="text-sm font-black text-slate-900 dark:text-slate-100">Monétisation</h3>
           <span className="text-[11px] font-semibold text-slate-400">Mois en cours</span>
@@ -346,7 +346,7 @@ export function DashboardClient({ initialStats }: DashboardClientProps) {
       </div>
 
       {/* Funnel de conversion */}
-      <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+      <div className="glass-strong rounded-2xl p-5 border border-white/20 shadow-sm">
         <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2 mb-4">
           <BarChart3 className="h-4 w-4 text-[#013ff4]" /> Entonnoir de conversion
         </h2>
@@ -369,13 +369,13 @@ export function DashboardClient({ initialStats }: DashboardClientProps) {
       </div>
 
       {/* Main Grid */}
-      <div className="grid lg:grid-cols-3 gap-6">
+      <div className="grid lg:grid-cols-3 gap-4">
         {/* Weekly Activity Chart */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="lg:col-span-2 bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col justify-between"
+          className="lg:col-span-2 glass-strong rounded-2xl p-5 border border-white/20 shadow-sm flex flex-col justify-between"
         >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
@@ -451,7 +451,7 @@ export function DashboardClient({ initialStats }: DashboardClientProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm"
+          className="glass-strong rounded-2xl p-5 border border-white/20 shadow-sm"
         >
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-bold text-slate-900">Etat du Systeme</h2>
@@ -495,13 +495,13 @@ export function DashboardClient({ initialStats }: DashboardClientProps) {
       </div>
 
       {/* Bottom Grid */}
-      <div className="grid lg:grid-cols-2 gap-6">
+      <div className="grid lg:grid-cols-2 gap-4">
         {/* Recent Users */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          className="bg-white dark:bg-slate-900/50 rounded-2xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm"
+          className="glass-strong rounded-2xl p-5 border border-white/20 shadow-sm"
         >
           <div className="flex items-center justify-between mb-6">
             <div>
@@ -573,7 +573,7 @@ export function DashboardClient({ initialStats }: DashboardClientProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
-          className="bg-white dark:bg-slate-900/50 rounded-2xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm"
+          className="glass-strong rounded-2xl p-5 border border-white/20 shadow-sm"
         >
           <div className="flex items-center justify-between mb-6">
             <div>
@@ -792,7 +792,7 @@ function RevenueTile({
   warn?: boolean
 }) {
   return (
-    <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-3.5 dark:border-slate-800 dark:bg-slate-800/40">
+    <div className="rounded-xl border border-slate-100 bg-white/50 p-3">
       <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{label}</p>
       <p className={`mt-1 text-xl font-black ${warn ? "text-amber-600" : "text-slate-900 dark:text-slate-100"}`}>
         {value}

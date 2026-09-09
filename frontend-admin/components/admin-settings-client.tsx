@@ -42,7 +42,7 @@ export function AdminSettingsClient({ initialSettings }: AdminSettingsClientProp
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 tracking-tight">Paramètres</h1>
@@ -58,7 +58,7 @@ export function AdminSettingsClient({ initialSettings }: AdminSettingsClientProp
         </button>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2">
         <section className="bg-white rounded-2xl border border-slate-100 p-6 space-y-4">
           <div className="flex items-center gap-3">
             <User className="h-5 w-5 text-blue-600" />

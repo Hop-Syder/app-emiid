@@ -60,7 +60,7 @@ export function AuditLogClient({ initialEntries }: AuditLogClientProps) {
   }, [entries, search, actionFilter])
 
   return (
-    <div className="space-y-6" data-testid="audit-page">
+    <div className="space-y-4" data-testid="audit-page">
       <header className="flex items-center gap-3">
         <div className="w-11 h-11 rounded-xl bg-[#013ff4]/10 flex items-center justify-center">
           <ScrollText className="h-5 w-5 text-[#013ff4]" />

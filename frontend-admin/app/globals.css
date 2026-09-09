@@ -18,6 +18,16 @@
   --accent-foreground: #000616;
   --border: #e2e8f0;
   --ring: #013ff4;
+
+  /* ── Hybride Premium theme tokens ── */
+  --hybrid-frame-bg: #000616;
+  --hybrid-content-bg: #f8fafc;
+  --hybrid-glass-bg: rgba(255, 255, 255, 0.7);
+  --hybrid-glass-border: rgba(255, 255, 255, 0.18);
+  --hybrid-glass-dark-bg: rgba(0, 6, 22, 0.85);
+  --hybrid-glass-dark-border: rgba(255, 255, 255, 0.06);
+  --hybrid-sidebar-width: 260px;
+  --hybrid-header-height: 64px;
 }
 
 @theme inline {
@@ -108,9 +118,36 @@ body {
     background-clip: text;
     color: transparent;
   }
+
+  /* ── Hybride Premium glassmorphism ── */
+  .glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .glass-strong {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+  .glass-dark {
+    background: rgba(0, 6, 22, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+  .glass-sidebar {
+    background: rgba(0, 6, 22, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+  .glass-header {
+    background: rgba(0, 6, 22, 0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
 }
 
-/* Custom Scrollbar */
+/* Custom Scrollbar — light content area */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
 }
@@ -120,17 +157,10 @@ body {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #e2e8f0;
+  background: #cbd5e1;
   border-radius: 10px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #cbd5e1;
-}
-
-/* Glassmorphism utility */
-.glass {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: #94a3b8;
 }

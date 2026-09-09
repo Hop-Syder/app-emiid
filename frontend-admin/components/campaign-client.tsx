@@ -197,7 +197,7 @@ export function CampaignClient({ emailOnly = false }: { emailOnly?: boolean }) {
   }
 
   return (
-    <div className="space-y-6 max-w-5xl">
+    <div className="space-y-4 max-w-5xl">
       <header className="flex items-center gap-3">
         <div className="w-11 h-11 rounded-xl bg-[#013ff4]/10 flex items-center justify-center">
           <Megaphone className="h-5 w-5 text-[#013ff4]" />
@@ -231,9 +231,9 @@ export function CampaignClient({ emailOnly = false }: { emailOnly?: boolean }) {
         </div>
       )}
 
-      <div className="grid lg:grid-cols-[1fr_340px] gap-6 items-start">
+      <div className="grid lg:grid-cols-[1fr_340px] gap-4 items-start">
         {/* Composeur */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-5">
+        <div className="glass-strong rounded-2xl border border-white/20 p-5 space-y-5">
           {/* Objet / titre */}
           <div>
             <label className="text-xs font-bold uppercase tracking-wider text-slate-500">

@@ -352,8 +352,8 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
   return (
     <TooltipProvider>
       {/* Layout scindé : tableau (gauche) + volet de détails (droite) */}
-      <div className="flex flex-col lg:flex-row gap-6 relative w-full overflow-hidden">
-      <div className={`space-y-6 min-w-0 transition-all duration-300 ${showUserModal && selectedUser ? "w-full lg:w-[65%]" : "w-full"}`}>
+      <div className="flex flex-col lg:flex-row gap-4 relative w-full overflow-hidden">
+      <div className={`space-y-4 min-w-0 transition-all duration-300 ${showUserModal && selectedUser ? "w-full lg:w-[65%]" : "w-full"}`}>
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
@@ -801,7 +801,7 @@ export function UsersClient({ initialUsers, initialTotal, countries }: UsersClie
               </div>
 
               {/* Modal Body */}
-              <div className="p-6 space-y-6">
+              <div className="p-6 space-y-4">
                 {/* Status & Category */}
                 <div className="flex items-center gap-3">
                   <span className={`inline-flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg font-semibold ${

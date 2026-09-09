@@ -154,7 +154,7 @@ export function GalleryModerationClient({ initialItems }: GalleryModerationClien
   }
 
   return (
-    <div className="space-y-6" data-testid="gallery-moderation-page">
+    <div className="space-y-4" data-testid="gallery-moderation-page">
       <div>
         <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Modération galerie</h1>
         <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Contrôle des visuels projet publiés par les membres</p>
@@ -210,7 +210,7 @@ export function GalleryModerationClient({ initialItems }: GalleryModerationClien
         </select>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {filteredItems.length > 0 ? (
           filteredItems.map((item) => (
             <article

@@ -582,7 +582,7 @@ export default function AdminMessagesContent() {
             </footer>
           </>
         ) : (
-          <div className="flex flex-col items-center justify-center p-16 text-center space-y-6">
+          <div className="flex flex-col items-center justify-center p-16 text-center space-y-4">
             <div className="w-28 h-28 bg-white rounded-[36px] shadow-xl flex items-center justify-center text-slate-300 relative">
               <Shield className="h-14 w-14" />
               <div className="absolute -top-2 -right-2 w-8 h-8 bg-[#013ff4] rounded-full flex items-center justify-center text-white ring-8 ring-slate-50">

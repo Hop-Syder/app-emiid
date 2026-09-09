@@ -14,7 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr">
-      <body className="antialiased font-sans bg-slate-50 text-slate-900">
+      <body className="antialiased font-sans bg-[#f8fafc] text-slate-900">
         {children}
         <Toaster position="top-right" expand={true} richColors />
       </body>

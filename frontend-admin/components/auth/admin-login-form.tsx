@@ -134,24 +134,24 @@ export function AdminLoginForm() {
 
   if (checkingSession) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 px-6">
-        <div className="flex items-center gap-3 rounded-2xl bg-white px-6 py-4 shadow-lg border border-slate-200">
+      <div className="flex min-h-screen items-center justify-center bg-[#000616] px-6">
+        <div className="flex items-center gap-3 rounded-2xl glass-dark px-6 py-4 shadow-lg border border-white/[0.06]">
           <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
-          <span className="text-sm font-medium text-slate-600">Vérification de la session admin...</span>
+          <span className="text-sm font-medium text-slate-300">Vérification de la session admin...</span>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-6 py-12">
-      <Card className="w-full max-w-md rounded-3xl border-slate-200 shadow-xl">
+    <div className="min-h-screen bg-[#000616] flex items-center justify-center px-6 py-12">
+      <Card className="w-full max-w-md rounded-3xl glass-dark border border-white/[0.06] shadow-2xl shadow-black/40">
         <CardHeader className="space-y-4 text-center">
-          <div className="mx-auto h-16 w-16 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-lg shadow-blue-200">
+          <div className="mx-auto h-16 w-16 rounded-2xl bg-gradient-to-tr from-[#013ff4] to-[#03b3f8] text-white flex items-center justify-center shadow-lg shadow-[#013ff4]/30">
             <ShieldCheck className="h-8 w-8" />
           </div>
           <div className="space-y-2">
-            <CardTitle className="text-2xl font-bold">Connexion Admin</CardTitle>
+            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">Connexion Admin</CardTitle>
             <CardDescription>
               Connectez-vous avec votre email et mot de passe pour accéder au cockpit d'administration.
             </CardDescription>
@@ -159,7 +159,7 @@ export function AdminLoginForm() {
         </CardHeader>
         <CardContent>
           {sessionError ? (
-            <div className="mb-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+            <div className="mb-5 rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-300">
               {sessionError}
             </div>
           ) : null}

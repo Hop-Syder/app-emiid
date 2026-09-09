@@ -147,7 +147,7 @@ export function ContentReportsClient({ initialReports }: ContentReportsClientPro
   }
 
   return (
-    <div className="space-y-6" data-testid="reports-page">
+    <div className="space-y-4" data-testid="reports-page">
       <header>
         <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Signalements</h1>
         <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Traitement des contenus signalés par les utilisateurs</p>
