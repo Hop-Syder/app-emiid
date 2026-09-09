@@ -17,9 +17,16 @@ import { Button } from "@/components/ui/button"
  * La protection anti-robot est activée sur le projet Supabase : sans jeton,
  * `signInWithPassword` est refusé — « captcha protection: request disallowed ».
  * L'application utilisateur envoyait déjà ce jeton, pas le back-office.
+ *
+ * Les clés Turnstile sont liées à un domaine précis côté Cloudflare : ne
+ * JAMAIS reprendre ici la clé de frontend-user (app.emiid.com), sous peine
+ * d'erreurs postMessage/origin sur app-admin.emiid.com. En son absence, on
+ * retombe sur la clé de test officielle de Cloudflare (toujours valide,
+ * non liée à un domaine) plutôt que sur une clé de prod d'une autre app.
+ * https://developers.cloudflare.com/turnstile/troubleshooting/testing/
  */
 const TURNSTILE_SITE_KEY =
-  process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "0x4AAAAAAEalZMK_1GPBD0mo"
+  process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"
 
 export function AdminLoginForm() {
   const [email, setEmail] = useState("")
