@@ -63,6 +63,9 @@ export function useSecuritySection({
   const [reauthLoading, setReauthLoading] = useState(false)
   const [reauthError, setReauthError] = useState("")
   const [pendingAction, setPendingAction] = useState<PendingActionType>(null)
+  // Jeton Turnstile de la réauth par mot de passe — vérifié côté serveur
+  // (voir handleReauthSubmit) avant tout appel à signInWithPassword.
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null)
 
   // Confirm dialog state
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
@@ -124,6 +127,7 @@ export function useSecuritySection({
     setReauthPassword("")
     setReauthPin("")
     setReauthError("")
+    setCaptchaToken(null)
     if (checked) {
       setPendingAction("enable")
       setPinStep("enter")
@@ -179,24 +183,43 @@ export function useSecuritySection({
       setReauthError("Mot de passe requis")
       return
     }
+    if (!captchaToken) {
+      setReauthError("Merci de valider la vérification anti-robot")
+      return
+    }
     setReauthLoading(true)
     setReauthError("")
     try {
+      const captchaRes = await fetch("/api/security/verify-captcha", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: captchaToken }),
+      })
+      const captchaData = await captchaRes.json().catch(() => ({ success: false }))
+      if (!isMountedRef.current) return
+      if (!captchaRes.ok || !captchaData.success) {
+        setReauthError("Vérification anti-robot invalide, réessayez")
+        setCaptchaToken(null)
+        return
+      }
+
       const { error } = await supabase.auth.signInWithPassword({ email: profile.email || "", password: reauthPassword })
       if (error) {
         setReauthError("Mot de passe incorrect")
+        setCaptchaToken(null)
         return
       }
       void processAfterReauth()
     } catch (err) {
       console.error("Reauth error:", err)
       setReauthError("Erreur lors de la vérification")
+      setCaptchaToken(null)
     } finally {
       if (isMountedRef.current) {
         setReauthLoading(false)
       }
     }
-  }, [profile, reauthPin, reauthPassword, processAfterReauth, supabase])
+  }, [profile, reauthPin, reauthPassword, captchaToken, processAfterReauth, supabase])
 
   const handlePinSubmit = useCallback(async () => {
     if (pinStep === "enter") {
@@ -317,6 +340,7 @@ export function useSecuritySection({
     setReauthPassword("")
     setReauthPin("")
     setReauthError("")
+    setCaptchaToken(null)
     setReauthDialogOpen(true)
   }, [])
 
@@ -325,6 +349,7 @@ export function useSecuritySection({
     setReauthPassword("")
     setReauthPin("")
     setReauthError("")
+    setCaptchaToken(null)
     setReauthDialogOpen(true)
   }, [])
 
@@ -408,6 +433,8 @@ export function useSecuritySection({
     setShowReauthPassword,
     reauthLoading,
     reauthError,
+    captchaToken,
+    setCaptchaToken,
     pendingAction,
     setPendingAction,
     isConfirmOpen,

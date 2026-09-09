@@ -1,10 +1,10 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { ShieldCheck, Loader2, LogOut } from "lucide-react"
 import { toast } from "sonner"
-import { Turnstile } from "@marsidev/react-turnstile"
+import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile"
 import { createClient } from "@/lib/supabase/client"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -39,6 +39,12 @@ export function AdminLoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const supabase = useMemo(() => createClient(), [])
+  // Un jeton Turnstile est à usage unique : après tout échec de connexion, le
+  // widget doit être réinitialisé pour en émettre un nouveau. Sans ce ref, il
+  // continue d'afficher son ancien "Success" (jeton déjà consommé/rejeté) et
+  // le bouton reste bloqué sur "Vérification en cours…" jusqu'au rechargement
+  // complet de la page — confirmé en testant le flux de bout en bout.
+  const turnstileRef = useRef<TurnstileInstance | undefined>(undefined)
 
   const verifyAdminRole = async () => {
     const { data: { user } } = await supabase.auth.getUser()
@@ -100,7 +106,11 @@ export function AdminLoginForm() {
         toast.error(error.message)
         // Un jeton Turnstile ne vaut qu'une fois : après un échec, il faut en
         // obtenir un nouveau, sinon la tentative suivante serait refusée aussi.
+        // reset() force le widget à en émettre un — sans ça, il reste affiché
+        // en "Success" avec le jeton déjà rejeté, et le bouton (qui dépend de
+        // captchaToken) reste bloqué jusqu'au rechargement de la page.
         setCaptchaToken(null)
+        turnstileRef.current?.reset()
         return
       }
 
@@ -197,6 +207,7 @@ export function AdminLoginForm() {
                   connexion par mot de passe. */}
               <div className="flex justify-center">
                 <Turnstile
+                  ref={turnstileRef}
                   siteKey={TURNSTILE_SITE_KEY}
                   onSuccess={(token) => setCaptchaToken(token)}
                   onError={() => setCaptchaToken(null)}

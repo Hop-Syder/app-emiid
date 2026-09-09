@@ -68,6 +68,8 @@ export function SecuritySection({
     setShowReauthPassword,
     reauthLoading,
     reauthError,
+    captchaToken,
+    setCaptchaToken,
     pendingAction,
     isConfirmOpen,
     setIsConfirmOpen,
@@ -239,6 +241,8 @@ export function SecuritySection({
         setShowPassword={setShowReauthPassword}
         reauthLoading={reauthLoading}
         reauthError={reauthError}
+        captchaToken={captchaToken}
+        setCaptchaToken={setCaptchaToken}
         onSubmit={(e) => void handleReauthSubmit(e)}
       />
 

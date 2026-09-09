@@ -1,12 +1,22 @@
 "use client"
 
 import Image from "next/image"
+import { useEffect, useRef } from "react"
 import { Eye, EyeOff, Lock, Phone, ShieldAlert, Smartphone } from "lucide-react"
+import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp"
 import { Label } from "@/components/ui/label"
+
+/**
+ * Clé publique du widget Cloudflare Turnstile dédié à app.emiid.com, utilisé
+ * pour la réauthentification par mot de passe. Distincte de la clé de
+ * back-office (app-admin.emiid.com) — voir .env.example.
+ */
+const TURNSTILE_SITE_KEY =
+    process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "0x4AAAAAAEtVxnGegPSU9qF-"
 
 // ── PIN Creation / Change Dialog ─────────────────────────────────────────────
 
@@ -221,6 +231,8 @@ interface ReauthDialogProps {
     setShowPassword: (val: boolean) => void
     reauthLoading: boolean
     reauthError: string
+    captchaToken: string | null
+    setCaptchaToken: (val: string | null) => void
     onSubmit: (e?: React.FormEvent) => void
 }
 
@@ -230,8 +242,23 @@ export function ReauthDialog({
     reauthPassword, setReauthPassword,
     showPassword, setShowPassword,
     reauthLoading, reauthError,
+    captchaToken, setCaptchaToken,
     onSubmit,
 }: ReauthDialogProps) {
+    // Un jeton Turnstile est à usage unique : après tout échec (mot de passe
+    // incorrect, captcha invalide), le widget doit en émettre un nouveau — sans
+    // ce reset, il reste affiché en "Success" avec un jeton déjà rejeté et le
+    // bouton reste bloqué jusqu'à rouvrir la boîte de dialogue.
+    const turnstileRef = useRef<TurnstileInstance | undefined>(undefined)
+    useEffect(() => {
+        if (reauthError) turnstileRef.current?.reset()
+    }, [reauthError])
+
+    // Compte 100% social (pas de mot de passe) : la vérification anti-robot ne
+    // s'applique qu'au vrai chemin mot de passe, cf. handleReauthSubmit.
+    const isOAuthOnly = Boolean(profile.email) && !profile.has_password
+    const isPasswordPath = !profile.pin_enabled && !isOAuthOnly
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-md rounded-none border-none shadow-2xl">
@@ -294,6 +321,18 @@ export function ReauthDialog({
                                         {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                     </button>
                                 </div>
+
+                                {isPasswordPath && (
+                                    <div className="flex justify-center pt-2">
+                                        <Turnstile
+                                            ref={turnstileRef}
+                                            siteKey={TURNSTILE_SITE_KEY}
+                                            onSuccess={(token) => setCaptchaToken(token)}
+                                            onError={() => setCaptchaToken(null)}
+                                            onExpire={() => setCaptchaToken(null)}
+                                        />
+                                    </div>
+                                )}
                             </>
                         )}
                         {reauthError && (
@@ -314,7 +353,14 @@ export function ReauthDialog({
                         </Button>
                         <Button
                             type="submit"
-                            disabled={reauthLoading || (profile.pin_enabled ? reauthPin.length !== 6 : !reauthPassword)}
+                            disabled={
+                                reauthLoading ||
+                                (profile.pin_enabled
+                                    ? reauthPin.length !== 6
+                                    : isPasswordPath
+                                        ? !reauthPassword || !captchaToken
+                                        : !reauthPassword)
+                            }
                             className="flex-[2] h-12 rounded-none bg-[#013ff4] hover:bg-[#033a7a] text-white font-bold shadow-lg shadow-blue-900/10"
                         >
                             {reauthLoading ? (
