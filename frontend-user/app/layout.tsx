@@ -128,7 +128,6 @@ export const metadata: Metadata = {
 import { Toaster } from 'sonner'
 import { CookieConsent } from '@/components/CookieConsent'
 import { ThemeProvider } from '@/components/theme-provider'
-import { BackendStatusBanner } from '@/components/backend-status-banner'
 import { SITE_URL } from '@/lib/seo'
 
 export default function RootLayout({
@@ -191,7 +190,6 @@ export default function RootLayout({
           {children}
           <Analytics />
           <Toaster position="top-right" richColors closeButton />
-          <BackendStatusBanner />
           <CookieConsent />
           {/* PWA : service worker au démarrage (requis pour que Chrome
               propose l'installation), puis invitation à installer. */}
