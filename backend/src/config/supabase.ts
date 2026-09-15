@@ -59,3 +59,13 @@ const clientOptions = {
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, clientOptions);
 export const supabaseAdmin = createClient<Database>(supabaseUrl, supabaseServiceRoleKey, clientOptions);
+
+// Cast non typé partagé : `Database` (types/database.types.ts) est généré depuis
+// le schéma distant et ne connaît donc pas les tables ajoutées par des
+// migrations locales pas encore appliquées/régénérées (ex. moteur Missions —
+// credit_wallets, missions, mission_applications, credit_transactions). Import
+// à préférer à un cast `as any` local dupliqué dans chaque controller/route ;
+// à supprimer une fois `npm run gen:types` relancé après application de ces
+// migrations.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const supabaseAdminUntyped = supabaseAdmin as any;

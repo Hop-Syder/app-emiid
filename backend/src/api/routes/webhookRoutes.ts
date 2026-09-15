@@ -8,12 +8,19 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { timingSafeEqual } from 'crypto';
 import { logger } from '../../utils/logger';
-import { supabaseAdmin } from '../../config/supabase';
+import { supabaseAdmin, supabaseAdminUntyped as db } from '../../config/supabase';
 import { sendNewMessageNotification, sendWelcomeEmail } from '../../services/mailService';
 import { sendPushNotification } from '../../services/pushService';
 import { z } from 'zod';
 
 const router = Router();
+
+/** Nom affichable "Prénom Nom", ou un libellé de repli si le profil est absent/vide. */
+function formatDisplayName(profile: { first_name?: string | null; last_name?: string | null } | null | undefined, fallback: string): string {
+  if (!profile) return fallback;
+  const name = `${profile.first_name || ''} ${profile.last_name || ''}`.trim();
+  return name || fallback;
+}
 
 /**
  * Vérifie le secret partagé du webhook (header `x-webhook-secret`).
@@ -46,10 +53,11 @@ const verifyWebhookSecret = (req: Request, res: Response, next: NextFunction) =>
 // @desc    Reçoit les événements de la DB Supabase
 router.post('/supabase', verifyWebhookSecret, async (req: Request, res: Response) => {
   try {
-    const { type, table, record } = z.object({
+    const { type, table, record, old_record } = z.object({
       type: z.string().optional(),
       table: z.string().optional(),
-      record: z.any().optional()
+      record: z.any().optional(),
+      old_record: z.any().optional()
     }).parse(req.body || {});
     logger.info('Webhook reçu depuis Supabase', { type, table });
     
@@ -88,9 +96,7 @@ router.post('/supabase', verifyWebhookSecret, async (req: Request, res: Response
           .select('first_name, last_name')
           .eq('user_id', sender_id)
           .single();
-        const senderName = senderProfile
-          ? `${senderProfile.first_name || ''} ${senderProfile.last_name || ''}`.trim()
-          : "Un membre EmiID";
+        const senderName = formatDisplayName(senderProfile, "Un membre EmiID");
 
         // Notification In-App pour tous les destinataires
         const { error: notifError } = await supabaseAdmin
@@ -140,9 +146,7 @@ router.post('/supabase', verifyWebhookSecret, async (req: Request, res: Response
         .eq('user_id', follower_id)
         .single();
 
-      const followerName = followerProfile 
-        ? `${followerProfile.first_name || ''} ${followerProfile.last_name || ''}`.trim() 
-        : "Un nouveau membre";
+      const followerName = formatDisplayName(followerProfile, "Un nouveau membre");
 
       // Récupérer les préférences du destinataire (following_id)
       const { data: recipient, error: recipientError } = await supabaseAdmin.auth.admin.getUserById(following_id);
@@ -212,6 +216,105 @@ router.post('/supabase', verifyWebhookSecret, async (req: Request, res: Response
           logger.error(`Échec envoi email de bienvenue à ${email}`, mailErr);
         }
       })();
+    }
+
+    // 4. Moteur Missions — nouvelle candidature reçue par le client.
+    //    Nécessite un Database Webhook Supabase configuré côté tableau de bord
+    //    sur INSERT/UPDATE de public.mission_applications vers cette même route
+    //    (voir docs/business-plan-missions.md — pas de table de config en SQL,
+    //    même mécanisme que les webhooks messages/user_follows ci-dessus).
+    //    Fire-and-forget comme la section 3 : plusieurs appels réseau en
+    //    séquence dépasseraient facilement le délai de livraison Supabase
+    //    (~5s), provoquant un rejeu et donc des notifications en double.
+    if (type === 'INSERT' && table === 'mission_applications') {
+      const { mission_id, pro_id } = record || {};
+      if (mission_id && pro_id) {
+        void (async () => {
+          try {
+            const [{ data: mission, error: missionErr }, { data: proProfile }] = await Promise.all([
+              db.from('missions').select('title, client_id').eq('id', mission_id).single(),
+              supabaseAdmin.from('user_profiles').select('first_name, last_name').eq('user_id', pro_id).single(),
+            ]);
+
+            if (missionErr || !mission?.client_id) {
+              logger.error(`Webhook candidature : mission ${mission_id} introuvable`, missionErr);
+              return;
+            }
+
+            const proName = formatDisplayName(proProfile, 'Un prestataire');
+            const content = `${proName} a postulé à votre mission « ${mission.title} ».`;
+
+            // Indépendants l'un de l'autre (tous deux ne dépendent que de
+            // mission.client_id, déjà connu) : lancés en parallèle.
+            const [{ error: notifError }, { data: recipient }] = await Promise.all([
+              supabaseAdmin.from('notifications').insert({
+                user_id: mission.client_id,
+                type: 'mission',
+                title: 'Nouvelle candidature reçue',
+                content,
+                link: `/missions/${mission_id}`,
+                is_read: false,
+              }),
+              supabaseAdmin.auth.admin.getUserById(mission.client_id),
+            ]);
+            if (notifError) logger.error('Webhook candidature : notification in-app échouée', notifError);
+
+            const preferences = recipient?.user?.user_metadata?.notification_preferences;
+            if (preferences?.push !== false) {
+              await sendPushNotification(mission.client_id, 'Nouvelle candidature reçue', content, undefined, `/missions/${mission_id}`);
+            }
+          } catch (err) {
+            // Fire-and-forget : une exception ici (réseau, timeout) ne doit
+            // jamais devenir une unhandled rejection non journalisée.
+            logger.error('Webhook candidature : traitement échoué', err);
+          }
+        })();
+      }
+    }
+
+    // 5. Moteur Missions — issue de la sélection (ACCEPTED/REJECTED), posée par
+    //    select_mission_applicant() dans 20260915b_missions_engine_phase2_selection.sql.
+    //    Même raison de fire-and-forget que la section 4.
+    if (type === 'UPDATE' && table === 'mission_applications') {
+      const newStatus = record?.status;
+      const oldStatus = old_record?.status;
+      const { mission_id, pro_id } = record || {};
+      if (mission_id && pro_id && newStatus !== oldStatus && (newStatus === 'ACCEPTED' || newStatus === 'REJECTED')) {
+        void (async () => {
+          try {
+            // Indépendants (aucun ne dépend de l'autre — pro_id est déjà connu
+            // via record) : lancés en parallèle.
+            const [{ data: mission, error: missionErr }, { data: recipient }] = await Promise.all([
+              db.from('missions').select('title').eq('id', mission_id).single(),
+              supabaseAdmin.auth.admin.getUserById(pro_id),
+            ]);
+            if (missionErr) logger.error(`Webhook sélection : mission ${mission_id} introuvable`, missionErr);
+            const missionTitle = mission?.title || 'une mission';
+
+            const title = newStatus === 'ACCEPTED' ? 'Candidature retenue !' : 'Candidature non retenue';
+            const content = newStatus === 'ACCEPTED'
+              ? `Vous avez été sélectionné pour la mission « ${missionTitle} ». Contactez le client pour démarrer.`
+              : `Votre candidature pour la mission « ${missionTitle} » n'a pas été retenue cette fois-ci.`;
+
+            const { error: notifError } = await supabaseAdmin.from('notifications').insert({
+              user_id: pro_id,
+              type: 'mission',
+              title,
+              content,
+              link: `/missions/${mission_id}`,
+              is_read: false,
+            });
+            if (notifError) logger.error('Webhook sélection : notification in-app échouée', notifError);
+
+            const preferences = recipient?.user?.user_metadata?.notification_preferences;
+            if (preferences?.push !== false) {
+              await sendPushNotification(pro_id, title, content, undefined, `/missions/${mission_id}`);
+            }
+          } catch (err) {
+            logger.error('Webhook sélection : traitement échoué', err);
+          }
+        })();
+      }
     }
 
     res.status(200).json({ success: true });

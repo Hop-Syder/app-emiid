@@ -48,10 +48,10 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
     // dans les métadonnées d'auth : sans ce contrôle, un compte suspendu resterait
     // bloqué par le middleware Next côté client mais garderait l'accès à l'API.
     // L'échéance est évaluée ici, pour qu'une suspension temporaire expire d'elle-même.
-    const { data: profile } = await supabase
+    const { data: profile } = await supabaseAdmin
       .from('user_profiles')
       .select('is_suspended, suspended_until')
-      .eq('id', user.id)
+      .eq('user_id', user.id)
       .maybeSingle();
 
     if (profile?.is_suspended) {
