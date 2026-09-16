@@ -193,8 +193,8 @@ export function MobileDockAuth() {
               <SheetItem
                 href="/credits"
                 icon={Coins}
-                label="Mes crédits missions"
-                desc="Solde & candidatures"
+                label="Mes abonnements"
+                desc="Crédits missions & offre Pro"
               />
               <SheetItem
                 href="/parrainage"

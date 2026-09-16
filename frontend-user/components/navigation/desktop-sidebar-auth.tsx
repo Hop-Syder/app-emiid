@@ -49,7 +49,7 @@ const NAV_ITEMS = [
   { name: "Hub", href: "/dashboard-user", icon: Home },
   { name: "Annuaire", href: "/annuaire", icon: LayoutGrid },
   { name: "Missions", href: "/missions", icon: Briefcase },
-  { name: "Mes Crédits", href: "/credits", icon: Coins },
+  { name: "Mes Abonnements", href: "/credits", icon: Coins },
   { name: "Messages", href: "/messages", icon: MessageSquare },
   { name: "Notifications", href: "/notifications", icon: Bell },
   { name: "Portefeuille", href: "/portefeuille", icon: Wallet },
