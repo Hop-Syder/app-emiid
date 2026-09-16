@@ -52,14 +52,14 @@ export function ExperienceSection({ profile, setProfile }: ExperienceSectionProp
     >
       <div className="space-y-3">
         {experiences.length === 0 && (
-          <div className="p-6 text-center rounded-none bg-muted/60 border border-dashed border-border">
+          <div className="p-6 text-center rounded-2xl bg-muted/60 border border-dashed border-border">
             <p className="text-xs text-muted-foreground font-medium">Aucune expérience renseignée pour le moment.</p>
             <p className="text-[11px] text-slate-400 mt-1">Ajoutez votre parcours pour qu&apos;il apparaisse dans l&apos;onglet « Parcours &amp; Expériences » de votre profil public.</p>
           </div>
         )}
 
         {experiences.map((exp) => (
-          <div key={exp.id} className="rounded-none border border-border/80 bg-muted/50 p-4 space-y-3 shadow-xs">
+          <div key={exp.id} className="rounded-2xl border border-border/80 bg-muted/50 p-4 sm:p-5 space-y-3 shadow-xs">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               <Input
                 value={exp.title}
@@ -100,7 +100,7 @@ export function ExperienceSection({ profile, setProfile }: ExperienceSectionProp
                   type="checkbox"
                   checked={exp.current}
                   onChange={(e) => updateExperience(exp.id, { current: e.target.checked, endDate: e.target.checked ? null : exp.endDate })}
-                  className="h-3.5 w-3.5 rounded-none accent-[#013ff4]"
+                  className="h-3.5 w-3.5 rounded accent-[#013ff4]"
                 />
                 Poste actuel
               </label>
@@ -109,7 +109,7 @@ export function ExperienceSection({ profile, setProfile }: ExperienceSectionProp
                 type="button"
                 variant="ghost"
                 onClick={() => removeExperience(exp.id)}
-                className="h-9 w-9 p-0 ml-auto shrink-0 text-rose-500 hover:bg-rose-50 hover:text-rose-600 rounded-none"
+                className="h-9 w-9 p-0 ml-auto shrink-0 text-rose-500 hover:bg-rose-50 hover:text-rose-600 rounded-xl"
                 aria-label="Supprimer"
               >
                 <Trash2 className="h-4 w-4" />
@@ -130,7 +130,7 @@ export function ExperienceSection({ profile, setProfile }: ExperienceSectionProp
           type="button"
           variant="outline"
           onClick={addExperience}
-          className="rounded-none h-11 gap-2 border-dashed border-slate-300 text-muted-foreground w-full font-bold hover:bg-muted transition-all"
+          className="rounded-xl h-11 gap-2 border-dashed border-border hover:border-primary/40 text-muted-foreground hover:text-foreground w-full font-bold hover:bg-muted/70 transition-all shadow-xs"
         >
           <Plus className="h-4 w-4 text-[#013ff4]" />
           Ajouter une expérience

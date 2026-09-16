@@ -110,9 +110,9 @@ export function VerificationSection({ profile }: SectionProps) {
         <div className="space-y-4">
             {/* Statut global */}
             <SectionCard title="Badge vérifié">
-                <div className="flex items-center gap-3">
-                    <div className={`p-2.5 rounded-none shrink-0 ${profile.is_verified ? "bg-emerald-50 dark:bg-emerald-950/40" : "bg-muted"}`}>
-                        <ShieldCheck className={`h-5 w-5 ${profile.is_verified ? "text-emerald-600" : "text-slate-400"}`} />
+                <div className="flex items-center gap-3.5">
+                    <div className={`p-2.5 rounded-xl shrink-0 ${profile.is_verified ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600" : "bg-muted text-muted-foreground"}`}>
+                        <ShieldCheck className="h-5 w-5" />
                     </div>
                     <div>
                         <p className="text-sm font-bold text-foreground">
@@ -133,7 +133,7 @@ export function VerificationSection({ profile }: SectionProps) {
                     <select
                         value={docType}
                         onChange={(e) => setDocType(e.target.value)}
-                        className="flex-1 h-11 px-3 rounded-none bg-muted border border-border text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+                        className="flex-1 h-11 px-3.5 rounded-xl bg-muted/40 border border-border/80 text-sm font-medium text-foreground focus:bg-card focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all cursor-pointer shadow-2xs"
                     >
                         {DOC_TYPES.map((t) => (
                             <option key={t.value} value={t.value}>
@@ -143,10 +143,10 @@ export function VerificationSection({ profile }: SectionProps) {
                     </select>
 
                     <label
-                        className={`inline-flex items-center justify-center gap-2 h-11 px-5 rounded-none text-sm font-bold cursor-pointer transition-all shrink-0 ${
+                        className={`inline-flex items-center justify-center gap-2 h-11 px-5 rounded-xl text-sm font-bold cursor-pointer transition-all shrink-0 active:scale-98 ${
                             uploading
-                                ? "bg-muted text-slate-400 cursor-not-allowed"
-                                : "bg-[#013ff4] text-white hover:bg-[#013ff4]/90 shadow-lg shadow-[#013ff4]/25"
+                                ? "bg-muted text-muted-foreground cursor-not-allowed"
+                                : "bg-[#013ff4] text-white hover:bg-[#003ec7] shadow-md shadow-[#013ff4]/25"
                         }`}
                     >
                         {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
@@ -165,23 +165,23 @@ export function VerificationSection({ profile }: SectionProps) {
             {/* Documents envoyés */}
             <SectionCard title="Documents envoyés">
                 {loading ? (
-                    <p className="text-sm text-slate-400">Chargement...</p>
+                    <p className="text-sm text-muted-foreground">Chargement...</p>
                 ) : docs.length === 0 ? (
-                    <p className="text-sm text-slate-400">Aucun document envoyé pour le moment.</p>
+                    <p className="text-sm text-muted-foreground">Aucun document envoyé pour le moment.</p>
                 ) : (
-                    <div className="divide-y divide-border">
+                    <div className="divide-y divide-border/60">
                         {docs.map((doc) => {
                             const meta = STATUS_META[doc.status] || STATUS_META.pending
                             const typeLabel = DOC_TYPES.find((t) => t.value === doc.doc_type)?.label || doc.doc_type
                             return (
-                                <div key={doc.id} className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
+                                <div key={doc.id} className="flex items-center justify-between py-3.5 first:pt-0 last:pb-0">
                                     <div className="flex items-center gap-3 min-w-0 flex-1">
-                                        <div className="p-2 bg-muted rounded-none shrink-0">
+                                        <div className="p-2 bg-muted rounded-lg shrink-0">
                                             <FileText className="h-4 w-4 text-muted-foreground" />
                                         </div>
                                         <div className="min-w-0">
                                             <p className="text-sm font-semibold text-foreground truncate">{typeLabel}</p>
-                                            <p className="text-xs text-slate-400">
+                                            <p className="text-xs text-muted-foreground">
                                                 {new Date(doc.created_at).toLocaleDateString("fr-FR")}
                                             </p>
                                         </div>

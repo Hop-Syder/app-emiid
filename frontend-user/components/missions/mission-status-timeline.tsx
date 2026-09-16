@@ -109,13 +109,13 @@ export function MissionStatusTimeline({
   }
 
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/60 md:p-8">
+    <div className="rounded-2xl border border-border bg-card p-6 shadow-sm md:p-8">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-base font-bold text-slate-900 dark:text-white">
+          <h3 className="text-base font-bold text-foreground">
             Suivi & Cycle de vie de la mission
           </h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
+          <p className="text-sm text-muted-foreground">
             Traçabilité des jalons de livraison et protection séquestre
           </p>
         </div>
@@ -147,7 +147,7 @@ export function MissionStatusTimeline({
                 isCurrent
                   ? "border border-[#013ff4] bg-blue-500/5 shadow-xs"
                   : isDone
-                  ? "bg-slate-50 dark:bg-slate-800/40"
+                  ? "bg-muted"
                   : "opacity-40"
               }`}
             >
@@ -158,16 +158,16 @@ export function MissionStatusTimeline({
                       ? "bg-emerald-500 text-white"
                       : isCurrent
                       ? "bg-[#013ff4] text-white"
-                      : "bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
+                      : "bg-muted text-muted-foreground"
                   }`}
                 >
                   {isDone ? <CheckCircle2 className="h-4 w-4" /> : idx + 1}
                 </span>
-                <span className="text-xs font-bold text-slate-900 dark:text-white">
+                <span className="text-xs font-bold text-foreground">
                   {step.label}
                 </span>
               </div>
-              <p className="mt-2 text-[10px] text-slate-500 dark:text-slate-400">
+              <p className="mt-2 text-[10px] text-muted-foreground">
                 {step.desc}
               </p>
             </div>
@@ -192,14 +192,17 @@ export function MissionStatusTimeline({
         </div>
       )}
 
-      {/* Boutons d'action contextuels */}
-      <div className="mt-6 flex flex-wrap items-center gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+      {/* Boutons d'action contextuels. Désactivés dès qu'UNE action est en
+          vol (pas seulement la leur) : sinon un client pouvait valider le
+          travail ET ouvrir un litige en parallèle pendant qu'une première
+          requête était encore en cours. */}
+      <div className="mt-6 flex flex-wrap items-center gap-3 pt-4 border-t border-border">
         {/* Actions Freelance */}
         {isAssignedFreelancer && mission.status === "ASSIGNED" && (
           <button
             type="button"
             onClick={() => handleAction("START_WORK")}
-            disabled={loadingAction === "START_WORK"}
+            disabled={!!loadingAction}
             className="inline-flex items-center gap-2 rounded-2xl bg-[#013ff4] px-5 py-2.5 text-xs font-bold text-white shadow-md shadow-blue-500/20 hover:bg-[#0135d0] active:scale-95 disabled:opacity-50"
           >
             {loadingAction === "START_WORK" ? (
@@ -215,7 +218,7 @@ export function MissionStatusTimeline({
           <button
             type="button"
             onClick={() => handleAction("DELIVER")}
-            disabled={loadingAction === "DELIVER"}
+            disabled={!!loadingAction}
             className="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-5 py-2.5 text-xs font-bold text-white shadow-md shadow-emerald-500/20 hover:bg-emerald-700 active:scale-95 disabled:opacity-50"
           >
             {loadingAction === "DELIVER" ? (
@@ -233,7 +236,7 @@ export function MissionStatusTimeline({
             <button
               type="button"
               onClick={() => handleAction("COMPLETE")}
-              disabled={loadingAction === "COMPLETE"}
+              disabled={!!loadingAction}
               className="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-5 py-2.5 text-xs font-bold text-white shadow-md shadow-emerald-500/20 hover:bg-emerald-700 active:scale-95 disabled:opacity-50"
             >
               {loadingAction === "COMPLETE" ? (
@@ -247,7 +250,8 @@ export function MissionStatusTimeline({
             <button
               type="button"
               onClick={() => setShowDisputeModal(true)}
-              className="inline-flex items-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-xs font-bold text-rose-600 hover:bg-rose-100 dark:border-rose-900/50 dark:bg-rose-950/40 dark:text-rose-400"
+              disabled={!!loadingAction}
+              className="inline-flex items-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-xs font-bold text-rose-600 hover:bg-rose-100 disabled:opacity-50 dark:border-rose-900/50 dark:bg-rose-950/40 dark:text-rose-400"
             >
               <AlertTriangle className="h-4 w-4" />
               <span>Contester / Ouvrir un litige</span>
@@ -261,19 +265,19 @@ export function MissionStatusTimeline({
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
             onClick={() => setShowDisputeModal(false)}
-            className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm"
+            className="fixed inset-0 bg-background/60 backdrop-blur-sm"
           />
-          <div className="relative z-10 w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-800 dark:bg-slate-900">
+          <div className="relative z-10 w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl">
             <div className="flex items-center gap-2 text-rose-600 dark:text-rose-400">
               <AlertTriangle className="h-5 w-5" />
               <h3 className="text-base font-bold">Ouverture d'un litige</h3>
             </div>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+            <p className="mt-1 text-sm text-muted-foreground">
               Les fonds séquestre seront immédiatement bloqués. L'équipe d'arbitrage EmiID interviendra sous 48h.
             </p>
 
             <div className="mt-4 space-y-1">
-              <label className="text-sm font-bold text-slate-700 dark:text-slate-300">
+              <label className="text-sm font-bold text-foreground">
                 Motif de la contestation <span className="text-rose-500">*</span>
               </label>
               <textarea
@@ -281,7 +285,7 @@ export function MissionStatusTimeline({
                 onChange={(e) => setDisputeReason(e.target.value)}
                 placeholder="Décrivez les non-conformités constatées par rapport au cahier des charges initial..."
                 rows={4}
-                className="w-full resize-none rounded-2xl border border-slate-200 bg-slate-50/50 p-3 text-base md:text-sm text-slate-900 outline-none transition-colors focus:border-rose-500 dark:border-slate-800 dark:bg-slate-800/50 dark:text-white"
+                className="w-full resize-none rounded-2xl border border-border bg-muted/50 p-3 text-base md:text-sm text-foreground outline-none transition-colors focus:border-rose-500"
               />
             </div>
 
@@ -289,7 +293,7 @@ export function MissionStatusTimeline({
               <button
                 type="button"
                 onClick={() => setShowDisputeModal(false)}
-                className="rounded-xl px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+                className="rounded-xl px-4 py-2 text-xs font-semibold text-muted-foreground hover:bg-muted"
               >
                 Annuler
               </button>

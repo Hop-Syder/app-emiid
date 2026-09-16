@@ -49,7 +49,7 @@ export function BoostSection() {
     const target = scope === "COMMUNE" ? selected : selectedDept
 
     return (
-        <div className="bg-card rounded-none border border-border p-6 sm:p-8 space-y-8">
+        <div className="bg-card rounded-2xl border border-border/70 p-6 sm:p-8 space-y-8 shadow-xs">
             <div>
                 <h3 className="text-lg font-bold text-foreground">Boost de visibilité</h3>
                 <p className="text-muted-foreground text-xs mt-1">
@@ -59,10 +59,10 @@ export function BoostSection() {
 
             {/* ── Boost actif ───────────────────────────────────────────────── */}
             {activeBoost && (
-                <div className="relative overflow-hidden rounded-none border border-[#F59E0B]/30 bg-[#F59E0B]/[0.06] p-5">
+                <div className="relative overflow-hidden rounded-2xl border border-[#F59E0B]/30 bg-[#F59E0B]/[0.06] p-5 shadow-2xs">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                         <div className="flex items-center gap-3">
-                            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-none bg-[#F59E0B]/15 text-[#B45309]">
+                            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#F59E0B]/15 text-[#B45309]">
                                 <Rocket className="h-5 w-5" />
                             </span>
                             <div>
@@ -75,7 +75,7 @@ export function BoostSection() {
                                 </p>
                             </div>
                         </div>
-                        <span className="inline-flex items-center gap-1.5 rounded-none border border-[#F59E0B]/40 bg-card px-3 py-1.5 text-xs font-bold text-[#B45309]">
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-[#F59E0B]/40 bg-card px-3 py-1.5 text-xs font-bold text-[#B45309]">
                             <Check className="h-3.5 w-3.5" />
                             Boost actif
                         </span>
@@ -85,7 +85,7 @@ export function BoostSection() {
 
             {/* ── Erreur ────────────────────────────────────────────────────── */}
             {error && (
-                <div className="flex items-start gap-3 rounded-none border border-rose-200 dark:border-rose-800/50 bg-rose-50 dark:bg-rose-950/40 px-4 py-3">
+                <div className="flex items-start gap-3 rounded-xl border border-rose-200 dark:border-rose-800/50 bg-rose-50 dark:bg-rose-950/40 px-4 py-3">
                     <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-rose-500" />
                     <div>
                         <p className="text-sm font-bold text-rose-900 dark:text-rose-300">Paiement impossible</p>
@@ -98,7 +98,7 @@ export function BoostSection() {
             <div className="space-y-3">
                 <h5 className="text-xs font-bold text-foreground uppercase tracking-wider">Portée du boost</h5>
 
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-3">
                     {([
                         { id: "COMMUNE" as BoostScope, icon: MapPin, title: "Communale", desc: "Atelier fixe" },
                         { id: "DEPARTMENT" as BoostScope, icon: Globe2, title: "Départementale", desc: "Pro mobile / PME" },
@@ -108,13 +108,13 @@ export function BoostSection() {
                             <button
                                 key={opt.id}
                                 onClick={() => setScope(opt.id)}
-                                className={`flex items-start gap-2.5 rounded-none border p-3.5 text-left transition-colors ${
+                                className={`flex items-start gap-3 rounded-xl border p-4 text-left transition-all cursor-pointer ${
                                     active
-                                        ? "border-[#013ff4] bg-[#013ff4]/[0.05]"
-                                        : "border-border hover:bg-muted"
+                                        ? "border-[#013ff4] bg-[#013ff4]/[0.05] shadow-xs"
+                                        : "border-border/70 hover:bg-muted/40"
                                 }`}
                             >
-                                <opt.icon className={`mt-0.5 h-4 w-4 shrink-0 ${active ? "text-[#013ff4]" : "text-slate-400"}`} />
+                                <opt.icon className={`mt-0.5 h-4 w-4 shrink-0 ${active ? "text-[#013ff4]" : "text-muted-foreground"}`} />
                                 <span className="min-w-0">
                                     <span className={`block text-xs font-black ${active ? "text-[#013ff4]" : "text-foreground"}`}>
                                         {opt.title}
@@ -132,17 +132,17 @@ export function BoostSection() {
                 </h5>
 
                 {loading ? (
-                    <div className="h-11 w-full animate-pulse rounded-none bg-muted" />
+                    <div className="h-11 w-full animate-pulse rounded-xl bg-muted" />
                 ) : scope === "COMMUNE" ? (
                     <>
-                        <div className="flex items-center gap-2 rounded-none border border-border bg-card px-3">
-                            <Search className="h-4 w-4 shrink-0 text-slate-400" />
+                        <div className="flex items-center gap-2 rounded-xl border border-border/80 bg-muted/30 px-3.5 focus-within:bg-card focus-within:border-[#013ff4] transition-all">
+                            <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
                             <input
                                 value={filter}
                                 onChange={(e) => setFilter(e.target.value)}
                                 placeholder="Filtrer par commune ou département…"
                                 aria-label="Filtrer les communes"
-                                className="min-w-0 flex-1 bg-transparent py-2.5 text-sm font-medium text-foreground placeholder:text-slate-400 focus:outline-none"
+                                className="min-w-0 flex-1 bg-transparent py-2.5 text-sm font-medium text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
                             />
                         </div>
 
@@ -150,7 +150,7 @@ export function BoostSection() {
                             value={selected}
                             onChange={(e) => setSelected(e.target.value)}
                             aria-label="Commune à cibler"
-                            className="w-full rounded-none border border-border bg-card px-3 py-2.5 text-sm font-semibold text-foreground focus:border-[#013ff4]/40 focus:outline-none"
+                            className="w-full rounded-xl border border-border/80 bg-muted/30 px-3.5 py-2.5 text-sm font-semibold text-foreground focus:bg-card focus:border-[#013ff4] focus:outline-none transition-all cursor-pointer"
                         >
                             <option value="">— Choisir une commune —</option>
                             {visible.map((c) => (
@@ -172,7 +172,7 @@ export function BoostSection() {
                         value={selectedDept}
                         onChange={(e) => setSelectedDept(e.target.value)}
                         aria-label="Département à cibler"
-                        className="w-full rounded-none border border-border bg-card px-3 py-2.5 text-sm font-semibold text-foreground focus:border-[#013ff4]/40 focus:outline-none"
+                        className="w-full rounded-xl border border-border/80 bg-muted/30 px-3.5 py-2.5 text-sm font-semibold text-foreground focus:bg-card focus:border-[#013ff4] focus:outline-none transition-all cursor-pointer"
                     >
                         <option value="">— Choisir un département —</option>
                         {departments.map((d) => (
@@ -194,27 +194,27 @@ export function BoostSection() {
                                 key={planId}
                                 initial={{ opacity: 0, y: 6 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className={`relative rounded-none border p-5 flex flex-col justify-between gap-4 ${
-                                    best ? "border-[#013ff4]/30 bg-[#013ff4]/[0.03]" : "border-border"
+                                className={`relative rounded-2xl border p-5 flex flex-col justify-between gap-5 transition-all shadow-xs hover:shadow-md ${
+                                    best ? "border-[#013ff4]/40 bg-[#013ff4]/[0.03]" : "border-border/70 bg-card"
                                 }`}
                             >
                                 {best && (
-                                    <span className="absolute -top-2.5 right-4 rounded-full bg-[#013ff4] px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-white">
+                                    <span className="absolute -top-2.5 right-4 rounded-full bg-[#013ff4] px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-white shadow-xs">
                                         Meilleur tarif
                                     </span>
                                 )}
                                 <div>
                                     <p className="text-xs font-bold text-muted-foreground">{plan.label}</p>
                                     <p className="mt-1 text-2xl font-black text-foreground">{formatFcfa(plan.amount)}</p>
-                                    <p className="text-[11px] font-medium text-slate-400">{plan.duration}</p>
+                                    <p className="text-[11px] font-medium text-muted-foreground">{plan.duration}</p>
                                 </div>
                                 <button
                                     onClick={() => startBoostCheckout(planId, target)}
                                     disabled={busy || !target || loading}
-                                    className={`w-full rounded-none px-4 py-3 text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+                                    className={`w-full rounded-xl px-4 py-3 text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
                                         best
-                                            ? "bg-[#013ff4] text-white shadow-lg shadow-[#013ff4]/25 hover:bg-[#0135d0]"
-                                            : "bg-card border border-border text-foreground hover:bg-muted"
+                                            ? "bg-[#013ff4] text-white shadow-md shadow-[#013ff4]/25 hover:bg-[#0135d0] active:scale-98"
+                                            : "bg-card border border-border text-foreground hover:bg-muted active:scale-98"
                                     }`}
                                 >
                                     {checkoutLoading === planId ? (
@@ -234,7 +234,7 @@ export function BoostSection() {
                     })}
                 </div>
 
-                <p className="text-[11px] text-slate-400 font-medium">
+                <p className="text-[11px] text-muted-foreground font-medium">
                     Paiement MTN MoMo, Moov ou Celtiis. La durée court à partir de la confirmation du paiement.
                     Un boost communal place votre profil en tête des recherches de la commune ; un boost départemental le remonte sur tout le département, juste en dessous des boosts communaux.
                 </p>

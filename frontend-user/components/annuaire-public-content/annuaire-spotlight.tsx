@@ -96,7 +96,7 @@ export function AnnuaireSpotlight() {
                 {/* Liste défilante */}
                 <div 
                     ref={scrollRef}
-                    className="flex overflow-x-auto pb-10 pt-4 px-4 -mx-4 gap-6 snap-x no-scrollbar w-full scroll-smooth lg:grid lg:grid-cols-3 lg:gap-5 xl:gap-6 lg:overflow-visible lg:p-0 lg:m-0"
+                    className="flex overflow-x-auto pb-8 pt-2 px-5 sm:px-6 -mx-4 sm:-mx-6 gap-6 snap-x snap-mandatory scroll-pl-5 sm:scroll-pl-6 no-scrollbar w-full scroll-smooth lg:grid lg:grid-cols-3 lg:gap-5 xl:gap-6 lg:overflow-visible lg:p-0 lg:m-0 lg:snap-none lg:scroll-pl-0"
                 >
                     {profiles.map((profile, index) => (
                         <motion.div
@@ -104,7 +104,7 @@ export function AnnuaireSpotlight() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.1 }}
-                            className="min-w-[280px] sm:min-w-[320px] max-w-[320px] lg:min-w-0 lg:max-w-none bg-card rounded-3xl p-6 shadow-xl shadow-slate-200/50 border border-amber-100 dark:border-amber-900/40 flex flex-col h-full relative overflow-hidden group snap-center shrink-0"
+                            className="min-w-[280px] sm:min-w-[320px] max-w-[320px] lg:min-w-0 lg:max-w-none bg-card rounded-3xl p-6 shadow-xl shadow-slate-200/50 border border-amber-100 dark:border-amber-900/40 flex flex-col h-full relative overflow-hidden group snap-start shrink-0"
                         >
                             {/* Glow effect */}
                             <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-amber-400/20 rounded-full blur-3xl transition-transform group-hover:scale-150 duration-500" />

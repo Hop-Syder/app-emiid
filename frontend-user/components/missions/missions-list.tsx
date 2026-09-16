@@ -14,6 +14,8 @@ import { useState } from "react"
 import Link from "next/link"
 import { useMissions, type MissionFilterTab } from "@/hooks/use-missions"
 import { MissionCard } from "./mission-card"
+import { EmptyState } from "@/components/EmptyState"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Search,
   Plus,
@@ -39,10 +41,10 @@ export function MissionsList() {
             <Briefcase className="h-4 w-4" />
             <span>Missions Courtes Sécurisées</span>
           </div>
-          <h1 className="mt-1 font-heading text-2xl font-black text-slate-900 dark:text-white md:text-3xl">
+          <h1 className="mt-1 font-heading text-2xl font-black text-foreground md:text-3xl">
             Opportunités de missions
           </h1>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          <p className="mt-1 text-sm text-muted-foreground">
             Plafond strict de 2 candidats par mission pour une sélectivité et une conversion optimales.
           </p>
         </div>
@@ -57,7 +59,7 @@ export function MissionsList() {
       </div>
 
       {/* Barre de recherche et onglets */}
-      <div className="flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900/60 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-4 shadow-sm md:flex-row md:items-center md:justify-between">
         {/* Onglets */}
         <div className="flex flex-wrap gap-1">
           <button
@@ -66,7 +68,7 @@ export function MissionsList() {
             className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition-all ${
               tab === "ALL"
                 ? "bg-[#013ff4] text-white shadow-sm"
-                : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground"
             }`}
           >
             <Layers className="h-3.5 w-3.5" />
@@ -79,7 +81,7 @@ export function MissionsList() {
             className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition-all ${
               tab === "MY_POSTED"
                 ? "bg-[#013ff4] text-white shadow-sm"
-                : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground"
             }`}
           >
             <FileCheck2 className="h-3.5 w-3.5" />
@@ -92,7 +94,7 @@ export function MissionsList() {
             className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition-all ${
               tab === "MY_APPLIED"
                 ? "bg-[#013ff4] text-white shadow-sm"
-                : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground"
             }`}
           >
             <Sparkles className="h-3.5 w-3.5" />
@@ -102,13 +104,13 @@ export function MissionsList() {
 
         {/* Champ de recherche */}
         <div className="relative w-full md:w-72">
-          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Rechercher par mot-clé..."
-            className="h-10 w-full rounded-2xl border border-slate-200 bg-slate-50/50 pl-10 pr-4 text-base md:text-sm text-slate-900 outline-none transition-colors focus:border-[#013ff4] focus:bg-white focus:ring-1 focus:ring-[#013ff4] dark:border-slate-800 dark:bg-slate-800/50 dark:text-white"
+            className="h-10 w-full rounded-xl border border-border bg-muted/50 pl-10 pr-4 text-base md:text-sm text-foreground outline-none transition-colors focus:border-[#013ff4] focus:bg-card focus:ring-1 focus:ring-[#013ff4]"
           />
         </div>
       </div>
@@ -117,28 +119,21 @@ export function MissionsList() {
       {loading ? (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div
-              key={i}
-              className="h-64 animate-pulse rounded-3xl border border-slate-200 bg-slate-100 dark:border-slate-800 dark:bg-slate-800/50"
-            />
+            <Skeleton key={i} className="h-64 rounded-2xl" />
           ))}
         </div>
       ) : missions.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-3xl border border-slate-200 bg-white py-16 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900/60">
-          <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-slate-100 text-slate-400 dark:bg-slate-800">
-            <Inbox className="h-8 w-8" />
-          </div>
-          <h3 className="mt-4 text-base font-bold text-slate-800 dark:text-slate-200">
-            Aucune mission trouvée
-          </h3>
-          <p className="mt-1 max-w-sm text-sm text-slate-400">
-            {tab === "MY_POSTED"
+        <EmptyState
+          icon={Inbox}
+          title="Aucune mission trouvée"
+          description={
+            tab === "MY_POSTED"
               ? "Vous n'avez pas encore publié de mission. Cliquez sur 'Publier une mission' pour démarrer."
               : tab === "MY_APPLIED"
               ? "Vous n'avez encore postulé à aucune mission."
-              : "Aucune mission ne correspond à vos critères de recherche actuellement."}
-          </p>
-        </div>
+              : "Aucune mission ne correspond à vos critères de recherche actuellement."
+          }
+        />
       ) : (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {missions.map((mission) => (

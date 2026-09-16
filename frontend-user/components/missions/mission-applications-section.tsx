@@ -73,10 +73,10 @@ export function MissionApplicationsSection({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-base font-bold text-slate-900 dark:text-white">
+          <h3 className="text-base font-bold text-foreground">
             Candidatures reçues ({applications.length}/2)
           </h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
+          <p className="text-sm text-muted-foreground">
             {isClient
               ? "Examinez les 2 offres et retenez le prestataire idéal pour démarrer les travaux."
               : "Les candidatures sont limitées à 2 prestataires maximum par mission."}
@@ -97,12 +97,12 @@ export function MissionApplicationsSection({
       )}
 
       {applications.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-slate-50/50 py-10 text-center dark:border-slate-800 dark:bg-slate-900/30">
-          <Users2 className="h-8 w-8 text-slate-400" />
-          <p className="mt-2 text-sm font-bold text-slate-700 dark:text-slate-300">
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-muted/50 py-10 text-center">
+          <Users2 className="h-8 w-8 text-muted-foreground" />
+          <p className="mt-2 text-sm font-bold text-foreground">
             Aucune candidature pour le moment
           </p>
-          <p className="mt-0.5 text-xs text-slate-400">
+          <p className="mt-0.5 text-xs text-muted-foreground">
             La mission est en attente des 2 propositions de prestataires qualifiés.
           </p>
         </div>
@@ -115,12 +115,12 @@ export function MissionApplicationsSection({
             return (
               <div
                 key={app.id}
-                className={`relative flex flex-col justify-between rounded-3xl border p-6 transition-all ${
+                className={`relative flex flex-col justify-between rounded-2xl border p-6 transition-all ${
                   isAccepted
                     ? "border-emerald-500 bg-emerald-50/20 shadow-md ring-2 ring-emerald-500/20 dark:bg-emerald-950/20"
                     : isRejected
-                    ? "border-slate-200 bg-slate-50 opacity-60 dark:border-slate-800 dark:bg-slate-900/30"
-                    : "border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900/60"
+                    ? "border-border bg-muted opacity-60"
+                    : "border-border bg-card shadow-sm"
                 }`}
               >
                 <div>
@@ -143,14 +143,14 @@ export function MissionApplicationsSection({
 
                       <div>
                         <div className="flex items-center gap-1.5">
-                          <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                          <h4 className="text-sm font-bold text-foreground">
                             {app.freelancer?.full_name || "Prestataire EmiID"}
                           </h4>
                           {app.freelancer?.identity_verified && (
                             <ShieldCheck className="h-3.5 w-3.5 text-[#013ff4] dark:text-[#03b3f8]" />
                           )}
                         </div>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                        <p className="text-xs text-muted-foreground">
                           Professionnel Certifié
                         </p>
                       </div>
@@ -168,11 +168,11 @@ export function MissionApplicationsSection({
                       voulu dire montrer en permanence "À convenir", une
                       donnée factice jamais réelle (voir memory
                       project-audit-2026-09 sur ce même anti-pattern). */}
-                  <div className="mt-4 rounded-2xl bg-slate-50 p-3 dark:bg-slate-800/40">
-                    <span className="text-[10px] font-semibold text-slate-400">
+                  <div className="mt-4 rounded-2xl bg-muted p-3">
+                    <span className="text-[10px] font-semibold text-muted-foreground">
                       Devis proposé
                     </span>
-                    <p className="text-sm font-black text-slate-900 dark:text-white">
+                    <p className="text-sm font-black text-foreground">
                       {app.proposed_price
                         ? `${app.proposed_price.toLocaleString("fr-FR")} FCFA`
                         : "Non spécifié"}
@@ -180,14 +180,14 @@ export function MissionApplicationsSection({
                   </div>
 
                   {/* Note d'intention */}
-                  <p className="mt-4 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                  <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
                     {app.pitch || "Aucune note d'intention fournie."}
                   </p>
                 </div>
 
                 {/* Bouton de sélection (réservé au client si statut OPEN) */}
                 {isClient && canSelect && !isAccepted && !isRejected && (
-                  <div className="mt-6 pt-3 border-t border-slate-100 dark:border-slate-800">
+                  <div className="mt-6 pt-3 border-t border-border">
                     <button
                       type="button"
                       onClick={() => handleSelect(app.id)}

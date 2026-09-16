@@ -43,7 +43,6 @@ export function ApplyMissionModal({
 
   const [proposal, setProposal] = useState("")
   const [priceQuote, setPriceQuote] = useState<number | "">("")
-  const [estimatedDays, setEstimatedDays] = useState<number | "">("")
 
   const [submitting, setSubmitting] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
@@ -67,6 +66,11 @@ export function ApplyMissionModal({
       return
     }
 
+    if (priceQuote === "" || Number(priceQuote) < 0) {
+      setErrorMsg("Le devis proposé est obligatoire.")
+      return
+    }
+
     try {
       setSubmitting(true)
 
@@ -76,8 +80,7 @@ export function ApplyMissionModal({
         body: JSON.stringify({
           missionId,
           proposal: proposal.trim(),
-          priceQuote: priceQuote ? Number(priceQuote) : null,
-          estimatedDays: estimatedDays ? Number(estimatedDays) : null,
+          priceQuote: Number(priceQuote),
         }),
       })
 
@@ -107,10 +110,10 @@ export function ApplyMissionModal({
       {/* Backdrop sombre */}
       <div
         onClick={onClose}
-        className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-background/60 backdrop-blur-sm transition-opacity"
       />
 
-      <div className="relative z-10 w-full max-w-lg overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-800 dark:bg-slate-900 md:p-8">
+      <div className="relative z-10 w-full max-w-lg overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-2xl md:p-8">
         {/* En-tête */}
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -118,10 +121,10 @@ export function ApplyMissionModal({
               <Coins className="h-3.5 w-3.5" />
               <span>Consomme 1 crédit de candidature</span>
             </div>
-            <h3 className="mt-2 font-heading text-lg font-bold text-slate-900 dark:text-white">
+            <h3 className="mt-2 font-heading text-lg font-bold text-foreground">
               Postuler à la mission
             </h3>
-            <p className="mt-0.5 line-clamp-1 text-xs text-slate-500 dark:text-slate-400">
+            <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
               {missionTitle}
             </p>
           </div>
@@ -129,20 +132,20 @@ export function ApplyMissionModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-white"
+            className="rounded-xl p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
         {/* Alerte solde de crédits */}
-        <div className="mt-4 flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50/80 p-3 dark:border-slate-800 dark:bg-slate-800/40">
+        <div className="mt-4 flex items-center justify-between rounded-2xl border border-border bg-muted/80 p-3">
           <div className="flex items-center gap-2">
             <Coins className="h-4 w-4 text-[#013ff4] dark:text-[#03b3f8]" />
-            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+            <span className="text-xs font-semibold text-muted-foreground">
               Votre solde :
             </span>
-            <span className="text-xs font-black text-slate-900 dark:text-white">
+            <span className="text-xs font-black text-foreground">
               {creditsLoading ? "..." : `${balance} crédit${balance > 1 ? "s" : ""}`}
             </span>
           </div>
@@ -174,7 +177,7 @@ export function ApplyMissionModal({
         {/* Formulaire */}
         <form onSubmit={handleSubmit} className="mt-5 space-y-4">
           <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+            <label className="text-xs font-bold text-foreground">
               Votre note d'intention & méthodologie <span className="text-[#013ff4]">*</span>
             </label>
             <textarea
@@ -183,43 +186,28 @@ export function ApplyMissionModal({
               placeholder="Expliquez brièvement comment vous comptez exécuter la mission et vos références similaires..."
               rows={4}
               required
-              className="w-full resize-none rounded-2xl border border-slate-200 bg-slate-50/50 p-3 text-base md:text-sm text-slate-900 outline-none transition-colors focus:border-[#013ff4] focus:bg-white focus:ring-1 focus:ring-[#013ff4] dark:border-slate-800 dark:bg-slate-800/50 dark:text-white"
+              className="w-full resize-none rounded-2xl border border-border bg-muted/50 p-3 text-base md:text-sm text-foreground outline-none transition-colors focus:border-[#013ff4] focus:bg-card focus:ring-1 focus:ring-[#013ff4]"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                Devis ferme (FCFA)
-              </label>
-              <input
-                type="number"
-                min={0}
-                step={500}
-                value={priceQuote}
-                onChange={(e) => setPriceQuote(e.target.value ? Number(e.target.value) : "")}
-                placeholder="Ex : 45000"
-                className="h-11 w-full rounded-2xl border border-slate-200 bg-slate-50/50 px-3 text-base md:text-sm text-slate-900 outline-none transition-colors focus:border-[#013ff4] focus:bg-white focus:ring-1 focus:ring-[#013ff4] dark:border-slate-800 dark:bg-slate-800/50 dark:text-white"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                Délai estimé (jours)
-              </label>
-              <input
-                type="number"
-                min={1}
-                value={estimatedDays}
-                onChange={(e) => setEstimatedDays(e.target.value ? Number(e.target.value) : "")}
-                placeholder="Ex : 3"
-                className="h-11 w-full rounded-2xl border border-slate-200 bg-slate-50/50 px-3 text-base md:text-sm text-slate-900 outline-none transition-colors focus:border-[#013ff4] focus:bg-white focus:ring-1 focus:ring-[#013ff4] dark:border-slate-800 dark:bg-slate-800/50 dark:text-white"
-              />
-            </div>
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-foreground">
+              Devis ferme (FCFA) <span className="text-[#013ff4]">*</span>
+            </label>
+            <input
+              type="number"
+              min={0}
+              step={500}
+              value={priceQuote}
+              onChange={(e) => setPriceQuote(e.target.value ? Number(e.target.value) : "")}
+              placeholder="Ex : 45000"
+              required
+              className="h-11 w-full rounded-2xl border border-border bg-muted/50 px-3 text-base md:text-sm text-foreground outline-none transition-colors focus:border-[#013ff4] focus:bg-card focus:ring-1 focus:ring-[#013ff4]"
+            />
           </div>
 
           {/* Règle de remboursement automatique */}
-          <div className="rounded-xl bg-blue-50/50 p-3 text-[11px] leading-relaxed text-slate-600 dark:bg-blue-950/20 dark:text-slate-300">
+          <div className="rounded-xl bg-blue-50/50 p-3 text-[11px] leading-relaxed text-muted-foreground dark:bg-blue-950/20">
             <div className="flex items-center gap-1.5 font-bold text-[#013ff4] dark:text-[#03b3f8]">
               <ShieldCheck className="h-3.5 w-3.5" />
               <span>Garantie de remboursement EmiID</span>

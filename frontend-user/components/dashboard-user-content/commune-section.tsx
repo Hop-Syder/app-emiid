@@ -69,7 +69,7 @@ export function CommuneSection() {
     if (!loading && profiles.length === 0) return null
 
     return (
-        <div className="space-y-4 pt-4">
+        <div className="space-y-4">
             <div className="flex flex-row items-center justify-between px-1 sm:px-2 gap-2">
                 <h3 className="text-lg sm:text-2xl font-black text-foreground flex items-center gap-2 sm:gap-3 tracking-tight min-w-0">
                     <div className="p-1.5 sm:p-2 bg-[#013ff4]/10 rounded-xl shrink-0 relative overflow-hidden">

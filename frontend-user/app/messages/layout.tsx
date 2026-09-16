@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils"
 
 function InnerMessagesLayout({ children }: { children: React.ReactNode }) {
     const searchParams = useSearchParams()
-    const contactId = searchParams.get("contact") || searchParams.get("user")
+    const contactId = searchParams.get("contact") || searchParams.get("user") || searchParams.get("conv")
     const isMessageChatActive = !!contactId
 
     return (

@@ -109,7 +109,7 @@ export function MfaDialog({
 }: MfaDialogProps) {
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-md rounded-none">
+            <DialogContent className="sm:max-w-md rounded-2xl border border-border/80 shadow-2xl">
                 <DialogHeader>
                     <DialogTitle className="text-2xl font-black text-[#013ff4]">
                         {mfaStep === "phone" ? "Activer la 2FA" : "Vérification"}
@@ -134,7 +134,7 @@ export function MfaDialog({
                                     placeholder="+225 0700000000"
                                     value={mfaPhoneNumber}
                                     onChange={(e) => setMfaPhoneNumber(e.target.value)}
-                                    className="pl-10 rounded-none h-12"
+                                    className="pl-10 rounded-xl h-12"
                                 />
                             </div>
                         </div>
@@ -142,10 +142,10 @@ export function MfaDialog({
                         <div className="grid grid-cols-2 gap-4">
                             <button
                                 onClick={() => setMfaChannel("whatsapp")}
-                                className={`flex flex-col items-center justify-center p-4 rounded-none border-2 transition-all ${
+                                className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all cursor-pointer ${
                                     mfaChannel === "whatsapp"
-                                        ? "border-green-500 bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-300"
-                                        : "border-border hover:border-border"
+                                        ? "border-green-500 bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-300 shadow-xs"
+                                        : "border-border hover:border-border/80"
                                 }`}
                             >
                                 <Image src="/svg/whatsapp-logo.svg" width={24} height={24} className="mb-2" alt="WhatsApp" />
@@ -153,10 +153,10 @@ export function MfaDialog({
                             </button>
                             <button
                                 onClick={() => setMfaChannel("sms")}
-                                className={`flex flex-col items-center justify-center p-4 rounded-none border-2 transition-all ${
+                                className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all cursor-pointer ${
                                     mfaChannel === "sms"
-                                        ? "border-blue-500 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300"
-                                        : "border-border hover:border-border"
+                                        ? "border-blue-500 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 shadow-xs"
+                                        : "border-border hover:border-border/80"
                                 }`}
                             >
                                 <Phone className="h-6 w-6 mb-2" />
@@ -167,14 +167,14 @@ export function MfaDialog({
                         <Button
                             onClick={onEnroll}
                             disabled={mfaLoading || !mfaPhoneNumber}
-                            className="w-full h-12 rounded-none bg-[#013ff4] hover:bg-[#033a7a]"
+                            className="w-full h-12 rounded-xl bg-[#013ff4] hover:bg-[#033a7a] font-bold shadow-md cursor-pointer"
                         >
                             {mfaLoading ? "Envoi en cours..." : "Recevoir le code"}
                         </Button>
                     </div>
                 ) : (
                     <div className="flex flex-col items-center gap-8 py-6">
-                        <div className="bg-muted p-4 sm:p-6 rounded-none w-full flex flex-col items-center gap-6 border border-border">
+                        <div className="bg-muted/50 p-4 sm:p-6 rounded-2xl w-full flex flex-col items-center gap-6 border border-border/80">
                             <InputOTP
                                 id="mfa-verification-code"
                                 name="mfa_verification_code"
@@ -184,27 +184,27 @@ export function MfaDialog({
                                 onChange={(val) => setMfaCode(val)}
                             >
                                 <InputOTPGroup className="gap-1 sm:gap-2">
-                                    <InputOTPSlot index={0} className="w-9 h-11 text-base sm:w-12 sm:h-14 sm:text-xl font-bold rounded-none border-2" />
-                                    <InputOTPSlot index={1} className="w-9 h-11 text-base sm:w-12 sm:h-14 sm:text-xl font-bold rounded-none border-2" />
-                                    <InputOTPSlot index={2} className="w-9 h-11 text-base sm:w-12 sm:h-14 sm:text-xl font-bold rounded-none border-2" />
-                                    <InputOTPSlot index={3} className="w-9 h-11 text-base sm:w-12 sm:h-14 sm:text-xl font-bold rounded-none border-2" />
-                                    <InputOTPSlot index={4} className="w-9 h-11 text-base sm:w-12 sm:h-14 sm:text-xl font-bold rounded-none border-2" />
-                                    <InputOTPSlot index={5} className="w-9 h-11 text-base sm:w-12 sm:h-14 sm:text-xl font-bold rounded-none border-2" />
+                                    <InputOTPSlot index={0} className="w-9 h-11 text-base sm:w-12 sm:h-14 sm:text-xl font-bold rounded-xl border-2" />
+                                    <InputOTPSlot index={1} className="w-9 h-11 text-base sm:w-12 sm:h-14 sm:text-xl font-bold rounded-xl border-2" />
+                                    <InputOTPSlot index={2} className="w-9 h-11 text-base sm:w-12 sm:h-14 sm:text-xl font-bold rounded-xl border-2" />
+                                    <InputOTPSlot index={3} className="w-9 h-11 text-base sm:w-12 sm:h-14 sm:text-xl font-bold rounded-xl border-2" />
+                                    <InputOTPSlot index={4} className="w-9 h-11 text-base sm:w-12 sm:h-14 sm:text-xl font-bold rounded-xl border-2" />
+                                    <InputOTPSlot index={5} className="w-9 h-11 text-base sm:w-12 sm:h-14 sm:text-xl font-bold rounded-xl border-2" />
                                 </InputOTPGroup>
                             </InputOTP>
                             <div className="text-center">
                                 <p className="text-sm text-muted-foreground mb-1">Vous n&apos;avez rien reçu ?</p>
-                                <button onClick={onEnroll} className="text-sm font-bold text-primary hover:underline">
+                                <button onClick={onEnroll} className="text-sm font-bold text-primary hover:underline cursor-pointer">
                                     Renvoyer le code
                                 </button>
                             </div>
                         </div>
                         <div className="flex gap-3 w-full">
-                            <Button variant="outline" onClick={() => setMfaStep("phone")} className="flex-1 h-12 rounded-none">Retour</Button>
+                            <Button variant="outline" onClick={() => setMfaStep("phone")} className="flex-1 h-12 rounded-xl">Retour</Button>
                             <Button
                                 onClick={onVerify}
                                 disabled={mfaLoading || mfaCode.length !== 6}
-                                className="flex-[2] h-12 rounded-none bg-green-600 hover:bg-green-700"
+                                className="flex-[2] h-12 rounded-xl bg-green-600 hover:bg-green-700 font-bold shadow-md cursor-pointer"
                             >
                                 {mfaLoading ? "Vérification..." : "Vérifier et activer"}
                             </Button>
@@ -261,9 +261,9 @@ export function ReauthDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-md rounded-none border-none shadow-2xl">
+            <DialogContent className="sm:max-w-md rounded-2xl border border-border/80 shadow-2xl">
                 <DialogHeader>
-                    <div className="mx-auto w-12 h-12 bg-blue-50 dark:bg-blue-950/40 rounded-full flex items-center justify-center mb-4">
+                    <div className="mx-auto w-12 h-12 bg-blue-50 dark:bg-blue-950/40 rounded-2xl flex items-center justify-center mb-4 shadow-2xs">
                         <Lock className="h-6 w-6 text-[#013ff4]" />
                     </div>
                     <DialogTitle className="text-2xl font-black text-center text-[#013ff4]">
@@ -290,12 +290,12 @@ export function ReauthDialog({
                                     onChange={setReauthPin}
                                 >
                                     <InputOTPGroup className="gap-1 sm:gap-2">
-                                        <InputOTPSlot index={0} className="w-8 h-10 sm:w-10 sm:h-12 rounded-none border-gray-200" />
-                                        <InputOTPSlot index={1} className="w-8 h-10 sm:w-10 sm:h-12 rounded-none border-gray-200" />
-                                        <InputOTPSlot index={2} className="w-8 h-10 sm:w-10 sm:h-12 rounded-none border-gray-200" />
-                                        <InputOTPSlot index={3} className="w-8 h-10 sm:w-10 sm:h-12 rounded-none border-gray-200" />
-                                        <InputOTPSlot index={4} className="w-8 h-10 sm:w-10 sm:h-12 rounded-none border-gray-200" />
-                                        <InputOTPSlot index={5} className="w-8 h-10 sm:w-10 sm:h-12 rounded-none border-gray-200" />
+                                        <InputOTPSlot index={0} className="w-8 h-10 sm:w-10 sm:h-12 rounded-xl border-border" />
+                                        <InputOTPSlot index={1} className="w-8 h-10 sm:w-10 sm:h-12 rounded-xl border-border" />
+                                        <InputOTPSlot index={2} className="w-8 h-10 sm:w-10 sm:h-12 rounded-xl border-border" />
+                                        <InputOTPSlot index={3} className="w-8 h-10 sm:w-10 sm:h-12 rounded-xl border-border" />
+                                        <InputOTPSlot index={4} className="w-8 h-10 sm:w-10 sm:h-12 rounded-xl border-border" />
+                                        <InputOTPSlot index={5} className="w-8 h-10 sm:w-10 sm:h-12 rounded-xl border-border" />
                                     </InputOTPGroup>
                                 </InputOTP>
                             </div>
@@ -311,12 +311,12 @@ export function ReauthDialog({
                                         placeholder="••••••••"
                                         value={reauthPassword}
                                         onChange={(e) => setReauthPassword(e.target.value)}
-                                        className="pr-10 rounded-none h-12 border-border focus:border-[#013ff4] focus:ring-[#013ff4]/10"
+                                        className="pr-10 rounded-xl h-12 border-border focus:border-[#013ff4] focus:ring-[#013ff4]/10"
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-3 top-3.5 text-slate-400 hover:text-muted-foreground transition-colors"
+                                        className="absolute right-3 top-3.5 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                                     >
                                         {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                     </button>
@@ -347,7 +347,7 @@ export function ReauthDialog({
                             type="button"
                             variant="ghost"
                             onClick={() => onOpenChange(false)}
-                            className="flex-1 h-12 rounded-none text-muted-foreground hover:bg-muted"
+                            className="flex-1 h-12 rounded-xl text-muted-foreground hover:bg-muted font-bold"
                         >
                             Annuler
                         </Button>
@@ -361,7 +361,7 @@ export function ReauthDialog({
                                         ? !reauthPassword || !captchaToken
                                         : !reauthPassword)
                             }
-                            className="flex-[2] h-12 rounded-none bg-[#013ff4] hover:bg-[#033a7a] text-white font-bold shadow-lg shadow-blue-900/10"
+                            className="flex-[2] h-12 rounded-xl bg-[#013ff4] hover:bg-[#033a7a] text-white font-bold shadow-md cursor-pointer"
                         >
                             {reauthLoading ? (
                                 <div className="flex items-center gap-2">

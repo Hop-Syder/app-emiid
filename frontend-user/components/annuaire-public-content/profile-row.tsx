@@ -64,7 +64,7 @@ export function ProfileRow({ profiles, theme }: ProfileRowProps) {
       <div
         ref={scrollRef}
         onScroll={updateArrows}
-        className="flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-2 -mx-4 px-4 md:mx-0 md:px-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex gap-5 sm:gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-3 pt-1 -mx-4 sm:-mx-6 px-5 sm:px-6 md:mx-0 md:px-0 scroll-pl-5 sm:scroll-pl-6 md:scroll-pl-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {profiles.map((profile, index) => (
           <motion.div

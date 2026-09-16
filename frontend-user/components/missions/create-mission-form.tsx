@@ -21,7 +21,6 @@ import {
   Lock,
   ArrowRight,
   Loader2,
-  Calendar,
   AlertCircle,
   CheckCircle2,
 } from "lucide-react"
@@ -124,14 +123,14 @@ export function CreateMissionForm() {
       {/* 2. Formulaire principal */}
       <form
         onSubmit={handleSubmit}
-        className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/60 md:p-8"
+        className="rounded-3xl border border-border bg-card p-6 shadow-sm md:p-8"
       >
         <div className="space-y-6">
           <div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+            <h3 className="text-lg font-bold text-foreground">
               Détails de la mission
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-muted-foreground">
               Vérifiez et ajustez les informations avant la mise en ligne.
             </p>
           </div>
@@ -152,7 +151,7 @@ export function CreateMissionForm() {
 
           {/* Titre */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+            <label className="text-xs font-bold text-foreground/80">
               Titre de la mission <span className="text-[#013ff4]">*</span>
             </label>
             <input
@@ -161,13 +160,13 @@ export function CreateMissionForm() {
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Ex : Conception et pose de 2 portes en teck massif"
               required
-              className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/50 px-4 text-base md:text-sm text-slate-900 outline-none transition-colors focus:border-[#013ff4] focus:bg-white focus:ring-1 focus:ring-[#013ff4] dark:border-slate-800 dark:bg-slate-800/50 dark:text-white"
+              className="h-12 w-full rounded-2xl border border-border bg-muted/50 px-4 text-base md:text-sm text-foreground outline-none transition-colors focus:border-[#013ff4] focus:bg-card focus:ring-1 focus:ring-[#013ff4]"
             />
           </div>
 
           {/* Catégorie indicative */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+            <label className="text-xs font-bold text-foreground/80">
               Corps de métier ou Domaine
             </label>
             <input
@@ -175,13 +174,13 @@ export function CreateMissionForm() {
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               placeholder="Ex : Menuiserie, Électricité, Graphisme, Développement..."
-              className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/50 px-4 text-base md:text-sm text-slate-900 outline-none transition-colors focus:border-[#013ff4] focus:bg-white focus:ring-1 focus:ring-[#013ff4] dark:border-slate-800 dark:bg-slate-800/50 dark:text-white"
+              className="h-12 w-full rounded-2xl border border-border bg-muted/50 px-4 text-base md:text-sm text-foreground outline-none transition-colors focus:border-[#013ff4] focus:bg-card focus:ring-1 focus:ring-[#013ff4]"
             />
           </div>
 
           {/* Cahier des charges / Description */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+            <label className="text-xs font-bold text-foreground/80">
               Cahier des charges & Exigences détaillées <span className="text-[#013ff4]">*</span>
             </label>
             <textarea
@@ -190,14 +189,14 @@ export function CreateMissionForm() {
               placeholder="Détaillez le travail attendu, les matériaux, les contraintes de délai et le lieu d'intervention..."
               rows={5}
               required
-              className="w-full resize-none rounded-2xl border border-slate-200 bg-slate-50/50 p-4 text-base md:text-sm text-slate-900 outline-none transition-colors focus:border-[#013ff4] focus:bg-white focus:ring-1 focus:ring-[#013ff4] dark:border-slate-800 dark:bg-slate-800/50 dark:text-white"
+              className="w-full resize-none rounded-2xl border border-border bg-muted/50 p-4 text-base md:text-sm text-foreground outline-none transition-colors focus:border-[#013ff4] focus:bg-card focus:ring-1 focus:ring-[#013ff4]"
             />
           </div>
 
           {/* Fourchette budgétaire et Échéance */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+              <label className="text-xs font-bold text-foreground/80">
                 Budget indicatif Min (FCFA)
               </label>
               <input
@@ -207,12 +206,12 @@ export function CreateMissionForm() {
                 value={budgetMin}
                 onChange={(e) => setBudgetMin(e.target.value ? Number(e.target.value) : "")}
                 placeholder="Ex : 50000"
-                className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/50 px-4 text-base md:text-sm text-slate-900 outline-none transition-colors focus:border-[#013ff4] focus:bg-white focus:ring-1 focus:ring-[#013ff4] dark:border-slate-800 dark:bg-slate-800/50 dark:text-white"
+                className="h-12 w-full rounded-2xl border border-border bg-muted/50 px-4 text-base md:text-sm text-foreground outline-none transition-colors focus:border-[#013ff4] focus:bg-card focus:ring-1 focus:ring-[#013ff4]"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+              <label className="text-xs font-bold text-foreground/80">
                 Budget indicatif Max (FCFA)
               </label>
               <input
@@ -222,12 +221,12 @@ export function CreateMissionForm() {
                 value={budgetMax}
                 onChange={(e) => setBudgetMax(e.target.value ? Number(e.target.value) : "")}
                 placeholder="Ex : 80000"
-                className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/50 px-4 text-base md:text-sm text-slate-900 outline-none transition-colors focus:border-[#013ff4] focus:bg-white focus:ring-1 focus:ring-[#013ff4] dark:border-slate-800 dark:bg-slate-800/50 dark:text-white"
+                className="h-12 w-full rounded-2xl border border-border bg-muted/50 px-4 text-base md:text-sm text-foreground outline-none transition-colors focus:border-[#013ff4] focus:bg-card focus:ring-1 focus:ring-[#013ff4]"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+              <label className="text-xs font-bold text-foreground/80">
                 Échéance souhaitée
               </label>
               <div className="relative">
@@ -235,7 +234,7 @@ export function CreateMissionForm() {
                   type="date"
                   value={deadline}
                   onChange={(e) => setDeadline(e.target.value)}
-                  className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/50 px-4 text-base md:text-sm text-slate-900 outline-none transition-colors focus:border-[#013ff4] focus:bg-white focus:ring-1 focus:ring-[#013ff4] dark:border-slate-800 dark:bg-slate-800/50 dark:text-white"
+                  className="h-12 w-full rounded-2xl border border-border bg-muted/50 px-4 text-base md:text-sm text-foreground outline-none transition-colors focus:border-[#013ff4] focus:bg-card focus:ring-1 focus:ring-[#013ff4]"
                 />
               </div>
             </div>
@@ -247,7 +246,7 @@ export function CreateMissionForm() {
               <ShieldCheck className="h-4 w-4" />
               <span>Garanties du Réseau EmiID</span>
             </div>
-            <div className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2 text-[11px] text-slate-600 dark:text-slate-300">
+            <div className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2 text-[11px] text-muted-foreground">
               <div className="flex items-start gap-2">
                 <Users2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#013ff4]" />
                 <span><strong>2 candidats maximum</strong> pour vous épargner des heures de tri inutile.</span>

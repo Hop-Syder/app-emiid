@@ -61,10 +61,10 @@ export function PreferencesSection({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <Field label="Langue de l'interface">
             <Select value={settings.language} onValueChange={(v) => update("language", v)}>
-              <SelectTrigger className="h-11 rounded-none bg-muted/80 border-border text-sm font-medium focus:bg-card focus:ring-2 focus:ring-[#013ff4]/15 focus:border-[#013ff4]">
+              <SelectTrigger className="h-11 rounded-xl bg-muted/80 border-border text-sm font-medium focus:bg-card focus:ring-2 focus:ring-[#013ff4]/15 focus:border-[#013ff4]">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="rounded-none">
+              <SelectContent className="rounded-xl shadow-lg border-border/80">
                 <SelectItem value="fr">🇫🇷 Français (Bénin / Afrique)</SelectItem>
                 <SelectItem value="en">🇬🇧 English</SelectItem>
                 <SelectItem value="ar">🇸🇦 العربية</SelectItem>
@@ -74,10 +74,10 @@ export function PreferencesSection({
 
           <Field label="Devise de facturation">
             <Select value={settings.currency} onValueChange={(v) => update("currency", v)}>
-              <SelectTrigger className="h-11 rounded-none bg-muted/80 border-border text-sm font-medium focus:bg-card focus:ring-2 focus:ring-[#013ff4]/15 focus:border-[#013ff4]">
+              <SelectTrigger className="h-11 rounded-xl bg-muted/80 border-border text-sm font-medium focus:bg-card focus:ring-2 focus:ring-[#013ff4]/15 focus:border-[#013ff4]">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="rounded-none">
+              <SelectContent className="rounded-xl shadow-lg border-border/80">
                 <SelectItem value="xof">XOF — Franc CFA (Bénin / UEMOA)</SelectItem>
                 <SelectItem value="eur">EUR — Euro (€)</SelectItem>
                 <SelectItem value="usd">USD — Dollar ($)</SelectItem>
@@ -87,10 +87,10 @@ export function PreferencesSection({
 
           <Field label="Fuseau horaire">
             <Select value={settings.timezone} onValueChange={(v) => update("timezone", v)}>
-              <SelectTrigger className="h-11 rounded-none bg-muted/80 border-border text-sm font-medium focus:bg-card focus:ring-2 focus:ring-[#013ff4]/15 focus:border-[#013ff4]">
+              <SelectTrigger className="h-11 rounded-xl bg-muted/80 border-border text-sm font-medium focus:bg-card focus:ring-2 focus:ring-[#013ff4]/15 focus:border-[#013ff4]">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="rounded-none">
+              <SelectContent className="rounded-xl shadow-lg border-border/80">
                 <SelectItem value="gmt">GMT+1 — Cotonou, Porto-Novo, Lagos</SelectItem>
                 <SelectItem value="wat">GMT+0 — Accra, Lomé, Dakar</SelectItem>
               </SelectContent>

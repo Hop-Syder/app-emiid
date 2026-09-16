@@ -19,6 +19,7 @@ import { ApplyMissionModal } from "./apply-mission-modal"
 import { MissionStatusTimeline } from "./mission-status-timeline"
 import { EscrowCard } from "./escrow-card"
 import { MissionApplicationsSection } from "./mission-applications-section"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   ArrowLeft,
   Calendar,
@@ -53,9 +54,9 @@ export function MissionDetailContent({ missionId }: MissionDetailContentProps) {
   if (loading) {
     return (
       <div className="mx-auto max-w-5xl space-y-6 px-4 py-10 md:px-8">
-        <div className="h-6 w-32 animate-pulse rounded bg-slate-200 dark:bg-slate-800" />
-        <div className="h-44 w-full animate-pulse rounded-3xl bg-slate-100 dark:bg-slate-800/50" />
-        <div className="h-64 w-full animate-pulse rounded-3xl bg-slate-100 dark:bg-slate-800/50" />
+        <Skeleton className="h-6 w-32" />
+        <Skeleton className="h-44 w-full rounded-2xl" />
+        <Skeleton className="h-64 w-full rounded-2xl" />
       </div>
     )
   }
@@ -63,13 +64,13 @@ export function MissionDetailContent({ missionId }: MissionDetailContentProps) {
   if (error || !mission) {
     return (
       <div className="mx-auto max-w-xl px-4 py-16 text-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-rose-50 text-rose-500 mx-auto dark:bg-rose-950/40">
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-rose-50 text-rose-500 mx-auto dark:bg-rose-950/40">
           <AlertCircle className="h-8 w-8" />
         </div>
-        <h2 className="mt-4 font-heading text-lg font-bold text-slate-900 dark:text-white">
+        <h2 className="mt-4 font-heading text-lg font-bold text-foreground">
           Mission introuvable
         </h2>
-        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+        <p className="mt-1 text-xs text-muted-foreground">
           {error || "Cette opportunité n'existe plus ou a été retirée."}
         </p>
         <Link
@@ -92,11 +93,11 @@ export function MissionDetailContent({ missionId }: MissionDetailContentProps) {
     : false
 
   const formattedBudget =
-    mission.budget_min && mission.budget_max
+    mission.budget_min != null && mission.budget_max != null
       ? `${mission.budget_min.toLocaleString("fr-FR")} - ${mission.budget_max.toLocaleString("fr-FR")} FCFA`
-      : mission.budget_min
+      : mission.budget_min != null
       ? `À partir de ${mission.budget_min.toLocaleString("fr-FR")} FCFA`
-      : mission.budget_max
+      : mission.budget_max != null
       ? `Jusqu'à ${mission.budget_max.toLocaleString("fr-FR")} FCFA`
       : "Budget à convenir"
 
@@ -120,7 +121,7 @@ export function MissionDetailContent({ missionId }: MissionDetailContentProps) {
       <div className="flex items-center justify-between">
         <Link
           href="/missions"
-          className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+          className="inline-flex items-center gap-2 text-xs font-bold text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
           <span>Toutes les missions</span>
@@ -129,7 +130,7 @@ export function MissionDetailContent({ missionId }: MissionDetailContentProps) {
         <button
           type="button"
           onClick={() => refetch()}
-          className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 shadow-xs hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300"
+          className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-1.5 text-xs font-semibold text-muted-foreground shadow-xs hover:bg-muted"
         >
           <RotateCw className="h-3.5 w-3.5" />
           <span>Actualiser</span>
@@ -137,21 +138,21 @@ export function MissionDetailContent({ missionId }: MissionDetailContentProps) {
       </div>
 
       {/* Carte principale de la mission */}
-      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/60 md:p-8">
+      <div className="rounded-2xl border border-border bg-card p-6 shadow-sm md:p-8">
         <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[11px] font-bold text-slate-400">
+              <span className="text-[11px] font-bold text-muted-foreground">
                 Publiée le {createdDate}
               </span>
-              <span className="text-slate-300 dark:text-slate-700">•</span>
+              <span className="text-border">•</span>
               <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#013ff4] dark:bg-blue-950/40 dark:text-[#03b3f8]">
                 {mission.status}
               </span>
               <span
                 className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
                   isFull
-                    ? "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                    ? "bg-muted text-muted-foreground"
                     : appCount === 1
                     ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
                     : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
@@ -162,7 +163,7 @@ export function MissionDetailContent({ missionId }: MissionDetailContentProps) {
               </span>
             </div>
 
-            <h1 className="font-heading text-2xl font-black text-slate-900 dark:text-white md:text-3xl">
+            <h1 className="font-heading text-2xl font-black text-foreground md:text-3xl">
               {mission.title}
             </h1>
           </div>
@@ -188,31 +189,31 @@ export function MissionDetailContent({ missionId }: MissionDetailContentProps) {
         </div>
 
         {/* Métadonnées : Budget, Échéance, Client */}
-        <div className="mt-6 grid grid-cols-1 gap-4 rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/40 sm:grid-cols-3">
+        <div className="mt-6 grid grid-cols-1 gap-4 rounded-2xl bg-muted p-4 sm:grid-cols-3">
           <div>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
               Budget indicatif
             </span>
-            <p className="text-sm font-black text-slate-900 dark:text-white">
+            <p className="text-sm font-black text-foreground">
               {formattedBudget}
             </p>
           </div>
 
           <div>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
               Échéance souhaitée
             </span>
-            <p className="text-sm font-black text-slate-900 dark:text-white">
+            <p className="text-sm font-black text-foreground">
               {deadlineDate || "Non précisée"}
             </p>
           </div>
 
           <div>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
               Donneur d'ordre
             </span>
             <div className="mt-0.5 flex items-center gap-2">
-              <span className="text-xs font-bold text-slate-900 dark:text-white">
+              <span className="text-xs font-bold text-foreground">
                 {mission.client?.full_name || "Membre EmiID"}
               </span>
               {mission.client?.identity_verified && (
@@ -224,10 +225,10 @@ export function MissionDetailContent({ missionId }: MissionDetailContentProps) {
 
         {/* Cahier des charges complet */}
         <div className="mt-6 space-y-2">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
             Cahier des charges & Description
           </h3>
-          <div className="rounded-2xl border border-slate-100 bg-white p-4 text-sm leading-relaxed text-slate-700 dark:border-slate-800 dark:bg-slate-900/40 dark:text-slate-300">
+          <div className="rounded-2xl border border-border bg-muted/40 p-4 text-sm leading-relaxed text-foreground">
             <p className="whitespace-pre-line">{mission.description}</p>
           </div>
         </div>

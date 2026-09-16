@@ -40,9 +40,9 @@ export function EntrepreneursSection({ entrepreneursList, loading, variant = "te
   return (
     <section>
       {loading ? (
-        <div className="flex overflow-x-auto pb-6 gap-6 snap-x no-scrollbar w-full lg:grid lg:grid-cols-5 lg:overflow-visible">
+        <div className="flex overflow-x-auto pb-8 pt-2 px-5 sm:px-6 -mx-4 sm:-mx-6 gap-5 sm:gap-6 snap-x snap-mandatory scroll-pl-5 sm:scroll-pl-6 no-scrollbar w-full lg:grid lg:grid-cols-5 lg:gap-5 xl:gap-6 lg:overflow-visible lg:p-0 lg:m-0 lg:snap-none lg:scroll-pl-0">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="min-w-[200px] lg:min-w-0 space-y-3 p-4 border rounded-xl bg-card snap-center">
+            <div key={i} className="min-w-[200px] lg:min-w-0 space-y-3 p-4 border rounded-xl bg-card snap-start shrink-0">
               <div className="flex items-center gap-4">
                 <Skeleton className="h-12 w-12 rounded-full" />
                 <div className="space-y-2 flex-1">
@@ -70,7 +70,7 @@ export function EntrepreneursSection({ entrepreneursList, loading, variant = "te
 
           <div
             ref={scrollRef}
-            className="flex overflow-x-auto pb-10 pt-4 px-4 -mx-4 gap-6 snap-x no-scrollbar w-full scroll-smooth lg:grid lg:grid-cols-5 lg:gap-5 xl:gap-6 lg:overflow-visible lg:p-0 lg:m-0"
+            className="flex overflow-x-auto pb-8 pt-2 px-5 sm:px-6 -mx-4 sm:-mx-6 gap-5 sm:gap-6 snap-x snap-mandatory scroll-pl-5 sm:scroll-pl-6 no-scrollbar w-full scroll-smooth lg:grid lg:grid-cols-5 lg:gap-5 xl:gap-6 lg:overflow-visible lg:p-0 lg:m-0 lg:snap-none lg:scroll-pl-0"
           >
             {profiles.map((entrepreneur, index) => (
               <motion.div
@@ -79,7 +79,7 @@ export function EntrepreneursSection({ entrepreneursList, loading, variant = "te
                 animate={{ opacity: 1, scale: 1 }}
                 whileHover={{ scale: 1.03, y: -5, rotateY: 2 }}
                 transition={{ duration: 0.3, delay: index * 0.1 }}
-                className="min-w-[200px] lg:min-w-0 snap-center relative group perspective-1000"
+                className="min-w-[200px] lg:min-w-0 snap-start shrink-0 relative group perspective-1000"
               >
                 {/* Magic glow for Elite (Premium) variant if applicable */}
                 {variant === "elite" && (

@@ -63,7 +63,7 @@ export function RealisationsShowcase() {
 
         <div
           ref={scrollRef}
-          className="flex overflow-x-auto pb-6 pt-4 px-4 -mx-4 gap-6 snap-x no-scrollbar w-full scroll-smooth lg:grid lg:grid-cols-4 lg:gap-5 xl:gap-6 lg:overflow-visible lg:p-0 lg:m-0"
+          className="flex overflow-x-auto pb-6 pt-2 px-5 sm:px-6 -mx-4 sm:-mx-6 gap-6 snap-x snap-mandatory scroll-pl-5 sm:scroll-pl-6 no-scrollbar w-full scroll-smooth lg:grid lg:grid-cols-4 lg:gap-5 xl:gap-6 lg:overflow-visible lg:p-0 lg:m-0 lg:snap-none lg:scroll-pl-0"
         >
           {items.map((item) => (
             <button

@@ -72,7 +72,7 @@ export function PlanSection({ profile }: PlanSectionProps) {
   }
 
   return (
-    <div className="bg-card rounded-none border border-border p-6 sm:p-8 space-y-8">
+    <div className="bg-card rounded-2xl border border-border/70 p-6 sm:p-8 space-y-8 shadow-xs">
       <div>
         <h3 className="text-lg font-bold text-foreground">Mon offre EmiID</h3>
         <p className="text-muted-foreground text-xs mt-1">
@@ -81,7 +81,7 @@ export function PlanSection({ profile }: PlanSectionProps) {
       </div>
 
       {/* ── Offre active ─────────────────────────────────────────────── */}
-      <div className="relative overflow-hidden rounded-none border border-border p-6 bg-muted flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="relative overflow-hidden rounded-2xl border border-border/70 p-6 bg-muted/30 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-2">
           <span className="text-[10px] font-bold tracking-widest text-slate-400 uppercase">Offre active</span>
           <h4 className="text-xl font-black text-foreground flex items-center gap-2">
@@ -108,7 +108,7 @@ export function PlanSection({ profile }: PlanSectionProps) {
 
         {pro && (
           <div className="shrink-0">
-            <span className="inline-flex items-center gap-2 rounded-none border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-950/40 px-4 py-2.5 text-xs font-bold text-emerald-700 dark:text-emerald-300">
+            <span className="inline-flex items-center gap-2 rounded-full border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-950/40 px-4 py-2 text-xs font-bold text-emerald-700 dark:text-emerald-300">
               <Check className="h-4 w-4" />
               Abonnement actif
             </span>
@@ -118,7 +118,7 @@ export function PlanSection({ profile }: PlanSectionProps) {
 
       {/* ── Erreur de paiement ───────────────────────────────────────── */}
       {error && (
-        <div className="flex items-start gap-3 rounded-none border border-rose-200 dark:border-rose-800/50 bg-rose-50 dark:bg-rose-950/40 px-4 py-3">
+        <div className="flex items-start gap-3 rounded-xl border border-rose-200 dark:border-rose-800/50 bg-rose-50 dark:bg-rose-950/40 px-4 py-3">
           <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-rose-500" />
           <div>
             <p className="text-sm font-bold text-rose-900 dark:text-rose-300">Paiement impossible</p>
@@ -129,7 +129,7 @@ export function PlanSection({ profile }: PlanSectionProps) {
 
       {/* ── Gestion de l'abonnement (si Pro) ─────────────────────────── */}
       {pro && subscription && !loading && (
-        <div className="rounded-none border border-border p-5 space-y-4">
+        <div className="rounded-2xl border border-border/70 p-5 sm:p-6 space-y-4 bg-card/60">
           <div className="flex items-center justify-between gap-4">
             <div className="min-w-0">
               <p className="text-sm font-bold text-foreground">Renouvellement automatique</p>
@@ -146,7 +146,7 @@ export function PlanSection({ profile }: PlanSectionProps) {
               aria-label="Renouvellement automatique"
             />
           </div>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-border">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-4 border-t border-border/60">
             <div className="min-w-0">
               <p className="text-sm font-bold text-foreground">Résilier l&apos;abonnement</p>
               <p className="text-xs text-muted-foreground mt-0.5">
@@ -158,7 +158,7 @@ export function PlanSection({ profile }: PlanSectionProps) {
               size="sm"
               disabled={managing}
               onClick={() => setCancelOpen(true)}
-              className="shrink-0 rounded-none text-rose-600 border-rose-200 dark:border-rose-800/50 hover:bg-rose-50 hover:text-rose-700"
+              className="shrink-0 rounded-xl text-rose-600 border-rose-200 dark:border-rose-800/50 hover:bg-rose-50 hover:text-rose-700 font-bold"
             >
               {managing ? <Loader2 className="h-4 w-4 animate-spin" /> : "Résilier"}
             </Button>
@@ -184,7 +184,7 @@ export function PlanSection({ profile }: PlanSectionProps) {
       {!loading && invoices.length > 0 && (
         <div className="space-y-4">
           <h5 className="text-xs font-bold text-foreground uppercase tracking-wider">Historique de paiements</h5>
-          <div className="divide-y divide-border overflow-hidden rounded-none border border-border bg-card">
+          <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border/70 bg-card">
             {invoices.map((invoice) => (
               <InvoiceRow key={invoice.id} invoice={invoice} />
             ))}
@@ -203,12 +203,12 @@ export function PlanSection({ profile }: PlanSectionProps) {
               return (
                 <div
                   key={planId}
-                  className={`relative rounded-none border p-5 flex flex-col justify-between gap-4 transition-colors ${
-                    isAnnual ? "border-[#013ff4]/30 bg-[#013ff4]/[0.03]" : "border-border"
+                  className={`relative rounded-2xl border p-6 flex flex-col justify-between gap-5 transition-all shadow-xs hover:shadow-md ${
+                    isAnnual ? "border-[#013ff4]/40 bg-[#013ff4]/[0.03]" : "border-border/70 bg-card"
                   }`}
                 >
                   {isAnnual && (
-                    <span className="absolute -top-2.5 right-4 rounded-full bg-[#013ff4] px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-white">
+                    <span className="absolute -top-2.5 right-4 rounded-full bg-[#013ff4] px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-white shadow-xs">
                       2 mois offerts
                     </span>
                   )}
@@ -220,10 +220,10 @@ export function PlanSection({ profile }: PlanSectionProps) {
                   <button
                     onClick={() => startCheckout(planId)}
                     disabled={busy}
-                    className={`w-full rounded-none px-4 py-3 text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed ${
+                    className={`w-full rounded-xl px-4 py-3 text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${
                       isAnnual
-                        ? "bg-[#013ff4] text-white shadow-lg shadow-[#013ff4]/25 hover:bg-[#0135d0]"
-                        : "bg-card border border-border text-foreground hover:bg-muted"
+                        ? "bg-[#013ff4] text-white shadow-md shadow-[#013ff4]/25 hover:bg-[#0135d0] active:scale-98"
+                        : "bg-card border border-border text-foreground hover:bg-muted active:scale-98"
                     }`}
                   >
                     {checkoutLoading === planId ? (
@@ -242,7 +242,7 @@ export function PlanSection({ profile }: PlanSectionProps) {
               )
             })}
           </div>
-          <p className="text-[11px] text-slate-400 font-medium">
+          <p className="text-[11px] text-muted-foreground font-medium">
             Paiement sécurisé MTN MoMo, Moov ou Celtiis. Activation immédiate après confirmation.
           </p>
         </div>
@@ -254,8 +254,8 @@ export function PlanSection({ profile }: PlanSectionProps) {
           <h5 className="text-xs font-bold text-foreground uppercase tracking-wider">Pourquoi passer Pro ?</h5>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {FEATURES.map((f) => (
-              <div key={f.title} className="flex gap-3 items-start p-4 rounded-none border border-border hover:bg-muted/50 transition-colors">
-                <div className="p-2 bg-[#013ff4]/[0.08] rounded-none text-[#013ff4]">
+              <div key={f.title} className="flex gap-3.5 items-start p-4.5 rounded-2xl border border-border/70 hover:bg-muted/40 transition-colors bg-card shadow-2xs">
+                <div className="p-2.5 bg-[#013ff4]/[0.08] rounded-xl text-[#013ff4] shrink-0">
                   <f.icon className="h-4 w-4" />
                 </div>
                 <div>
@@ -269,7 +269,7 @@ export function PlanSection({ profile }: PlanSectionProps) {
       )}
 
       {/* ── Statistiques d'engagement ────────────────────────────────── */}
-      <div className="space-y-4 pt-2 border-t border-border">
+      <div className="space-y-4 pt-2 border-t border-border/60">
         <div className="flex items-center justify-between gap-2 pt-6">
           <h5 className="text-xs font-bold text-foreground uppercase tracking-wider">Performance du profil</h5>
           {!pro && (
@@ -303,12 +303,12 @@ function InvoiceRow({ invoice }: { invoice: Invoice }) {
   return (
     <div className="flex items-center justify-between gap-3 px-4 py-3">
       <div className="flex items-center gap-3 min-w-0">
-        <div className="p-2 rounded-none bg-muted text-slate-400 shrink-0">
+        <div className="p-2 rounded-lg bg-muted text-muted-foreground shrink-0">
           <ReceiptText className="h-4 w-4" />
         </div>
         <div className="min-w-0">
           <p className="text-xs font-bold text-foreground">{formatFcfa(invoice.amount)}</p>
-          <p className="text-[11px] text-slate-400">{formatDate(invoice.createdAt)}</p>
+          <p className="text-[11px] text-muted-foreground">{formatDate(invoice.createdAt)}</p>
         </div>
       </div>
       <span className={`shrink-0 inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${badge}`}>
@@ -336,14 +336,14 @@ function StatTile({
     <motion.div
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-none border border-border bg-card p-4"
+      className="rounded-2xl border border-border/70 bg-card p-4 shadow-2xs"
     >
-      <div className="flex items-center gap-1.5 text-slate-400">
+      <div className="flex items-center gap-1.5 text-muted-foreground">
         <Icon className="h-3.5 w-3.5" />
         <span className="text-[10px] font-bold uppercase tracking-wider">{label}</span>
       </div>
       <p className="mt-1.5 text-xl font-black text-foreground">
-        {loading ? <span className="inline-block h-5 w-10 animate-pulse rounded bg-muted" /> : locked ? "—" : value}
+        {loading ? <span className="inline-block h-5 w-10 animate-pulse rounded-md bg-muted" /> : locked ? "—" : value}
       </p>
     </motion.div>
   )

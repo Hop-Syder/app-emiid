@@ -1,9 +1,9 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Primitives UI partagées des sections Paramètres — Inspirées des patterns SwiftUI (Grouped Inset, SettingRow, SettingToggle).
+ * @description Primitives UI partagées des sections Paramètres — Inspirées des standards SaaS premium (Plus Jakarta Sans, surfaces douces, rounded-2xl & rounded-xl).
  * @created 2026-06-13
- * @updated 2026-08-30
+ * @updated 2026-09-16
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -13,21 +13,21 @@
 import React, { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
-import { ChevronRight, Check, X, AlertCircle, CheckCircle2, Loader2, Sparkles } from "lucide-react"
+import { ChevronRight, Check, X, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { fetchWithAuth } from "@/lib/apiClient"
 
 export const INPUT =
-  "h-11 rounded-none bg-muted/80 border-border text-sm font-medium text-foreground focus:bg-card focus:ring-2 focus:ring-[#013ff4]/15 focus:border-[#013ff4] transition-all placeholder:text-slate-400 disabled:opacity-60 disabled:cursor-not-allowed"
+  "h-11 px-3.5 rounded-xl bg-muted/40 border border-border/80 text-sm font-medium text-foreground focus:bg-card focus:ring-4 focus:ring-[#013ff4]/10 focus:border-[#013ff4] transition-all placeholder:text-muted-foreground/60 disabled:opacity-60 disabled:cursor-not-allowed shadow-2xs"
 
 export const SELECT =
-  "w-full h-11 px-3.5 rounded-none bg-muted/80 border border-border text-sm font-medium text-foreground focus:bg-card focus:outline-none focus:ring-2 focus:ring-[#013ff4]/15 focus:border-[#013ff4] transition-all cursor-pointer"
+  "w-full h-11 px-3.5 rounded-xl bg-muted/40 border border-border/80 text-sm font-medium text-foreground focus:bg-card focus:outline-none focus:ring-4 focus:ring-[#013ff4]/10 focus:border-[#013ff4] transition-all cursor-pointer shadow-2xs"
 
 export const TEXTAREA =
-  "w-full rounded-none bg-muted/80 border border-border px-3.5 py-3 text-sm font-medium text-foreground focus:bg-card focus:outline-none focus:ring-2 focus:ring-[#013ff4]/15 focus:border-[#013ff4] transition-all resize-y placeholder:text-slate-400"
+  "w-full rounded-xl bg-muted/40 border border-border/80 px-3.5 py-3 text-sm font-medium text-foreground focus:bg-card focus:outline-none focus:ring-4 focus:ring-[#013ff4]/10 focus:border-[#013ff4] transition-all resize-y placeholder:text-muted-foreground/60 shadow-2xs"
 
 /**
- * Conteneur de section façon SwiftUI Grouped Inset Card
+ * Conteneur de section moderne avec bordures douces et en-tête intégré
  */
 export function SectionCard({
   title,
@@ -47,17 +47,17 @@ export function SectionCard({
   className?: string
 }) {
   return (
-    <div className="space-y-1.5">
-      <div className={cn("bg-card border border-border", className)}>
-        {/* En-tête intégré, séparé par un filet plutôt que flottant au-dessus.
-            À angles droits, un titre détaché laissait la carte orpheline : ici
-            l'ensemble se lit comme un seul bloc. L'icône prend la couleur de
-            marque — seule touche de couleur d'un en-tête par ailleurs gris. */}
+    <div className="space-y-2">
+      <div className={cn("bg-card border border-border/70 rounded-2xl shadow-xs overflow-hidden", className)}>
         {title && (
-          <div className="flex items-center justify-between gap-3 border-b border-border px-4 sm:px-5 py-3">
+          <div className="flex items-center justify-between gap-3 border-b border-border/60 bg-muted/20 px-5 sm:px-6 py-4">
             <div className="flex items-center gap-2.5 min-w-0">
-              {Icon && <Icon className="w-4 h-4 text-[#0150fd] shrink-0" />}
-              <h2 className="text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.09em] truncate">
+              {Icon && (
+                <div className="w-7 h-7 rounded-lg bg-[#0150fd]/10 text-[#0150fd] flex items-center justify-center shrink-0">
+                  <Icon className="w-4 h-4" />
+                </div>
+              )}
+              <h2 className="text-xs font-bold text-foreground tracking-wider uppercase truncate">
                 {title}
               </h2>
             </div>
@@ -65,12 +65,12 @@ export function SectionCard({
           </div>
         )}
 
-        <div className="p-4 sm:p-5 space-y-4">
-          {description && <p className="text-xs text-muted-foreground leading-relaxed">{description}</p>}
+        <div className="p-5 sm:p-6 space-y-5">
+          {description && <p className="text-xs text-muted-foreground leading-relaxed -mt-1">{description}</p>}
           {children}
         </div>
       </div>
-      {footerHint && <p className="text-[11px] text-slate-400 px-1 leading-relaxed">{footerHint}</p>}
+      {footerHint && <p className="text-xs text-muted-foreground px-1.5 leading-relaxed">{footerHint}</p>}
     </div>
   )
 }
@@ -104,7 +104,7 @@ export function Field({
 }
 
 /**
- * Rangée de réglage façon iOS Inset Row (icône colorée + texte + contrôle/chevron)
+ * Rangée de réglage fluide (icône colorée + texte + contrôle/chevron)
  */
 export function SettingRow({
   icon: Icon,
@@ -134,13 +134,13 @@ export function SettingRow({
       onClick={onClick}
       className={cn(
         "w-full flex items-center justify-between gap-3.5 py-3 first:pt-0 last:pb-0 text-left transition-colors",
-        isClickable && "hover:bg-muted/80 active:bg-muted rounded-none px-2 -mx-2",
+        isClickable && "hover:bg-muted/60 active:bg-muted/80 rounded-xl px-3 -mx-3",
         className
       )}
     >
       <div className="flex items-center gap-3.5 min-w-0 flex-1">
         {Icon && (
-          <div className={cn("w-9 h-9 rounded-none flex items-center justify-center shrink-0", iconBg)}>
+          <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center shrink-0", iconBg)}>
             <Icon className={cn("w-4.5 h-4.5", iconColor)} />
           </div>
         )}
@@ -159,7 +159,7 @@ export function SettingRow({
 }
 
 /**
- * Rangée Switch façon iOS Toggle (avec toucher large ≥ 44px)
+ * Rangée Switch avec toucher ergonomique
  */
 export function SettingToggle({
   id,
@@ -195,7 +195,7 @@ export function SettingToggle({
     >
       <div className="flex items-start gap-3.5 min-w-0 flex-1">
         {Icon && (
-          <div className={cn("w-9 h-9 rounded-none flex items-center justify-center shrink-0 mt-0.5", iconBg)}>
+          <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5", iconBg)}>
             <Icon className={cn("w-4.5 h-4.5", iconColor)} />
           </div>
         )}
@@ -230,12 +230,12 @@ export function SaveBar({
   saveLabel?: string
 }) {
   return (
-    <div className="flex flex-col-reverse sm:flex-row justify-end gap-2.5 pt-2">
+    <div className="flex flex-col-reverse sm:flex-row justify-end gap-2.5 pt-3">
       <Button
         type="button"
         variant="outline"
         onClick={handleCancel}
-        className="w-full sm:w-auto h-11 px-5 rounded-none border-border text-foreground font-bold hover:bg-muted transition-all"
+        className="w-full sm:w-auto h-11 px-5 rounded-xl border-border text-foreground font-bold hover:bg-muted transition-all"
       >
         Annuler
       </Button>
@@ -243,7 +243,7 @@ export function SaveBar({
         type="button"
         onClick={handleSave}
         disabled={saving}
-        className="w-full sm:w-auto h-11 px-6 rounded-none bg-[#0150fd] hover:bg-[#003ec7] text-white font-bold shadow-md shadow-[#0150fd]/15 active:scale-[0.98] transition-all"
+        className="w-full sm:w-auto h-11 px-6 rounded-xl bg-[#0150fd] hover:bg-[#003ec7] text-white font-bold shadow-md shadow-[#0150fd]/15 active:scale-[0.98] transition-all"
       >
         {saving ? (
           <span className="flex items-center gap-2">
@@ -258,7 +258,7 @@ export function SaveBar({
 }
 
 /**
- * Sélecteur segmenté façon iOS / SwiftUI (ex: Genre Homme / Femme / Autre)
+ * Sélecteur segmenté avec capsule douce
  */
 export function SegmentedControl<T extends string>({
   value,
@@ -276,7 +276,7 @@ export function SegmentedControl<T extends string>({
   return (
     <div
       className={cn(
-        "w-full p-1 bg-slate-100 dark:bg-slate-800/80 rounded-none flex gap-1 border border-border/60",
+        "w-full p-1 bg-muted/60 rounded-xl flex gap-1 border border-border/60",
         disabled && "opacity-60 pointer-events-none",
         className
       )}
@@ -291,7 +291,7 @@ export function SegmentedControl<T extends string>({
             onClick={() => onChange(opt.value)}
             disabled={disabled}
             className={cn(
-              "flex-1 h-10 px-3 rounded-none text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer select-none",
+              "flex-1 h-10 px-3 rounded-lg text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer select-none",
               isSelected
                 ? "bg-card text-foreground shadow-xs border border-border/50 scale-[1.01]"
                 : "text-muted-foreground hover:text-foreground hover:bg-card/40"
@@ -334,8 +334,6 @@ export function SlugInput({
   const isTooShort = trimmed.length < 3
   const isReserved = reserved.includes(trimmed)
 
-  // Vérification réelle d'unicité en base (debounced), via la même requête
-  // que la sauvegarde serveur (updateMyProfile) — plus de liste en dur seule.
   const [checking, setChecking] = useState(false)
   const [remoteAvailable, setRemoteAvailable] = useState<boolean | null>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -365,7 +363,6 @@ export function SlugInput({
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [trimmed, isTooShort, isReserved])
 
   const isTaken = isReserved || remoteAvailable === false
@@ -379,7 +376,7 @@ export function SlugInput({
     <div className={cn("space-y-1.5", className)}>
       <div
         className={cn(
-          "w-full h-11 rounded-none bg-muted/80 border border-border flex items-center px-3.5 text-sm font-medium transition-all focus-within:bg-card focus-within:ring-2 focus-within:ring-[#0150fd]/15 focus-within:border-[#0150fd]",
+          "w-full h-11 rounded-xl bg-muted/40 border border-border/80 flex items-center px-3.5 text-sm font-medium transition-all focus-within:bg-card focus-within:ring-4 focus-within:ring-[#0150fd]/10 focus-within:border-[#0150fd] shadow-2xs",
           disabled && "opacity-60 cursor-not-allowed"
         )}
       >
@@ -404,12 +401,12 @@ export function SlugInput({
                 Vérification...
               </span>
             ) : isAvailable ? (
-              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200/80 dark:border-emerald-800/60 px-2 py-0.5 rounded-full">
+              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200/80 dark:border-emerald-800/60 px-2.5 py-0.5 rounded-full">
                 <Check className="w-3 h-3 text-emerald-600" />
                 Disponible
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-rose-600 bg-rose-50 dark:bg-rose-950/50 border border-rose-200/80 dark:border-rose-800/60 px-2 py-0.5 rounded-full">
+              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-rose-600 bg-rose-50 dark:bg-rose-950/50 border border-rose-200/80 dark:border-rose-800/60 px-2.5 py-0.5 rounded-full">
                 <X className="w-3 h-3 text-rose-600" />
                 Déjà pris
               </span>
@@ -427,7 +424,7 @@ export function SlugInput({
               key={sug}
               type="button"
               onClick={() => onChange(sug)}
-              className="text-[#0150fd] hover:underline font-semibold bg-blue-50/80 dark:bg-blue-950/40 px-2 py-0.5 rounded-none text-[11px] cursor-pointer"
+              className="text-[#0150fd] hover:underline font-semibold bg-blue-50/80 dark:bg-blue-950/40 px-2 py-0.5 rounded-lg text-[11px] cursor-pointer"
             >
               @{sug}
             </button>
@@ -486,7 +483,7 @@ export function TagsInput({
   return (
     <div
       className={cn(
-        "min-h-[44px] w-full rounded-none bg-muted/80 border border-border p-2 flex flex-wrap items-center gap-1.5 focus-within:bg-card focus-within:ring-2 focus-within:ring-[#0150fd]/15 focus-within:border-[#0150fd] transition-all",
+        "min-h-[44px] w-full rounded-xl bg-muted/40 border border-border/80 p-2 flex flex-wrap items-center gap-1.5 focus-within:bg-card focus-within:ring-4 focus-within:ring-[#0150fd]/10 focus-within:border-[#0150fd] transition-all shadow-2xs",
         disabled && "opacity-60 cursor-not-allowed",
         className
       )}
@@ -494,7 +491,7 @@ export function TagsInput({
       {tags.map((tag, idx) => (
         <span
           key={`${tag}-${idx}`}
-          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-none bg-[#0150fd]/10 border border-[#0150fd]/20 text-[#0150fd] text-xs font-bold shadow-2xs animate-in fade-in zoom-in-95 duration-150"
+          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#0150fd]/10 border border-[#0150fd]/20 text-[#0150fd] text-xs font-bold shadow-2xs animate-in fade-in zoom-in-95 duration-150"
         >
           <span>#{tag}</span>
           {!disabled && (
@@ -502,7 +499,7 @@ export function TagsInput({
               type="button"
               onClick={() => removeTag(idx)}
               aria-label={`Supprimer ${tag}`}
-              className="hover:bg-[#0150fd]/20 rounded-none p-0.5 transition-colors cursor-pointer"
+              className="hover:bg-[#0150fd]/20 rounded-md p-0.5 transition-colors cursor-pointer"
             >
               <X className="w-3 h-3 text-[#0150fd]" />
             </button>
@@ -526,7 +523,7 @@ export function TagsInput({
 }
 
 /**
- * Barre de sauvegarde sticky en bas de page (Desktop et Mobile) conforme au PDF Page 1 & 2
+ * Barre de sauvegarde sticky en bas de page (Desktop et Mobile)
  */
 export function StickySaveBar({
   saving,
@@ -548,16 +545,16 @@ export function StickySaveBar({
   return (
     <div
       className={cn(
-        "sticky bottom-4 z-40 bg-card/95 backdrop-blur-md border border-border p-3.5 sm:p-4 shadow-[0_2px_0_0_rgb(0,0,0,0.06)] flex items-center justify-between gap-4 transition-all duration-300",
+        "sticky bottom-4 z-40 bg-card/90 backdrop-blur-md border border-border/80 rounded-2xl p-4 shadow-xl flex items-center justify-between gap-4 transition-all duration-300",
         className
       )}
     >
       {/* État / Compteur de modifications */}
-      <div className="flex items-center gap-2 min-w-0">
+      <div className="flex items-center gap-2.5 min-w-0">
         <span
           className={cn(
             "w-2.5 h-2.5 rounded-full shrink-0 animate-pulse",
-            isDirty ? "bg-amber-500" : "bg-emerald-500"
+            isDirty ? "bg-amber-500 ring-4 ring-amber-500/20" : "bg-emerald-500 ring-4 ring-emerald-500/20"
           )}
         />
         <p className="text-xs sm:text-sm font-bold text-foreground truncate">
@@ -568,13 +565,13 @@ export function StickySaveBar({
       </div>
 
       {/* Boutons d'action */}
-      <div className="flex items-center gap-2 shrink-0">
+      <div className="flex items-center gap-2.5 shrink-0">
         <Button
           type="button"
           variant="outline"
           onClick={handleCancel}
           disabled={!isDirty || saving}
-          className="h-10 px-4 rounded-none border-border text-foreground font-bold hover:bg-muted text-xs sm:text-sm transition-all disabled:opacity-40"
+          className="h-10 px-4 rounded-xl border-border text-foreground font-bold hover:bg-muted text-xs sm:text-sm transition-all disabled:opacity-40"
         >
           Annuler
         </Button>
@@ -583,7 +580,7 @@ export function StickySaveBar({
           onClick={handleSave}
           disabled={!isDirty || saving}
           className={cn(
-            "h-10 px-5 rounded-none text-white font-bold text-xs sm:text-sm shadow-md active:scale-98 transition-all",
+            "h-10 px-5 rounded-xl text-white font-bold text-xs sm:text-sm shadow-md active:scale-98 transition-all",
             isDirty
               ? "bg-[#0150fd] hover:bg-[#003ec7] shadow-[#0150fd]/25 cursor-pointer"
               : "bg-slate-300 dark:bg-slate-700 text-slate-500 cursor-not-allowed opacity-50 shadow-none"
@@ -601,5 +598,3 @@ export function StickySaveBar({
     </div>
   )
 }
-
-

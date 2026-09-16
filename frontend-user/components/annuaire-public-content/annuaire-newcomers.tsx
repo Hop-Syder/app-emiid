@@ -57,14 +57,14 @@ export function AnnuaireNewcomers() {
                 <h3 className="text-lg font-bold text-foreground tracking-tight">Nouveaux arrivants</h3>
             </div>
             
-            <div className="flex overflow-x-auto pb-6 -mx-4 px-4 sm:mx-0 sm:px-0 gap-4 no-scrollbar snap-x scroll-smooth lg:grid lg:grid-cols-4 lg:gap-5 xl:gap-6 lg:overflow-visible lg:p-0 lg:m-0">
+            <div className="flex overflow-x-auto pb-6 -mx-4 sm:-mx-6 px-5 sm:px-6 gap-4 no-scrollbar snap-x snap-mandatory scroll-pl-5 sm:scroll-pl-6 scroll-smooth lg:grid lg:grid-cols-4 lg:gap-5 xl:gap-6 lg:overflow-visible lg:p-0 lg:m-0 lg:snap-none lg:scroll-pl-0">
                 {profiles.map((profile, index) => (
                     <motion.div
                         key={profile.id}
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.05 }}
-                        className="bg-card rounded-2xl p-4 shadow-sm border border-border flex items-center gap-3 min-w-[280px] lg:min-w-0 snap-start hover:shadow-md transition-shadow"
+                        className="bg-card rounded-2xl p-4 shadow-sm border border-border flex items-center gap-3 min-w-[280px] lg:min-w-0 snap-start shrink-0 hover:shadow-md transition-shadow"
                     >
                         <Image 
                             src={profile.avatar} 

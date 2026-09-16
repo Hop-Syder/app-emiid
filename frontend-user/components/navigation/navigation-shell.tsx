@@ -34,7 +34,7 @@ interface ChatActiveWatcherProps {
 
 function ChatActiveWatcher({ pathname, onChange }: ChatActiveWatcherProps) {
   const searchParams = useSearchParams()
-  const isActive = pathname === "/messages" && !!(searchParams.get("contact") || searchParams.get("user"))
+  const isActive = pathname === "/messages" && !!(searchParams.get("contact") || searchParams.get("user") || searchParams.get("conv"))
 
   useEffect(() => {
     onChange(isActive)

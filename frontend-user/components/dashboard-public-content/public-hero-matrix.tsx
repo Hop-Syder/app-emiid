@@ -17,7 +17,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ArrowRight, ShieldCheck } from "lucide-react"
-import { EmiIDProfileCard } from "../carte-profil/emiid-profile-card"
+import { FeaturedProfilesCarousel } from "./featured-profiles-carousel"
 
 interface PublicHeroMatrixProps {
     stats: {
@@ -159,28 +159,13 @@ export function PublicHeroMatrix(_props: PublicHeroMatrixProps) {
                         }}
                         className="relative w-full max-w-[200px] mx-auto cursor-pointer transition-transform duration-200 ease-out"
                     >
-                        {/* Halo lumineux sous la carte */}
-                        <div className="absolute -inset-4 rounded-2xl bg-gradient-to-tr from-[#013ff4]/30 to-[#03b3f8]/30 blur-2xl opacity-60 group-hover:opacity-100 transition-opacity" />
-
-                        {/* Carte DÉMO EmiID */}
+                        {/* Carrousel de profils vérifiés mis en avant — remplace
+                            la carte démo statique "Calbert VITO" (donnée
+                            fictive) par de vrais membres (voir
+                            featured-profiles-carousel.tsx). Le halo lumineux
+                            vit désormais dans le carrousel lui-même. */}
                         <div className="relative z-10 transform-gpu transition-all">
-                            <EmiIDProfileCard
-                                variant="glass-blue"
-                                size="compact"
-                                user={{
-                                    id: "demo-showcase",
-                                    name: "Calbert VITO",
-                                    role: "Co-Fondateur & CEO Tech",
-                                    location: "Cotonou, Bénin",
-                                    avatar: "/profil/avatar.jpg",
-                                    specialty: "IA, Architecture & Tech",
-                                    verified: true,
-                                    premium: true,
-                                    followers: 1280,
-
-                                    tags: ["FullStack", "IA & LLM", "Next.js", "Design System"],
-                                }}
-                            />
+                            <FeaturedProfilesCarousel />
                         </div>
 
                     </motion.div>

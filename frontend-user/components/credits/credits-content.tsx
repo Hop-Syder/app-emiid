@@ -29,10 +29,10 @@ export function CreditsContent() {
             <Coins className="h-4 w-4" />
             <span>Missions & Opportunités</span>
           </div>
-          <h1 className="mt-1 font-heading text-2xl font-black text-slate-900 dark:text-white md:text-3xl">
+          <h1 className="mt-1 font-heading text-2xl font-black text-foreground md:text-3xl">
             Mon Portefeuille de Crédits
           </h1>
-          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+          <p className="mt-1 text-xs text-muted-foreground">
             Gérez vos jetons de candidature et suivez la traçabilité de vos opportunités.
           </p>
         </div>
@@ -41,7 +41,7 @@ export function CreditsContent() {
           type="button"
           onClick={() => refetch()}
           disabled={loading}
-          className="inline-flex items-center gap-2 self-start rounded-2xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 shadow-xs transition-all hover:bg-slate-50 active:scale-95 disabled:opacity-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+          className="inline-flex items-center gap-2 self-start rounded-2xl border border-border bg-card px-4 py-2 text-xs font-bold text-foreground/80 shadow-xs transition-all hover:bg-muted active:scale-95 disabled:opacity-50"
         >
           <RotateCw className={`h-3.5 w-3.5 ${loading ? "animate-spin text-[#013ff4]" : ""}`} />
           <span>Actualiser</span>
@@ -63,14 +63,14 @@ export function CreditsContent() {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+            <h2 className="text-lg font-bold text-foreground">
               Packs de crédits
             </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-muted-foreground">
               Des tarifs dégressifs conçus pour maximiser votre rentabilité par mission.
             </p>
           </div>
-          <div className="hidden items-center gap-1.5 text-xs font-semibold text-slate-500 sm:flex">
+          <div className="hidden items-center gap-1.5 text-xs font-semibold text-muted-foreground sm:flex">
             <ShieldCheck className="h-4 w-4 text-emerald-500" />
             <span>Paiement 100% sécurisé</span>
           </div>
