@@ -15,8 +15,6 @@ import Image from "next/image"
 import {
   Users2,
   CheckCircle2,
-  Clock,
-  Banknote,
   User,
   ShieldCheck,
   Loader2,
@@ -153,7 +151,7 @@ export function MissionApplicationsSection({
                           )}
                         </div>
                         <p className="text-xs text-slate-500 dark:text-slate-400">
-                          {app.freelancer?.headline || "Professionnel Certifié"}
+                          Professionnel Certifié
                         </p>
                       </div>
                     </div>
@@ -165,33 +163,25 @@ export function MissionApplicationsSection({
                     )}
                   </div>
 
-                  {/* Chiffres clés devis */}
-                  <div className="mt-4 grid grid-cols-2 gap-2 rounded-2xl bg-slate-50 p-3 dark:bg-slate-800/40">
-                    <div>
-                      <span className="text-[10px] font-semibold text-slate-400">
-                        Devis proposé
-                      </span>
-                      <p className="text-sm font-black text-slate-900 dark:text-white">
-                        {app.price_quote
-                          ? `${app.price_quote.toLocaleString("fr-FR")} FCFA`
-                          : "Non spécifié"}
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-[10px] font-semibold text-slate-400">
-                        Délai estimé
-                      </span>
-                      <p className="text-sm font-black text-slate-900 dark:text-white">
-                        {app.estimated_days
-                          ? `${app.estimated_days} jour${app.estimated_days > 1 ? "s" : ""}`
-                          : "À convenir"}
-                      </p>
-                    </div>
+                  {/* Devis proposé. Pas de "délai estimé" : ce champ n'existe
+                      nulle part dans mission_applications — un afficher aurait
+                      voulu dire montrer en permanence "À convenir", une
+                      donnée factice jamais réelle (voir memory
+                      project-audit-2026-09 sur ce même anti-pattern). */}
+                  <div className="mt-4 rounded-2xl bg-slate-50 p-3 dark:bg-slate-800/40">
+                    <span className="text-[10px] font-semibold text-slate-400">
+                      Devis proposé
+                    </span>
+                    <p className="text-sm font-black text-slate-900 dark:text-white">
+                      {app.proposed_price
+                        ? `${app.proposed_price.toLocaleString("fr-FR")} FCFA`
+                        : "Non spécifié"}
+                    </p>
                   </div>
 
                   {/* Note d'intention */}
                   <p className="mt-4 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
-                    {app.proposal || "Aucune note d'intention fournie."}
+                    {app.pitch || "Aucune note d'intention fournie."}
                   </p>
                 </div>
 

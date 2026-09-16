@@ -144,7 +144,7 @@ export function CreditsHistoryTable({
                       </span>
                     </div>
                     <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                      {tx.description || formattedDate}
+                      {formattedDate}
                     </p>
                   </div>
                 </div>

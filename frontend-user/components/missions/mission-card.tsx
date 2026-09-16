@@ -19,7 +19,7 @@ import {
   ShieldCheck,
   ArrowUpRight,
 } from "lucide-react"
-import type { Mission } from "@/types/missions"
+import { OPEN_MISSION_STATUSES, type Mission } from "@/types/missions"
 
 interface MissionCardProps {
   mission: Mission
@@ -28,7 +28,7 @@ interface MissionCardProps {
 export function MissionCard({ mission }: MissionCardProps) {
   const appCount = mission.applications_count || 0
   const isFull = appCount >= 2
-  const isOpen = mission.status === "OPEN"
+  const isOpen = OPEN_MISSION_STATUSES.includes(mission.status)
 
   const formattedBudget =
     mission.budget_min && mission.budget_max

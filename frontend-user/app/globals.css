@@ -9,9 +9,9 @@
  */
 
 /* Charte typographique EmiID —
- *  • Corps : Inter (substitut libre de « Google Sans », non licenciable).
- *  • Titres : Mitsuha (auto-hébergée, cf. @font-face ci-dessous), Satoshi en secours. */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+ *  • Corps : Plus Jakarta Sans (Moderne, géométrique et lisibilité fintech optimale).
+ *  • Titres : Satoshi (Mitsuha en local pour le wordmark ASCII). */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap');
 @import url('https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700,900&display=swap');
 
 /* ── Mitsuha (titres, charte) — auto-hébergée (public/fonts/).
@@ -62,7 +62,7 @@
 
 @layer base {
   :root {
-    --font-sans: 'Inter', system-ui, sans-serif;
+    --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     /* Titres : Satoshi (Mitsuha ne couvre pas les accents FR → réservée au wordmark) */
     --font-heading: 'Satoshi', sans-serif;
     --font-mono: ui-monospace, monospace;

@@ -19,10 +19,16 @@ interface EscrowCardProps {
 }
 
 export function EscrowCard({ mission, isClient }: EscrowCardProps) {
+  // Le montant exact du séquestre (prix accepté + frais) vit sur la
+  // candidature ACCEPTED, pas sur la mission elle-même — voir
+  // createMissionEscrowCheckout dans backend/src/controllers/paymentController.ts.
+  // Non câblé ici (ce composant ne reçoit que `mission`) : on retombe sur le
+  // budget indicatif en attendant, cohérent avec le bouton de consignation
+  // encore désactivé plus bas.
   const escrowAmount =
-    mission.escrow_amount || mission.budget_max || mission.budget_min || 0
+    mission.budget_max || mission.budget_min || 0
 
-  const isFunded = mission.escrow_status === "FUNDED"
+  const isFunded = mission.escrow_status === "HELD"
   const isReleased = mission.escrow_status === "RELEASED"
   const isRefunded = mission.escrow_status === "REFUNDED"
 

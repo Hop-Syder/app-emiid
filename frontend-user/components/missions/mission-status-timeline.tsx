@@ -32,7 +32,7 @@ interface MissionStatusTimelineProps {
 
 const STEPS: { key: MissionStatus; label: string; desc: string }[] = [
   {
-    key: "OPEN",
+    key: "APPLICATIONS_OPEN",
     label: "Publication & Candidatures",
     desc: "Recherche des 2 candidats qualifiés",
   },
@@ -69,7 +69,12 @@ export function MissionStatusTimeline({
   const [showDisputeModal, setShowDisputeModal] = useState(false)
   const [disputeReason, setDisputeReason] = useState("")
 
-  const statusIndex = STEPS.findIndex((s) => s.key === mission.status)
+  const statusIndex = STEPS.findIndex(
+    (s) =>
+      s.key === mission.status ||
+      (s.key === "APPLICATIONS_OPEN" &&
+        (mission.status === "PUBLISHED" || mission.status === "DRAFT"))
+  )
   const isDisputed = mission.status === "DISPUTED"
 
   const handleAction = async (action: "START_WORK" | "DELIVER" | "COMPLETE" | "DISPUTE", reason?: string) => {

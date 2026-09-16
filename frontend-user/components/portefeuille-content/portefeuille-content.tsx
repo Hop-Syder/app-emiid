@@ -18,6 +18,8 @@ import { CompetencesSection } from "./competences-section"
 import { FollowedProfilesContent } from "./followed-profiles-content"
 import { CommunautesSection } from "./communautes-section"
 import { usePortefeuille, TabId } from "@/hooks/use-portefeuille"
+import { PersonalHero } from "@/components/dashboard-user-content/personal-hero"
+import { InlineActivityFeed } from "@/components/dashboard-user-content/inline-activity-feed"
 
 const TABS: { id: TabId; label: string; icon: React.ElementType }[] = [
   { id: "realisations", label: "Réalisations", icon: Briefcase },
@@ -112,6 +114,20 @@ export function PortefeuilleContent() {
         <div>
           <h1 className="text-2xl font-black text-foreground tracking-tight">Mon Portefeuille</h1>
           <p className="text-sm text-muted-foreground mt-0.5">Gérez vos réalisations, compétences et votre réseau professionnel</p>
+        </div>
+
+        {/* ── Cockpit personnel (stats + activité récente) ─────────────
+            Déménagé du Hub le 16/09 : complétude/stats de profil et
+            activité récente (notifications) vivent ici désormais, pas sur
+            le tableau de bord. Desktop uniquement (≥ lg), comme dans le Hub
+            d'origine — comportement mobile inchangé par ce déplacement. */}
+        <div className="hidden lg:grid lg:grid-cols-12 gap-8 lg:gap-6 xl:gap-8">
+          <div className="lg:col-span-7">
+            <PersonalHero />
+          </div>
+          <div className="lg:col-span-5">
+            <InlineActivityFeed />
+          </div>
         </div>
 
         {/* ── Hero Stats ─────────────────────────────────────────────── */}

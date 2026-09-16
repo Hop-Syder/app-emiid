@@ -14,6 +14,7 @@ import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useMissionDetail } from "@/hooks/use-missions"
+import { OPEN_MISSION_STATUSES } from "@/types/missions"
 import { ApplyMissionModal } from "./apply-mission-modal"
 import { MissionStatusTimeline } from "./mission-status-timeline"
 import { EscrowCard } from "./escrow-card"
@@ -84,9 +85,11 @@ export function MissionDetailContent({ missionId }: MissionDetailContentProps) {
 
   const appCount = applications.length
   const isFull = appCount >= 2
-  const isOpen = mission.status === "OPEN"
+  const isOpen = OPEN_MISSION_STATUSES.includes(mission.status)
   const canApply = !isClient && isOpen && !isFull && !hasApplied
-  const isAssignedFreelancer = currentUserId ? mission.assigned_to === currentUserId : false
+  const isAssignedFreelancer = currentUserId
+    ? mission.selected_pro_id === currentUserId
+    : false
 
   const formattedBudget =
     mission.budget_min && mission.budget_max

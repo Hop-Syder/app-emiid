@@ -82,11 +82,18 @@ export function CreateMissionForm() {
           client_id: user.id,
           title: title.trim(),
           description: description.trim(),
+          category: category.trim() || null,
           budget_min: budgetMin ? Number(budgetMin) : null,
           budget_max: budgetMax ? Number(budgetMax) : null,
           currency: "XOF",
           deadline: deadline ? new Date(deadline).toISOString() : null,
-          status: "OPEN",
+          // "OPEN" n'existe pas dans l'enum public.mission_status (valeurs
+          // réelles : DRAFT/PUBLISHED/APPLICATIONS_OPEN/... — voir
+          // sql/migrations/20260915_missions_engine_phase1.sql:64-66).
+          // PUBLISHED = état initial correct pour une mission publiée
+          // directement (la policy RLS d'INSERT n'autorise que DRAFT ou
+          // PUBLISHED à la création de toute façon).
+          status: "PUBLISHED",
         })
         .select()
         .single()

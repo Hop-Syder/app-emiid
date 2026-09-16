@@ -1,9 +1,8 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Dock de navigation mobile Visiteur — épuré, symétrique, haute performance (60/120 FPS).
- *              Style sobre inspiré de Linear et Stripe.
- *              Accès direct : Accueil, Pros, Missions et Connexion.
+ * @description Dock de navigation mobile Visiteur (Style LinkedIn) — Pleine largeur, 
+ *              zéro arrondi, 4 onglets symétriques et rapides.
  * @created 2026-06-13
  * @updated 2026-09-16
  * 🌐 ceo.nexuspartners.xyz
@@ -32,7 +31,7 @@ export function MobileDockGuest() {
     },
     {
       key: "pros",
-      name: "Pros",
+      name: "Réseau",
       href: "/annuaire",
       icon: Users,
     },
@@ -45,65 +44,78 @@ export function MobileDockGuest() {
   ]
 
   return (
-    <div
-      className="lg:hidden fixed inset-x-0 bottom-0 z-50 flex justify-center px-4 pointer-events-none"
-      style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 0.75rem)" }}
+    <nav
+      aria-label="Navigation principale"
+      className="lg:hidden fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 h-[54px] w-full border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950"
+      style={{
+        paddingBottom: "env(safe-area-inset-bottom)",
+        height: "calc(54px + env(safe-area-inset-bottom))",
+      }}
     >
-      <nav
-        aria-label="Navigation principale"
-        className="pointer-events-auto relative flex h-[62px] w-full max-w-[370px] items-center justify-between rounded-full border border-slate-200/80 bg-white/90 px-3 shadow-[0_8px_30px_rgb(0,0,0,0.07)] backdrop-blur-xl transition-all dark:border-slate-800/80 dark:bg-slate-950/90 dark:shadow-[0_8px_30px_rgb(0,0,0,0.4)]"
-        style={{ willChange: "transform" }}
-      >
-        {/* 3 Onglets Métier */}
-        {guestTabs.map((tab) => {
-          const active = isActive(tab.href)
-          const Icon = tab.icon
+      {/* 3 Onglets Métier */}
+      {guestTabs.map((tab) => {
+        const active = isActive(tab.href)
+        const Icon = tab.icon
 
-          return (
-            <Link
-              key={tab.key}
-              href={tab.href}
+        return (
+          <Link
+            key={tab.key}
+            href={tab.href}
+            className={cn(
+              "relative flex flex-col items-center justify-center pt-1 pb-1.5 transition-colors select-none",
+              active
+                ? "text-slate-900 dark:text-white"
+                : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+            )}
+          >
+            {active && (
+              <span className="absolute top-0 inset-x-3 h-[2px] bg-slate-900 dark:bg-white" />
+            )}
+
+            <Icon
+              className="h-5 w-5"
+              strokeWidth={active ? 2.4 : 1.8}
+            />
+
+            <span
               className={cn(
-                "relative flex flex-1 flex-col items-center justify-center gap-1 py-1.5 outline-none transition-colors",
+                "mt-0.5 text-[10px] tracking-tight",
                 active
-                  ? "text-[#013ff4] dark:text-[#03b3f8]"
-                  : "text-slate-400 hover:text-slate-700 dark:text-slate-500 dark:hover:text-slate-200"
+                  ? "font-bold text-slate-900 dark:text-white"
+                  : "font-normal text-slate-500 dark:text-slate-400"
               )}
             >
-              <Icon
-                className={cn(
-                  "h-5 w-5 transition-transform",
-                  active && "scale-105"
-                )}
-                strokeWidth={active ? 2.3 : 1.8}
-              />
-              <span
-                className={cn(
-                  "text-[10px] font-bold leading-none tracking-tight",
-                  active
-                    ? "text-[#013ff4] dark:text-[#03b3f8]"
-                    : "text-slate-500 dark:text-slate-400"
-                )}
-              >
-                {tab.name}
-              </span>
+              {tab.name}
+            </span>
+          </Link>
+        )
+      })}
 
-              {active && (
-                <span className="absolute -bottom-0.5 h-1 w-1 rounded-full bg-[#013ff4] dark:bg-[#03b3f8]" />
-              )}
-            </Link>
-          )
-        })}
+      {/* 4ème Onglet : S'identifier */}
+      <Link
+        href="/login"
+        className={cn(
+          "relative flex flex-col items-center justify-center pt-1 pb-1.5 text-slate-500 hover:text-slate-900 transition-colors select-none dark:text-slate-400 dark:hover:text-white",
+          isActive("/login") && "text-slate-900 dark:text-white"
+        )}
+      >
+        {isActive("/login") && (
+          <span className="absolute top-0 inset-x-3 h-[2px] bg-slate-900 dark:bg-white" />
+        )}
 
-        {/* Bouton Connexion Sobre & Net */}
-        <Link
-          href="/login"
-          className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#013ff4] to-[#03b3f8] px-4 py-2 text-xs font-bold text-white shadow-md shadow-blue-500/20 transition-all hover:opacity-95 active:scale-95"
+        <LogIn className="h-5 w-5" strokeWidth={isActive("/login") ? 2.4 : 1.8} />
+
+        <span
+          className={cn(
+            "mt-0.5 text-[10px] tracking-tight",
+            isActive("/login")
+              ? "font-bold text-slate-900 dark:text-white"
+              : "font-normal text-slate-500 dark:text-slate-400"
+          )}
         >
-          <LogIn className="h-3.5 w-3.5" />
-          <span>Connexion</span>
-        </Link>
-      </nav>
-    </div>
+          Connexion
+        </span>
+      </Link>
+    </nav>
   )
 }

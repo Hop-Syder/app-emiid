@@ -5,12 +5,10 @@ import { fetchWithAuth } from "@/lib/apiClient"
 import type { PublicProfile } from "@/types"
 
 import { DashboardBentoHeader } from "./dashboard-bento-header"
-import { InlineActivityFeed } from "./inline-activity-feed"
 import { ProximitySection } from "./proximity-section"
 import { CommuneSection } from "./commune-section"
 import { HubContextualCta } from "./hub-contextual-cta"
 import { HubCommunities } from "./hub-communities"
-import { PersonalHero } from "./personal-hero"
 import { ExplorerHub } from "./explorer-hub"
 
 interface DashboardHubContentProps {
@@ -51,29 +49,11 @@ export function DashboardHubContent({
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full -mt-10 z-20 space-y-12 relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full -mt-10 z-20 space-y-6 relative">
 
-        {/* =========================================
-            SECTION 1.5 + 2 : COCKPIT PERSONNEL (bento desktop)
-            Complétude/stats + activité récente côte à côte sur ≥ lg.
-            ========================================= */}
-        {/* Desktop uniquement depuis le 06/09. Sur mobile, le cockpit empilait
-            complétude, compteurs et relances sous un bandeau qui porte déjà la
-            salutation, la recherche et deux actions : l'utilisateur devait
-            franchir tout cela avant d'atteindre les profils, seule raison de sa
-            venue. Son accès aux notifications a été remonté dans le bandeau.
-
-            C'est la GRILLE entière qui est masquée, pas seulement ses colonnes :
-            un conteneur vide continuerait de recevoir l'espacement du parent
-            (`space-y-12`) et laisserait un trou sur mobile. */}
-        <div className="hidden lg:grid lg:grid-cols-12 gap-8 lg:gap-6 xl:gap-8">
-          <div className="lg:col-span-7">
-            <PersonalHero />
-          </div>
-          <div className="lg:col-span-5">
-            <InlineActivityFeed />
-          </div>
-        </div>
+        {/* SECTION 1.5 + 2 (cockpit personnel : complétude/stats + activité
+            récente) déménagée dans /portefeuille le 16/09 — voir
+            PortefeuilleContent. */}
 
         {/* =========================================
             SECTION 3 : TALENTS À PROXIMITÉ
@@ -99,14 +79,14 @@ export function DashboardHubContent({
         {/* =========================================
             SECTION 7 : CTA CONTEXTUEL
             ========================================= */}
-        <div className="pt-4 pb-4">
+        <div>
           <HubContextualCta />
         </div>
 
         {/* =========================================
             SECTION 8 : COMMUNAUTÉS
             ========================================= */}
-        <div className="pt-2 pb-8">
+        <div>
           <HubCommunities />
         </div>
 
