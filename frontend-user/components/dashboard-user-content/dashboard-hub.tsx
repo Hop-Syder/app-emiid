@@ -6,10 +6,9 @@ import type { PublicProfile } from "@/types"
 
 import { DashboardBentoHeader } from "./dashboard-bento-header"
 import { ProximitySection } from "./proximity-section"
-import { CommuneSection } from "./commune-section"
 import { HubContextualCta } from "./hub-contextual-cta"
 import { HubCommunities } from "./hub-communities"
-import { ExplorerHub } from "./explorer-hub"
+import { RecentMissionsSection } from "./recent-missions-section"
 
 interface DashboardHubContentProps {
   initialNewProfiles: PublicProfile[]
@@ -18,11 +17,10 @@ interface DashboardHubContentProps {
 }
 
 export function DashboardHubContent({
-  initialNewProfiles,
   initialProximityProfiles = [],
   userLocation
 }: DashboardHubContentProps) {
-  const { stats, statsError } = useDashboardStats({
+  const { statsError } = useDashboardStats({
     endpoint: "/api/dashboard-user/stats",
     fetcher: fetchWithAuth,
     refreshIntervalMs: 30000,
@@ -70,20 +68,15 @@ export function DashboardHubContent({
         </div>
 
         {/* =========================================
-            SECTION 5 : TALENTS DE LA COMMUNE
-            Échelle plus fine que la section ci-dessus (commune administrative
-            plutôt que ville/GPS) et vitrine des boosts communaux. Se masque
-            d'elle-même si le profil n'a pas de commune rattachée.
+            SECTION 5 : MISSIONS RÉCENTES
+            Remplace « Talents de la commune » à cet emplacement (désactivée
+            le 16/09, cf. CommuneSection toujours dispo mais non montée ici).
             ========================================= */}
-        <CommuneSection />
+        <RecentMissionsSection />
 
-        {/* =========================================
-            SECTION 6 : EXPLORER (Nouveaux / Réalisations / Catégories — onglets)
-            ========================================= */}
-        <ExplorerHub
-          newProfiles={initialNewProfiles}
-          categoryCounts={stats?.categoryCounts}
-        />
+        {/* SECTION 6 (Explorer : Nouveaux / Réalisations / Catégories)
+            désactivée le 16/09 — composant conservé (ExplorerHub) mais non
+            monté ici. */}
 
         {/* =========================================
             SECTION 7 : COMMUNAUTÉS

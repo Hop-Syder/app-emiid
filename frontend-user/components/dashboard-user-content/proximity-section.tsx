@@ -131,11 +131,12 @@ export function ProximitySection({ fallbackLocation, initialProfiles = [] }: Pro
         </Link>
       </div>
       
-      {/* On utilise les profils générés par l'algo de proximité (lieu d'inscription ou GPS) */}
-      <EntrepreneursSection 
-        entrepreneursList={profiles} 
-        loading={loading && profiles.length === 0} 
-        variant="glass" 
+      {/* On utilise les profils générés par l'algo de proximité (lieu d'inscription ou GPS),
+          plafonnés à 10 sur ce hub — l'annuaire reste l'endroit pour voir la liste complète. */}
+      <EntrepreneursSection
+        entrepreneursList={profiles.slice(0, 10)}
+        loading={loading && profiles.length === 0}
+        variant="glass"
       />
     </div>
   )
