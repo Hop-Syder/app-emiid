@@ -11,7 +11,7 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowRight, Sparkles, UserCircle } from "lucide-react"
+import { ArrowRight, ShieldCheck, UserCircle } from "lucide-react"
 import { useCurrentUserProfile } from "@/hooks/use-current-user-profile"
 import { Button } from "@/components/ui/button"
 
@@ -69,23 +69,24 @@ export function HubContextualCta() {
       <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-1.5 max-w-xl">
           <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#03b3f8]/15 border border-[#03b3f8]/30 text-sky-400 text-xs font-semibold">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Opportunités</span>
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span>Confiance</span>
           </div>
           <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight">
-            Propulsez votre{" "}
+            Les personnes de{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#013ff4] via-[#03b3f8] to-sky-300">
-              activité
-            </span>
+              confiance
+            </span>{" "}
+            sont ici
           </h2>
           <p className="text-slate-300 text-xs sm:text-sm font-normal">
-            Explorez l&apos;annuaire et connectez-vous aux talents et décideurs.
+            Contactez un professionnel vérifié et avancez votre projet dès aujourd&apos;hui.
           </p>
         </div>
 
-        <Link href="/annuaire" className="shrink-0">
+        <Link href="/annuaire?filter=verified" className="shrink-0">
           <Button className="w-full sm:w-auto h-11 px-6 rounded-2xl bg-gradient-to-r from-[#013ff4] to-[#03b3f8] hover:from-[#0135d0] hover:to-[#029ad7] text-white font-bold text-sm shadow-lg shadow-blue-500/25 transition-all hover:scale-[1.02]">
-            Explorer l&apos;annuaire
+            Trouver un talent vérifié
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
         </Link>
