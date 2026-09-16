@@ -4,9 +4,8 @@
  * @description Barre supérieure de l'espace connecté (ordinateur uniquement).
  *
  *              La barre latérale dit *où l'on peut aller* ; celle-ci dit *où
- *              l'on est* et donne les gestes courants — chercher, voir ses
- *              notifications. Séparer les deux évite la capsule unique qui
- *              devait tout porter à la fois.
+ *              l'on est* et affiche les notifications. Séparer les deux évite
+ *              la capsule unique qui devait tout porter à la fois.
  *
  *              Elle commence après la barre latérale plutôt que de la
  *              surplomber : les deux se partagent l'écran, aucune ne flotte
@@ -14,14 +13,16 @@
  *
  *              Aucun rendu en dessous de `lg` : le mobile garde son dock.
  * @created 2026-08-29
+ * @updated 2026-09-16
  * 🌐 ceo.nexuspartners.xyz
+ * 📧 daoudaabassichristian@gmail.com
  */
 
 "use client"
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Bell, Search } from "lucide-react"
+import { Bell } from "lucide-react"
 import { useUnreadNotifications } from "@/hooks/use-unread-notifications"
 
 /**
@@ -55,24 +56,11 @@ export function DesktopAppBarAuth() {
 
   return (
     <header
-      className="hidden lg:flex fixed inset-x-0 left-[var(--sidebar-w)] top-0 z-40 h-16 items-center gap-4 border-b border-border bg-card/85 px-6 2xl:px-8 backdrop-blur-xl transition-[left] duration-300 ease-out dark:border-slate-800 dark:bg-slate-950/85"
+      className="hidden lg:flex fixed inset-x-0 left-[var(--sidebar-w)] top-0 z-40 h-16 items-center justify-between border-b border-border bg-card/85 px-6 2xl:px-8 backdrop-blur-xl transition-[left] duration-300 ease-out dark:border-slate-800 dark:bg-slate-950/85"
     >
       <h1 className="shrink-0 text-base font-black tracking-tight text-foreground dark:text-white">
         {title}
       </h1>
-
-      {/* Raccourci vers la recherche dans l'annuaire */}
-      <Link
-        href="/annuaire"
-        className="group mx-auto relative flex h-10 w-full max-w-md 2xl:max-w-xl items-center gap-2.5 rounded-2xl border border-border/80 bg-slate-100/70 hover:bg-card px-3.5 text-left outline-none transition-all duration-200 hover:border-[#013ff4]/50 hover:shadow-[0_0_20px_-5px_rgba(1,63,244,0.15)] focus-visible:ring-2 focus-visible:ring-[#013ff4] dark:border-slate-800 dark:bg-slate-900/90 dark:hover:bg-slate-900 dark:hover:border-[#03b3f8]/50 dark:hover:shadow-[0_0_20px_-5px_rgba(3,179,248,0.2)]"
-      >
-        <div className="flex items-center justify-center w-5 h-5 rounded-lg bg-slate-200/50 group-hover:bg-[#013ff4]/10 group-hover:text-[#013ff4] text-slate-400 transition-colors dark:bg-slate-800 dark:group-hover:bg-[#013ff4]/20 dark:group-hover:text-[#03b3f8]">
-          <Search className="h-3.5 w-3.5 shrink-0 transition-transform group-hover:scale-110" />
-        </div>
-        <span className="flex-1 truncate text-xs font-medium text-slate-500 group-hover:text-slate-700 transition-colors dark:text-slate-400 dark:group-hover:text-slate-200">
-          Rechercher un profil, un métier, une compétence…
-        </span>
-      </Link>
 
       <Link
         href="/notifications"

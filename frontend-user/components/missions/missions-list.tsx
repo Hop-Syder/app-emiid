@@ -32,7 +32,7 @@ export function MissionsList() {
   const { missions, loading, error, refetch } = useMissions(tab, search)
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 px-4 py-6 md:px-8 md:py-10">
+    <div className="mx-auto max-w-[1400px] space-y-6 px-4 py-6 sm:px-6 lg:px-8 md:py-10">
       {/* En-tête : un seul titre, disposé comme dans l'annuaire (h1 + action
           sur la même ligne, onglets/recherche juste en dessous, le tout
           sous une seule bordure basse — pas de carte imbriquée). */}
