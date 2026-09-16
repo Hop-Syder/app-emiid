@@ -19,7 +19,6 @@ import { Skeleton } from "@/components/ui/skeleton"
 import {
   Search,
   Plus,
-  Briefcase,
   Layers,
   FileCheck2,
   Inbox,
@@ -34,84 +33,78 @@ export function MissionsList() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-4 py-6 md:px-8 md:py-10">
-      {/* En-tête principal */}
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-        <div>
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#013ff4] dark:text-[#03b3f8]">
-            <Briefcase className="h-4 w-4" />
-            <span>Missions Courtes Sécurisées</span>
-          </div>
-          <h1 className="mt-1 font-heading text-2xl font-black text-foreground md:text-3xl">
-            Opportunités de missions
+      {/* En-tête : un seul titre, disposé comme dans l'annuaire (h1 + action
+          sur la même ligne, onglets/recherche juste en dessous, le tout
+          sous une seule bordure basse — pas de carte imbriquée). */}
+      <div className="space-y-3 border-b border-border pb-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h1 className="text-3xl md:text-4xl font-black text-foreground tracking-tight">
+            Toutes les <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0150fd] to-blue-600">Missions</span>
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Plafond strict de 2 candidats par mission pour une sélectivité et une conversion optimales.
-          </p>
+
+          <Link
+            href="/missions/creer"
+            className="inline-flex items-center gap-2 self-start rounded-2xl bg-[#013ff4] px-5 py-2.5 text-xs font-bold text-white shadow-lg shadow-blue-500/25 transition-all hover:bg-[#0135d0] active:scale-95"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Publier une mission</span>
+          </Link>
         </div>
 
-        <Link
-          href="/missions/creer"
-          className="inline-flex items-center gap-2 rounded-2xl bg-[#013ff4] px-5 py-2.5 text-xs font-bold text-white shadow-lg shadow-blue-500/25 transition-all hover:bg-[#0135d0] active:scale-95"
-        >
-          <Plus className="h-4 w-4" />
-          <span>Publier une mission</span>
-        </Link>
-      </div>
+        {/* Onglets et recherche */}
+        <div className="flex flex-col gap-4 pb-1 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-wrap gap-1">
+            <button
+              type="button"
+              onClick={() => setTab("ALL")}
+              className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition-all ${
+                tab === "ALL"
+                  ? "bg-[#013ff4] text-white shadow-sm"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              }`}
+            >
+              <Layers className="h-3.5 w-3.5" />
+              <span>Toutes les missions</span>
+            </button>
 
-      {/* Barre de recherche et onglets */}
-      <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-4 shadow-sm md:flex-row md:items-center md:justify-between">
-        {/* Onglets */}
-        <div className="flex flex-wrap gap-1">
-          <button
-            type="button"
-            onClick={() => setTab("ALL")}
-            className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition-all ${
-              tab === "ALL"
-                ? "bg-[#013ff4] text-white shadow-sm"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground"
-            }`}
-          >
-            <Layers className="h-3.5 w-3.5" />
-            <span>Toutes les missions</span>
-          </button>
+            <button
+              type="button"
+              onClick={() => setTab("MY_POSTED")}
+              className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition-all ${
+                tab === "MY_POSTED"
+                  ? "bg-[#013ff4] text-white shadow-sm"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              }`}
+            >
+              <FileCheck2 className="h-3.5 w-3.5" />
+              <span>Mes publications</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={() => setTab("MY_POSTED")}
-            className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition-all ${
-              tab === "MY_POSTED"
-                ? "bg-[#013ff4] text-white shadow-sm"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground"
-            }`}
-          >
-            <FileCheck2 className="h-3.5 w-3.5" />
-            <span>Mes publications</span>
-          </button>
+            <button
+              type="button"
+              onClick={() => setTab("MY_APPLIED")}
+              className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition-all ${
+                tab === "MY_APPLIED"
+                  ? "bg-[#013ff4] text-white shadow-sm"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              }`}
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              <span>Mes candidatures</span>
+            </button>
+          </div>
 
-          <button
-            type="button"
-            onClick={() => setTab("MY_APPLIED")}
-            className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition-all ${
-              tab === "MY_APPLIED"
-                ? "bg-[#013ff4] text-white shadow-sm"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground"
-            }`}
-          >
-            <Sparkles className="h-3.5 w-3.5" />
-            <span>Mes candidatures</span>
-          </button>
-        </div>
-
-        {/* Champ de recherche */}
-        <div className="relative w-full md:w-72">
-          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Rechercher par mot-clé..."
-            className="h-10 w-full rounded-xl border border-border bg-muted/50 pl-10 pr-4 text-base md:text-sm text-foreground outline-none transition-colors focus:border-[#013ff4] focus:bg-card focus:ring-1 focus:ring-[#013ff4]"
-          />
+          {/* Champ de recherche */}
+          <div className="relative w-full md:w-72">
+            <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Rechercher par mot-clé..."
+              className="h-10 w-full rounded-xl border border-border bg-muted/50 pl-10 pr-4 text-base md:text-sm text-foreground outline-none transition-colors focus:border-[#013ff4] focus:bg-card focus:ring-1 focus:ring-[#013ff4]"
+            />
+          </div>
         </div>
       </div>
 

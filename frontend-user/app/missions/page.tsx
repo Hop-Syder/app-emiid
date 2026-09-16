@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 
 export default function MissionsPage() {
   return (
-    <div className="flex-1 w-full min-h-screen flex flex-col">
+    <div className="flex-1 w-full min-h-screen flex flex-col pt-8">
       <MissionsList />
     </div>
   )
