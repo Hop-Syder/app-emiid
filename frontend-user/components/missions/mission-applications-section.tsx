@@ -78,7 +78,7 @@ export function MissionApplicationsSection({
           <h3 className="text-base font-bold text-slate-900 dark:text-white">
             Candidatures reçues ({applications.length}/2)
           </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             {isClient
               ? "Examinez les 2 offres et retenez le prestataire idéal pour démarrer les travaux."
               : "Les candidatures sont limitées à 2 prestataires maximum par mission."}
@@ -101,10 +101,10 @@ export function MissionApplicationsSection({
       {applications.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-slate-50/50 py-10 text-center dark:border-slate-800 dark:bg-slate-900/30">
           <Users2 className="h-8 w-8 text-slate-400" />
-          <p className="mt-2 text-xs font-bold text-slate-700 dark:text-slate-300">
+          <p className="mt-2 text-sm font-bold text-slate-700 dark:text-slate-300">
             Aucune candidature pour le moment
           </p>
-          <p className="mt-0.5 text-[11px] text-slate-400">
+          <p className="mt-0.5 text-xs text-slate-400">
             La mission est en attente des 2 propositions de prestataires qualifiés.
           </p>
         </div>
@@ -145,14 +145,14 @@ export function MissionApplicationsSection({
 
                       <div>
                         <div className="flex items-center gap-1.5">
-                          <h4 className="text-xs font-bold text-slate-900 dark:text-white">
+                          <h4 className="text-sm font-bold text-slate-900 dark:text-white">
                             {app.freelancer?.full_name || "Prestataire EmiID"}
                           </h4>
                           {app.freelancer?.identity_verified && (
                             <ShieldCheck className="h-3.5 w-3.5 text-[#013ff4] dark:text-[#03b3f8]" />
                           )}
                         </div>
-                        <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
                           {app.freelancer?.headline || "Professionnel Certifié"}
                         </p>
                       </div>
@@ -171,7 +171,7 @@ export function MissionApplicationsSection({
                       <span className="text-[10px] font-semibold text-slate-400">
                         Devis proposé
                       </span>
-                      <p className="text-xs font-black text-slate-900 dark:text-white">
+                      <p className="text-sm font-black text-slate-900 dark:text-white">
                         {app.price_quote
                           ? `${app.price_quote.toLocaleString("fr-FR")} FCFA`
                           : "Non spécifié"}
@@ -181,7 +181,7 @@ export function MissionApplicationsSection({
                       <span className="text-[10px] font-semibold text-slate-400">
                         Délai estimé
                       </span>
-                      <p className="text-xs font-black text-slate-900 dark:text-white">
+                      <p className="text-sm font-black text-slate-900 dark:text-white">
                         {app.estimated_days
                           ? `${app.estimated_days} jour${app.estimated_days > 1 ? "s" : ""}`
                           : "À convenir"}
@@ -190,7 +190,7 @@ export function MissionApplicationsSection({
                   </div>
 
                   {/* Note d'intention */}
-                  <p className="mt-4 text-xs leading-relaxed text-slate-600 dark:text-slate-300">
+                  <p className="mt-4 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
                     {app.proposal || "Aucune note d'intention fournie."}
                   </p>
                 </div>

@@ -95,7 +95,7 @@ export function SponsorshipOverview({
           <h2 className="font-heading text-xl font-black text-white md:text-2xl">
             Cooptez l'excellence professionnelle
           </h2>
-          <p className="mt-1 max-w-xl text-xs leading-relaxed text-slate-300">
+          <p className="mt-1 max-w-xl text-sm leading-relaxed text-slate-300">
             Invitez des professionnels dont vous garantissez personnellement le sérieux. Votre filleul reçoit 3 crédits offerts à l'inscription et vous gagnez 2 crédits dès sa première mission réussie.
           </p>
         </div>
@@ -106,7 +106,7 @@ export function SponsorshipOverview({
             Votre lien d'invitation personnel
           </label>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <div className="flex-1 truncate rounded-2xl border border-white/15 bg-white/[0.05] px-4 py-3 text-xs text-slate-200 backdrop-blur-md">
+            <div className="flex-1 truncate rounded-2xl border border-white/15 bg-white/[0.05] px-4 py-3 text-sm text-slate-200 backdrop-blur-md">
               {referralLink || "Chargement de votre lien unique..."}
             </div>
 

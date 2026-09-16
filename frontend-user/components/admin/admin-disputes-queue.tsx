@@ -160,9 +160,9 @@ export function AdminDisputesQueue({ disputes, onRefresh }: AdminDisputesQueuePr
               </div>
 
               {/* Motif du litige */}
-              <div className="rounded-2xl border border-rose-100 bg-rose-50/60 p-3.5 text-xs text-rose-800 dark:border-rose-900/30 dark:bg-rose-950/20 dark:text-rose-300">
+              <div className="rounded-2xl border border-rose-100 bg-rose-50/60 p-3.5 text-sm text-rose-800 dark:border-rose-900/30 dark:bg-rose-950/20 dark:text-rose-300">
                 <p className="font-bold">Motif de la contestation :</p>
-                <p className="mt-1 text-[11px] leading-relaxed">
+                <p className="mt-1 text-xs md:text-sm leading-relaxed">
                   {dispute.cancellation_reason || "Non spécifié par le contestataire."}
                 </p>
               </div>

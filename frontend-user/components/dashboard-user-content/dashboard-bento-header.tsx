@@ -1,18 +1,21 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Header Dashboard — hero épuré, centré sur la recherche.
+ * @description Header Dashboard — hero épuré, salutation + accès rapides.
  *
  *              Refonte du 04/09 : le bloc a été allégé pour aller à l'essentiel.
  *              Retirés — le tag « Espace Membre » (qui n'apprenait rien à un
  *              utilisateur déjà connecté), l'image de fond (poids de chargement
  *              et contraste à gérer, pour un simple décor) et l'encart BAGBE.
  *              Le fond se limite désormais à la couleur de charte et deux halos.
- *              Restent la salutation « Bonsoir, Prénom » en corps réduit, puis
- *              une barre de recherche de profils, au clavier ou à la voix —
- *              l'action la plus fréquente devient la plus accessible.
+ *
+ *              16/09 : la barre de recherche (clavier + voix) a déménagé dans
+ *              la barre latérale (`DesktopSidebarAuth`), accessible depuis
+ *              tout l'espace connecté plutôt que le seul tableau de bord.
+ *              Reste ici la salutation « Bonsoir, Prénom » et les deux accès
+ *              rapides (profil, réalisations).
  * @created 2026-05-31
- * @updated 2026-09-04
+ * @updated 2026-09-16
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -22,17 +25,14 @@
 import { motion, type Variants } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
-import { ArrowRight, Briefcase, Mic, Search } from "lucide-react"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { ArrowRight, Briefcase } from "lucide-react"
+import { useEffect, useState } from "react"
 import { useCurrentUserProfile } from "@/hooks/use-current-user-profile"
-import { useVoiceSearch } from "@/hooks/use-voice-search"
 import { NotificationsBellLink } from "./notifications-bell-link"
 
 export function DashboardBentoHeader() {
     const router = useRouter()
     const { session } = useCurrentUserProfile()
-    const [query, setQuery] = useState("")
-    const inputRef = useRef<HTMLInputElement>(null)
 
     // Salutation selon l'heure. Calculée après montage : l'heure du serveur
     // n'est pas celle du visiteur, la figer au rendu produirait un décalage
@@ -49,45 +49,6 @@ export function DashboardBentoHeader() {
         session?.user?.user_metadata?.first_name ||
         session?.user?.user_metadata?.name ||
         ""
-
-    /**
-     * Envoie la recherche vers l'annuaire, seul écran capable d'afficher des
-     * résultats. Même destination que /recherche : un utilisateur qui cherche
-     * depuis le tableau de bord ou depuis l'écran dédié arrive au même endroit.
-     */
-    const submit = useCallback(
-        (raw: string) => {
-            const q = raw.trim()
-            if (!q) {
-                inputRef.current?.focus()
-                return
-            }
-            router.push(`/annuaire?search=${encodeURIComponent(q)}`)
-        },
-        [router]
-    )
-
-    // Une dictée vaut validation : l'utilisateur a parlé, il n'a pas à appuyer
-    // sur un bouton en plus. Le champ affiche la phrase reconnue avant de partir.
-    const handleVoiceResult = useCallback(
-        (transcript: string) => {
-            setQuery(transcript)
-            submit(transcript)
-        },
-        [submit]
-    )
-
-    const { available: micAvailable, listening, toggle: toggleMic } = useVoiceSearch({
-        onResult: handleVoiceResult,
-    })
-
-    // Un nouveau clic micro vaut nouvelle recherche : on efface la saisie
-    // précédente dès l'appui, avant même que la dictée ne démarre, plutôt que
-    // d'attendre le résultat final pour remplacer l'ancien texte.
-    const handleMicClick = useCallback(() => {
-        if (!listening) setQuery("")
-        toggleMic()
-    }, [listening, toggleMic])
 
     const containerVariants: Variants = {
         hidden: { opacity: 0 },
@@ -112,7 +73,7 @@ export function DashboardBentoHeader() {
                     <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-[#03b3f8]/15 rounded-full blur-[100px]" />
                 </div>
 
-                <div className="relative z-10 flex flex-col justify-center min-h-[210px] sm:min-h-[230px] p-6 sm:p-7 md:p-8 gap-5 sm:gap-6">
+                <div className="relative z-10 flex flex-col justify-center min-h-[150px] sm:min-h-[170px] p-6 sm:p-7 md:p-8 gap-5 sm:gap-6">
 
                     {/* ── Salutation ───────────────────────────────────────── */}
                     <div className="flex items-center gap-3">
@@ -131,55 +92,6 @@ export function DashboardBentoHeader() {
                             fond de son menu. */}
                         <NotificationsBellLink tone="dark" />
                     </div>
-
-                    {/* ── Recherche de profils : clavier ou voix ───────────── */}
-                    <form
-                        onSubmit={(e) => {
-                            e.preventDefault()
-                            submit(query)
-                        }}
-                        role="search"
-                        className="relative flex items-center gap-2 rounded-2xl border border-white/15 bg-card/[0.06] backdrop-blur-md px-3 h-12 sm:h-13 transition-colors focus-within:border-[#03b3f8]/60"
-                    >
-                        <Search className="h-4 w-4 shrink-0 text-slate-400" aria-hidden="true" />
-
-                        <input
-                            ref={inputRef}
-                            type="search"
-                            value={query}
-                            onChange={(e) => setQuery(e.target.value)}
-                            placeholder="Rechercher un profil, un métier, une ville…"
-                            aria-label="Rechercher un profil"
-                            enterKeyHint="search"
-                            className="flex-1 min-w-0 bg-transparent text-sm text-white placeholder:text-slate-400 outline-none [&::-webkit-search-cancel-button]:appearance-none"
-                        />
-
-                        {/* Le micro n'apparaît que si le navigateur sait dicter :
-                            un bouton inerte vaudrait moins que pas de bouton. */}
-                        {micAvailable && (
-                            <button
-                                type="button"
-                                onClick={handleMicClick}
-                                aria-label={listening ? "Arrêter la dictée" : "Rechercher à la voix"}
-                                aria-pressed={listening}
-                                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-all ${
-                                    listening
-                                        ? "bg-red-500/20 text-red-300 ring-2 ring-red-500/40 animate-pulse"
-                                        : "text-slate-300 hover:bg-card/[0.12] hover:text-white"
-                                }`}
-                            >
-                                <Mic className="h-4 w-4" />
-                            </button>
-                        )}
-
-                        <button
-                            type="submit"
-                            aria-label="Lancer la recherche"
-                            className="flex h-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-r from-[#013ff4] to-[#03b3f8] px-3 text-xs font-bold text-white shadow-lg shadow-blue-500/25 transition-transform hover:scale-[1.03] active:scale-95"
-                        >
-                            <ArrowRight className="h-4 w-4" />
-                        </button>
-                    </form>
 
                     {/* ── Actions ──────────────────────────────────────────── */}
                     <div className="flex items-center gap-2.5 sm:gap-3">

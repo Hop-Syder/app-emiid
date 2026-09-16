@@ -110,7 +110,7 @@ export function MissionStatusTimeline({
           <h3 className="text-base font-bold text-slate-900 dark:text-white">
             Suivi & Cycle de vie de la mission
           </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             Traçabilité des jalons de livraison et protection séquestre
           </p>
         </div>
@@ -179,7 +179,7 @@ export function MissionStatusTimeline({
               <h4 className="text-xs font-bold text-amber-900 dark:text-amber-200">
                 Fenêtre de recette de 72 heures active
               </h4>
-              <p className="text-[11px] leading-relaxed text-amber-800 dark:text-amber-300">
+              <p className="text-xs md:text-sm leading-relaxed text-amber-800 dark:text-amber-300">
                 Le travail a été déclaré livré par le prestataire. Le client dispose de 72 heures pour tester et valider le livrable. Sans contestation de votre part dans ce délai, les fonds seront automatiquement libérés au prestataire.
               </p>
             </div>
@@ -263,12 +263,12 @@ export function MissionStatusTimeline({
               <AlertTriangle className="h-5 w-5" />
               <h3 className="text-base font-bold">Ouverture d'un litige</h3>
             </div>
-            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
               Les fonds séquestre seront immédiatement bloqués. L'équipe d'arbitrage EmiID interviendra sous 48h.
             </p>
 
             <div className="mt-4 space-y-1">
-              <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+              <label className="text-sm font-bold text-slate-700 dark:text-slate-300">
                 Motif de la contestation <span className="text-rose-500">*</span>
               </label>
               <textarea
@@ -276,7 +276,7 @@ export function MissionStatusTimeline({
                 onChange={(e) => setDisputeReason(e.target.value)}
                 placeholder="Décrivez les non-conformités constatées par rapport au cahier des charges initial..."
                 rows={4}
-                className="w-full resize-none rounded-2xl border border-slate-200 bg-slate-50/50 p-3 text-xs text-slate-900 outline-none transition-colors focus:border-rose-500 dark:border-slate-800 dark:bg-slate-800/50 dark:text-white"
+                className="w-full resize-none rounded-2xl border border-slate-200 bg-slate-50/50 p-3 text-base md:text-sm text-slate-900 outline-none transition-colors focus:border-rose-500 dark:border-slate-800 dark:bg-slate-800/50 dark:text-white"
               />
             </div>
 

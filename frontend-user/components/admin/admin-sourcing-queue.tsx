@@ -50,15 +50,15 @@ export function AdminSourcingQueue({ sourcingRequests }: AdminSourcingQueueProps
           {sourcingRequests.map((req) => (
             <div key={req.id} className="flex items-center justify-between py-4">
               <div>
-                <h4 className="text-xs font-bold text-slate-900 dark:text-white">
+                <h4 className="text-sm font-bold text-slate-900 dark:text-white">
                   {req.mission?.title || "Mission sur-mesure"}
                 </h4>
-                <p className="text-[11px] text-slate-400">
+                <p className="text-xs text-slate-400">
                   Client: {req.client?.full_name || "Entreprise"}
                 </p>
               </div>
               <div className="text-right">
-                <span className="text-xs font-black text-slate-900 dark:text-white">
+                <span className="text-sm font-black text-slate-900 dark:text-white">
                   {req.amount_paid.toLocaleString("fr-FR")} FCFA
                 </span>
                 <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400">

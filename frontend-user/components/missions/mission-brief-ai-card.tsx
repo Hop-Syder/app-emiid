@@ -68,7 +68,7 @@ export function MissionBriefAiCard({ onApplyBrief }: MissionBriefAiCardProps) {
           <h2 className="font-heading text-xl font-black text-white md:text-2xl">
             Décrivez votre besoin en quelques mots
           </h2>
-          <p className="mt-1 text-xs leading-relaxed text-slate-300">
+          <p className="mt-1 text-sm leading-relaxed text-slate-300">
             Exprimez librement ce que vous cherchez. Notre IA convertit instantanément votre texte en cahier des charges clair, suggère un budget réaliste et sélectionne la bonne catégorie.
           </p>
         </div>
@@ -79,7 +79,7 @@ export function MissionBriefAiCard({ onApplyBrief }: MissionBriefAiCardProps) {
             onChange={(e) => setPrompt(e.target.value)}
             placeholder="Ex : J'ai besoin en urgence d'un menuisier qualifié à Cotonou pour concevoir et poser 2 portes en teck massif avant le 28 septembre..."
             rows={3}
-            className="w-full resize-none rounded-2xl border border-white/15 bg-white/[0.06] p-4 text-xs text-white placeholder-slate-400 outline-none backdrop-blur-md transition-colors focus:border-[#03b3f8] focus:ring-1 focus:ring-[#03b3f8]"
+            className="w-full resize-none rounded-2xl border border-white/15 bg-white/[0.06] p-4 text-base md:text-sm text-white placeholder-slate-400 outline-none backdrop-blur-md transition-colors focus:border-[#03b3f8] focus:ring-1 focus:ring-[#03b3f8]"
           />
         </div>
 

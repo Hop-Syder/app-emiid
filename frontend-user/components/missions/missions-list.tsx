@@ -42,7 +42,7 @@ export function MissionsList() {
           <h1 className="mt-1 font-heading text-2xl font-black text-slate-900 dark:text-white md:text-3xl">
             Opportunités de missions
           </h1>
-          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
             Plafond strict de 2 candidats par mission pour une sélectivité et une conversion optimales.
           </p>
         </div>
@@ -108,7 +108,7 @@ export function MissionsList() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Rechercher par mot-clé..."
-            className="h-10 w-full rounded-2xl border border-slate-200 bg-slate-50/50 pl-10 pr-4 text-xs text-slate-900 outline-none transition-colors focus:border-[#013ff4] focus:bg-white focus:ring-1 focus:ring-[#013ff4] dark:border-slate-800 dark:bg-slate-800/50 dark:text-white"
+            className="h-10 w-full rounded-2xl border border-slate-200 bg-slate-50/50 pl-10 pr-4 text-base md:text-sm text-slate-900 outline-none transition-colors focus:border-[#013ff4] focus:bg-white focus:ring-1 focus:ring-[#013ff4] dark:border-slate-800 dark:bg-slate-800/50 dark:text-white"
           />
         </div>
       </div>
@@ -131,7 +131,7 @@ export function MissionsList() {
           <h3 className="mt-4 text-base font-bold text-slate-800 dark:text-slate-200">
             Aucune mission trouvée
           </h3>
-          <p className="mt-1 max-w-sm text-xs text-slate-400">
+          <p className="mt-1 max-w-sm text-sm text-slate-400">
             {tab === "MY_POSTED"
               ? "Vous n'avez pas encore publié de mission. Cliquez sur 'Publier une mission' pour démarrer."
               : tab === "MY_APPLIED"

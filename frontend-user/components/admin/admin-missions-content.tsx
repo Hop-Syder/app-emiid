@@ -69,7 +69,7 @@ export function AdminMissionsContent() {
           <h1 className="mt-1 font-heading text-2xl font-black text-slate-900 dark:text-white md:text-3xl">
             Gestion & Arbitrage des Missions
           </h1>
-          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
             Surveillance des flux de séquestre, arbitrage des contestations et traitement des commandes B2B.
           </p>
         </div>

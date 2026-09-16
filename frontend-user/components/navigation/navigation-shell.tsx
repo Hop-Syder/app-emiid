@@ -21,8 +21,6 @@ import {
 } from "./desktop-sidebar-auth"
 import { MobileDockGuest } from "./mobile-dock-guest"
 import { MobileDockAuth } from "./mobile-dock-auth"
-import { CommandPalette } from "@/components/command-palette"
-import { CommandPaletteProvider } from "@/components/command-palette-context"
 
 interface NavigationShellProps {
   children: React.ReactNode
@@ -115,7 +113,6 @@ export function NavigationShell({ children, isPublic = false }: NavigationShellP
       : "[--sidebar-w:260px] 2xl:[--sidebar-w:296px]"
 
   return (
-    <CommandPaletteProvider>
     <div
       className={`${sidebarWidthClass} relative bg-muted w-full flex ${isMessagePage ? "h-screen max-h-screen overflow-hidden" : "min-h-screen"}`}
     >
@@ -150,10 +147,6 @@ export function NavigationShell({ children, isPublic = false }: NavigationShellP
       {!isMessageChatActive && (
         effectiveIsPublic ? <MobileDockGuest /> : <MobileDockAuth />
       )}
-
-      {/* Palette de commandes (CMD+K) */}
-      <CommandPalette />
     </div>
-    </CommandPaletteProvider>
   )
 }

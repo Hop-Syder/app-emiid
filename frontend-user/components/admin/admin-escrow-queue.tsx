@@ -52,15 +52,15 @@ export function AdminEscrowQueue({ escrows }: AdminEscrowQueueProps) {
           {escrows.map((escrow) => (
             <div key={escrow.id} className="flex items-center justify-between py-4">
               <div>
-                <h4 className="text-xs font-bold text-slate-900 dark:text-white">
+                <h4 className="text-sm font-bold text-slate-900 dark:text-white">
                   {escrow.title}
                 </h4>
-                <p className="text-[11px] text-slate-400">
+                <p className="text-xs text-slate-400">
                   Client: {escrow.client?.full_name || "N/A"} • Statut: {escrow.status}
                 </p>
               </div>
               <div className="text-right">
-                <span className="text-xs font-black text-slate-900 dark:text-white">
+                <span className="text-sm font-black text-slate-900 dark:text-white">
                   {(escrow.escrow_amount || 0).toLocaleString("fr-FR")} FCFA
                 </span>
                 <p className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">

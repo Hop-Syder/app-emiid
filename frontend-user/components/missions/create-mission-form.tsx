@@ -154,7 +154,7 @@ export function CreateMissionForm() {
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Ex : Conception et pose de 2 portes en teck massif"
               required
-              className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/50 px-4 text-xs text-slate-900 outline-none transition-colors focus:border-[#013ff4] focus:bg-white focus:ring-1 focus:ring-[#013ff4] dark:border-slate-800 dark:bg-slate-800/50 dark:text-white"
+              className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/50 px-4 text-base md:text-sm text-slate-900 outline-none transition-colors focus:border-[#013ff4] focus:bg-white focus:ring-1 focus:ring-[#013ff4] dark:border-slate-800 dark:bg-slate-800/50 dark:text-white"
             />
           </div>
 
@@ -168,7 +168,7 @@ export function CreateMissionForm() {
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               placeholder="Ex : Menuiserie, Électricité, Graphisme, Développement..."
-              className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/50 px-4 text-xs text-slate-900 outline-none transition-colors focus:border-[#013ff4] focus:bg-white focus:ring-1 focus:ring-[#013ff4] dark:border-slate-800 dark:bg-slate-800/50 dark:text-white"
+              className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/50 px-4 text-base md:text-sm text-slate-900 outline-none transition-colors focus:border-[#013ff4] focus:bg-white focus:ring-1 focus:ring-[#013ff4] dark:border-slate-800 dark:bg-slate-800/50 dark:text-white"
             />
           </div>
 
@@ -183,7 +183,7 @@ export function CreateMissionForm() {
               placeholder="Détaillez le travail attendu, les matériaux, les contraintes de délai et le lieu d'intervention..."
               rows={5}
               required
-              className="w-full resize-none rounded-2xl border border-slate-200 bg-slate-50/50 p-4 text-xs text-slate-900 outline-none transition-colors focus:border-[#013ff4] focus:bg-white focus:ring-1 focus:ring-[#013ff4] dark:border-slate-800 dark:bg-slate-800/50 dark:text-white"
+              className="w-full resize-none rounded-2xl border border-slate-200 bg-slate-50/50 p-4 text-base md:text-sm text-slate-900 outline-none transition-colors focus:border-[#013ff4] focus:bg-white focus:ring-1 focus:ring-[#013ff4] dark:border-slate-800 dark:bg-slate-800/50 dark:text-white"
             />
           </div>
 
@@ -200,7 +200,7 @@ export function CreateMissionForm() {
                 value={budgetMin}
                 onChange={(e) => setBudgetMin(e.target.value ? Number(e.target.value) : "")}
                 placeholder="Ex : 50000"
-                className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/50 px-4 text-xs text-slate-900 outline-none transition-colors focus:border-[#013ff4] focus:bg-white focus:ring-1 focus:ring-[#013ff4] dark:border-slate-800 dark:bg-slate-800/50 dark:text-white"
+                className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/50 px-4 text-base md:text-sm text-slate-900 outline-none transition-colors focus:border-[#013ff4] focus:bg-white focus:ring-1 focus:ring-[#013ff4] dark:border-slate-800 dark:bg-slate-800/50 dark:text-white"
               />
             </div>
 
@@ -215,7 +215,7 @@ export function CreateMissionForm() {
                 value={budgetMax}
                 onChange={(e) => setBudgetMax(e.target.value ? Number(e.target.value) : "")}
                 placeholder="Ex : 80000"
-                className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/50 px-4 text-xs text-slate-900 outline-none transition-colors focus:border-[#013ff4] focus:bg-white focus:ring-1 focus:ring-[#013ff4] dark:border-slate-800 dark:bg-slate-800/50 dark:text-white"
+                className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/50 px-4 text-base md:text-sm text-slate-900 outline-none transition-colors focus:border-[#013ff4] focus:bg-white focus:ring-1 focus:ring-[#013ff4] dark:border-slate-800 dark:bg-slate-800/50 dark:text-white"
               />
             </div>
 
@@ -228,7 +228,7 @@ export function CreateMissionForm() {
                   type="date"
                   value={deadline}
                   onChange={(e) => setDeadline(e.target.value)}
-                  className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/50 px-4 text-xs text-slate-900 outline-none transition-colors focus:border-[#013ff4] focus:bg-white focus:ring-1 focus:ring-[#013ff4] dark:border-slate-800 dark:bg-slate-800/50 dark:text-white"
+                  className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/50 px-4 text-base md:text-sm text-slate-900 outline-none transition-colors focus:border-[#013ff4] focus:bg-white focus:ring-1 focus:ring-[#013ff4] dark:border-slate-800 dark:bg-slate-800/50 dark:text-white"
                 />
               </div>
             </div>

@@ -61,7 +61,7 @@ export function EscrowCard({ mission, isClient }: EscrowCardProps) {
 
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-baseline">
           <div>
-            <p className="text-xs text-slate-400">Montant sous garantie financière</p>
+            <p className="text-sm text-slate-400">Montant sous garantie financière</p>
             <div className="mt-1 flex items-baseline gap-2">
               <span className="font-heading text-3xl font-black text-white md:text-4xl">
                 {escrowAmount.toLocaleString("fr-FR")}
@@ -70,13 +70,13 @@ export function EscrowCard({ mission, isClient }: EscrowCardProps) {
             </div>
           </div>
 
-          <p className="max-w-xs text-[11px] leading-relaxed text-slate-300">
+          <p className="max-w-xs text-xs md:text-sm leading-relaxed text-slate-300">
             L'argent ne transite pas directement entre les mains du client et du prestataire : il est consigné sur un compte séquestre tiers indépendant et versé uniquement après satisfaction mutuelle.
           </p>
         </div>
 
         {/* Détails de fonctionnement */}
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-[11px] text-slate-300">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-xs text-slate-300">
           <div className="flex items-start gap-2">
             <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-400" />
             <span><strong>100% protégé</strong> contre les abandons de chantier ou les défauts de paiement.</span>
@@ -103,7 +103,7 @@ export function EscrowCard({ mission, isClient }: EscrowCardProps) {
               <Lock className="h-3.5 w-3.5" />
               <span>Consigner les fonds (Bientôt disponible via FedaPay)</span>
             </button>
-            <p className="mt-1.5 text-[10px] text-slate-400">
+            <p className="mt-1.5 text-xs text-slate-400">
               Passerelle FedaPay (Mobile Money MTN & Moov Bénin) en cours d'activation.
             </p>
           </div>

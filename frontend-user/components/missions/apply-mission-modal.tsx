@@ -183,7 +183,7 @@ export function ApplyMissionModal({
               placeholder="Expliquez brièvement comment vous comptez exécuter la mission et vos références similaires..."
               rows={4}
               required
-              className="w-full resize-none rounded-2xl border border-slate-200 bg-slate-50/50 p-3 text-xs text-slate-900 outline-none transition-colors focus:border-[#013ff4] focus:bg-white focus:ring-1 focus:ring-[#013ff4] dark:border-slate-800 dark:bg-slate-800/50 dark:text-white"
+              className="w-full resize-none rounded-2xl border border-slate-200 bg-slate-50/50 p-3 text-base md:text-sm text-slate-900 outline-none transition-colors focus:border-[#013ff4] focus:bg-white focus:ring-1 focus:ring-[#013ff4] dark:border-slate-800 dark:bg-slate-800/50 dark:text-white"
             />
           </div>
 
@@ -199,7 +199,7 @@ export function ApplyMissionModal({
                 value={priceQuote}
                 onChange={(e) => setPriceQuote(e.target.value ? Number(e.target.value) : "")}
                 placeholder="Ex : 45000"
-                className="h-11 w-full rounded-2xl border border-slate-200 bg-slate-50/50 px-3 text-xs text-slate-900 outline-none transition-colors focus:border-[#013ff4] focus:bg-white focus:ring-1 focus:ring-[#013ff4] dark:border-slate-800 dark:bg-slate-800/50 dark:text-white"
+                className="h-11 w-full rounded-2xl border border-slate-200 bg-slate-50/50 px-3 text-base md:text-sm text-slate-900 outline-none transition-colors focus:border-[#013ff4] focus:bg-white focus:ring-1 focus:ring-[#013ff4] dark:border-slate-800 dark:bg-slate-800/50 dark:text-white"
               />
             </div>
 
@@ -213,7 +213,7 @@ export function ApplyMissionModal({
                 value={estimatedDays}
                 onChange={(e) => setEstimatedDays(e.target.value ? Number(e.target.value) : "")}
                 placeholder="Ex : 3"
-                className="h-11 w-full rounded-2xl border border-slate-200 bg-slate-50/50 px-3 text-xs text-slate-900 outline-none transition-colors focus:border-[#013ff4] focus:bg-white focus:ring-1 focus:ring-[#013ff4] dark:border-slate-800 dark:bg-slate-800/50 dark:text-white"
+                className="h-11 w-full rounded-2xl border border-slate-200 bg-slate-50/50 px-3 text-base md:text-sm text-slate-900 outline-none transition-colors focus:border-[#013ff4] focus:bg-white focus:ring-1 focus:ring-[#013ff4] dark:border-slate-800 dark:bg-slate-800/50 dark:text-white"
               />
             </div>
           </div>

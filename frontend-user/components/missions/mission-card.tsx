@@ -89,7 +89,7 @@ export function MissionCard({ mission }: MissionCardProps) {
         </h3>
 
         {/* Description tronquée */}
-        <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-slate-600 dark:text-slate-300">
+        <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
           {mission.description}
         </p>
       </div>

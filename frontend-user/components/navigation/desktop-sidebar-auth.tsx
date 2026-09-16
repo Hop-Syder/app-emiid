@@ -26,13 +26,15 @@ import Link from "next/link"
 import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 import { motion } from "framer-motion"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import {
   Home, LayoutGrid, MessageSquare, Bell, Wallet, Settings,
   LogOut, User, Plus, PanelLeftClose, PanelLeftOpen, Coins, Briefcase, HeartHandshake,
+  Search, Mic, ArrowRight,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useUnreadNotifications } from "@/hooks/use-unread-notifications"
+import { useVoiceSearch } from "@/hooks/use-voice-search"
 import { cn } from "@/lib/utils"
 import {
   DropdownMenu,
@@ -68,6 +70,41 @@ export function DesktopSidebarAuth({ collapsed, onToggle }: DesktopSidebarAuthPr
   const unreadCount = useUnreadNotifications()
 
   const [profile, setProfile] = useState<{ avatar_url?: string | null; full_name?: string | null } | null>(null)
+
+  // ── Recherche : déplacée depuis DashboardBentoHeader (2026-09-16) pour être
+  // accessible depuis tout l'espace connecté, pas seulement le tableau de
+  // bord. Logique identique — même destination, même comportement voix.
+  const [query, setQuery] = useState("")
+  const searchInputRef = useRef<HTMLInputElement>(null)
+
+  const submitSearch = useCallback(
+    (raw: string) => {
+      const q = raw.trim()
+      if (!q) {
+        searchInputRef.current?.focus()
+        return
+      }
+      router.push(`/annuaire?search=${encodeURIComponent(q)}`)
+    },
+    [router]
+  )
+
+  const handleVoiceResult = useCallback(
+    (transcript: string) => {
+      setQuery(transcript)
+      submitSearch(transcript)
+    },
+    [submitSearch]
+  )
+
+  const { available: micAvailable, listening, toggle: toggleMic } = useVoiceSearch({
+    onResult: handleVoiceResult,
+  })
+
+  const handleMicClick = useCallback(() => {
+    if (!listening) setQuery("")
+    toggleMic()
+  }, [listening, toggleMic])
 
   useEffect(() => {
     async function loadProfile() {
@@ -112,6 +149,55 @@ export function DesktopSidebarAuth({ collapsed, onToggle }: DesktopSidebarAuthPr
           )}
         </Link>
       </div>
+
+      {/* ── Recherche ──────────────────────────────────────────────────── */}
+      {!collapsed && (
+        <div className="px-3 2xl:px-4 pt-3">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault()
+              submitSearch(query)
+            }}
+            role="search"
+            className="relative flex items-center gap-1.5 rounded-2xl border border-border bg-muted/50 px-2.5 h-10 transition-colors focus-within:border-[#013ff4]/60 dark:border-slate-800 dark:bg-slate-900"
+          >
+            <Search className="h-4 w-4 shrink-0 text-muted-foreground dark:text-slate-500" aria-hidden="true" />
+            <input
+              ref={searchInputRef}
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Rechercher…"
+              aria-label="Rechercher un profil"
+              enterKeyHint="search"
+              className="flex-1 min-w-0 bg-transparent text-xs font-semibold text-foreground placeholder:text-muted-foreground outline-none dark:text-white dark:placeholder:text-slate-500 [&::-webkit-search-cancel-button]:appearance-none"
+            />
+            {micAvailable && (
+              <button
+                type="button"
+                onClick={handleMicClick}
+                aria-label={listening ? "Arrêter la dictée" : "Rechercher à la voix"}
+                aria-pressed={listening}
+                className={cn(
+                  "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-all",
+                  listening
+                    ? "bg-red-500/20 text-red-500 ring-2 ring-red-500/40 animate-pulse"
+                    : "text-muted-foreground hover:bg-background hover:text-foreground dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white",
+                )}
+              >
+                <Mic className="h-3.5 w-3.5" />
+              </button>
+            )}
+            <button
+              type="submit"
+              aria-label="Lancer la recherche"
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-r from-[#013ff4] to-[#03b3f8] text-white shadow-sm transition-transform hover:scale-[1.05] active:scale-95"
+            >
+              <ArrowRight className="h-3.5 w-3.5" />
+            </button>
+          </form>
+        </div>
+      )}
 
       {/* ── Rubriques ──────────────────────────────────────────────────── */}
       <nav className="flex-1 space-y-1 2xl:space-y-1.5 overflow-y-auto px-3 2xl:px-4 py-4">

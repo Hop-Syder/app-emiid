@@ -49,7 +49,7 @@ export function CreditsOverview({ balance, loading = false }: CreditsOverviewPro
             </span>
           </div>
 
-          <p className="max-w-md text-xs leading-relaxed text-slate-300">
+          <p className="max-w-md text-sm leading-relaxed text-slate-300">
             Chaque candidature de mission consomme <strong className="text-white">1 crédit</strong>. Le plafond est strictement limité à <strong className="text-white">2 prestataires par mission</strong> pour vous garantir un taux de sélection exceptionnel et éradiquer le démarchage sauvage.
           </p>
         </div>

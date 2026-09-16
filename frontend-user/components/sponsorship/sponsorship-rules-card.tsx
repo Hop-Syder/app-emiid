@@ -30,10 +30,10 @@ export function SponsorshipRulesCard() {
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-500/10 text-[#013ff4] dark:text-[#03b3f8]">
             <Sparkles className="h-5 w-5" />
           </div>
-          <h4 className="text-xs font-bold text-slate-900 dark:text-white">
+          <h4 className="text-sm font-bold text-slate-900 dark:text-white">
             1. Prime de bienvenue Filleul
           </h4>
-          <p className="text-[11px] leading-relaxed text-slate-500 dark:text-slate-400">
+          <p className="text-xs md:text-sm leading-relaxed text-slate-500 dark:text-slate-400">
             Chaque professionnel certifié s'inscrivant via votre lien reçoit immédiatement <strong>3 crédits de candidature</strong> offerts pour se lancer sur la plateforme.
           </p>
         </div>
@@ -43,10 +43,10 @@ export function SponsorshipRulesCard() {
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
             <HeartHandshake className="h-5 w-5" />
           </div>
-          <h4 className="text-xs font-bold text-slate-900 dark:text-white">
+          <h4 className="text-sm font-bold text-slate-900 dark:text-white">
             2. Bonus de fidélité Parrain
           </h4>
-          <p className="text-[11px] leading-relaxed text-slate-500 dark:text-slate-400">
+          <p className="text-xs md:text-sm leading-relaxed text-slate-500 dark:text-slate-400">
             Dès que votre filleul mène à bien et livre sa première mission courte avec succès, vous recevez automatiquement <strong>2 crédits bonus</strong> sur votre portefeuille.
           </p>
         </div>
@@ -56,10 +56,10 @@ export function SponsorshipRulesCard() {
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
             <AlertTriangle className="h-5 w-5" />
           </div>
-          <h4 className="text-xs font-bold text-slate-900 dark:text-white">
+          <h4 className="text-sm font-bold text-slate-900 dark:text-white">
             3. Règle des 2 manquements
           </h4>
-          <p className="text-[11px] leading-relaxed text-slate-500 dark:text-slate-400">
+          <p className="text-xs md:text-sm leading-relaxed text-slate-500 dark:text-slate-400">
             Si un filleul commet un abandon de mission ou perd un litige arbitré pour travail non conforme, le parrain reçoit un strike. À <strong>2 strikes</strong>, la possibilité de parrainer est révoquée.
           </p>
         </div>

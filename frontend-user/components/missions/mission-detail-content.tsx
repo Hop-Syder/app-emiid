@@ -224,7 +224,7 @@ export function MissionDetailContent({ missionId }: MissionDetailContentProps) {
           <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
             Cahier des charges & Description
           </h3>
-          <div className="rounded-2xl border border-slate-100 bg-white p-4 text-xs leading-relaxed text-slate-700 dark:border-slate-800 dark:bg-slate-900/40 dark:text-slate-300">
+          <div className="rounded-2xl border border-slate-100 bg-white p-4 text-sm leading-relaxed text-slate-700 dark:border-slate-800 dark:bg-slate-900/40 dark:text-slate-300">
             <p className="whitespace-pre-line">{mission.description}</p>
           </div>
         </div>
