@@ -53,11 +53,11 @@ export function MissionsList() {
 
         {/* Onglets et recherche */}
         <div className="flex flex-col gap-4 pb-1 md:flex-row md:items-center md:justify-between">
-          <div className="flex flex-wrap gap-1">
+          <div className="flex flex-wrap gap-1 md:grid md:grid-cols-3">
             <button
               type="button"
               onClick={() => setTab("ALL")}
-              className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition-all ${tab === "ALL"
+              className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition-all md:w-full md:justify-center ${tab === "ALL"
                   ? "bg-[#013ff4] text-white shadow-sm"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 }`}
@@ -69,7 +69,7 @@ export function MissionsList() {
             <button
               type="button"
               onClick={() => setTab("MY_POSTED")}
-              className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition-all ${tab === "MY_POSTED"
+              className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition-all md:w-full md:justify-center ${tab === "MY_POSTED"
                   ? "bg-[#013ff4] text-white shadow-sm"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 }`}
@@ -81,7 +81,7 @@ export function MissionsList() {
             <button
               type="button"
               onClick={() => setTab("MY_APPLIED")}
-              className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition-all ${tab === "MY_APPLIED"
+              className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition-all md:w-full md:justify-center ${tab === "MY_APPLIED"
                   ? "bg-[#013ff4] text-white shadow-sm"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 }`}
