@@ -1,5 +1,6 @@
 # ==============================================================================
-# EmiID — Git Ignore Policy
+# EmiID — Git Ignore Policy (Master)
+# Organization: Nexus Partners
 # ==============================================================================
 
 # ------------------------------------------------------------------------------
@@ -60,6 +61,9 @@ coverage/
 **/coverage/
 *.lcov
 .nyc_output/
+test-results/
+playwright-report/
+blob-report/
 
 # ------------------------------------------------------------------------------
 # Logs & Debugging
@@ -85,7 +89,7 @@ eslint-report.txt*
 ehthumbs.db
 Thumbs.db
 
-# IDEs
+# IDEs & Éditeurs
 .vscode/
 .idea/
 *.swp
@@ -113,6 +117,7 @@ temp/
 .agents/
 .agent-frontend/
 .agent-saas/
+.antigravity/
 .claude/
 .codex/
 .cursor/

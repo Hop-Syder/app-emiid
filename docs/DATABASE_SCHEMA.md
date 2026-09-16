@@ -150,6 +150,87 @@ Table de traçabilité interne pour enregistrer les actions d'administration sen
 
 ---
 
+### 5. Moteur Missions Courtes, Séquestre & Crédits (Nouveau)
+
+#### 🪙 Portefeuille de Crédits (`credit_wallets`)
+Gère le solde de crédits de candidature des prestataires (Pay-per-Lead).
+- `id` : UUID (Primary Key)
+- `user_id` : UUID (Foreign Key -> `auth.users` ON DELETE CASCADE, Unique)
+- `balance` : INT (Default: 0, CHECK balance >= 0) — 3 crédits offerts à l'inscription
+- `created_at`, `updated_at` : TIMESTAMPTZ
+
+#### 💳 Transactions de Crédits (`credit_transactions`)
+Traçabilité complète des mouvements de crédits (achats, consommations, remboursements).
+- `id` : UUID (Primary Key)
+- `user_id` : UUID (Foreign Key -> `auth.users`)
+- `amount` : INT — Montant positif ou négatif (+3, +15, -1, +1)
+- `type` : VARCHAR(50) — 'WELCOME_BONUS', 'PURCHASE', 'APPLICATION_FEE', 'REFUND'
+- `reference_id` : UUID — ID de mission ou paiement FedaPay associé
+- `description` : TEXT
+- `created_at` : TIMESTAMPTZ
+
+#### 🎯 Missions Courtes (`missions`)
+Enregistrement des demandes de prestations publiées par les donneurs d'ordre.
+- `id` : UUID (Primary Key)
+- `client_id` : UUID (Foreign Key -> `auth.users`)
+- `title` : VARCHAR(255) — Titre court cadré (assisté par Gemini)
+- `description` : TEXT — Cahier des charges détaillé
+- `budget_min`, `budget_max` : NUMERIC — Fourchette budgétaire indicative en XOF (FCFA)
+- `currency` : VARCHAR(10) (Default: 'XOF')
+- `deadline` : TIMESTAMPTZ — Échéance de livraison souhaitée
+- `status` : VARCHAR(30) (Default: 'OPEN') — 'DRAFT', 'OPEN', 'ASSIGNED', 'IN_PROGRESS', 'DELIVERED', 'COMPLETED', 'CANCELLED', 'DISPUTED'
+- `assigned_to` : UUID (Foreign Key -> `auth.users`) — Prestataire retenu
+- `selected_application_id` : UUID
+- `escrow_amount` : NUMERIC — Montant garanti sous séquestre
+- `escrow_status` : VARCHAR(30) (Default: 'PENDING') — 'PENDING', 'FUNDED', 'RELEASED', 'REFUNDED'
+- `delivered_at` : TIMESTAMPTZ — Horodatage de livraison déclenchant la fenêtre de recette de 72h
+- `auto_release_at` : TIMESTAMPTZ — Date d'expiration de la contestation (72h après livraison)
+- `cancellation_reason` : TEXT
+- `created_at`, `updated_at` : TIMESTAMPTZ
+
+#### 📝 Candidatures aux Missions (`mission_applications`)
+Propositions des prestataires (strictement plafonnées par mission).
+- `id` : UUID (Primary Key)
+- `mission_id` : UUID (Foreign Key -> `missions.id` ON DELETE CASCADE)
+- `freelancer_id` : UUID (Foreign Key -> `auth.users`)
+- `proposal` : TEXT — Note d'intention & méthodologie
+- `price_quote` : NUMERIC — Devis proposé en XOF
+- `estimated_days` : INT — Délai d'exécution estimé en jours
+- `status` : VARCHAR(30) (Default: 'SUBMITTED') — 'SUBMITTED', 'ACCEPTED', 'REJECTED'
+- `credit_debited` : BOOLEAN (Default: true)
+- `created_at`, `updated_at` : TIMESTAMPTZ
+
+#### ⭐ Avis & Évaluations Post-Mission (`mission_reviews`)
+Avis bilatéraux conditionnés à une mission menée à terme sous séquestre.
+- `id` : UUID (Primary Key)
+- `mission_id` : UUID (Foreign Key -> `missions.id`)
+- `reviewer_id` : UUID (Foreign Key -> `auth.users`)
+- `reviewee_id` : UUID (Foreign Key -> `auth.users`)
+- `role` : VARCHAR(20) — 'CLIENT', 'FREELANCER'
+- `rating` : NUMERIC(2,1) (CHECK rating BETWEEN 1.0 AND 5.0)
+- `comment` : TEXT
+- `created_at` : TIMESTAMPTZ
+
+#### 🤝 Parrainage & Strikes (`sponsorships`)
+Gestion de la co-responsabilité et de la réputation des parrains (Règle des 2 manquements).
+- `id` : UUID (Primary Key)
+- `sponsor_id` : UUID (Foreign Key -> `auth.users`)
+- `referee_id` : UUID (Foreign Key -> `auth.users`, Unique)
+- `status` : VARCHAR(30) (Default: 'PENDING') — 'PENDING', 'ACTIVE', 'REVOKED'
+- `strikes_count` : INT (Default: 0) — Compteur de manquements (suspension à 2 strikes)
+- `penalty_applied` : BOOLEAN (Default: false)
+- `created_at`, `updated_at` : TIMESTAMPTZ
+
+#### ⚡ Sourcing Express B2B (`sourcing_express_requests`)
+Commandes d'intermédiation VIP à 15 000 FCFA avec garantie de 3 profils vérifiés sous 24h.
+- `id` : UUID (Primary Key)
+- `client_id` : UUID (Foreign Key -> `auth.users`)
+- `mission_id` : UUID (Foreign Key -> `missions.id`)
+- `amount_paid` : NUMERIC (Default: 15000)
+- `status` : VARCHAR(30) (Default: 'PENDING') — 'PENDING', 'IN_PROGRESS', 'DELIVERED'
+- `selected_candidates` : JSONB
+- `created_at`, `updated_at` : TIMESTAMPTZ
+
 ## 🛡️ Sécurité (Row Level Security - RLS)
 
 Supabase RLS applique des restrictions d'accès directement dans PostgreSQL :

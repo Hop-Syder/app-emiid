@@ -39,6 +39,13 @@ paiements en attente et les cinq derniers règlements.
 | **Portefeuille** | ✅ réel | compétences, réalisations, communautés — vraies données |
 | **Onboarding / création de profil** | ✅ | tunnel 3 étapes |
 | **Notifications** | ✅ | temps réel, souscription partagée |
+| **Portefeuille de Crédits (`/credits`)** | ✅ **livré** | Solde bento, historique des mouvements, forfaits 5 & 15 crédits |
+| **Création de Mission (`/missions/creer`)** | ✅ **livré** | Formulaire complet + assistant IA de cadrage automatique (Gemini Flash) |
+| **Catalogue & Fiche Mission (`/missions`, `/[id]`)** | ✅ **livré** | Recherche, jauge 2/2 ou 5/5, candidature (1 crédit débité), sélection prestataire |
+| **Suivi & Cycle de Vie Mission** | ✅ **livré** | Timeline des 5 statuts, fenêtre de recette 72h, ouverture de litige |
+| **Séquestre Garanti (Escrow)** | ✅ **livré** | Maquette sous mandat financier EmiID, bouton FedaPay désactivé |
+| **Parrainage & Réseau (`/parrainage`)** | ✅ **livré** | Lien unique, jauge des strikes 0/2 (règle des 2 manquements), charte de cooptation |
+| **Console Admin Missions (`/admin/missions`)** | ✅ **livré** | Arbitrage litiges (remboursement/libération), strikes, séquestres et Sourcing Express |
 | **Abonnement Pro** | 🟡 **bloqué** | UI + paiement codés — **attend les clés FedaPay** |
 | **Boosts** | 🟡 **bloqué** | idem, communal et départemental |
 | **Recherche sémantique** | 🟡 optionnel | attend `GEMINI_API_KEY` — dégradation propre sur le FTS |

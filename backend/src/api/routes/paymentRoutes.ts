@@ -17,6 +17,7 @@ import {
     refundMissionEscrow,
     resolveMissionDispute,
     recordSponsorshipStrike,
+    runMissionMaintenance,
     createSourcingRequestCheckout,
     fulfillSourcingRequest,
     cancelSourcingRequest,
@@ -49,6 +50,10 @@ router.post('/missions/:missionId/dispute/resolve', requireAuth, requireAdmin, r
 
 // Enregistrement d'un manquement (strike) sur un filleul parrainé — admin uniquement.
 router.post('/sponsorship/strike', requireAuth, requireAdmin, recordSponsorshipStrike)
+
+// Déclenchement manuel de la maintenance périodique (expiration + auto-release
+// des missions) — pas de pg_cron branché dans ce projet, admin uniquement.
+router.post('/missions/maintenance/run', requireAuth, requireAdmin, runMissionMaintenance)
 
 // Initialisation d'une commande Sourcing Express B2B (15 000 FCFA, authentifié).
 router.post('/sourcing/checkout', requireAuth, createSourcingRequestCheckout)

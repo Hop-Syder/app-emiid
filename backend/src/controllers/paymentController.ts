@@ -526,6 +526,39 @@ export async function recordSponsorshipStrike(req: Request, res: Response) {
     }
 }
 
+// ── POST /api/payments/missions/maintenance/run (admin) ───────────────────
+// Déclenche manuellement les deux tâches qui n'ont pas d'ordonnanceur
+// (pg_cron) branché dans ce projet — même statut que expire_subscriptions()
+// (cf. 20260823_monetization_phase1.sql, jamais planifiée non plus) :
+//   1) process_expired_missions() : expire les missions sans prestataire
+//      sélectionné dont la date limite est dépassée, rembourse les crédits.
+//   2) process_auto_release_missions() : bascule en COMPLETED les missions
+//      DELIVERED dont la fenêtre de contestation de 72h est passée.
+// À planifier via un vrai cron externe une fois le volume le justifiant ;
+// ce bouton « exécuter maintenant » comble le vide en attendant.
+export async function runMissionMaintenance(req: Request, res: Response) {
+    try {
+        const [expired, autoReleased] = await Promise.all([
+            db.rpc('process_expired_missions'),
+            db.rpc('process_auto_release_missions'),
+        ])
+
+        if (expired.error || autoReleased.error) {
+            logger.error('runMissionMaintenance: échec', expired.error || autoReleased.error)
+            return res.status(500).json({ error: 'Échec de la maintenance des missions.' })
+        }
+
+        return res.json({
+            success: true,
+            expiredProcessed: expired.data ?? 0,
+            autoReleased: autoReleased.data ?? 0,
+        })
+    } catch (err) {
+        logger.error('runMissionMaintenance: erreur critique', err)
+        return res.status(500).json({ error: 'Erreur interne.' })
+    }
+}
+
 // ── POST /api/payments/sourcing/checkout ───────────────────────────────────
 // Une entreprise décrit un besoin et paie 15 000 FCFA pour que 3 profils
 // vérifiés lui soient proposés sous 24h par un admin (fulfillSourcingRequest

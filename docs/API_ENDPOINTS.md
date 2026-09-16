@@ -96,6 +96,32 @@ Ce document recense de manière exhaustive les endpoints de l'API Express, leurs
 
 ---
 
+## 🎯 Moteur Missions Courtes & Séquestre (`/api/missions` & `/api/payments/escrow`)
+
+### Endpoints Utilisateurs (Frontend Next.js App Router)
+- `POST /api/missions/ai-refine` : Cadrage automatique et structuration d'un besoin informel en brief structuré via Google Gemini (`gemini-3.6-flash`).
+- `POST /api/missions/apply` : Candidature atomique d'un prestataire à une mission (débit d'1 crédit, vérification du plafond strict de candidats et refus si complet).
+- `POST /api/missions/select-applicant` : Sélection d'un prestataire par le client parmi les candidatures reçues (passage de la mission à `ASSIGNED`).
+- `POST /api/missions/lifecycle` : Gestion des transitions du cycle de vie de la mission :
+  - `START_WORK` : Démarrage des travaux par le prestataire (`IN_PROGRESS`).
+  - `DELIVER` : Déclaration de livraison par le prestataire (`DELIVERED`), enclenchant la fenêtre de recette de 72h.
+  - `COMPLETE` : Validation définitive du livrable par le client (`COMPLETED`) et libération des fonds séquestre.
+  - `DISPUTE` : Ouverture formelle d'un litige motivé (`DISPUTED`) suspendant tout déblocage.
+
+### Endpoints Séquestre & Paiements Backend (`/api/payments`)
+- `POST /api/payments/checkout-escrow` : Initialise la consignation sécurisée des fonds de séquestre de mission via la passerelle FedaPay (MTN MoMo, Moov Money, Carte).
+- `POST /api/payments/release-escrow` : Libération des fonds sous mandat vers le compte de reversement du prestataire.
+- `POST /api/payments/refund-escrow` : Remboursement intégral des fonds consignés vers le client en cas d'annulation ou d'arbitrage favorable.
+- `POST /api/payments/checkout-sourcing-express` : Paiement de la prestation B2B Sourcing Express (15 000 FCFA forfaitaire pour 3 profils vérifiés sous 24h).
+
+### Console d'Arbitrage Administrateur (`/api/admin/missions`)
+- `GET /api/admin/missions` : Récupère la file d'attente des litiges actifs, des séquestres sous mandat et des commandes de Sourcing Express.
+- `POST /api/admin/missions` : Exécute une décision d'arbitrage :
+  - `RESOLVE_DISPUTE` : Arbitrage en faveur du client (remboursement) ou du prestataire (paiement forcé).
+  - `RECORD_STRIKE` : Consignation d'un strike d'intégrité pour manquement grave (avec répercussion sur le parrain).
+
+---
+
 ## 🛡️ Middlewares Communs
 
 L'API applique des validations uniformes sur les points d'entrée :

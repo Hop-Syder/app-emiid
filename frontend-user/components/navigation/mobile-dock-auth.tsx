@@ -17,7 +17,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   User,
-  Wallet, SquarePen, Bell, Settings, LogOut, ChevronRight, Mic, type LucideIcon,
+  Wallet, SquarePen, Bell, Settings, LogOut, ChevronRight, Mic, Briefcase, Coins, HeartHandshake, type LucideIcon,
 } from "lucide-react"
 import {
   HouseIcon, CompassIcon, MessageIcon, UserIcon,
@@ -184,6 +184,9 @@ export function MobileDockAuth() {
 
               {/* Actions */}
               <nav className="p-1.5 space-y-0.5">
+                <MenuRow href="/missions" icon={Briefcase} label="Missions disponibles" />
+                <MenuRow href="/credits" icon={Coins} label="Mes crédits missions" />
+                <MenuRow href="/parrainage" icon={HeartHandshake} label="Parrainage & Réseau" />
                 <MenuRow href="/portefeuille" icon={Wallet} label="Mon portefeuille" />
                 <MenuRow href="/creer-profil" icon={SquarePen} label="Modifier mon profil" />
                 <MenuRow href="/notifications" icon={Bell} label="Notifications" badge={unreadCount} />

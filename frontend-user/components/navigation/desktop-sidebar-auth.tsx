@@ -29,7 +29,7 @@ import { motion } from "framer-motion"
 import { useEffect, useState } from "react"
 import {
   Home, LayoutGrid, MessageSquare, Bell, Wallet, Settings,
-  LogOut, User, Plus, PanelLeftClose, PanelLeftOpen,
+  LogOut, User, Plus, PanelLeftClose, PanelLeftOpen, Coins, Briefcase, HeartHandshake,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useUnreadNotifications } from "@/hooks/use-unread-notifications"
@@ -48,6 +48,8 @@ export const SIDEBAR_STORAGE_KEY = "emiid:sidebar-collapsed"
 const NAV_ITEMS = [
   { name: "Hub", href: "/dashboard-user", icon: Home },
   { name: "Annuaire", href: "/annuaire", icon: LayoutGrid },
+  { name: "Missions", href: "/missions", icon: Briefcase },
+  { name: "Mes Crédits", href: "/credits", icon: Coins },
   { name: "Messages", href: "/messages", icon: MessageSquare },
   { name: "Notifications", href: "/notifications", icon: Bell },
   { name: "Portefeuille", href: "/portefeuille", icon: Wallet },
@@ -212,6 +214,11 @@ export function DesktopSidebarAuth({ collapsed, onToggle }: DesktopSidebarAuthPr
             <DropdownMenuItem asChild className="cursor-pointer rounded-xl text-xs font-semibold hover:bg-slate-900 focus:bg-slate-900">
               <Link href="/profil" className="flex items-center gap-2 py-2">
                 <User className="h-4 w-4 text-blue-400" /> Voir mon profil public
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild className="cursor-pointer rounded-xl text-xs font-semibold hover:bg-slate-900 focus:bg-slate-900">
+              <Link href="/parrainage" className="flex items-center gap-2 py-2">
+                <HeartHandshake className="h-4 w-4 text-emerald-400" /> Parrainage & Cooptation
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild className="cursor-pointer rounded-xl text-xs font-semibold hover:bg-slate-900 focus:bg-slate-900">
