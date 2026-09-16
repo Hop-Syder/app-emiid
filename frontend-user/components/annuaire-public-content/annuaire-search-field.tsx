@@ -21,7 +21,8 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { Search, X } from "lucide-react"
+import { Mic, Search, X } from "lucide-react"
+import { VoiceSearchModal } from "@/components/navigation/voice-search-modal"
 
 interface AnnuaireSearchFieldProps {
     searchQuery: string
@@ -30,6 +31,7 @@ interface AnnuaireSearchFieldProps {
 
 export function AnnuaireSearchField({ searchQuery, onSearchChange }: AnnuaireSearchFieldProps) {
     const [value, setValue] = useState(searchQuery)
+    const [voiceOpen, setVoiceOpen] = useState(false)
     const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
     // Resynchronise le champ si le filtre est réinitialisé ailleurs
@@ -78,7 +80,17 @@ export function AnnuaireSearchField({ searchQuery, onSearchChange }: AnnuaireSea
                         <X className="w-3.5 h-3.5" />
                     </button>
                 )}
+                {/* Dictée vocale : mobile uniquement, la saisie clavier suffit sur grand écran. */}
+                <button
+                    type="button"
+                    onClick={() => setVoiceOpen(true)}
+                    aria-label="Rechercher à la voix"
+                    className="ml-2 shrink-0 flex items-center justify-center h-7 w-7 rounded-full text-muted-foreground hover:text-[#013ff4] hover:bg-[#013ff4]/10 transition-colors lg:hidden"
+                >
+                    <Mic className="w-4 h-4" />
+                </button>
             </div>
+            <VoiceSearchModal open={voiceOpen} onClose={() => setVoiceOpen(false)} />
         </div>
     )
 }
