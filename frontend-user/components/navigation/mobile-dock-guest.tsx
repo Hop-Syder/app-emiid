@@ -1,10 +1,11 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Barre de navigation mobile (Guest / non connecté) — design Luxury Glass,
- *              courbures fluides (squircles rounded-[32px]), Accueil, Annuaire + CTA « Se connecter ».
+ * @description Dock de navigation mobile Visiteur — épuré, symétrique, haute performance (60/120 FPS).
+ *              Style sobre inspiré de Linear et Stripe.
+ *              Accès direct : Accueil, Pros, Missions et Connexion.
  * @created 2026-06-13
- * @updated 2026-08-20
+ * @updated 2026-09-16
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -13,74 +14,96 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { motion } from "framer-motion"
-import { LogIn } from "lucide-react"
-import { HouseIcon, CompassIcon, type AnimatedIconHandle } from "@/components/icons/animated"
-import { useEffect, useRef } from "react"
+import { Home, Users, Briefcase, LogIn } from "lucide-react"
 import { cn } from "@/lib/utils"
-
-const BRAND = "#013ff4"
 
 export function MobileDockGuest() {
   const pathname = usePathname()
-  const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`))
+
+  const isActive = (href: string) =>
+    href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`)
+
+  const guestTabs = [
+    {
+      key: "home",
+      name: "Accueil",
+      href: "/",
+      icon: Home,
+    },
+    {
+      key: "pros",
+      name: "Pros",
+      href: "/annuaire",
+      icon: Users,
+    },
+    {
+      key: "missions",
+      name: "Missions",
+      href: "/missions",
+      icon: Briefcase,
+    },
+  ]
 
   return (
     <div
       className="lg:hidden fixed inset-x-0 bottom-0 z-50 flex justify-center px-4 pointer-events-none"
-      style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 0.65rem)" }}
+      style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 0.75rem)" }}
     >
       <nav
         aria-label="Navigation principale"
-        className="pointer-events-auto flex w-full max-w-sm items-center gap-1 rounded-[32px] border border-border/90 bg-card/95 p-2 shadow-[0_16px_36px_rgba(15,23,42,0.22)] backdrop-blur-2xl"
+        className="pointer-events-auto relative flex h-[62px] w-full max-w-[370px] items-center justify-between rounded-full border border-slate-200/80 bg-white/90 px-3 shadow-[0_8px_30px_rgb(0,0,0,0.07)] backdrop-blur-xl transition-all dark:border-slate-800/80 dark:bg-slate-950/90 dark:shadow-[0_8px_30px_rgb(0,0,0,0.4)]"
+        style={{ willChange: "transform" }}
       >
-        <GuestTab href="/" label="Accueil" icon={HouseIcon} active={isActive("/")} />
-        <GuestTab href="/annuaire" label="Annuaire" icon={CompassIcon} active={isActive("/annuaire")} />
+        {/* 3 Onglets Métier */}
+        {guestTabs.map((tab) => {
+          const active = isActive(tab.href)
+          const Icon = tab.icon
 
+          return (
+            <Link
+              key={tab.key}
+              href={tab.href}
+              className={cn(
+                "relative flex flex-1 flex-col items-center justify-center gap-1 py-1.5 outline-none transition-colors",
+                active
+                  ? "text-[#013ff4] dark:text-[#03b3f8]"
+                  : "text-slate-400 hover:text-slate-700 dark:text-slate-500 dark:hover:text-slate-200"
+              )}
+            >
+              <Icon
+                className={cn(
+                  "h-5 w-5 transition-transform",
+                  active && "scale-105"
+                )}
+                strokeWidth={active ? 2.3 : 1.8}
+              />
+              <span
+                className={cn(
+                  "text-[10px] font-bold leading-none tracking-tight",
+                  active
+                    ? "text-[#013ff4] dark:text-[#03b3f8]"
+                    : "text-slate-500 dark:text-slate-400"
+                )}
+              >
+                {tab.name}
+              </span>
+
+              {active && (
+                <span className="absolute -bottom-0.5 h-1 w-1 rounded-full bg-[#013ff4] dark:bg-[#03b3f8]" />
+              )}
+            </Link>
+          )
+        })}
+
+        {/* Bouton Connexion Sobre & Net */}
         <Link
           href="/login"
-          className="ml-auto flex h-11 items-center gap-2 rounded-2xl bg-gradient-to-r from-[#013ff4] to-[#1e61ff] px-5 text-xs font-bold text-white shadow-[0_8px_20px_-4px_rgba(1,63,244,0.5)] transition-all active:scale-95 hover:shadow-[0_10px_24px_-4px_rgba(1,63,244,0.65)]"
+          className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#013ff4] to-[#03b3f8] px-4 py-2 text-xs font-bold text-white shadow-md shadow-blue-500/20 transition-all hover:opacity-95 active:scale-95"
         >
-          <LogIn className="h-[17px] w-[17px]" />
-          Se connecter
+          <LogIn className="h-3.5 w-3.5" />
+          <span>Connexion</span>
         </Link>
       </nav>
     </div>
   )
 }
-
-function GuestTab({ href, label, icon: Icon, active }: { href: string; label: string; icon: typeof HouseIcon; active: boolean }) {
-  const iconRef = useRef<AnimatedIconHandle>(null)
-
-  useEffect(() => {
-    if (active) iconRef.current?.startAnimation()
-  }, [active])
-
-  return (
-    <Link
-      href={href}
-      onMouseEnter={() => iconRef.current?.startAnimation()}
-      onClick={() => iconRef.current?.startAnimation()}
-      className="relative flex flex-1 flex-col items-center justify-center gap-0.5 py-1.5 outline-none group"
-    >
-      {active && (
-        <motion.span
-          layoutId="guest-dock-active"
-          transition={{ type: "spring", stiffness: 450, damping: 35 }}
-          className="absolute inset-x-1 inset-y-0.5 -z-0 rounded-2xl bg-[#013ff4]/[0.09]"
-        />
-      )}
-      <Icon
-        ref={iconRef}
-        size={21}
-        color={active ? BRAND : "#94a3b8"}
-        strokeWidth={active ? 2.4 : 2}
-        className="relative transition-transform group-hover:scale-105"
-      />
-      <span className={cn("relative text-[10px] font-bold transition-colors", active ? "text-[#013ff4]" : "text-muted-foreground group-hover:text-foreground")}>
-        {label}
-      </span>
-    </Link>
-  )
-}
-
