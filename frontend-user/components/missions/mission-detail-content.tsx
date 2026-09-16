@@ -53,7 +53,7 @@ export function MissionDetailContent({ missionId }: MissionDetailContentProps) {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-5xl space-y-6 px-4 py-10 md:px-8">
+      <div className="mx-auto max-w-[1400px] space-y-6 px-4 py-10 sm:px-6 lg:px-8">
         <Skeleton className="h-6 w-32" />
         <Skeleton className="h-44 w-full rounded-2xl" />
         <Skeleton className="h-64 w-full rounded-2xl" />
@@ -116,7 +116,7 @@ export function MissionDetailContent({ missionId }: MissionDetailContentProps) {
     : null
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8 px-4 py-6 md:px-8 md:py-10">
+    <div className="mx-auto max-w-[1400px] space-y-8 px-4 py-6 sm:px-6 lg:px-8 md:py-10">
       {/* Barre supérieure : retour & statut */}
       <div className="flex items-center justify-between">
         <Link

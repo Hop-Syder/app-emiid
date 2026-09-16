@@ -28,7 +28,7 @@ export function SponsorshipContent() {
   } = useSponsorship()
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8 px-4 py-6 md:px-8 md:py-10">
+    <div className="mx-auto max-w-[1400px] space-y-8 px-4 py-6 sm:px-6 lg:px-8 md:py-10">
       {/* En-tête */}
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>

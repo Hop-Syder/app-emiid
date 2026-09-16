@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 
 export default function CreerMissionPage() {
   return (
-    <div className="mx-auto max-w-4xl space-y-6 px-4 py-6 pt-8 md:px-8 md:py-10">
+    <div className="mx-auto max-w-[1400px] space-y-6 px-4 py-6 pt-8 sm:px-6 lg:px-8 md:py-10">
       <div className="flex items-center justify-between">
         <Link
           href="/missions"

@@ -38,7 +38,7 @@ export function DashboardHubContent({
           SECTION 1 : HERO + STATS RÉSEAU
           ========================================= */}
       <div className="pb-16 pt-6 relative overflow-hidden z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 relative z-10">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 space-y-8 relative z-10">
           <DashboardBentoHeader />
           {statsError && (
             <p className="text-xs text-rose-400 flex items-center justify-center gap-2 px-1 pt-4 font-medium" data-testid="stats-sync-indicator">
@@ -49,7 +49,7 @@ export function DashboardHubContent({
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full -mt-10 z-20 space-y-6 relative">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 w-full -mt-10 z-20 space-y-6 relative">
 
         {/* SECTION 1.5 + 2 (cockpit personnel : complétude/stats + activité
             récente) déménagée dans /portefeuille le 16/09 — voir

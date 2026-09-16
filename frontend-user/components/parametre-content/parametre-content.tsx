@@ -165,7 +165,7 @@ export function ParametresContent() {
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-muted/30 pb-16">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-10">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-10">
 
         {/* ═════════════════════════════════════════════════════════════════════
             EN-TÊTE PRINCIPAL DE LA PAGE
