@@ -19,26 +19,37 @@ import {
   ShieldCheck,
   Loader2,
   AlertCircle,
+  Pencil,
+  XCircle,
 } from "lucide-react"
 import type { MissionApplication } from "@/types/missions"
+import { EditApplicationModal } from "./edit-application-modal"
+import { ConfirmActionDialog } from "@/components/ui/confirm-action-dialog"
 
 interface MissionApplicationsSectionProps {
   missionId: string
+  missionTitle: string
   applications: MissionApplication[]
   isClient: boolean
   canSelect: boolean
-  onSelectSuccess: () => void
+  currentUserId: string | null
+  onChange: () => void
 }
 
 export function MissionApplicationsSection({
   missionId,
+  missionTitle,
   applications,
   isClient,
   canSelect,
-  onSelectSuccess,
+  currentUserId,
+  onChange,
 }: MissionApplicationsSectionProps) {
   const [selectingId, setSelectingId] = useState<string | null>(null)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
+  const [editingApp, setEditingApp] = useState<MissionApplication | null>(null)
+  const [withdrawingApp, setWithdrawingApp] = useState<MissionApplication | null>(null)
+  const [withdrawLoading, setWithdrawLoading] = useState(false)
 
   const handleSelect = async (applicationId: string) => {
     try {
@@ -61,11 +72,39 @@ export function MissionApplicationsSection({
         return
       }
 
-      onSelectSuccess()
+      onChange()
     } catch (err: any) {
       setErrorMsg(err?.message || "Erreur de connexion.")
     } finally {
       setSelectingId(null)
+    }
+  }
+
+  const handleWithdraw = async () => {
+    if (!withdrawingApp) return
+    try {
+      setWithdrawLoading(true)
+      setErrorMsg(null)
+
+      const res = await fetch("/api/missions/withdraw-application", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ applicationId: withdrawingApp.id }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok || !data.success) {
+        setErrorMsg(data.error || "Impossible de retirer votre candidature.")
+        return
+      }
+
+      setWithdrawingApp(null)
+      onChange()
+    } catch (err: any) {
+      setErrorMsg(err?.message || "Erreur de connexion.")
+    } finally {
+      setWithdrawLoading(false)
     }
   }
 
@@ -111,6 +150,8 @@ export function MissionApplicationsSection({
           {applications.map((app) => {
             const isAccepted = app.status === "ACCEPTED"
             const isRejected = app.status === "REJECTED"
+            const isPending = app.status === "PENDING"
+            const isOwnApplication = !!currentUserId && app.pro_id === currentUserId
 
             return (
               <div
@@ -173,9 +214,7 @@ export function MissionApplicationsSection({
                       Devis proposé
                     </span>
                     <p className="text-sm font-black text-foreground">
-                      {app.proposed_price
-                        ? `${app.proposed_price.toLocaleString("fr-FR")} FCFA`
-                        : "Non spécifié"}
+                      {app.proposed_price.toLocaleString("fr-FR")} FCFA
                     </p>
                   </div>
 
@@ -203,11 +242,60 @@ export function MissionApplicationsSection({
                     </button>
                   </div>
                 )}
+
+                {/* Modifier / retirer sa propre candidature — tant qu'elle
+                    est PENDING (verrouillée dès qu'elle est ACCEPTED/REJECTED
+                    par le backend, voir update_mission_application()). */}
+                {!isClient && isOwnApplication && isPending && (
+                  <div className="mt-6 flex items-center gap-2 border-t border-border pt-3">
+                    <button
+                      type="button"
+                      onClick={() => setEditingApp(app)}
+                      className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-2xl border border-border bg-card px-4 text-xs font-bold text-foreground hover:bg-muted"
+                    >
+                      <Pencil className="h-4 w-4" />
+                      <span>Modifier mon offre</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setWithdrawingApp(app)}
+                      className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-4 text-xs font-bold text-rose-600 hover:bg-rose-100 dark:border-rose-900/50 dark:bg-rose-950/40 dark:text-rose-400"
+                    >
+                      <XCircle className="h-4 w-4" />
+                      <span>Retirer</span>
+                    </button>
+                  </div>
+                )}
               </div>
             )
           })}
         </div>
       )}
+
+      {editingApp && (
+        <EditApplicationModal
+          application={editingApp}
+          missionTitle={missionTitle}
+          isOpen={!!editingApp}
+          onClose={() => setEditingApp(null)}
+          onSuccess={() => {
+            setEditingApp(null)
+            onChange()
+          }}
+        />
+      )}
+
+      <ConfirmActionDialog
+        isOpen={!!withdrawingApp}
+        onClose={() => setWithdrawingApp(null)}
+        onConfirm={handleWithdraw}
+        title="Retirer votre candidature ?"
+        description="Votre candidature sera supprimée et le crédit consommé vous sera automatiquement recrédité. Vous pourrez repostuler tant que la mission accepte des candidatures."
+        confirmText="Oui, retirer"
+        cancelText="Conserver ma candidature"
+        variant="warning"
+        isLoading={withdrawLoading}
+      />
     </div>
   )
 }

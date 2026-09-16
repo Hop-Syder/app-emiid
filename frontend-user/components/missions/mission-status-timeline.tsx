@@ -1,9 +1,9 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Timeline interactive du cycle de vie de mission avec fenêtre 72h et litige.
+ * @description Timeline interactive du cycle de vie de mission avec fenêtre 48h et litige.
  * @created 2026-09-15
- * @updated 2026-09-15
+ * @updated 2026-09-16
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -49,7 +49,7 @@ const STEPS: { key: MissionStatus; label: string; desc: string }[] = [
   {
     key: "DELIVERED",
     label: "Livraison & Recette",
-    desc: "Fenêtre 72h de contestation active",
+    desc: "Fenêtre 48h de contestation active",
   },
   {
     key: "COMPLETED",
@@ -175,17 +175,17 @@ export function MissionStatusTimeline({
         })}
       </div>
 
-      {/* Alerte fenêtre 72h si DELIVERED */}
+      {/* Alerte fenêtre 48h si DELIVERED */}
       {mission.status === "DELIVERED" && (
         <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50/80 p-4 dark:border-amber-900/50 dark:bg-amber-950/30">
           <div className="flex items-start gap-3">
             <Clock className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
             <div className="space-y-1">
               <h4 className="text-xs font-bold text-amber-900 dark:text-amber-200">
-                Fenêtre de recette de 72 heures active
+                Fenêtre de recette de 48 heures active
               </h4>
               <p className="text-xs md:text-sm leading-relaxed text-amber-800 dark:text-amber-300">
-                Le travail a été déclaré livré par le prestataire. Le client dispose de 72 heures pour tester et valider le livrable. Sans contestation de votre part dans ce délai, les fonds seront automatiquement libérés au prestataire.
+                Le travail a été déclaré livré par le prestataire. Le client dispose de 48 heures pour tester et valider le livrable. Sans contestation de votre part dans ce délai, les fonds seront automatiquement libérés au prestataire.
               </p>
             </div>
           </div>

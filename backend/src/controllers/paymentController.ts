@@ -533,7 +533,7 @@ export async function recordSponsorshipStrike(req: Request, res: Response) {
 //   1) process_expired_missions() : expire les missions sans prestataire
 //      sélectionné dont la date limite est dépassée, rembourse les crédits.
 //   2) process_auto_release_missions() : bascule en COMPLETED les missions
-//      DELIVERED dont la fenêtre de contestation de 72h est passée.
+//      DELIVERED dont la fenêtre de contestation de 48h est passée.
 // À planifier via un vrai cron externe une fois le volume le justifiant ;
 // ce bouton « exécuter maintenant » comble le vide en attendant.
 export async function runMissionMaintenance(req: Request, res: Response) {

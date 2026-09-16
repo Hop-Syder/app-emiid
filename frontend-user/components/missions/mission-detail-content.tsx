@@ -248,10 +248,12 @@ export function MissionDetailContent({ missionId }: MissionDetailContentProps) {
       {/* 4. Candidatures */}
       <MissionApplicationsSection
         missionId={mission.id}
+        missionTitle={mission.title}
         applications={applications}
         isClient={isClient}
         canSelect={isOpen}
-        onSelectSuccess={refetch}
+        currentUserId={currentUserId}
+        onChange={refetch}
       />
 
       {/* Modal de candidature */}

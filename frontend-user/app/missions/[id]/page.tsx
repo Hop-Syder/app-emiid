@@ -24,7 +24,7 @@ export default async function MissionDetailPage({
   const { id } = await params
 
   return (
-    <div className="flex-1 w-full min-h-screen flex flex-col">
+    <div className="flex-1 w-full min-h-screen flex flex-col pt-8">
       <MissionDetailContent missionId={id} />
     </div>
   )

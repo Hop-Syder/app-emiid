@@ -57,40 +57,37 @@ export function MissionsList() {
             <button
               type="button"
               onClick={() => setTab("ALL")}
-              className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition-all ${
-                tab === "ALL"
+              className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition-all ${tab === "ALL"
                   ? "bg-[#013ff4] text-white shadow-sm"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
-              }`}
+                }`}
             >
               <Layers className="h-3.5 w-3.5" />
-              <span>Toutes les missions</span>
+              <span>Missions</span>
             </button>
 
             <button
               type="button"
               onClick={() => setTab("MY_POSTED")}
-              className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition-all ${
-                tab === "MY_POSTED"
+              className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition-all ${tab === "MY_POSTED"
                   ? "bg-[#013ff4] text-white shadow-sm"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
-              }`}
+                }`}
             >
               <FileCheck2 className="h-3.5 w-3.5" />
-              <span>Mes publications</span>
+              <span>Publications</span>
             </button>
 
             <button
               type="button"
               onClick={() => setTab("MY_APPLIED")}
-              className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition-all ${
-                tab === "MY_APPLIED"
+              className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition-all ${tab === "MY_APPLIED"
                   ? "bg-[#013ff4] text-white shadow-sm"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
-              }`}
+                }`}
             >
               <Sparkles className="h-3.5 w-3.5" />
-              <span>Mes candidatures</span>
+              <span>Candidatures</span>
             </button>
           </div>
 
@@ -123,8 +120,8 @@ export function MissionsList() {
             tab === "MY_POSTED"
               ? "Vous n'avez pas encore publié de mission. Cliquez sur 'Publier une mission' pour démarrer."
               : tab === "MY_APPLIED"
-              ? "Vous n'avez encore postulé à aucune mission."
-              : "Aucune mission ne correspond à vos critères de recherche actuellement."
+                ? "Vous n'avez encore postulé à aucune mission."
+                : "Aucune mission ne correspond à vos critères de recherche actuellement."
           }
         />
       ) : (

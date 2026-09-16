@@ -20,11 +20,11 @@ export const metadata: Metadata = {
 
 export default function CreerMissionPage() {
   return (
-    <div className="mx-auto max-w-4xl space-y-6 px-4 py-6 md:px-8 md:py-10">
+    <div className="mx-auto max-w-4xl space-y-6 px-4 py-6 pt-8 md:px-8 md:py-10">
       <div className="flex items-center justify-between">
         <Link
           href="/missions"
-          className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+          className="inline-flex items-center gap-2 text-xs font-bold text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
           <span>Retour aux missions</span>
