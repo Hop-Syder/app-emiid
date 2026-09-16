@@ -61,7 +61,16 @@ export function DashboardHubContent({
         <ProximitySection fallbackLocation={userLocation} initialProfiles={initialProximityProfiles} />
 
         {/* =========================================
-            SECTION 3 bis : TALENTS DE LA COMMUNE
+            SECTION 4 : CTA CONTEXTUEL
+            Intercalé entre les deux listes de talents pour casser leur
+            répétition visuelle et relancer sur une action concrète.
+            ========================================= */}
+        <div>
+          <HubContextualCta />
+        </div>
+
+        {/* =========================================
+            SECTION 5 : TALENTS DE LA COMMUNE
             Échelle plus fine que la section ci-dessus (commune administrative
             plutôt que ville/GPS) et vitrine des boosts communaux. Se masque
             d'elle-même si le profil n'a pas de commune rattachée.
@@ -69,7 +78,7 @@ export function DashboardHubContent({
         <CommuneSection />
 
         {/* =========================================
-            SECTION 4 : EXPLORER (Nouveaux / Réalisations / Catégories — onglets)
+            SECTION 6 : EXPLORER (Nouveaux / Réalisations / Catégories — onglets)
             ========================================= */}
         <ExplorerHub
           newProfiles={initialNewProfiles}
@@ -77,14 +86,7 @@ export function DashboardHubContent({
         />
 
         {/* =========================================
-            SECTION 7 : CTA CONTEXTUEL
-            ========================================= */}
-        <div>
-          <HubContextualCta />
-        </div>
-
-        {/* =========================================
-            SECTION 8 : COMMUNAUTÉS
+            SECTION 7 : COMMUNAUTÉS
             ========================================= */}
         <div>
           <HubCommunities />
