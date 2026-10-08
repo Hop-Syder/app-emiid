@@ -32,6 +32,15 @@ export interface ProfileData {
      *  seulement le fait qu'il y en a une). */
     hasContact?: boolean
     website?: string
+    /** Phrase d'accroche affichée sous le nom. */
+    slogan?: string
+    yearsExperience?: number
+    /** Badge « téléphone certifié ». */
+    phoneVerified?: boolean
+    /** Contacts commerciaux secondaires — mêmes règles de visibilité que email/phone. */
+    secondaryPhone?: string
+    publicEmail?: string
+    socials?: { facebook?: string; instagram?: string; tiktok?: string; linkedin?: string }
     skills: string[]
     experiences: ExperienceItem[]
     services?: Array<{ title: string; price: number | null; description?: string }>
@@ -61,6 +70,15 @@ interface ProfileQueryResult {
     phone: string | null
     has_contact?: boolean | null
     website: string | null
+    slogan?: string | null
+    years_experience?: number | null
+    phone_verified?: boolean | null
+    secondary_phone?: string | null
+    public_email?: string | null
+    facebook_url?: string | null
+    instagram_url?: string | null
+    tiktok_url?: string | null
+    linkedin_url?: string | null
     role: string | null
     services?: Array<{ title: string; price: number | null; description?: string }> | null
     opening_hours?: Array<{ day: number; open: string; close: string; closed: boolean }> | null
@@ -126,7 +144,7 @@ export function useProfileData(profileId: string) {
                 // eslint-disable-next-line no-restricted-syntax -- tentative authentifiée (SON profil) ; fallback RPC get_public_profile pour l'anonyme/cross-user
                 let query = supabase
                     .from("user_profiles")
-                    .select("id, user_id, first_name, last_name, bio, business_name, district, city, avatar_url, cover_url, specialty, category, slug, is_published, is_verified, is_premium, followers_count, created_at, website, role, services, opening_hours, experiences, countries(name), profile_tags(tags(name))")
+                    .select("id, user_id, first_name, last_name, bio, business_name, district, city, avatar_url, cover_url, specialty, category, slug, is_published, is_verified, is_premium, followers_count, created_at, website, slogan, years_experience, phone_verified, facebook_url, instagram_url, tiktok_url, linkedin_url, role, services, opening_hours, experiences, countries(name), profile_tags(tags(name))")
 
                 if (isUUID) {
                     query = query.or(`slug.eq.${cleanProfileId},user_id.eq.${cleanProfileId},id.eq.${cleanProfileId}`)
@@ -173,6 +191,8 @@ export function useProfileData(profileId: string) {
                         if (contact && !contactRes.error) {
                             data.email = contact.email
                             data.phone = contact.phone
+                            data.secondary_phone = contact.secondary_phone
+                            data.public_email = contact.public_email
                             data.has_contact = contact.has_contact
                         }
                     }
@@ -257,6 +277,17 @@ export function useProfileData(profileId: string) {
                         email: data.email || undefined,
                         website: data.website || undefined,
                         phone: data.phone || undefined,
+                        slogan: data.slogan || undefined,
+                        yearsExperience: typeof data.years_experience === "number" && data.years_experience > 0 ? data.years_experience : undefined,
+                        phoneVerified: !!data.phone_verified,
+                        secondaryPhone: data.secondary_phone || undefined,
+                        publicEmail: data.public_email || undefined,
+                        socials: {
+                            facebook: data.facebook_url || undefined,
+                            instagram: data.instagram_url || undefined,
+                            tiktok: data.tiktok_url || undefined,
+                            linkedin: data.linkedin_url || undefined,
+                        },
                         hasContact: data.has_contact ?? !!(data.email || data.phone),
                         skills:
                             data.profile_tags

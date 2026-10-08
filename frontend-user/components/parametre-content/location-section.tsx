@@ -36,7 +36,7 @@ import { toast } from "sonner"
 import type { UserProfileData } from "@/hooks/use-settings"
 import { LocationSelector } from "@/components/LocationSelector"
 import { LocationMapPicker } from "./location-map-picker"
-import { SectionCard, SettingToggle, Field, INPUT, SELECT } from "./settings-primitives"
+import { SectionCard, SettingToggle, Field, INPUT, SELECT, TEXTAREA } from "./settings-primitives"
 
 /** Seul pays dont le découpage administratif est en base (cf. 20260824). */
 const GEO_COUNTRY_ISO = "BJ"
@@ -113,6 +113,9 @@ export function LocationSection({ profile, setProfile }: LocationSectionProps) {
     if (leavesGeo) setDepartmentId("")
     setProfile({
       ...profile,
+      // Vider l'id force le serveur à résoudre le pays par son code : sinon
+      // l'ancien country_id, prioritaire, annulait silencieusement le changement.
+      ...(countryChanged ? { country_id: "" } : {}),
       country_code: country.isoCode,
       country_name: country.name,
       ...(countryChanged ? { city: "" } : {}),
@@ -209,6 +212,18 @@ export function LocationSection({ profile, setProfile }: LocationSectionProps) {
           </Field>
         </div>
 
+        <Field label="Ville">
+          <Input
+            id="city"
+            name="city"
+            autoComplete="address-level2"
+            value={profile.city || ""}
+            onChange={(e) => up("city", e.target.value)}
+            className={INPUT}
+            placeholder={geoAvailable ? "Ex : Cotonou" : "Ex : Lomé, Dakar, Paris"}
+          />
+        </Field>
+
         <Field label="Quartier / arrondissement">
           <Input
             id="district"
@@ -217,6 +232,17 @@ export function LocationSection({ profile, setProfile }: LocationSectionProps) {
             onChange={(e) => up("district", e.target.value)}
             className={INPUT}
             placeholder="Ex : Akpakpa"
+          />
+        </Field>
+
+        <Field label="Adresse détaillée / repère" hint="Guidez vos clients jusqu'à votre atelier, bureau ou point de vente.">
+          <textarea
+            id="address"
+            value={profile.address || ""}
+            onChange={(e) => up("address", e.target.value)}
+            rows={2}
+            className={TEXTAREA}
+            placeholder="Ex : Immeuble Nexus, 2ème étage, face Pharmacie du Port, Cotonou"
           />
         </Field>
 

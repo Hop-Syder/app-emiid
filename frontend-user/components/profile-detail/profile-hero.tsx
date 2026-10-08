@@ -8,7 +8,7 @@
  * 📧 daoudaabassichristian@gmail.com
  */
 
-import { Camera, Check, Loader2, MapPin, MessageCircle, Settings, Share2, Star, UserPlus, Users } from "lucide-react"
+import { Briefcase, Camera, Check, Loader2, MapPin, MessageCircle, Settings, Share2, Star, UserPlus, Users } from "lucide-react"
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -27,6 +27,9 @@ interface ProfileHeroData {
     avatar: string | null
     coverImage?: string | null
     specialty: string | null
+    /** Phrase d'accroche saisie dans Paramètres › Profil. */
+    slogan?: string
+    yearsExperience?: number
     location: string | null
     verified: boolean
     premium: boolean
@@ -165,6 +168,9 @@ export function ProfileHero({
                                 {profile.business_name}
                             </div>
                         )}
+                        {profile.slogan && (
+                            <p className="text-sm italic text-muted-foreground max-w-2xl">« {profile.slogan} »</p>
+                        )}
                         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground font-medium tracking-wide">
                             <span className="inline-flex items-center gap-2 min-w-0">
                                 <Users className="h-4 w-4 text-slate-400 shrink-0" />
@@ -175,6 +181,15 @@ export function ProfileHero({
                                 <MapPin className="h-4 w-4 text-slate-400 shrink-0" />
                                 <span className="truncate">{profile.location}</span>
                             </span>
+                            {profile.yearsExperience && (
+                                <>
+                                    <span className="h-1 w-1 rounded-full bg-slate-300 hidden sm:inline" />
+                                    <span className="inline-flex items-center gap-2">
+                                        <Briefcase className="h-4 w-4 text-slate-400 shrink-0" />
+                                        {profile.yearsExperience} an{profile.yearsExperience > 1 ? "s" : ""} d&apos;expérience
+                                    </span>
+                                </>
+                            )}
                         </div>
                     </div>
 

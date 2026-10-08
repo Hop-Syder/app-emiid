@@ -12,14 +12,17 @@ import { z } from 'zod';
 import { supabase, supabaseAdmin } from '../config/supabase';
 import bcrypt from 'bcrypt';
 import { logger } from '../utils/logger';
+import { hasRecentTotp, type AuthClaims } from '../utils/mfa';
 import { UserProfile } from '../types/models';
 import { sendEmail } from '../services/mailService';
-import { sendSms } from '../services/smsService';
+import { sendSms, availableSmsChannels } from '../services/smsService';
 import {
   updateProfileSchema,
   updateSettingsSchema,
   verifyPinSchema,
   resetPinSchema,
+  setPinSchema,
+  disablePinSchema,
   requestPhoneVerificationSchema,
   verifyPhoneSchema
 } from '../api/validations/userValidations';
@@ -148,6 +151,12 @@ export const getMyProfile = async (req: Request, res: Response) => {
         data.phone = data.phone || authFallback.phone;
         data.avatar_url = data.avatar_url || authFallback.avatar_url;
         Object.assign(data, buildUserSettings(authUser, !!data.is_published));
+        // SÉCURITÉ : le hash du PIN et l'état du verrou ne quittent jamais le serveur.
+        const secrets = data as Record<string, unknown>;
+        delete secrets.pin_code;
+        delete secrets.pin_attempts;
+        delete secrets.locked_at;
+        secrets.phone_verification_channels = availableSmsChannels();
     }
 
     res.json(data);
@@ -164,18 +173,23 @@ export const updateMyProfile = async (req: any, res: Response) => {
   const userId = req.user.id;
 
   try {
-    const { body } = updateProfileSchema.parse(req) as { body: any };
+    const parsed = updateProfileSchema.safeParse(req);
+    if (!parsed.success) {
+      const issue = parsed.error.issues[0];
+      return res.status(400).json({ error: issue?.message || 'Données de profil invalides', field: issue?.path.slice(1).join('.') });
+    }
+    const body = parsed.data.body as any;
     const {
       first_name, last_name, business_name, bio, avatar_url,
       role, specialty, category, activity_domain,
       country_id, country_code, country_name, city, district, commune_id,
-      job_title, industry, pin_enabled, pin_code,
+      job_title, industry,
       phone, website, is_published, tags, card_variant, slug,
       show_contact, latitude, longitude, is_nomad,
       // Paramètres avancés (onglets À propos / Réseaux / Horaires & Services)
       slogan, years_experience, facebook_url, instagram_url, tiktok_url,
       linkedin_url, secondary_phone, public_email, address,
-      opening_hours, services, experiences, two_factor_enabled
+      opening_hours, services, experiences
     } = body;
 
     let finalCountryId = country_id;
@@ -229,7 +243,8 @@ export const updateMyProfile = async (req: any, res: Response) => {
       await supabaseAdmin.from('industries').upsert({ name: finalDomain }, { onConflict: 'name' });
     }
 
-    // --- PIN SECURITY LOGIC ---
+    // Les champs absents du corps restent `undefined` et ne sont pas envoyés :
+    // une sauvegarde partielle (champs modifiés uniquement) n'écrase rien.
     const updates: any = {
         user_id: userId,
         first_name,
@@ -272,7 +287,6 @@ export const updateMyProfile = async (req: any, res: Response) => {
         opening_hours,
         services,
         experiences,
-        two_factor_enabled,
         updated_at: new Date().toISOString()
     };
     
@@ -284,17 +298,20 @@ export const updateMyProfile = async (req: any, res: Response) => {
       updates.slug = finalSlug;
     }
 
-    // Ajout conditionnel des champs PIN (seulement si présents)
-    if (pin_enabled !== undefined) updates.pin_enabled = pin_enabled;
+    // SÉCURITÉ : le PIN n'est JAMAIS modifiable par cette route (qui ne demande
+    // aucune preuve d'identité). Voir POST /api/users/pin et /api/users/pin/disable.
 
     // R7 — visibilité du contact (opt-in) : uniquement si le champ est fourni.
     if (show_contact !== undefined) updates.show_contact = show_contact;
 
-    // Si un nouveau code PIN est envoyé, on le hashe
-    if (pin_code && pin_code.length === 6) {
-      const salt = await bcrypt.genSalt(10);
-      updates.pin_code = await bcrypt.hash(pin_code, salt);
-      updates.pin_attempts = 0;
+    // Intégrité du badge : un numéro certifié qui change n'est plus certifié.
+    if (phone !== undefined) {
+      const { data: current } = await supabaseAdmin
+        .from('user_profiles')
+        .select('phone')
+        .eq('user_id', userId)
+        .maybeSingle();
+      if ((current?.phone || '') !== (phone || '')) updates.phone_verified = false;
     }
 
     // Tenter d'abord une mise à jour via UPDATE
@@ -577,87 +594,191 @@ export const deleteMyAccount = async (req: any, res: Response) => {
  * Vérifie le code PIN de l'utilisateur
  * POST /api/users/verify-pin
  */
+const PIN_LOCK_DELAYS = [0, 0, 0, 1, 5, 15, 60, 1440]; // minutes, index = tentatives
+
+type PinCheck =
+  | { ok: true; pinEnabled: boolean }
+  | { ok: false; status: number; body: Record<string, unknown> };
+
+/**
+ * Vérifie un PIN en appliquant le compteur d'essais et le blocage exponentiel
+ * (1 min, 5 min, 15 min, 1 h, 24 h). Partagé par la vérification simple et par
+ * les actions sensibles (changer / désactiver le PIN).
+ */
+async function checkPin(userId: string, pin: string): Promise<PinCheck> {
+  const { data, error } = await supabaseAdmin
+    .from('user_profiles')
+    .select('pin_code, pin_attempts, pin_enabled, is_locked, locked_at')
+    .eq('user_id', userId)
+    .single();
+
+  if (error || !data) return { ok: false, status: 400, body: { error: "Profil introuvable" } };
+  const profile = data as UserProfile;
+
+  if (!profile.pin_enabled || !profile.pin_code) return { ok: true, pinEnabled: false };
+
+  if (profile.is_locked && profile.locked_at) {
+    const attempts = profile.pin_attempts || 3;
+    const delayMinutes = attempts < PIN_LOCK_DELAYS.length ? PIN_LOCK_DELAYS[attempts] : 1440;
+    const diffMinutes = (Date.now() - new Date(profile.locked_at).getTime()) / 60000;
+
+    if (diffMinutes < delayMinutes) {
+      const remainingMinutes = Math.ceil(delayMinutes - diffMinutes);
+      return {
+        ok: false,
+        status: 403,
+        body: {
+          error: `Compte temporairement bloqué. Veuillez réessayer dans ${remainingMinutes} minute(s).`,
+          is_locked: true,
+          remaining_minutes: remainingMinutes,
+        },
+      };
+    }
+    // Délai écoulé : une nouvelle tentative est permise.
+  }
+
+  if (await bcrypt.compare(pin, profile.pin_code)) {
+    await supabaseAdmin
+      .from('user_profiles')
+      .update({ pin_attempts: 0, is_locked: false, locked_at: null })
+      .eq('user_id', userId);
+    return { ok: true, pinEnabled: true };
+  }
+
+  const newAttempts = (profile.pin_attempts || 0) + 1;
+  const shouldLock = newAttempts >= 3;
+  await supabaseAdmin
+    .from('user_profiles')
+    .update({
+      pin_attempts: newAttempts,
+      ...(shouldLock ? { is_locked: true, locked_at: new Date().toISOString() } : {}),
+    })
+    .eq('user_id', userId);
+
+  if (shouldLock) {
+    const delayMinutes = newAttempts < PIN_LOCK_DELAYS.length ? PIN_LOCK_DELAYS[newAttempts] : 1440;
+    return {
+      ok: false,
+      status: 403,
+      body: {
+        error: `Code PIN incorrect. Compte bloqué pour ${delayMinutes} minute(s).`,
+        attempts_remaining: 0,
+        is_locked: true,
+        next_retry_in: delayMinutes,
+      },
+    };
+  }
+
+  return { ok: false, status: 401, body: { error: "Code PIN incorrect", attempts_remaining: 3 - newAttempts } };
+}
+
+/**
+ * Vérifie que l'appelant peut toucher à un PIN déjà actif : soit il fournit
+ * l'ancien PIN, soit il vient de valider un code TOTP (Google / Microsoft
+ * Authenticator) dans les 5 dernières minutes.
+ * Renvoie null si la preuve est valide, sinon la réponse d'erreur à envoyer.
+ */
+async function requirePinProof(
+  userId: string,
+  claims: AuthClaims,
+  currentPin: string | undefined,
+): Promise<{ status: number; body: Record<string, unknown> } | null> {
+  if (currentPin) {
+    const result = await checkPin(userId, currentPin);
+    return result.ok ? null : { status: result.status, body: result.body };
+  }
+  if (hasRecentTotp(claims)) return null;
+  return {
+    status: 403,
+    body: {
+      error: 'PIN_PROOF_REQUIRED',
+      message: "Saisissez votre code PIN actuel ou un code de votre application d'authentification.",
+    },
+  };
+}
+
 export const verifyPin = async (req: Request, res: Response) => {
   const userId = req.user?.id;
   if (!userId) return res.status(401).json({ error: "Non authentifié" });
 
   try {
     const { body: { pin } } = verifyPinSchema.parse(req);
-    const { data, error } = await supabaseAdmin
-      .from('user_profiles')
-      .select('pin_code, pin_attempts, pin_enabled, is_locked, locked_at')
-      .eq('user_id', userId)
-      .single();
-
-    if (error || !data) return res.status(400).json({ error: "Profil introuvable" });
-    const profile = data as UserProfile;
-
-    if (!profile.pin_enabled || !profile.pin_code) return res.json({ success: true, message: "PIN non activé" });
-
-    if (profile.is_locked && profile.locked_at) {
-      const attempts = profile.pin_attempts || 3;
-      // Délai exponentiel : 1 min, 5 min, 15 min, 1h, 24h
-      const delays = [0, 0, 0, 1, 5, 15, 60, 1440]; // index = attempts
-      const delayMinutes = attempts < delays.length ? delays[attempts] : 1440;
-      
-      const lockTime = new Date(profile.locked_at!).getTime();
-      const now = new Date().getTime();
-      const diffMinutes = (now - lockTime) / (1000 * 60);
-
-      if (diffMinutes < delayMinutes) {
-        const remainingMinutes = Math.ceil(delayMinutes - diffMinutes);
-        return res.status(403).json({ 
-          error: `Compte temporairement bloqué. Veuillez réessayer dans ${remainingMinutes} minute(s).`, 
-          is_locked: true,
-          remaining_minutes: remainingMinutes
-        });
-      }
-      
-      // Le délai est écoulé, on autorise la tentative mais on garde is_locked tant qu'on n'a pas réussi
-    }
-
-    const isMatch = await bcrypt.compare(pin, profile.pin_code);
-
-    if (isMatch) {
-      // Réinitialiser les tentatives si succès
-      await supabaseAdmin
-        .from('user_profiles')
-        .update({ pin_attempts: 0 })
-        .eq('user_id', userId);
-      
-      return res.json({ success: true });
-    } else {
-      // Incrémenter les tentatives
-      const newAttempts = (profile.pin_attempts || 0) + 1;
-      const shouldLock = newAttempts >= 3;
-
-      await supabaseAdmin
-        .from('user_profiles')
-        .update({ 
-          pin_attempts: newAttempts,
-          ...(shouldLock ? { is_locked: true, locked_at: new Date().toISOString() } : {})
-        })
-        .eq('user_id', userId);
-      
-      if (shouldLock) {
-        const delays = [0, 0, 0, 1, 5, 15, 60, 1440];
-        const delayMinutes = newAttempts < delays.length ? delays[newAttempts] : 1440;
-
-        return res.status(403).json({ 
-          error: `Code PIN incorrect. Compte bloqué pour ${delayMinutes} minute(s).`, 
-          attempts_remaining: 0,
-          is_locked: true,
-          next_retry_in: delayMinutes
-        });
-      }
-
-      return res.status(401).json({ 
-        error: "Code PIN incorrect", 
-        attempts_remaining: 3 - newAttempts 
-      });
-    }
+    const result = await checkPin(userId, pin);
+    if (!result.ok) return res.status(result.status).json(result.body);
+    return res.json(result.pinEnabled ? { success: true } : { success: true, message: "PIN non activé" });
   } catch (err) {
     res.status(500).json({ error: "Erreur lors de la vérification du PIN" });
+  }
+};
+
+/**
+ * Crée ou change le code PIN.
+ * POST /api/users/pin  { new_pin, current_pin? }
+ * Si un PIN existe déjà : ancien PIN OU code TOTP récent obligatoire.
+ */
+export const setMyPin = async (req: any, res: Response) => {
+  const userId = req.user.id;
+  try {
+    const parsed = setPinSchema.safeParse(req);
+    if (!parsed.success) return res.status(400).json({ error: parsed.error.issues[0]?.message || 'Requête invalide' });
+    const { new_pin, current_pin } = parsed.data.body;
+
+    const { data: profile } = await supabaseAdmin
+      .from('user_profiles')
+      .select('pin_enabled, pin_code')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (profile?.pin_enabled && profile?.pin_code) {
+      const denied = await requirePinProof(userId, req.authClaims || {}, current_pin);
+      if (denied) return res.status(denied.status).json(denied.body);
+    }
+
+    const pinHash = await bcrypt.hash(new_pin, await bcrypt.genSalt(10));
+    const { error } = await supabaseAdmin
+      .from('user_profiles')
+      .update({
+        pin_enabled: true,
+        pin_code: pinHash,
+        pin_attempts: 0,
+        is_locked: false,
+        locked_at: null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('user_id', userId);
+
+    if (error) return res.status(400).json({ error: "Impossible d'enregistrer le code PIN" });
+    return res.json({ success: true, pin_enabled: true });
+  } catch (err) {
+    logger.error('Erreur setMyPin', err);
+    return res.status(500).json({ error: "Erreur lors de l'enregistrement du PIN" });
+  }
+};
+
+/**
+ * Désactive le code PIN.
+ * POST /api/users/pin/disable  { current_pin? }
+ * Même preuve que pour le changer : ancien PIN OU code TOTP récent.
+ */
+export const disableMyPin = async (req: any, res: Response) => {
+  const userId = req.user.id;
+  try {
+    const parsed = disablePinSchema.safeParse(req);
+    if (!parsed.success) return res.status(400).json({ error: 'Requête invalide' });
+
+    const denied = await requirePinProof(userId, req.authClaims || {}, parsed.data.body.current_pin);
+    if (denied) return res.status(denied.status).json(denied.body);
+
+    const { error } = await supabaseAdmin
+      .from('user_profiles')
+      .update({ pin_enabled: false, pin_code: null, pin_attempts: 0, is_locked: false, locked_at: null })
+      .eq('user_id', userId);
+
+    if (error) return res.status(400).json({ error: "Impossible de désactiver le PIN" });
+    return res.json({ success: true, pin_enabled: false });
+  } catch (err) {
+    logger.error('Erreur disableMyPin', err);
+    return res.status(500).json({ error: "Erreur lors de la désactivation du PIN" });
   }
 };
 
@@ -790,6 +911,9 @@ export const requestPhoneVerification = async (req: any, res: Response) => {
 
   try {
     const { body: { phone, method } } = requestPhoneVerificationSchema.parse(req) as { body: any };
+    if (!availableSmsChannels().includes(method === 'whatsapp' ? 'whatsapp' : 'sms')) {
+      return res.status(503).json({ error: "La certification par ce canal n'est pas encore disponible." });
+    }
     if (!phone) return res.status(400).json({ error: "Numéro de téléphone requis" });
 
     // SÉCURITÉ : générateur cryptographique — Math.random() est prédictible
@@ -808,10 +932,10 @@ export const requestPhoneVerification = async (req: any, res: Response) => {
 
     if (error) throw error;
 
-    const smsResult = await sendSms(phone, `Votre code de vérification EmiID : ${otp}`);
+    const channel = method === 'whatsapp' ? 'whatsapp' : 'sms';
+    const smsResult = await sendSms(phone, `Votre code de vérification EmiID : ${otp}`, channel);
     if (!smsResult.success) {
-      // Honnête : aucun fournisseur SMS/WhatsApp n'est branché, ne pas prétendre
-      // que le code a été livré (cf. NoopSmsProvider dans services/smsService.ts).
+      // Honnête : ne pas prétendre que le code a été livré.
       return res.status(503).json({ error: "Envoi du code impossible pour le moment. Réessayez plus tard." });
     }
 
@@ -906,6 +1030,12 @@ export const addMyVerificationDoc = async (req: any, res: Response) => {
   }
   if (!file_path || typeof file_path !== 'string') {
     return res.status(400).json({ error: 'Référence de fichier manquante' });
+  }
+  // SÉCURITÉ : le fichier doit se trouver dans le dossier de l'utilisateur
+  // (bucket privé « verification », chemin `${userId}/…`). Sans ce contrôle, on
+  // pourrait référencer — et faire lire par un modérateur — le document d'un autre.
+  if (!file_path.startsWith(`${userId}/`) || file_path.includes('..')) {
+    return res.status(403).json({ error: 'Chemin de document non autorisé' });
   }
 
   try {

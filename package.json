@@ -7,7 +7,6 @@
     "dev:all": "concurrently \"npm run dev --prefix frontend-user\" \"npm run dev --prefix backend\" \"npm run dev --prefix frontend-admin\" \"npm run dev --prefix frontend-commercial\"",
     "dev:frontend": "npm run dev --prefix frontend-user",
     "dev:backend": "npm run dev --prefix backend",
-    "dev:admin-old": "npm run dev --prefix admin",
     "dev:admin": "npm run dev --prefix frontend-admin",
     "dev:commercial": "npm run dev --prefix frontend-commercial",
     "gen:types": "npm run gen:types --prefix frontend-user && npm run gen:types --prefix backend",

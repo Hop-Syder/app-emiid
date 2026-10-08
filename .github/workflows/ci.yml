@@ -1,0 +1,68 @@
+# ==============================================================================
+# EmiID — Intégration continue
+# @author @hopsyder
+# Vérifie à chaque push / PR que le backend compile et que le frontend-user
+# passe le typecheck et les tests unitaires.
+# ==============================================================================
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend (build + tests)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      # Les tests backend sont des tests d'intégration contre un vrai projet
+      # Supabase : ils ne s'exécutent que si les secrets sont configurés.
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - name: Build TypeScript
+        run: npm run build
+      - name: Tests unitaires (sans Supabase)
+        run: node --test tests/mfa.test.js tests/validations.test.js
+      - name: Tests d'intégration
+        if: env.SUPABASE_URL != ''
+        run: npm test
+
+  frontend-user:
+    name: Frontend user (typecheck + tests + lint)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend-user
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend-user/package-lock.json
+      - run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Tests unitaires
+        run: npm test -- --ci
+      # Lint non bloquant tant que la dette existante (22 erreurs) n'est pas résorbée.
+      - name: Lint
+        run: npm run lint
+        continue-on-error: true

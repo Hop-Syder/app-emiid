@@ -1,28 +1,29 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Onglet Paramètres « Horaires & Services » — Adresse physique, planning d'ouverture et catalogue de prestations.
+ * @description Onglet Paramètres « Adresse & Services » — localisation (pays, commune,
+ *              adresse, point GPS), planning d'ouverture et catalogue de prestations.
+ *              L'adresse vit désormais dans LocationSection : elle était saisie
+ *              à deux endroits.
  * @created 2026-06-13
- * @updated 2026-08-30
+ * @updated 2026-10-08
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
 
 "use client"
 
-import { MapPin, Plus, Trash2, Clock, Sparkles } from "lucide-react"
+import { Plus, Trash2, Clock, Sparkles } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import type { UserProfileData, OpeningHour, ServiceItem } from "@/hooks/use-settings"
-import { SectionCard, Field, INPUT, TEXTAREA, SaveBar } from "./settings-primitives"
+import { LocationSection } from "./location-section"
+import { SectionCard, INPUT } from "./settings-primitives"
 
 interface SectionProps {
   profile: UserProfileData
   setProfile: (profile: UserProfileData) => void
-  saving: boolean
-  handleSave: () => void
-  handleCancel: () => void
 }
 
 const DAYS: { day: number; label: string }[] = [
@@ -35,7 +36,7 @@ const DAYS: { day: number; label: string }[] = [
   { day: 0, label: "Dimanche" },
 ]
 
-export function HoursPricingSection({ profile, setProfile, saving, handleSave, handleCancel }: SectionProps) {
+export function HoursPricingSection({ profile, setProfile }: SectionProps) {
   const hoursByDay = new Map<number, OpeningHour>((profile.opening_hours || []).map((h) => [h.day, h]))
 
   const getDay = (day: number): OpeningHour =>
@@ -58,25 +59,8 @@ export function HoursPricingSection({ profile, setProfile, saving, handleSave, h
 
   return (
     <div className="space-y-4">
-      {/* ── Adresse physique ──────────────────────────────────────────── */}
-      <SectionCard
-        title="Adresse physique & Repère"
-        icon={MapPin}
-        description="Indiquez l'emplacement de votre atelier, bureau ou point de vente pour guider vos clients."
-      >
-        <Field label="Adresse détaillée / Indication de repère">
-          <div className="relative">
-            <MapPin className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
-            <textarea
-              value={profile.address || ""}
-              onChange={(e) => setProfile({ ...profile, address: e.target.value })}
-              rows={2}
-              className={`${TEXTAREA} pl-10`}
-              placeholder="Ex : Immeuble Nexus, 2ème étage, Face Pharmacie du Port, Cotonou"
-            />
-          </div>
-        </Field>
-      </SectionCard>
+      {/* ── Localisation : pays, commune, quartier, adresse et point GPS ── */}
+      <LocationSection profile={profile} setProfile={setProfile} />
 
       {/* ── Horaires d'ouverture ──────────────────────────────────────── */}
       <SectionCard
@@ -87,6 +71,7 @@ export function HoursPricingSection({ profile, setProfile, saving, handleSave, h
         <div className="divide-y divide-border">
           {DAYS.map(({ day, label }) => {
             const h = getDay(day)
+            const invalid = !h.closed && (!h.open || !h.close || h.open >= h.close)
             return (
               <div key={day} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
                 <span className="w-24 shrink-0 text-sm font-bold text-foreground">{label}</span>
@@ -106,8 +91,9 @@ export function HoursPricingSection({ profile, setProfile, saving, handleSave, h
                       type="time"
                       value={h.close}
                       onChange={(e) => updateHour(day, { close: e.target.value })}
-                      className={`${INPUT} h-10 w-28 text-center text-xs font-bold`}
+                      className={`${INPUT} h-10 w-28 text-center text-xs font-bold ${invalid ? "border-rose-400" : ""}`}
                     />
+                    {invalid && <span className="text-[11px] font-semibold text-rose-600">Fermeture avant l&apos;ouverture</span>}
                   </div>
                 )}
 
@@ -191,8 +177,6 @@ export function HoursPricingSection({ profile, setProfile, saving, handleSave, h
           </Button>
         </div>
       </SectionCard>
-
-      <SaveBar saving={saving} handleSave={handleSave} handleCancel={handleCancel} />
     </div>
   )
 }

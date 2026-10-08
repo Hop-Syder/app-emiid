@@ -8,6 +8,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { supabase, supabaseAdmin } from '../config/supabase';
 import { logger } from '../utils/logger';
+import { decodeJwtClaims, hasVerifiedTotp } from '../utils/mfa';
 
 /**
  * Middleware pour sécuriser les routes avec un Access Token Supabase.
@@ -66,8 +67,20 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
       }
     }
 
+    // 2FA (TOTP) : un compte qui a activé une application d'authentification
+    // doit présenter une session de niveau aal2. Sans ce contrôle, un mot de
+    // passe volé suffirait à appeler l'API en contournant l'écran de code.
+    const claims = decodeJwtClaims(token);
+    if (hasVerifiedTotp(user) && claims.aal !== 'aal2') {
+      return res.status(403).json({
+        error: 'MFA_REQUIRED',
+        message: "Saisissez le code de votre application d'authentification pour continuer.",
+      });
+    }
+
     // Injection de l'utilisateur dans l'objet Request pour les controllers suivants
     (req as any).user = user;
+    (req as any).authClaims = claims;
     
     next();
   } catch (err) {

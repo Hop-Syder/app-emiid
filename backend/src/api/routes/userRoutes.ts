@@ -17,6 +17,8 @@ import {
   deactivateMyAccount,
   deleteMyAccount,
   verifyPin,
+  setMyPin,
+  disableMyPin,
   requestPinReset,
   resetMyPin,
   requestPhoneVerification,
@@ -70,6 +72,14 @@ router.delete('/account', deleteMyAccount);
 // @route   POST /api/users/verify-pin
 // @desc    Vérifier le code PIN
 router.post('/verify-pin', pinLimiter, verifyPin);
+
+// @route   POST /api/users/pin
+// @desc    Créer ou changer le PIN (ancien PIN ou code TOTP récent exigé)
+router.post('/pin', pinLimiter, setMyPin);
+
+// @route   POST /api/users/pin/disable
+// @desc    Désactiver le PIN (ancien PIN ou code TOTP récent exigé)
+router.post('/pin/disable', pinLimiter, disableMyPin);
 
 // @route   POST /api/users/pin/request-reset
 // @desc    Demander un OTP par e-mail pour réinitialiser le code PIN

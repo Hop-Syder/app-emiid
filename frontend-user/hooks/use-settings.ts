@@ -1,8 +1,20 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Hook de gestion de l'état global et de la persistance des paramètres utilisateur.
+ * @description Hook d'état et de persistance de la page Paramètres.
+ *
+ *              Deux régimes d'enregistrement, chacun adapté à sa matière :
+ *              - Profil (onglets Profil / Réseaux / Adresse & services) : formulaire
+ *                avec brouillon, compteur de modifications et bouton Enregistrer.
+ *                Seuls les champs modifiés sont envoyés au serveur.
+ *              - Préférences & notifications : interrupteurs enregistrés
+ *                immédiatement (thème, visibilité, alertes…), avec retour
+ *                arrière si le serveur refuse. Rien ne peut donc être perdu.
+ *
+ *              Tant qu'un brouillon de profil n'est pas enregistré, quitter la
+ *              page (rechargement, fermeture, lien interne) demande confirmation.
  * @created 2026-07-13
+ * @updated 2026-10-08
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -13,18 +25,41 @@ import { useState, useEffect, useMemo, useRef, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { fetchWithAuth } from "@/lib/apiClient"
-import { getReferenceCountriesCached } from "@/lib/location-cache"
 import { toast } from "sonner"
 import type { ExperienceItem } from "@/types"
 
-export type TabId =
-  | "profil"
-  | "reseaux"
-  | "horaires"
-  | "verification"
-  | "securite"
-  | "preferences"
-  | "plan"
+// ── Onglets ──────────────────────────────────────────────────────────────────
+
+export const TAB_IDS = [
+  "profil", "reseaux", "horaires", "verification", "securite", "preferences", "plan",
+] as const
+
+export type TabId = (typeof TAB_IDS)[number]
+
+/** Onglets dont le contenu est un brouillon de profil à enregistrer. */
+export const PROFILE_FORM_TABS: readonly TabId[] = ["profil", "reseaux", "horaires"]
+
+/**
+ * Anciens identifiants, conservés pour ne casser aucun lien existant :
+ * « apropos », « notifications » et « boost » désignaient des onglets
+ * désormais fusionnés ; « premium » était utilisé par personal-hero.
+ */
+const TAB_ALIASES: Record<string, TabId> = {
+  apropos: "profil",
+  notifications: "preferences",
+  boost: "plan",
+  premium: "plan",
+  adresse: "horaires",
+}
+
+/** Traduit une valeur de `?tab=` en onglet connu (ou null). */
+export function resolveTab(raw: string | null | undefined): TabId | null {
+  if (!raw) return null
+  if ((TAB_IDS as readonly string[]).includes(raw)) return raw as TabId
+  return TAB_ALIASES[raw] ?? null
+}
+
+// ── Types ────────────────────────────────────────────────────────────────────
 
 export interface OpeningHour {
   day: number // 0 = dimanche … 6 = samedi
@@ -46,6 +81,7 @@ export interface UserProfileData {
   email: string
   bio: string
   business_name: string
+  /** Vide si l'utilisateur n'a pas de photo : l'image par défaut n'est qu'un affichage. */
   avatar_url: string
   district: string | null
   /** Commune administrative choisie explicitement (Bénin). */
@@ -71,7 +107,6 @@ export interface UserProfileData {
   show_contact: boolean
   phone_verified?: boolean
   has_password?: boolean
-  // ── Paramètres avancés ──
   slogan: string
   years_experience: number | null
   website: string
@@ -85,15 +120,43 @@ export interface UserProfileData {
   opening_hours: OpeningHour[]
   services: ServiceItem[]
   experiences: ExperienceItem[]
-  gender?: "male" | "female" | "other" | string
-  birth_date?: string
-  department_id?: string
-  department_name?: string
-  commune_name?: string
-  arrondissement?: string
-  neighborhood?: string
   slug?: string
+  /** Canaux de certification du téléphone réellement disponibles (serveur). */
+  phone_verification_channels: ("sms" | "whatsapp")[]
 }
+
+/**
+ * Champs affichés mais jamais modifiables depuis cette page : ils ne comptent
+ * pas comme des modifications et ne sont jamais envoyés au serveur.
+ * (Le PIN a ses propres routes sécurisées, cf. use-security-section.)
+ */
+const READ_ONLY_FIELDS: readonly (keyof UserProfileData)[] = [
+  "id", "email", "is_verified", "is_premium", "phone_verified", "has_password", "pin_enabled", "is_published",
+  "phone_verification_channels",
+]
+
+const DAY_LABELS = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"]
+
+/**
+ * Cohérence du brouillon avant envoi (le serveur applique les mêmes règles) :
+ * renvoie le premier problème à corriger, ou null.
+ */
+export function validateProfileDraft(p: UserProfileData): string | null {
+  for (const h of p.opening_hours) {
+    if (!h.closed && (!h.open || !h.close || h.open >= h.close)) {
+      return `Horaires du ${DAY_LABELS[h.day] ?? "jour"} : la fermeture doit être après l'ouverture.`
+    }
+  }
+  for (const e of p.experiences) {
+    if (!e.current && e.startDate && e.endDate && e.startDate > e.endDate) {
+      return `Expérience « ${e.title || "sans titre"} » : la date de fin précède la date de début.`
+    }
+  }
+  return null
+}
+
+/** Le pays se résout côté serveur à partir de ces trois champs : ils voyagent ensemble. */
+const COUNTRY_FIELDS: readonly (keyof UserProfileData)[] = ["country_id", "country_code", "country_name"]
 
 export const defaultNotificationSettings = {
   messages: true,
@@ -110,95 +173,63 @@ export const defaultPreferences = {
   public_profile: false,
 }
 
-export const defaultSecuritySettings = {
-  two_factor_enabled: false,
+export type NotificationSettings = typeof defaultNotificationSettings
+export type AppPreferences = typeof defaultPreferences
+
+const EMPTY_PROFILE: UserProfileData = {
+  id: "", first_name: "", last_name: "", email: "", bio: "", business_name: "", avatar_url: "",
+  category: "Artisan", role: null, specialty: "", activity_domain: "",
+  country_id: "", country_code: "", country_name: "", city: "", district: null, commune_id: null,
+  tags: [], latitude: null, longitude: null, is_nomad: false, pin_enabled: false, phone: "",
+  is_published: false, is_verified: false, is_premium: false, show_contact: true,
+  phone_verified: false, has_password: false, slogan: "", years_experience: null,
+  website: "", facebook_url: "", instagram_url: "", tiktok_url: "", linkedin_url: "",
+  secondary_phone: "", public_email: "", address: "", opening_hours: [], services: [], experiences: [],
+  phone_verification_channels: [],
 }
+
+const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b)
+
+/** Liste des champs éditables qui diffèrent entre deux versions du profil. */
+function changedFields(current: UserProfileData, saved: UserProfileData): (keyof UserProfileData)[] {
+  return (Object.keys(current) as (keyof UserProfileData)[]).filter(
+    (k) => !READ_ONLY_FIELDS.includes(k) && !same(current[k], saved[k]),
+  )
+}
+
+// ── Hook ─────────────────────────────────────────────────────────────────────
 
 export function useSettings() {
   const router = useRouter()
   const supabase = useMemo(() => createClient(), [])
   const isMountedRef = useRef(true)
 
-  const [activeTab, setActiveTab] = useState<TabId>("profil")
+  const [activeTab, setActiveTabState] = useState<TabId>("profil")
 
-  // Ouverture directe d'un onglet via ?tab= (liens internes, retour de paiement
-  // FedaPay…). Lu depuis window plutôt que useSearchParams : pas de contrainte
-  // de Suspense, et la valeur est validée contre la liste des onglets connus.
+  // Ouverture directe via ?tab= (liens internes, retour de paiement FedaPay…).
+  // Lu depuis window plutôt que useSearchParams : pas de contrainte de Suspense.
   useEffect(() => {
-    if (typeof window === "undefined") return
-    const requested = new URLSearchParams(window.location.search).get("tab")
-    const known: TabId[] = [
-      "profil", "reseaux", "horaires", "verification",
-      "securite", "preferences", "plan",
-    ]
-
-    // Anciens identifiants, conservés pour ne casser aucun lien existant :
-    // « apropos », « notifications » et « boost » désignaient des onglets
-    // désormais fusionnés. « premium » n'a jamais existé — personal-hero
-    // pointait dessus, et le lien ne menait donc nulle part.
-    const ALIASES: Record<string, TabId> = {
-      apropos: "profil",
-      notifications: "preferences",
-      boost: "plan",
-      premium: "plan",
-    }
-
-    if (!requested) return
-    if ((known as string[]).includes(requested)) {
-      setActiveTab(requested as TabId)
-    } else if (ALIASES[requested]) {
-      setActiveTab(ALIASES[requested])
-    }
+    const requested = resolveTab(new URLSearchParams(window.location.search).get("tab"))
+    if (requested) setActiveTabState(requested)
   }, [])
+
+  /** Change d'onglet et garde l'URL à jour, pour qu'un rechargement y revienne. */
+  const setActiveTab = useCallback((tab: TabId) => {
+    setActiveTabState(tab)
+    const url = new URL(window.location.href)
+    url.searchParams.set("tab", tab)
+    window.history.replaceState(window.history.state, "", url)
+  }, [])
+
   const [loadingStatus, setLoadingStatus] = useState<"loading" | "success" | "error">("loading")
   const [saving, setSaving] = useState(false)
-  const [notificationSettings, setNotificationSettings] = useState(defaultNotificationSettings)
-  const [preferences, setPreferences] = useState(defaultPreferences)
-  const [securitySettings, setSecuritySettings] = useState(defaultSecuritySettings)
-  const [profile, setProfile] = useState<UserProfileData>({
-    id: "",
-    first_name: "",
-    last_name: "",
-    email: "",
-    bio: "",
-    business_name: "",
-    avatar_url: "",
-    category: "Artisan",
-    role: null,
-    specialty: "",
-    activity_domain: "",
-    country_id: "",
-    country_code: "",
-    country_name: "",
-    city: "",
-    district: null,
-    commune_id: null,
-    tags: [],
-    latitude: null,
-    longitude: null,
-    is_nomad: false,
-    pin_enabled: false,
-    phone: "",
-    is_published: false,
-    is_verified: false,
-    is_premium: false,
-    show_contact: true,
-    phone_verified: false,
-    has_password: false,
-    slogan: "",
-    years_experience: null,
-    website: "",
-    facebook_url: "",
-    instagram_url: "",
-    tiktok_url: "",
-    linkedin_url: "",
-    secondary_phone: "",
-    public_email: "",
-    address: "",
-    opening_hours: [],
-    services: [],
-    experiences: [],
-  })
+
+  // Profil : brouillon (`profile`) + dernière version enregistrée (`savedProfile`).
+  const [profile, setProfile] = useState<UserProfileData>(EMPTY_PROFILE)
+  const [savedProfile, setSavedProfile] = useState<UserProfileData>(EMPTY_PROFILE)
+
+  const [notificationSettings, setNotificationSettings] = useState<NotificationSettings>(defaultNotificationSettings)
+  const [preferences, setPreferences] = useState<AppPreferences>(defaultPreferences)
 
   const loadUserProfile = useCallback(async () => {
     try {
@@ -207,90 +238,85 @@ export function useSettings() {
         fetchWithAuth("/api/users/me"),
         supabase.auth.getUser(),
       ])
-
       if (!isMountedRef.current) return
 
-      if (response.ok) {
-        const data = await response.json()
-        const loaded: UserProfileData = {
-          id: data.id || authUser?.id || "",
-          first_name: data.first_name || authUser?.user_metadata?.first_name || authUser?.user_metadata?.given_name || "",
-          last_name: data.last_name || authUser?.user_metadata?.last_name || authUser?.user_metadata?.family_name || "",
-          email: data.email || authUser?.email || "",
-          bio: data.bio || "",
-          business_name: data.business_name || "",
-          avatar_url: data.avatar_url || authUser?.user_metadata?.avatar_url || "/profil/avatar.jpg",
-          category: data.category || "Artisan",
-          role: data.role || null,
-          specialty: data.specialty || "",
-          activity_domain: data.activity_domain || "",
-          country_id: data.country_id || "",
-          country_code: data.country_code || "BJ",
-          country_name: data.country_name || "Bénin",
-          city: data.city || "",
-          district: data.district ?? null,
-          commune_id: data.commune_id ?? null,
-          tags: Array.isArray(data.tags) ? data.tags : [],
-          latitude: typeof data.latitude === "number" ? data.latitude : null,
-          longitude: typeof data.longitude === "number" ? data.longitude : null,
-          is_nomad: data.is_nomad ?? false,
-          pin_enabled: !!data.pin_enabled,
-          phone: data.phone || authUser?.phone || "",
-          is_published: !!data.is_published,
-          is_verified: !!data.is_verified,
-          is_premium: !!data.is_premium,
-          show_contact: data.show_contact !== false,
-          phone_verified: !!data.phone_verified,
-          has_password: !!data.has_password,
-          slogan: data.slogan || "",
-          years_experience: typeof data.years_experience === "number" ? data.years_experience : null,
-          website: data.website || "",
-          facebook_url: data.facebook_url || "",
-          instagram_url: data.instagram_url || "",
-          tiktok_url: data.tiktok_url || "",
-          linkedin_url: data.linkedin_url || "",
-          secondary_phone: data.secondary_phone || "",
-          public_email: data.public_email || "",
-          address: data.address || "",
-          opening_hours: Array.isArray(data.opening_hours) ? data.opening_hours : [],
-          services: Array.isArray(data.services) ? data.services : [],
-          experiences: Array.isArray(data.experiences) ? data.experiences : [],
-          gender: data.gender || "male",
-          birth_date: data.birth_date || "",
-          department_id: data.department_id || "",
-          department_name: data.department_name || "",
-          commune_name: data.commune_name || "",
-          arrondissement: data.arrondissement || "",
-          neighborhood: data.neighborhood || "",
-          slug: data.slug || "",
+      if (!response.ok) {
+        if (!authUser) return setLoadingStatus("error")
+        // API indisponible : on affiche au moins l'identité du compte.
+        const fallback: UserProfileData = {
+          ...EMPTY_PROFILE,
+          id: authUser.id,
+          first_name: authUser.user_metadata?.first_name || authUser.user_metadata?.given_name || "",
+          last_name: authUser.user_metadata?.last_name || authUser.user_metadata?.family_name || "",
+          email: authUser.email || "",
+          phone: authUser.phone || "",
+          avatar_url: authUser.user_metadata?.avatar_url || "",
         }
-        setProfile(loaded)
-        setNotificationSettings({ ...defaultNotificationSettings, ...(data.notification_preferences || {}) })
-        setPreferences({
-          ...defaultPreferences,
-          ...(data.app_preferences || {}),
-          public_profile: typeof data.app_preferences?.public_profile === "boolean"
-            ? data.app_preferences.public_profile
-            : !!data.is_published,
-        })
-        setSecuritySettings({ ...defaultSecuritySettings, ...(data.security_preferences || {}) })
+        setProfile(fallback)
+        setSavedProfile(fallback)
         setLoadingStatus("success")
-        // Le profil rendu par le serveur devient le point de comparaison :
-        // à partir d'ici, tout écart est une modification de l'utilisateur.
-        setProfile((fresh) => { savedSnapshot.current = JSON.stringify(fresh); return fresh })
-      } else if (authUser) {
-        setProfile(prev => ({
-          ...prev,
-          first_name: authUser.user_metadata?.first_name || authUser.user_metadata?.given_name || prev.first_name,
-          last_name: authUser.user_metadata?.last_name || authUser.user_metadata?.family_name || prev.last_name,
-          email: authUser.email || prev.email,
-          phone: authUser.phone || prev.phone,
-          avatar_url: authUser.user_metadata?.avatar_url || prev.avatar_url,
-        }))
-        setLoadingStatus("success")
-      } else {
-        setLoadingStatus("error")
+        return
       }
+
+      const data = await response.json()
+      const loaded: UserProfileData = {
+        id: data.id || authUser?.id || "",
+        first_name: data.first_name || authUser?.user_metadata?.first_name || authUser?.user_metadata?.given_name || "",
+        last_name: data.last_name || authUser?.user_metadata?.last_name || authUser?.user_metadata?.family_name || "",
+        email: data.email || authUser?.email || "",
+        bio: data.bio || "",
+        business_name: data.business_name || "",
+        // Pas d'image par défaut ici : elle serait enregistrée comme une vraie photo.
+        avatar_url: data.avatar_url || authUser?.user_metadata?.avatar_url || "",
+        category: data.category || "Artisan",
+        role: data.role || null,
+        specialty: data.specialty || "",
+        activity_domain: data.activity_domain || "",
+        country_id: data.country_id || "",
+        country_code: data.country_code || "BJ",
+        country_name: data.country_name || "Bénin",
+        city: data.city || "",
+        district: data.district ?? null,
+        commune_id: data.commune_id ?? null,
+        tags: Array.isArray(data.tags) ? data.tags : [],
+        latitude: typeof data.latitude === "number" ? data.latitude : null,
+        longitude: typeof data.longitude === "number" ? data.longitude : null,
+        is_nomad: data.is_nomad ?? false,
+        pin_enabled: !!data.pin_enabled,
+        phone: data.phone || authUser?.phone || "",
+        is_published: !!data.is_published,
+        is_verified: !!data.is_verified,
+        is_premium: !!data.is_premium,
+        show_contact: data.show_contact !== false,
+        phone_verified: !!data.phone_verified,
+        has_password: !!data.has_password,
+        slogan: data.slogan || "",
+        years_experience: typeof data.years_experience === "number" ? data.years_experience : null,
+        website: data.website || "",
+        facebook_url: data.facebook_url || "",
+        instagram_url: data.instagram_url || "",
+        tiktok_url: data.tiktok_url || "",
+        linkedin_url: data.linkedin_url || "",
+        secondary_phone: data.secondary_phone || "",
+        public_email: data.public_email || "",
+        address: data.address || "",
+        opening_hours: Array.isArray(data.opening_hours) ? data.opening_hours : [],
+        services: Array.isArray(data.services) ? data.services : [],
+        experiences: Array.isArray(data.experiences) ? data.experiences : [],
+        slug: data.slug || "",
+        phone_verification_channels: Array.isArray(data.phone_verification_channels) ? data.phone_verification_channels : [],
+      }
+      setProfile(loaded)
+      setSavedProfile(loaded)
+      setNotificationSettings({ ...defaultNotificationSettings, ...(data.notification_preferences || {}) })
+      setPreferences({
+        ...defaultPreferences,
+        ...(data.app_preferences || {}),
+        public_profile: typeof data.app_preferences?.public_profile === "boolean"
+          ? data.app_preferences.public_profile
+          : !!data.is_published,
+      })
+      setLoadingStatus("success")
     } catch {
       if (isMountedRef.current) {
         toast.error("Impossible de charger votre profil")
@@ -301,39 +327,40 @@ export function useSettings() {
 
   useEffect(() => {
     isMountedRef.current = true
-
-    const loadRefs = async () => {
-      try {
-        await Promise.all([
-          fetchWithAuth("/api/reference/sectors"),
-          fetchWithAuth("/api/reference/professions"),
-          getReferenceCountriesCached(),
-        ])
-      } catch {
-        /* non-blocking */
-      }
-    }
-
     void loadUserProfile()
-    void loadRefs()
-
     return () => {
       isMountedRef.current = false
     }
   }, [loadUserProfile])
 
-  const handleSave = useCallback(async () => {
+  // ── Profil : brouillon ──────────────────────────────────────────────────────
+
+  const dirtyFields = useMemo(() => changedFields(profile, savedProfile), [profile, savedProfile])
+  const modifiedCount = dirtyFields.length
+  const isDirty = modifiedCount > 0
+
+  const saveProfile = useCallback(async () => {
+    const fields = changedFields(profile, savedProfile)
+    if (fields.length === 0) return
+    const problem = validateProfileDraft(profile)
+    if (problem) {
+      toast.error(problem)
+      return
+    }
+    if (fields.some((f) => COUNTRY_FIELDS.includes(f))) {
+      COUNTRY_FIELDS.forEach((f) => { if (!fields.includes(f)) fields.push(f) })
+    }
+    // Seuls les champs modifiés partent : on n'écrase jamais une donnée que
+    // l'utilisateur n'a pas touchée.
+    const body = Object.fromEntries(fields.map((f) => [f, profile[f]]))
+
     setSaving(true)
     try {
-      const res = await fetchWithAuth("/api/users/me", { method: "PUT", body: JSON.stringify(profile) })
+      const res = await fetchWithAuth("/api/users/me", { method: "PUT", body: JSON.stringify(body) })
       if (!isMountedRef.current) return
       if (res.ok) {
-        // Ce qui vient d'être envoyé devient le nouveau repère : sans cela, la
-        // barre « modifications non enregistrées » resterait affichée après un
-        // enregistrement réussi.
-        savedSnapshot.current = JSON.stringify(profile)
-        setProfile((p) => ({ ...p }))
-        toast.success("Profil mis à jour !")
+        setSavedProfile(profile)
+        toast.success("Profil mis à jour")
       } else {
         const d = await res.json().catch(() => null)
         toast.error(d?.error || "Erreur lors de la mise à jour")
@@ -341,65 +368,100 @@ export function useSettings() {
     } catch {
       toast.error("Erreur réseau")
     } finally {
-      if (isMountedRef.current) {
-        setSaving(false)
-      }
+      if (isMountedRef.current) setSaving(false)
     }
-  }, [profile])
+  }, [profile, savedProfile])
 
-  // Copie figée du profil tel que le serveur l'a rendu. Sans elle, impossible
-  // de dire si l'utilisateur a modifié quoi que ce soit : le seul fait de taper
-  // puis d'effacer laisserait croire à des changements en attente.
-  const savedSnapshot = useRef<string>("")
-
-  const handleCancel = useCallback(() => {
-    void loadUserProfile()
+  /** Annule le brouillon sans recharger la page. */
+  const discardProfile = useCallback(() => {
+    setProfile(savedProfile)
     toast.info("Modifications annulées")
-  }, [loadUserProfile])
+  }, [savedProfile])
 
-  const saveSettings = useCallback(async (
-    payload: {
-      notification_preferences?: typeof defaultNotificationSettings
-      app_preferences?: typeof defaultPreferences
-      security_preferences?: typeof defaultSecuritySettings
-    },
-    successMessage: string,
-  ): Promise<boolean> => {
-    setSaving(true)
+  /**
+   * Met à jour un champ en lecture seule (ex. téléphone certifié, PIN activé)
+   * dans le brouillon ET la version enregistrée : c'est le serveur qui a
+   * changé, pas un brouillon de l'utilisateur.
+   */
+  const applyServerProfilePatch = useCallback((patch: Partial<UserProfileData>) => {
+    setProfile((p) => ({ ...p, ...patch }))
+    setSavedProfile((p) => ({ ...p, ...patch }))
+  }, [])
+
+  // ── Préférences & notifications : enregistrement immédiat ──────────────────
+
+  const putSettings = useCallback(async (payload: {
+    notification_preferences?: NotificationSettings
+    app_preferences?: AppPreferences
+  }): Promise<boolean> => {
     try {
       const res = await fetchWithAuth("/api/users/settings", { method: "PUT", body: JSON.stringify(payload) })
-      if (!isMountedRef.current) return false
-
       if (!res.ok) {
         const d = await res.json().catch(() => null)
         toast.error(d?.error || "Erreur lors de la sauvegarde")
         return false
       }
-
-      const data = await res.json()
-      if (data.notification_preferences) {
-        setNotificationSettings({ ...defaultNotificationSettings, ...data.notification_preferences })
-      }
-      if (data.app_preferences) {
-        setPreferences({ ...defaultPreferences, ...data.app_preferences })
-        setProfile(prev => ({ ...prev, is_published: !!data.app_preferences.public_profile }))
-      }
-      if (data.security_preferences) {
-        setSecuritySettings({ ...defaultSecuritySettings, ...data.security_preferences })
-      }
-      toast.success(successMessage)
       return true
     } catch {
       toast.error("Erreur réseau")
       return false
-    } finally {
-      if (isMountedRef.current) {
-        setSaving(false)
-      }
     }
   }, [])
 
+  /** Applique tout de suite une préférence, puis l'enregistre (retour arrière si refus). */
+  const updatePreferences = useCallback(async (patch: Partial<AppPreferences>) => {
+    const previous = preferences
+    const next = { ...preferences, ...patch }
+    setPreferences(next)
+    const ok = await putSettings({ app_preferences: next })
+    if (!isMountedRef.current) return
+    if (!ok) return setPreferences(previous)
+    if (patch.public_profile !== undefined) applyServerProfilePatch({ is_published: next.public_profile })
+  }, [preferences, putSettings, applyServerProfilePatch])
+
+  const updateNotifications = useCallback(async (patch: Partial<NotificationSettings>, persist = true) => {
+    const previous = notificationSettings
+    const next = { ...notificationSettings, ...patch }
+    setNotificationSettings(next)
+    if (!persist) return
+    const ok = await putSettings({ notification_preferences: next })
+    if (isMountedRef.current && !ok) setNotificationSettings(previous)
+  }, [notificationSettings, putSettings])
+
+  // ── Garde-fou : brouillon non enregistré ────────────────────────────────────
+
+  useEffect(() => {
+    if (!isDirty) return
+
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault()
+      e.returnValue = ""
+    }
+
+    // Les liens internes (next/link) ne déclenchent pas beforeunload : on les
+    // intercepte en phase de capture, avant le routeur de Next.
+    const onClick = (e: MouseEvent) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
+      const anchor = (e.target as HTMLElement | null)?.closest?.("a[href]") as HTMLAnchorElement | null
+      if (!anchor || anchor.target === "_blank") return
+      const url = new URL(anchor.href, window.location.href)
+      if (url.origin !== window.location.origin || url.pathname === window.location.pathname) return
+      if (!window.confirm("Vous avez des modifications non enregistrées. Quitter quand même ?")) {
+        e.preventDefault()
+        e.stopPropagation()
+      }
+    }
+
+    window.addEventListener("beforeunload", onBeforeUnload)
+    document.addEventListener("click", onClick, true)
+    return () => {
+      window.removeEventListener("beforeunload", onBeforeUnload)
+      document.removeEventListener("click", onClick, true)
+    }
+  }, [isDirty])
+
   const handleLogout = useCallback(async () => {
+    if (isDirty && !window.confirm("Vous avez des modifications non enregistrées. Se déconnecter quand même ?")) return
     try {
       await supabase.auth.signOut()
       sessionStorage.removeItem("emiid_pin_verified")
@@ -409,38 +471,27 @@ export function useSettings() {
     } catch {
       toast.error("Impossible de se déconnecter")
     }
-  }, [supabase, router])
-
-  // Comparaison structurelle, pas par référence : setProfile recrée l'objet à
-  // chaque frappe, une égalité d'identité serait toujours fausse.
-  const modifiedCount = useMemo(() => {
-    if (!savedSnapshot.current) return 0
-    let base: Record<string, unknown>
-    try { base = JSON.parse(savedSnapshot.current) } catch { return 0 }
-    const current = profile as unknown as Record<string, unknown>
-    return Object.keys(current).filter(
-      (k) => JSON.stringify(current[k]) !== JSON.stringify(base[k]),
-    ).length
-  }, [profile])
+  }, [supabase, router, isDirty])
 
   return {
-    modifiedCount,
-    isDirty: modifiedCount > 0,
     activeTab,
     setActiveTab,
     loadingStatus,
     saving,
-    notificationSettings,
-    setNotificationSettings,
-    preferences,
-    setPreferences,
-    securitySettings,
-    setSecuritySettings,
+    // Profil
     profile,
     setProfile,
-    handleSave,
-    handleCancel,
-    saveSettings,
+    modifiedCount,
+    isDirty,
+    saveProfile,
+    discardProfile,
+    applyServerProfilePatch,
+    // Préférences
+    preferences,
+    updatePreferences,
+    notificationSettings,
+    updateNotifications,
+    // Compte
     handleLogout,
     loadUserProfile,
   }

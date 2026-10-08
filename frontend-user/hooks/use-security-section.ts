@@ -1,8 +1,16 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Hook de sécurité pour piloter la double authentification, le code PIN et la suppression/désactivation de compte.
+ * @description Hook de l'onglet Sécurité : double authentification TOTP
+ *              (Google / Microsoft Authenticator), code PIN, désactivation et
+ *              suppression du compte.
+ *
+ *              Toute action sensible passe d'abord par une vérification
+ *              d'identité (IdentityCheckDialog). Pour le PIN, le backend exige
+ *              la même preuve : ancien PIN, ou code TOTP saisi il y a moins de
+ *              5 minutes (cf. POST /api/users/pin et /api/users/pin/disable).
  * @created 2026-07-13
+ * @updated 2026-10-08
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -15,61 +23,27 @@ import { createClient } from "@/lib/supabase/client"
 import { fetchWithAuth, readApiError } from "@/lib/apiClient"
 import { toast } from "sonner"
 import type { UserProfileData } from "./use-settings"
+import type { IdentityMethod } from "@/components/parametre-content/security-dialogs"
 
-export interface SecuritySectionHookProps {
-  profile: UserProfileData
-  setProfile: (profile: UserProfileData) => void
-  securitySettings: { two_factor_enabled: boolean }
-  setSecuritySettings: (settings: { two_factor_enabled: boolean }) => void
-  saveSettings: (payload: {
-    security_preferences?: { two_factor_enabled: boolean }
-  }, successMessage: string) => Promise<boolean>
+export type SensitiveAction = "pin-change" | "pin-disable" | "totp-disable" | "deactivate" | "delete"
+
+const ACTION_TITLE: Record<SensitiveAction, string> = {
+  "pin-change": "Modifier le code PIN",
+  "pin-disable": "Désactiver le code PIN",
+  "totp-disable": "Désactiver la double authentification",
+  deactivate: "Désactiver le compte",
+  delete: "Supprimer le compte",
 }
 
-export type PendingActionType = "enable" | "disable" | "change" | "disable2fa" | "deactivate" | "delete" | null
+interface SecuritySectionHookProps {
+  profile: UserProfileData
+  setProfile: (profile: UserProfileData) => void
+}
 
-export function useSecuritySection({
-  profile,
-  setProfile,
-  setSecuritySettings,
-  saveSettings,
-}: SecuritySectionHookProps) {
+export function useSecuritySection({ profile, setProfile }: SecuritySectionHookProps) {
   const router = useRouter()
   const supabase = useMemo(() => createClient(), [])
   const isMountedRef = useRef(true)
-
-  // PIN state
-  const [pinDialogOpen, setPinDialogOpen] = useState(false)
-  const [pinStep, setPinStep] = useState<"enter" | "confirm">("enter")
-  const [tempPin, setTempPin] = useState("")
-  const [confirmPin, setConfirmPin] = useState("")
-  const [pinError, setPinError] = useState("")
-
-  // MFA state
-  const [mfaDialogOpen, setMfaDialogOpen] = useState(false)
-  const [mfaStep, setMfaStep] = useState<"phone" | "code">("phone")
-  const [mfaPhoneNumber, setMfaPhoneNumber] = useState("")
-  const [mfaChannel, setMfaChannel] = useState<"whatsapp" | "sms">("whatsapp")
-  const [mfaCode, setMfaCode] = useState("")
-  const [mfaLoading, setMfaLoading] = useState(false)
-  const [mfaFactorId, setMfaFactorId] = useState("")
-  const [mfaChallengeId, setMfaChallengeId] = useState("")
-
-  // Reauth state
-  const [reauthDialogOpen, setReauthDialogOpen] = useState(false)
-  const [reauthPassword, setReauthPassword] = useState("")
-  const [reauthPin, setReauthPin] = useState("")
-  const [showReauthPassword, setShowReauthPassword] = useState(false)
-  const [reauthLoading, setReauthLoading] = useState(false)
-  const [reauthError, setReauthError] = useState("")
-  const [pendingAction, setPendingAction] = useState<PendingActionType>(null)
-  // Jeton Turnstile de la réauth par mot de passe — transmis à signInWithPassword,
-  // Supabase le vérifie lui-même côté serveur (protection captcha du projet).
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null)
-
-  // Confirm dialog state
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false)
-  const [accountLoading, setAccountLoading] = useState(false)
 
   useEffect(() => {
     isMountedRef.current = true
@@ -78,371 +52,286 @@ export function useSecuritySection({
     }
   }, [])
 
-  const disablePin = useCallback(async () => {
+  // ── 2FA : état réel lu dans Supabase Auth (et non un simple drapeau) ──────
+  const [totpFactorId, setTotpFactorId] = useState<string | null>(null)
+  const [totpLoading, setTotpLoading] = useState(true)
+
+  const refreshFactors = useCallback(async () => {
+    const { data } = await supabase.auth.mfa.listFactors()
+    if (!isMountedRef.current) return
+    setTotpFactorId(data?.totp?.find((f) => f.status === "verified")?.id ?? null)
+    setTotpLoading(false)
+  }, [supabase])
+
+  useEffect(() => {
+    void refreshFactors()
+  }, [refreshFactors])
+
+  // ── Enrôlement TOTP ────────────────────────────────────────────────────────
+  const [enroll, setEnroll] = useState<{ open: boolean; factorId: string | null; qrCode: string | null; secret: string | null }>(
+    { open: false, factorId: null, qrCode: null, secret: null },
+  )
+  const [enrollLoading, setEnrollLoading] = useState(false)
+
+  const startTotpEnroll = useCallback(async () => {
+    setEnroll({ open: true, factorId: null, qrCode: null, secret: null })
+    // Un enrôlement abandonné laisse un facteur « unverified » qui bloquerait
+    // le suivant (nom en double) : on fait le ménage avant d'en créer un.
+    const { data: existing } = await supabase.auth.mfa.listFactors()
+    await Promise.all(
+      (existing?.all ?? [])
+        .filter((f) => f.factor_type === "totp" && f.status !== "verified")
+        .map((f) => supabase.auth.mfa.unenroll({ factorId: f.id })),
+    )
+    const { data, error } = await supabase.auth.mfa.enroll({ factorType: "totp", friendlyName: "EmiID" })
+    if (!isMountedRef.current) return
+    if (error || !data) {
+      toast.error(error?.message || "Impossible de démarrer l'activation")
+      setEnroll((e) => ({ ...e, open: false }))
+      return
+    }
+    setEnroll({ open: true, factorId: data.id, qrCode: data.totp.qr_code, secret: data.totp.secret })
+  }, [supabase])
+
+  const verifyTotpEnroll = useCallback(async (code: string): Promise<boolean> => {
+    if (!enroll.factorId) return false
+    setEnrollLoading(true)
+    const { error } = await supabase.auth.mfa.challengeAndVerify({ factorId: enroll.factorId, code })
+    if (!isMountedRef.current) return false
+    setEnrollLoading(false)
+    if (error) {
+      toast.error("Code incorrect ou expiré")
+      return false
+    }
+    setEnroll({ open: false, factorId: null, qrCode: null, secret: null })
+    await refreshFactors()
+    toast.success("Double authentification activée")
+    router.refresh()
+    return true
+  }, [enroll.factorId, supabase, refreshFactors, router])
+
+  const closeEnroll = useCallback((open: boolean) => {
+    if (open) return
+    // Fermer sans valider : on retire le facteur inachevé.
+    if (enroll.factorId) void supabase.auth.mfa.unenroll({ factorId: enroll.factorId })
+    setEnroll({ open: false, factorId: null, qrCode: null, secret: null })
+  }, [enroll.factorId, supabase])
+
+  // ── Vérification d'identité ────────────────────────────────────────────────
+  const [pendingAction, setPendingAction] = useState<SensitiveAction | null>(null)
+  const [identityLoading, setIdentityLoading] = useState(false)
+  const [identityError, setIdentityError] = useState("")
+  /** PIN actuel validé — transmis au backend comme preuve pour changer le PIN. */
+  const provenPinRef = useRef<string | undefined>(undefined)
+
+  /** Méthodes acceptées pour une action donnée, par ordre de préférence. */
+  const methodsFor = useCallback((action: SensitiveAction): IdentityMethod[] => {
+    const m: IdentityMethod[] = []
+    if (totpFactorId) m.push("totp")
+    if (action === "totp-disable") return m
+    if (profile.pin_enabled) m.push("pin")
+    // Le mot de passe ne prouve rien pour le PIN côté backend : réservé au compte.
+    if ((action === "deactivate" || action === "delete") && profile.has_password) m.push("password")
+    return m
+  }, [totpFactorId, profile.pin_enabled, profile.has_password])
+
+  const identityMethods = useMemo(
+    () => (pendingAction ? methodsFor(pendingAction) : []),
+    [pendingAction, methodsFor],
+  )
+
+  // ── PIN ────────────────────────────────────────────────────────────────────
+  const [pinDialogOpen, setPinDialogOpen] = useState(false)
+  const [pinSaving, setPinSaving] = useState(false)
+
+  const submitNewPin = useCallback(async (pin: string): Promise<boolean> => {
+    setPinSaving(true)
     try {
-      const res = await fetchWithAuth("/api/users/me", { method: "PUT", body: JSON.stringify({ ...profile, pin_enabled: false }) })
-      if (!isMountedRef.current) return
-      if (res.ok) {
-        setProfile({ ...profile, pin_enabled: false })
-        sessionStorage.removeItem("emiid_pin_verified")
-        toast.success("Verrouillage PIN désactivé")
-      } else {
-        toast.error(await readApiError(res, "Impossible de désactiver le PIN"))
+      const res = await fetchWithAuth("/api/users/pin", {
+        method: "POST",
+        body: JSON.stringify({ new_pin: pin, current_pin: provenPinRef.current }),
+      })
+      if (!isMountedRef.current) return false
+      if (!res.ok) {
+        toast.error(await readApiError(res, "Impossible d'enregistrer le code PIN"))
+        return false
       }
+      const wasEnabled = profile.pin_enabled
+      setProfile({ ...profile, pin_enabled: true })
+      sessionStorage.setItem("emiid_pin_verified", "true")
+      setPinDialogOpen(false)
+      toast.success(wasEnabled ? "Code PIN modifié" : "Code PIN activé")
+      return true
     } catch {
       toast.error("Erreur réseau")
+      return false
+    } finally {
+      provenPinRef.current = undefined
+      if (isMountedRef.current) setPinSaving(false)
     }
   }, [profile, setProfile])
 
-  const confirmDisable2fa = useCallback(async () => {
-    setIsConfirmOpen(false)
-    const success = await saveSettings({ security_preferences: { two_factor_enabled: false } }, "Double authentification désactivée")
-    if (success && isMountedRef.current) {
-      setSecuritySettings({ two_factor_enabled: false })
-    }
-  }, [saveSettings, setSecuritySettings])
-
-  const processAfterReauth = useCallback(async () => {
+  const disablePin = useCallback(async () => {
+    const res = await fetchWithAuth("/api/users/pin/disable", {
+      method: "POST",
+      body: JSON.stringify({ current_pin: provenPinRef.current }),
+    })
+    provenPinRef.current = undefined
     if (!isMountedRef.current) return
-    setReauthDialogOpen(false)
-    if (pendingAction === "enable" || pendingAction === "change") {
-      setPinStep("enter")
-      setTempPin("")
-      setConfirmPin("")
-      setPinError("")
-      setPinDialogOpen(true)
-    } else if (pendingAction === "disable") {
-      void disablePin()
-    } else if (pendingAction === "disable2fa") {
-      setIsConfirmOpen(true)
-    } else if (pendingAction === "deactivate") {
-      setIsConfirmOpen(true)
-    } else if (pendingAction === "delete") {
-      setIsConfirmOpen(true)
+    if (!res.ok) {
+      toast.error(await readApiError(res, "Impossible de désactiver le PIN"))
+      return
     }
+    setProfile({ ...profile, pin_enabled: false })
+    sessionStorage.removeItem("emiid_pin_verified")
+    toast.success("Code PIN désactivé")
+  }, [profile, setProfile])
+
+  // ── Compte ─────────────────────────────────────────────────────────────────
+  /** Action de compte prouvée, en attente de la confirmation finale. */
+  const [confirmAction, setConfirmAction] = useState<"deactivate" | "delete" | null>(null)
+  const [accountLoading, setAccountLoading] = useState(false)
+
+  const runAccountAction = useCallback(async () => {
+    const action = confirmAction
+    if (!action) return
+    setAccountLoading(true)
+    try {
+      const res = action === "delete"
+        ? await fetchWithAuth("/api/users/account", { method: "DELETE" })
+        : await fetchWithAuth("/api/users/account/deactivate", { method: "POST" })
+      if (!isMountedRef.current) return
+      if (!res.ok) {
+        toast.error(await readApiError(res, action === "delete" ? "Impossible de supprimer le compte" : "Impossible de désactiver le compte"))
+        return
+      }
+      await supabase.auth.signOut()
+      sessionStorage.removeItem("emiid_pin_verified")
+      toast.success(action === "delete" ? "Compte supprimé" : "Compte désactivé")
+      router.push("/")
+      router.refresh()
+    } catch {
+      toast.error("Erreur réseau")
+    } finally {
+      if (isMountedRef.current) {
+        setAccountLoading(false)
+        setConfirmAction(null)
+      }
+    }
+  }, [confirmAction, supabase, router])
+
+  // ── Enchaînement : action → preuve → exécution ───────────────────────────
+  const proceed = useCallback(async (action: SensitiveAction) => {
     setPendingAction(null)
-  }, [pendingAction, disablePin])
-
-  const handlePinToggle = useCallback((checked: boolean) => {
-    setReauthPassword("")
-    setReauthPin("")
-    setReauthError("")
-    setCaptchaToken(null)
-    if (checked) {
-      setPendingAction("enable")
-      setPinStep("enter")
-      setTempPin("")
-      setConfirmPin("")
-      setPinError("")
-      setPinDialogOpen(true)
-    } else {
-      setPendingAction("disable")
-      setReauthDialogOpen(true)
-    }
-  }, [])
-
-  const handleReauthSubmit = useCallback(async (e?: React.FormEvent) => {
-    if (e) e.preventDefault()
-
-    if (profile.pin_enabled) {
-      if (!reauthPin || reauthPin.length !== 6) {
-        setReauthError("Code PIN complet requis")
-        return
-      }
-      setReauthLoading(true)
-      setReauthError("")
-      try {
-        const res = await fetchWithAuth("/api/users/verify-pin", { method: "POST", body: JSON.stringify({ pin: reauthPin }) })
-        if (!isMountedRef.current) return
-        const data = await res.json()
-        if (res.ok && data.success) {
-          void processAfterReauth()
-        } else {
-          setReauthError(data.error || "Code PIN incorrect")
+    switch (action) {
+      case "pin-change":
+        setPinDialogOpen(true)
+        break
+      case "pin-disable":
+        await disablePin()
+        break
+      case "totp-disable": {
+        if (!totpFactorId) break
+        const { error } = await supabase.auth.mfa.unenroll({ factorId: totpFactorId })
+        if (error) toast.error(error.message)
+        else {
+          toast.success("Double authentification désactivée")
+          await refreshFactors()
+          // La session repasse en aal1 : on la rafraîchit pour l'aligner.
+          await supabase.auth.refreshSession()
         }
-      } catch {
-        setReauthError("Erreur de connexion")
-      } finally {
-        if (isMountedRef.current) {
-          setReauthLoading(false)
-        }
+        break
       }
-      return
+      case "deactivate":
+      case "delete":
+        setConfirmAction(action)
+        break
     }
+  }, [disablePin, totpFactorId, supabase, refreshFactors])
 
-    const isOAuth = profile.email && !profile.has_password
-    if (isOAuth) {
-      toast.info("Re-vérification simplifiée pour compte social", {
-        description: "En tant qu'utilisateur Google/Social, vos accès sensibles sont protégés par votre fournisseur d'identité."
-      })
-      void processAfterReauth()
+  /** Point d'entrée : demande la preuve d'identité si une méthode existe. */
+  const requestAction = useCallback((action: SensitiveAction) => {
+    setIdentityError("")
+    provenPinRef.current = undefined
+    if (methodsFor(action).length === 0) {
+      // Aucune preuve disponible (compte social sans PIN ni 2FA) : on passe
+      // directement à la confirmation explicite, comme auparavant.
+      void proceed(action)
       return
     }
+    setPendingAction(action)
+  }, [methodsFor, proceed])
 
-    if (!reauthPassword) {
-      setReauthError("Mot de passe requis")
-      return
-    }
-    if (!captchaToken) {
-      setReauthError("Merci de valider la vérification anti-robot")
-      return
-    }
-    setReauthLoading(true)
-    setReauthError("")
+  const submitIdentity = useCallback(async (method: IdentityMethod, secret: string, captchaToken: string | null) => {
+    if (!pendingAction) return
+    setIdentityLoading(true)
+    setIdentityError("")
     try {
-      // Le jeton accompagne la requête : Supabase le vérifie côté serveur
-      // (protection captcha activée sur le projet, cf. admin-login-form.tsx).
-      const { error } = await supabase.auth.signInWithPassword({
-        email: profile.email || "",
-        password: reauthPassword,
-        options: { captchaToken },
-      })
-      if (error) {
-        setReauthError("Mot de passe incorrect")
-        setCaptchaToken(null)
-        return
-      }
-      void processAfterReauth()
-    } catch (err) {
-      console.error("Reauth error:", err)
-      setReauthError("Erreur lors de la vérification")
-      setCaptchaToken(null)
-    } finally {
-      if (isMountedRef.current) {
-        setReauthLoading(false)
-      }
-    }
-  }, [profile, reauthPin, reauthPassword, captchaToken, processAfterReauth, supabase])
-
-  const handlePinSubmit = useCallback(async () => {
-    if (pinStep === "enter") {
-      if (tempPin.length !== 6) {
-        setPinError("Code incomplet")
-        return
-      }
-      setPinStep("confirm")
-      return
-    }
-    if (confirmPin !== tempPin) {
-      setPinError("Les codes ne correspondent pas")
-      return
-    }
-    try {
-      const res = await fetchWithAuth("/api/users/me", {
-        method: "PUT",
-        body: JSON.stringify({ ...profile, pin_enabled: true, pin_code: confirmPin })
-      })
-      if (!isMountedRef.current) return
-      if (res.ok) {
-        setProfile({ ...profile, pin_enabled: true })
-        setPinDialogOpen(false)
-        toast.success("Sécurité PIN activée !")
-        sessionStorage.setItem("emiid_pin_verified", "true")
+      if (method === "totp") {
+        if (!totpFactorId) throw new Error("Aucune application liée")
+        const { error } = await supabase.auth.mfa.challengeAndVerify({ factorId: totpFactorId, code: secret })
+        if (error) return setIdentityError("Code incorrect ou expiré")
+      } else if (method === "pin") {
+        const res = await fetchWithAuth("/api/users/verify-pin", { method: "POST", body: JSON.stringify({ pin: secret }) })
+        const data = await res.json().catch(() => ({}))
+        if (!res.ok || !data.success) return setIdentityError(data.error || "Code PIN incorrect")
+        provenPinRef.current = secret
       } else {
-        toast.error(await readApiError(res, "Erreur serveur"))
+        const { error } = await supabase.auth.signInWithPassword({
+          email: profile.email,
+          password: secret,
+          options: { captchaToken: captchaToken ?? undefined },
+        })
+        if (error) return setIdentityError("Mot de passe incorrect")
       }
+      if (!isMountedRef.current) return
+      await proceed(pendingAction)
     } catch {
-      toast.error("Erreur réseau")
-    }
-  }, [pinStep, tempPin, confirmPin, profile, setProfile])
-
-  const handleTwoFactorToggle = useCallback((checked: boolean) => {
-    if (checked) {
-      setMfaStep("phone")
-      setMfaPhoneNumber("")
-      setMfaCode("")
-      setMfaDialogOpen(true)
-    } else {
-      setPendingAction("disable2fa")
-      setReauthPassword("")
-      setReauthPin("")
-      setReauthError("")
-      setReauthDialogOpen(true)
-    }
-  }, [])
-
-  const handleMfaEnroll = useCallback(async () => {
-    if (!mfaPhoneNumber) {
-      toast.error("Veuillez entrer un numéro de téléphone")
-      return
-    }
-    setMfaLoading(true)
-    try {
-      const { data: enrollData, error: enrollError } = await supabase.auth.mfa.enroll({
-        phone: mfaPhoneNumber,
-        factorType: "phone",
-      })
-      if (enrollError) throw enrollError
-      if (!isMountedRef.current) return
-
-      setMfaFactorId(enrollData.id)
-
-      const { data: challengeData, error: challengeError } = await supabase.auth.mfa.challenge({
-        factorId: enrollData.id,
-      })
-      if (challengeError) throw challengeError
-
-      if (!isMountedRef.current) return
-      setMfaChallengeId(challengeData.id)
-      setMfaStep("code")
-      toast.success(`Code envoyé par ${mfaChannel === "whatsapp" ? "WhatsApp" : "SMS"}`)
-    } catch (error: any) {
-      console.error("MFA Enrollment Error:", error)
-      toast.error(error.message || "Erreur lors de l'envoi du code")
+      setIdentityError("Erreur lors de la vérification")
     } finally {
-      if (isMountedRef.current) {
-        setMfaLoading(false)
-      }
+      if (isMountedRef.current) setIdentityLoading(false)
     }
-  }, [mfaPhoneNumber, mfaChannel, supabase])
+  }, [pendingAction, totpFactorId, supabase, profile.email, proceed])
 
-  const handleMfaVerify = useCallback(async () => {
-    if (mfaCode.length < 6) {
-      toast.error("Veuillez entrer le code complet (6 chiffres)")
-      return
-    }
-    setMfaLoading(true)
-    try {
-      const { error: verifyError } = await supabase.auth.mfa.verify({
-        factorId: mfaFactorId,
-        challengeId: mfaChallengeId,
-        code: mfaCode,
-      })
-      if (verifyError) throw verifyError
+  // ── Interrupteurs de l'interface ─────────────────────────────────────────
+  const handlePinToggle = useCallback((checked: boolean) => {
+    if (checked && !profile.pin_enabled) setPinDialogOpen(true) // premier PIN : rien à prouver
+    else if (!checked && profile.pin_enabled) requestAction("pin-disable")
+  }, [profile.pin_enabled, requestAction])
 
-      if (!isMountedRef.current) return
-
-      const success = await saveSettings({ security_preferences: { two_factor_enabled: true } }, "Authentification 2FA activée et vérifiée !")
-      if (success && isMountedRef.current) {
-        setSecuritySettings({ two_factor_enabled: true })
-        setMfaDialogOpen(false)
-        router.refresh()
-      }
-    } catch (error: any) {
-      console.error("MFA Verification Error:", error)
-      toast.error(error.message || "Code invalide ou expiré")
-    } finally {
-      if (isMountedRef.current) {
-        setMfaLoading(false)
-      }
-    }
-  }, [mfaCode, mfaFactorId, mfaChallengeId, saveSettings, setSecuritySettings, router])
-
-  const handleDeactivateAccount = useCallback(() => {
-    setPendingAction("deactivate")
-    setReauthPassword("")
-    setReauthPin("")
-    setReauthError("")
-    setCaptchaToken(null)
-    setReauthDialogOpen(true)
-  }, [])
-
-  const handleDeleteAccount = useCallback(() => {
-    setPendingAction("delete")
-    setReauthPassword("")
-    setReauthPin("")
-    setReauthError("")
-    setCaptchaToken(null)
-    setReauthDialogOpen(true)
-  }, [])
-
-  const confirmDeactivateAccount = useCallback(async () => {
-    setIsConfirmOpen(false)
-    setAccountLoading(true)
-    try {
-      const res = await fetchWithAuth("/api/users/account/deactivate", { method: "POST" })
-      if (!isMountedRef.current) return
-      if (!res.ok) {
-        toast.error(await readApiError(res, "Impossible de désactiver le compte"))
-        return
-      }
-      await supabase.auth.signOut()
-      sessionStorage.removeItem("emiid_pin_verified")
-      toast.success("Compte désactivé")
-      router.push("/")
-      router.refresh()
-    } catch {
-      toast.error("Erreur réseau")
-    } finally {
-      if (isMountedRef.current) {
-        setAccountLoading(false)
-      }
-    }
-  }, [supabase, router])
-
-  const confirmDeleteAccount = useCallback(async () => {
-    setIsConfirmOpen(false)
-    setAccountLoading(true)
-    try {
-      const res = await fetchWithAuth("/api/users/account", { method: "DELETE" })
-      if (!isMountedRef.current) return
-      if (!res.ok) {
-        toast.error(await readApiError(res, "Impossible de supprimer le compte"))
-        return
-      }
-      await supabase.auth.signOut()
-      sessionStorage.removeItem("emiid_pin_verified")
-      toast.success("Compte supprimé")
-      router.push("/")
-      router.refresh()
-    } catch {
-      toast.error("Erreur réseau")
-    } finally {
-      if (isMountedRef.current) {
-        setAccountLoading(false)
-      }
-    }
-  }, [supabase, router])
+  const handleTotpToggle = useCallback((checked: boolean) => {
+    if (checked) void startTotpEnroll()
+    else requestAction("totp-disable")
+  }, [startTotpEnroll, requestAction])
 
   return {
+    // 2FA
+    totpEnabled: !!totpFactorId,
+    totpLoading,
+    enroll,
+    enrollLoading,
+    verifyTotpEnroll,
+    closeEnroll,
+    handleTotpToggle,
+    // PIN
     pinDialogOpen,
     setPinDialogOpen,
-    pinStep,
-    setPinStep,
-    tempPin,
-    setTempPin,
-    confirmPin,
-    setConfirmPin,
-    pinError,
-    setPinError,
-    mfaDialogOpen,
-    setMfaDialogOpen,
-    mfaStep,
-    setMfaStep,
-    mfaPhoneNumber,
-    setMfaPhoneNumber,
-    mfaChannel,
-    setMfaChannel,
-    mfaCode,
-    setMfaCode,
-    mfaLoading,
-    reauthDialogOpen,
-    setReauthDialogOpen,
-    reauthPassword,
-    setReauthPassword,
-    reauthPin,
-    setReauthPin,
-    showReauthPassword,
-    setShowReauthPassword,
-    reauthLoading,
-    reauthError,
-    captchaToken,
-    setCaptchaToken,
-    pendingAction,
-    setPendingAction,
-    isConfirmOpen,
-    setIsConfirmOpen,
-    accountLoading,
+    pinSaving,
+    submitNewPin,
     handlePinToggle,
-    handlePinSubmit,
-    handleTwoFactorToggle,
-    handleMfaEnroll,
-    handleMfaVerify,
-    handleReauthSubmit,
-    handleDeactivateAccount,
-    handleDeleteAccount,
-    confirmDisable2fa,
-    confirmDeactivateAccount,
-    confirmDeleteAccount,
+    // Vérification d'identité
+    pendingAction,
+    identityTitle: pendingAction ? ACTION_TITLE[pendingAction] : "",
+    identityMethods,
+    identityLoading,
+    identityError,
+    submitIdentity,
+    cancelIdentity: () => setPendingAction(null),
+    requestAction,
+    // Compte
+    confirmAction,
+    setConfirmAction,
+    accountLoading,
+    runAccountAction,
   }
 }

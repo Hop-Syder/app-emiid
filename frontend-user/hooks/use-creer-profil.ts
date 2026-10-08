@@ -71,7 +71,8 @@ export const buildProfilePayload = (formData: CreateProfileFormData, isPublished
         phone: formData.phone.trim(),
         email: formData.email.trim(),
         website: normalized || formData.website.trim(),
-        avatar_url: formData.avatar || null,
+        // L'image par défaut n'est qu'un affichage : elle ne doit jamais être enregistrée.
+        avatar_url: formData.avatar && formData.avatar !== "/profil/avatar.jpg" ? formData.avatar : null,
         card_variant: formData.card_variant,
         country_id: formData.country_id || null,
         country_code: formData.country_code || null,
