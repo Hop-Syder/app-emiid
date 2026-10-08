@@ -135,3 +135,6 @@ design-system/
 project-audit/
 evaluation/
 docs/
+# Python bytecode
+__pycache__/
+*.pyc

@@ -11,14 +11,14 @@
     "gen:types": "npx supabase gen types typescript --project-id \"${SUPABASE_PROJECT_ID:-orokyklztecsuvpbktwz}\" --schema public > types/database.types.ts && echo 'types/database.types.ts regenere'",
     "test": "jest",
     "test:watch": "jest --watch",
-    "dev:all": "concurrently \"npm run dev\" \"npm run dev --prefix backend\" \"npm run dev --prefix admin\"",
-    "dev:backend": "npm run dev --prefix backend",
-    "dev:admin": "npm run dev --prefix admin"
+    "dev:all": "concurrently \"npm run dev\" \"npm run dev --prefix ../backend\" \"npm run dev --prefix ../frontend-admin\"",
+    "dev:backend": "npm run dev --prefix ../backend",
+    "dev:admin": "npm run dev --prefix ../frontend-admin"
   },
   "dependencies": {
     "@emoji-mart/data": "^1.2.1",
     "@emoji-mart/react": "^1.1.1",
-    "@emotion/is-prop-valid": "latest",
+    "@emotion/is-prop-valid": "1.4.0",
     "@hookform/resolvers": "^3.10.0",
     "@marsidev/react-turnstile": "^1.1.0",
     "@radix-ui/react-accordion": "1.2.2",
