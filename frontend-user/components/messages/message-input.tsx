@@ -188,6 +188,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
         <Button 
           type="submit" 
           size="icon" 
+          aria-label="Envoyer le message"
           disabled={isDisabled || (!text.trim() && !file)}
           className={cn(
             "h-9 w-9 rounded-full shadow-sm transition-all duration-200 shrink-0",

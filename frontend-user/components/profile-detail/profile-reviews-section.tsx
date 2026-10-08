@@ -221,7 +221,8 @@ export function ProfileReviewsSection({
                             variant="ghost"
                             size="icon"
                             onClick={() => setIsAddReviewOpen(false)}
-                            className="h-7 w-7 rounded-lg text-slate-400 hover:text-foreground"
+                            aria-label="Fermer"
+                            className="h-10 w-10 md:h-7 md:w-7 rounded-lg text-slate-400 hover:text-foreground"
                         >
                             <X className="h-4 w-4" />
                         </Button>

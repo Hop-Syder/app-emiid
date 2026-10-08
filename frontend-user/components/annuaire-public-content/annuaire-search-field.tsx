@@ -75,7 +75,7 @@ export function AnnuaireSearchField({ searchQuery, onSearchChange }: AnnuaireSea
                         type="button"
                         onClick={clear}
                         aria-label="Effacer la recherche"
-                        className="ml-2 shrink-0 flex items-center justify-center h-6 w-6 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                        className="ml-1 shrink-0 flex items-center justify-center h-10 w-10 lg:h-6 lg:w-6 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                     >
                         <X className="w-3.5 h-3.5" />
                     </button>
@@ -85,7 +85,7 @@ export function AnnuaireSearchField({ searchQuery, onSearchChange }: AnnuaireSea
                     type="button"
                     onClick={() => setVoiceOpen(true)}
                     aria-label="Rechercher à la voix"
-                    className="ml-2 shrink-0 flex items-center justify-center h-7 w-7 rounded-full text-muted-foreground hover:text-[#013ff4] hover:bg-[#013ff4]/10 transition-colors lg:hidden"
+                    className="ml-1 shrink-0 flex items-center justify-center h-10 w-10 rounded-full text-muted-foreground hover:text-[#013ff4] hover:bg-[#013ff4]/10 transition-colors lg:hidden"
                 >
                     <Mic className="w-4 h-4" />
                 </button>

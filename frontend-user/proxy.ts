@@ -148,6 +148,8 @@ export async function proxy(request: NextRequest) {
     '/messages',
     '/notifications',
     '/parametres',
+    '/reseau',
+    '/vous',
     '/portefeuille',
     '/creer-profil',
   ]

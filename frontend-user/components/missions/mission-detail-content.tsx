@@ -50,6 +50,11 @@ export function MissionDetailContent({ missionId }: MissionDetailContentProps) {
   } = useMissionDetail(missionId)
 
   const [isApplyModalOpen, setIsApplyModalOpen] = useState(false)
+  // « Postuler » depuis la liste (?postuler=1) ouvre directement la candidature,
+  // une seule fois, et seulement si l'utilisateur peut encore postuler.
+  const [autoApply, setAutoApply] = useState(
+    () => typeof window !== "undefined" && new URLSearchParams(window.location.search).get("postuler") === "1",
+  )
 
   if (loading) {
     return (
@@ -260,8 +265,11 @@ export function MissionDetailContent({ missionId }: MissionDetailContentProps) {
       <ApplyMissionModal
         missionId={mission.id}
         missionTitle={mission.title}
-        isOpen={isApplyModalOpen}
-        onClose={() => setIsApplyModalOpen(false)}
+        isOpen={isApplyModalOpen || (autoApply && canApply)}
+        onClose={() => {
+          setIsApplyModalOpen(false)
+          setAutoApply(false)
+        }}
         onSuccess={refetch}
       />
     </div>

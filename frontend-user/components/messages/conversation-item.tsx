@@ -62,10 +62,12 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
       <button
         onClick={() => onClick(conversation)}
         className={cn(
-          "w-full flex items-center gap-3 px-3 py-2.5 pr-10 transition-all duration-200 rounded-xl border relative overflow-hidden group",
+          // Mobile : ligne WhatsApp pleine largeur séparée d'un trait fin ;
+          // ordinateur : carte arrondie d'origine.
+          "w-full flex items-center gap-3 px-4 lg:px-3 py-3 lg:py-2.5 pr-12 lg:pr-10 transition-all duration-200 lg:rounded-xl border-b border-border/50 lg:border relative overflow-hidden group",
           isActive
             ? "bg-primary/8 border-primary/15 shadow-sm ring-1 ring-primary/10"
-            : "bg-transparent border-transparent hover:bg-muted/80 hover:border-border"
+            : "bg-transparent border-border/50 lg:border-transparent hover:bg-muted/80 lg:hover:border-border"
         )}
       >
         {/* Active accent bar */}
@@ -76,7 +78,7 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
         {/* Avatar avec indicateur en ligne */}
         <div className="relative shrink-0">
           <Avatar className={cn(
-            "h-11 w-11 border-2 transition-all duration-200",
+            "h-12 w-12 lg:h-11 lg:w-11 border-2 transition-all duration-200",
             isActive ? "border-primary/20 shadow-sm" : "border-white dark:border-border shadow-sm group-hover:border-border"
           )}>
             <AvatarImage src={p?.avatar_url || '/profil/avatar.jpg'} alt={fullName} />
@@ -100,7 +102,7 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
         <div className="flex-1 min-w-0 text-left">
           <div className="flex justify-between items-baseline mb-0.5">
             <h3 className={cn(
-              "text-sm truncate leading-snug",
+              "text-[15px] lg:text-sm truncate leading-snug",
               hasUnread ? "font-bold text-foreground" : "font-semibold text-foreground"
             )}>
               {fullName}
@@ -111,8 +113,8 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
               )}
               {formattedDate && (
                 <span className={cn(
-                  "text-[10px] shrink-0",
-                  hasUnread ? "text-primary font-semibold" : "text-slate-400"
+                  "text-[11px] lg:text-[10px] shrink-0",
+                  hasUnread ? "text-[#1DA851] lg:text-primary font-semibold" : "text-slate-400"
                 )}>
                   {formattedDate}
                 </span>
@@ -121,7 +123,7 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
           </div>
           <div className="flex items-center justify-between gap-1">
             <p className={cn(
-              "text-xs truncate flex items-center gap-1",
+              "text-[13px] lg:text-xs truncate flex items-center gap-1",
               hasUnread ? "text-foreground font-medium" : "text-slate-400 font-normal"
             )}>
               {!hasUnread && <CheckCheck className="h-3 w-3 text-primary/60 shrink-0" />}
@@ -129,8 +131,8 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
             </p>
             {hasUnread && (
               <span className={cn(
-                "shrink-0 min-w-[18px] h-[18px] flex items-center justify-center",
-                "bg-primary text-white text-[10px] font-bold rounded-full px-1 shadow-sm",
+                "shrink-0 min-w-[20px] h-5 lg:min-w-[18px] lg:h-[18px] flex items-center justify-center",
+                "bg-[#25D366] lg:bg-primary text-white text-[11px] lg:text-[10px] font-bold rounded-full px-1 shadow-sm",
                 "animate-in zoom-in duration-200"
               )}>
                 {conversation.unread_count > 99 ? '99+' : conversation.unread_count}

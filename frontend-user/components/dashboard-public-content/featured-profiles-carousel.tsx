@@ -240,7 +240,7 @@ export function FeaturedProfilesCarousel() {
                 e.preventDefault()
                 goTo(index - 1)
               }}
-              className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-white/70 opacity-0 transition-opacity hover:bg-white/20 hover:text-white group-hover/carousel:opacity-100 focus-visible:opacity-100"
+              className="touch-visible flex h-10 w-10 sm:h-7 sm:w-7 items-center justify-center rounded-full bg-white/10 text-white/70 opacity-0 transition-opacity hover:bg-white/20 hover:text-white group-hover/carousel:opacity-100 focus-visible:opacity-100"
             >
               <ChevronLeft className="h-3.5 w-3.5" />
             </button>
@@ -270,7 +270,7 @@ export function FeaturedProfilesCarousel() {
                 e.preventDefault()
                 goTo(index + 1)
               }}
-              className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-white/70 opacity-0 transition-opacity hover:bg-white/20 hover:text-white group-hover/carousel:opacity-100 focus-visible:opacity-100"
+              className="touch-visible flex h-10 w-10 sm:h-7 sm:w-7 items-center justify-center rounded-full bg-white/10 text-white/70 opacity-0 transition-opacity hover:bg-white/20 hover:text-white group-hover/carousel:opacity-100 focus-visible:opacity-100"
             >
               <ChevronRight className="h-3.5 w-3.5" />
             </button>

@@ -46,6 +46,12 @@ export interface PublicProfile {
     followers: number;
     isFollowed?: boolean;
     tags?: string[];
+    /** Quartier — affiché dans les listes mobiles (« Menuisier · Akpakpa »). */
+    district?: string;
+    /** « Dès 15 000 FCFA » : plus petit prix du catalogue de prestations. */
+    startingPrice?: number;
+    /** Profil mis à jour ces 7 derniers jours (pastille verte des listes). */
+    recentlyActive?: boolean;
 }
 
 // ==================== TYPES PARCOURS & EXPÉRIENCES ====================

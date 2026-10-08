@@ -84,14 +84,15 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
     <div className="flex flex-col h-full border-r border-white/50 dark:border-white/10 bg-card/50 backdrop-blur-xl w-full z-20 shadow-[4px_0_24px_-12px_rgba(0,0,0,0.08)]">
       
       {/* === EN-TÊTE === */}
-      <div className="px-4 pt-5 pb-3 border-b border-border/80 bg-card/30 space-y-3">
+      <div className="px-4 pt-[calc(env(safe-area-inset-top)+0.75rem)] lg:pt-5 pb-3 border-b border-border/80 bg-background lg:bg-card/30 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             {showArchived ? (
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground mr-0.5"
+                className="h-11 w-11 lg:h-8 lg:w-8 rounded-full lg:rounded-lg text-muted-foreground hover:text-foreground mr-0.5"
+                aria-label="Retour aux messages"
                 onClick={() => setShowArchived(false)}
                 title="Retour aux messages"
               >
@@ -101,20 +102,20 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground mr-0.5"
+                className="hidden lg:inline-flex h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground mr-0.5"
                 onClick={() => router.push('/annuaire')}
                 title="Retour à l'annuaire"
               >
                 <ArrowLeft className="h-4 w-4" />
               </Button>
             )}
-            <h2 className="text-lg font-bold text-foreground tracking-tight">
-              {showArchived ? "Archivées" : "Messages"}
+            <h2 className="text-xl lg:text-lg font-black lg:font-bold text-foreground tracking-tight">
+              {showArchived ? "Archivées" : "Messagerie"}
             </h2>
             {totalUnread > 0 && !showArchived && (
               <span className={cn(
                 "min-w-[20px] h-5 flex items-center justify-center",
-                "bg-primary text-white text-[10px] font-bold rounded-full px-1.5 shadow-sm",
+                "bg-[#25D366] lg:bg-primary text-white text-[10px] font-bold rounded-full px-1.5 shadow-sm",
                 "animate-in zoom-in duration-300"
               )}>
                 {totalUnread > 99 ? '99+' : totalUnread}
@@ -125,7 +126,8 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
             <Button 
               size="icon" 
               variant="ghost" 
-              className="rounded-xl h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/8 transition-colors"
+              className="rounded-full lg:rounded-xl h-11 w-11 lg:h-8 lg:w-8 text-muted-foreground hover:text-primary hover:bg-primary/8 transition-colors"
+              aria-label="Démarrer une nouvelle discussion"
               onClick={() => router.push('/annuaire')}
               title="Démarrer une nouvelle discussion"
             >
@@ -142,7 +144,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
             name="chat_search"
             autoComplete="off"
             placeholder="Rechercher une conversation..." 
-            className="pl-9 h-9 text-sm bg-muted/80 border-border/60 focus-visible:ring-primary/20 rounded-xl transition-all focus-visible:bg-card shadow-none"
+            className="pl-9 h-11 lg:h-9 text-base lg:text-sm bg-muted/80 border-transparent lg:border-border/60 focus-visible:ring-primary/20 rounded-full lg:rounded-xl transition-all focus-visible:bg-card shadow-none"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
           />
@@ -178,7 +180,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
             ))}
           </div>
         ) : displayConversations.length > 0 ? (
-          <motion.div layout className="flex flex-col gap-0.5 p-2">
+          <motion.div layout className="flex flex-col lg:gap-0.5 lg:p-2">
             <AnimatePresence initial={false}>
               {displayConversations.map((conv) => (
                 <motion.div

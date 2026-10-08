@@ -70,6 +70,14 @@ async function fetchCuratedProfiles(supabase: SupabaseServer, filter: string, li
     return mapProfiles(data as unknown as PublicProfileJoined[])
 }
 
+const ACTIVE_WINDOW_MS = 7 * 24 * 60 * 60 * 1000
+
+/** Pas de suivi de présence pour l'instant : « actif » = profil mis à jour cette semaine. */
+function isRecentlyActive(updatedAt?: string | null): boolean {
+    if (!updatedAt) return false
+    return Date.now() - new Date(updatedAt).getTime() < ACTIVE_WINDOW_MS
+}
+
 function mapProfiles(data: PublicProfileJoined[]) {
     return data.map((e) => {
         const profileId = e.user_id || e.id || "0"
@@ -88,7 +96,10 @@ function mapProfiles(data: PublicProfileJoined[]) {
             card_variant: e.card_variant || 'glass',
             followers: e.followers_count || 0,
             isFollowed: false, // Sera mis à jour côté client
-            tags: tagNames(e.profile_tags)
+            tags: tagNames(e.profile_tags),
+            district: e.district || undefined,
+            startingPrice: typeof e.starting_price === "number" ? e.starting_price : undefined,
+            recentlyActive: isRecentlyActive(e.updated_at),
         }
     })
 }
@@ -164,6 +175,8 @@ export default async function DashboardPage() {
     
     // On peut mélanger le fallback de proximité, mais on prend d'abord les plus proches
     const initialProximityProfiles = mapProfiles(proximityProfiles.slice(0, 8))
+    // Accueil mobile : liste dense façon WhatsApp, plus de talents d'un coup d'œil.
+    const mobileTalents = mapProfiles(proximityProfiles.slice(0, 20))
 
     const initialNewProfiles = await fetchCuratedProfiles(supabase, 'new', 8)
 
@@ -173,6 +186,7 @@ export default async function DashboardPage() {
                 initialNewProfiles={initialNewProfiles}
                 initialProximityProfiles={initialProximityProfiles}
                 userLocation={userLocation}
+                mobileTalents={mobileTalents}
             />
         </div>
     )

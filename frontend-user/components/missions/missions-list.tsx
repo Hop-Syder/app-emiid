@@ -12,6 +12,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { MobileTopBar } from "@/components/mobile-hub/mobile-top-bar"
 import { useMissions, type MissionFilterTab } from "@/hooks/use-missions"
 import { MissionCard } from "./mission-card"
 import { EmptyState } from "@/components/EmptyState"
@@ -29,15 +30,26 @@ export function MissionsList() {
   const [tab, setTab] = useState<MissionFilterTab>("ALL")
   const [search, setSearch] = useState("")
 
-  const { missions, loading, error, refetch } = useMissions(tab, search)
+  const { missions, loading, error, refetch, currentUserId } = useMissions(tab, search)
 
   return (
-    <div className="mx-auto max-w-[1400px] space-y-6 px-4 py-6 sm:px-6 lg:px-8 md:py-10">
+    <>
+    {/* Mobile : en-tête façon « canal » WhatsApp, publier en un geste. */}
+    <MobileTopBar
+      title="Missions"
+      centered
+      actions={
+        <Link href="/missions/creer" aria-label="Publier une mission" className="flex h-11 w-11 items-center justify-center rounded-full text-[#013ff4] active:bg-muted">
+          <Plus className="h-6 w-6" />
+        </Link>
+      }
+    />
+    <div className="mx-auto max-w-[1400px] space-y-4 px-0 pb-6 sm:space-y-6 sm:px-6 lg:px-8 md:py-10">
       {/* En-tête : un seul titre, disposé comme dans l'annuaire (h1 + action
           sur la même ligne, onglets/recherche juste en dessous, le tout
           sous une seule bordure basse — pas de carte imbriquée). */}
-      <div className="space-y-3 border-b border-border pb-3">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="space-y-3 border-b border-border px-4 pb-3 sm:px-0">
+        <div className="hidden lg:flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="text-3xl md:text-4xl font-black text-foreground tracking-tight">
             Toutes les <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0150fd] to-blue-600">Missions</span>
           </h1>
@@ -53,11 +65,11 @@ export function MissionsList() {
 
         {/* Onglets et recherche */}
         <div className="flex flex-col gap-4 pb-1 md:flex-row md:items-center md:justify-between">
-          <div className="flex flex-wrap gap-1 md:grid md:grid-cols-3">
+          <div className="grid grid-cols-3 gap-1 rounded-xl bg-muted/60 p-1 md:bg-transparent md:p-0">
             <button
               type="button"
               onClick={() => setTab("ALL")}
-              className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition-all md:w-full md:justify-center ${tab === "ALL"
+              className={`flex min-h-10 items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-xs font-bold transition-all md:w-full md:rounded-xl ${tab === "ALL"
                   ? "bg-[#013ff4] text-white shadow-sm"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 }`}
@@ -69,7 +81,7 @@ export function MissionsList() {
             <button
               type="button"
               onClick={() => setTab("MY_POSTED")}
-              className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition-all md:w-full md:justify-center ${tab === "MY_POSTED"
+              className={`flex min-h-10 items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-xs font-bold transition-all md:w-full md:rounded-xl ${tab === "MY_POSTED"
                   ? "bg-[#013ff4] text-white shadow-sm"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 }`}
@@ -81,7 +93,7 @@ export function MissionsList() {
             <button
               type="button"
               onClick={() => setTab("MY_APPLIED")}
-              className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition-all md:w-full md:justify-center ${tab === "MY_APPLIED"
+              className={`flex min-h-10 items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-xs font-bold transition-all md:w-full md:rounded-xl ${tab === "MY_APPLIED"
                   ? "bg-[#013ff4] text-white shadow-sm"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 }`}
@@ -107,9 +119,9 @@ export function MissionsList() {
 
       {/* Grille des missions */}
       {loading ? (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-2 px-4 sm:gap-6 sm:px-0 md:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <Skeleton key={i} className="h-64 rounded-2xl" />
+            <Skeleton key={i} className="h-56 rounded-2xl" />
           ))}
         </div>
       ) : missions.length === 0 ? (
@@ -125,12 +137,13 @@ export function MissionsList() {
           }
         />
       ) : (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-2 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
           {missions.map((mission) => (
-            <MissionCard key={mission.id} mission={mission} />
+            <MissionCard key={mission.id} mission={mission} currentUserId={currentUserId} />
           ))}
         </div>
       )}
     </div>
+    </>
   )
 }
