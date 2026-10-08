@@ -136,6 +136,7 @@ export function ProfileSection({
     }
   }
 
+  const channels = profile.phone_verification_channels ?? []
   const sloganLen = (profile.slogan || "").length
   const bioLen = (profile.bio || "").length
   const tagsList = Array.isArray(profile.tags) ? profile.tags : []
@@ -436,6 +437,15 @@ export function ProfileSection({
                   </div>
                 </div>
               </div>
+            ) : channels.length === 0 ? (
+              /* Aucun fournisseur SMS / WhatsApp configuré côté serveur : on le dit,
+                 plutôt que d'offrir des boutons qui échoueraient (503). */
+              <div className="p-4 bg-muted/60 border border-border rounded-2xl flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
+                <p className="text-xs text-muted-foreground">
+                  La certification du numéro par SMS ou WhatsApp sera bientôt disponible.
+                </p>
+              </div>
             ) : (
               /* ÉTAT A : Non certifié (Encart ambré avec WhatsApp et SMS) */
               <div className="p-4 bg-amber-50/90 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/60 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -452,6 +462,7 @@ export function ProfileSection({
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+                  {channels.includes("whatsapp") && (
                   <button
                     type="button"
                     onClick={() => handleVerifyRequest("whatsapp")}
@@ -465,7 +476,9 @@ export function ProfileSection({
                     )}
                     <span>WhatsApp</span>
                   </button>
+                  )}
 
+                  {channels.includes("sms") && (
                   <button
                     type="button"
                     onClick={() => handleVerifyRequest("sms")}
@@ -479,6 +492,7 @@ export function ProfileSection({
                     )}
                     <span>SMS</span>
                   </button>
+                  )}
                 </div>
               </div>
             )}

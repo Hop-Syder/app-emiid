@@ -3,13 +3,13 @@
  * @organization Nexus Partners
  * @description Sous-composant Sidebar (Coordonnées, Partage) pour le détail de profil.
  * @created 2026-06-13
- * @updated 2026-06-22
+ * @updated 2026-10-08 — contacts secondaires, réseaux sociaux et badge téléphone certifié.
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
 
 import Link from "next/link"
-import { ArrowRight, Calendar, Check, Clock, Copy, Download, ExternalLink, FileText, Globe, Lock, Mail, MessageCircle, Phone, Share, Share2 } from "lucide-react"
+import { ArrowRight, BadgeCheck, Calendar, Check, Clock, Copy, Download, ExternalLink, Facebook, FileText, Globe, Instagram, Linkedin, Lock, Mail, MessageCircle, Music2, Phone, Share, Share2 } from "lucide-react"
 import { trackProfileMetric } from "@/lib/track-profile"
 import { trackProfileContact } from "@/lib/analytics"
 import { Button } from "@/components/ui/button"
@@ -23,6 +23,10 @@ interface ProfileSidebarProps {
         email?: string | null
         phone?: string | null
         website?: string | null
+        phoneVerified?: boolean
+        secondaryPhone?: string | null
+        publicEmail?: string | null
+        socials?: { facebook?: string; instagram?: string; tiktok?: string; linkedin?: string }
         /** Un contact existe et serait visible une fois connecté (H2). */
         hasContact?: boolean
         opening_hours?: Array<{ day: number; open: string; close: string; closed: boolean }>
@@ -34,6 +38,38 @@ interface ProfileSidebarProps {
     setIsShareModalOpen: (open: boolean) => void
     downloadVCard: () => void
     isLoggedIn: boolean
+}
+
+/** Ligne de coordonnée (icône, libellé, valeur). */
+function ContactRow({ icon: Icon, label, children }: { icon: React.ElementType; label: string; children: React.ReactNode }) {
+    return (
+        <div className="flex items-start gap-3.5 text-foreground hover:bg-muted/50 p-2 -mx-2 rounded-xl transition-colors duration-200">
+            <Icon className="h-4 w-4 text-slate-400 shrink-0 mt-0.5" />
+            <div className="min-w-0 flex-1">
+                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{label}</div>
+                <div className="font-extrabold text-foreground break-words">{children}</div>
+            </div>
+        </div>
+    )
+}
+
+const SOCIALS: { key: "linkedin" | "facebook" | "instagram" | "tiktok"; label: string; icon: React.ElementType; color: string }[] = [
+    { key: "linkedin", label: "LinkedIn", icon: Linkedin, color: "text-[#0a66c2]" },
+    { key: "facebook", label: "Facebook", icon: Facebook, color: "text-[#1877f2]" },
+    { key: "instagram", label: "Instagram", icon: Instagram, color: "text-[#e1306c]" },
+    { key: "tiktok", label: "TikTok", icon: Music2, color: "text-foreground" },
+]
+
+/** N'accepte que des liens http(s) : une URL saisie librement ne doit pas devenir un `javascript:`. */
+function safeUrl(raw?: string | null): string | null {
+    if (!raw) return null
+    const url = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`
+    try {
+        const parsed = new URL(url)
+        return parsed.protocol === "http:" || parsed.protocol === "https:" ? parsed.href : null
+    } catch {
+        return null
+    }
 }
 
 /** Coordonnées réservées aux membres : aperçu inerte + invitation, tant que
@@ -202,13 +238,26 @@ export function ProfileSidebar({
                     )}
 
                     {isLoggedIn && profile.phone && (
-                        <div className="flex items-start gap-3.5 text-foreground hover:bg-muted/50 p-2 -mx-2 rounded-xl transition-colors duration-200">
-                            <Phone className="h-4 w-4 text-slate-400 shrink-0 mt-0.5" />
-                            <div className="min-w-0">
-                                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Téléphone</div>
-                                <div className="font-extrabold text-foreground break-words">{profile.phone}</div>
-                            </div>
-                        </div>
+                        <ContactRow icon={Phone} label="Téléphone">
+                            <span className="inline-flex items-center gap-1.5">
+                                {profile.phone}
+                                {profile.phoneVerified && (
+                                    <span title="Numéro certifié" className="inline-flex items-center gap-0.5 text-[10px] font-black uppercase text-emerald-600">
+                                        <BadgeCheck className="h-3.5 w-3.5" /> Certifié
+                                    </span>
+                                )}
+                            </span>
+                        </ContactRow>
+                    )}
+
+                    {isLoggedIn && profile.secondaryPhone && (
+                        <ContactRow icon={Phone} label="Téléphone commercial">{profile.secondaryPhone}</ContactRow>
+                    )}
+
+                    {isLoggedIn && profile.publicEmail && (
+                        <ContactRow icon={Mail} label="Email commercial">
+                            <a href={`mailto:${profile.publicEmail}`} className="break-all hover:underline">{profile.publicEmail}</a>
+                        </ContactRow>
                     )}
                 </div>
 
@@ -241,13 +290,35 @@ export function ProfileSidebar({
                     </div>
                 )}
 
-                {profile.website && (
+                {SOCIALS.some(({ key }) => safeUrl(profile.socials?.[key])) && (
+                    <div className="mt-5 flex flex-wrap gap-2">
+                        {SOCIALS.map(({ key, label, icon: Icon, color }) => {
+                            const href = safeUrl(profile.socials?.[key])
+                            if (!href) return null
+                            return (
+                                <a
+                                    key={key}
+                                    href={href}
+                                    target="_blank"
+                                    rel="noopener noreferrer ugc nofollow"
+                                    aria-label={label}
+                                    title={label}
+                                    className="h-10 w-10 rounded-xl border border-border bg-card hover:bg-muted flex items-center justify-center transition-colors"
+                                >
+                                    <Icon className={cn("h-4 w-4", color)} />
+                                </a>
+                            )
+                        })}
+                    </div>
+                )}
+
+                {safeUrl(profile.website) && (
                     <Button
                         asChild
                         variant="outline"
                         className="w-full mt-5 h-11 rounded-2xl text-xs font-black border-border bg-card hover:bg-muted gap-2 shadow-sm transition-all duration-300 hover:-translate-y-0.5"
                     >
-                        <a href={profile.website} target="_blank" rel="noopener noreferrer ugc nofollow">
+                        <a href={safeUrl(profile.website) ?? undefined} target="_blank" rel="noopener noreferrer ugc nofollow">
                             Visiter le site <ExternalLink className="h-4 w-4" />
                         </a>
                     </Button>

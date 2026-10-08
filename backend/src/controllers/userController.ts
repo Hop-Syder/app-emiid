@@ -15,7 +15,7 @@ import { logger } from '../utils/logger';
 import { hasRecentTotp, type AuthClaims } from '../utils/mfa';
 import { UserProfile } from '../types/models';
 import { sendEmail } from '../services/mailService';
-import { sendSms } from '../services/smsService';
+import { sendSms, availableSmsChannels } from '../services/smsService';
 import {
   updateProfileSchema,
   updateSettingsSchema,
@@ -151,6 +151,12 @@ export const getMyProfile = async (req: Request, res: Response) => {
         data.phone = data.phone || authFallback.phone;
         data.avatar_url = data.avatar_url || authFallback.avatar_url;
         Object.assign(data, buildUserSettings(authUser, !!data.is_published));
+        // SÉCURITÉ : le hash du PIN et l'état du verrou ne quittent jamais le serveur.
+        const secrets = data as Record<string, unknown>;
+        delete secrets.pin_code;
+        delete secrets.pin_attempts;
+        delete secrets.locked_at;
+        secrets.phone_verification_channels = availableSmsChannels();
     }
 
     res.json(data);
@@ -297,6 +303,16 @@ export const updateMyProfile = async (req: any, res: Response) => {
 
     // R7 — visibilité du contact (opt-in) : uniquement si le champ est fourni.
     if (show_contact !== undefined) updates.show_contact = show_contact;
+
+    // Intégrité du badge : un numéro certifié qui change n'est plus certifié.
+    if (phone !== undefined) {
+      const { data: current } = await supabaseAdmin
+        .from('user_profiles')
+        .select('phone')
+        .eq('user_id', userId)
+        .maybeSingle();
+      if ((current?.phone || '') !== (phone || '')) updates.phone_verified = false;
+    }
 
     // Tenter d'abord une mise à jour via UPDATE
     let { data, error } = await supabaseAdmin
@@ -895,6 +911,9 @@ export const requestPhoneVerification = async (req: any, res: Response) => {
 
   try {
     const { body: { phone, method } } = requestPhoneVerificationSchema.parse(req) as { body: any };
+    if (!availableSmsChannels().includes(method === 'whatsapp' ? 'whatsapp' : 'sms')) {
+      return res.status(503).json({ error: "La certification par ce canal n'est pas encore disponible." });
+    }
     if (!phone) return res.status(400).json({ error: "Numéro de téléphone requis" });
 
     // SÉCURITÉ : générateur cryptographique — Math.random() est prédictible
@@ -913,10 +932,10 @@ export const requestPhoneVerification = async (req: any, res: Response) => {
 
     if (error) throw error;
 
-    const smsResult = await sendSms(phone, `Votre code de vérification EmiID : ${otp}`);
+    const channel = method === 'whatsapp' ? 'whatsapp' : 'sms';
+    const smsResult = await sendSms(phone, `Votre code de vérification EmiID : ${otp}`, channel);
     if (!smsResult.success) {
-      // Honnête : aucun fournisseur SMS/WhatsApp n'est branché, ne pas prétendre
-      // que le code a été livré (cf. NoopSmsProvider dans services/smsService.ts).
+      // Honnête : ne pas prétendre que le code a été livré.
       return res.status(503).json({ error: "Envoi du code impossible pour le moment. Réessayez plus tard." });
     }
 
@@ -1011,6 +1030,12 @@ export const addMyVerificationDoc = async (req: any, res: Response) => {
   }
   if (!file_path || typeof file_path !== 'string') {
     return res.status(400).json({ error: 'Référence de fichier manquante' });
+  }
+  // SÉCURITÉ : le fichier doit se trouver dans le dossier de l'utilisateur
+  // (bucket privé « verification », chemin `${userId}/…`). Sans ce contrôle, on
+  // pourrait référencer — et faire lire par un modérateur — le document d'un autre.
+  if (!file_path.startsWith(`${userId}/`) || file_path.includes('..')) {
+    return res.status(403).json({ error: 'Chemin de document non autorisé' });
   }
 
   try {

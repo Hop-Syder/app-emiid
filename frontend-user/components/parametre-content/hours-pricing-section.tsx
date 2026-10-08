@@ -71,6 +71,7 @@ export function HoursPricingSection({ profile, setProfile }: SectionProps) {
         <div className="divide-y divide-border">
           {DAYS.map(({ day, label }) => {
             const h = getDay(day)
+            const invalid = !h.closed && (!h.open || !h.close || h.open >= h.close)
             return (
               <div key={day} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
                 <span className="w-24 shrink-0 text-sm font-bold text-foreground">{label}</span>
@@ -90,8 +91,9 @@ export function HoursPricingSection({ profile, setProfile }: SectionProps) {
                       type="time"
                       value={h.close}
                       onChange={(e) => updateHour(day, { close: e.target.value })}
-                      className={`${INPUT} h-10 w-28 text-center text-xs font-bold`}
+                      className={`${INPUT} h-10 w-28 text-center text-xs font-bold ${invalid ? "border-rose-400" : ""}`}
                     />
+                    {invalid && <span className="text-[11px] font-semibold text-rose-600">Fermeture avant l&apos;ouverture</span>}
                   </div>
                 )}
 

@@ -36,3 +36,10 @@ test('le nouveau PIN doit faire exactement 6 chiffres', () => {
   assert.equal(setPinSchema.safeParse({ body: { new_pin: '12345' } }).success, false)
   assert.equal(setPinSchema.safeParse({ body: { new_pin: 'abcdef' } }).success, false)
 })
+
+test('refuse une fermeture avant l ouverture et une expérience qui finit avant de commencer', () => {
+  assert.equal(valid({ opening_hours: [{ day: 1, open: '08:00', close: '07:00', closed: false }] }), false)
+  assert.equal(valid({ opening_hours: [{ day: 1, open: '08:00', close: '07:00', closed: true }] }), true)
+  assert.equal(valid({ experiences: [{ id: 'a', title: 't', startDate: '2026-05', endDate: '2023-01', current: false }] }), false)
+  assert.equal(valid({ experiences: [{ id: 'a', title: 't', startDate: '2026-05', endDate: null, current: true }] }), true)
+})

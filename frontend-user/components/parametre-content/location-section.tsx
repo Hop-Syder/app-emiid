@@ -113,6 +113,9 @@ export function LocationSection({ profile, setProfile }: LocationSectionProps) {
     if (leavesGeo) setDepartmentId("")
     setProfile({
       ...profile,
+      // Vider l'id force le serveur à résoudre le pays par son code : sinon
+      // l'ancien country_id, prioritaire, annulait silencieusement le changement.
+      ...(countryChanged ? { country_id: "" } : {}),
       country_code: country.isoCode,
       country_name: country.name,
       ...(countryChanged ? { city: "" } : {}),
@@ -208,6 +211,18 @@ export function LocationSection({ profile, setProfile }: LocationSectionProps) {
             </select>
           </Field>
         </div>
+
+        <Field label="Ville">
+          <Input
+            id="city"
+            name="city"
+            autoComplete="address-level2"
+            value={profile.city || ""}
+            onChange={(e) => up("city", e.target.value)}
+            className={INPUT}
+            placeholder={geoAvailable ? "Ex : Cotonou" : "Ex : Lomé, Dakar, Paris"}
+          />
+        </Field>
 
         <Field label="Quartier / arrondissement">
           <Input

@@ -47,7 +47,20 @@ export const updateProfileSchema = z.object({
     opening_hours: z.array(openingHourSchema).max(7).optional(),
     services: z.array(serviceSchema).max(50).optional(),
     experiences: z.array(experienceSchema).max(50).optional(),
-  }).passthrough(),
+  }).passthrough().superRefine((body, ctx) => {
+    // Cohérence temporelle : un jour ouvert ferme après avoir ouvert.
+    body.opening_hours?.forEach((h, i) => {
+      if (!h.closed && (!h.open || !h.close || h.open >= h.close)) {
+        ctx.addIssue({ code: 'custom', path: ['opening_hours', i], message: "L'heure de fermeture doit être après l'heure d'ouverture" });
+      }
+    });
+    // Un poste ne se termine pas avant d'avoir commencé (format YYYY-MM, comparable tel quel).
+    body.experiences?.forEach((e, i) => {
+      if (!e.current && e.startDate && e.endDate && e.startDate > e.endDate) {
+        ctx.addIssue({ code: 'custom', path: ['experiences', i], message: "La date de fin d'une expérience doit suivre sa date de début" });
+      }
+    });
+  }),
 });
 
 export const updateSettingsSchema = z.object({

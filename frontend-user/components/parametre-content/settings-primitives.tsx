@@ -283,7 +283,9 @@ export function SlugInput({
   const sanitize = (raw: string) =>
     raw
       .toLowerCase()
-      .replace(/[^a-z0-9-_]/g, "")
+      // Mêmes caractères que le serveur (userController) : sinon « jean_artisan »
+      // s'afficherait disponible puis serait enregistré « jeanartisan ».
+      .replace(/[^a-z0-9-]/g, "")
       .slice(0, 30)
 
   // Filtre local instantané (évite un aller-retour réseau pour les cas triviaux)

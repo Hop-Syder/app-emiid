@@ -121,6 +121,8 @@ export interface UserProfileData {
   services: ServiceItem[]
   experiences: ExperienceItem[]
   slug?: string
+  /** Canaux de certification du téléphone réellement disponibles (serveur). */
+  phone_verification_channels: ("sms" | "whatsapp")[]
 }
 
 /**
@@ -130,7 +132,28 @@ export interface UserProfileData {
  */
 const READ_ONLY_FIELDS: readonly (keyof UserProfileData)[] = [
   "id", "email", "is_verified", "is_premium", "phone_verified", "has_password", "pin_enabled", "is_published",
+  "phone_verification_channels",
 ]
+
+const DAY_LABELS = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"]
+
+/**
+ * Cohérence du brouillon avant envoi (le serveur applique les mêmes règles) :
+ * renvoie le premier problème à corriger, ou null.
+ */
+export function validateProfileDraft(p: UserProfileData): string | null {
+  for (const h of p.opening_hours) {
+    if (!h.closed && (!h.open || !h.close || h.open >= h.close)) {
+      return `Horaires du ${DAY_LABELS[h.day] ?? "jour"} : la fermeture doit être après l'ouverture.`
+    }
+  }
+  for (const e of p.experiences) {
+    if (!e.current && e.startDate && e.endDate && e.startDate > e.endDate) {
+      return `Expérience « ${e.title || "sans titre"} » : la date de fin précède la date de début.`
+    }
+  }
+  return null
+}
 
 /** Le pays se résout côté serveur à partir de ces trois champs : ils voyagent ensemble. */
 const COUNTRY_FIELDS: readonly (keyof UserProfileData)[] = ["country_id", "country_code", "country_name"]
@@ -162,6 +185,7 @@ const EMPTY_PROFILE: UserProfileData = {
   phone_verified: false, has_password: false, slogan: "", years_experience: null,
   website: "", facebook_url: "", instagram_url: "", tiktok_url: "", linkedin_url: "",
   secondary_phone: "", public_email: "", address: "", opening_hours: [], services: [], experiences: [],
+  phone_verification_channels: [],
 }
 
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b)
@@ -280,6 +304,7 @@ export function useSettings() {
         services: Array.isArray(data.services) ? data.services : [],
         experiences: Array.isArray(data.experiences) ? data.experiences : [],
         slug: data.slug || "",
+        phone_verification_channels: Array.isArray(data.phone_verification_channels) ? data.phone_verification_channels : [],
       }
       setProfile(loaded)
       setSavedProfile(loaded)
@@ -317,6 +342,11 @@ export function useSettings() {
   const saveProfile = useCallback(async () => {
     const fields = changedFields(profile, savedProfile)
     if (fields.length === 0) return
+    const problem = validateProfileDraft(profile)
+    if (problem) {
+      toast.error(problem)
+      return
+    }
     if (fields.some((f) => COUNTRY_FIELDS.includes(f))) {
       COUNTRY_FIELDS.forEach((f) => { if (!fields.includes(f)) fields.push(f) })
     }

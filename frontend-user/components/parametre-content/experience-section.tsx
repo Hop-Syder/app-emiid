@@ -89,6 +89,7 @@ export function ExperienceSection({ profile, setProfile }: ExperienceSectionProp
                 <Input
                   type="month"
                   value={exp.endDate || ""}
+                  min={exp.startDate || undefined}
                   onChange={(e) => updateExperience(exp.id, { endDate: e.target.value || null })}
                   disabled={exp.current}
                   className={`${INPUT} bg-card w-40 text-xs font-bold disabled:opacity-50`}

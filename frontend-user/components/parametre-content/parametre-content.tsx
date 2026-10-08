@@ -53,7 +53,7 @@ const TABS: Record<TabId, TabConfig> = {
   horaires:     { label: "Adresse & services", icon: MapPin,     desc: "Localisation, horaires et prestations",         color: "text-indigo-600",  bg: "bg-indigo-50 dark:bg-indigo-950/40" },
   verification: { label: "Vérification",       icon: BadgeCheck, desc: "Badge vérifié et pièces justificatives",        color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-950/40" },
   securite:     { label: "Sécurité",           icon: Shield,     desc: "Double authentification, PIN et compte",        color: "text-violet-600",  bg: "bg-violet-50 dark:bg-violet-950/40" },
-  preferences:  { label: "Préférences",        icon: Settings,   desc: "Thème, visibilité, langue et notifications",    color: "text-foreground",  bg: "bg-muted" },
+  preferences:  { label: "Préférences",        icon: Settings,   desc: "Thème, visibilité et notifications",                color: "text-foreground",  bg: "bg-muted" },
   plan:         { label: "Abonnement",         icon: Star,       desc: "Offre EmiID Pro et mise en avant",              color: "text-amber-600",   bg: "bg-amber-50 dark:bg-amber-950/40" },
 }
 
