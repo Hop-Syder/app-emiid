@@ -12,14 +12,19 @@
  *              entière pour une bascule, désormais posée au contact des champs
  *              qu'elle gouverne.
  * @created 2026-06-13
- * @updated 2026-09-06
+ * @updated 2026-10-08
+ *
+ *              Refonte du 08/10 : Slogan et Bio étaient saisis deux fois (BioSection
+ *              + carte « À propos »), `years_experience` aussi. Une seule carte
+ *              « À propos » subsiste, l'expérience est dans « Profil professionnel ».
+ *              La localisation part dans l'onglet « Adresse & services ».
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
 
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState } from "react"
 import Image from "next/image"
 import {
   Mail,
@@ -41,20 +46,15 @@ import { AvatarUpload } from "@/components/AvatarUpload"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { toast } from "sonner"
 import { PROFILE_CATEGORIES, ACTIVITY_DOMAINS } from "@/lib/profile-options"
-import { BENIN_DEPARTMENTS, getCommunesByDepartmentId } from "@/lib/benin-geo"
 import type { UserProfileData } from "@/hooks/use-settings"
-import { BioSection } from "./bio-section"
-import { LocationSection } from "./location-section"
 import { ExperienceSection } from "./experience-section"
 import {
   SectionCard,
   SettingToggle,
   SettingRow,
   Field,
-  SegmentedControl,
   SlugInput,
   TagsInput,
-  StickySaveBar,
   INPUT,
   SELECT,
   TEXTAREA,
@@ -63,21 +63,14 @@ import {
 interface ProfileSectionProps {
   profile: UserProfileData
   setProfile: (profile: UserProfileData) => void
-  saving: boolean
-  handleSave: () => void
-  handleCancel: () => void
-  hideActions?: boolean
-  modifiedCount?: number
+  /** Ouvre un autre onglet des paramètres (sans recharger la page). */
+  onOpenTab: (tab: "verification") => void
 }
 
 export function ProfileSection({
   profile,
   setProfile,
-  saving,
-  handleSave,
-  handleCancel,
-  hideActions = false,
-  modifiedCount = 0,
+  onOpenTab,
 }: ProfileSectionProps) {
   // États de vérification du téléphone (3 états : Non certifié / Code envoyé / Certifié)
   const [verifyMethod, setVerifyMethod] = useState<"whatsapp" | "sms" | null>(null)
@@ -160,7 +153,7 @@ export function ProfileSection({
           email={profile.email}
           onUploadComplete={(url: string) => up("avatar_url", url)}
           onDelete={() => {
-            up("avatar_url", "/profil/avatar.jpg")
+            up("avatar_url", "")
             toast.success("Photo de profil réinitialisée")
           }}
         />
@@ -205,24 +198,8 @@ export function ProfileSection({
         </Field>
       </SectionCard>
 
-      {/* ── À propos & Bio ──────────────────────────────────────────────── */}
-      <BioSection
-        profile={profile}
-        setProfile={setProfile}
-        saving={saving}
-        handleSave={handleSave}
-        handleCancel={handleCancel}
-        hideActions
-      />
-
-      {/* ── Localisation ────────────────────────────────────────────────
-          Pays, département, commune, ville, quartier, adresse et point GPS.
-          Extraite ici le 06/09 : c'est une matière à part entière, et elle
-          était jusque-là réduite à deux champs de coordonnées. */}
-      <LocationSection profile={profile} setProfile={setProfile} />
-
       {/* ═════════════════════════════════════════════════════════════════════
-          CARTE 4 : À PROPOS (PDF Page 1)
+          CARTE 3 : À PROPOS (PDF Page 1)
           ═════════════════════════════════════════════════════════════════════ */}
       <SectionCard
         title="À propos"
@@ -246,14 +223,14 @@ export function ProfileSection({
 
           <Field
             label="Bio / Description détaillée"
-            counter={`${bioLen}/1000`}
+            counter={`${bioLen}/1200`}
             hint="Détaillez vos prestations, vos réalisations passées et vos engagements qualité."
           >
             <textarea
               value={profile.bio || ""}
               onChange={(e) => up("bio", e.target.value)}
               rows={5}
-              maxLength={1000}
+              maxLength={1200}
               className={TEXTAREA}
               placeholder="Partagez votre histoire professionnelle, votre parcours et vos expertises clés..."
             />
@@ -262,7 +239,7 @@ export function ProfileSection({
       </SectionCard>
 
       {/* ═════════════════════════════════════════════════════════════════════
-          CARTE 5 : PROFIL PROFESSIONNEL (PDF Page 1)
+          CARTE 4 : PROFIL PROFESSIONNEL (PDF Page 1)
           ═════════════════════════════════════════════════════════════════════ */}
       <SectionCard title="Profil professionnel" icon={Briefcase}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -361,7 +338,7 @@ export function ProfileSection({
       <ExperienceSection profile={profile} setProfile={setProfile} />
 
       {/* ═════════════════════════════════════════════════════════════════════
-          CARTE 6 : COORDONNÉES & SÉCURITÉ CONTACT (PDF Page 1 & 3)
+          CARTE 5 : COORDONNÉES & SÉCURITÉ CONTACT (PDF Page 1 & 3)
           ═════════════════════════════════════════════════════════════════════ */}
       <SectionCard title="Coordonnées & Sécurité contact" icon={Smartphone}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -390,10 +367,9 @@ export function ProfileSection({
                 name="phone"
                 type="tel"
                 value={profile.phone || ""}
-                onChange={(e) => {
-                  up("phone", e.target.value)
-                  if (profile.phone_verified) up("phone_verified", false)
-                }}
+                onChange={(e) =>
+                  setProfile({ ...profile, phone: e.target.value, phone_verified: profile.phone_verified && e.target.value === profile.phone })
+                }
                 className={`${INPUT} pl-10 pr-24`}
                 placeholder="+229 01XXXXXXXX"
               />
@@ -534,9 +510,7 @@ export function ProfileSection({
             iconColor="text-violet-600"
             title="Identité & documents officiels"
             subtitle="Badge vérifié, CNI, IFU, RCCM"
-            onClick={() => {
-              if (typeof window !== "undefined") window.location.href = "/parametres?tab=verification"
-            }}
+            onClick={() => onOpenTab("verification")}
             rightElement={
               profile.is_verified ? (
                 <span className="inline-flex items-center gap-1 bg-[#013ff4]/10 text-[#013ff4] text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border border-[#013ff4]/20">
@@ -550,25 +524,6 @@ export function ProfileSection({
           />
         </div>
       </SectionCard>
-
-      {/* La carte « Statut de vérification du compte » a été supprimée le
-          06/09. Elle répétait le statut du téléphone affiché juste au-dessus,
-          affichait l'email comme « Vérifié » SANS jamais le vérifier — une
-          affirmation fausse — et son troisième élément n'était qu'un lien vers
-          l'onglet Vérification. Ce lien seul a survécu, ci-dessus. La carte
-          « Confidentialité & Visibilité » ne portait qu'une bascule sur les
-          coordonnées : elle a rejoint les coordonnées, à côté de ce qu'elle
-          gouverne. */}
-
-      {/* ── Barre d'enregistrement ──────────────────────────────────────── */}
-      {!hideActions && (
-        <StickySaveBar
-          saving={saving}
-          modifiedCount={modifiedCount}
-          handleSave={handleSave}
-          handleCancel={handleCancel}
-        />
-      )}
 
     </div>
   )

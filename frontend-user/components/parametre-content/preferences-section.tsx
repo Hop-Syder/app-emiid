@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Onglet Paramètres « Préférences » — Localisation, monnaie, thème et visibilité.
  * @created 2026-06-13
- * @updated 2026-08-30
+ * @updated 2026-10-08 — chaque réglage est enregistré dès qu'il change (thème compris).
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -14,7 +14,7 @@ import { useEffect } from "react"
 import { useTheme } from "next-themes"
 import { Globe, Moon, Eye } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { SectionCard, SettingToggle, Field, SaveBar } from "./settings-primitives"
+import { SectionCard, SettingToggle, Field } from "./settings-primitives"
 
 interface PreferenceSettings {
   language: string
@@ -26,21 +26,11 @@ interface PreferenceSettings {
 
 interface PreferencesSectionProps {
   settings: PreferenceSettings
-  setSettings: (s: PreferenceSettings) => void
-  saving: boolean
-  handleSave: () => void
-  handleCancel: () => void
-  hideActions?: boolean
+  /** Applique et enregistre immédiatement la préférence modifiée. */
+  onChange: (patch: Partial<PreferenceSettings>) => void
 }
 
-export function PreferencesSection({
-  settings,
-  setSettings,
-  saving,
-  handleSave,
-  handleCancel,
-  hideActions = false,
-}: PreferencesSectionProps) {
+export function PreferencesSection({ settings, onChange }: PreferencesSectionProps) {
   const { setTheme } = useTheme()
 
   useEffect(() => {
@@ -48,7 +38,7 @@ export function PreferencesSection({
   }, [settings.theme, setTheme])
 
   const update = <K extends keyof PreferenceSettings>(key: K, value: PreferenceSettings[K]) =>
-    setSettings({ ...settings, [key]: value })
+    onChange({ [key]: value } as Partial<PreferenceSettings>)
 
   return (
     <div className="space-y-4">
@@ -126,10 +116,6 @@ export function PreferencesSection({
         </div>
       </SectionCard>
 
-      {/* Masquée si la barre suivante enregistre l'ensemble des préférences */}
-      {!hideActions && (
-        <SaveBar saving={saving} handleSave={handleSave} handleCancel={handleCancel} />
-      )}
     </div>
   )
 }

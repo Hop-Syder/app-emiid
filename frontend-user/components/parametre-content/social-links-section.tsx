@@ -13,17 +13,14 @@
 import { Globe, Facebook, Instagram, Linkedin, Music2, Phone, Mail, Share2, AtSign } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import type { UserProfileData } from "@/hooks/use-settings"
-import { SectionCard, Field, INPUT, SaveBar } from "./settings-primitives"
+import { SectionCard, Field, INPUT } from "./settings-primitives"
 
 interface SectionProps {
   profile: UserProfileData
   setProfile: (profile: UserProfileData) => void
-  saving: boolean
-  handleSave: () => void
-  handleCancel: () => void
 }
 
-export function SocialLinksSection({ profile, setProfile, saving, handleSave, handleCancel }: SectionProps) {
+export function SocialLinksSection({ profile, setProfile }: SectionProps) {
   function up<K extends keyof UserProfileData>(key: K, value: UserProfileData[K]) {
     setProfile({ ...profile, [key]: value })
   }
@@ -103,8 +100,6 @@ export function SocialLinksSection({ profile, setProfile, saving, handleSave, ha
           </Field>
         </div>
       </SectionCard>
-
-      <SaveBar saving={saving} handleSave={handleSave} handleCancel={handleCancel} />
     </div>
   )
 }

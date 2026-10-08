@@ -38,6 +38,8 @@ jobs:
       - run: npm ci
       - name: Build TypeScript
         run: npm run build
+      - name: Tests unitaires (sans Supabase)
+        run: node --test tests/mfa.test.js tests/validations.test.js
       - name: Tests d'intégration
         if: env.SUPABASE_URL != ''
         run: npm test

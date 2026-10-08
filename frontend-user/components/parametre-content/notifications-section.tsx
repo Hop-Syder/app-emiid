@@ -3,7 +3,7 @@
  * @organization Nexus Partners
  * @description Notifications section — alertes email, push et communication.
  * @created 2026-06-13
- * @updated 2026-08-30
+ * @updated 2026-10-08 — chaque réglage est enregistré dès qu'il change.
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
@@ -17,7 +17,7 @@ import {
   unsubscribeFromPushNotifications,
   getPushSubscriptionStatus,
 } from "@/lib/push-notifications"
-import { SectionCard, SettingToggle, SaveBar } from "./settings-primitives"
+import { SectionCard, SettingToggle } from "./settings-primitives"
 
 interface NotificationSettings {
   messages: boolean
@@ -28,19 +28,11 @@ interface NotificationSettings {
 
 interface NotificationsSectionProps {
   settings: NotificationSettings
-  setSettings: (s: NotificationSettings) => void
-  saving: boolean
-  handleSave: () => void
-  handleCancel: () => void
+  /** Applique et enregistre immédiatement le réglage modifié. */
+  onChange: (patch: Partial<NotificationSettings>) => void
 }
 
-export function NotificationsSection({
-  settings,
-  setSettings,
-  saving,
-  handleSave,
-  handleCancel,
-}: NotificationsSectionProps) {
+export function NotificationsSection({ settings, onChange }: NotificationsSectionProps) {
   const isMounted = useRef(true)
 
   // Sync push toggle with actual browser subscription state on mount
@@ -49,7 +41,7 @@ export function NotificationsSection({
     getPushSubscriptionStatus().then((isSubscribed) => {
       if (!isMounted.current) return
       if (settings.push !== isSubscribed) {
-        setSettings({ ...settings, push: isSubscribed })
+        onChange({ push: isSubscribed })
       }
     })
     return () => {
@@ -68,7 +60,7 @@ export function NotificationsSection({
         await unsubscribeFromPushNotifications()
       }
     }
-    setSettings({ ...settings, [key]: checked })
+    onChange({ [key]: checked })
   }
 
   return (
@@ -124,8 +116,6 @@ export function NotificationsSection({
           />
         </div>
       </SectionCard>
-
-      <SaveBar saving={saving} handleSave={handleSave} handleCancel={handleCancel} />
     </div>
   )
 }

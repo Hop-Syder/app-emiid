@@ -1,5 +1,8 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+
+/** Page de saisie du code de l'application d'authentification. */
+const MFA_PATH = '/login/mfa'
 
 export async function proxy(request: NextRequest) {
   // 1. Initialisation de la réponse
@@ -58,7 +61,20 @@ export async function proxy(request: NextRequest) {
       (!prof.suspended_until || new Date(prof.suspended_until as string).getTime() > Date.now())
   }
 
+  // --- VERROU 2FA (TOTP : Google / Microsoft Authenticator) ---
+  // Un compte qui a activé une application d'authentification doit saisir son
+  // code après chaque connexion : tant que la session reste au niveau aal1,
+  // seules la page de saisie du code et le callback d'auth sont accessibles.
+  let mfaPending = false
+  if (user && !isSuspended) {
+    const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
+    mfaPending = aal?.nextLevel === 'aal2' && aal.currentLevel !== 'aal2'
+  }
+
   if (path.startsWith('/api')) {
+    if (mfaPending) {
+      return NextResponse.json({ error: 'MFA_REQUIRED' }, { status: 403 })
+    }
     // Un compte suspendu ne peut effectuer AUCUNE action via l'API.
     if (isSuspended) {
       return NextResponse.json({ error: 'ACCOUNT_SUSPENDED' }, { status: 403 })
@@ -79,6 +95,23 @@ export async function proxy(request: NextRequest) {
   // Un utilisateur NON suspendu ne doit jamais rester bloqué sur /suspendu.
   if (path === '/suspendu') {
     url.pathname = user ? '/dashboard-user' : '/login'
+    return NextResponse.redirect(url)
+  }
+
+  if (mfaPending) {
+    if (path !== MFA_PATH && !path.startsWith('/auth/')) {
+      url.pathname = MFA_PATH
+      url.search = ''
+      url.searchParams.set('next', `${path}${request.nextUrl.search}`)
+      return NextResponse.redirect(url)
+    }
+    return response
+  }
+
+  // Session déjà au bon niveau : la page de code n'a plus lieu d'être.
+  if (path === MFA_PATH) {
+    url.pathname = user ? '/dashboard-user' : '/login'
+    url.search = ''
     return NextResponse.redirect(url)
   }
 

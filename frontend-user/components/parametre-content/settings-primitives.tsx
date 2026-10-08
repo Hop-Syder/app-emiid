@@ -216,48 +216,6 @@ export function SettingToggle({
 }
 
 /**
- * Barre d'enregistrement responsive
- */
-export function SaveBar({
-  saving,
-  handleSave,
-  handleCancel,
-  saveLabel = "Enregistrer les modifications",
-}: {
-  saving: boolean
-  handleSave: () => void
-  handleCancel: () => void
-  saveLabel?: string
-}) {
-  return (
-    <div className="flex flex-col-reverse sm:flex-row justify-end gap-2.5 pt-3">
-      <Button
-        type="button"
-        variant="outline"
-        onClick={handleCancel}
-        className="w-full sm:w-auto h-11 px-5 rounded-xl border-border text-foreground font-bold hover:bg-muted transition-all"
-      >
-        Annuler
-      </Button>
-      <Button
-        type="button"
-        onClick={handleSave}
-        disabled={saving}
-        className="w-full sm:w-auto h-11 px-6 rounded-xl bg-[#0150fd] hover:bg-[#003ec7] text-white font-bold shadow-md shadow-[#0150fd]/15 active:scale-[0.98] transition-all"
-      >
-        {saving ? (
-          <span className="flex items-center gap-2">
-            <Loader2 className="w-4 h-4 animate-spin" /> Enregistrement...
-          </span>
-        ) : (
-          saveLabel
-        )}
-      </Button>
-    </div>
-  )
-}
-
-/**
  * Sélecteur segmenté avec capsule douce
  */
 export function SegmentedControl<T extends string>({
