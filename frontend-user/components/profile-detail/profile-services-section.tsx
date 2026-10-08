@@ -3,14 +3,16 @@
  * @organization Nexus Partners
  * @description Section « Services & Tarifs » inspirée de la maquette (catalogue de prestations, tarifs indicatifs FCFA/Gratuit).
  * @created 2026-09-06
- * @updated 2026-09-06
+ * @updated 2026-10-09 — « Demander un devis » (discussion pré-remplie) ; un prix
+ *              non renseigné s'affiche « Sur devis » et non plus « Gratuit ».
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
 
 "use client"
 
-import { Tag, Sparkles, ArrowUpRight } from "lucide-react"
+import Link from "next/link"
+import { MessageCircle, Tag } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export interface ServiceItemData {
@@ -23,6 +25,8 @@ interface ProfileServicesSectionProps {
     services?: ServiceItemData[]
     professionName?: string
     onContactClick?: () => void
+    /** user_id du professionnel : active « Demander un devis » (absent = sa propre fiche). */
+    quoteContactId?: string
     className?: string
 }
 
@@ -30,6 +34,7 @@ export function ProfileServicesSection({
     services,
     professionName,
     onContactClick,
+    quoteContactId,
     className
 }: ProfileServicesSectionProps) {
     // Les vrais services, ou rien. Le repli sur des tarifs d'exemple faisait
@@ -42,7 +47,11 @@ export function ProfileServicesSection({
     if (displayServices.length === 0) return null
 
     const formatPrice = (price: number | null) => {
-        if (price === 0 || price === null) {
+        // null = prix non renseigné, ce n'est PAS une prestation gratuite.
+        if (price === null) {
+            return { isFree: false, label: "Sur devis", sublabel: "" }
+        }
+        if (price === 0) {
             return { isFree: true, label: "Gratuit", sublabel: "" }
         }
         return {
@@ -78,8 +87,10 @@ export function ProfileServicesSection({
                     return (
                         <div
                             key={index}
-                            className="group rounded-2xl border border-border/80 bg-muted/20 hover:bg-muted/40 p-4 sm:p-5 transition-all duration-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                            className="group rounded-2xl border border-border/80 bg-muted/20 hover:bg-muted/40 p-4 sm:p-5 transition-all duration-200"
                         >
+                          {/* Titre à gauche, prix à droite : lisibles d'un même coup d'œil. */}
+                          <div className="flex items-start justify-between gap-4">
                             {/* Titre & Description */}
                             <div className="min-w-0 flex-1 space-y-1">
                                 <div className="flex items-center gap-2">
@@ -95,7 +106,7 @@ export function ProfileServicesSection({
                             </div>
 
                             {/* Prix à droite */}
-                            <div className="shrink-0 text-left sm:text-right self-start sm:self-center">
+                            <div className="shrink-0 text-right">
                                 {priceInfo.isFree ? (
                                     <div className="inline-flex items-center px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-black text-sm sm:text-base">
                                         Gratuit
@@ -111,6 +122,16 @@ export function ProfileServicesSection({
                                     </div>
                                 )}
                             </div>
+                          </div>
+                                {quoteContactId && service.title && (
+                                    <Link
+                                        href={`/messages?contact=${quoteContactId}&texte=${encodeURIComponent(`Bonjour, je souhaite un devis pour : ${service.title}`)}`}
+                                        className="mt-3 inline-flex h-10 items-center gap-1.5 rounded-full border border-[#25D366]/40 px-4 text-xs font-bold text-[#1DA851] hover:bg-[#25D366]/10 active:scale-[0.98]"
+                                    >
+                                        <MessageCircle className="h-4 w-4" />
+                                        Demander un devis
+                                    </Link>
+                                )}
                         </div>
                     )
                 })}

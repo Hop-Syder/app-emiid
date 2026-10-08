@@ -10,7 +10,7 @@
 
 "use client"
 
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { ArrowLeft, MoreHorizontal, Gavel, Trash2, MessageSquare, Search, X, UsersRound } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useMessages } from "@/hooks/use-messages"
@@ -35,6 +35,9 @@ import { MediationDialog } from "./messages/mediation-dialog"
 import { ChatCallButtons } from "./messages/chat-call-buttons"
 
 export function MessagesContent() {
+  const searchParams = useSearchParams()
+  const draftContact = searchParams.get("contact")
+  const draftText = searchParams.get("texte")?.slice(0, 500) || undefined
   const router = useRouter()
   const {
     selectedConv,
@@ -272,6 +275,13 @@ export function MessagesContent() {
               </p>
             )}
             <MessageInput
+              // Le brouillon ?texte= (devis depuis une fiche profil) ne s'applique
+              // qu'à la discussion ouverte avec ce contact, et n'est jamais envoyé
+              // sans action de l'utilisateur.
+              key={selectedConv.id}
+              initialText={
+                draftText && selectedConv.other_participant.user_id === draftContact ? draftText : undefined
+              }
               onSend={handleSendMessage}
               isDisabled={false}
               editingMessage={editingMessage}

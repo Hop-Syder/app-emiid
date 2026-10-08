@@ -71,6 +71,8 @@ interface ProfileReviewsSectionProps {
     profileId: string
     profileName?: string
     className?: string
+    /** Remonte la note moyenne et le nombre d'avis (affichés dans l'en-tête mobile). */
+    onStats?: (stats: { count: number; average: number }) => void
 }
 
 /** Synthèse renvoyée par /api/profiles/[id]/reviews. */
@@ -83,7 +85,8 @@ interface ReviewStats {
 export function ProfileReviewsSection({
     profileId,
     profileName,
-    className
+    className,
+    onStats,
 }: ProfileReviewsSectionProps) {
     const [reviews, setReviews] = useState<ReviewItem[]>([])
     const [stats, setStats] = useState<ReviewStats>({ count: 0, average: 0, distribution: {} })
@@ -107,7 +110,10 @@ export function ProfileReviewsSection({
             if (!res.ok) throw new Error("chargement impossible")
             const data = await res.json()
             setReviews(Array.isArray(data.reviews) ? data.reviews : [])
-            if (data.stats) setStats(data.stats)
+            if (data.stats) {
+                setStats(data.stats)
+                onStats?.({ count: data.stats.count ?? 0, average: data.stats.average ?? 0 })
+            }
             setCanReview(data.canReview === true)
         } catch {
             // Silencieux : une section d'avis indisponible ne doit pas couvrir

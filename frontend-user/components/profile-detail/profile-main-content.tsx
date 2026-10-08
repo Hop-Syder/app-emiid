@@ -64,15 +64,23 @@ interface ProfileMainContentProps {
     profile: ProfileData
     gallery: GalleryItem[]
     loadingGallery: boolean
+    /** Contenu affiché en tête sur mobile uniquement (grille de réalisations). */
+    mobileLead?: React.ReactNode
+    isOwnProfile?: boolean
+    onReviewStats?: (stats: { count: number; average: number }) => void
 }
 
-export function ProfileMainContent({ profile, gallery, loadingGallery }: ProfileMainContentProps) {
+export function ProfileMainContent({ profile, gallery, loadingGallery, mobileLead, isOwnProfile, onReviewStats }: ProfileMainContentProps) {
     return (
         <div className="lg:col-span-8 min-w-0 space-y-6">
+            {/* Mobile : les photos de chantiers d'abord — la preuve avant le texte. */}
+            {mobileLead && <div className="lg:hidden">{mobileLead}</div>}
+
             {/* ── Section SERVICES & TARIFS (Image 2) ── */}
             <ProfileServicesSection
                 services={profile.services}
                 professionName={profile.name}
+                quoteContactId={isOwnProfile ? undefined : profile.id}
             />
 
             {/* About card */}
@@ -181,6 +189,7 @@ export function ProfileMainContent({ profile, gallery, loadingGallery }: Profile
             <ProfileReviewsSection
                 profileId={profile.id || ""}
                 profileName={profile.name}
+                onStats={onReviewStats}
             />
         </div>
     )

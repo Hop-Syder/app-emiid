@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils"
 import { ProfileHero } from "./profile-hero"
 import { ProfileMainContent } from "./profile-main-content"
 import { ProfileSidebar } from "./profile-sidebar"
+import { MobileContactBar, MobileProfileHeader, MobileRealisationsGrid, type ReviewSummary } from "./mobile-profile"
 import { useProfileData } from "@/hooks/use-profile-data"
 import { useProfileActions } from "@/hooks/use-profile-actions"
 
@@ -39,6 +40,8 @@ interface ProfileDetailContentProps {
 export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
     const router = useRouter()
     const [scrolled, setScrolled] = useState(false)
+    // Note moyenne remontée par la section Avis, affichée dans l'en-tête mobile.
+    const [reviewStats, setReviewStats] = useState<ReviewSummary | null>(null)
 
     const {
         profile, setProfile,
@@ -236,7 +239,22 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                 </div>
             </div>
 
-            <main className="container max-w-6xl mx-auto px-4 pb-24 pt-4">
+            <main className="container max-w-6xl mx-auto px-4 pb-40 lg:pb-24 pt-4">
+                {/* Mobile : fiche contact façon WhatsApp Business. */}
+                <div className="lg:hidden">
+                    <MobileProfileHeader
+                        profile={profile}
+                        isOwnProfile={isOwnProfile}
+                        isLoggedIn={isLoggedIn}
+                        isFollowed={isFollowed}
+                        followLoading={followLoading}
+                        onFollow={handleFollow}
+                        onShare={() => setIsShareModalOpen(true)}
+                        reviews={reviewStats}
+                    />
+                </div>
+
+                <div className="hidden lg:block">
                 <ProfileHero
                     profile={profile}
                     isOwnProfile={isOwnProfile}
@@ -250,12 +268,16 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                     isLoggedIn={isLoggedIn}
                     handleShare={handleShare}
                 />
+                </div>
 
-                <section className="mt-6 grid lg:grid-cols-12 gap-6 items-start">
+                <section className="mt-2 lg:mt-6 grid lg:grid-cols-12 gap-6 items-start">
                     <ProfileMainContent
                         profile={profile}
                         gallery={gallery}
                         loadingGallery={loadingGallery}
+                        isOwnProfile={isOwnProfile}
+                        onReviewStats={setReviewStats}
+                        mobileLead={<MobileRealisationsGrid gallery={gallery} profile={profile} />}
                     />
 
                     <ProfileSidebar
@@ -270,6 +292,8 @@ export function ProfileDetailContent({ profileId }: ProfileDetailContentProps) {
                     />
                 </section>
             </main>
+
+            {!isOwnProfile && <MobileContactBar profile={profile} isLoggedIn={isLoggedIn} />}
 
             {profile && isShareModalOpen && (
                 <ShareModal
