@@ -15,6 +15,7 @@ import { trackProfileContact } from "@/lib/analytics"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
+import { toInternational } from "@/lib/phone"
 
 interface ProfileSidebarProps {
     profile: {
@@ -127,19 +128,6 @@ const DAY_LABELS: Record<number, string> = {
 function formatHour(time: string): string {
     const [h, m] = time.split(":")
     return m && m !== "00" ? `${h} h ${m}` : `${h} h`
-}
-
-/**
- * Normalise un numero pour wa.me / tel:.
- * Regle : un numero deja international (prefixe « + ») est conserve tel quel ;
- * sinon on applique l'indicatif Benin (229) s'il est absent.
- */
-function toInternational(raw: string): string {
-    const digits = raw.replace(/\D/g, "")
-    if (!digits) return ""
-    if (raw.trim().startsWith("+")) return digits
-    if (digits.startsWith("229")) return digits
-    return `229${digits}`
 }
 
 export function ProfileSidebar({

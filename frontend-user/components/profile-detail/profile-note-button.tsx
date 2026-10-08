@@ -387,7 +387,8 @@ export function ProfileNoteButton({
                             variant="ghost"
                             size="icon"
                             onClick={() => setIsOpen(false)}
-                            className="h-7 w-7 rounded-lg text-slate-400 hover:text-foreground hover:bg-muted"
+                            aria-label="Fermer"
+                            className="h-10 w-10 md:h-7 md:w-7 rounded-lg text-slate-400 hover:text-foreground hover:bg-muted"
                         >
                             <X className="h-4 w-4" />
                         </Button>

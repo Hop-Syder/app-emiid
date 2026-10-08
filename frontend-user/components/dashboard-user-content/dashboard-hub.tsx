@@ -9,16 +9,20 @@ import { ProximitySection } from "./proximity-section"
 import { HubContextualCta } from "./hub-contextual-cta"
 import { HubCommunities } from "./hub-communities"
 import { RecentMissionsSection } from "./recent-missions-section"
+import { MobileHome } from "@/components/mobile-hub/mobile-home"
 
 interface DashboardHubContentProps {
   initialNewProfiles: PublicProfile[]
   initialProximityProfiles?: PublicProfile[]
   userLocation?: { city: string | null; country_id: string | null; country_name: string | null } | null
+  /** Liste dense de l'accueil mobile (20 talents les plus proches). */
+  mobileTalents?: PublicProfile[]
 }
 
 export function DashboardHubContent({
   initialProximityProfiles = [],
-  userLocation
+  userLocation,
+  mobileTalents = [],
 }: DashboardHubContentProps) {
   const { statsError } = useDashboardStats({
     endpoint: "/api/dashboard-user/stats",
@@ -30,7 +34,12 @@ export function DashboardHubContent({
   })
 
   return (
-    <div className="flex flex-col min-h-screen pb-12">
+    <>
+    {/* Mobile : hub de proximité façon WhatsApp (liste dense + statuts). */}
+    <MobileHome talents={mobileTalents} locationLabel={userLocation?.city} />
+
+    {/* Ordinateur : tableau de bord complet, inchangé. */}
+    <div className="hidden lg:flex flex-col min-h-screen pb-12">
 
       {/* =========================================
           SECTION 1 : HERO + STATS RÉSEAU
@@ -87,5 +96,6 @@ export function DashboardHubContent({
 
       </div>
     </div>
+    </>
   )
 }

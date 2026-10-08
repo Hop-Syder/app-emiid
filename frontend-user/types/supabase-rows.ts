@@ -31,6 +31,10 @@ export interface PublicProfileJoined {
     latitude?: number | null
     longitude?: number | null
     country_id?: string | null
+    /** Quartier (20261009). */
+    district?: string | null
+    /** Plus petit prix du catalogue de prestations, en FCFA (20261009). */
+    starting_price?: number | null
     countries?: CountryJoin | CountryJoin[] | null
     profile_tags?: ProfileTagJoin[] | null
 }

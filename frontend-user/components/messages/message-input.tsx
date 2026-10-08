@@ -30,6 +30,8 @@ interface MessageInputProps {
   editingMessage: Message | null
   onCancelEdit: () => void
   onEditSubmit: (messageId: string, content: string) => void
+  /** Brouillon pré-rempli (ex. « Demander un devis » depuis une fiche profil). */
+  initialText?: string
 }
 
 // === COMPOSANT DE SAISIE DE MESSAGE ===
@@ -39,9 +41,10 @@ export const MessageInput: React.FC<MessageInputProps> = ({
   editingMessage,
   onCancelEdit,
   onEditSubmit,
+  initialText,
 }) => {
   // === ÉTATS ET RÉFÉRENCES ===
-  const [text, setText] = useState('')
+  const [text, setText] = useState(initialText ?? '')
   const [file, setFile] = useState<File | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -188,6 +191,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
         <Button 
           type="submit" 
           size="icon" 
+          aria-label="Envoyer le message"
           disabled={isDisabled || (!text.trim() && !file)}
           className={cn(
             "h-9 w-9 rounded-full shadow-sm transition-all duration-200 shrink-0",

@@ -107,7 +107,8 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 rounded-lg text-slate-400 hover:text-muted-foreground hover:bg-muted/50"
+                aria-label="Actions sur le message"
+                className="h-9 w-9 md:h-7 md:w-7 rounded-lg text-slate-400 hover:text-muted-foreground hover:bg-muted/50"
               >
                 <MoreHorizontal className="h-4 w-4" />
               </Button>

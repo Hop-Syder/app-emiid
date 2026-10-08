@@ -1,15 +1,19 @@
 /**
  * @author @hopsyder
  * @organization Nexus Partners
- * @description Hook personnalisé pour charger et formater les réalisations approuvées dans le showcase du dashboard.
+ * @description Réalisations approuvées les plus récentes, avec leur auteur.
+ *              Alimente le rail « Chantiers du jour » (accueil et Réseau) et la
+ *              grille catalogue de l'onglet Réseau.
  * @created 2026-07-13
+ * @updated 2026-10-09 — limite paramétrable, auteur enrichi (id, vérifié,
+ *              métier, quartier, tarif de départ) pour les tuiles catalogue.
  * 🌐 ceo.nexuspartners.xyz
  * 📧 daoudaabassichristian@gmail.com
  */
 
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 
 export interface ShowcaseItem {
@@ -20,10 +24,30 @@ export interface ShowcaseItem {
   authorName: string
   authorAvatar: string | null
   authorSlug: string | null
+  /** user_id de l'auteur — pour ouvrir une discussion (/messages?contact=…). */
+  authorUserId: string | null
+  authorVerified: boolean
+  authorRole: string | null
+  authorDistrict: string | null
+  /** Plus petit prix du catalogue de l'auteur (FCFA), si renseigné. */
+  authorStartingPrice: number | null
 }
 
-export function useRealisationsShowcase() {
-  const supabase = createClient()
+interface AuthorRow {
+  id: string
+  user_id: string | null
+  first_name: string | null
+  last_name: string | null
+  avatar_url: string | null
+  slug: string | null
+  is_verified: boolean | null
+  role: string | null
+  district?: string | null
+  starting_price?: number | null
+}
+
+export function useRealisationsShowcase({ limit = 12 }: { limit?: number } = {}) {
+  const supabase = useMemo(() => createClient(), [])
   const [items, setItems] = useState<ShowcaseItem[]>([])
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState<ShowcaseItem | null>(null)
@@ -32,36 +56,30 @@ export function useRealisationsShowcase() {
     let active = true
     ;(async () => {
       try {
-        // Récupérer les 12 réalisations approuvées les plus récentes
         const { data: gallery, error: galleryError } = await supabase
           .from("project_gallery")
           .select("id, title, description, image_url, profile_id")
           .eq("status", "approved")
           .order("created_at", { ascending: false })
-          .limit(12)
+          .limit(limit)
 
         if (galleryError) throw galleryError
 
         const rows = (gallery as { id: string; title: string | null; description: string | null; image_url: string; profile_id: string | null }[]) || []
         const profileIds = Array.from(new Set(rows.map((r) => r.profile_id).filter(Boolean))) as string[]
 
-        // Charger les profils auteurs correspondants
-        const authorMap = new Map<string, { name: string; avatar: string | null; slug: string | null }>()
+        // `*` plutôt qu'une liste de colonnes : district et starting_price
+        // n'existent qu'une fois la migration 20261009 appliquée, et une
+        // colonne nommée mais absente ferait échouer toute la requête.
+        const authorMap = new Map<string, AuthorRow>()
         if (profileIds.length) {
           const { data: profs, error: profsError } = await supabase
             .from("public_profiles")
-            .select("id, first_name, last_name, avatar_url, slug")
+            .select("*")
             .in("id", profileIds)
 
           if (profsError) throw profsError
-
-          for (const p of (profs as { id: string; first_name: string | null; last_name: string | null; avatar_url: string | null; slug: string | null }[]) || []) {
-            authorMap.set(p.id, {
-              name: `${p.first_name || ""} ${p.last_name || ""}`.trim() || "Membre EmiID",
-              avatar: p.avatar_url,
-              slug: p.slug,
-            })
-          }
+          for (const p of (profs as AuthorRow[]) || []) authorMap.set(p.id, p)
         }
 
         const mapped: ShowcaseItem[] = rows.map((r) => {
@@ -71,33 +89,29 @@ export function useRealisationsShowcase() {
             title: r.title,
             description: r.description,
             imageUrl: r.image_url,
-            authorName: a?.name || "Membre EmiID",
-            authorAvatar: a?.avatar || "/profil/avatar.jpg",
+            authorName: a ? `${a.first_name || ""} ${a.last_name || ""}`.trim() || "Membre EmiID" : "Membre EmiID",
+            authorAvatar: a?.avatar_url || "/profil/avatar.jpg",
             authorSlug: a?.slug || null,
+            authorUserId: a?.user_id || null,
+            authorVerified: !!a?.is_verified,
+            authorRole: a?.role || null,
+            authorDistrict: a?.district || null,
+            authorStartingPrice: typeof a?.starting_price === "number" ? a.starting_price : null,
           }
         })
 
-        if (active) {
-          setItems(mapped)
-        }
+        if (active) setItems(mapped)
       } catch (err) {
         console.error("Failed to fetch realisations showcase", err)
       } finally {
-        if (active) {
-          setLoading(false)
-        }
+        if (active) setLoading(false)
       }
     })()
 
     return () => {
       active = false
     }
-  }, [supabase])
+  }, [supabase, limit])
 
-  return {
-    items,
-    loading,
-    selected,
-    setSelected,
-  }
+  return { items, loading, selected, setSelected }
 }

@@ -10,7 +10,7 @@
 
 "use client"
 
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { ArrowLeft, MoreHorizontal, Gavel, Trash2, MessageSquare, Search, X, UsersRound } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useMessages } from "@/hooks/use-messages"
@@ -32,8 +32,12 @@ import { GroupInfoPanel } from "./messages/group-info-panel"
 import { MessageList } from "./messages/message-list"
 import { MessageInput } from "./messages/message-input"
 import { MediationDialog } from "./messages/mediation-dialog"
+import { ChatCallButtons } from "./messages/chat-call-buttons"
 
 export function MessagesContent() {
+  const searchParams = useSearchParams()
+  const draftContact = searchParams.get("contact")
+  const draftText = searchParams.get("texte")?.slice(0, 500) || undefined
   const router = useRouter()
   const {
     selectedConv,
@@ -130,7 +134,8 @@ export function MessagesContent() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="md:hidden -ml-2 hover:bg-muted/50 h-8 w-8 text-foreground dark:text-white"
+                  aria-label="Retour aux discussions"
+                  className="md:hidden -ml-2 hover:bg-muted/50 h-11 w-11 rounded-full text-foreground dark:text-white"
                   onClick={() => { setShowChatMobile(false); router.push("/messages", { scroll: false }) }}
                 >
                   <ArrowLeft className="h-4 w-4 text-foreground dark:text-white" />
@@ -181,13 +186,19 @@ export function MessagesContent() {
               </div>
 
               <div className="flex items-center gap-0.5">
+                {!selectedConv.is_group && (
+                  <ChatCallButtons
+                    userId={selectedConv.other_participant.user_id}
+                    name={selectedConv.other_participant.first_name}
+                  />
+                )}
                 <Button
                   variant="ghost"
                   size="icon"
                   aria-label="Rechercher dans la discussion"
                   aria-pressed={inChatSearchOpen}
                   className={cn(
-                    "h-9 w-9 rounded-xl transition-colors",
+                    "h-11 w-11 lg:h-9 lg:w-9 rounded-full lg:rounded-xl transition-colors",
                     inChatSearchOpen ? "text-primary bg-primary/10" : "text-slate-400 hover:text-primary hover:bg-primary/5"
                   )}
                   onClick={() => setInChatSearchOpen((v) => { const next = !v; if (!next) setInChatQuery(""); return next })}
@@ -196,7 +207,7 @@ export function MessagesContent() {
                 </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="text-slate-400 hover:text-muted-foreground hover:bg-muted/50 h-9 w-9 rounded-xl">
+                    <Button variant="ghost" size="icon" aria-label="Plus d'options" className="text-slate-400 hover:text-muted-foreground hover:bg-muted/50 h-11 w-11 lg:h-9 lg:w-9 rounded-full lg:rounded-xl">
                       <MoreHorizontal className="h-5 w-5" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -234,7 +245,7 @@ export function MessagesContent() {
                   variant="ghost"
                   size="icon"
                   aria-label="Fermer la recherche"
-                  className="h-7 w-7 rounded-lg text-slate-400 hover:text-muted-foreground hover:bg-muted/50 shrink-0"
+                  className="h-10 w-10 md:h-7 md:w-7 rounded-lg text-slate-400 hover:text-muted-foreground hover:bg-muted/50 shrink-0"
                   onClick={() => { setInChatSearchOpen(false); setInChatQuery("") }}
                 >
                   <X className="h-4 w-4" />
@@ -264,6 +275,13 @@ export function MessagesContent() {
               </p>
             )}
             <MessageInput
+              // Le brouillon ?texte= (devis depuis une fiche profil) ne s'applique
+              // qu'à la discussion ouverte avec ce contact, et n'est jamais envoyé
+              // sans action de l'utilisateur.
+              key={selectedConv.id}
+              initialText={
+                draftText && selectedConv.other_participant.user_id === draftContact ? draftText : undefined
+              }
               onSend={handleSendMessage}
               isDisabled={false}
               editingMessage={editingMessage}

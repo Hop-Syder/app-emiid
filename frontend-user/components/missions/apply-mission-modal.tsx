@@ -132,7 +132,8 @@ export function ApplyMissionModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+            aria-label="Fermer"
+            className="flex h-11 w-11 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
           >
             <X className="h-5 w-5" />
           </button>

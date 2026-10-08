@@ -19,8 +19,9 @@ import './globals.css'
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  // Le zoom n'est plus bloqué (accessibilité : malvoyants, WCAG 1.4.4). Le
+  // zoom automatique d'iOS sur les champs est évité autrement : police de
+  // 16 px minimum sur les champs en mobile (cf. globals.css).
   // Charte EmiID : fond blanc en clair, slate-950 en sombre (la couleur de marque
   // #013ff4 reste l'accent/symbole, pas le fond du chrome mobile).
   themeColor: [

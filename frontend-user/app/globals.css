@@ -214,3 +214,31 @@
     background: hsl(var(--background));
   }
 }
+/* ═══════════════════════════════════════════════════════════════════════════
+   Responsive mobile — socle commun (refonte UI/UX du 09/10)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Hauteur d'écran réelle sur mobile : 100vh inclut la zone cachée par la barre
+   d'adresse, ce qui coupait le bas des écrans pleine hauteur (messagerie…).
+   dvh suit la hauteur visible ; vh reste en repli pour les vieux navigateurs. */
+@supports (height: 100dvh) {
+  .h-screen { height: 100dvh; }
+  .min-h-screen { min-height: 100dvh; }
+  .max-h-screen { max-height: 100dvh; }
+}
+
+/* iOS zoome sur tout champ dont la police fait moins de 16 px. Le zoom étant
+   de nouveau autorisé, on garde 16 px minimum sur les champs en mobile. */
+@media (max-width: 767px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+  select,
+  textarea {
+    font-size: max(16px, 1em);
+  }
+}
+
+/* Sur écran tactile, aucune commande ne doit dépendre du survol : les
+   contrôles révélés au survol (flèches de carrousel…) restent visibles. */
+@media (hover: none) {
+  .touch-visible { opacity: 1 !important; }
+}
