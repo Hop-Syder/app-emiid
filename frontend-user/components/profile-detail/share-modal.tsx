@@ -10,7 +10,8 @@
 
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
+import QRCode from "qrcode"
 import { Check, Copy, Download, Share2, QrCode } from "lucide-react"
 import { toast } from "sonner"
 import Image from "next/image"
@@ -87,8 +88,14 @@ export function ShareModal({ isOpen, onOpenChange, profile, profileUrl }: ShareM
         )
     }, [profile.name])
 
-    const qrCodeUrl = useMemo(() => {
-        return `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(profileUrl)}&margin=10`
+    // QR généré localement (data URL PNG) : fonctionne hors connexion et
+    // l'URL du profil n'est plus transmise à un service tiers (api.qrserver.com).
+    const [qrCodeUrl, setQrCodeUrl] = useState<string>("")
+    useEffect(() => {
+        if (!profileUrl) return
+        void QRCode.toDataURL(profileUrl, { errorCorrectionLevel: "M", margin: 2, width: 500 })
+            .then(setQrCodeUrl)
+            .catch(() => setQrCodeUrl(""))
     }, [profileUrl])
 
     const copyToClipboard = async (value: string) => {
@@ -153,7 +160,6 @@ export function ShareModal({ isOpen, onOpenChange, profile, profileUrl }: ShareM
             document.body.appendChild(a)
             a.click()
             a.remove()
-            URL.revokeObjectURL(url)
             toast.success("vCard téléchargée", { description: "Ajoutez ce contact à votre carnet." })
         } catch {
             toast.error("Impossible de télécharger la vCard")
@@ -163,16 +169,13 @@ export function ShareModal({ isOpen, onOpenChange, profile, profileUrl }: ShareM
     const downloadQRCode = async () => {
         setQrLoading(true)
         try {
-            const response = await fetch(qrCodeUrl)
-            const blob = await response.blob()
-            const url = URL.createObjectURL(blob)
+            if (!qrCodeUrl) throw new Error("QR indisponible")
             const a = document.createElement("a")
-            a.href = url
+            a.href = qrCodeUrl
             a.download = `qrcode-${profile.name.replace(/\s+/g, '-').toLowerCase()}.png`
             document.body.appendChild(a)
             a.click()
             a.remove()
-            URL.revokeObjectURL(url)
             toast.success("QR Code téléchargé", { description: "Prêt à être scanné." })
         } catch {
             toast.error("Impossible de télécharger le QR Code")
@@ -243,14 +246,12 @@ export function ShareModal({ isOpen, onOpenChange, profile, profileUrl }: ShareM
                         </span>
                         
                         <div className="relative w-44 h-44 sm:w-48 sm:h-48 bg-card p-3 rounded-3xl border border-border/60 dark:border-white/10 shadow-lg flex items-center justify-center overflow-hidden group">
-                            <Image
-                                src={qrCodeUrl}
-                                alt={`QR Code de ${profile.name}`}
-                                width={180}
-                                height={180}
-                                className="object-contain"
-                                priority
-                            />
+                            {qrCodeUrl ? (
+                                // eslint-disable-next-line @next/next/no-img-element -- data URL générée localement
+                                <img src={qrCodeUrl} alt={`QR Code de ${profile.name}`} width={180} height={180} className="object-contain" />
+                            ) : (
+                                <div className="h-[180px] w-[180px] animate-pulse rounded-xl bg-muted" />
+                            )}
                         </div>
 
                         <p className="text-[10px] text-slate-400 dark:text-muted-foreground font-semibold mt-3 max-w-[200px]">
