@@ -23,6 +23,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { StoryViewer } from "@/components/mobile-hub/story-viewer"
 import type { ShowcaseItem } from "@/hooks/use-realisations-showcase"
 import type { GalleryItem, ProfileData } from "@/hooks/use-profile-data"
+import { formatFcfa } from "@/components/mobile-hub/format"
 import { formatOpenStatus, getOpenStatus } from "@/lib/opening-hours"
 import { toInternational } from "@/lib/phone"
 import { trackProfileMetric } from "@/lib/track-profile"
@@ -149,28 +150,58 @@ export function MobileProfileHeader({
         </div>
       ) : (
         <>
-          <div className="mt-5 flex justify-center gap-2">
-            <RoundAction href={contact.messageHref} icon={MessageCircle} label="Message" />
+          {/* Deux actions majeures, pleine largeur (maquette). Le vert porte du
+              texte blanc : on utilise le vert foncé lisible (contact-strong),
+              pas le #25D366 vif, illisible en blanc. */}
+          <div className="mt-5 flex w-full gap-2">
             {contact.phone ? (
               <>
-                <RoundAction
-                  href={`tel:+${contact.phone}`}
-                  icon={Phone}
-                  label="Appeler"
-                  onClick={() => { trackProfileMetric(profile.id, "call"); trackProfileContact(profile.id, "call") }}
-                />
-                <RoundAction
+                <a
                   href={contact.whatsappHref}
-                  external
-                  icon={MessageCircle}
-                  label="WhatsApp"
-                  tone="green"
+                  target="_blank"
+                  rel="noopener noreferrer ugc nofollow"
                   onClick={() => { trackProfileMetric(profile.id, "whatsapp"); trackProfileContact(profile.id, "whatsapp") }}
-                />
+                  className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-contact-strong text-sm font-bold text-white active:opacity-90"
+                >
+                  <MessageCircle className="h-[18px] w-[18px]" />
+                  Discuter sur WhatsApp
+                </a>
+                <a
+                  href={`tel:+${contact.phone}`}
+                  onClick={() => { trackProfileMetric(profile.id, "call"); trackProfileContact(profile.id, "call") }}
+                  className="flex h-12 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#013ff4] px-5 text-sm font-bold text-white active:opacity-90"
+                >
+                  <Phone className="h-[18px] w-[18px]" />
+                  Appeler
+                </a>
               </>
-            ) : contact.phoneLocked ? (
-              <RoundAction href={loginHref()} icon={LogIn} label="Numéro" />
-            ) : null}
+            ) : (
+              <>
+                {/* Sans numéro public : l'échange reste possible dans EmiID. */}
+                <Link
+                  href={contact.messageHref}
+                  className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-contact-strong text-sm font-bold text-white active:opacity-90"
+                >
+                  <MessageCircle className="h-[18px] w-[18px]" />
+                  Envoyer un message
+                </Link>
+                {contact.phoneLocked && (
+                  <Link
+                    href={loginHref()}
+                    className="flex h-12 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#013ff4] px-5 text-sm font-bold text-white active:opacity-90"
+                  >
+                    <LogIn className="h-[18px] w-[18px]" />
+                    Numéro
+                  </Link>
+                )}
+              </>
+            )}
+          </div>
+
+          {/* Message interne et partage, en retrait : les deux actions
+              majeures restent celles du dessus. */}
+          <div className="mt-3 flex justify-center gap-2">
+            {contact.phone && <RoundAction href={contact.messageHref} icon={MessageCircle} label="Message" />}
             <RoundAction onClick={onShare} icon={Share2} label="Partager" />
           </div>
 
@@ -196,6 +227,7 @@ export function MobileProfileHeader({
 
 export function MobileRealisationsGrid({ gallery, profile }: { gallery: GalleryItem[]; profile: ProfileData }) {
   const [selected, setSelected] = useState<ShowcaseItem | null>(null)
+  const [category, setCategory] = useState<string>("Tous")
 
   // Même forme que les statuts du Réseau : la visionneuse est réutilisée telle quelle.
   const items: ShowcaseItem[] = useMemo(
@@ -213,33 +245,81 @@ export function MobileRealisationsGrid({ gallery, profile }: { gallery: GalleryI
         authorRole: profile.role,
         authorDistrict: null,
         authorStartingPrice: null,
+        price: g.price ?? null,
+        category: g.category ?? null,
       })),
     [gallery, profile],
   )
+
+  // « Tous » puis les catégories réellement présentes, dans l'ordre d'apparition.
+  const categories = useMemo(() => {
+    const seen: string[] = []
+    for (const it of items) {
+      const c = it.category?.trim()
+      if (c && !seen.includes(c)) seen.push(c)
+    }
+    return seen.length > 0 ? ["Tous", ...seen] : []
+  }, [items])
+
+  const shown = category === "Tous" ? items : items.filter((i) => i.category?.trim() === category)
 
   if (items.length === 0) return null
 
   return (
     <section aria-labelledby="realisations-mobile" className="-mx-4">
       <h2 id="realisations-mobile" className="px-4 pb-2 text-[15px] font-bold text-foreground">
-        Réalisations <span className="font-normal text-muted-foreground">({items.length})</span>
+        Réalisations &amp; Portfolio <span className="font-normal text-muted-foreground">({items.length})</span>
       </h2>
-      <ul className="grid grid-cols-3 gap-0.5">
-        {items.slice(0, 9).map((item) => (
+
+      {/* Filtres : affichés seulement si l'artisan a classé ses réalisations. */}
+      {categories.length > 0 && (
+        <div
+          role="tablist"
+          aria-label="Filtrer les réalisations"
+          className="flex gap-2 overflow-x-auto px-4 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          {categories.map((c) => (
+            <button
+              key={c}
+              type="button"
+              role="tab"
+              aria-selected={category === c}
+              onClick={() => setCategory(c)}
+              className={cn(
+                "h-9 shrink-0 rounded-full px-4 text-[13px] font-bold transition-colors",
+                category === c ? "bg-contact-strong text-white" : "bg-muted text-muted-foreground",
+              )}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <ul className="grid grid-cols-2 gap-0.5 px-0.5">
+        {shown.map((item) => (
           <li key={item.id}>
             <button
               type="button"
               onClick={() => setSelected(item)}
               aria-label={item.title ? `Voir « ${item.title} »` : "Voir la réalisation"}
-              className="block aspect-square w-full overflow-hidden bg-muted active:opacity-80"
+              className="relative block aspect-square w-full overflow-hidden bg-muted active:opacity-80"
             >
               {/* eslint-disable-next-line @next/next/no-img-element -- photo de réalisation, hôte variable */}
               <img src={item.imageUrl} alt="" loading="lazy" className="h-full w-full object-cover" />
+              {item.price != null && (
+                // Dégradé sous l'étiquette : un prix blanc sur une photo claire
+                // serait illisible.
+                <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-2 pb-1.5 pt-6 text-left text-[13px] font-black text-white">
+                  {formatFcfa(item.price)}
+                </span>
+              )}
             </button>
           </li>
         ))}
       </ul>
-      <StoryViewer items={items} current={selected} onChange={setSelected} />
+
+      <StoryViewer items={shown} current={selected} onChange={setSelected} messageIntent="same" />
     </section>
   )
 }

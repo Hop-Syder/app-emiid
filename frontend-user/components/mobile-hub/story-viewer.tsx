@@ -15,6 +15,7 @@ import Link from "next/link"
 import { AnimatePresence, motion } from "framer-motion"
 import { BadgeCheck, MessageCircle, X } from "lucide-react"
 import type { ShowcaseItem } from "@/hooks/use-realisations-showcase"
+import { formatFcfa } from "./format"
 
 const DURATION_MS = 5000
 
@@ -22,9 +23,15 @@ interface StoryViewerProps {
   items: ShowcaseItem[]
   current: ShowcaseItem | null
   onChange: (item: ShowcaseItem | null) => void
+  /**
+   * « write » : écrire à l'auteur (rail d'accueil, onglet Réseau).
+   * « same »  : demander la même réalisation — le message est pré-rempli
+   *             avec son titre (portfolio d'une fiche profil).
+   */
+  messageIntent?: "write" | "same"
 }
 
-export function StoryViewer({ items, current, onChange }: StoryViewerProps) {
+export function StoryViewer({ items, current, onChange, messageIntent = "write" }: StoryViewerProps) {
   const index = current ? items.findIndex((i) => i.id === current.id) : -1
 
   const go = useCallback(
@@ -115,7 +122,14 @@ export function StoryViewer({ items, current, onChange }: StoryViewerProps) {
 
           {/* Légende + actions */}
           <div className="space-y-3 px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-3">
-            {current.title && <p className="text-sm font-semibold">{current.title}</p>}
+            {(current.title || current.price != null) && (
+              <div className="flex items-baseline justify-between gap-3">
+                {current.title && <p className="text-sm font-semibold">{current.title}</p>}
+                {current.price != null && (
+                  <p className="shrink-0 text-sm font-black">{formatFcfa(current.price)}</p>
+                )}
+              </div>
+            )}
             <div className="flex gap-2">
               {current.authorSlug && (
                 <Link
@@ -127,10 +141,17 @@ export function StoryViewer({ items, current, onChange }: StoryViewerProps) {
               )}
               {current.authorUserId && (
                 <Link
-                  href={`/messages?contact=${current.authorUserId}`}
+                  href={
+                    messageIntent === "same"
+                      ? `/messages?contact=${current.authorUserId}&texte=${encodeURIComponent(
+                          `Bonjour, je veux la même chose que : ${current.title || "cette réalisation"}`,
+                        )}`
+                      : `/messages?contact=${current.authorUserId}`
+                  }
                   className="flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-contact-strong text-sm font-bold text-white active:opacity-90"
                 >
-                  <MessageCircle className="h-4 w-4" /> Écrire
+                  <MessageCircle className="h-4 w-4" />
+                  {messageIntent === "same" ? "Je veux la même chose" : "Écrire"}
                 </Link>
               )}
             </div>

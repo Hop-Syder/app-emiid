@@ -59,6 +59,10 @@ export function RealisationsSection({ userId, profileId }: RealisationsSectionPr
   const [description, setDescription] = useState("")
   const [projectUrl, setProjectUrl]   = useState("")
   const [driveUrl, setDriveUrl]       = useState("")
+  // Prix indicatif (FCFA) et catégorie : alimentent l'étiquette et les filtres
+  // du portfolio sur la fiche publique.
+  const [price, setPrice]             = useState("")
+  const [category, setCategory]       = useState("")
 
   const supabase = createClient()
 
@@ -104,8 +108,11 @@ export function RealisationsSection({ userId, profileId }: RealisationsSectionPr
         .from("project_gallery")
         .getPublicUrl(storageData.path)
 
-      const { error: insertError } = await supabase
-        .from("project_gallery")
+      // Cast : price et category n'existent dans les types générés qu'après la
+      // migration 20261010 et une régénération (npm run gen:types).
+      const { error: insertError } = await (supabase.from("project_gallery") as never as {
+        insert: (row: Record<string, unknown>) => Promise<{ error: { message: string } | null }>
+      })
         .insert({
           user_id:     userId,
           profile_id:  profileId,
@@ -116,12 +123,14 @@ export function RealisationsSection({ userId, profileId }: RealisationsSectionPr
           order_index: items.length,
           project_url: projectUrl.trim() || null,
           drive_url:   driveUrl.trim() || null,
+          price:       price.trim() === "" ? null : Number(price),
+          category:    category.trim() || null,
         })
       if (insertError) throw insertError
 
       toast.success("Réalisation envoyée en modération")
       setDialogOpen(false)
-      setFile(null); setPreview(null); setTitle(""); setDescription(""); setProjectUrl(""); setDriveUrl("")
+      setFile(null); setPreview(null); setTitle(""); setDescription(""); setProjectUrl(""); setDriveUrl(""); setPrice(""); setCategory("")
       void load()
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : "Erreur lors de l'upload"
@@ -300,6 +309,34 @@ export function RealisationsSection({ userId, profileId }: RealisationsSectionPr
                 className="rounded-xl bg-muted border-border text-sm resize-none"
                 rows={3}
               />
+            </div>
+
+            {/* Prix et catégorie : l'étiquette sur la photo et les filtres du
+                portfolio public (« Tous · Meubles · Portes… »). */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="realisation-prix" className="text-[11px] font-black text-slate-400 uppercase tracking-wider">Prix indicatif (FCFA)</Label>
+                <Input
+                  id="realisation-prix"
+                  type="number"
+                  inputMode="numeric"
+                  min={0}
+                  value={price}
+                  onChange={e => setPrice(e.target.value)}
+                  placeholder="Ex. : 85000"
+                  className="rounded-xl bg-muted border-border text-sm"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="realisation-categorie" className="text-[11px] font-black text-slate-400 uppercase tracking-wider">Catégorie</Label>
+                <Input
+                  id="realisation-categorie"
+                  value={category}
+                  onChange={e => setCategory(e.target.value.slice(0, 60))}
+                  placeholder="Ex. : Meubles"
+                  className="rounded-xl bg-muted border-border text-sm"
+                />
+              </div>
             </div>
 
             <div className="space-y-1.5">

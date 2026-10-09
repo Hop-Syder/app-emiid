@@ -31,6 +31,10 @@ export interface ShowcaseItem {
   authorDistrict: string | null
   /** Plus petit prix du catalogue de l'auteur (FCFA), si renseigné. */
   authorStartingPrice: number | null
+  /** Prix de CETTE réalisation (FCFA) — étiquette sur la photo. */
+  price?: number | null
+  /** Catégorie de la réalisation (Meubles, Portes…). */
+  category?: string | null
 }
 
 interface AuthorRow {

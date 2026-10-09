@@ -89,6 +89,22 @@ interface ProfileQueryResult {
     }> | null
 }
 
+/**
+ * Ligne brute de project_gallery. Déclarée ici car les types générés depuis la
+ * base ne connaissent `price`/`category` qu'une fois la migration 20261010
+ * appliquée puis les types régénérés (npm run gen:types).
+ */
+type GalleryRow = {
+    id: string
+    title: string | null
+    description: string | null
+    image_url: string
+    project_url?: string | null
+    drive_url?: string | null
+    price?: number | null
+    category?: string | null
+}
+
 export type GalleryItem = {
     id: string
     title: string
@@ -97,6 +113,10 @@ export type GalleryItem = {
     status?: string
     projectUrl?: string | null
     driveUrl?: string | null
+    /** Prix indicatif de la réalisation, en FCFA (étiquette sur la photo). */
+    price?: number | null
+    /** Catégorie libre (Meubles, Portes…) — alimente les filtres du portfolio. */
+    category?: string | null
 }
 
 export function useProfileData(profileId: string) {
@@ -226,7 +246,10 @@ export function useProfileData(profileId: string) {
 
                         supabase
                             .from("project_gallery")
-                            .select("id, title, description, image_url, project_url, drive_url")
+                            // `*` plutôt qu'une liste figée : price et category
+                            // n'existent qu'une fois la migration 20261010 appliquée,
+                            // et une colonne nommée mais absente ferait échouer la requête.
+                            .select("*")
                             .eq("profile_id", data.id)
                             .order("order_index", { ascending: true }),
 
@@ -240,13 +263,15 @@ export function useProfileData(profileId: string) {
 
                     if (!galleryRes.error && galleryRes.data) {
                         setGallery(
-                            galleryRes.data.map((item) => ({
+                            (galleryRes.data as unknown as GalleryRow[]).map((item) => ({
                                 id: item.id,
                                 title: item.title || "",
                                 description: item.description || "",
                                 imageUrl: item.image_url,
                                 projectUrl: item.project_url || null,
                                 driveUrl: item.drive_url || null,
+                                price: typeof item.price === "number" ? item.price : null,
+                                category: item.category || null,
                             }))
                         )
                     }
