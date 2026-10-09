@@ -11,7 +11,8 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { MessageCircle, Phone } from "lucide-react"
+import { Phone } from "lucide-react"
+import { WhatsAppIcon } from "@/components/icons/brand-icons"
 import { createClient } from "@/lib/supabase/client"
 import { toInternational } from "@/lib/phone"
 
@@ -49,7 +50,7 @@ export function ChatCallButtons({ userId, name }: { userId: string; name: string
         aria-label={`Appeler ${name} sur WhatsApp`}
         className="flex h-11 w-11 lg:h-9 lg:w-9 items-center justify-center rounded-full lg:rounded-xl text-contact-fg hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
       >
-        <MessageCircle className="h-5 w-5 lg:h-4 lg:w-4" />
+        <WhatsAppIcon className="h-5 w-5 lg:h-4 lg:w-4" />
       </a>
     </>
   )

@@ -10,7 +10,8 @@
 
 "use client"
 
-import { Globe, Facebook, Instagram, Linkedin, Music2, Phone, Mail, Share2, AtSign } from "lucide-react"
+import { Globe, Facebook, Instagram, Linkedin, Phone, Mail, Share2, AtSign } from "lucide-react"
+import { TikTokIcon } from "@/components/icons/brand-icons"
 import { Input } from "@/components/ui/input"
 import type { UserProfileData } from "@/hooks/use-settings"
 import { SectionCard, Field, INPUT } from "./settings-primitives"
@@ -60,7 +61,7 @@ export function SocialLinksSection({ profile, setProfile }: SectionProps) {
           {linkField("linkedin_url", "Profil LinkedIn", Linkedin, "text-[#0a66c2]", "https://linkedin.com/in/profil")}
           {linkField("instagram_url", "Compte Instagram", Instagram, "text-[#e1306c]", "https://instagram.com/profil")}
           {linkField("facebook_url", "Page Facebook", Facebook, "text-[#1877f2]", "https://facebook.com/page")}
-          {linkField("tiktok_url", "Compte TikTok", Music2, "text-slate-900", "https://tiktok.com/@compte")}
+          {linkField("tiktok_url", "Compte TikTok", TikTokIcon, "text-slate-900", "https://tiktok.com/@compte")}
         </div>
       </SectionCard>
 

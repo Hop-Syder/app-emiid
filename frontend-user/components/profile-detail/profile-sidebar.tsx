@@ -9,13 +9,14 @@
  */
 
 import Link from "next/link"
-import { ArrowRight, BadgeCheck, Calendar, Check, Clock, Copy, Download, ExternalLink, Facebook, FileText, Globe, Instagram, Linkedin, Lock, Mail, MessageCircle, Music2, Phone, Share, Share2 } from "lucide-react"
+import { ArrowRight, BadgeCheck, Calendar, Check, Clock, Copy, Download, ExternalLink, Facebook, FileText, Globe, Instagram, Linkedin, Lock, Mail, MessageCircle, Phone, Share, Share2 } from "lucide-react"
 import { trackProfileMetric } from "@/lib/track-profile"
 import { trackProfileContact } from "@/lib/analytics"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 import { toInternational } from "@/lib/phone"
+import { TikTokIcon, WhatsAppIcon } from "@/components/icons/brand-icons"
 
 interface ProfileSidebarProps {
     profile: {
@@ -58,7 +59,7 @@ const SOCIALS: { key: "linkedin" | "facebook" | "instagram" | "tiktok"; label: s
     { key: "linkedin", label: "LinkedIn", icon: Linkedin, color: "text-[#0a66c2]" },
     { key: "facebook", label: "Facebook", icon: Facebook, color: "text-[#1877f2]" },
     { key: "instagram", label: "Instagram", icon: Instagram, color: "text-[#e1306c]" },
-    { key: "tiktok", label: "TikTok", icon: Music2, color: "text-foreground" },
+    { key: "tiktok", label: "TikTok", icon: TikTokIcon, color: "text-foreground" },
 ]
 
 /** N'accepte que des liens http(s) : une URL saisie librement ne doit pas devenir un `javascript:`. */
@@ -264,7 +265,7 @@ export function ProfileSidebar({
                             onClick={() => { trackProfileMetric(profile.id, "whatsapp"); trackProfileContact(profile.id || "", "whatsapp") }}
                             className="flex h-11 items-center justify-center gap-2 rounded-2xl bg-[#059669] text-xs font-black text-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#047857]"
                         >
-                            <MessageCircle className="h-4 w-4" />
+                            <WhatsAppIcon className="h-4 w-4" />
                             WhatsApp
                         </a>
                         <a

@@ -23,6 +23,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { StoryViewer } from "@/components/mobile-hub/story-viewer"
 import type { ShowcaseItem } from "@/hooks/use-realisations-showcase"
 import type { GalleryItem, ProfileData } from "@/hooks/use-profile-data"
+import { WhatsAppIcon } from "@/components/icons/brand-icons"
 import { formatFcfa } from "@/components/mobile-hub/format"
 import { formatOpenStatus, getOpenStatus } from "@/lib/opening-hours"
 import { toInternational } from "@/lib/phone"
@@ -163,7 +164,7 @@ export function MobileProfileHeader({
                   onClick={() => { trackProfileMetric(profile.id, "whatsapp"); trackProfileContact(profile.id, "whatsapp") }}
                   className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-contact-strong text-sm font-bold text-white active:opacity-90"
                 >
-                  <MessageCircle className="h-[18px] w-[18px]" />
+                  <WhatsAppIcon className="h-[18px] w-[18px]" />
                   Discuter sur WhatsApp
                 </a>
                 <a
