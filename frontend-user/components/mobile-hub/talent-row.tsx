@@ -3,15 +3,17 @@
  * @organization Nexus Partners
  * @description Ligne « Talent actif » de l'accueil mobile, façon liste de
  *              discussions WhatsApp : avatar + pastille d'activité, nom et badge
- *              vérifié, métier · quartier, tarif de départ, et bouton vert de
- *              contact direct (ouvre la discussion sans page intermédiaire).
+ *              vérifié, métier · quartier, tarif de départ, et contact direct
+ *              (ouvre la discussion sans page intermédiaire).
  * @created 2026-10-09
+ * @updated 2026-10-09 — même icône que l'onglet Messagerie (MessageSquare),
+ *              sans pastille : le vert passe dans le tracé.
  */
 
 "use client"
 
 import Link from "next/link"
-import { BadgeCheck, MessageCircle } from "lucide-react"
+import { BadgeCheck, MessageSquare } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import type { PublicProfile } from "@/types"
 import { formatFcfa, initialsOf } from "./format"
@@ -55,9 +57,11 @@ export function TalentRow({ profile }: { profile: PublicProfile }) {
       <Link
         href={`/messages?contact=${profile.id}`}
         aria-label={`Écrire à ${profile.name}`}
-        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-contact-strong text-white shadow-sm active:scale-95 transition-transform"
+        // Pas de pastille : l'icône de l'onglet Messagerie, tracée en vert.
+        // La zone tactile reste de 44 px, simplement invisible.
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-contact-fg active:bg-contact/10 transition-colors"
       >
-        <MessageCircle className="h-5 w-5" />
+        <MessageSquare className="h-[23px] w-[23px]" strokeWidth={1.8} />
       </Link>
     </li>
   )
