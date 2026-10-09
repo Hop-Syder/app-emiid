@@ -43,7 +43,7 @@ export function MobileHome({ talents, locationLabel }: MobileHomeProps) {
             >
               <Bell className="h-[22px] w-[22px]" />
               {unread > 0 && (
-                <span className="absolute right-1.5 top-1.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#25D366] px-1 text-[10px] font-bold text-white ring-2 ring-background">
+                <span className="absolute right-1.5 top-1.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-contact-strong px-1 text-[10px] font-bold text-white ring-2 ring-background">
                   {unread > 9 ? "9+" : unread}
                 </span>
               )}

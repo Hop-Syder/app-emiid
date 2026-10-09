@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
 import Image from "next/image"
+import { compressImage } from "@/lib/compress-image"
 
 type GalleryStatus = "pending" | "approved" | "rejected"
 
@@ -74,9 +75,11 @@ export function RealisationsSection({ userId, profileId }: RealisationsSectionPr
 
   useEffect(() => { void load() }, [userId]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0]
-    if (!f) return
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const original = e.target.files?.[0]
+    if (!original) return
+    // Photo de chantier réduite dans le téléphone (≈ 1600 px) avant l'envoi.
+    const f = await compressImage(original)
     if (f.size > 5 * 1024 * 1024) { toast.error("Image trop lourde — max 5 Mo"); return }
     setFile(f)
     const reader = new FileReader()

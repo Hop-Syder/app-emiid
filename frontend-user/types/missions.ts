@@ -97,6 +97,8 @@ export interface Mission {
     identity_verified?: boolean | null
   }
   applications_count?: number
+  /** L'utilisateur connecté a déjà candidaté (calculé côté client, cf. use-missions). */
+  has_applied?: boolean
 }
 
 // Valeurs réelles de l'enum public.application_status — "SUBMITTED" n'existe

@@ -27,6 +27,12 @@ const config: Config = {
         heading: ['var(--font-heading)', 'sans-serif'],
       },
       colors: {
+        // Vert « contact » : voir les règles d'usage dans app/globals.css.
+        contact: {
+          DEFAULT: 'rgb(var(--contact) / <alpha-value>)',
+          strong: 'rgb(var(--contact-strong) / <alpha-value>)',
+          fg: 'rgb(var(--contact-fg) / <alpha-value>)',
+        },
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         card: {

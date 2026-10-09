@@ -92,7 +92,7 @@ export function MobileDockAuth() {
               )}
 
               {tab.badge !== undefined && tab.badge > 0 && (
-                <span className="absolute -top-0.5 right-1.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#25D366] px-1 text-[10px] font-bold text-white ring-2 ring-background">
+                <span className="absolute -top-0.5 right-1.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-contact-strong px-1 text-[10px] font-bold text-white ring-2 ring-background">
                   {tab.badge > 99 ? "99+" : tab.badge}
                 </span>
               )}

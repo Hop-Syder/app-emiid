@@ -91,7 +91,7 @@ export function StoryViewer({ items, current, onChange }: StoryViewerProps) {
             <div className="min-w-0 flex-1">
               <p className="flex items-center gap-1 truncate text-sm font-bold">
                 {current.authorName}
-                {current.authorVerified && <BadgeCheck className="h-4 w-4 text-[#25D366]" />}
+                {current.authorVerified && <BadgeCheck className="h-4 w-4 text-contact-fg" />}
               </p>
               {current.authorRole && <p className="truncate text-xs text-white/70">{current.authorRole}</p>}
             </div>
@@ -128,7 +128,7 @@ export function StoryViewer({ items, current, onChange }: StoryViewerProps) {
               {current.authorUserId && (
                 <Link
                   href={`/messages?contact=${current.authorUserId}`}
-                  className="flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-[#25D366] text-sm font-bold text-white active:opacity-90"
+                  className="flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-contact-strong text-sm font-bold text-white active:opacity-90"
                 >
                   <MessageCircle className="h-4 w-4" /> Écrire
                 </Link>

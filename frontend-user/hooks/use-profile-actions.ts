@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client"
 import { fetchWithAuth } from "@/lib/apiClient"
 import { toast } from "sonner"
 import type { ProfileData } from "./use-profile-data"
+import { compressImage } from "@/lib/compress-image"
 
 interface UseProfileActionsOptions {
     currentUserId: string | null
@@ -200,7 +201,8 @@ export function useProfileActions(
     const handleCoverUpload = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
         try {
             if (!event.target.files || event.target.files.length === 0) return
-            const file = event.target.files[0]
+            // Couverture : large mais légère, réduite dans le téléphone avant l'envoi.
+            const file = await compressImage(event.target.files[0], { maxSize: 1920 })
 
             if (!file.type.startsWith("image/")) {
                 toast.error("Veuillez sélectionner une image valide.")

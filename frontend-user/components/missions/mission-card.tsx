@@ -12,7 +12,8 @@
 "use client"
 
 import Link from "next/link"
-import { Users2 } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { Check, Users2 } from "lucide-react"
 import { OPEN_MISSION_STATUSES, type Mission, type MissionStatus } from "@/types/missions"
 
 /** Libellés lisibles des statuts non ouverts (l'enum brut n'est pas pour l'utilisateur). */
@@ -35,7 +36,9 @@ interface MissionCardProps {
 }
 
 export function MissionCard({ mission, currentUserId }: MissionCardProps) {
+  const router = useRouter()
   const isOwner = !!currentUserId && currentUserId === mission.client_id
+  const hasApplied = !!mission.has_applied
   const appCount = mission.applications_count || 0
   const isFull = appCount >= 2
   const isOpen = OPEN_MISSION_STATUSES.includes(mission.status)
@@ -66,7 +69,7 @@ export function MissionCard({ mission, currentUserId }: MissionCardProps) {
       : mission.budget_min != null
       ? `${mission.budget_min.toLocaleString("fr-FR")} FCFA`
       : null
-  const canApply = isOpen && !isFull && !isOwner
+  const canApply = isOpen && !isFull && !isOwner && !hasApplied
 
   return (
     <Link
@@ -77,7 +80,7 @@ export function MissionCard({ mission, currentUserId }: MissionCardProps) {
       <div className="flex items-center justify-between gap-2">
         <span
           className={`inline-flex items-center rounded-full px-3 py-1 text-[13px] font-extrabold ${
-            budgetBadge ? "bg-[#25D366] text-white" : "bg-muted text-muted-foreground"
+            budgetBadge ? "bg-contact-strong text-white" : "bg-muted text-muted-foreground"
           }`}
           title={formattedBudget}
         >
@@ -121,10 +124,20 @@ export function MissionCard({ mission, currentUserId }: MissionCardProps) {
           if (!canApply) return
           // Ouvre la mission avec la candidature déjà ouverte.
           e.preventDefault()
-          window.location.assign(`/missions/${mission.id}?postuler=1`)
+          router.push(`/missions/${mission.id}?postuler=1`)
         }}
       >
-        {canApply ? "Postuler" : isOwner ? "Voir les candidatures" : "Consulter"}
+        {canApply ? (
+          "Postuler"
+        ) : hasApplied ? (
+          <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+            <Check className="h-4 w-4 text-contact-fg" /> Candidature envoyée
+          </span>
+        ) : isOwner ? (
+          "Voir les candidatures"
+        ) : (
+          "Consulter"
+        )}
       </span>
     </Link>
   )

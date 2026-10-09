@@ -14,6 +14,7 @@ import { createClient } from "@/lib/supabase/client"
 import { fetchWithAuth } from "@/lib/apiClient"
 import type { UserProfileData } from "@/hooks/use-settings"
 import { SectionCard } from "./settings-primitives"
+import { compressImage } from "@/lib/compress-image"
 
 interface SectionProps {
     profile: UserProfileData
@@ -64,9 +65,12 @@ export function VerificationSection({ profile }: SectionProps) {
     }, [loadDocs])
 
     const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0]
+        const original = e.target.files?.[0]
         e.target.value = "" // permet de re-sélectionner le même fichier
-        if (!file) return
+        if (!original) return
+        // Pièce justificative : réduite mais assez nette pour être lue (2000 px, qualité 0,85).
+        // Les PDF ne sont pas modifiés.
+        const file = await compressImage(original, { maxSize: 2000, quality: 0.85 })
         if (file.size > 5 * 1024 * 1024) {
             toast.error("Fichier trop lourd (max 5 MB)")
             return

@@ -114,7 +114,7 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
               {formattedDate && (
                 <span className={cn(
                   "text-[11px] lg:text-[10px] shrink-0",
-                  hasUnread ? "text-[#1DA851] lg:text-primary font-semibold" : "text-slate-400"
+                  hasUnread ? "text-contact-fg lg:text-primary font-semibold" : "text-slate-400"
                 )}>
                   {formattedDate}
                 </span>
@@ -132,7 +132,7 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
             {hasUnread && (
               <span className={cn(
                 "shrink-0 min-w-[20px] h-5 lg:min-w-[18px] lg:h-[18px] flex items-center justify-center",
-                "bg-[#25D366] lg:bg-primary text-white text-[11px] lg:text-[10px] font-bold rounded-full px-1 shadow-sm",
+                "bg-contact-strong lg:bg-primary text-white text-[11px] lg:text-[10px] font-bold rounded-full px-1 shadow-sm",
                 "animate-in zoom-in duration-200"
               )}>
                 {conversation.unread_count > 99 ? '99+' : conversation.unread_count}

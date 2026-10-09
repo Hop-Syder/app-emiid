@@ -126,7 +126,7 @@ export function ProfileServicesSection({
                                 {quoteContactId && service.title && (
                                     <Link
                                         href={`/messages?contact=${quoteContactId}&texte=${encodeURIComponent(`Bonjour, je souhaite un devis pour : ${service.title}`)}`}
-                                        className="mt-3 inline-flex h-10 items-center gap-1.5 rounded-full border border-[#25D366]/40 px-4 text-xs font-bold text-[#1DA851] hover:bg-[#25D366]/10 active:scale-[0.98]"
+                                        className="mt-3 inline-flex h-10 items-center gap-1.5 rounded-full border border-contact/40 px-4 text-xs font-bold text-contact-fg hover:bg-contact/10 active:scale-[0.98]"
                                     >
                                         <MessageCircle className="h-4 w-4" />
                                         Demander un devis

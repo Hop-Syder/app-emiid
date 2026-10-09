@@ -10,6 +10,7 @@ import { HubContextualCta } from "./hub-contextual-cta"
 import { HubCommunities } from "./hub-communities"
 import { RecentMissionsSection } from "./recent-missions-section"
 import { MobileHome } from "@/components/mobile-hub/mobile-home"
+import { useIsDesktop } from "@/hooks/use-is-desktop"
 
 interface DashboardHubContentProps {
   initialNewProfiles: PublicProfile[]
@@ -24,6 +25,23 @@ export function DashboardHubContent({
   userLocation,
   mobileTalents = [],
 }: DashboardHubContentProps) {
+  // Une seule version montée : sur mobile, le tableau de bord ordinateur (et
+  // son rafraîchissement des statistiques toutes les 30 s) n'existe pas.
+  const isDesktop = useIsDesktop()
+
+  if (isDesktop === null) {
+    return <div className="min-h-[100dvh] bg-background" aria-busy="true" />
+  }
+  if (!isDesktop) {
+    return <MobileHome talents={mobileTalents} locationLabel={userLocation?.city} />
+  }
+  return <DesktopHub initialProximityProfiles={initialProximityProfiles} userLocation={userLocation} />
+}
+
+function DesktopHub({
+  initialProximityProfiles,
+  userLocation,
+}: Pick<DashboardHubContentProps, "initialProximityProfiles" | "userLocation">) {
   const { statsError } = useDashboardStats({
     endpoint: "/api/dashboard-user/stats",
     fetcher: fetchWithAuth,
@@ -35,11 +53,7 @@ export function DashboardHubContent({
 
   return (
     <>
-    {/* Mobile : hub de proximité façon WhatsApp (liste dense + statuts). */}
-    <MobileHome talents={mobileTalents} locationLabel={userLocation?.city} />
-
-    {/* Ordinateur : tableau de bord complet, inchangé. */}
-    <div className="hidden lg:flex flex-col min-h-screen pb-12">
+    <div className="flex flex-col min-h-screen pb-12">
 
       {/* =========================================
           SECTION 1 : HERO + STATS RÉSEAU

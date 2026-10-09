@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { getOptimizedImageUrl } from "@/lib/image-optimization"
+import { compressImage } from "@/lib/compress-image"
 
 interface AvatarUploadProps {
     currentAvatarUrl: string | null
@@ -87,7 +88,8 @@ export const AvatarUpload = React.memo(function AvatarUpload({
                 return
             }
 
-            const file = input.files[0]
+            // Réduite dans le téléphone avant tout contrôle de poids (avatar : 800 px suffisent).
+            const file = await compressImage(input.files[0], { maxSize: 800 })
 
             // Validation : image uniquement
             if (!file.type.startsWith("image/")) {

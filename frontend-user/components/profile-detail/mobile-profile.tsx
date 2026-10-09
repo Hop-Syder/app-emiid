@@ -63,7 +63,7 @@ function RoundAction({
 }) {
   const circle = cn(
     "flex h-12 w-12 items-center justify-center rounded-full",
-    tone === "green" ? "bg-[#25D366] text-white" : "bg-[#013ff4]/10 text-[#013ff4] dark:text-[#4d7bff]",
+    tone === "green" ? "bg-contact-strong text-white" : "bg-[#013ff4]/10 text-[#013ff4] dark:text-[#4d7bff]",
   )
   const inner = (
     <>
@@ -110,7 +110,7 @@ export function MobileProfileHeader({
 
       <h1 className="mt-3 flex items-center justify-center gap-1.5 text-2xl font-black tracking-tight text-foreground">
         <span className="line-clamp-2">{profile.name}</span>
-        {profile.verified && <BadgeCheck className="h-6 w-6 shrink-0 text-[#25D366]" aria-label="Profil vérifié" />}
+        {profile.verified && <BadgeCheck className="h-6 w-6 shrink-0 text-contact-fg" aria-label="Profil vérifié" />}
       </h1>
       <p className="mt-0.5 text-[15px] text-muted-foreground">
         {[profile.role, place].filter(Boolean).join(" · ")}
@@ -134,7 +134,7 @@ export function MobileProfileHeader({
           </span>
         )}
         {openStatus && (
-          <span className={cn("inline-flex items-center gap-1 font-semibold", openStatus.state === "open" ? "text-[#1DA851]" : "text-muted-foreground")}>
+          <span className={cn("inline-flex items-center gap-1 font-semibold", openStatus.state === "open" ? "text-contact-fg" : "text-muted-foreground")}>
             <Clock className="h-4 w-4" />
             {formatOpenStatus(openStatus)}
           </span>
@@ -256,7 +256,7 @@ export function MobileContactBar({ profile, isLoggedIn }: { profile: ProfileData
       <div className="mx-auto flex max-w-md gap-2">
         <Link
           href={contact.messageHref}
-          className="flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-[#25D366] text-sm font-bold text-white active:opacity-90"
+          className="flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-contact-strong text-sm font-bold text-white active:opacity-90"
         >
           <MessageCircle className="h-4 w-4" /> Écrire
         </Link>
