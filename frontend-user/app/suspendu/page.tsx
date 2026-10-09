@@ -84,12 +84,12 @@ export default function SuspendedPage() {
             <div className="mt-6 rounded-2xl bg-card/[0.03] border border-white/10 px-5 py-4 text-left space-y-2">
               {reason && (
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Motif</p>
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Motif</p>
                   <p className="text-sm text-slate-200 mt-0.5">{reason}</p>
                 </div>
               )}
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Durée</p>
+                <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Durée</p>
                 <p className="text-sm text-slate-200 mt-0.5">
                   {untilLabel ? `Jusqu'au ${untilLabel}` : "Suspension permanente"}
                 </p>

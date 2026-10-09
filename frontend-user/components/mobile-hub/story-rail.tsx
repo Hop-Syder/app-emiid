@@ -77,7 +77,7 @@ export function StoryRail({ title }: { title?: string }) {
 
   return (
     <section aria-label={title || "Chantiers du jour"}>
-      {title && <h2 className="px-4 pb-2 text-[15px] font-bold text-foreground">{title}</h2>}
+      {title && <h2 className="px-4 pb-2 text-base sm:text-lg font-bold text-foreground">{title}</h2>}
 
       <input ref={fileRef} type="file" accept="image/*" capture="environment" hidden onChange={(e) => void onPick(e)} />
 
@@ -90,7 +90,7 @@ export function StoryRail({ title }: { title?: string }) {
               onClick={() => (myStory ? setPlaying(myStory) : fileRef.current?.click())}
               disabled={publishing}
               aria-label={myStory ? "Voir ma story" : "Publier une story"}
-              className="flex w-full flex-col items-center gap-1.5 active:opacity-70 disabled:opacity-60"
+              className="flex w-full flex-col items-center gap-1.5 active:opacity-70 disabled:opacity-60 cursor-pointer"
             >
               <span className={cn("relative rounded-full p-[2.5px]", myStory ? "bg-contact" : "bg-border")}>
                 <span className="block rounded-full bg-background p-[2px]">
@@ -108,7 +108,7 @@ export function StoryRail({ title }: { title?: string }) {
                   )}
                 </span>
                 {myStory && (
-                  <span className="absolute -bottom-0.5 -right-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-contact-strong px-1 text-[10px] font-bold text-white ring-2 ring-background">
+                  <span className="absolute -bottom-0.5 -right-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-contact-strong px-1 text-[11px] font-bold text-white ring-2 ring-background">
                     {myStory.viewsCount}
                   </span>
                 )}

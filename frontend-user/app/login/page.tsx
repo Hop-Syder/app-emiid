@@ -277,12 +277,12 @@ export default function LoginPage() {
                     className="relative"
                   >
                     {p.soon && (
-                      <span className="absolute -top-2 right-4 z-20 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-[#000616] shadow-[0_0_12px_rgba(245,158,11,0.4)]">
+                      <span className="absolute -top-2 right-4 z-20 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 px-2 py-0.5 text-[11px] font-extrabold uppercase tracking-wider text-[#000616] shadow-[0_0_12px_rgba(245,158,11,0.4)]">
                         Bientôt
                       </span>
                     )}
                     {isLastUsed && (
-                      <span className="absolute -top-2 right-4 z-20 rounded-full bg-emerald-500/15 border border-emerald-500/40 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-emerald-400">
+                      <span className="absolute -top-2 right-4 z-20 rounded-full bg-emerald-500/15 border border-emerald-500/40 px-2 py-0.5 text-[11px] font-extrabold uppercase tracking-wider text-emerald-400">
                         Dernier utilisé
                       </span>
                     )}
@@ -351,7 +351,7 @@ export default function LoginPage() {
               >
                 {accepted && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
               </div>
-              <p className="text-[12px] text-[#A8B0C7] leading-relaxed select-none">
+              <p className="text-xs text-[#A8B0C7] leading-relaxed select-none">
                 J&apos;accepte les{" "}
                 <Link
                   href="/conditions"
@@ -383,7 +383,7 @@ export default function LoginPage() {
                   onExpire={() => setCaptchaToken(null)}
                 />
               </div>
-              <div className="flex items-center gap-1.5 mt-2 text-[10px] text-[#6A7596]">
+              <div className="flex items-center gap-1.5 mt-2 text-[11px] text-[#6A7596]">
                 <Shield className="w-3 h-3 text-[#03b3f8]/70" />
                 <span>Protection antibot sécurisée</span>
               </div>

@@ -40,15 +40,35 @@
   - Background: `linear-gradient(45deg, #013ff4 0%, #000616 150%)` (`.bg-brand-gradient`)
   - Text: `linear-gradient(45deg, #013ff4, #03b3f8)` (`.text-brand-gradient`)
 
-### Typography
+### Typography & Harmonized Scale (Mobile, Tablette, Desktop)
 
-- **Heading Font:** Mitsuha (secours: Satoshi)
-- **Body Font:** Inter
-- **Mood:** premium, luxury bento, clean, sophisticated, versatile, balanced, high-contrast
-- **Fonts Loading:** 
-  - **Mitsuha:** Auto-hébergée dans `@/public/fonts/`
-  - **Inter:** Google Fonts / Next.js font loader
-  - **Satoshi:** Secours titres (CDN Fontshare)
+#### 1. Les familles de polices officielles (dans le code)
+- **Corps de texte & Interface (`font-sans`)** : `Plus Jakarta Sans` *(Excellente lisibilité sur mobile, moderne et aérée)*
+- **Titres & En-têtes (`font-heading`)** : `Satoshi` *(Statutaire, géométrique et impactante pour les titres de sections et cartes)*
+- **Wordmark & Logo EmiID (`font-wordmark`)** : `Mitsuha` *(Police propriétaire du logo EmiID dans `/public/fonts/Mitsuha-Regular.woff2`, réservée aux textes ASCII)*
+- **Monospace (`font-mono`)** : `ui-monospace, monospace` *(Pour les montants FCFA, codes OTP et code PIN)*
+
+#### 2. Grille Typographique Standardisée (Mobile vs Tablette vs Desktop)
+
+| Rôle sémantique | Mobile (`< 640px`) | Tablette (`640px – 1024px`) | Desktop (`≥ 1024px`) | Poids (`font-weight`) | Règle d'usage dans EmiID |
+| --- | --- | --- | --- | --- | --- |
+| **Display / Hero** | `text-3xl` (30px) | `sm:text-4xl` (36px) | `lg:text-5xl` (48px) | `font-extrabold tracking-tight` | Grand titre d'accroche (ex. *"Inspirez le monde"*). |
+| **H1 (Titre de page)** | `text-xl` (20px) | `sm:text-2xl` (24px) | `lg:text-3xl` (30px) | `font-bold tracking-tight` | Titre principal (*Accueil*, *Paramètres*, *Missions*). |
+| **H2 (Titre de section)** | `text-lg` (18px) | `sm:text-xl` (20px) | `lg:text-2xl` (24px) | `font-bold tracking-tight` | En-têtes de blocs (*Chantiers du jour*, *Talents actifs*). |
+| **H3 (Nom / Prestation)** | `text-sm` (14px) | `sm:text-base` (16px) | `lg:text-lg` (18px) | `font-bold` | Nom d'artisan, titre de prestation ou de mission. |
+| **Body (Texte standard)** | `text-sm` (14px) | `sm:text-sm` (14px) | `lg:text-base` (16px) | `font-normal leading-relaxed` | **Plancher de lecture** : Messages de chat, bio, descriptions. |
+| **Body Small (Sous-texte)** | `text-xs` (12px) | `sm:text-xs` (12px) | `lg:text-sm` (14px) | `font-medium leading-normal` | Métier, commune, extrait du dernier message. |
+| **Micro / Badges / Heure** | `text-[11px]` (11px) | `text-[11px]` (11px) | `text-xs` (12px) | `font-bold tracking-wide uppercase` | Heure du message, badge `Certifié`, prix `Dès 15 000 F`. |
+
+#### 3. Les 3 Règles d'or Typographiques EmiID
+1. **Suppression définitive des micro-tailles illisibles** : Interdiction totale d'utiliser `text-[9px]` et `text-[10px]`. Le plancher d'accessibilité absolu est `text-[11px]` (uniquement pour les badges en majuscules et les heures de chat) et `text-xs` (12px) pour tout le reste.
+2. **Couleurs de texte normalisées** :
+   - Titres et noms : `text-slate-900` (mode clair) / `text-white` (mode sombre) ou `text-foreground`.
+   - Corps de texte : `text-slate-700` / `text-slate-200`.
+   - Sous-titres et métadonnées : `text-slate-500` / `text-slate-400` ou `text-muted-foreground`.
+   - Prix et succès : `text-emerald-600` / `text-emerald-400`.
+3. **Responsive natif via Tailwind** : Ne plus coder de tailles au pixel près. Utiliser la syntaxe progressive :
+   `className="text-xs sm:text-sm lg:text-base"`
 
 ### Spacing Variables
 

@@ -75,7 +75,7 @@ export function Preloader({
                     >
                         {text}
                     </motion.p>
-                    <p className="text-[10px] font-bold tracking-widest text-muted-foreground/80 uppercase">
+                    <p className="text-[11px] font-bold tracking-widest text-muted-foreground/80 uppercase">
                         {subtext}
                     </p>
                 </div>

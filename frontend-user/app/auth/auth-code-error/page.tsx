@@ -70,7 +70,7 @@ export default function AuthCodeErrorPage() {
       </motion.div>
       
       {/* EmiID Branding Footer */}
-      <footer className="mt-12 text-slate-400 font-bold text-[10px] uppercase tracking-[0.2em] flex items-center gap-2">
+      <footer className="mt-12 text-slate-400 font-bold text-[11px] uppercase tracking-[0.2em] flex items-center gap-2">
         <span className="w-4 h-px bg-slate-300"></span>
         EmiID Security Phase
         <span className="w-4 h-px bg-slate-300"></span>

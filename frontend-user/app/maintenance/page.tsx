@@ -381,7 +381,7 @@ export default function MaintenancePage() {
                           {service.name}
                         </span>
                         <span
-                          className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                          className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
                             service.status === "online"
                               ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
                               : service.status === "degraded"
@@ -404,7 +404,7 @@ export default function MaintenancePage() {
                         {service.description}
                       </p>
                       {service.pingTimeMs && service.status === "online" && (
-                        <span className="inline-block mt-1 text-[10px] font-mono text-slate-400">
+                        <span className="inline-block mt-1 text-[11px] font-mono text-slate-400">
                           Latence : {service.pingTimeMs}ms
                         </span>
                       )}
@@ -419,13 +419,13 @@ export default function MaintenancePage() {
           <div className="rounded-2xl bg-slate-900/40 border border-slate-800/60 p-4 backdrop-blur-md">
             <button
               onClick={() => setShowTechnicalDetails(!showTechnicalDetails)}
-              className="w-full flex items-center justify-between text-xs text-slate-400 hover:text-white transition-colors"
+              className="w-full flex items-center justify-between text-xs text-slate-400 hover:text-white transition-colors cursor-pointer"
             >
               <span className="flex items-center gap-2 font-medium">
                 <Activity className="w-3.5 h-3.5 text-blue-400" />
                 Journal des tests et informations de diagnostic
               </span>
-              <span className="font-mono text-[10px] text-slate-400">
+              <span className="font-mono text-[11px] text-slate-400">
                 {showTechnicalDetails ? "Masquer ▲" : "Afficher ▼"}
               </span>
             </button>
