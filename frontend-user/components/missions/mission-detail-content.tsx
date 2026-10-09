@@ -12,6 +12,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { useSearchParams } from "next/navigation"
 import Image from "next/image"
 import { useMissionDetail } from "@/hooks/use-missions"
 import { OPEN_MISSION_STATUSES } from "@/types/missions"
@@ -52,9 +53,10 @@ export function MissionDetailContent({ missionId }: MissionDetailContentProps) {
   const [isApplyModalOpen, setIsApplyModalOpen] = useState(false)
   // « Postuler » depuis la liste (?postuler=1) ouvre directement la candidature,
   // une seule fois, et seulement si l'utilisateur peut encore postuler.
-  const [autoApply, setAutoApply] = useState(
-    () => typeof window !== "undefined" && new URLSearchParams(window.location.search).get("postuler") === "1",
-  )
+  const searchParams = useSearchParams()
+  // Fermée une fois, la candidature automatique ne se rouvre pas.
+  const [autoApplyDismissed, setAutoApplyDismissed] = useState(false)
+  const autoApply = searchParams.get("postuler") === "1" && !autoApplyDismissed
 
   if (loading) {
     return (
@@ -268,7 +270,7 @@ export function MissionDetailContent({ missionId }: MissionDetailContentProps) {
         isOpen={isApplyModalOpen || (autoApply && canApply)}
         onClose={() => {
           setIsApplyModalOpen(false)
-          setAutoApply(false)
+          setAutoApplyDismissed(true)
         }}
         onSuccess={refetch}
       />

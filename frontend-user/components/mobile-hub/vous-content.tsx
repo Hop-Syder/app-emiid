@@ -132,7 +132,7 @@ export function VousContent() {
             <p className="truncate text-xl font-black text-foreground">{name}</p>
             {me?.role && <p className="truncate text-sm text-muted-foreground">{me.role}</p>}
             {me?.is_verified && (
-              <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-[#25D366]/10 px-2 py-0.5 text-xs font-bold text-[#1DA851]">
+              <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-contact/10 px-2 py-0.5 text-xs font-bold text-contact-fg">
                 <BadgeCheck className="h-3.5 w-3.5" /> Vérifié
               </span>
             )}
@@ -166,7 +166,7 @@ export function VousContent() {
               type="button"
               onClick={() => void share()}
               disabled={!profileUrl}
-              className="flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-[#25D366] text-sm font-bold text-white active:opacity-90 disabled:opacity-50"
+              className="flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-contact-strong text-sm font-bold text-white active:opacity-90 disabled:opacity-50"
             >
               <Share2 className="h-4 w-4" /> Partager
             </button>

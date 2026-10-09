@@ -37,7 +37,7 @@ export function StoryRail({ title }: { title?: string }) {
                   className="flex w-full flex-col items-center gap-1.5 active:opacity-70"
                   aria-label={`Voir la réalisation de ${item.authorName}`}
                 >
-                  <span className="rounded-full bg-[#25D366] p-[2.5px]">
+                  <span className="rounded-full bg-contact p-[2.5px]">
                     <span className="block rounded-full bg-background p-[2px]">
                       {/* eslint-disable-next-line @next/next/no-img-element -- images de stockage utilisateur, hôtes variables */}
                       <img src={item.imageUrl} alt="" loading="lazy" className="h-14 w-14 rounded-full object-cover" />

@@ -108,7 +108,7 @@ export function useMissions(tab: MissionFilterTab = "ALL", searchQuery = "") {
       // Comptage des candidatures + profils clients en parallèle (indépendants).
       const [appsResult, profilesResult] = await Promise.all([
         missionIds.length > 0
-          ? (supabase as any).from("mission_applications").select("mission_id").in("mission_id", missionIds)
+          ? (supabase as any).from("mission_applications").select("mission_id, pro_id").in("mission_id", missionIds)
           : Promise.resolve({ data: [] as any[] }),
         clientIds.length > 0
           ? (supabase as any)
@@ -119,8 +119,11 @@ export function useMissions(tab: MissionFilterTab = "ALL", searchQuery = "") {
       ])
 
       const countMap: Record<string, number> = {}
+      // Missions où l'utilisateur a déjà candidaté : même requête, aucun aller-retour de plus.
+      const appliedSet = new Set<string>()
       ;(appsResult.data || []).forEach((app: any) => {
         countMap[app.mission_id] = (countMap[app.mission_id] || 0) + 1
+        if (user && app.pro_id === user.id) appliedSet.add(app.mission_id)
       })
 
       const profileMap: Record<string, any> = {}
@@ -136,6 +139,7 @@ export function useMissions(tab: MissionFilterTab = "ALL", searchQuery = "") {
       const formatted = (missionsData || []).map((m: any) => ({
         ...m,
         applications_count: countMap[m.id] || 0,
+        has_applied: appliedSet.has(m.id),
         client: profileMap[m.client_id] || null,
       }))
 

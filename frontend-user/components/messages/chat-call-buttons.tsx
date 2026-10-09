@@ -38,7 +38,7 @@ export function ChatCallButtons({ userId, name }: { userId: string; name: string
       <a
         href={`tel:+${phone}`}
         aria-label={`Appeler ${name}`}
-        className="flex h-11 w-11 lg:h-9 lg:w-9 items-center justify-center rounded-full lg:rounded-xl text-[#1DA851] hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+        className="flex h-11 w-11 lg:h-9 lg:w-9 items-center justify-center rounded-full lg:rounded-xl text-contact-fg hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
       >
         <Phone className="h-5 w-5 lg:h-4 lg:w-4" />
       </a>
@@ -47,7 +47,7 @@ export function ChatCallButtons({ userId, name }: { userId: string; name: string
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`Appeler ${name} sur WhatsApp`}
-        className="flex h-11 w-11 lg:h-9 lg:w-9 items-center justify-center rounded-full lg:rounded-xl text-[#1DA851] hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+        className="flex h-11 w-11 lg:h-9 lg:w-9 items-center justify-center rounded-full lg:rounded-xl text-contact-fg hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
       >
         <MessageCircle className="h-5 w-5 lg:h-4 lg:w-4" />
       </a>

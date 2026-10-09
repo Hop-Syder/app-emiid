@@ -67,6 +67,15 @@
     --font-heading: 'Satoshi', sans-serif;
     --font-mono: ui-monospace, monospace;
 
+    /* Vert « contact » (codes WhatsApp), en triplets RGB.
+       --contact        : vif, DÉCORATIF uniquement (pastilles, anneaux) —
+                          texte blanc dessus = 1,98:1, illisible.
+       --contact-strong : fond des boutons/badges à texte blanc (≈ 5,3:1).
+       --contact-fg     : texte ou icône verte sur fond de page. */
+    --contact: 37 211 102;
+    --contact-strong: 0 128 105;
+    --contact-fg: 0 128 105;
+
     /* Hex exacts de la charte EmiID (valeurs de référence) */
     --brand-blue: #013ff4;   /* Bleu roi (primaire) */
     --brand-cyan: #03b3f8;   /* Bleu clair (secondaire) */
@@ -130,6 +139,9 @@
   }
 
   .dark {
+    /* Sur fond sombre, le vert vif redevient lisible en texte (≈ 9:1). */
+    --contact-fg: 37 211 102;
+
     /* ── CHARTE EmiID (sombre) — fond bleu nuit #000616 ── */
     --background: 224 100% 4%;
     --foreground: 0 0% 98%;

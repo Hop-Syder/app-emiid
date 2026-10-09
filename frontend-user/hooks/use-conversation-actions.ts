@@ -6,6 +6,7 @@ import { toast } from "sonner"
 import { fetchConversations } from "@/features/messages/messagesApi"
 import type { Conversation, Message } from "@/components/messages/types"
 import { fetchWithAuth } from "@/lib/apiClient"
+import { compressImage } from "@/lib/compress-image"
 
 const MAX_CONTENT_LENGTH = 10 * 1024 * 1024
 
@@ -69,8 +70,10 @@ export function useConversationActions({
         }
     }, [currentUserId])
 
-    const handleFileUpload = useCallback(async (file: File, convId: string): Promise<Message | undefined> => {
+    const handleFileUpload = useCallback(async (original: File, convId: string): Promise<Message | undefined> => {
         if (!selectedConv || !currentUserId) return
+        // Les photos envoyées en discussion sont réduites ; les autres fichiers restent intacts.
+        const file = await compressImage(original)
 
         if (file.size > MAX_CONTENT_LENGTH) {
             toast.error("Fichier trop volumineux (Max 10MB)")

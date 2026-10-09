@@ -115,7 +115,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
             {totalUnread > 0 && !showArchived && (
               <span className={cn(
                 "min-w-[20px] h-5 flex items-center justify-center",
-                "bg-[#25D366] lg:bg-primary text-white text-[10px] font-bold rounded-full px-1.5 shadow-sm",
+                "bg-contact-strong lg:bg-primary text-white text-[10px] font-bold rounded-full px-1.5 shadow-sm",
                 "animate-in zoom-in duration-300"
               )}>
                 {totalUnread > 99 ? '99+' : totalUnread}

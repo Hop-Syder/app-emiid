@@ -33,7 +33,7 @@ function CatalogTile({ item, onOpen }: { item: ShowcaseItem; onOpen: () => void 
       <div className="flex flex-1 flex-col gap-0.5 p-2.5">
         <p className="flex items-center gap-1 text-sm font-bold text-foreground">
           <span className="truncate">{item.authorName}</span>
-          {item.authorVerified && <BadgeCheck className="h-4 w-4 shrink-0 text-[#25D366]" aria-label="Vérifié" />}
+          {item.authorVerified && <BadgeCheck className="h-4 w-4 shrink-0 text-contact-fg" aria-label="Vérifié" />}
         </p>
         <p className="truncate text-xs text-muted-foreground">
           {item.title || item.authorRole || "Réalisation"}

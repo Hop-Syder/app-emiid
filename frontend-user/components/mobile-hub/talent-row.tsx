@@ -32,7 +32,7 @@ export function TalentRow({ profile }: { profile: PublicProfile }) {
           </Avatar>
           {profile.recentlyActive && (
             <span
-              className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-background bg-[#25D366]"
+              className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-background bg-contact"
               title="Actif cette semaine"
             />
           )}
@@ -41,7 +41,7 @@ export function TalentRow({ profile }: { profile: PublicProfile }) {
         <span className="min-w-0 flex-1">
           <span className="flex items-center gap-1">
             <span className="truncate text-[15px] font-bold text-foreground">{profile.name}</span>
-            {profile.verified && <BadgeCheck className="h-4 w-4 shrink-0 text-[#25D366]" aria-label="Profil vérifié" />}
+            {profile.verified && <BadgeCheck className="h-4 w-4 shrink-0 text-contact-fg" aria-label="Profil vérifié" />}
           </span>
           {meta && <span className="block truncate text-[13px] text-muted-foreground">{meta}</span>}
           {profile.startingPrice != null && (
@@ -55,7 +55,7 @@ export function TalentRow({ profile }: { profile: PublicProfile }) {
       <Link
         href={`/messages?contact=${profile.id}`}
         aria-label={`Écrire à ${profile.name}`}
-        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#25D366] text-white shadow-sm active:scale-95 transition-transform"
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-contact-strong text-white shadow-sm active:scale-95 transition-transform"
       >
         <MessageCircle className="h-5 w-5" />
       </Link>
