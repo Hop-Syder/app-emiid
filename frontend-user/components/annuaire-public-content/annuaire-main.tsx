@@ -27,6 +27,38 @@ interface AnnuairePublicContentProps {
     /** Requête reçue du serveur (/annuaire?search=…), y compris depuis la dictée vocale. */
     initialSearch?: string
     initialProfiles?: PublicProfile[]
+    /** Monté dans un onglet (Réseau) : pas de cadre ni de titre propres. */
+    embedded?: boolean
+}
+
+/**
+ * Enveloppe de section. Hors onglet, elle apparaît en fondu. Dans l'onglet,
+ * c'est un simple <div> : le contenu part d'`opacity:0` et ne serait jamais
+ * révélé si l'animation ne démarrait pas — un annuaire vide plutôt qu'un
+ * annuaire sans fondu. Le changement d'onglet se suffit à lui-même.
+ */
+function Section({
+    animated,
+    delay,
+    className,
+    children,
+}: {
+    animated: boolean
+    delay: number
+    className?: string
+    children: React.ReactNode
+}) {
+    if (!animated) return <div className={className}>{children}</div>
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay }}
+            className={className}
+        >
+            {children}
+        </motion.div>
+    )
 }
 
 export function AnnuairePublicContent({
@@ -34,7 +66,8 @@ export function AnnuairePublicContent({
     initialActivityDomain = "all",
     initialCity = "",
     initialSearch = "",
-    initialProfiles = []
+    initialProfiles = [],
+    embedded = false,
 }: AnnuairePublicContentProps) {
     const [filters, setFilters] = useState({
         // Renseigné dès le premier rendu : la grille part de la bonne requête au lieu
@@ -111,12 +144,17 @@ export function AnnuairePublicContent({
     }
 
     return (
-        <div className="w-full relative overflow-x-clip bg-muted min-h-screen pb-20">
-            {/* Ambient Background Glow */}
-            <div className="absolute top-[20%] left-0 w-96 h-96 bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
-            <div className="absolute top-[60%] right-0 w-96 h-96 bg-secondary/10 rounded-full blur-[120px] pointer-events-none" />
+        <div className={embedded ? "w-full relative overflow-x-clip" : "w-full relative overflow-x-clip bg-muted min-h-screen pb-20"}>
+            {/* Halos d'ambiance : hors onglet seulement (ils débordent à 360 px
+                et le conteneur de l'onglet n'a pas vocation à les rogner). */}
+            {!embedded && (
+                <>
+                    <div className="absolute top-[20%] left-0 w-96 h-96 bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
+                    <div className="absolute top-[60%] right-0 w-96 h-96 bg-secondary/10 rounded-full blur-[120px] pointer-events-none" />
+                </>
+            )}
 
-            <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-16 py-8">
+            <div className={embedded ? "relative z-10 space-y-10" : "max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-16 py-8"}>
 
                 {/* Le bandeau d'en-tête a été retiré le 05/09 (desktop et mobile).
                     Ce qu'il portait de fonctionnel — le titre de page et le champ
@@ -126,12 +164,7 @@ export function AnnuairePublicContent({
                     à passer la vitrine. */}
 
                 {/* --- SECTION 1: RESULTATS (titre, recherche, filtres, grille) --- */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.1 }}
-                    className="space-y-6"
-                >
+                <Section animated={!embedded} delay={0.1} className="space-y-6">
                     {/* En-tête compact : le titre et la recherche partagent une
                         ligne — le titre est court, l'espace à sa droite était
                         perdu. Les filtres suivent, sur deux rangées porteuses de
@@ -141,11 +174,15 @@ export function AnnuairePublicContent({
                         barre de filtres. */}
                     <div className="space-y-3 border-b border-border pb-3">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            {/* Dans l'onglet Réseau, le titre de page est « Réseau » :
+                                ce second titre ferait doublon. */}
                             {/* h1 et non h2 : le bandeau supprimé portait le seul
                                 titre de premier niveau des trois routes /annuaire. */}
-                            <h1 className="text-3xl md:text-4xl font-black text-foreground tracking-tight">
-                                Tous les <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0150fd] to-blue-600">Profils</span>
-                            </h1>
+                            {!embedded && (
+                                <h1 className="text-3xl md:text-4xl font-black text-foreground tracking-tight">
+                                    Tous les <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0150fd] to-blue-600">Profils</span>
+                                </h1>
+                            )}
 
                             {/* Recueillie du bandeau supprimé : les filtres ne
                                 sont que des listes, c'est ici et nulle part
@@ -167,16 +204,12 @@ export function AnnuairePublicContent({
                             onSearch={(q) => handleFilterChange("search", q)}
                         />
                     </div>
-                </motion.div>
+                </Section>
 
                 {/* --- SECTION 2: SPOTLIGHT --- */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.3 }}
-                >
+                <Section animated={!embedded} delay={0.3}>
                     <AnnuaireSpotlight />
-                </motion.div>
+                </Section>
 
             </div>
         </div>
