@@ -72,23 +72,29 @@ export function MobileDockAuth() {
               active ? "text-[#013ff4] dark:text-[#4d7bff]" : "text-muted-foreground",
             )}
           >
-            {/* Pastille de fond de l'onglet actif, façon WhatsApp. */}
-            <span
-              className={cn(
-                "relative flex h-8 w-14 items-center justify-center rounded-full transition-colors",
-                active && "bg-[#013ff4]/10 dark:bg-[#4d7bff]/15",
-              )}
-            >
+            {/* Pas de pastille derrière l'icône : c'est l'icône elle-même qui
+                change d'état — pleine (remplie) et bleue sur l'onglet actif,
+                simple trait gris sinon. */}
+            <span className="relative flex h-7 w-14 items-center justify-center">
               {showAvatar ? (
                 <Image
                   src={currentUser!.avatar_url!}
                   alt=""
                   width={24}
                   height={24}
-                  className={cn("h-6 w-6 rounded-full object-cover", active ? "ring-2 ring-[#013ff4]" : "ring-1 ring-border")}
+                  className={cn(
+                    "h-[23px] w-[23px] rounded-full object-cover",
+                    active ? "ring-2 ring-[#013ff4] dark:ring-[#4d7bff]" : "ring-1 ring-border",
+                  )}
                 />
               ) : (
-                <Icon className="h-[22px] w-[22px]" strokeWidth={active ? 2.4 : 1.8} />
+                <Icon
+                  className="h-[23px] w-[23px] transition-colors"
+                  // L'icône se remplit de la couleur courante : silhouette pleine
+                  // à l'état actif, contour seul au repos.
+                  fill={active ? "currentColor" : "none"}
+                  strokeWidth={active ? 1.5 : 1.8}
+                />
               )}
 
               {tab.badge !== undefined && tab.badge > 0 && (
